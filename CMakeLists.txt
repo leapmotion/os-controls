@@ -1,0 +1,53 @@
+include_directories(
+  .
+)
+
+SET(Engine_SRCS
+  Application/Application.cpp
+  Application/Application.h
+  Application/EventHandler.h
+  Application/Renderable.h
+  Application/RenderableEventHandler.h
+  CMakeLists.txt
+  Color.cpp
+  Color.h
+  DataTypes.h
+  FrameBufferObject.cpp
+  FrameBufferObject.h
+  GLBuffer.cpp
+  GLBuffer.h
+  GLCompatibility/gl_glext_glu.h
+  GLController/GLController.cpp
+  GLController/GLController.h
+  GLShader/GLShader.cpp
+  GLShader/GLShader.h
+  GLShaderLoader/GLShaderLoader.h
+  GLTexture2/GLTexture2.cpp
+  GLTexture2/GLTexture2.h
+  GLTexture2FreeImage/GLTexture2FreeImage.cpp
+  GLTexture2FreeImage/GLTexture2FreeImage.h
+  GLTexture2Loader/GLTexture2Loader.cpp
+  GLTexture2Loader/GLTexture2Loader.h
+  OculusVR.cpp
+  OculusVR.h
+  Primitive.cpp
+  Primitive.h
+  README.md
+  RenderBuffer.cpp
+  RenderBuffer.h
+  Resource/Resource.h
+  ResourceManager/ResourceManager.h
+  SDLController/SDLController.cpp
+  SDLController/SDLController.h
+  SimGL.cpp
+  SimGL.h
+  TextAndBinaryFile/TextFile.h
+  TextAndBinaryFileLoader/TextFileLoader.h
+  Texture.cpp
+  Texture.h
+  UtilGL.cpp
+  UtilGL.h
+  Utilities.h
+)
+
+add_library(Engine ${Engine_SRCS})
