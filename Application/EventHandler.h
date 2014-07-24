@@ -1,6 +1,13 @@
 #pragma once
 
+#if _WIN32
 #include "SDL.h"
+#include "SDL_opengl.h"
+#else
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_opengl.h"
+#endif
+#undef main
 
 // Possible actions for event handlers -- CONSUME indicates lower-priority event
 // handlers should not get a chance to process the event.  PASS_ON indicates otherwise.

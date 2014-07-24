@@ -6,6 +6,7 @@
   #include <OpenGL/gl.h>
   #include <OpenGL/glext.h> // for certain internal texture formats
   #include <OpenGL/glu.h>
+#elif _WIN32
 #else
   #include <gl/gl.h>
   #include <gl/glext.h> // for certain internal texture formats
