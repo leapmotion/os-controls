@@ -13,14 +13,14 @@ typedef void (*GLfloatUniform)(GLint, GLsizei, const GLfloat *);
 
 // TODO: try to consolidate these into fewer specializations (or none)
 template <typename GLType_, size_t COMPONENT_COUNT_> struct UniformFunction { static const bool exists = false; };
-template <> struct UniformFunction<GLint,1> { static const bool exists = true; static const GLintUniform value; };
-template <> struct UniformFunction<GLint,2> { static const bool exists = true; static const GLintUniform value; };
-template <> struct UniformFunction<GLint,3> { static const bool exists = true; static const GLintUniform value; };
-template <> struct UniformFunction<GLint,4> { static const bool exists = true; static const GLintUniform value; };
-template <> struct UniformFunction<GLfloat,1> { static const bool exists = true; static const GLfloatUniform value; };
-template <> struct UniformFunction<GLfloat,2> { static const bool exists = true; static const GLfloatUniform value; };
-template <> struct UniformFunction<GLfloat,3> { static const bool exists = true; static const GLfloatUniform value; };
-template <> struct UniformFunction<GLfloat,4> { static const bool exists = true; static const GLfloatUniform value; };
+template <> struct UniformFunction<GLint,1> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLint *value) { glUniform1iv(location, count, value); } };
+template <> struct UniformFunction<GLint,2> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLint *value) { glUniform2iv(location, count, value); } };
+template <> struct UniformFunction<GLint,3> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLint *value) { glUniform3iv(location, count, value); } };
+template <> struct UniformFunction<GLint,4> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLint *value) { glUniform4iv(location, count, value); } };
+template <> struct UniformFunction<GLfloat,1> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLfloat *value) { glUniform1fv(location, count, value); } };
+template <> struct UniformFunction<GLfloat,2> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLfloat *value) { glUniform2fv(location, count, value); } };
+template <> struct UniformFunction<GLfloat,3> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLfloat *value) { glUniform3fv(location, count, value); } };
+template <> struct UniformFunction<GLfloat,4> { static const bool exists = true; static void eval (GLint location, GLsizei count, const GLfloat *value) { glUniform4fv(location, count, value); } };
 
 // helper metafunction for simplifying the uniform matrix modifiers
 
@@ -28,15 +28,15 @@ typedef void (*GLfloatUniformMatrix)(GLint, GLsizei, GLboolean, const GLfloat *)
 
 // TODO: try to consolidate these into fewer specializations (or none)
 template <size_t ROWS_, size_t COLUMNS_> struct UniformMatrixFunction { static const bool exists = false; };
-template <> struct UniformMatrixFunction<2,2> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<2,3> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<2,4> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<3,2> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<3,3> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<3,4> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<4,2> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<4,3> { static const bool exists = true; static const GLfloatUniformMatrix value; };
-template <> struct UniformMatrixFunction<4,4> { static const bool exists = true; static const GLfloatUniformMatrix value; };
+template <> struct UniformMatrixFunction<2,2> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix2fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<2,3> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix2x3fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<2,4> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix2x4fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<3,2> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix3x2fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<3,3> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix3fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<3,4> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix3x4fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<4,2> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix4x2fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<4,3> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix4x3fv(location, count, transpose, value); } };
+template <> struct UniformMatrixFunction<4,4> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix4fv(location, count, transpose, value); } };
 
 enum MatrixStorageConvention { COLUMN_MAJOR, ROW_MAJOR };
 
@@ -103,7 +103,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLint) == 0, "sizeof(T_) must be divisible by sizeof(GLint)");
     static_assert(UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLint components.
-    UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::value(LocationOfUniform(name), 1, reinterpret_cast<const GLint *>(&value));
+    UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::eval(LocationOfUniform(name), 1, reinterpret_cast<const GLint *>(&value));
   }
   // Sets the named uniform to the given value which must be a packed 
   // POD type consisting of exactly 1, 2, 3, or 4 GLfloat values.
@@ -112,7 +112,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLfloat) == 0, "sizeof(T_) must be divisible by sizeof(GLfloat)");
     static_assert(UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLfloat components.
-    UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::value(LocationOfUniform(name), 1, reinterpret_cast<const GLfloat *>(&value));
+    UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::eval(LocationOfUniform(name), 1, reinterpret_cast<const GLfloat *>(&value));
   }
 
   // Uniform modifiers to specify arrays of data, where the array component has various
@@ -133,7 +133,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLint) == 0, "sizeof(T_) must be divisible by sizeof(GLint)");
     static_assert(UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::exists, "There is no known glUniform*iv function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLint components.
-    UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::value(LocationOfUniform(name), array.size(), reinterpret_cast<const GLint *>(array.data()));
+    UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::eval(LocationOfUniform(name), array.size(), reinterpret_cast<const GLint *>(array.data()));
   }
   // Sets the named uniform to the given std::vector of values each of which must be
   // a packed POD type consisting of exactly 1, 2, 3, or 4 GLfloat values.
@@ -142,7 +142,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLfloat) == 0, "sizeof(T_) must be divisible by sizeof(GLfloat)");
     static_assert(UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLfloat components.
-    UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::value(LocationOfUniform(name), array.size(), reinterpret_cast<const GLfloat *>(array.data()));
+    UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::eval(LocationOfUniform(name), array.size(), reinterpret_cast<const GLfloat *>(array.data()));
   }
 
   // Note that there are no GLint-based matrix-uniform-setting functions (because there are none in the GLSL spec)
@@ -155,7 +155,7 @@ public:
     static_assert(UniformMatrixFunction<ROWS_,COLUMNS_>::exists, "There is no glUniformMatrix* function matching the requested ROWS_ and COLUMNS_");
     static_assert(sizeof(T_) == ROWS_*COLUMNS_*sizeof(GLfloat), "T_ must be a POD type having exactly ROWS_*COLUMNS_ components of type GLfloat");
     // TODO: somehow check that T_ is actually a POD containing only GLType_ components.
-    UniformMatrixFunction<ROWS_,COLUMNS_>::value(LocationOfUniform(name), 1, matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(&matrix));
+    UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), 1, matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(&matrix));
   }
   // Sets the named uniform to the given std::vector of values each of which must be
   // a packed POD type consisting of exactly ROWS_*COLUMNS_ GLfloat values.  The matrix
@@ -165,7 +165,7 @@ public:
     static_assert(UniformMatrixFunction<ROWS_,COLUMNS_>::exists, "There is no glUniformMatrix* function matching the requested ROWS_ and COLUMNS_");
     static_assert(sizeof(T_) == ROWS_*COLUMNS_*sizeof(GLfloat), "T_ must be a POD type having exactly ROWS_*COLUMNS_ components of type GLfloat");
     // TODO: somehow check that T_ is actually a POD containing only GLType_ components.
-    UniformMatrixFunction<ROWS_,COLUMNS_>::value(LocationOfUniform(name), array.size(), matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(array.data()));
+    UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), array.size(), matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(array.data()));
   }
 
 private:
