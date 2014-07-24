@@ -1,3 +1,11 @@
+cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSION 3".
+
+project(Components)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
+set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
+
+include(ListSubdirectories)
 include(TargetImportedLibraries) # for Walter's target_package command
 
 # A "component" can be thought of as a "sub-library" (in the sense that it is a small library and
@@ -220,6 +228,22 @@ set(SDLController_EXPLICIT_LIBRARY_DEPENDENCIES
 )
 
 ###################################################################################################
+# The Singleton component provides a simple mechanism for managing singleton C++ objects, via
+# class inheritance or not.
+###################################################################################################
+
+set(COMPONENT_LIST ${COMPONENT_LIST} Singleton)
+set(Singleton_SOURCES
+    Singleton.h
+)
+set(Singleton_EXPLICIT_COMPONENT_DEPENDENCIES
+    # none
+)
+set(Singleton_EXPLICIT_LIBRARY_DEPENDENCIES
+    # none
+)
+
+###################################################################################################
 # The TextAndBinaryFile component provides simple C++ classes for loading and storing text and
 # binary files (primarily intended to be used with Resource).
 ###################################################################################################
@@ -322,7 +346,4 @@ target_package(Components Eigen 3.1.2 REQUIRED)
 target_package(Components OpenGL REQUIRED)
 target_package(Components FreeImage REQUIRED)
 target_package(Components SDL 2 REQUIRED)
-
-
-
 
