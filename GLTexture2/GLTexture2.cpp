@@ -26,9 +26,9 @@ GLTexture2Params::GLTexture2Params (
   GLenum pixel_data_type)
   :
   m_target(DEFAULT_TARGET),
+  m_internal_format(DEFAULT_INTERNAL_FORMAT),
   m_pixel_data_format(pixel_data_format),
-  m_pixel_data_type(pixel_data_type),
-  m_internal_format(DEFAULT_INTERNAL_FORMAT)
+  m_pixel_data_type(pixel_data_type)
 { 
   m_size[0] = width;
   m_size[1] = height;
@@ -153,37 +153,22 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, 
   m_params.SetInternalFormat(actual_internal_format);  
 }
 
-template <typename T_>
-GLTexture2::GLTexture2 (const GLTexture2Params &params, const std::vector<T_> &pixel_data)
-  :
-  GLTexture2(params, reinterpret_cast<const void *>(pixel_data.data()), pixel_data.size()*sizeof(T_))
-{
-  static_assert(is_same<T_,GLbyte>::value ||
-                is_same<T_,GLubyte>::value ||
-                is_same<T_,GLshort>::value ||
-                is_same<T_,GLushort>::value ||
-                is_same<T_,GLint>::value ||
-                is_same<T_,GLuint>::value ||
-                is_same<T_,GLfloat>::value,
-                "pixel data type T_ must be one of GLbyte, GLubyte, GLshort, GLushort, GLint, GLuint, GLfloat");
-}
-
 GLTexture2::~GLTexture2 () {
   glDeleteTextures(1, &m_texture_name);
 }
 
-namespace {
+// namespace {
 
-// hack to do explicit instantiations of the constructor GLTexture2::GLTexture2<T_>.
-// don't call this function.
-void instantiate_particular_versions (const GLTexture2Params &params) {
-  { GLTexture2 t(params, std::vector<GLbyte>()); }
-  { GLTexture2 t(params, std::vector<GLubyte>()); }
-  { GLTexture2 t(params, std::vector<GLshort>()); }
-  { GLTexture2 t(params, std::vector<GLushort>()); }
-  { GLTexture2 t(params, std::vector<GLint>()); }
-  { GLTexture2 t(params, std::vector<GLuint>()); }
-  { GLTexture2 t(params, std::vector<GLfloat>()); }
-}
+// // hack to do explicit instantiations of the constructor GLTexture2::GLTexture2<T_>.
+// // don't call this function.
+// void instantiate_particular_versions (const GLTexture2Params &params) {
+//   { GLTexture2 t(params, std::vector<GLbyte>()); }
+//   { GLTexture2 t(params, std::vector<GLubyte>()); }
+//   { GLTexture2 t(params, std::vector<GLshort>()); }
+//   { GLTexture2 t(params, std::vector<GLushort>()); }
+//   { GLTexture2 t(params, std::vector<GLint>()); }
+//   { GLTexture2 t(params, std::vector<GLuint>()); }
+//   { GLTexture2 t(params, std::vector<GLfloat>()); }
+// }
 
-} // end of anonymous
+// } // end of anonymous namespace

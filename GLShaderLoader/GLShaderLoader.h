@@ -2,7 +2,6 @@
 
 #include "GLShader.h"
 #include "Resource.h"
-#include "TextFile.h"
 #include "TextFileLoader.h"
 
 #include <cassert>

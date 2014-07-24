@@ -154,7 +154,20 @@ public:
   // supported for particular types T_.  This is by design; the supported types are: GLbyte, 
   // GLubyte, GLshort, GLushort, GLint, GLuint, GLfloat.
   template <typename T_>
-  GLTexture2 (const GLTexture2Params &params, const std::vector<T_> &pixel_data);
+  GLTexture2 (const GLTexture2Params &params, const std::vector<T_> &pixel_data)
+    :
+    GLTexture2(params, reinterpret_cast<const void *>(pixel_data.data()), pixel_data.size()*sizeof(T_))
+  {
+    static_assert(is_same<T_,GLbyte>::value ||
+                  is_same<T_,GLubyte>::value ||
+                  is_same<T_,GLshort>::value ||
+                  is_same<T_,GLushort>::value ||
+                  is_same<T_,GLint>::value ||
+                  is_same<T_,GLuint>::value ||
+                  is_same<T_,GLfloat>::value,
+                  "pixel data type T_ must be one of GLbyte, GLubyte, GLshort, GLushort, GLint, GLuint, GLfloat");
+  }
+
   // Automatically frees the allocated resources.
   ~GLTexture2 ();
 

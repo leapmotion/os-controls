@@ -53,7 +53,7 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
   // FIC_RGB            High-color bitmap (16, 24 or 32 bit), RGB16 or RGBF
   // FIC_RGBALPHA       High-color bitmap with an alpha channel (32 bit bitmap, RGBA16 or RGBAF)
   // FIC_CMYK           CMYK bitmap (32 bit only)
-  FREE_IMAGE_COLOR_TYPE color_type = FreeImage_GetColorType(bitmap);
+//  FREE_IMAGE_COLOR_TYPE color_type = FreeImage_GetColorType(bitmap); // unused
   // FreeImage_GetBPP Returns the size of one pixel in the bitmap in bits. For example when
   // each pixel takes 32-bits of space in the bitmap, this function returns 32. Possible bit
   // depths are 1, 4, 8, 16, 24, 32 for standard bitmaps and 16-, 32-, 48-, 64-, 96- and

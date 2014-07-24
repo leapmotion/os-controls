@@ -1,7 +1,7 @@
-#include <SDL.h>
-#include <SDL_quit.h>
-
 #include "Application.h"
+
+#include "SDL.h"
+#include "SDL_quit.h"
 
 void DispatchEventToApplication (const SDL_Event &ev, Application &app) {
   // https://wiki.libsdl.org/SDL_Event?highlight=%28%5CbCategoryStruct%5Cb%29%7C%28SDLStructTemplate%29
