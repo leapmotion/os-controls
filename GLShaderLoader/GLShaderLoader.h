@@ -34,9 +34,10 @@ struct ResourceLoader<GLShaderLoadParams> {
     // shader source filename and a fragment shader source filename.  If the requested
     // name didn't match any of the available, throw an error.
 
-    // TODO: implement lookup using a std::map instead.
-    // OR maybe make a text file which has these mappings
+    // TODO: implement lookup using a JSON file which has these mappings -- this would allow
+    // a user to add/modify asset paths without having to recompile.
 
+    // NOTE: these ones are just from Freeform, and will go away once the real solution is implemented.
     if (name == "skybox") { 
       return std::make_shared<GLShaderLoadParams>("sky-vert.glsl", "sky-frag.glsl");
     } else if (name == "screen") {
@@ -64,12 +65,27 @@ template <>
 struct ResourceLoader<GLShader> {
   static const bool exists = true;
   static std::shared_ptr<GLShader> LoadResource (const std::string &name, ResourceManager<GLShader> &calling_manager) {
-    // Load the params for the requested shader program.
-    auto params = Resource<GLShaderLoadParams>(name);
-    assert(bool(params) && "resource was not loaded correctly");
-    // Load the source files.
-    auto vertex_shader_source = Resource<TextFile>(params->VertexShaderFilename());
-    auto fragment_shader_source = Resource<TextFile>(params->FragmentShaderFilename());
-    return std::make_shared<GLShader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
+    if (name == "dummy") {
+      std::string vertex_shader_source(
+        "void main () {\n"
+        "    gl_Position = ftransform();\n"
+        "    gl_FrontColor = gl_Color;\n"
+        "}\n"
+      );
+      std::string fragment_shader_source(
+        "void main () {\n"
+        "    gl_FragColor = vec4(1.0, 0.2, 0.3, 1.0);\n"
+        "}\n"
+      );
+      return std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source);
+    } else {
+      // Load the params for the requested shader program.
+      auto params = Resource<GLShaderLoadParams>(name);
+      assert(bool(params) && "resource was not loaded correctly");
+      // Load the source files.
+      auto vertex_shader_source = Resource<TextFile>(params->VertexShaderFilename());
+      auto fragment_shader_source = Resource<TextFile>(params->FragmentShaderFilename());
+      return std::make_shared<GLShader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
+    }
   }
 };

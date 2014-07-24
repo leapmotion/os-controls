@@ -11,10 +11,10 @@ public:
 
   virtual ~Renderable () { }
 
-  // Updates application state.  realTimeDelta is in seconds.
+  // Updates application state.  real_time_delta is in seconds.
   // The application may scale this delta as desired.
-  virtual void Update (TimeDelta realTimeDelta) = 0;
-  // Renders the app.  realTimeDelta is in seconds.  The
+  virtual void Update (TimeDelta real_time_delta) = 0;
+  // Renders the app.  real_time_delta is in seconds.  The
   // application may scale this delta as desired.
-  virtual void Render (TimeDelta realTimeDelta) const = 0;
+  virtual void Render (TimeDelta real_time_delta) const = 0;
 };

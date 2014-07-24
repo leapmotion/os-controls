@@ -40,12 +40,12 @@ void RunApplication (Application &app) {
     }
     // TODO: compute the realtime using std::chrono::time_point and time deltas using std::chrono::duration
     TimePoint currentRealTime(0.001 * SDL_GetTicks());
-    TimeDelta realTimeDelta(currentRealTime - previousRealTime);
+    TimeDelta real_time_delta(currentRealTime - previousRealTime);
 
     // Update the application.
-    app.Update(realTimeDelta);
+    app.Update(real_time_delta);
     // Render the application.
-    app.Render(realTimeDelta);
+    app.Render(real_time_delta);
 
     // Save off the updated time for the next loop iteration.
     previousRealTime = currentRealTime;
