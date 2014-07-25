@@ -26,7 +26,7 @@ void SDLController::Initialize () {
     throw std::runtime_error(SDL_GetError());
   }
   // Create a window.
-  m_SDL_Window = SDL_CreateWindow("Freeform", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+  m_SDL_Window = SDL_CreateWindow("Freeform", 100, 100, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
   if (m_SDL_Window == nullptr) {
     SDL_Quit();
     throw std::runtime_error(SDL_GetError());
