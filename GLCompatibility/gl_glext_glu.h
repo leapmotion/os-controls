@@ -7,6 +7,7 @@
   #include <OpenGL/glext.h> // for certain internal texture formats
   #include <OpenGL/glu.h>
 #elif _WIN32
+  #define GLEW_STATIC
   #include <GL/glew.h>
   #include "windows.h"
 #else
