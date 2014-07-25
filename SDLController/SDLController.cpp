@@ -1,5 +1,12 @@
 #include "SDLController.h"
 
+#include <SDL_syswm.h>
+
+#if _WIN32
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+#endif
+
 #include <cassert>
 #include <iostream> // TEMP
 #include <stdexcept>
@@ -8,7 +15,8 @@ SDLController::SDLController ()
   :
   m_SDL_Window(nullptr),
   m_SDL_Renderer(nullptr),
-  m_SDL_GLContext(nullptr)
+  m_SDL_GLContext(nullptr),
+  m_Transparent(false)
 {
   // TEMP
   std::cerr << "SDLController::BasePath() = \"" << BasePath() << "\"\n";
@@ -70,6 +78,15 @@ void SDLController::Shutdown () {
 
 void SDLController::BeginRender () const {
   // Do whatever needs to be done before rendering a frame.
+  if (m_Transparent) {
+#if _WIN32
+    DWM_BLURBEHIND bb ={ 0 };
+    bb.dwFlags = DWM_BB_ENABLE;
+    bb.fEnable = true;
+    bb.hRgnBlur = nullptr;
+    ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+#endif
+  }
 }
 
 void SDLController::EndRender () const {
@@ -78,4 +95,40 @@ void SDLController::EndRender () const {
 
 std::string SDLController::BasePath () {
   return std::string(SDL_GetBasePath());
+}
+
+void SDLController::MakeTransparent(bool trans) {
+  m_Transparent = trans;
+
+  struct SDL_SysWMinfo wmInfo;
+  SDL_VERSION(&wmInfo.version);
+
+  if (SDL_GetWindowWMInfo(m_SDL_Window, &wmInfo) == -1) {
+    throw std::runtime_error("Error retrieving window WM info");
+  }
+
+  switch (wmInfo.subsystem) {
+#ifdef WIN32 
+  case SDL_SYSWM_WINDOWS:
+    m_hWnd = wmInfo.info.win.window;
+    if (m_hWnd) { 
+      ::SetWindowLongA(m_hWnd, GWL_EXSTYLE, ::GetWindowLongA(m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
+    } else {
+      throw std::runtime_error("Error retrieiving native window");
+    }
+    break;
+#elif __MACOSX__ 
+  case SDL_SYSWM_COCOA:
+    // TODO
+    break;
+#else 
+  case SDL_SYSWM_X11:
+    // TODO
+    break;
+#endif 
+  default:
+    throw std::runtime_error("Error identifying WM subsystem");
+    break;
+  }
 }

@@ -2,6 +2,10 @@
 
 #include "SDL.h"
 
+#if _WIN32
+#include <Windows.h>
+#endif
+
 #include <string>
 
 // This class bundles all the SDL usage/state into a single point of control.
@@ -23,9 +27,18 @@ public:
 
   static std::string BasePath ();
 
+  void MakeTransparent(bool trans);
+
 private:
 
   SDL_Window *m_SDL_Window;
   SDL_Renderer *m_SDL_Renderer;
   SDL_GLContext m_SDL_GLContext;
+  
+  // for transparent window
+  bool m_Transparent;
+#if _WIN32
+  HWND m_hWnd;
+#endif
+
 };
