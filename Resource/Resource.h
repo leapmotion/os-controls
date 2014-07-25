@@ -20,7 +20,8 @@ template <typename T>
 class Resource : public std::shared_ptr<T> {
 public:
 
-  using std::shared_ptr<T>::operator=; ///< This using declaration is here so that assignment from std::shared_ptr<T> works.
+  /// @brief This using declaration is here so that assignment from std::shared_ptr<T> works.
+  using std::shared_ptr<T>::operator=; 
 
   /// @brief Construct an "empty" resource.
   /// @details This can be used, with a later call to Load, if it is not desired

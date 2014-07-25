@@ -1,4 +1,28 @@
 cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSION 3".
+project(Components)
+
+###################################################################################################
+# These Doxygen build rules were taken from 
+# http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
+###################################################################################################
+
+# Add an Option to toggle the generation of the API documentation.
+option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based (and potentially other format) API documentation" OFF)
+if(BUILD_DOCUMENTATION)
+    find_package(Doxygen)
+    if(NOT DOXYGEN_FOUND)
+        message(FATAL_ERROR "Doxygen is needed to build the documentation. Please install it correctly")
+    endif()
+    # Configure the template Doxyfile for our specific project.
+    configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+    # Add a custom target to run Doxygen when ever the project is built.
+    add_custom_target(
+        docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
+        SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+endif()
+
+###################################################################################################
 
 find_path(EXTERNAL_LIBRARY_DIR "glew-1.9.0" PATHS $ENV{PATH} $ENV{EXTERNAL_LIBRARY_DIR} NO_DEFAULT_PATH)
 
@@ -6,8 +30,6 @@ if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
   message(STATUS "External Library Directory not found, please specify a folder to look for external libraries")
   return()
 endif()
-
-project(Components)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
