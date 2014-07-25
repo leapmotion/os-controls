@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSION 3".
 
+find_path(EXTERNAL_LIBRARY_DIR "glew-1.9.0" PATHS $ENV{PATH} $ENV{EXTERNAL_LIBRARY_DIR} NO_DEFAULT_PATH)
+
+if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
+  message(STATUS "External Library Directory not found, please specify a folder to look for external libraries")
+  return()
+endif()
+
 project(Components)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
@@ -347,3 +354,24 @@ target_package(Components OpenGL REQUIRED)
 target_package(Components FreeImage REQUIRED)
 target_package(Components SDL 2 REQUIRED)
 
+
+# TODO: use target_package for GLEW
+set(GLEW_DIR ${EXTERNAL_LIBRARY_DIR}/glew-1.9.0)
+include_directories(${GLEW_DIR}/include)
+add_library(glew_static_debug STATIC IMPORTED)
+add_library(glew_static_release STATIC IMPORTED)
+if(BUILD_WINDOWS)
+  set_property(TARGET glew_static_release PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib/glew32s.lib)
+  set_property(TARGET glew_static_debug PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib/glew32s.lib)
+elseif(BUILD_MAC)
+  set_property(TARGET glew_static_release PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib/libGLEW.a)
+  set_property(TARGET glew_static_debug PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib/libGLEW.a)
+else()
+  if(BUILD_32_BIT)
+  set_property(TARGET glew_static_release PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib32/libGLEW.a)
+  set_property(TARGET glew_static_debug PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib32/libGLEW.a)
+  else()
+  set_property(TARGET glew_static_release PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib64/libGLEW.a)
+  set_property(TARGET glew_static_debug PROPERTY IMPORTED_LOCATION ${GLEW_DIR}/lib64/libGLEW.a)
+  endif()
+endif()

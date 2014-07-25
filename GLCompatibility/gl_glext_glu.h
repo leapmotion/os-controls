@@ -8,6 +8,7 @@
   #include <OpenGL/glu.h>
 #elif _WIN32
   #include "windows.h"
+  #include <GL/glew.h>
 #else
   #include <gl/gl.h>
   #include <gl/glext.h> // for certain internal texture formats
