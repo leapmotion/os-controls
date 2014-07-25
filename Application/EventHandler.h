@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gl_glext_glu.h" // need to include glew before including SDL_opengl.h
+
 #if _WIN32
 #include "SDL.h"
 #include "SDL_opengl.h"
