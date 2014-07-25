@@ -176,7 +176,6 @@ set(GLTexture2Loader_SOURCES
 )
 set(GLTexture2Loader_EXPLICIT_COMPONENT_DEPENDENCIES
     ResourceManager
-    GLTexture2
     GLTexture2FreeImage
     SDLController
 )

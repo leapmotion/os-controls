@@ -1,15 +1,6 @@
 #pragma once
 
-#include "gl_glext_glu.h" // need to include glew before including SDL_opengl.h
-
-#if _WIN32
-#include "SDL.h"
-#include "SDL_opengl.h"
-#else
-#include "SDL.h"
-#include "SDL_opengl.h"
-#endif
-#undef main
+#include "SDL_events.h"
 
 // Possible actions for event handlers -- CONSUME indicates lower-priority event
 // handlers should not get a chance to process the event.  PASS_ON indicates otherwise.
