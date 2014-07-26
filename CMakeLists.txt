@@ -23,19 +23,30 @@ if(BUILD_DOCUMENTATION)
 endif()
 
 ###################################################################################################
+# We use an EXTERNAL_LIBRARY_DIR variable as a hint to where all the libraries can be found.
+# This is an optional means to not have to specify each library's root dir directly.
+###################################################################################################
 
-find_path(EXTERNAL_LIBRARY_DIR "glew-1.9.0" PATHS $ENV{PATH} $ENV{EXTERNAL_LIBRARY_DIR} NO_DEFAULT_PATH)
+find_path(EXTERNAL_LIBRARY_DIR "glew-1.9.0" HINTS /opt/local/Libraries PATHS $ENV{PATH} $ENV{EXTERNAL_LIBRARY_DIR} NO_DEFAULT_PATH)
 
 if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
   message(STATUS "External Library Directory not found, please specify a folder to look for external libraries")
   return()
 endif()
 
+###################################################################################################
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
 include(ListSubdirectories)
 include(TargetImportedLibraries) # for Walter's target_package command
+
+###################################################################################################
+# Component definitions
+###################################################################################################
+
+# This section defines what a component is and defines helper macros.
 
 # A "component" can be thought of as a "sub-library" (in the sense that it is a small library and
 # is subordinate to the whole library).  A component satisfies two requirements:
@@ -61,25 +72,36 @@ include(TargetImportedLibraries) # for Walter's target_package command
 # COMPONENT_LIST is a space-delimited string enumerating all the defined components.  Each component
 # should append to it in its definition section (see below).  It is initialized here to empty string
 # so that its existence and purpose is clear.
-set(COMPONENT_LIST "")
+# set(COMPONENT_LIST "")
+
+macro(begin_component_definitions)
+    set(COMPONENT_LIST "")
+endmacro()
+
+macro(define_component NAME SOURCES EXPLICIT_COMPONENT_DEPENDENCIES EXPLICIT_LIBRARY_DEPENDENCIES)
+    message("defining component \"${NAME}\" with:\n\tSOURCES = ${SOURCES}\n\tEXPLICIT_COMPONENT_DEPENDENCIES = ${EXPLICIT_COMPONENT_DEPENDENCIES}\n\tEXPLICIT_LIBRARY_DEPENDENCIES = ${EXPLICIT_LIBRARY_DEPENDENCIES}\n")
+    set(COMPONENT_LIST ${COMPONENT_LIST} ${NAME})
+    set(${NAME}_SOURCES ${SOURCES})
+    set(${NAME}_EXPLICIT_COMPONENT_DEPENDENCIES ${EXPLICIT_COMPONENT_DEPENDENCIES})
+    set(${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES ${EXPLICIT_LIBRARY_DEPENDENCIES})
+endmacro()
+
+###################################################################################################
+# This call initializes the COMPONENT_LIST var to empty -- defined components will be added to it.
+# NOTE: Please keep the component definitions in alphabetical order by component name.
+###################################################################################################
+
+begin_component_definitions()
 
 ###################################################################################################
 # The Application component provides a simple framework for an SDL-based application.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} Application)
-set(Application_SOURCES
-    Application.cpp
-    Application.h
-    EventHandler.h
-    Renderable.h
-    RenderableEventHandler.h
-)
-set(Application_EXPLICIT_COMPONENT_DEPENDENCIES
-    # none
-)
-set(Application_EXPLICIT_LIBRARY_DEPENDENCIES
-    SDL 2
+define_component(
+    Application
+    "Application.cpp;Application.h;EventHandler.h;Renderable.h;RenderableEventHandler.h"
+    ""          # explicit component dependencies
+    "SDL 2"     # explicit library dependencies
 )
 
 ###################################################################################################
@@ -87,35 +109,22 @@ set(Application_EXPLICIT_LIBRARY_DEPENDENCIES
 # a platform-agnostic way.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} GLCompatibility)
-set(GLCompatibility_SOURCES
-    gl_glext_glu.h
-)
-set(GLCompatibility_EXPLICIT_COMPONENT_DEPENDENCIES
-    # none
-)
-set(GLCompatibility_EXPLICIT_LIBRARY_DEPENDENCIES # this will probably depend on the platform
-    gl
-    glext
-    glu
+define_component(
+    GLCompatibility
+    "gl_glext_glu.h"
+    ""              # explicit component dependencies
+    "gl;glew;glu"   # explicit library dependencies
 )
 
 ###################################################################################################
 # The GLController component provides a single point of control for usage of OpenGL.
 ###################################################################################################
 
-# This component is currently not fully designed or implemented.  Perhaps some "in-progress"
-# directory for components is needed.
-# set(COMPONENT_LIST ${COMPONENT_LIST} GLController) # Commenting out this line disables the component
-set(GLController_SOURCES
-    GLController.cpp
-    GLController.h
-)
-set(_EXPLICIT_COMPONENT_DEPENDENCIES
-    GLCompatibility
-)
-set(_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    GLController
+    "GLController.cpp;GLController.h"
+    "GLCompatibility"   # explicit component dependencies
+    ""                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -123,16 +132,11 @@ set(_EXPLICIT_LIBRARY_DEPENDENCIES
 # unbinding, setting uniforms.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} GLShader)
-set(GLShader_SOURCES
-    GLShader.cpp
-    GLShader.h
-)
-set(GLShader_EXPLICIT_COMPONENT_DEPENDENCIES
-    GLCompatibility
-)
-set(GLShader_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    GLShader
+    "GLShader.cpp;GLShader.h"
+    "GLCompatibility"   # explicit component dependencies
+    ""                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -140,33 +144,22 @@ set(GLShader_EXPLICIT_LIBRARY_DEPENDENCIES
 # source files.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} GLShaderLoader)
-set(GLShaderLoader_SOURCES
-    GLShaderLoader.h
-)
-set(GLShaderLoader_EXPLICIT_COMPONENT_DEPENDENCIES
-    GLShader
-    Resource
-    TextFileLoader
-)
-set(GLShaderLoader_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    GLShaderLoader
+    "GLShaderLoader.h"
+    "GLShader;Resource;TextFileLoader"  # explicit component dependencies
+    ""                                  # explicit library dependencies
 )
 
 ###################################################################################################
 # The GLTexture2 component provides a C++ class for managing 2D textures in OpenGL.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} GLTexture2)
-set(GLTexture2_SOURCES
-    GLTexture2.cpp
-    GLTexture2.h
-)
-set(GLTexture2_EXPLICIT_COMPONENT_DEPENDENCIES
-    GLCompatibility
-)
-set(GLTexture2_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    GLTexture2
+    "GLTexture2.cpp;GLTexture2.h"
+    "GLCompatibility"   # explicit component dependencies
+    ""                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -174,16 +167,11 @@ set(GLTexture2_EXPLICIT_LIBRARY_DEPENDENCIES
 # an image file using the FreeImage library.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} GLTexture2FreeImage)
-set(GLTexture2FreeImage_SOURCES
-    GLTexture2FreeImage.cpp
-    GLTexture2FreeImage.h
-)
-set(GLTexture2FreeImage_EXPLICIT_COMPONENT_DEPENDENCIES
-    GLTexture2
-)
-set(GLTexture2FreeImage_EXPLICIT_LIBRARY_DEPENDENCIES
-    FreeImage 3
+define_component(
+    GLTexture2FreeImage
+    "GLTexture2FreeImage.cpp;GLTexture2FreeImage.h"
+    "GLTexture2"    # explicit component dependencies
+    "FreeImage 3"   # explicit library dependencies
 )
 
 ###################################################################################################
@@ -191,18 +179,11 @@ set(GLTexture2FreeImage_EXPLICIT_LIBRARY_DEPENDENCIES
 # using the FreeImage library.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} GLTexture2Loader)
-set(GLTexture2Loader_SOURCES
-    GLTexture2Loader.cpp
-    GLTexture2Loader.h
-)
-set(GLTexture2Loader_EXPLICIT_COMPONENT_DEPENDENCIES
-    ResourceManager
-    GLTexture2FreeImage
-    SDLController
-)
-set(GLTexture2Loader_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    GLTexture2Loader
+    "GLTexture2Loader.cpp;GLTexture2Loader.h"
+    "GLTexture2FreeImage;ResourceManager;SDLController" # explicit component dependencies
+    ""                                                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -210,16 +191,11 @@ set(GLTexture2Loader_EXPLICIT_LIBRARY_DEPENDENCIES
 # via a typed ResourceManager singleton.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} Resource)
-set(Resource_SOURCES
-    Resource.h
-)
-set(Resource_EXPLICIT_COMPONENT_DEPENDENCIES
-    ResourceManager
-    Singleton
-)
-set(Resource_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    Resource
+    "Resource.h"
+    "ResourceManager;Singleton" # explicit component dependencies
+    ""                          # explicit library dependencies
 )
 
 ###################################################################################################
@@ -227,15 +203,11 @@ set(Resource_EXPLICIT_LIBRARY_DEPENDENCIES
 # non-redundant way.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} ResourceManager)
-set(ResourceManager_SOURCES
-    ResourceManager.h
-)
-set(ResourceManager_EXPLICIT_COMPONENT_DEPENDENCIES
-    # none
-)
-set(ResourceManager_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    ResourceManager
+    "ResourceManager.h"
+    ""  # explicit component dependencies
+    ""  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -243,16 +215,11 @@ set(ResourceManager_EXPLICIT_LIBRARY_DEPENDENCIES
 # and general usage of SDL.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} SDLController)
-set(SDLController_SOURCES
-    SDLController.cpp
-    SDLController.h
-)
-set(SDLController_EXPLICIT_COMPONENT_DEPENDENCIES
-    # none
-)
-set(SDLController_EXPLICIT_LIBRARY_DEPENDENCIES
-    SDL 2
+define_component(
+    SDLController
+    "SDLController.cpp;SDLController.h"
+    ""      # explicit component dependencies
+    "SDL 2" # explicit library dependencies
 )
 
 ###################################################################################################
@@ -260,15 +227,11 @@ set(SDLController_EXPLICIT_LIBRARY_DEPENDENCIES
 # class inheritance or not.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} Singleton)
-set(Singleton_SOURCES
-    Singleton.h
-)
-set(Singleton_EXPLICIT_COMPONENT_DEPENDENCIES
-    # none
-)
-set(Singleton_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    Singleton
+    "Singleton.h"
+    ""  # explicit component dependencies
+    ""  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -276,15 +239,11 @@ set(Singleton_EXPLICIT_LIBRARY_DEPENDENCIES
 # binary files (primarily intended to be used with Resource).
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} TextAndBinaryFile)
-set(TextAndBinaryFile_SOURCES
-    TextFile.h
-)
-set(TextAndBinaryFile_EXPLICIT_COMPONENT_DEPENDENCIES
-    # none
-)
-set(TextAndBinaryFile_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    TextAndBinaryFile
+    "TextFile.h"
+    ""  # explicit component dependencies
+    ""  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -292,17 +251,11 @@ set(TextAndBinaryFile_EXPLICIT_LIBRARY_DEPENDENCIES
 # binary files.
 ###################################################################################################
 
-set(COMPONENT_LIST ${COMPONENT_LIST} TextAndBinaryFileLoader)
-set(TextAndBinaryFileLoader_SOURCES
-    TextFileLoader.h
-)
-set(TextAndBinaryFileLoader_EXPLICIT_COMPONENT_DEPENDENCIES
-    ResourceManager
-    SDLController
-    TextAndBinaryFile
-)
-set(TextAndBinaryFileLoader_EXPLICIT_LIBRARY_DEPENDENCIES
-    # none
+define_component(
+    TextAndBinaryFileLoader
+    "TextFileLoader.h"
+    "ResourceManager;SDLController;TextAndBinaryFile"   # explicit component dependencies
+    ""                                                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -311,29 +264,29 @@ set(TextAndBinaryFileLoader_EXPLICIT_LIBRARY_DEPENDENCIES
 
 # NOTE: these are not being compiled in because they currently have too many unmet dependencies
 # and require a nontrivial amount of integration work.
-# # Please keep these alphabetized.
-# set(SOURCE_THAT_MUST_STILL_BE_INTEGRATED
-#     # Color.cpp # has other dependencies
-#     # Color.h
-#     DataTypes.h
-#     # FrameBufferObject.cpp # depends on SimGL.h which has other dependencies
-#     # FrameBufferObject.h
-#     # GLBuffer.cpp # has other dependencies
-#     # GLBuffer.h
-#     OculusVR.cpp
-#     OculusVR.h
-#     Primitive.cpp
-#     Primitive.h
-#     RenderBuffer.cpp
-#     RenderBuffer.h
-#     # SimGL.cpp # has other dependencies
-#     # SimGL.h
-#     Texture.cpp 
-#     Texture.h
-#     UtilGL.cpp
-#     UtilGL.h
-#     Utilities.h
-# )
+# Please keep these alphabetized.
+set(NON_COMPONENTIZED_CODE
+    # Color.cpp # has other dependencies
+    # Color.h
+    DataTypes.h
+    # FrameBufferObject.cpp # depends on SimGL.h which has other dependencies
+    # FrameBufferObject.h
+    # GLBuffer.cpp # has other dependencies
+    # GLBuffer.h
+    OculusVR.cpp
+    OculusVR.h
+    Primitive.cpp
+    Primitive.h
+    RenderBuffer.cpp
+    RenderBuffer.h
+    # SimGL.cpp # has other dependencies
+    # SimGL.h
+    Texture.cpp 
+    Texture.h
+    UtilGL.cpp
+    UtilGL.h
+    Utilities.h
+)
 
 # TODO: write functinos for the following:
 # - Determining all component dependencies of a component (recursively).
@@ -355,8 +308,11 @@ foreach(COMPONENT ${COMPONENT_LIST})
     set(Components_INCLUDE_DIRECTORIES ${Components_INCLUDE_DIRECTORIES} ${COMPONENT})
 endforeach()
 
-# # TEMP: for now, just add all the yet-to-be-integrated source
-# set(Components_SOURCES ${Components_SOURCES} ${SOURCE_THAT_MUST_STILL_BE_INTEGRATED})
+# Add the non-componentized code
+# set(Components_SOURCES ${Components_SOURCES} ${NON_COMPONENTIZED_CODE})
+
+# TODO: make some cmake messages that complain about files in the non-componentized-code directory,
+# otherwise it could become a dumping ground like MathUtil or Utility.
 
 message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
 message("Components_SOURCES = ${Components_SOURCES}")
