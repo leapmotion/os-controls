@@ -310,23 +310,46 @@ endforeach()
 # TODO: make some cmake messages that complain about files in the non-componentized-code directory,
 # otherwise it could become a dumping ground like MathUtil or Utility.
 
+###################################################################################################
+# Include directories and compiler flags
+###################################################################################################
+
 # message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
 # message("Components_SOURCES = ${Components_SOURCES}")
 
 # TEMP: for now, just include all source and all include directories
 include_directories(${Components_INCLUDE_DIRECTORIES})
-add_library(Components ${Components_SOURCES})
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # This is the correct way to detect the Clang compiler -- see http://www.cmake.org/cmake/help/v3.0/variable/CMAKE_LANG_COMPILER_ID.html#variable:CMAKE_<LANG>_COMPILER_ID
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
 endif() # TODO: GCC ("GNU"), MSVC
 
+###################################################################################################
+# The Components library (static and/or shared) is defined here, along with library dependencies.
+###################################################################################################
+
+# TODO: We should build both static and shared libraries.  There will be a name collision in
+# the library target, which we can resolve using
+# http://datainfer.wordpress.com/2013/10/24/make-both-static-and-shared-libraries-in-one-build-with-cmake/
+# However I haven't implemented this directly because there is a different name collision
+# problem in multiple calls to target_package to specify dependencies (e.g. on Eigen).
+
+# NOTE: I'm getting a linker error when building Components as a shared lib on Mac.
+option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
+
+add_library(Components ${Components_SOURCES})
 # TEMP: for now, just link all library dependencies.
 target_package(Components Eigen 3.1.2 REQUIRED)
 target_package(Components OpenGL REQUIRED)
 target_package(Components FreeImage REQUIRED)
 target_package(Components SDL 2 REQUIRED)
 target_package(Components Glew REQUIRED)
+# This appears to be necessary (to build the Components library as a shared library on Mac).
+# I'm not sure why it's different than the others.
+target_link_libraries(Components ${OPENGL_gl_LIBRARY})
+
+# Define rules for creating a release distribution
+define_install_rules(Components "${COMPONENTS}")
 
 ###################################################################################################
 # These Doxygen build rules were taken from 
@@ -347,16 +370,7 @@ if(BUILD_DOCUMENTATION)
         doc
         COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
         SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
-endif()
-
-###################################################################################################
-# Install rules
-###################################################################################################
-
-# Define rules for creating a release distribution
-define_install_rules(Components "${COMPONENTS}")
-
-# Define rules for installing documentation, if it is being built.
-if(BUILD_DOCUMENTATION)
+    # Define install rules for the documentation.
+    # TODO: Ideally we would specify that the 'doc' target is a dependency of 'install'.
     install(DIRECTORY ${PROJECT_BINARY_DIR}/doc DESTINATION ".")
 endif()
