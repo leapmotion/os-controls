@@ -1,26 +1,18 @@
 cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSION 3".
+
+###################################################################################################
+
+# High-level project definitions
 project(Components)
+set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
 ###################################################################################################
-# These Doxygen build rules were taken from 
-# http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
-###################################################################################################
 
-# Add an Option to toggle the generation of the API documentation.
-option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based (and potentially other format) API documentation" OFF)
-if(BUILD_DOCUMENTATION)
-    find_package(Doxygen)
-    if(NOT DOXYGEN_FOUND)
-        message(FATAL_ERROR "Doxygen is needed to build the documentation. Please install it correctly")
-    endif()
-    # Configure the template Doxyfile for our specific project.
-    configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
-    # Add a custom target to run Doxygen when ever the project is built.
-    add_custom_target(
-        docs
-        COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
-        SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
-endif()
+# Module path and module includes
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
+include(Components)
+include(ListSubdirectories)
+include(TargetImportedLibraries) # for Walter's target_package command
 
 ###################################################################################################
 # We use an EXTERNAL_LIBRARY_DIR variable as a hint to where all the libraries can be found.
@@ -29,24 +21,23 @@ endif()
 
 find_path(EXTERNAL_LIBRARY_DIR "glew-1.9.0" HINTS /opt/local/Libraries PATHS $ENV{PATH} $ENV{EXTERNAL_LIBRARY_DIR} NO_DEFAULT_PATH)
 
+# TODO: Make EXTERNAL_LIBRARY_DIR detection optional, since users may not have their libraries
+# installed the same way we (Leap) do.
 if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
   message(STATUS "External Library Directory not found, please specify a folder to look for external libraries")
   return()
 endif()
 
 ###################################################################################################
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
-set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
-
-include(ListSubdirectories)
-include(TargetImportedLibraries) # for Walter's target_package command
-
-###################################################################################################
 # Component definitions
 ###################################################################################################
 
 # This section defines what a component is and defines helper macros.
+
+###################################################################################################
+# This call initializes the COMPONENTS var to empty -- defined components will be added to it.
+# NOTE: Please keep the component definitions in alphabetical order by component name.
+###################################################################################################
 
 # A "component" can be thought of as a "sub-library" (in the sense that it is a small library and
 # is subordinate to the whole library).  A component satisfies two requirements:
@@ -58,6 +49,7 @@ include(TargetImportedLibraries) # for Walter's target_package command
 # a C identifier that is WordCapitalized.  Each component should have
 # the following macros defined.
 #   Foo_SOURCES                         The list of source files for component "Foo"
+#   Foo_INSTALL_FILES                   The list of files to copy into a "release" archive.
 #   Foo_EXPLICIT_COMPONENT_DEPENDENCIES The list of components which component "Foo" explicitly depends on; not,
 #                                       for example, components which "Foo" depends on through other components.
 #                                       It's ok if there are redundancies here.
@@ -67,30 +59,6 @@ include(TargetImportedLibraries) # for Walter's target_package command
 # The total component dependencies of a component can be determined recursively using these
 # definitions.  Similarly, the total library dependencies of a component can be determined.
 
-# TODO: make a function that defines a whole component
-
-# COMPONENT_LIST is a space-delimited string enumerating all the defined components.  Each component
-# should append to it in its definition section (see below).  It is initialized here to empty string
-# so that its existence and purpose is clear.
-# set(COMPONENT_LIST "")
-
-macro(begin_component_definitions)
-    set(COMPONENT_LIST "")
-endmacro()
-
-macro(define_component NAME SOURCES EXPLICIT_COMPONENT_DEPENDENCIES EXPLICIT_LIBRARY_DEPENDENCIES)
-    message("defining component \"${NAME}\" with:\n\tSOURCES = ${SOURCES}\n\tEXPLICIT_COMPONENT_DEPENDENCIES = ${EXPLICIT_COMPONENT_DEPENDENCIES}\n\tEXPLICIT_LIBRARY_DEPENDENCIES = ${EXPLICIT_LIBRARY_DEPENDENCIES}\n")
-    set(COMPONENT_LIST ${COMPONENT_LIST} ${NAME})
-    set(${NAME}_SOURCES ${SOURCES})
-    set(${NAME}_EXPLICIT_COMPONENT_DEPENDENCIES ${EXPLICIT_COMPONENT_DEPENDENCIES})
-    set(${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES ${EXPLICIT_LIBRARY_DEPENDENCIES})
-endmacro()
-
-###################################################################################################
-# This call initializes the COMPONENT_LIST var to empty -- defined components will be added to it.
-# NOTE: Please keep the component definitions in alphabetical order by component name.
-###################################################################################################
-
 begin_component_definitions()
 
 ###################################################################################################
@@ -99,9 +67,11 @@ begin_component_definitions()
 
 define_component(
     Application
-    "Application.cpp;Application.h;EventHandler.h;Renderable.h;RenderableEventHandler.h"
-    ""          # explicit component dependencies
-    "SDL 2"     # explicit library dependencies
+    "Application.h;EventHandler.h;Renderable.h;RenderableEventHandler.h"
+    "Application.cpp"   # sources which won't be installed
+    ""                  # non-sources to install
+    ""                  # explicit component dependencies
+    "SDL 2"             # explicit library dependencies
 )
 
 ###################################################################################################
@@ -111,9 +81,11 @@ define_component(
 
 define_component(
     GLCompatibility
-    "gl_glext_glu.h"
-    ""              # explicit component dependencies
-    "gl;glew;glu"   # explicit library dependencies
+    "gl_glext_glu.h"    # sources to install
+    ""                  # sources which won't be installed
+    ""                  # non-sources to install
+    ""                  # explicit component dependencies
+    "gl;glew;glu"       # explicit library dependencies
 )
 
 ###################################################################################################
@@ -122,7 +94,9 @@ define_component(
 
 define_component(
     GLController
-    "GLController.cpp;GLController.h"
+    "GLController.h"    # sources to install
+    "GLController.cpp"  # sources which won't be installed
+    ""                  # non-sources to install
     "GLCompatibility"   # explicit component dependencies
     ""                  # explicit library dependencies
 )
@@ -134,7 +108,9 @@ define_component(
 
 define_component(
     GLShader
-    "GLShader.cpp;GLShader.h"
+    "GLShader.h"        # sources to install
+    "GLShader.cpp"      # sources which won't be installed
+    ""                  # non-sources to install
     "GLCompatibility"   # explicit component dependencies
     ""                  # explicit library dependencies
 )
@@ -146,7 +122,9 @@ define_component(
 
 define_component(
     GLShaderLoader
-    "GLShaderLoader.h"
+    "GLShaderLoader.h"                  # sources to install
+    ""                                  # sources which won't be installed
+    ""                                  # non-sources to install
     "GLShader;Resource;TextFileLoader"  # explicit component dependencies
     ""                                  # explicit library dependencies
 )
@@ -157,7 +135,9 @@ define_component(
 
 define_component(
     GLTexture2
-    "GLTexture2.cpp;GLTexture2.h"
+    "GLTexture2.h"      # sources to install
+    "GLTexture2.cpp"    # sources which won't be installed
+    ""                  # non-sources to install
     "GLCompatibility"   # explicit component dependencies
     ""                  # explicit library dependencies
 )
@@ -169,9 +149,11 @@ define_component(
 
 define_component(
     GLTexture2FreeImage
-    "GLTexture2FreeImage.cpp;GLTexture2FreeImage.h"
-    "GLTexture2"    # explicit component dependencies
-    "FreeImage 3"   # explicit library dependencies
+    "GLTexture2FreeImage.h"     # sources to install
+    "GLTexture2FreeImage.cpp"   # sources which won't be installed
+    ""                          # non-sources to install
+    "GLTexture2"                # explicit component dependencies
+    "FreeImage 3"               # explicit library dependencies
 )
 
 ###################################################################################################
@@ -181,7 +163,9 @@ define_component(
 
 define_component(
     GLTexture2Loader
-    "GLTexture2Loader.cpp;GLTexture2Loader.h"
+    "GLTexture2Loader.h"                                # sources to install
+    "GLTexture2Loader.cpp"                              # sources which won't be installed
+    ""                                                  # non-sources to install
     "GLTexture2FreeImage;ResourceManager;SDLController" # explicit component dependencies
     ""                                                  # explicit library dependencies
 )
@@ -193,7 +177,9 @@ define_component(
 
 define_component(
     Resource
-    "Resource.h"
+    "Resource.h"                # sources to install
+    ""                          # sources which won't be installed
+    ""                          # non-sources to install
     "ResourceManager;Singleton" # explicit component dependencies
     ""                          # explicit library dependencies
 )
@@ -205,9 +191,11 @@ define_component(
 
 define_component(
     ResourceManager
-    "ResourceManager.h"
-    ""  # explicit component dependencies
-    ""  # explicit library dependencies
+    "ResourceManager.h" # sources to install
+    ""                  # sources which won't be installed
+    ""                  # non-sources to install
+    ""                  # explicit component dependencies
+    ""                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -217,9 +205,11 @@ define_component(
 
 define_component(
     SDLController
-    "SDLController.cpp;SDLController.h"
-    ""      # explicit component dependencies
-    "SDL 2" # explicit library dependencies
+    "SDLController.h"   # sources to install
+    "SDLController.cpp" # sources which won't be installed
+    ""                  # non-sources to install
+    ""                  # explicit component dependencies
+    "SDL 2"             # explicit library dependencies
 )
 
 ###################################################################################################
@@ -229,9 +219,11 @@ define_component(
 
 define_component(
     Singleton
-    "Singleton.h"
-    ""  # explicit component dependencies
-    ""  # explicit library dependencies
+    "Singleton.h"       # sources to install
+    ""                  # sources which won't be installed
+    ""                  # non-sources to install
+    ""                  # explicit component dependencies
+    ""                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -241,9 +233,11 @@ define_component(
 
 define_component(
     TextAndBinaryFile
-    "TextFile.h"
-    ""  # explicit component dependencies
-    ""  # explicit library dependencies
+    "TextFile.h"        # sources to install
+    ""                  # sources which won't be installed
+    ""                  # non-sources to install
+    ""                  # explicit component dependencies
+    ""                  # explicit library dependencies
 )
 
 ###################################################################################################
@@ -253,7 +247,9 @@ define_component(
 
 define_component(
     TextAndBinaryFileLoader
-    "TextFileLoader.h"
+    "TextFileLoader.h"                                  # sources to install
+    ""                                                  # sources which won't be installed
+    ""                                                  # non-sources to install
     "ResourceManager;SDLController;TextAndBinaryFile"   # explicit component dependencies
     ""                                                  # explicit library dependencies
 )
@@ -297,7 +293,7 @@ set(NON_COMPONENTIZED_CODE
 
 set(Components_SOURCES "")
 set(Components_INCLUDE_DIRECTORIES "")
-foreach(COMPONENT ${COMPONENT_LIST})
+foreach(COMPONENT ${COMPONENTS})
     # message("adding sources for component ${COMPONENT}")
     foreach(SOURCE_FILE ${${COMPONENT}_SOURCES})
         set(SOURCE_PATH ${COMPONENT}/${SOURCE_FILE})
@@ -314,16 +310,16 @@ endforeach()
 # TODO: make some cmake messages that complain about files in the non-componentized-code directory,
 # otherwise it could become a dumping ground like MathUtil or Utility.
 
-message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
-message("Components_SOURCES = ${Components_SOURCES}")
+# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
+# message("Components_SOURCES = ${Components_SOURCES}")
 
 # TEMP: for now, just include all source and all include directories
 include_directories(${Components_INCLUDE_DIRECTORIES})
 add_library(Components ${Components_SOURCES})
 
-if(NOT MSVC)
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # This is the correct way to detect the Clang compiler -- see http://www.cmake.org/cmake/help/v3.0/variable/CMAKE_LANG_COMPILER_ID.html#variable:CMAKE_<LANG>_COMPILER_ID
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
-endif()
+endif() # TODO: GCC ("GNU"), MSVC
 
 # TEMP: for now, just link all library dependencies.
 target_package(Components Eigen 3.1.2 REQUIRED)
@@ -331,3 +327,36 @@ target_package(Components OpenGL REQUIRED)
 target_package(Components FreeImage REQUIRED)
 target_package(Components SDL 2 REQUIRED)
 target_package(Components Glew REQUIRED)
+
+###################################################################################################
+# These Doxygen build rules were taken from 
+# http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
+###################################################################################################
+
+# Add an Option to toggle the generation of the API documentation.
+option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based (and potentially other format) API documentation" OFF)
+if(BUILD_DOCUMENTATION)
+    find_package(Doxygen)
+    if(NOT DOXYGEN_FOUND)
+        message(FATAL_ERROR "Doxygen is needed to build the documentation. Please install it correctly")
+    endif()
+    # Configure the template Doxyfile for our specific project.
+    configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+    # Add a custom target to run Doxygen when ever the project is built.
+    add_custom_target(
+        doc
+        COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
+        SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
+endif()
+
+###################################################################################################
+# Install rules
+###################################################################################################
+
+# Define rules for creating a release distribution
+define_install_rules(Components "${COMPONENTS}")
+
+# Define rules for installing documentation, if it is being built.
+if(BUILD_DOCUMENTATION)
+    install(DIRECTORY ${PROJECT_BINARY_DIR}/doc DESTINATION ".")
+endif()
