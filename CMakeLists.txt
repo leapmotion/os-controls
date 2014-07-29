@@ -315,18 +315,19 @@ endforeach()
 # otherwise it could become a dumping ground like MathUtil or Utility.
 
 ###################################################################################################
-# Include directories and compiler flags
+# Rpath stuff (necessary for when libraries are moved).  From http://www.cmake.org/Wiki/CMake_RPATH_handling
 ###################################################################################################
 
-# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
-# message("Components_SOURCES = ${Components_SOURCES}")
+# # Use, i.e. don't skip, the full RPATH for the build tree
+# set(CMAKE_SKIP_BUILD_RPATH FALSE)
+# # When building, don't use the install RPATH already (but later on when installing).
+# set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+# set(CMAKE_INSTALL_RPATH "lib")
+# # Add the automatically determined parts of the RPATH which point to directories outside
+# # the build tree to the install RPATH.
+# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# TEMP: for now, just include all source and all include directories
-include_directories(${Components_INCLUDE_DIRECTORIES})
-
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # This is the correct way to detect the Clang compiler -- see http://www.cmake.org/cmake/help/v3.0/variable/CMAKE_LANG_COMPILER_ID.html#variable:CMAKE_<LANG>_COMPILER_ID
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
-endif() # TODO: GCC ("GNU"), MSVC
+# set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 ###################################################################################################
 # The Components library (static and/or shared) is defined here, along with library dependencies.
@@ -355,6 +356,43 @@ target_link_libraries(Components ${OPENGL_gl_LIBRARY})
 
 # Define rules for creating a release distribution
 define_install_rules(Components "${COMPONENTS}")
+# include(PrintTargetProperties)
+# echo_target(Components)
+
+###################################################################################################
+# Include directories and compiler flags
+###################################################################################################
+
+# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
+# message("Components_SOURCES = ${Components_SOURCES}")
+
+# TEMP: for now, just include all source and all include directories
+# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
+# set(BLAH "")
+# foreach(INCLUDE_DIR ${Components_INCLUDE_DIRECTORIES})
+#     set(BLAH ${BLAH} $<INSTALL_PREFIX:${INCLUDE_DIR}>)
+# endforeach()
+# message("BLAH = ${BLAH}")
+# set(Components_INCLUDE_DIRECTORIES ${BLAH})
+# target_include_directories(Components INTERFACE ${Components_INCLUDE_DIRECTORIES})
+# get_property(BLAH TARGET Components PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+# message("Components.INTERFACE_INCLUDE_DIRECTORIES = ${BLAH}")
+# set(CMAKE_USE_RELATIVE_PATHS ON)
+# message("CMAKE_USE_RELATIVE_PATHS = ${CMAKE_USE_RELATIVE_PATHS}")
+# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
+foreach(_include_directory ${Components_INCLUDE_DIRECTORIES})
+    # target_include_directories should actually be used here, but I sure can't get it working.
+    set_property(TARGET Components APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/${_include_directory})
+endforeach()
+
+# TODO: use target_compile_definitions and target_compile_options
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # This is the correct way to detect the Clang compiler -- see http://www.cmake.org/cmake/help/v3.0/variable/CMAKE_LANG_COMPILER_ID.html#variable:CMAKE_<LANG>_COMPILER_ID
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
+endif() # TODO: GCC ("GNU"), MSVC
+
+# This would be used for linking to the Components library from its build dir,
+# but is NOT the way we want to do this (probably).
+# export(TARGETS Components FILE ComponentsConfig.cmake)
 
 ###################################################################################################
 # These Doxygen build rules were taken from 
@@ -368,6 +406,8 @@ if(BUILD_DOCUMENTATION)
     if(NOT DOXYGEN_FOUND)
         message(FATAL_ERROR "Doxygen is needed to build the documentation. Please install it correctly")
     endif()
+    # The DOXYGEN_OUTPUT_DIR var is used in Doxyfile.in to determine where to generate docs.
+    set(DOXYGEN_OUTPUT_DIR ${PROJECT_BINARY_DIR}/doc)
     # Configure the template Doxyfile for our specific project.
     configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
     # Add a custom target to run Doxygen when ever the project is built.
@@ -377,5 +417,35 @@ if(BUILD_DOCUMENTATION)
         SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
     # Define install rules for the documentation.
     # TODO: Ideally we would specify that the 'doc' target is a dependency of 'install'.
-    install(DIRECTORY ${PROJECT_BINARY_DIR}/doc DESTINATION ".")
+    install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION ".")
 endif()
+
+###################################################################################################
+# CPack rules for automatic package generation -- just invoke `cpack` in the build dir.
+###################################################################################################
+
+# include(CPack)
+
+# # set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Components")
+# set(CPACK_PACKAGE_VENDOR "Leap Motion, Inc.")
+# # set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+# set(CPACK_PACKAGE_VERSION_MAJOR "0")
+# set(CPACK_PACKAGE_VERSION_MINOR "0")
+# set(CPACK_PACKAGE_VERSION_PATCH "1")
+# # set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
+# # if(WIN32 AND NOT UNIX)
+# #   There is a bug in NSI that does not handle full unix paths properly. Make
+# #   sure there is at least one set of four (4) backlasshes.
+# #   set(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+# #   set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
+# #   set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
+# #   set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+# #   set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
+# #   set(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
+# #   set(CPACK_NSIS_MODIFY_PATH ON)
+# # else(WIN32 AND NOT UNIX)
+# #   set(CPACK_STRIP_FILES "bin/MyExecutable")
+# #   set(CPACK_SOURCE_STRIP_FILES "")
+# # endif(WIN32 AND NOT UNIX)
+# # set(CPACK_PACKAGE_EXECUTABLES "MyExecutable" "My Executable")
+
