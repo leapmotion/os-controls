@@ -3,6 +3,7 @@
 #include <SDL_syswm.h>
 
 #if _WIN32
+#include <Windows.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 #endif
@@ -15,8 +16,7 @@ SDLController::SDLController ()
   :
   m_SDL_Window(nullptr),
   m_SDL_Renderer(nullptr),
-  m_SDL_GLContext(nullptr),
-  m_Transparent(false)
+  m_SDL_GLContext(nullptr)
 {
   // TEMP
   std::cerr << "SDLController::BasePath() = \"" << BasePath() << "\"\n";
@@ -28,13 +28,31 @@ SDLController::~SDLController () {
   assert(m_SDL_GLContext == nullptr && "did not shut down properly!");
 }
 
-void SDLController::Initialize () {
+void SDLController::Initialize(bool transparentWindow) {
   // Initialize SDL.  TODO: initialize audio
   if (SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|SDL_INIT_EVENTS) != 0) {
     throw std::runtime_error(SDL_GetError());
   }
+
+  // Set some SDL attributes. Must be done before creating GL context
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+  if (transparentWindow) {
+    // Must allocate an alpha channel when using transparent window
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+  }
+
   // Create a window.
-  m_SDL_Window = SDL_CreateWindow("Freeform", 100, 100, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+  Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+  if (transparentWindow) {
+    // Transparent window only works properly when the window is borderless
+    windowFlags |= SDL_WINDOW_BORDERLESS;
+  }
+  m_SDL_Window = SDL_CreateWindow("Freeform", 100, 100, 640, 480, windowFlags);
+
   if (m_SDL_Window == nullptr) {
     SDL_Quit();
     throw std::runtime_error(SDL_GetError());
@@ -57,6 +75,10 @@ void SDLController::Initialize () {
     SDL_Quit();
     throw std::runtime_error(SDL_GetError());
   }
+
+  if (transparentWindow) {
+    makeTransparent();
+  }
 }
 
 void SDLController::Shutdown () {
@@ -78,15 +100,6 @@ void SDLController::Shutdown () {
 
 void SDLController::BeginRender () const {
   // Do whatever needs to be done before rendering a frame.
-  if (m_Transparent) {
-#if _WIN32
-    DWM_BLURBEHIND bb ={ 0 };
-    bb.dwFlags = DWM_BB_ENABLE;
-    bb.fEnable = true;
-    bb.hRgnBlur = nullptr;
-    ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
-#endif
-  }
 }
 
 void SDLController::EndRender () const {
@@ -97,25 +110,30 @@ std::string SDLController::BasePath () {
   return std::string(SDL_GetBasePath());
 }
 
-void SDLController::MakeTransparent(bool trans) {
-  m_Transparent = trans;
-
+void SDLController::makeTransparent() {
   struct SDL_SysWMinfo wmInfo;
   SDL_VERSION(&wmInfo.version);
 
-  if (SDL_GetWindowWMInfo(m_SDL_Window, &wmInfo) == -1) {
+  if (!SDL_GetWindowWMInfo(m_SDL_Window, &wmInfo)) {
     throw std::runtime_error("Error retrieving window WM info");
   }
 
   switch (wmInfo.subsystem) {
 #ifdef WIN32 
   case SDL_SYSWM_WINDOWS:
-    m_hWnd = wmInfo.info.win.window;
-    if (m_hWnd) { 
-      ::SetWindowLongA(m_hWnd, GWL_EXSTYLE, ::GetWindowLongA(m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
-    } else {
-      throw std::runtime_error("Error retrieiving native window");
+    {
+      HWND hWnd = wmInfo.info.win.window;
+      if (hWnd) {
+        ::SetWindowLongA(hWnd, GWL_EXSTYLE, ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+        ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
+      } else {
+        throw std::runtime_error("Error retrieiving native window");
+      }
+      DWM_BLURBEHIND bb = { 0 };
+      bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+      bb.fEnable = true;
+      bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
+      ::DwmEnableBlurBehindWindow(hWnd, &bb);
     }
     break;
 #elif __MACOSX__ 

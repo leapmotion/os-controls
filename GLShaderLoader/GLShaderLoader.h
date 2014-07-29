@@ -74,7 +74,7 @@ struct ResourceLoader<GLShader> {
       );
       std::string fragment_shader_source(
         "void main () {\n"
-        "    gl_FragColor = vec4(1.0, 0.2, 0.3, 1.0);\n"
+        "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
         "}\n"
       );
       return std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source);
