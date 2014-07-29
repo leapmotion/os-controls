@@ -318,6 +318,15 @@ endforeach()
 # Rpath stuff (necessary for when libraries are moved).  From http://www.cmake.org/Wiki/CMake_RPATH_handling
 ###################################################################################################
 
+# TODO: make these into target properties.  BUILD_WITH_INSTALL_RPATH is a target property.
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+# This specifies the directory prefix for the install name (see output of `otool -L libComponents.dylib`)
+set(CMAKE_INSTALL_NAME_DIR "@loader_path")
+
+# if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
+#     set(CMAKE_SHARED_LINKER_FLAGS "-headerpad_max_install_names")
+# endif()
+
 # # Use, i.e. don't skip, the full RPATH for the build tree
 # set(CMAKE_SKIP_BUILD_RPATH FALSE)
 # # When building, don't use the install RPATH already (but later on when installing).
