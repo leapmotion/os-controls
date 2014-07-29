@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSIO
 ###################################################################################################
 
 # High-level project definitions
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
 project(Components)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
@@ -27,6 +28,9 @@ if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
   message(STATUS "External Library Directory not found, please specify a folder to look for external libraries")
   return()
 endif()
+
+#Add to the general include directory
+list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 
 ###################################################################################################
 # Component definitions
@@ -339,11 +343,12 @@ option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of stati
 
 add_library(Components ${Components_SOURCES})
 # TEMP: for now, just link all library dependencies.
+
 target_package(Components Eigen 3.1.2 REQUIRED)
 target_package(Components OpenGL REQUIRED)
 target_package(Components FreeImage REQUIRED)
 target_package(Components SDL 2 REQUIRED)
-target_package(Components Glew REQUIRED)
+target_package(Components Glew 1.9.0 REQUIRED)
 # This appears to be necessary (to build the Components library as a shared library on Mac).
 # I'm not sure why it's different than the others.
 target_link_libraries(Components ${OPENGL_gl_LIBRARY})
