@@ -1,17 +1,14 @@
-#ifndef __GLBuffer_h__
-#define __GLBuffer_h__
+#pragma once
 
+#include "gl_glext_glu.h"
 #include <string>
-
-typedef unsigned int GLuint;
-typedef unsigned int GLenum;
 
 class GLBuffer {
 
 public:
 
-  GLBuffer(GLenum type);
-  void create();
+  GLBuffer();
+  void create(GLenum type);
   void bind();
   void allocate(const void* data, int count, GLenum pattern);
   void release();
@@ -29,5 +26,3 @@ private:
   GLenum type_;
 
 };
-
-#endif

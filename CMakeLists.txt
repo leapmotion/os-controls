@@ -78,6 +78,20 @@ define_component(
     "SDL 2"             # explicit library dependencies
 )
 
+
+###################################################################################################
+# The GLBuffer component provides a fast GPU buffer object for geometry.
+###################################################################################################
+
+define_component(
+    GLBuffer            
+    "GLBuffer.h"        # sources to install
+    "GLBuffer.cpp"      # sources which won't be installed
+    ""                  # non-sources to install
+    "GLCompatiblity"    # explicit component dependencies
+    ""                  # explicit library dependencies
+)
+
 ###################################################################################################
 # The GLCompatibility component provides means for including OpenGL (and related) headers in
 # a platform-agnostic way.

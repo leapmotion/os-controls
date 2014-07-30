@@ -1,10 +1,10 @@
-#include "Visualization/GLIncludes.h"
 #include "GLBuffer.h"
 #include <iostream>
 
-GLBuffer::GLBuffer(GLenum type) : type_(type), buffer_(0) { }
+GLBuffer::GLBuffer() : type_(0), buffer_(0) { }
 
-void GLBuffer::create() {
+void GLBuffer::create(GLenum type) {
+  type_ = type;
   glGenBuffers(1, &buffer_);
   checkError("Create");
 }
