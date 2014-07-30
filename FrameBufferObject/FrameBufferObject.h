@@ -1,7 +1,6 @@
-#ifndef __FrameBufferObject_H__
-#define __FrameBufferObject_H__
+#pragma once
 
-#include "SimGL.h"
+#include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 
 class RenderBuffer;
 class Texture;
@@ -99,5 +98,3 @@ protected:
   Texture*              m_ColorTexture;
   Texture*              m_DepthTexture;
 };
-
-#endif

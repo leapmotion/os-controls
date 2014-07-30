@@ -1,7 +1,6 @@
-#ifndef __RenderBuffer_H__
-#define __RenderBuffer_H__
+#pragma once
 
-#include "SimGL.h"
+#include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 
 /// <summary>
 /// The RenderBuffer class is a wrapper around the OpenGL Renderbuffer functionality
@@ -49,5 +48,3 @@ protected:
   GLuint                m_RenderBufferId;
   GLint                 m_Samples;
 };
-
-#endif
