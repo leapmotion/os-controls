@@ -77,7 +77,7 @@ void SDLController::Initialize(bool transparentWindow) {
   }
 
   if (transparentWindow) {
-    makeTransparent();
+    MakeTransparent();
   }
 }
 
@@ -110,43 +110,56 @@ std::string SDLController::BasePath () {
   return std::string(SDL_GetBasePath());
 }
 
-void SDLController::makeTransparent() {
-  struct SDL_SysWMinfo wmInfo;
-  SDL_VERSION(&wmInfo.version);
+// It's necessary to put the Apple-specific code in a separate file because
+// it is Objective-C++ and needs to be compiled as such (the source file name
+// is MakeTransparent_Apple.mm).
+#if __APPLE__
+extern void MakeTransparent_Apple (const SDL_SysWMinfo &sys_wm_info, SDL_GLContext c);
+#endif
 
-  if (!SDL_GetWindowWMInfo(m_SDL_Window, &wmInfo)) {
+#if defined(WIN32)
+void MakeTransparent_Windows (const SDL_SysWMinfo &sys_wm_info) {
+  HWND hWnd = sys_wm_info.info.win.window;
+  if (hWnd) {
+    ::SetWindowLongA(hWnd, GWL_EXSTYLE, ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+    ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
+  } else {
+    throw std::runtime_error("Error retrieiving native window");
+  }
+  DWM_BLURBEHIND bb = { 0 };
+  bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+  bb.fEnable = true;
+  bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
+  ::DwmEnableBlurBehindWindow(hWnd, &bb);
+}
+#endif
+
+void SDLController::MakeTransparent() {
+  struct SDL_SysWMinfo sys_wm_info;
+  SDL_VERSION(&sys_wm_info.version);
+
+  // Retrieve the window info.
+  if (!SDL_GetWindowWMInfo(m_SDL_Window, &sys_wm_info)) {
     throw std::runtime_error("Error retrieving window WM info");
   }
 
-  switch (wmInfo.subsystem) {
+  // Make the OS-specific call to make the window transparent.
+  switch (sys_wm_info.subsystem) {
 #ifdef WIN32 
-  case SDL_SYSWM_WINDOWS:
-    {
-      HWND hWnd = wmInfo.info.win.window;
-      if (hWnd) {
-        ::SetWindowLongA(hWnd, GWL_EXSTYLE, ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-        ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
-      } else {
-        throw std::runtime_error("Error retrieiving native window");
-      }
-      DWM_BLURBEHIND bb = { 0 };
-      bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-      bb.fEnable = true;
-      bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
-      ::DwmEnableBlurBehindWindow(hWnd, &bb);
-    }
-    break;
-#elif __MACOSX__ 
-  case SDL_SYSWM_COCOA:
-    // TODO
-    break;
+    case SDL_SYSWM_WINDOWS:
+      MakeTransparent_Windows(sys_wm_info);
+      break;
+#elif __APPLE__ 
+    case SDL_SYSWM_COCOA:
+      MakeTransparent_Apple(sys_wm_info, m_SDL_GLContext);
+      break;
 #else 
-  case SDL_SYSWM_X11:
-    // TODO
-    break;
+    case SDL_SYSWM_X11:
+      // TODO
+      break;
 #endif 
-  default:
-    throw std::runtime_error("Error identifying WM subsystem");
-    break;
+    default:
+      throw std::runtime_error("Error identifying WM subsystem");
+      break;
   }
 }

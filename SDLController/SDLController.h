@@ -25,10 +25,9 @@ public:
 
 private:
 
-  void makeTransparent();
+  void MakeTransparent();
 
   SDL_Window *m_SDL_Window;
   SDL_Renderer *m_SDL_Renderer;
   SDL_GLContext m_SDL_GLContext;
-
 };

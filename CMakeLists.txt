@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSION 3".
 
 ###################################################################################################
-
 # High-level project definitions
+###################################################################################################
+
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
 project(Components)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
@@ -279,13 +280,16 @@ define_component(
 # and general usage of SDL.
 ###################################################################################################
 
+# NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
+# on Apple platforms.  It should be ignored on other platforms.
 define_component(
     SDLController
-    "SDLController.h"   # sources to install
-    "SDLController.cpp" # sources which won't be installed
-    ""                  # non-sources to install
-    ""                  # explicit component dependencies
-    "SDL 2"             # explicit library dependencies
+    "SDLController.h"                               # sources to install
+    "MakeTransparent_Apple.mm;SDLController.cpp"    # sources which won't be installed
+    ""                                              # non-sources to install
+    ""                                              # explicit component dependencies
+    "SDL 2"                                         # explicit library dependencies
+    # TODO: require the AppKit framework (for NSOpenGLContext)
 )
 
 ###################################################################################################
@@ -433,20 +437,7 @@ define_install_rules(Components "${COMPONENTS}")
 # message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
 # message("Components_SOURCES = ${Components_SOURCES}")
 
-# TEMP: for now, just include all source and all include directories
-# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
-# set(BLAH "")
-# foreach(INCLUDE_DIR ${Components_INCLUDE_DIRECTORIES})
-#     set(BLAH ${BLAH} $<INSTALL_PREFIX:${INCLUDE_DIR}>)
-# endforeach()
-# message("BLAH = ${BLAH}")
-# set(Components_INCLUDE_DIRECTORIES ${BLAH})
-# target_include_directories(Components INTERFACE ${Components_INCLUDE_DIRECTORIES})
-# get_property(BLAH TARGET Components PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
-# message("Components.INTERFACE_INCLUDE_DIRECTORIES = ${BLAH}")
-# set(CMAKE_USE_RELATIVE_PATHS ON)
-# message("CMAKE_USE_RELATIVE_PATHS = ${CMAKE_USE_RELATIVE_PATHS}")
-# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
+# TEMP: for now, just include all include directories
 foreach(_include_directory ${Components_INCLUDE_DIRECTORIES})
     target_include_directories(Components PRIVATE ${_include_directory})
     target_include_directories(Components INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_include_directory}>)
