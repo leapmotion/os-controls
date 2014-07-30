@@ -308,11 +308,8 @@ define_component(
 set(NON_COMPONENTIZED_CODE
     # Color.cpp # has other dependencies
     # Color.h
-    DataTypes.h
     # FrameBufferObject.cpp # depends on SimGL.h which has other dependencies
     # FrameBufferObject.h
-    # GLBuffer.cpp # has other dependencies
-    # GLBuffer.h
     OculusVR.cpp
     OculusVR.h
     Primitive.cpp
