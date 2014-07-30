@@ -202,6 +202,19 @@ define_component(
 )
 
 ###################################################################################################
+# The Primitives component provides some simple shapes in a transform hierarchy.
+###################################################################################################
+
+define_component(
+    Primitives
+    "Primitive.h;Rectangle.h"     # sources to install
+    "Primitive.cpp;Rectangle.cpp" # sources which won't be installed
+    ""                            # non-sources to install
+    "EigenTypes"                  # explicit component dependencies
+    ""                            # explicit library dependencies
+)
+
+###################################################################################################
 # The Resource component provides convenient loading of ResourceManager-managed typed resources
 # via a typed ResourceManager singleton.
 ###################################################################################################
