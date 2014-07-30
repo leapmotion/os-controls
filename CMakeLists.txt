@@ -93,6 +93,20 @@ define_component(
 )
 
 ###################################################################################################
+# The FbxSceneLoader component provides ResourceManager-managed loading of FbxScene objects
+# using the FBX SDK library.
+###################################################################################################
+
+define_component(
+    FbxSceneLoader
+    "FbxSceneLoader.h"                  # sources to install
+    "FbxSceneLoader.cpp"                # sources which won't be installed
+    ""                                  # non-sources to install
+    "ResourceManager;SDLController"     # explicit component dependencies
+    "FbxSdk"                            # explicit library dependencies
+)
+
+###################################################################################################
 # The FrameBufferObject component provides a way to render to a render buffer or texture
 ###################################################################################################
 
@@ -116,20 +130,6 @@ define_component(
     ""                  # non-sources to install
     "GLCompatiblity"    # explicit component dependencies
     ""                  # explicit library dependencies
-)
-
-###################################################################################################
-# The FbxSceneLoader component provides ResourceManager-managed loading of FbxScene objects
-# using the FBX SDK library.
-###################################################################################################
-
-define_component(
-    FbxSceneLoader
-    "FbxSceneLoader.h"                  # sources to install
-    "FbxSceneLoader.cpp"                # sources which won't be installed
-    ""                                  # non-sources to install
-    "ResourceManager;SDLController"     # explicit component dependencies
-    "FbxSdk"                            # explicit library dependencies
 )
 
 ###################################################################################################
