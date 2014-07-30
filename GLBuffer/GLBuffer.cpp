@@ -1,7 +1,7 @@
 #include "GLBuffer.h"
 #include <iostream>
 
-GLBuffer::GLBuffer() : type_(0), buffer_(0) { }
+GLBuffer::GLBuffer() : buffer_(0), type_(0) { }
 
 void GLBuffer::create(GLenum type) {
   type_ = type;

@@ -4,6 +4,10 @@ Primitive::Primitive() {
 
 }
 
+Primitive::~Primitive() {
+
+}
+
 void Primitive::AddChild(std::shared_ptr<Primitive>& child) {
   m_Children.emplace(child);
   child->m_Parent = shared_from_this();
