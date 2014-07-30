@@ -412,12 +412,13 @@ add_library(Components ${Components_SOURCES})
 # TEMP: for now, just link all library dependencies.  TODO: determine the libraries to link
 # based on the desired set of components.
 
+# Please keep these in alphabetical order.
 target_package(Components Eigen 3.1.2 REQUIRED)
-target_package(Components OpenGL REQUIRED)
 target_package(Components FbxSdk REQUIRED)
 target_package(Components FreeImage REQUIRED)
-target_package(Components SDL 2 REQUIRED)
 target_package(Components Glew 1.9.0 REQUIRED)
+target_package(Components OpenGL REQUIRED)
+target_package(Components SDL 2 REQUIRED)
 # This appears to be necessary (to build the Components library as a shared library on Mac).
 # I'm not sure why it's different than the others.
 target_link_libraries(Components ${OPENGL_gl_LIBRARY})
