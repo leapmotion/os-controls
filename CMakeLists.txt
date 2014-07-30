@@ -7,6 +7,10 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
 project(Components)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
+# TODO: set a default value for CMAKE_INSTALL_PREFIX to something like
+# Components-versionnumber
+# TODO: also look into cpack (for making Mac frameworks, Windows NSIS stuff, deb files, etc.)
+
 ###################################################################################################
 
 # Module path and module includes
@@ -29,7 +33,8 @@ if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
   return()
 endif()
 
-#Add to the general include directory
+# CMAKE_PREFIX_PATH is the path used for searching by FIND_XXX(), with appropriate suffixes added.
+# EXTERNAL_LIBRARY_DIR is a hint for all the find_library calls.
 list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 
 ###################################################################################################
@@ -379,28 +384,15 @@ endforeach()
 # otherwise it could become a dumping ground like MathUtil or Utility.
 
 ###################################################################################################
-# Rpath stuff (necessary for when libraries are moved).  From http://www.cmake.org/Wiki/CMake_RPATH_handling
+# Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
 ###################################################################################################
 
 # TODO: make these into target properties.  BUILD_WITH_INSTALL_RPATH is a target property.
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-# This specifies the directory prefix for the install name (see output of `otool -L libComponents.dylib`)
+# This specifies the directory prefix for the install name (see output of `otool -L libComponents.dylib`).
+# Shared libraries should use "@loader_path", and can be installed side by side with the application
+# binary.  See the Stub example app for usage.
 set(CMAKE_INSTALL_NAME_DIR "@loader_path")
-
-# if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
-#     set(CMAKE_SHARED_LINKER_FLAGS "-headerpad_max_install_names")
-# endif()
-
-# # Use, i.e. don't skip, the full RPATH for the build tree
-# set(CMAKE_SKIP_BUILD_RPATH FALSE)
-# # When building, don't use the install RPATH already (but later on when installing).
-# set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-# set(CMAKE_INSTALL_RPATH "lib")
-# # Add the automatically determined parts of the RPATH which point to directories outside
-# # the build tree to the install RPATH.
-# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 ###################################################################################################
 # The Components library (static and/or shared) is defined here, along with library dependencies.
@@ -412,11 +404,13 @@ set(CMAKE_INSTALL_NAME_DIR "@loader_path")
 # However I haven't implemented this directly because there is a different name collision
 # problem in multiple calls to target_package to specify dependencies (e.g. on Eigen).
 
-# NOTE: I'm getting a linker error when building Components as a shared lib on Mac.
+# TODO: could/should this be a target property?
 option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
 
+# Define the "Components" target -- it's a library having the specified sources.
 add_library(Components ${Components_SOURCES})
-# TEMP: for now, just link all library dependencies.
+# TEMP: for now, just link all library dependencies.  TODO: determine the libraries to link
+# based on the desired set of components.
 
 target_package(Components Eigen 3.1.2 REQUIRED)
 target_package(Components OpenGL REQUIRED)
@@ -430,8 +424,6 @@ target_link_libraries(Components ${OPENGL_gl_LIBRARY})
 
 # Define rules for creating a release distribution
 define_install_rules(Components "${COMPONENTS}")
-# include(PrintTargetProperties)
-# echo_target(Components)
 
 ###################################################################################################
 # Include directories and compiler flags
@@ -455,18 +447,33 @@ define_install_rules(Components "${COMPONENTS}")
 # message("CMAKE_USE_RELATIVE_PATHS = ${CMAKE_USE_RELATIVE_PATHS}")
 # message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
 foreach(_include_directory ${Components_INCLUDE_DIRECTORIES})
-    # target_include_directories should actually be used here, but I sure can't get it working.
-    set_property(TARGET Components APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/${_include_directory})
+    target_include_directories(Components PRIVATE ${_include_directory})
+    target_include_directories(Components INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_include_directory}>)
 endforeach()
 
 # TODO: use target_compile_definitions and target_compile_options
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # This is the correct way to detect the Clang compiler -- see http://www.cmake.org/cmake/help/v3.0/variable/CMAKE_LANG_COMPILER_ID.html#variable:CMAKE_<LANG>_COMPILER_ID
+    # TODO: there's probably some "real" way to get the compiler version,
+    # or really just handle the -Wno-deprecated-register option more gracefully.
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE clang_full_version_string)
+    string(REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING ${clang_full_version_string})
+    message("CLANG_VERSION_STRING = ${CLANG_VERSION_STRING}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
+    if (CLANG_VERSION_STRING VERSION_GREATER 4.2)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-register")
+    endif()
 endif() # TODO: GCC ("GNU"), MSVC
 
-# This would be used for linking to the Components library from its build dir,
-# but is NOT the way we want to do this (probably).
-# export(TARGETS Components FILE ComponentsConfig.cmake)
+# Some debug spew
+# include(PrintTargetProperties)
+# echo_target(Components)
+
+# This command causes a ComponentsConfig.cmake file to be generated, which defines
+# the cmake target properties for the Components target for use by external apps,
+# but only for when you want to include/link this library from the build dir.
+# NOTE: The file generated by this is NOT intended to be installed, and cmake is 
+# supposed to not install it.
+export(TARGETS Components FILE ComponentsConfig.cmake)
 
 ###################################################################################################
 # These Doxygen build rules were taken from 
