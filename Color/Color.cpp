@@ -1,16 +1,6 @@
-/*==================================================================================================================
+#include "Color.h"
 
-    Copyright (c) 2010 - 2013 Leap Motion. All rights reserved.
-
-  The intellectual and technical concepts contained herein are Proprietary and confidential to Leap Motion, and are
-  protected by trade secret or copyright law. Dissemination of this information or reproduction of this material is
-  strictly forbidden unless prior written permission is obtained from Leap Motion.
-
-===================================================================================================================*/
-#include "FigureColor.h"
-#include "Utility/MathUtil.h"
-
-void FigureColor::FromHSV(float h, float s, float v, float a) {
+void Color::FromHSV(float h, float s, float v, float a) {
   float hh, p, q, t, ff;
   long i;
   if (s <= 0.0f) {
@@ -38,7 +28,7 @@ void FigureColor::FromHSV(float h, float s, float v, float a) {
   }
 }
 
-void FigureColor::ToHSV(float& h, float& s, float& v) const {
+void Color::ToHSV(float& h, float& s, float& v) const {
   const float r = R();
   const float g = G();
   const float b = B();
@@ -49,7 +39,7 @@ void FigureColor::ToHSV(float& h, float& s, float& v) const {
   max = max > b ? max : b;
   v = max;
   delta = max - min;
-  if (max > OCU_EPSILON) {
+  if (max > 0.0001f) {
     s = (delta / max);
   } else {
     s = 0.0f;

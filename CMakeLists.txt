@@ -102,6 +102,18 @@ define_component_as_library(
 )
 
 define_component_as_library(
+    Color
+    HEADERS
+        Color.h
+    SOURCES
+        Color.cpp
+    EXPLICIT_COMPONENT_DEPENDENCIES
+        EigenTypes
+    BRIEF_DOC_STRING
+        "Provides RGBA color and some color-space conversions."
+)
+
+define_component_as_library(
     EigenTypes
     HEADERS
         EigenTypes.h
@@ -482,16 +494,8 @@ export(
 # and require a nontrivial amount of integration work.
 # Please keep these alphabetized.
 set(NON_COMPONENTIZED_CODE
-    # Color.cpp # has other dependencies
-    # Color.h
-    # FrameBufferObject.cpp # depends on SimGL.h which has other dependencies
-    # FrameBufferObject.h
     OculusVR.cpp
     OculusVR.h
-    Primitive.cpp
-    Primitive.h
-    RenderBuffer.cpp
-    RenderBuffer.h
     # SimGL.cpp # has other dependencies
     # SimGL.h
     Texture.cpp 
