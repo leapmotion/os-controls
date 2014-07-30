@@ -1,3 +1,5 @@
+#if __APPLE__
+
 #include "SDLController.h"
 
 #include <AppKit/NSOpenGL.h>
@@ -51,3 +53,4 @@ void MakeTransparent_Apple (const SDL_SysWMinfo &sys_wm_info, SDL_GLContext c) {
   }
 }
 
+#endif

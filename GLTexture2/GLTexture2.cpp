@@ -11,7 +11,9 @@
 void ThrowOnGLError (const std::string &while_doing) {
   GLenum code = glGetError();
   if (code != GL_NO_ERROR) {
-    throw std::runtime_error("OpenGL error \"" + std::string(reinterpret_cast<const char *>(gluErrorString(code))) + "\" " + while_doing);
+    std::stringstream ss;
+    ss << "OpenGL error " << code << " " << while_doing;
+    throw std::runtime_error(ss.str());
   }
 }
 
