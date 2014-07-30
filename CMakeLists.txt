@@ -80,6 +80,19 @@ define_component(
 
 
 ###################################################################################################
+# The EigenTypes component provides convenience typedefs for working with Eigen matrices.
+###################################################################################################
+
+define_component(
+    EigenTypes            
+    "EigenTypes.h"      # sources to install
+    ""                  # sources which won't be installed
+    ""                  # non-sources to install
+    ""                  # explicit component dependencies
+    "Eigen"             # explicit library dependencies
+)
+
+###################################################################################################
 # The GLBuffer component provides a fast GPU buffer object for geometry.
 ###################################################################################################
 
