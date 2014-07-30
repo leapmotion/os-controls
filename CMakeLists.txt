@@ -93,6 +93,19 @@ define_component(
 )
 
 ###################################################################################################
+# The FrameBufferObject component provides a way to render to a render buffer or texture
+###################################################################################################
+
+define_component(
+    FrameBufferObject            
+    "FrameBufferObject.h;RenderBuffer.h"        # sources to install
+    "FrameBufferObject.cpp;RenderBuffer.cpp"    # sources which won't be installed
+    ""                                          # non-sources to install
+    "GLTexture2;GLCompatibility"                # explicit component dependencies
+    ""                                          # explicit library dependencies
+)
+
+###################################################################################################
 # The GLBuffer component provides a fast GPU buffer object for geometry.
 ###################################################################################################
 

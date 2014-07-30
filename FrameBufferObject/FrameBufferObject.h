@@ -2,8 +2,8 @@
 
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 
+class GLTexture2;
 class RenderBuffer;
-class Texture;
 
 /// <summary>
 /// The FrameBufferObject class is a wrapper around the OpenGL Framebuffer functionality.  The class will create a
@@ -54,7 +54,7 @@ public:
   /// <summary>
   /// Get the Color Texture.  This function may return null (i.e. uses RenderBuffer for multisampling)
   /// </summary>
-  Texture* ColorTexture();
+  GLTexture2* ColorTexture();
 
   bool HasError() const;
 
@@ -95,6 +95,6 @@ protected:
   RenderBuffer*         m_ColorRenderBuffer;
   RenderBuffer*         m_DepthRenderBuffer;
   
-  Texture*              m_ColorTexture;
-  Texture*              m_DepthTexture;
+  GLTexture2*           m_ColorTexture;
+  GLTexture2*           m_DepthTexture;
 };

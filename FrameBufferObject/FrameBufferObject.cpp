@@ -1,7 +1,7 @@
 #include "FrameBufferObject.h"
 
+#include "GLTexture2.h"
 #include "RenderBuffer.h"
-#include "Texture.h"
 
 #include <assert.h>
 
@@ -58,7 +58,7 @@ void FrameBufferObject::Bind()
   glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferId);
 }
 
-Texture* FrameBufferObject::ColorTexture()
+GLTexture2* FrameBufferObject::ColorTexture()
 {
   return m_ColorTexture;
 }
@@ -96,13 +96,13 @@ void FrameBufferObject::Unbind()
 // protected
 
 FrameBufferObject::FrameBufferObject(int width, int height, const Format& format)
-  : m_Height(height)
+  : m_Error(false)
+  , m_Height(height)
   , m_Width(width)
   , m_Format(format)
-  , m_Error(false)
   , m_ColorRenderBuffer(nullptr)
-  , m_ColorTexture(nullptr)
   , m_DepthRenderBuffer(nullptr)
+  , m_ColorTexture(nullptr)
   , m_DepthTexture(nullptr)
 {
   // TODO: make util function
@@ -137,16 +137,12 @@ bool FrameBufferObject::checkStatus()
 bool FrameBufferObject::initColor()
 {
   if (m_Samples == 0) {
-    Texture::Format tFormat;
-    tFormat.imageFormat = GL_RGBA;
-    tFormat.internalFormat = m_Format.internalColor;
-    m_ColorTexture = Texture::Create(m_Width, m_Height, tFormat);
-    if (m_ColorTexture == nullptr) {
-      return false;
-    } else {
-      // Attachment textures to FBO
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
-    }
+    GLTexture2Params params(m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE);
+    params.SetInternalFormat(m_Format.internalColor);
+    m_ColorTexture = new GLTexture2(params, nullptr, m_Width * m_Height);
+    
+    // Attachment textures to FBO
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
   } else { // multisampling
     RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalColor;
@@ -170,16 +166,12 @@ bool FrameBufferObject::initDepth()
   }
   
   if (m_Samples == 0) {
-    Texture::Format tFormat;
-    tFormat.imageFormat = GL_DEPTH_COMPONENT;
-    tFormat.internalFormat = m_Format.internalDepth;
-    m_DepthTexture = Texture::Create(m_Width, m_Height, tFormat);
-    if (m_DepthTexture == nullptr) {
-      return false;
-    } else {
-      // Attachment textures to FBO
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_DepthTexture->Id(), 0);
-    }
+    GLTexture2Params params(m_Width, m_Height, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE);
+    params.SetInternalFormat(m_Format.internalDepth);
+    m_DepthTexture = new GLTexture2(params, nullptr, m_Width * m_Height);
+
+    // Attachment textures to FBO
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_DepthTexture->Id(), 0);
   } else { // multisampling
     RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalDepth;
