@@ -38,7 +38,7 @@ void MakeTransparent_Apple (const SDL_SysWMinfo &sys_wm_info, SDL_GLContext c) {
     NSWindow *window = sys_wm_info.info.cocoa.window;
     // [window orderOut:window]; // this call seems to block the visibility of the window entirely
     [window setOpaque:NO];
-    // [window setHasShadow:NO];
+    [window setHasShadow:NO];
     [window setHidesOnDeactivate:NO];
     [window setBackgroundColor:[NSColor clearColor]];
     [window setBackingType:NSBackingStoreBuffered];
