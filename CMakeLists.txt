@@ -106,6 +106,20 @@ define_component(
 )
 
 ###################################################################################################
+# The FbxSceneLoader component provides ResourceManager-managed loading of FbxScene objects
+# using the FBX SDK library.
+###################################################################################################
+
+define_component(
+    FbxSceneLoader
+    "FbxSceneLoader.h"                  # sources to install
+    "FbxSceneLoader.cpp"                # sources which won't be installed
+    ""                                  # non-sources to install
+    "ResourceManager;SDLController"     # explicit component dependencies
+    "FbxSdk"                            # explicit library dependencies
+)
+
+###################################################################################################
 # The GLCompatibility component provides means for including OpenGL (and related) headers in
 # a platform-agnostic way.
 ###################################################################################################
@@ -393,6 +407,7 @@ add_library(Components ${Components_SOURCES})
 
 target_package(Components Eigen 3.1.2 REQUIRED)
 target_package(Components OpenGL REQUIRED)
+target_package(Components FbxSdk REQUIRED)
 target_package(Components FreeImage REQUIRED)
 target_package(Components SDL 2 REQUIRED)
 target_package(Components Glew 1.9.0 REQUIRED)
