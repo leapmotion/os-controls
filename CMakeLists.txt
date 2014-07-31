@@ -231,6 +231,18 @@ define_component_as_library(
 )
 
 define_component_as_library(
+    GLMatrices
+    HEADERS
+        ModelViewProjection.h
+    SOURCES
+        ModelViewProjection.cpp
+    EXPLICIT_COMPONENT_DEPENDENCIES
+        GLCompatibility
+    BRIEF_DOC_STRING
+        "Provides manipulation of modelview and projection matrices for usage in shaders."
+)
+
+define_component_as_library(
     GLShader
     HEADERS
         GLShader.h
