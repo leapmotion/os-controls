@@ -15,8 +15,10 @@ set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 ###################################################################################################
 
 # Module path and module includes
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
-include(Components)
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH}
+    ${CMAKE_CURRENT_SOURCE_DIR}                     # For DefineComponents.cmake
+    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules") # For most other cmake modules
 include(ListSubdirectories)
 include(TargetImportedLibraries) # for Walter's target_package command
 
@@ -69,6 +71,7 @@ list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 # The total component dependencies of a component can be determined recursively using these
 # definitions.  Similarly, the total library dependencies of a component can be determined.
 
+include(DefineComponents)
 begin_component_definitions()
 
 ###################################################################################################
