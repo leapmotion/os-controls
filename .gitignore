@@ -1,0 +1,13 @@
+CMakeCache.txt
+cmake_install.cmake
+*.vcxproj
+*.filters
+CMakeFiles
+CPackConfig.cmake
+CPackSourceConfig.cmake
+*.opensdf
+*.sdf
+*.suo
+*.dir
+*.sln
+*.ipch
