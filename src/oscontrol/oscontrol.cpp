@@ -1,21 +1,28 @@
 #include "stdafx.h"
 #include "oscontrol.h"
+#include "LeapInput.h"
+#include "MainWindow.h"
+#include "SdlInitializer.h"
 #include <autowiring/autowiring.h>
 #include <SDL.h>
 
 int main(int argc, char **argv)
 {
-  if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
-    return -1;
-
-  auto cleanupSDL = MakeAtExit(&SDL_Quit);
-
   try {
-    MainWindow app;
+    OsControl().Main();
   }
   catch(...) {
     return -1;
   }
 
   return 0;
+}
+
+OsControl::OsControl(void) :
+  m_mw("")
+{}
+
+void OsControl::Main(void) {
+  AutoCurrentContext()->Initiate();
+  m_mw->DelegatedMain();
 }
