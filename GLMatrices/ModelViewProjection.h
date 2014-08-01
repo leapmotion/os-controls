@@ -11,7 +11,7 @@ public:
   void SetCurrent();
   void Perspective(double left, double bottom, double right, double top, double nearClip, double farClip);
   void Perspective(double hFovRadians, double widthOverHeight, double nearClip, double farClip);
-  void Orthographic(double left, double bottom, double right, double top);
+  void Orthographic(double left, double bottom, double right, double top, double nearClip, double farClip);
   Vector2 Project(const Vector3& point) const;
   void SetUniform(int address) const;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

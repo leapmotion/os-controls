@@ -33,10 +33,10 @@ void Projection::Perspective(double hFovRadians, double widthOverHeight, double 
   Perspective(left, bottom, right, top, nearClip, farClip);
 }
 
-void Projection::Orthographic(double left, double bottom, double right, double top) {
+void Projection::Orthographic(double left, double bottom, double right, double top, double nearClip, double farClip) {
   m_matrix << 2/(right - left), 0, 0, (right + left)/(left - right),
     0, 2/(top - bottom), 0, (top + bottom)/(bottom - top),
-    0, 0, 1, 0,
+    0, 0, 2/(farClip - nearClip), (farClip + nearClip)/(farClip - nearClip),
     0, 0, 0, 1;
 }
 
