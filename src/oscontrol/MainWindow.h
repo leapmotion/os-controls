@@ -15,7 +15,6 @@ public:
   void Start(void);
 
 private:
-
   const uint32_t m_windowFlags;
   const std::shared_ptr<SDL_Window> m_SDL_Window;
 

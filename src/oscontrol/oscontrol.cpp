@@ -2,6 +2,7 @@
 #include "oscontrol.h"
 #include "LeapInput.h"
 #include "MainWindow.h"
+#include "MediaController.h"
 #include "SdlInitializer.h"
 #include <SDL.h>
 
@@ -35,11 +36,16 @@ void OsControl::Main(void) {
     m_stateCondition.notify_all();
   });
 
+  AutoRequired<AutoPacketFactory> factory;
+
   // Dispatch events until told to quit:
   while(!ShouldStop()) {
     SDL_Event ev;
     while(SDL_PollEvent(&ev))
       HandleEvent(ev);
+
+    // 
+    auto packet = factory->NewPacket();
   }
 }
 

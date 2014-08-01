@@ -3,6 +3,7 @@
 
 class LeapInput;
 class MainWindow;
+class MediaController;
 class SdlInitializer;
 union SDL_Event;
 
@@ -19,6 +20,7 @@ private:
 
   AutoRequired<SdlInitializer> m_initializer;
   AutoConstruct<MainWindow> m_mw;
+  AutoRequired<MediaController> m_media;
   AutoRequired<LeapInput> m_leapInput;
 
   // Requirements for this to be a CoreRunnable:
