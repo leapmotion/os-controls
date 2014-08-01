@@ -11,7 +11,11 @@ set(oscontrol_SOURCES
   RenderingContext.cpp
 )
 
-add_executable(oscontrol ${oscontrol_SOURCES})
+if(WIN32)
+  set(oscontrol_EXEFLAGS WIN32 ${oscontrol_EXEFLAGS})
+endif()
+
+add_executable(oscontrol ${oscontrol_EXEFLAGS} ${oscontrol_SOURCES})
 target_link_libraries(oscontrol Autowiring)
 target_package(oscontrol SDL 2.0.1 REQUIRED)
 target_package(oscontrol Leap REQUIRED)

@@ -21,12 +21,6 @@ private:
 
   // Need SDL to be initialized before we try to use SDL
   AutoRequired<SdlInitializer> m_initializer;
-
-public:
-  /// <summary>
-  /// Delegates the main thread to this class for the remaining lifetime of the applicatoin
-  /// </summary>
-  void DelegatedMain(void);
 };
 
 static_assert(!std::is_abstract<MainWindow>::value, "Main window cannot be abstract");
