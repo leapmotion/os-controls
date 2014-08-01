@@ -3,12 +3,23 @@
 # ------------
 #
 # Created by Victor Dods
-# Functions and macros which assist in defining "components".
+# Functions and macros which assist in defining "components" (here, "components" has a meaning
+# distinct from the one used generally in cmake).
 #
 # A "component" can be thought of as a "sub-library" (in the sense that it is a small library and
 # is subordinate to the whole library).  A component satisfies two requirements:
 # - Has a well-defined purpose, scope, and feature set.
 # - Has well-defined dependencies, which are explicitly declared and are minimal.
+#
+# What is a good criteria for deciding how to group source code into components?
+# Consider the set of all reasonable (non-contrived) applications that may use the
+# code -- think of each source file to be a point in a plane.  Each application is
+# going to use some subset of that source code, which corresponds to some subset
+# of points in the plane.  For a given source file X, consider the set A of all
+# applications that use it, and take the intersection I of the sets of source code
+# that each application in A uses.  This will be some subset which contains X.  The
+# component that X should belong to should contain exactly the set of source code I,
+# which may contain more than just X.  TODO: visual example
 #
 # This is the list of defined components.  The component name should be identical to
 # the subdirectory which contains all its source files.  A component name should be
@@ -59,6 +70,88 @@ macro(begin_component_definitions)
     set(COMPONENTS "")
 endmacro()
 
+# include(TargetImportedLibraries)
+
+# This is a private helper function which implements the recursion of the graph traversal
+# algorithm.  The reason it's implemented using a macro instead of a function is because
+# all variables set in functions are locally scoped, and the way to get around that, using
+# set with PARENT_SCOPE, is shitty and does not behave in a predictable way in this setting.
+# Also, the reason that the dumb nested if/else statements are used instead of early-out
+# return statements is because returning from a macro actually returns from the function
+# invoking it.
+macro(_compute_all_component_dependencies_of COMPONENT RECURSION_INDENT PRINT_DEBUG_MESSAGES)
+    set(_explicit_dependencies ${${COMPONENT}_EXPLICIT_COMPONENT_DEPENDENCIES})
+    list(LENGTH _explicit_dependencies _explicit_dependency_count)
+
+    # If COMPONENT has already been visited, return nothing
+    list(FIND VISITED ${COMPONENT} _index)
+    if(NOT ${_index} LESS 0) # If _index >= 0, then COMPONENT was found in _visited
+        if(${PRINT_DEBUG_MESSAGES})
+            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... base case -- already visited")
+        endif()
+    # If there are no explicit dependencies, return COMPONENT
+    elseif(${_explicit_dependency_count} EQUAL 0)
+        if(${PRINT_DEBUG_MESSAGES})
+            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... base case -- no explicit dependencies")
+        endif()
+        list(APPEND VISITED ${COMPONENT}) # Mark COMPONENT as visited.
+    # Otherwise there are unvisited dependencies to visit, so recurse on them.
+    else()
+        if(${PRINT_DEBUG_MESSAGES})
+            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... recursing on dependencies [${_explicit_dependencies}]")
+        endif()
+        list(APPEND VISITED ${COMPONENT}) # Mark COMPONENT as visited.
+        foreach(_dependency ${_explicit_dependencies})
+            _compute_all_component_dependencies_of(${_dependency} "${RECURSION_INDENT}    " ${PRINT_DEBUG_MESSAGES})
+        endforeach()
+    endif()
+endmacro()
+
+# This function traverses the directed graph of component dependencies (there may be
+# cycles of mutually-dependent components).  COMPONENT should be the component whose
+# dependencies will be computed.  The output is placed in _retval_name, which will be
+# set to the list of all dependencies of COMPONENT.  COMPONENT is considered a dependency
+# of itself.
+function(compute_all_component_dependencies_of COMPONENT _retval_name)
+    set(VISITED "")
+    _compute_all_component_dependencies_of(${COMPONENT} "" 0)
+    # TODO: maybe sort the elements of VISITED
+    set(${_retval_name} ${VISITED} PARENT_SCOPE)
+endfunction()
+
+function(define_component_as_library NAME SOURCES_TO_INSTALL SOURCES_NO_INSTALL RESOURCES_TO_INSTALL EXPLICIT_COMPONENT_DEPENDENCIES EXPLICIT_LIBRARY_DEPENDENCIES)
+    set(SOURCES ${SOURCES_TO_INSTALL} ${SOURCES_NO_INSTALL})
+    set(COMPONENT_TARGET "Components_${NAME}")
+    message("define_component_as_library NAME = ${NAME}, COMPONENT_TARGET = ${COMPONENT_TARGET}")
+    add_library(${COMPONENT_TARGET} ${SOURCES})
+    # Now ${COMPONENT_TARGET} is a target, and we will set its target properties to
+    # configure its build rules.
+    target_include_directories(${COMPONENT_TARGET} PRIVATE ${NAME})
+    target_include_directories(${COMPONENT_TARGET} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${NAME}>)
+    # Define the include directories for COMPONENT_TARGET recursively via its explicit dependencies
+    message("recursively obtaining include directories from explicit component dependencies: ${EXPLICIT_COMPONENT_DEPENDENCIES}")
+    foreach(EXPLICIT_COMPONENT_DEPENDENCY ${EXPLICIT_COMPONENT_DEPENDENCIES})
+        # TODO: check that ${EXPLICIT_COMPONENT_DEPENDENCY} is a defined target
+        set(EXPLICIT_COMPONENT_DEPENDENCY_TARGET "Components_${EXPLICIT_COMPONENT_DEPENDENCY}")
+        # Use EXPLICIT_COMPONENT_DEPENDENCY_TARGET's include directories
+        get_target_property(
+            EXPLICIT_COMPONENT_DEPENDENCY_INCLUDE_DIRECTORIES
+            ${EXPLICIT_COMPONENT_DEPENDENCY_TARGET}
+            INCLUDE_DIRECTORIES)
+        get_target_property(
+            EXPLICIT_COMPONENT_DEPENDENCY_INTERFACE_INCLUDE_DIRECTORIES
+            ${EXPLICIT_COMPONENT_DEPENDENCY_TARGET}
+            INTERFACE_INCLUDE_DIRECTORIES)
+        message(
+            "    EXPLICIT_COMPONENT_DEPENDENCY_TARGET = ${EXPLICIT_COMPONENT_DEPENDENCY_TARGET},\n"
+            "    INCLUDE_DIRECTORIES = ${EXPLICIT_COMPONENT_DEPENDENCY_INCLUDE_DIRECTORIES},\n"
+            "    INTERFACE_INCLUDE_DIRECTORIES = ${EXPLICIT_COMPONENT_DEPENDENCY_INTERFACE_INCLUDE_DIRECTORIES}\n")
+        # target_include_directories(${COMPONENT_TARGET} PRIVATE ${EXPLICIT_COMPONENT_DEPENDENCY_INCLUDE_DIRECTORIES})
+        # target_include_directories(${COMPONENT_TARGET} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${EXPLICIT_COMPONENT_DEPENDENCY_TARGET}>)
+    endforeach()
+endfunction()
+
+# TODO: use CMakePackageConfigHelpers: http://www.cmake.org/cmake/help/git-master/module/CMakePackageConfigHelpers.html#module:CMakePackageConfigHelpers
 macro(define_component NAME SOURCES_TO_INSTALL SOURCES_NO_INSTALL RESOURCES_TO_INSTALL EXPLICIT_COMPONENT_DEPENDENCIES EXPLICIT_LIBRARY_DEPENDENCIES)
     # message("defining component \"${NAME}\" with:\n"
     #         "\tSOURCES_TO_INSTALL = ${SOURCES_TO_INSTALL}\n"
