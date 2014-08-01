@@ -23,6 +23,12 @@ add_windows_sources(
   MediaControllerWin.cpp
 )
 
+add_mac_sources(
+  oscontrol_SOURCES
+  MediaControllerMac.h
+  MediaControllerMac.cpp
+)
+
 if(WIN32)
   set(oscontrol_EXEFLAGS WIN32 ${oscontrol_EXEFLAGS})
 endif()
