@@ -11,3 +11,7 @@ CPackSourceConfig.cmake
 *.dir
 *.sln
 *.ipch
+*.pdb
+Win32
+Debug
+Release
