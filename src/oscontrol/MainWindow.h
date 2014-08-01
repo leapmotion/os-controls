@@ -1,6 +1,4 @@
 #pragma once
-#include <autowiring/autowiring.h>
-#include <autowiring/CoreRunnable.h>
 #include <vector>
 
 struct SDL_Window;

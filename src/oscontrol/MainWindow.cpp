@@ -11,7 +11,7 @@ MainWindow::MainWindow(const char* windowTitle):
     // Transparent window only works properly when the window is borderless
     SDL_WINDOW_BORDERLESS
   ),
-  m_SDL_Window(SDL_CreateWindow(windowTitle, 0, 0, 0, 0, m_windowFlags), &SDL_DestroyWindow)
+  m_SDL_Window(SDL_CreateWindow(windowTitle, 0, 0, 150, 150, m_windowFlags), &SDL_DestroyWindow)
 {
 }
 

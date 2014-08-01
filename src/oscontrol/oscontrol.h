@@ -5,7 +5,9 @@ class LeapInput;
 class MainWindow;
 class SdlInitializer;
 
-class OsControl {
+class OsControl:
+  public ExceptionFilter
+{
 public:
   OsControl(void);
 
@@ -16,4 +18,5 @@ private:
 
 public:
   void Main(void);
+  void Filter(void);
 };
