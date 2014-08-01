@@ -17,14 +17,14 @@ set(oscontrol_SOURCES
   WindowSpaces.cpp
 )
 
-set(oscontrol_SOURCES_WIN
+add_windows_sources(
+  oscontrol_SOURCES
   MediaControllerWin.h
   MediaControllerWin.cpp
 )
 
 if(WIN32)
   set(oscontrol_EXEFLAGS WIN32 ${oscontrol_EXEFLAGS})
-  set(oscontrol_SOURCES ${oscontrol_SOURCES_WIN} ${oscontrol_SOURCES})
 endif()
 
 add_executable(oscontrol ${oscontrol_EXEFLAGS} ${oscontrol_SOURCES})

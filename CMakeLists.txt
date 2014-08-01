@@ -20,6 +20,7 @@ list(INSERT CMAKE_PREFIX_PATH 0 "${EXTERNAL_LIBRARY_DIR}")
 
 include(TargetImportedLibraries)
 include(AddMSVCPrecompiledHeader)
+include(ConditionalSources)
 
 add_subdirectory(contrib)
 add_subdirectory(src)
