@@ -44,7 +44,7 @@ void OsControl::Main(void) {
     while(SDL_PollEvent(&ev))
       HandleEvent(ev);
 
-    // 
+    // Pilot a packet through the system:
     auto packet = factory->NewPacket();
   }
 }
