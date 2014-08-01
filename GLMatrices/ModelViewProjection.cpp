@@ -79,10 +79,11 @@ void ModelView::LookAt(const Vector3& eye, const Vector3& center, const Vector3&
   Vector3 y = up;
   Vector3 x = y.cross(z).normalized();
   y = z.cross(x).normalized();
-  mat.row(0) << x, center.x();
-  mat.row(1) << y, center.y();
-  mat.row(2) << z, center.z();
-  mat.row(3) << 0.0, 0.0, 0.0, 1.0;
+  mat.setIdentity();
+  mat.col(0) << x, 0;
+  mat.col(1) << y, 0;
+  mat.col(2) << z, 0;
+  mat.col(3) << -x.dot(eye), -y.dot(eye), -z.dot(eye), 1.0;
 }
 
 void ModelView::Translate(const Vector3& translation) {
