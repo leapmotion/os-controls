@@ -337,14 +337,19 @@ define_component_as_library(
 define_component_as_library(
     Primitives
     HEADERS
-        Primitive.h
-        Rectangle.h
+        PrimitiveBase.h
+        PrimitiveGeometry.h
+        Primitives.h
+        RenderState.h
     SOURCES
-        Primitive.cpp
-        Rectangle.cpp
+        PrimitiveBase.cpp
+        PrimitiveGeometry.cpp
+        Primitives.cpp
+        RenderState.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
         EigenTypes
+        GLBuffer
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )
