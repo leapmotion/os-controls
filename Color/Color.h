@@ -39,7 +39,7 @@ public:
   float& G() { return m_data[1]; }
   float& B() { return m_data[2]; }
   float& A() { return m_data[3]; }
-  const Eigen::Matrix<float, 4, 1>& Data() const { return m_data; }
+  const Vector4f& Data() const { return m_data; }
 
   // HSV conversions
   void FromHSV(float h, float s, float v, float a = 1.0f);
@@ -61,5 +61,5 @@ public:
   static const Color& Transparent() { static Color c(0.0f, 0.0f, 0.0f, 0.0f); return c; }
 
 private:
-  Eigen::Matrix<float, 4, 1> m_data;
+  Vector4f m_data;
 };
