@@ -355,63 +355,7 @@ define_component(
 )
 
 
-
-
-
-
-
-
-define_component(A "" "" "" "B" "")
-define_component(B "" "" "" "A" "")
-
-compute_all_component_dependencies_of(A X)
-message("dependencies of A = ${X}\n")
-
-compute_all_component_dependencies_of(B X)
-message("dependencies of B = ${X}\n")
-
-
-
-define_component(O "" "" "" "O" "")
-
-compute_all_component_dependencies_of(O X)
-message("dependencies of O = ${X}\n")
-
-
-
-define_component(U "" "" "" "V" "")
-define_component(V "" "" "" "W" "")
-define_component(W "" "" "" "U" "")
-
-compute_all_component_dependencies_of(U X)
-message("dependencies of U = ${X}\n")
-
-compute_all_component_dependencies_of(V X)
-message("dependencies of V = ${X}\n")
-
-compute_all_component_dependencies_of(W X)
-message("dependencies of W = ${X}\n")
-
-
-
-define_component(N "" "" "" "W;E" "")
-define_component(W "" "" "" "S" "")
-define_component(E "" "" "" "S" "")
-define_component(S "" "" "" "" "")
-
-compute_all_component_dependencies_of(N X)
-message("dependencies of N = ${X}\n")
-
-compute_all_component_dependencies_of(W X)
-message("dependencies of W = ${X}\n")
-
-compute_all_component_dependencies_of(E X)
-message("dependencies of E = ${X}\n")
-
-compute_all_component_dependencies_of(S X)
-message("dependencies of S = ${X}\n")
-
-
+test_compute_all_component_dependencies_of()
 
 compute_all_component_dependencies_of(GLCompatibility X)
 message("dependencies of GLCompatibility = ${X}\n")
@@ -427,23 +371,6 @@ message("dependencies of GLTexture2FreeImage = ${X}\n")
 
 compute_all_component_dependencies_of(GLTexture2Loader X)
 message("dependencies of GLTexture2Loader = ${X}\n")
-
-
-
-
-
-function(make_range START END _retval_name)
-    if(${START} GREATER ${END})
-        return()
-    endif()
-    math(EXPR _end_minus_one "${END} - 1")
-    make_range(${START} ${_end_minus_one} ${_retval_name})
-    set(${_retval_name} ${${_retval_name}} ${END} PARENT_SCOPE)
-endfunction()
-
-set(BLAH "hey")
-make_range(0 20 BLAH)
-message("make_range(0 20) -> ${BLAH}")
 
 ###################################################################################################
 # Here are the build rules for the overall library

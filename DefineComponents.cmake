@@ -110,12 +110,12 @@ endmacro()
 # This function traverses the directed graph of component dependencies (there may be
 # cycles of mutually-dependent components).  COMPONENT should be the component whose
 # dependencies will be computed.  The output is placed in _retval_name, which will be
-# set to the list of all dependencies of COMPONENT.  COMPONENT is considered a dependency
-# of itself.
+# set to the list of all dependencies of COMPONENT, and will be sorted alphabetically.
+# COMPONENT is considered a dependency of itself.
 function(compute_all_component_dependencies_of COMPONENT _retval_name)
     set(VISITED "")
     _compute_all_component_dependencies_of(${COMPONENT} "" 0)
-    # TODO: maybe sort the elements of VISITED
+    list(SORT VISITED)
     set(${_retval_name} ${VISITED} PARENT_SCOPE)
 endfunction()
 
@@ -218,3 +218,51 @@ function(define_install_rules TARGET DESIRED_COMPONENTS)
         endforeach()
     endforeach()
 endfunction()
+
+###################################################################################################
+# Test functions
+###################################################################################################
+
+macro(check_deps COMPONENT_NAME EXPECTED_DEPS)
+    compute_all_component_dependencies_of(${COMPONENT_NAME} DEPS)
+    if("${DEPS}" STREQUAL "${EXPECTED_DEPS}")
+        message("dependencies of ${COMPONENT_NAME} = ${DEPS} -- got expected value")
+    else()
+        message(ERROR " dependencies of ${COMPONENT_NAME} = ${DEPS} -- expected ${EXPECTED_DEPS}")
+    endif()
+endmacro()
+
+function(test_compute_all_component_dependencies_of)
+    # Mutually-dependending components.
+    define_component(A "" "" "" "B" "")
+    define_component(B "" "" "" "A" "")
+    check_deps(A "A;B")
+    check_deps(B "A;B")
+
+    # Self-dependending component (it's not necessary to specify self-dependency,
+    # but it shouldn't hurt either).
+    define_component(O "" "" "" "O" "")
+    check_deps(O "O")
+
+    # A 3-cycle of dependency.
+    define_component(P "" "" "" "Q" "")
+    define_component(Q "" "" "" "R" "")
+    define_component(R "" "" "" "P" "")
+    check_deps(P "P;Q;R")
+    check_deps(Q "P;Q;R")
+    check_deps(R "P;Q;R")
+
+    # A diamond of dependency -- the more-northern components depend
+    # on each more-southern components.
+    define_component(N "" "" "" "W;E" "")
+    define_component(W "" "" "" "S" "")
+    define_component(E "" "" "" "S" "")
+    define_component(S "" "" "" "" "")
+    check_deps(N "E;N;S;W")
+    check_deps(W "S;W")
+    check_deps(E "E;S")
+    check_deps(S "S")
+
+    # TODO: make tests for other complicated graph cases?
+endfunction()
+
