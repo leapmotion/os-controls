@@ -1,5 +1,8 @@
 include_directories(
   .
+
+  # Need to make sure all of our tests can find gtest
+  ${PROJECT_SOURCE_DIR}/contrib/gtest-1.7.0/fused-src
 )
 
 # Enable the use of project directories on any platforms that support it

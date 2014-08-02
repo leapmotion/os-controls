@@ -15,3 +15,5 @@ CPackSourceConfig.cmake
 Win32
 Debug
 Release
+CTestTestfile.cmake
+DartConfiguration.tcl

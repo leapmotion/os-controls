@@ -4,6 +4,7 @@
 #include "MainWindow.h"
 #include "MediaController.h"
 #include "SdlInitializer.h"
+#include "utility/ComInitializer.h"
 #include <SDL.h>
 
 int main(int argc, char **argv)
@@ -30,6 +31,7 @@ OsControl::OsControl(void) :
 {}
 
 void OsControl::Main(void) {
+  ComInitializer initCom;
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);
     m_outstanding.reset();
