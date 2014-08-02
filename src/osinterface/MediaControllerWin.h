@@ -15,6 +15,5 @@ public:
   void VolumeUp(void) override;
   void VolumeDown(void) override;
   void Mute(void) override;
-  double GetVolume(void) override;
 };
 

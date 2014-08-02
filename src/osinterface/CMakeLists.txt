@@ -1,6 +1,8 @@
 set(osinterface_SOURCES
   osinterface.h
   osinterface.cpp
+  AudioVolumeController.h
+  AudioVolumeController.cpp
   LeapInput.h
   LeapInput.cpp
   MainWindow.h
@@ -19,6 +21,8 @@ set(osinterface_SOURCES
 
 add_windows_sources(
   osinterface_SOURCES
+  AudioVolumeControllerWin.h
+  AudioVolumeControllerWin.cpp
   MediaControllerWin.h
   MediaControllerWin.cpp
 )

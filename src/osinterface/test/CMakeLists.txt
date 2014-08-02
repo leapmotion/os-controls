@@ -1,5 +1,6 @@
 set(osinterfacetest_SRCS
   osinterfacetest.cpp
+  AudioVolumeControllerTest.cpp
   MediaControllerTest.cpp
 )
 
