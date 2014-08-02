@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "oscontrol.h"
+#include "osinterface.h"
 #include "LeapInput.h"
 #include "MainWindow.h"
 #include "MediaController.h"
