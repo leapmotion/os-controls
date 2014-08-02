@@ -37,3 +37,7 @@ void MediaControllerWin::VolumeDown(void) {
 void MediaControllerWin::Mute(void) {
   SendMediaKeyCode(VK_VOLUME_MUTE);
 }
+
+double MediaControllerWin::GetVolume(void) {
+  return 0.0;
+}
