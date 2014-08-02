@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "osinterface.h"
+#include "AudioVolumeController.h"
 #include "LeapInput.h"
 #include "MainWindow.h"
 #include "MediaController.h"

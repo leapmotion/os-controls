@@ -1,6 +1,7 @@
 #pragma once
 #include <autowiring/autowiring.h>
 
+class AudioVolumeController;
 class LeapInput;
 class MainWindow;
 class MediaController;
@@ -21,6 +22,7 @@ private:
   std::condition_variable m_stateCondition;
 
   AutoRequired<SdlInitializer> m_initializer;
+  AutoDesired<AudioVolumeController> m_avcontrol;
   AutoConstruct<MainWindow> m_mw;
   AutoRequired<MediaController> m_media;
   AutoRequired<LeapInput> m_leapInput;
