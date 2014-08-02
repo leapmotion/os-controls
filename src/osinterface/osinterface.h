@@ -7,6 +7,8 @@ class MediaController;
 class SdlInitializer;
 union SDL_Event;
 
+int osinterface_main(int argc, char **argv);
+
 class OsControl:
   public CoreRunnable,
   public ExceptionFilter

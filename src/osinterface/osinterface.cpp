@@ -7,7 +7,7 @@
 #include "utility/ComInitializer.h"
 #include <SDL.h>
 
-int main(int argc, char **argv)
+int osinterface_main(int argc, char **argv)
 {
   AutoCurrentContext ctxt;
   AutoCurrentContext()->Initiate();
