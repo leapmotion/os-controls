@@ -23,8 +23,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")   
 #     ${CMAKE_CURRENT_SOURCE_DIR}                     # For DefineComponents.cmake
 #     "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules") # For most other cmake modules
 
-include(ListSubdirectories)
-include(TargetImportedLibraries) # for Walter's target_package command
+# include(ListSubdirectories)
+# include(TargetImportedLibraries) # for Walter's target_package command
 
 ###################################################################################################
 # We use an EXTERNAL_LIBRARY_DIR variable as a hint to where all the libraries can be found.
@@ -51,7 +51,7 @@ list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 # This section defines what a component is and defines helper macros.
 
 ###################################################################################################
-# This call initializes the COMPONENTS var to empty -- defined components will be added to it.
+# This call initializes the DEFINED_COMPONENTS var to empty -- defined components will be added to it.
 # NOTE: Please keep the component definitions in alphabetical order by component name.
 ###################################################################################################
 
@@ -180,7 +180,7 @@ define_component_as_library(
     HEADERS
         gl_glext_glu.h
     EXPLICIT_LIBRARY_DEPENDENCIES
-        "OpenGL"
+        "OpenGL 2.1"
         "Glew 1.9.0"
 )
 
@@ -381,13 +381,25 @@ define_component_as_library(
 #
 ###################################################################################################
 
-message("COMPONENTS = ${COMPONENTS}")
+message("DEFINED_COMPONENTS = ${DEFINED_COMPONENTS}")
 add_library(Components empty.cpp)
-foreach(_component ${COMPONENTS})
-    target_link_libraries(Components PRIVATE ${_component})
+foreach(_component ${DEFINED_COMPONENTS})
+    # get_target_property(_defs ${_component} INTERFACE_COMPILE_DEFINITIONS)
+    # get_target_property(_opts ${_component} INTERFACE_COMPILE_OPTIONS)
+    # get_target_property(_dirs ${_component} INTERFACE_INCLUDE_DIRECTORIES)
+    # if(_dirs)
+    #     target_include_directories(Components PUBLIC ${_dirs})
+    # endif()
+    # if(_defs)
+    #     target_compile_definitions(Components PUBLIC ${_defs})
+    # endif()
+    # if(_opts)
+    #     target_compile_options(Components PUBLIC ${_opts})
+    # endif()
+    target_link_libraries(Components PUBLIC ${_component})
 endforeach()
 
-export(TARGETS Components ${COMPONENTS} FILE ComponentsConfig.cmake)
+export(TARGETS Components ${DEFINED_COMPONENTS} FILE ComponentsConfig.cmake)
 
 test_compute_all_component_dependencies_of()
 
@@ -425,18 +437,18 @@ set(NON_COMPONENTIZED_CODE
 # - Determining the library link options for a component.
 # - Calling the appropriate function for defining a library for the component.
 
-set(Components_SOURCES "")
-set(Components_INCLUDE_DIRECTORIES "")
-foreach(COMPONENT ${COMPONENTS})
-    # message("adding sources for component ${COMPONENT}")
-    foreach(SOURCE_FILE ${${COMPONENT}_SOURCES})
-        set(SOURCE_PATH ${COMPONENT}/${SOURCE_FILE})
-        # message("    adding ${SOURCE_PATH}")        
-        set(Components_SOURCES ${Components_SOURCES} ${SOURCE_PATH})
-    endforeach()
-    # message("adding include directory for component ${COMPONENT}")
-    set(Components_INCLUDE_DIRECTORIES ${Components_INCLUDE_DIRECTORIES} ${COMPONENT})
-endforeach()
+# set(Components_SOURCES "")
+# set(Components_INCLUDE_DIRECTORIES "")
+# foreach(COMPONENT ${DEFINED_COMPONENTS})
+#     # message("adding sources for component ${COMPONENT}")
+#     foreach(SOURCE_FILE ${${COMPONENT}_SOURCES})
+#         set(SOURCE_PATH ${COMPONENT}/${SOURCE_FILE})
+#         # message("    adding ${SOURCE_PATH}")        
+#         set(Components_SOURCES ${Components_SOURCES} ${SOURCE_PATH})
+#     endforeach()
+#     # message("adding include directory for component ${COMPONENT}")
+#     set(Components_INCLUDE_DIRECTORIES ${Components_INCLUDE_DIRECTORIES} ${COMPONENT})
+# endforeach()
 
 # Add the non-componentized code
 # set(Components_SOURCES ${Components_SOURCES} ${NON_COMPONENTIZED_CODE})
@@ -487,7 +499,7 @@ target_package(Components SDL 2 REQUIRED)
 target_link_libraries(Components ${OPENGL_gl_LIBRARY})
 
 # Define rules for creating a release distribution
-define_install_rules(Components "${COMPONENTS}")
+define_install_rules(Components "${DEFINED_COMPONENTS}")
 
 ###################################################################################################
 # Include directories and compiler flags

@@ -67,12 +67,17 @@ function(print_value_of VAR_NAME INDENT)
     message("${INDENT}${VAR_NAME} = ${${VAR_NAME}}")
 endfunction()
 
-# COMPONENTS is a list of strings enumerating all the defined components.  Defining a component
-# should append to it -- the define_component macro is a convience macro for defining all the
-# correct variables for a component.
+# DEFINED_COMPONENTS is a list of strings enumerating all the defined components.  Defining a
+# component should append to it -- the define_component macro is a convience macro for defining
+# all the correct variables for a component.
 macro(begin_component_definitions)
-    set(COMPONENTS "")
+    set(DEFINED_COMPONENTS "")
 endmacro()
+
+function(set_component_target COMPONENT target_name)
+    set(${target_name} ${COMPONENT} PARENT_SCOPE)
+    # set(${target_name} Component_${COMPONENT} PARENT_SCOPE)
+endfunction()
 
 # This is a private helper function which implements the recursion of the graph traversal
 # algorithm.  The reason it's implemented using a macro instead of a function is because
@@ -133,7 +138,7 @@ macro(define_component NAME SOURCES_TO_INSTALL SOURCES_NO_INSTALL RESOURCES_TO_I
     #         "\tRESOURCES_TO_INSTALL = ${RESOURCES_TO_INSTALL}\n"
     #         "\tEXPLICIT_COMPONENT_DEPENDENCIES = ${EXPLICIT_COMPONENT_DEPENDENCIES}\n"
     #         "\tEXPLICIT_LIBRARY_DEPENDENCIES = ${EXPLICIT_LIBRARY_DEPENDENCIES}")
-    set(COMPONENTS ${COMPONENTS} ${NAME})
+    set(DEFINED_COMPONENTS ${DEFINED_COMPONENTS} ${NAME})
     set(${NAME}_SOURCES ${SOURCES_TO_INSTALL} ${SOURCES_NO_INSTALL})
     set(${NAME}_SOURCES_TO_INSTALL ${SOURCES_TO_INSTALL})
     set(${NAME}_RESOURCES_TO_INSTALL ${RESOURCES_TO_INSTALL})
@@ -147,9 +152,9 @@ macro(define_component NAME SOURCES_TO_INSTALL SOURCES_NO_INSTALL RESOURCES_TO_I
     #         "\t${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES = ${${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES}\n")
 endmacro()
 
-include(TargetImportedLibraries)
+#include(TargetImportedLibraries)
 include(CMakeParseArguments)
-include(PrintTargetProperties)
+#include(PrintTargetProperties)
 
 function(define_component_as_library COMPONENT)
     # Do the fancy map-style parsing of the arguments
@@ -162,8 +167,6 @@ function(define_component_as_library COMPONENT)
         # COMPILE_FEATURES # target_compile_features is not working for me.
         COMPILE_OPTIONS
         EXPLICIT_COMPONENT_DEPENDENCIES
-        # INTERFACE_COMPONENT_DEPENDENCIES
-        # PRIVATE_COMPONENT_DEPENDENCIES
         EXPLICIT_LIBRARY_DEPENDENCIES
         ADDITIONAL_TARGET_PROPERTIES
     )
@@ -178,7 +181,6 @@ function(define_component_as_library COMPONENT)
 
     # Determine the target name of this component.
     set_component_target(${COMPONENT} _component_target_name)
-    # print_value_of(_component_target_name "")
     # Determine the relative paths of all the headers.
     set(_headers "")
     foreach(_header ${_arg_HEADERS})
@@ -190,211 +192,75 @@ function(define_component_as_library COMPONENT)
         list(APPEND _sources ${COMPONENT}/${_source})
     endforeach()
 
-    # If there are no sources, it's necessary to specify the linker language.
+    # If there are no sources, add an empty dummy source file so that the linker has
+    # something to chew on (there would be a linker-archiver error otherwise).  NOTE:
+    # there will be a linker warning about an empty table of contents in the component's
+    # library.
     list(LENGTH _sources _source_count)
     if(${_source_count} GREATER 0)
-        # message("calling add_library, creating target ${_component_target_name} with source files")
         add_library(${_component_target_name} ${_exclude_from_all} ${_headers} ${_sources})
     else()
-        # message("calling add_library, creating target ${_component_target_name} WITHOUT source files")
-        # NOTE: there will be a linker warning about an empty table of contents in the
-        # component's library.
         add_library(${_component_target_name} ${_exclude_from_all} ${_headers} empty.cpp)
-
-        # add_custom_target(${_component_target_name} ${_exclude_from_all} ${_headers}) # doesn't seem to work
-
-        # add_library(${_component_target_name} ${_exclude_from_all} ${_headers})           # doesn't seem to work
-        # set_target_properties(${_component_target_name} PROPERTIES LINKER_LANGUAGE CXX)
     endif()
 
+    # If this component has headers, then they must be located in a subdirectory with the same name.
     if(_arg_HEADERS)
-        target_include_directories(${_component_target_name} PUBLIC ${COMPONENT})
+        target_include_directories(
+            ${_component_target_name}
+            PUBLIC
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${COMPONENT}>
+                $<INSTALL_INTERFACE:${COMPONENT}>)
     endif()
+    # If there are compile definitions, add them.
     if(_arg_COMPILE_DEFINITIONS)
         target_compile_definitions(${_component_target_name} PUBLIC ${_arg_COMPILE_DEFINITIONS})
     endif()
+    # If there are compile options, add them.
     if(_arg_COMPILE_OPTIONS)
         target_compile_options(${_component_target_name} PUBLIC ${_arg_COMPILE_OPTIONS})
     endif()
 
+    # Add link libraries from each component dependency.  The target_link_directories
+    # command sets up the propagation of the various INTERFACE_XXX target properties
+    # (e.g. INTERFACE_INCLUDE_DIRECTORIES, INTERFACE_COMPILE_OPTIONS,
+    # INTERFACE_LINK_LIBRARIES) during build time from the dependencies to their
+    # dependents.
     foreach(_dep ${_arg_EXPLICIT_COMPONENT_DEPENDENCIES})
         set_component_target(${_dep} _dep_target_name)
-        # message("    defining target rules for component dependency ${_dep_target_name}")
-
-        get_target_property(_compile_definitions ${_dep_target_name} INTERFACE_COMPILE_DEFINITIONS)
-        if(_compile_definitions)
-            target_compile_definitions(${_component_target_name} PUBLIC ${_compile_definitions})
-        endif()
-        
-        get_target_property(_compile_options ${_dep_target_name} INTERFACE_COMPILE_OPTIONS)
-        if(_compile_options)
-            target_compile_options(${_component_target_name} PUBLIC ${_compile_options})
-        endif()
-        
-        get_target_property(_include_dirs ${_dep_target_name} INTERFACE_INCLUDE_DIRECTORIES)
-        if(_include_dirs)
-            target_include_directories(${_component_target_name} PUBLIC ${_include_dirs})
-        endif()
-
-        # print_value_of(_dep_target_name "    ")
+        # Specify the dependency.
         target_link_libraries(${_component_target_name} PUBLIC ${_dep_target_name})
-
-        get_target_property(_link_libs ${_dep_target_name} INTERFACE_LINK_LIBRARIES)
-        if(_link_libs)
-            target_link_libraries(${_component_target_name} PUBLIC ${_link_libs})
-        endif()
     endforeach()
 
+    # Add include directories and link libraries from each library dependency,
+    # analogously to that of the component dependencies.  This requires calling
+    # find_package on the libraries which haven't been loaded as targets yet.
     foreach(_dep ${_arg_EXPLICIT_LIBRARY_DEPENDENCIES})
         # For each library that hasn't been target_package'ed yet, call target_package on it.
         string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
         list(GET _semicolon_delimited_dep 0 _lib_name)
         set(_lib_target_name ${_lib_name}::${_lib_name})
         # message("checking if package ${_lib_target_name} or ${_lib_name} is already found")
-        if(NOT TARGET ${_lib_target_name} AND NOT TARGET ${_lib_name})
+        # if(NOT TARGET ${_lib_target_name} AND NOT TARGET ${_lib_name})
+        if(NOT TARGET ${_lib_target_name})
             # message("it isn't -- calling find_package(${_semicolon_delimited_dep})")
             find_package(${_semicolon_delimited_dep})
+            if(NOT TARGET ${_lib_target_name})
+                message(ERROR " failed to find package ${_dep} -- expected target ${_lib_target_name}")
+            endif()
         endif()
-
-        if(TARGET ${_lib_target_name})
-            # This is good
-            # message("package found -- target is ${_lib_target_name}")
-        elseif(TARGET ${_lib_name})
-            # message("package found -- target is ${_lib_name}")
-            set(_lib_target_name ${_lib_name})
-        else()
-            message(ERROR " failed to find package ${_dep}")
-        endif()
-
-        # print_value_of(_lib_target_name "    ")
+        # Specify the dependency.
         target_link_libraries(${_component_target_name} PUBLIC ${_lib_target_name})
-        # target_imported_libraries(${_component_target_name} ${_lib_target_name})
-
-        # set(_dep_target_name "${_dep}::${_dep}")
-        # if(NOT TARGET ${_dep_target_name})
-        #     find_package(${_dep_target_name})
-        # endif()
-
-        get_target_property(_compile_definitions ${_lib_target_name} INTERFACE_COMPILE_DEFINITIONS)
-        if(_compile_definitions)
-            target_compile_definitions(${_component_target_name} PUBLIC ${_compile_definitions})
-        endif()
-        
-        get_target_property(_compile_options ${_lib_target_name} INTERFACE_COMPILE_OPTIONS)
-        if(_compile_options)
-            target_compile_options(${_component_target_name} PUBLIC ${_compile_options})
-        endif()
-        
-        get_target_property(_include_dirs ${_lib_target_name} INTERFACE_INCLUDE_DIRECTORIES)
-        if(_include_dirs)
-            target_include_directories(${_component_target_name} PUBLIC ${_include_dirs})
-        endif()
-
-        get_target_property(_link_libs ${_lib_target_name} INTERFACE_LINK_LIBRARIES)
-        if(_link_libs)
-            target_imported_libraries(${_component_target_name} PUBLIC ${_link_libs})
-        endif()
     endforeach()
 
-    # # The PRIVATE_COMPONENT_DEPENDENCIES should only be used for setting the PRIVATE
-    # # values of target_include_directories and target_link_libraries on this component's target.
-    # # This is used for when a dependency component is included ONLY in the implementation of this
-    # # component, i.e. NOT in any of its headers, and therefore is used privately with respect
-    # # to code that depends on this component.
-    # foreach(_dep ${_arg_PRIVATE_COMPONENT_DEPENDENCIES})
-    #     set_component_target(${_dep} _dep_target_name)
-    #     get_target_property(_include_dirs ${_dep_target_name} INTERFACE_INCLUDE_DIRECTORIES)
-    #     target_include_directories(${_component_target_name} PRIVATE ${_include_dirs})
-    #     get_target_property(_link_libs ${_dep_target_name} INTERFACE_LINK_LIBRARIES)
-    #     target_link_libraries(${_component_target_name} PRIVATE ${_link_libs})
-    # endforeach()
-
-    # # The INTERFACE_COMPONENT_DEPENDENCIES should only be used for setting the INTERFACE
-    # # values of target_include_directories and target_link_libraries on this component's target.
-    # # This is used for when a dependency component is included in some header of this component,
-    # # and therefore is used publicly with respect to code that depends on this component.
-    # foreach(_dep ${_arg_INTERFACE_COMPONENT_DEPENDENCIES})
-    #     set_component_target(${_dep} _dep_target_name)
-    #     get_target_property(_include_dirs ${_dep_target_name} INTERFACE_INCLUDE_DIRECTORIES)
-    #     target_include_directories(${_component_target_name} INTERFACE ${_include_dirs})
-    #     get_target_property(_link_libs ${_dep_target_name} INTERFACE_LINK_LIBRARIES)
-    #     target_link_libraries(${_component_target_name} INTERFACE ${_link_libs})
-    # endforeach()
-
-    # # It is necessary at this point to compute all the component dependencies of this
-    # # component, via the directed graph of component dependencies.  NOTE: For this
-    # # particular implementation (where the target_include_directories, etc functions
-    # # are being called here, it is necessary for the component dependencies to already
-    # # be declared, meaning that the dependency graph must be acyclic -- a DAG).
-    # compute_all_component_dependencies_of(${COMPONENT} _all_component_dependencies)
-    # foreach(_component_dependency ${_component_dependencies})
-    #     # Retrieve the INTERFACE_INCLUDE_DIRECTORIES property from each component dependency 
-    #     # target and specify it as an 
-    #     target_include_directories(${_component_target_name} )
-    # endforeach()
-
-
-    # # TODO: figure out if these should be PUBLIC, PRIVATE, INTERFACE, etc.
-    # # target_include_directories(${_component_target_name} PUBLIC ${_component_target_name}) # This will be done later
-    # target_compile_definitions(${_component_target_name} PUBLIC ${_arg_COMPILE_DEFINITIONS})
-    # # target_compile_features(${_component_target_name} PUBLIC ${_arg_COMPILE_FEATURES})
-    # target_compile_options(${_component_target_name} PUBLIC ${_arg_COMPILE_OPTIONS})
-    # # TODO: call target_sources instead of adding sources via add_library?
-
-    # # Some of these might not be necessary
-    # set_target_properties(
-    #     ${_component_target_name}
-    #     PROPERTIES
-    #         EXPLICIT_COMPONENT_DEPENDENCIES "${_arg_EXPLICIT_COMPONENT_DEPENDENCIES}"
-    #         EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
-    # )
-    # foreach(_explicit_component_dependency ${_arg_EXPLICIT_COMPONENT_DEPENDENCIES})
-    #     # TODO: which one is appropriate?  PUBLIC PRIVATE INTERFACE LINK_INTERFACE_LIBRARIES
-    #     # or should the caller of this function specify that parameter?
-    #     set_component_target(${_explicit_component_dependency} _explicit_component_dependency_target_name)
-    #     target_link_libraries(${_component_target_name} PUBLIC ${_explicit_component_dependency_target_name})
-    # endforeach()
-
     # echo_target(${_component_target_name})
-
-    # get_target_property(_incl_dirs ${_component_target_name} INCLUDE_DIRECTORIES)
-    # message("INCLUDE_DIRECTORIES for target ${_component_target_name}:")
-    # foreach(_incl_dir ${_incl_dirs})
-    #     message("    ${_incl_dir}")
-    # endforeach()
-
-    # get_target_property(_incl_dirs ${_component_target_name} INTERFACE_INCLUDE_DIRECTORIES)
-    # message("INTERFACE_INCLUDE_DIRECTORIES for target ${_component_target_name}:")
-    # foreach(_incl_dir ${_incl_dirs})
-    #     message("    ${_incl_dir}")
-    # endforeach()
-
-    # foreach(_explicit_library_dependency ${_arg_EXPLICIT_LIBRARY_DEPENDENCIES})
-    #     # For each library that hasn't been target_package'ed yet, call target_package on it.
-    #     string(REPLACE " " ";" _semicolon_delimited_library_dependency ${_explicit_library_dependency})
-    #     list(GET _semicolon_delimited_library_dependency 0 _lib_name)
-    #     set(_lib_target_name ${_lib_name}::${_lib_name})
-    #     if(NOT TARGET ${_lib_target_name})
-    #         find_package(${_semicolon_delimited_library_dependency})
-    #     endif()
-    #     if(NOT TARGET ${_lib_target_name})
-    #         message(ERROR " failed to find package ${_lib_name} (expected target ${_lib_target_name})")
-    #     endif()
-    #     target_link_libraries(${_component_target_name} PUBLIC ${_lib_target_name})
-    # endforeach()
 
     # Add any other particular target properties (this overrides ones that have been set already).
     if(${_additional_target_property_count})
         set_target_properties(${_component_target_name} PROPERTIES ${_arg_ADDITIONAL_TARGET_PROPERTIES})
     endif()
 
-    set(COMPONENTS ${COMPONENTS} ${_component_target_name} PARENT_SCOPE)
-    # message("\n")
-endfunction()
-
-function(set_component_target COMPONENT target_name)
-    set(${target_name} ${COMPONENT} PARENT_SCOPE)
-    # set(${target_name} Component_${COMPONENT} PARENT_SCOPE)
+    # Append this component to the list of defined components.
+    set(DEFINED_COMPONENTS ${DEFINED_COMPONENTS} ${_component_target_name} PARENT_SCOPE)
 endfunction()
 
 function(define_install_rules TARGET DESIRED_COMPONENTS)
