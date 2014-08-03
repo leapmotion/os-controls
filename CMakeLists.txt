@@ -76,20 +76,23 @@ list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 # definitions.  Similarly, the total library dependencies of a component can be determined.
 
 include(DefineComponents)
+
 begin_component_definitions()
+
+###################################################################################################
+# The C++11 component is a phony target which just provides compiler options for enabling C++11
+###################################################################################################
+
+define_component_as_library(
+    C++11
+    COMPILE_OPTIONS
+        -std=c++11
+        -stdlib=libc++
+)
 
 ###################################################################################################
 # The Application component provides a simple framework for an SDL-based application.
 ###################################################################################################
-
-define_component(
-    Application
-    "Application.h;EventHandler.h;Renderable.h;RenderableEventHandler.h"
-    "Application.cpp"   # sources which won't be installed
-    ""                  # non-sources to install
-    ""                  # explicit component dependencies
-    "SDL 2"             # explicit library dependencies
-)
 
 define_component_as_library(
     Application
@@ -100,46 +103,28 @@ define_component_as_library(
         RenderableEventHandler.h
     SOURCES
         Application.cpp
+    EXPLICIT_COMPONENT_DEPENDENCIES
+        C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
-    COMPILE_OPTIONS
-        -std=c++11
 )
 
 ###################################################################################################
 # The EigenTypes component provides convenience typedefs for working with Eigen matrices.
 ###################################################################################################
 
-define_component(
-    EigenTypes            
-    "EigenTypes.h"      # sources to install
-    ""                  # sources which won't be installed
-    ""                  # non-sources to install
-    ""                  # explicit component dependencies
-    "Eigen"             # explicit library dependencies
-)
-
 define_component_as_library(
     EigenTypes
     HEADERS
         EigenTypes.h
     EXPLICIT_LIBRARY_DEPENDENCIES
-        "Eigen 3.1"
+        "Eigen 3.1.2"
 )
 
 ###################################################################################################
 # The ResourceManager component provides a means for loading and caching resources in a
 # non-redundant way.
 ###################################################################################################
-
-define_component(
-    ResourceManager
-    "ResourceManager.h" # sources to install
-    ""                  # sources which won't be installed
-    ""                  # non-sources to install
-    ""                  # explicit component dependencies
-    ""                  # explicit library dependencies
-)
 
 define_component_as_library(
     ResourceManager
@@ -154,16 +139,6 @@ define_component_as_library(
 
 # NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
 # on Apple platforms.  It should be ignored on other platforms.
-define_component(
-    SDLController
-    "SDLController.h"                               # sources to install
-    "MakeTransparent_Apple.mm;SDLController.cpp"    # sources which won't be installed
-    ""                                              # non-sources to install
-    ""                                              # explicit component dependencies
-    "SDL 2"                                         # explicit library dependencies
-    # TODO: require the AppKit framework (for NSOpenGLContext)
-)
-
 define_component_as_library(
     SDLController
     HEADERS
@@ -171,26 +146,16 @@ define_component_as_library(
     SOURCES
         MakeTransparent_Apple.mm
         SDLController.cpp
+    EXPLICIT_COMPONENT_DEPENDENCIES
+        C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
-    COMPILE_OPTIONS
-        -std=c++11
-        -stdlib=libc++ # on mac only
 )
 
 ###################################################################################################
 # The FbxSceneLoader component provides ResourceManager-managed loading of FbxScene objects
 # using the FBX SDK library.
 ###################################################################################################
-
-define_component(
-    FbxSceneLoader
-    "FbxSceneLoader.h"                  # sources to install
-    "FbxSceneLoader.cpp"                # sources which won't be installed
-    ""                                  # non-sources to install
-    "ResourceManager;SDLController"     # explicit component dependencies
-    "FbxSdk"                            # explicit library dependencies
-)
 
 define_component_as_library(
     FbxSceneLoader
@@ -210,15 +175,6 @@ define_component_as_library(
 # a platform-agnostic way.
 ###################################################################################################
 
-define_component(
-    GLCompatibility
-    "gl_glext_glu.h"    # sources to install
-    ""                  # sources which won't be installed
-    ""                  # non-sources to install
-    ""                  # explicit component dependencies
-    "gl;glew;glu"       # explicit library dependencies
-)
-
 define_component_as_library(
     GLCompatibility
     HEADERS
@@ -232,15 +188,6 @@ define_component_as_library(
 # The GLTexture2 component provides a C++ class for managing 2D textures in OpenGL.
 ###################################################################################################
 
-define_component(
-    GLTexture2
-    "GLTexture2.h"      # sources to install
-    "GLTexture2.cpp"    # sources which won't be installed
-    ""                  # non-sources to install
-    "GLCompatibility"   # explicit component dependencies
-    ""                  # explicit library dependencies
-)
-
 define_component_as_library(
     GLTexture2
     HEADERS
@@ -248,24 +195,13 @@ define_component_as_library(
     SOURCES
         GLTexture2.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
+        C++11
         GLCompatibility
-    COMPILE_OPTIONS
-        -std=c++11
-        -stdlib=libc++ # on mac only
 )
 
 ###################################################################################################
 # The FrameBufferObject component provides a way to render to a render buffer or texture
 ###################################################################################################
-
-define_component(
-    FrameBufferObject            
-    "FrameBufferObject.h;RenderBuffer.h"        # sources to install
-    "FrameBufferObject.cpp;RenderBuffer.cpp"    # sources which won't be installed
-    ""                                          # non-sources to install
-    "GLTexture2;GLCompatibility"                # explicit component dependencies
-    ""                                          # explicit library dependencies
-)
 
 define_component_as_library(
     FrameBufferObject
@@ -284,15 +220,6 @@ define_component_as_library(
 # The GLBuffer component provides a fast GPU buffer object for geometry.
 ###################################################################################################
 
-define_component(
-    GLBuffer            
-    "GLBuffer.h"        # sources to install
-    "GLBuffer.cpp"      # sources which won't be installed
-    ""                  # non-sources to install
-    "GLCompatibility"   # explicit component dependencies
-    ""                  # explicit library dependencies
-)
-
 define_component_as_library(
     GLBuffer
     HEADERS
@@ -301,23 +228,11 @@ define_component_as_library(
         GLBuffer.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLCompatibility
-    # COMPILE_OPTIONS
-    #     -std=c++11
-    #     -stdlib=libc++ # on mac only
 )
 
 ###################################################################################################
 # The GLController component provides a single point of control for usage of OpenGL.
 ###################################################################################################
-
-define_component(
-    GLController
-    "GLController.h"    # sources to install
-    "GLController.cpp"  # sources which won't be installed
-    ""                  # non-sources to install
-    "GLCompatibility"   # explicit component dependencies
-    ""                  # explicit library dependencies
-)
 
 define_component_as_library(
     GLController
@@ -327,24 +242,12 @@ define_component_as_library(
         GLController.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLCompatibility
-    # COMPILE_OPTIONS
-    #     -std=c++11
-    #     -stdlib=libc++ # on mac only
 )
 
 ###################################################################################################
 # The GLShader component provides a C++ class which handles shaders -- compiling, binding, 
 # unbinding, setting uniforms.
 ###################################################################################################
-
-define_component(
-    GLShader
-    "GLShader.h"        # sources to install
-    "GLShader.cpp"      # sources which won't be installed
-    ""                  # non-sources to install
-    "GLCompatibility"   # explicit component dependencies
-    ""                  # explicit library dependencies
-)
 
 define_component_as_library(
     GLShader
@@ -353,25 +256,14 @@ define_component_as_library(
     SOURCES
         GLShader.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
+        C++11
         GLCompatibility
-    COMPILE_OPTIONS
-        -std=c++11
-        -stdlib=libc++ # on mac only
 )
 
 ###################################################################################################
 # The Singleton component provides a simple mechanism for managing singleton C++ objects, via
 # class inheritance or not.
 ###################################################################################################
-
-define_component(
-    Singleton
-    "Singleton.h"       # sources to install
-    ""                  # sources which won't be installed
-    ""                  # non-sources to install
-    ""                  # explicit component dependencies
-    ""                  # explicit library dependencies
-)
 
 define_component_as_library(
     Singleton
@@ -383,15 +275,6 @@ define_component_as_library(
 # The Resource component provides convenient loading of ResourceManager-managed typed resources
 # via a typed ResourceManager singleton.
 ###################################################################################################
-
-define_component(
-    Resource
-    "Resource.h"                # sources to install
-    ""                          # sources which won't be installed
-    ""                          # non-sources to install
-    "ResourceManager;Singleton" # explicit component dependencies
-    ""                          # explicit library dependencies
-)
 
 define_component_as_library(
     Resource
@@ -407,15 +290,6 @@ define_component_as_library(
 # binary files (primarily intended to be used with Resource).
 ###################################################################################################
 
-define_component(
-    TextAndBinaryFile
-    "TextFile.h"        # sources to install
-    ""                  # sources which won't be installed
-    ""                  # non-sources to install
-    ""                  # explicit component dependencies
-    ""                  # explicit library dependencies
-)
-
 define_component_as_library(
     TextAndBinaryFile
     HEADERS
@@ -426,15 +300,6 @@ define_component_as_library(
 # The TextAndBinaryFileLoader component provides ResourceManager-managed loading of text and
 # binary files.
 ###################################################################################################
-
-define_component(
-    TextAndBinaryFileLoader
-    "TextFileLoader.h"                                  # sources to install
-    ""                                                  # sources which won't be installed
-    ""                                                  # non-sources to install
-    "ResourceManager;SDLController;TextAndBinaryFile"   # explicit component dependencies
-    ""                                                  # explicit library dependencies
-)
 
 define_component_as_library(
     TextAndBinaryFileLoader
@@ -451,15 +316,6 @@ define_component_as_library(
 # source files.
 ###################################################################################################
 
-define_component(
-    GLShaderLoader
-    "GLShaderLoader.h"                          # sources to install
-    ""                                          # sources which won't be installed
-    ""                                          # non-sources to install
-    "GLShader;Resource;TextAndBinaryFileLoader" # explicit component dependencies
-    ""                                          # explicit library dependencies
-)
-
 define_component_as_library(
     GLShaderLoader
     HEADERS
@@ -474,15 +330,6 @@ define_component_as_library(
 # The GLTexture2FreeImage component provides functionality for creating a GLTexture2 from
 # an image file using the FreeImage library.
 ###################################################################################################
-
-define_component(
-    GLTexture2FreeImage
-    "GLTexture2FreeImage.h"     # sources to install
-    "GLTexture2FreeImage.cpp"   # sources which won't be installed
-    ""                          # non-sources to install
-    "GLTexture2"                # explicit component dependencies
-    "FreeImage 3"               # explicit library dependencies
-)
 
 define_component_as_library(
     GLTexture2FreeImage
@@ -501,15 +348,6 @@ define_component_as_library(
 # using the FreeImage library.
 ###################################################################################################
 
-define_component(
-    GLTexture2Loader
-    "GLTexture2Loader.h"                                # sources to install
-    "GLTexture2Loader.cpp"                              # sources which won't be installed
-    ""                                                  # non-sources to install
-    "GLTexture2FreeImage;ResourceManager;SDLController" # explicit component dependencies
-    ""                                                  # explicit library dependencies
-)
-
 define_component_as_library(
     GLTexture2Loader
     HEADERS
@@ -526,15 +364,6 @@ define_component_as_library(
 # The Primitives component provides some simple shapes in a transform hierarchy.
 ###################################################################################################
 
-define_component(
-    Primitives
-    "Primitive.h;Rectangle.h"     # sources to install
-    "Primitive.cpp;Rectangle.cpp" # sources which won't be installed
-    ""                            # non-sources to install
-    "EigenTypes"                  # explicit component dependencies
-    ""                            # explicit library dependencies
-)
-
 define_component_as_library(
     Primitives
     HEADERS
@@ -544,22 +373,21 @@ define_component_as_library(
         Primitive.cpp
         Rectangle.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
+        C++11
         EigenTypes
-    COMPILE_OPTIONS
-        -std=c++11
-        -stdlib=libc++ # on mac only
 )
 
 ###################################################################################################
 #
 ###################################################################################################
 
-# foreach(_component ${COMPONENTS})
-#     add_library_for_defined_component(${_component})
-# endforeach()
+message("COMPONENTS = ${COMPONENTS}")
+add_library(Components empty.cpp)
+foreach(_component ${COMPONENTS})
+    target_link_libraries(Components PRIVATE ${_component})
+endforeach()
 
-# message("COMPONENTS = ${COMPONENTS}\n")
-# add_library_for_each_defined_component("${COMPONENTS}")
+export(TARGETS Components ${COMPONENTS} FILE ComponentsConfig.cmake)
 
 test_compute_all_component_dependencies_of()
 
