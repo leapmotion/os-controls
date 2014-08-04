@@ -17,3 +17,4 @@ Debug
 Release
 CTestTestfile.cmake
 DartConfiguration.tcl
+*.user
