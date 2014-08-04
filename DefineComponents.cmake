@@ -152,10 +152,65 @@ macro(define_component NAME SOURCES_TO_INSTALL SOURCES_NO_INSTALL RESOURCES_TO_I
     #         "\t${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES = ${${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES}\n")
 endmacro()
 
-#include(TargetImportedLibraries)
 include(CMakeParseArguments)
 #include(PrintTargetProperties)
 
+# This function defines a component (logical subgrouping of source, as described above)
+# as a library target.  The function uses the CMakeParseArguments paradigm, where all-uppercase
+# keywords indicate the meaning of the arguments that follow it (e.g. the install cmake command).
+# The options are as follows:
+#
+# - Optional boolean arguments (an option's presence enables that argument, and its non-presence
+#   implicitly disables that argument -- this is the default):
+#   * EXCLUDE_FROM_ALL -- excludes this component's target from the "make all" target.
+# - Parameters taking a single argument: None for now.
+# - Parameters taking multiple arguments (each one is optional, unless otherwise specified):
+#   * HEADERS [header1 [header2 [...]]] -- The list of headers for the component.  Each of these
+#     should be specified using a relative path, based at the component's subdirectory.
+#   * SOURCES [source1 [source2 [...]]] -- Analogous to HEADERS, but for source files.
+#   * COMPILE_DEFINITIONS [def1 [def2 [...]]] -- Specifies which C preprocessor definitions to
+#     pass to the compiler.  Each argument should be in the form
+#       VAR
+#     or
+#       VAR=value
+#     Currently, each compile definition is inherited by components which depend upon this component.
+#   * COMPILE_OPTIONS [opt1 [opt2 [...]]] -- Specifies commandline flags to pass to the compiler.
+#     Currently, each compile option is inherited by components which depend upon this component.
+#   * EXPLICIT_COMPONENT_DEPENDENCIES [comp1 [comp2 [...]]] -- Specifies which other components
+#     this component depends upon.  Each dependency must already be fully defined.  What this
+#     dependency means on a practical level is that the compile definitions, compile options,
+#     include directories, and link libraries will all be inherited by this component automatically.
+#   * EXPLICIT_LIBRARY_DEPENDENCIES [lib1 [lib2 [...]]] -- Specifies the libraries that this
+#     component depends upon.  Each parameter should be in the form
+#       "LibName [version] [other-arguments]"
+#     and will be passed verbatim as arguments to find_package (therefore see the documentation for
+#     find_package for more details).  These libraries do not need to already be defined -- the
+#     find_package function will be called on them (invoking the respective FindXXX.cmake module).
+#     As with EXPLICIT_COMPONENT_DEPENDENCIES, the compile definitions, compile options, include
+#     directories (and presumably link libraries?) will all be inherited by this component
+#     automatically.
+#   * ADDITIONAL_TARGET_PROPERTIES [prop1 val1 [prop2 val2 [...]]] -- Specifies arguments to pass
+#     directly to set_target_properties, which will be called on the library target for this
+#     component.  These target properties are set at the very end of this function, so any target
+#     property already set can and will be overridden.  TODO: add a warning about overriding
+#     properties?
+#   * BRIEF_DOC_STRINGS [string1 [string2 [...]]] -- Specifies a list of strings (each of which
+#     typically can be newline-terminated) whose concatenation defines the "brief description"
+#     of this component.
+#   * DETAILED_DOC_STRINGS [string1 [string2 [...]]] -- Analogous to BRIEF_DOC_STRINGS, but is
+#     intended to be used for a more detailed description.
+#
+# The following target properties will automatically be set on the component's library target.
+# Again, this is done before the ADDITIONAL_TARGET_PROPERTIES are set, so these can be overridden.
+# - EXPLICIT_COMPONENT_DEPENDENCIES     -- As described above.
+# - EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
+# - BRIEF_DOC_STRINGS                   -- As described above.
+# - DETAILED_DOC_STRINGS                -- As described above.
+# - IS_HEADER_ONLY                      -- Is set to TRUE if and only if there are no SOURCES,
+#                                          and is otherwise set to FALSE.
+# - IS_PHONY                            -- Is set to TRUE if and only if there are no HEADERS
+#                                          and no SOURCES, i.e. if this is a "phony" target,
+#                                          and is otherwise set to FALSE.
 function(define_component_as_library COMPONENT)
     # Do the fancy map-style parsing of the arguments
     set(_options EXCLUDE_FROM_ALL)
@@ -164,14 +219,21 @@ function(define_component_as_library COMPONENT)
         HEADERS
         SOURCES
         COMPILE_DEFINITIONS
-        # COMPILE_FEATURES # target_compile_features is not working for me.
+        # COMPILE_FEATURES      # target_compile_features is not working for me.
         COMPILE_OPTIONS
         EXPLICIT_COMPONENT_DEPENDENCIES
         EXPLICIT_LIBRARY_DEPENDENCIES
         ADDITIONAL_TARGET_PROPERTIES
+        BRIEF_DOC_STRINGS       # This is for a high level description of the purpose and scope of the component.
+        DETAILED_DOC_STRINGS    # This is for a more in-depth description of the purpose and scope of the component.
     )
     cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
   
+    # Check the validity/presence of certain options
+    if(NOT _arg_BRIEF_DOC_STRINGS)
+        message(SEND_ERROR "Required BRIEF_DOC_STRINGS value was not defined for component ${COMPONENT}")
+    endif()
+
     # Parse the arguments for use in the following target-defining calls.
     if(${_arg_EXCLUDE_FROM_ALL})
         set(_exclude_from_all "EXCLUDE_FROM_ALL")
@@ -197,10 +259,20 @@ function(define_component_as_library COMPONENT)
     # there will be a linker warning about an empty table of contents in the component's
     # library.
     list(LENGTH _sources _source_count)
-    if(${_source_count} GREATER 0)
-        add_library(${_component_target_name} ${_exclude_from_all} ${_headers} ${_sources})
-    else()
+    if(${_source_count} EQUAL 0)
+        set(_is_header_only TRUE)
         add_library(${_component_target_name} ${_exclude_from_all} ${_headers} empty.cpp)
+    else()
+        set(_is_header_only FALSE)
+        add_library(${_component_target_name} ${_exclude_from_all} ${_headers} ${_sources})
+    endif()
+
+    # Determine if this is a "phony" target, meaning there are no headers or sources.
+    list(LENGTH _headers _header_count)
+    if(${_header_count} EQUAL 0 AND ${_source_count} EQUAL 0)
+        set(_is_phony TRUE)
+    else()
+        set(_is_phony FALSE)
     endif()
 
     # If this component has headers, then they must be located in a subdirectory with the same name.
@@ -245,7 +317,7 @@ function(define_component_as_library COMPONENT)
             # message("it isn't -- calling find_package(${_semicolon_delimited_dep})")
             find_package(${_semicolon_delimited_dep})
             if(NOT TARGET ${_lib_target_name})
-                message(ERROR " failed to find package ${_dep} -- expected target ${_lib_target_name}")
+                message(SEND_ERROR "failed to find package ${_dep} -- expected target ${_lib_target_name}")
             endif()
         endif()
         # Specify the dependency.
@@ -254,7 +326,20 @@ function(define_component_as_library COMPONENT)
 
     # echo_target(${_component_target_name})
 
-    # Add any other particular target properties (this overrides ones that have been set already).
+    # Store several of the parameter values as target properties
+    set_target_properties(
+        ${_component_target_name}
+        PROPERTIES
+            EXPLICIT_COMPONENT_DEPENDENCIES "${_arg_EXPLICIT_COMPONENT_DEPENDENCIES}"
+            EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
+            BRIEF_DOC_STRINGS "${_arg_BRIEF_DOC_STRINGS}"
+            DETAILED_DOC_STRINGS "${_arg_DETAILED_DOC_STRINGS}"
+            IS_HEADER_ONLY ${_is_header_only}
+            IS_PHONY ${_is_phony}
+    )
+
+    # Add any other particular target properties.  NOTE: This should be done last, so it can override
+    # any other property that has already been set.
     if(${_additional_target_property_count})
         set_target_properties(${_component_target_name} PROPERTIES ${_arg_ADDITIONAL_TARGET_PROPERTIES})
     endif()
@@ -308,7 +393,7 @@ macro(check_deps COMPONENT_NAME EXPECTED_DEPS)
     if("${DEPS}" STREQUAL "${EXPECTED_DEPS}")
         # message("dependencies of ${COMPONENT_NAME} = ${DEPS} -- got expected value")
     else()
-        message(ERROR " dependencies of ${COMPONENT_NAME} = ${DEPS} -- expected ${EXPECTED_DEPS}")
+        message(SEND_ERROR "dependencies of ${COMPONENT_NAME} = ${DEPS} -- expected ${EXPECTED_DEPS}")
     endif()
 endmacro()
 

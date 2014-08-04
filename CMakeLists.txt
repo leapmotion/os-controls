@@ -80,7 +80,7 @@ include(DefineComponents)
 begin_component_definitions()
 
 ###################################################################################################
-# The C++11 component is a phony target which just provides compiler options for enabling C++11
+# Component lib'ary definitions
 ###################################################################################################
 
 define_component_as_library(
@@ -88,11 +88,9 @@ define_component_as_library(
     COMPILE_OPTIONS
         -std=c++11
         -stdlib=libc++
+    BRIEF_DOC_STRINGS
+        "The C++11 component is a phony target which just provides compiler options for enabling C++11."
 )
-
-###################################################################################################
-# The Application component provides a simple framework for an SDL-based application.
-###################################################################################################
 
 define_component_as_library(
     Application
@@ -107,11 +105,9 @@ define_component_as_library(
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
+    BRIEF_DOC_STRINGS
+        "The Application component provides a simple framework for an SDL-based application."
 )
-
-###################################################################################################
-# The EigenTypes component provides convenience typedefs for working with Eigen matrices.
-###################################################################################################
 
 define_component_as_library(
     EigenTypes
@@ -119,23 +115,18 @@ define_component_as_library(
         EigenTypes.h
     EXPLICIT_LIBRARY_DEPENDENCIES
         "Eigen 3.1.2"
+    BRIEF_DOC_STRINGS
+        "The EigenTypes component provides convenience typedefs for working with Eigen matrices."
 )
-
-###################################################################################################
-# The ResourceManager component provides a means for loading and caching resources in a
-# non-redundant way.
-###################################################################################################
 
 define_component_as_library(
     ResourceManager
     HEADERS
         ResourceManager.h
+    BRIEF_DOC_STRINGS
+        "The ResourceManager component provides a means for loading and caching resources in a\n"
+        "non-redundant way."
 )
-
-###################################################################################################
-# The SDLController component provides a single point of control for initializing, shutting down,
-# and general usage of SDL.
-###################################################################################################
 
 # NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
 # on Apple platforms.  It should be ignored on other platforms.
@@ -150,12 +141,10 @@ define_component_as_library(
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
+    BRIEF_DOC_STRINGS
+        "The SDLController component provides a single point of control for initializing, shutting down,\n"
+        "and general usage of SDL."
 )
-
-###################################################################################################
-# The FbxSceneLoader component provides ResourceManager-managed loading of FbxScene objects
-# using the FBX SDK library.
-###################################################################################################
 
 define_component_as_library(
     FbxSceneLoader
@@ -168,12 +157,10 @@ define_component_as_library(
         SDLController
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
+    BRIEF_DOC_STRINGS
+        "The FbxSceneLoader component provides ResourceManager-managed loading of FbxScene objects\n"
+        "using the FBX SDK library."
 )
-
-###################################################################################################
-# The GLCompatibility component provides means for including OpenGL (and related) headers in
-# a platform-agnostic way.
-###################################################################################################
 
 define_component_as_library(
     GLCompatibility
@@ -182,11 +169,10 @@ define_component_as_library(
     EXPLICIT_LIBRARY_DEPENDENCIES
         "OpenGL 2.1"
         "Glew 1.9.0"
+    BRIEF_DOC_STRINGS
+        "The GLCompatibility component provides means for including OpenGL (and related) headers in\n"
+        "a platform-agnostic way."
 )
-
-###################################################################################################
-# The GLTexture2 component provides a C++ class for managing 2D textures in OpenGL.
-###################################################################################################
 
 define_component_as_library(
     GLTexture2
@@ -197,11 +183,9 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
         GLCompatibility
+    BRIEF_DOC_STRINGS
+        "The GLTexture2 component provides a C++ class for managing 2D textures in OpenGL."
 )
-
-###################################################################################################
-# The FrameBufferObject component provides a way to render to a render buffer or texture
-###################################################################################################
 
 define_component_as_library(
     FrameBufferObject
@@ -214,11 +198,9 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLTexture2
         GLCompatibility
+    BRIEF_DOC_STRINGS
+        "The FrameBufferObject component provides a way to render to a render buffer or texture."
 )
-
-###################################################################################################
-# The GLBuffer component provides a fast GPU buffer object for geometry.
-###################################################################################################
 
 define_component_as_library(
     GLBuffer
@@ -228,11 +210,9 @@ define_component_as_library(
         GLBuffer.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLCompatibility
+    BRIEF_DOC_STRINGS
+        "The GLBuffer component provides a fast GPU buffer object for geometry."
 )
-
-###################################################################################################
-# The GLController component provides a single point of control for usage of OpenGL.
-###################################################################################################
 
 define_component_as_library(
     GLController
@@ -242,12 +222,9 @@ define_component_as_library(
         GLController.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLCompatibility
+    BRIEF_DOC_STRINGS
+        "The GLController component provides a single point of control for usage of OpenGL."
 )
-
-###################################################################################################
-# The GLShader component provides a C++ class which handles shaders -- compiling, binding, 
-# unbinding, setting uniforms.
-###################################################################################################
 
 define_component_as_library(
     GLShader
@@ -258,23 +235,19 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
         GLCompatibility
+    BRIEF_DOC_STRINGS
+        "The GLShader component provides a C++ class which handles shaders -- compiling, binding,\n"
+        "unbinding, setting uniforms."
 )
-
-###################################################################################################
-# The Singleton component provides a simple mechanism for managing singleton C++ objects, via
-# class inheritance or not.
-###################################################################################################
 
 define_component_as_library(
     Singleton
     HEADERS
         Singleton.h
+    BRIEF_DOC_STRINGS
+        "The Singleton component provides a simple mechanism for managing singleton C++ objects, via\n"
+        "class inheritance or not."
 )
-
-###################################################################################################
-# The Resource component provides convenient loading of ResourceManager-managed typed resources
-# via a typed ResourceManager singleton.
-###################################################################################################
 
 define_component_as_library(
     Resource
@@ -283,23 +256,19 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         ResourceManager
         Singleton
+    BRIEF_DOC_STRINGS
+        "The Resource component provides convenient loading of ResourceManager-managed typed resources\n"
+        "via a typed ResourceManager singleton."
 )
-
-###################################################################################################
-# The TextAndBinaryFile component provides simple C++ classes for loading and storing text and
-# binary files (primarily intended to be used with Resource).
-###################################################################################################
 
 define_component_as_library(
     TextAndBinaryFile
     HEADERS
         TextFile.h
+    BRIEF_DOC_STRINGS
+        "The TextAndBinaryFile component provides simple C++ classes for loading and storing text and\n"
+        "binary files (primarily intended to be used with Resource)."
 )
-
-###################################################################################################
-# The TextAndBinaryFileLoader component provides ResourceManager-managed loading of text and
-# binary files.
-###################################################################################################
 
 define_component_as_library(
     TextAndBinaryFileLoader
@@ -309,12 +278,10 @@ define_component_as_library(
         ResourceManager
         SDLController
         TextAndBinaryFile
+    BRIEF_DOC_STRINGS
+        "The TextAndBinaryFileLoader component provides ResourceManager-managed loading of text and\n"
+        "binary files."
 )
-
-###################################################################################################
-# The GLShaderLoader component provides ResourceManager-managed loading of GLShader via shader
-# source files.
-###################################################################################################
 
 define_component_as_library(
     GLShaderLoader
@@ -324,12 +291,10 @@ define_component_as_library(
         GLShader
         Resource
         TextAndBinaryFileLoader
+    BRIEF_DOC_STRINGS
+        "The GLShaderLoader component provides ResourceManager-managed loading of GLShader via shader\n"
+        "source files."
 )
-
-###################################################################################################
-# The GLTexture2FreeImage component provides functionality for creating a GLTexture2 from
-# an image file using the FreeImage library.
-###################################################################################################
 
 define_component_as_library(
     GLTexture2FreeImage
@@ -341,12 +306,10 @@ define_component_as_library(
         GLTexture2
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FreeImage 3"
+    BRIEF_DOC_STRINGS
+        "The GLTexture2FreeImage component provides functionality for creating a GLTexture2 from\n"
+        "an image file using the FreeImage library."
 )
-
-###################################################################################################
-# The GLTexture2Loader component provides ResourceManager-managed loading of GLTexture2 objects
-# using the FreeImage library.
-###################################################################################################
 
 define_component_as_library(
     GLTexture2Loader
@@ -358,11 +321,10 @@ define_component_as_library(
         GLTexture2FreeImage
         ResourceManager
         SDLController
+    BRIEF_DOC_STRINGS
+        "The GLTexture2Loader component provides ResourceManager-managed loading of GLTexture2 objects\n"
+        "using the FreeImage library."
 )
-
-###################################################################################################
-# The Primitives component provides some simple shapes in a transform hierarchy.
-###################################################################################################
 
 define_component_as_library(
     Primitives
@@ -375,27 +337,17 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
         EigenTypes
+    BRIEF_DOC_STRINGS
+        "The Primitives component provides some simple shapes in a transform hierarchy."
 )
 
 ###################################################################################################
-#
+# Definition of the actual Components library -- this is the target that will be used by external
+# projects that link this library.
 ###################################################################################################
 
-message("DEFINED_COMPONENTS = ${DEFINED_COMPONENTS}")
 add_library(Components empty.cpp)
 foreach(_component ${DEFINED_COMPONENTS})
-    # get_target_property(_defs ${_component} INTERFACE_COMPILE_DEFINITIONS)
-    # get_target_property(_opts ${_component} INTERFACE_COMPILE_OPTIONS)
-    # get_target_property(_dirs ${_component} INTERFACE_INCLUDE_DIRECTORIES)
-    # if(_dirs)
-    #     target_include_directories(Components PUBLIC ${_dirs})
-    # endif()
-    # if(_defs)
-    #     target_compile_definitions(Components PUBLIC ${_defs})
-    # endif()
-    # if(_opts)
-    #     target_compile_options(Components PUBLIC ${_opts})
-    # endif()
     target_link_libraries(Components PUBLIC ${_component})
 endforeach()
 
