@@ -79,8 +79,8 @@ define_component_as_library(
     C++11
     COMPILE_OPTIONS
         -std=c++11
-    BRIEF_DOC_STRINGS
-        "The C++11 component is a phony target which just provides compiler options for enabling C++11."
+    BRIEF_DOC_STRING
+        "A phony target which just provides compiler options for enabling C++11."
 )
 
 define_component_as_library(
@@ -96,8 +96,8 @@ define_component_as_library(
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
-    BRIEF_DOC_STRINGS
-        "The Application component provides a simple framework for an SDL-based application."
+    BRIEF_DOC_STRING
+        "A simple framework for an SDL-based application."
 )
 
 define_component_as_library(
@@ -106,17 +106,16 @@ define_component_as_library(
         EigenTypes.h
     EXPLICIT_LIBRARY_DEPENDENCIES
         "Eigen 3.1.2"
-    BRIEF_DOC_STRINGS
-        "The EigenTypes component provides convenience typedefs for working with Eigen matrices."
+    BRIEF_DOC_STRING
+        "Convenience typedefs for working with particular Eigen vector/matrix types."
 )
 
 define_component_as_library(
     ResourceManager
     HEADERS
         ResourceManager.h
-    BRIEF_DOC_STRINGS
-        "The ResourceManager component provides a means for loading and caching resources in a\n"
-        "non-redundant way."
+    BRIEF_DOC_STRING
+        "A means for loading and caching resources in a non-redundant way."
 )
 
 # NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
@@ -132,9 +131,8 @@ define_component_as_library(
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
-    BRIEF_DOC_STRINGS
-        "The SDLController component provides a single point of control for initializing, shutting down,\n"
-        "and general usage of SDL."
+    BRIEF_DOC_STRING
+        "A single point of control for init, shutdown, and general use of SDL."
 )
 
 define_component_as_library(
@@ -148,9 +146,8 @@ define_component_as_library(
         SDLController
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
-    BRIEF_DOC_STRINGS
-        "The FbxSceneLoader component provides ResourceManager-managed loading of FbxScene objects\n"
-        "using the FBX SDK library."
+    BRIEF_DOC_STRING
+        "ResourceManager-managed loading of FbxScene objects using the FBX SDK."
 )
 
 define_component_as_library(
@@ -160,9 +157,8 @@ define_component_as_library(
     EXPLICIT_LIBRARY_DEPENDENCIES
         "OpenGL 2.1"
         "Glew 1.9.0"
-    BRIEF_DOC_STRINGS
-        "The GLCompatibility component provides means for including OpenGL (and related) headers in\n"
-        "a platform-agnostic way."
+    BRIEF_DOC_STRING
+        "A means for including OpenGL (and related) headers in a platform-agnostic way."
 )
 
 define_component_as_library(
@@ -174,8 +170,8 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
         GLCompatibility
-    BRIEF_DOC_STRINGS
-        "The GLTexture2 component provides a C++ class for managing 2D textures in OpenGL."
+    BRIEF_DOC_STRING
+        "A C++ class for managing 2D textures in OpenGL."
 )
 
 define_component_as_library(
@@ -189,8 +185,8 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLTexture2
         GLCompatibility
-    BRIEF_DOC_STRINGS
-        "The FrameBufferObject component provides a way to render to a render buffer or texture."
+    BRIEF_DOC_STRING
+        "Render to an OpenGL render buffer or texture."
 )
 
 define_component_as_library(
@@ -201,8 +197,8 @@ define_component_as_library(
         GLBuffer.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLCompatibility
-    BRIEF_DOC_STRINGS
-        "The GLBuffer component provides a fast GPU buffer object for geometry."
+    BRIEF_DOC_STRING
+        "A fast GPU buffer object for OpenGL geometry."
 )
 
 define_component_as_library(
@@ -213,8 +209,8 @@ define_component_as_library(
         GLController.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         GLCompatibility
-    BRIEF_DOC_STRINGS
-        "The GLController component provides a single point of control for usage of OpenGL."
+    BRIEF_DOC_STRING
+        "A single point of control for usage of OpenGL."
 )
 
 define_component_as_library(
@@ -226,18 +222,16 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
         GLCompatibility
-    BRIEF_DOC_STRINGS
-        "The GLShader component provides a C++ class which handles shaders -- compiling, binding,\n"
-        "unbinding, setting uniforms."
+    BRIEF_DOC_STRING
+        "A C++ class which manages GLSL-based shader programs."
 )
 
 define_component_as_library(
     Singleton
     HEADERS
         Singleton.h
-    BRIEF_DOC_STRINGS
-        "The Singleton component provides a simple mechanism for managing singleton C++ objects, via\n"
-        "class inheritance or not."
+    BRIEF_DOC_STRING
+        "A simple mechanism for managing singleton C++ objects."
 )
 
 define_component_as_library(
@@ -247,18 +241,16 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         ResourceManager
         Singleton
-    BRIEF_DOC_STRINGS
-        "The Resource component provides convenient loading of ResourceManager-managed typed resources\n"
-        "via a typed ResourceManager singleton."
+    BRIEF_DOC_STRING
+        "Convenient typed, ResourceManager-loaded resources via singleton."
 )
 
 define_component_as_library(
     TextAndBinaryFile
     HEADERS
         TextFile.h
-    BRIEF_DOC_STRINGS
-        "The TextAndBinaryFile component provides simple C++ classes for loading and storing text and\n"
-        "binary files (primarily intended to be used with Resource)."
+    BRIEF_DOC_STRING
+        "Simple C++ classes for loading/storing text/binary files."
 )
 
 define_component_as_library(
@@ -269,9 +261,8 @@ define_component_as_library(
         ResourceManager
         SDLController
         TextAndBinaryFile
-    BRIEF_DOC_STRINGS
-        "The TextAndBinaryFileLoader component provides ResourceManager-managed loading of text and\n"
-        "binary files."
+    BRIEF_DOC_STRING
+        "ResourceManager-managed loading of text and binary files."
 )
 
 define_component_as_library(
@@ -282,9 +273,8 @@ define_component_as_library(
         GLShader
         Resource
         TextAndBinaryFileLoader
-    BRIEF_DOC_STRINGS
-        "The GLShaderLoader component provides ResourceManager-managed loading of GLShader via shader\n"
-        "source files."
+    BRIEF_DOC_STRING
+        "ResourceManager-managed loading of GLSL-based shader programs."
 )
 
 define_component_as_library(
@@ -297,9 +287,8 @@ define_component_as_library(
         GLTexture2
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FreeImage 3"
-    BRIEF_DOC_STRINGS
-        "The GLTexture2FreeImage component provides functionality for creating a GLTexture2 from\n"
-        "an image file using the FreeImage library."
+    BRIEF_DOC_STRING
+        "Functionality for creating a GLTexture2 from an image file via FreeImage."
 )
 
 define_component_as_library(
@@ -312,9 +301,8 @@ define_component_as_library(
         GLTexture2FreeImage
         ResourceManager
         SDLController
-    BRIEF_DOC_STRINGS
-        "The GLTexture2Loader component provides ResourceManager-managed loading of GLTexture2 objects\n"
-        "using the FreeImage library."
+    BRIEF_DOC_STRING
+        "Provides ResourceManager-managed loading of GLTexture2 objects using FreeImage."
 )
 
 define_component_as_library(
@@ -328,8 +316,8 @@ define_component_as_library(
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
         EigenTypes
-    BRIEF_DOC_STRINGS
-        "The Primitives component provides some simple shapes in a transform hierarchy."
+    BRIEF_DOC_STRING
+        "Provides some simple shapes in a transform hierarchy."
 )
 
 ###################################################################################################
@@ -398,13 +386,48 @@ option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of stati
 add_library(Components empty.cpp)
 
 ###################################################################################################
+# Add options for defining which components should be linked into the Components library, and
+# link them.
+###################################################################################################
+
+# Add options for explicitly requiring that each component be linked.  NOTE: some components may
+# not be explicitly required but will still be linked because they are indirectly depended upon.
+foreach(_component ${DEFINED_COMPONENTS})
+    get_target_property(_brief_doc_strings ${_component} BRIEF_DOC_STRING)
+    option(LINK_COMPONENT_${_component} "${_brief_doc_strings}" ON)
+endforeach()
+
+# Construct the list of components that are required to be linked.
+set(_explicit_link_components "")
+foreach(_component ${DEFINED_COMPONENTS})
+    if(LINK_COMPONENT_${_component})
+        list(APPEND _explicit_link_components ${_component})
+        target_link_libraries(Components PUBLIC ${_component})
+    endif()
+endforeach()
+
+message("_explicit_link_components = ${_explicit_link_components}")
+print_dependency_graph_of_component_linking_library(Components "${_explicit_link_components}")
+
+###################################################################################################
 # Define install rules for the library.  This is probably not the legit way to do it, and we
 # should figure out what the legit way is.
 ###################################################################################################
 
+# Recursively determine all component dependencies implicitly enabled via the explicit enabling.
+set(_all_link_components "")
+foreach(_component ${_explicit_link_components})
+    compute_all_component_dependencies_of(${_component} _component_deps)
+    list(APPEND _all_link_components ${_component_deps}) # This may append redundant components.
+endforeach()
+# Sort and and remove duplicates, because we will iterate through the list, defining install
+# rules for each, and we don't want to make redundant install rules.
+list(SORT _all_link_components)
+list(REMOVE_DUPLICATES _all_link_components)
+
+# Define the install rules while accumulating include directories.
 set(_Components_INCLUDE_DIRECTORIES "")
-foreach(_component ${DEFINED_COMPONENTS})
-    target_link_libraries(Components PUBLIC ${_component})
+foreach(_component ${_all_link_components})
     get_target_property(_is_phony ${_component} IS_PHONY)
     if(NOT _is_phony)
         get_target_property(_dir ${_component} INTERFACE_INCLUDE_DIRECTORIES)
@@ -413,16 +436,17 @@ foreach(_component ${DEFINED_COMPONENTS})
         get_target_property(_headers ${_component} PATH_PREFIXED_HEADERS)
         install(
             FILES ${_headers}
-            DESTINATION "include/${_component}")
+            DESTINATION "include/${_component}"
+        )
     endif()
 endforeach()
 
 install(
-    TARGETS Components ${DEFINED_COMPONENTS}
+    TARGETS Components ${_all_link_components}
     EXPORT Components
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
-    # INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
+    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
 )
 install(
     EXPORT Components
@@ -475,6 +499,7 @@ set(NON_COMPONENTIZED_CODE
 
 # Add an Option to toggle the generation of the API documentation.
 option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based (and potentially other format) API documentation" OFF)
+# Define the custom build and install rules for the documentation.
 if(BUILD_DOCUMENTATION)
     find_package(Doxygen)
     if(NOT DOXYGEN_FOUND)

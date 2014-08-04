@@ -78,8 +78,10 @@ include(CMakeParseArguments)
 #
 # - Optional boolean arguments (an option's presence enables that argument, and its non-presence
 #   implicitly disables that argument -- this is the default):
-#   * EXCLUDE_FROM_ALL -- excludes this component's target from the "make all" target.
-# - Parameters taking a single argument: None for now.
+#   * EXCLUDE_FROM_ALL -- Excludes this component's target from the "make all" target.
+# - Parameters taking a single argument:
+#   * BRIEF_DOC_STRING <string> -- A brief description of this component which should fit within
+#     one line (about 80 chars).
 # - Parameters taking multiple arguments (each one is optional, unless otherwise specified):
 #   * HEADERS [header1 [header2 [...]]] -- The list of headers for the component.  Each of these
 #     should be specified using a relative path, based at the component's subdirectory.
@@ -110,11 +112,13 @@ include(CMakeParseArguments)
 #     component.  These target properties are set at the very end of this function, so any target
 #     property already set can and will be overridden.  TODO: add a warning about overriding
 #     properties?
-#   * BRIEF_DOC_STRINGS [string1 [string2 [...]]] -- Specifies a list of strings (each of which
+#   * BRIEF_DOC_STRING [string1 [string2 [...]]] -- Specifies a list of strings (each of which
 #     typically can be newline-terminated) whose concatenation defines the "brief description"
 #     of this component.
-#   * DETAILED_DOC_STRINGS [string1 [string2 [...]]] -- Analogous to BRIEF_DOC_STRINGS, but is
-#     intended to be used for a more detailed description.
+#   * DETAILED_DOC_STRINGS [string1 [string2 [...]]] -- Analogous to BRIEF_DOC_STRING, but is
+#     intended to be used for a more detailed description.  Each separate string should be
+#     newline-terminated and should fit within one line (about 80 chars), so the print-out of all
+#     the strings results is a reasonably-formatted block of text.
 #
 # The following target properties will automatically be set on the component's library target.
 # Again, this is done before the ADDITIONAL_TARGET_PROPERTIES are set, so these can be overridden.
@@ -124,7 +128,7 @@ include(CMakeParseArguments)
 # - PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the component name as a path prefix.
 # - EXPLICIT_COMPONENT_DEPENDENCIES     -- As described above.
 # - EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
-# - BRIEF_DOC_STRINGS                   -- As described above.
+# - BRIEF_DOC_STRING                    -- As described above.
 # - DETAILED_DOC_STRINGS                -- As described above.
 # - IS_HEADER_ONLY                      -- Is set to TRUE if and only if there are no SOURCES,
 #                                          and is otherwise set to FALSE.
@@ -134,7 +138,9 @@ include(CMakeParseArguments)
 function(define_component_as_library COMPONENT)
     # Do the fancy map-style parsing of the arguments
     set(_options EXCLUDE_FROM_ALL)
-    set(_one_value_args "") # None for now
+    set(_one_value_args
+        BRIEF_DOC_STRING        # A one-line, short (no more than about 80 chars) description of the component.
+    )
     set(_multi_value_args
         HEADERS
         SOURCES
@@ -144,14 +150,13 @@ function(define_component_as_library COMPONENT)
         EXPLICIT_COMPONENT_DEPENDENCIES
         EXPLICIT_LIBRARY_DEPENDENCIES
         ADDITIONAL_TARGET_PROPERTIES
-        BRIEF_DOC_STRINGS       # This is for a high level description of the purpose and scope of the component.
         DETAILED_DOC_STRINGS    # This is for a more in-depth description of the purpose and scope of the component.
     )
     cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
   
     # Check the validity/presence of certain options
-    if(NOT _arg_BRIEF_DOC_STRINGS)
-        message(SEND_ERROR "Required BRIEF_DOC_STRINGS value was not defined for component ${COMPONENT}")
+    if(NOT _arg_BRIEF_DOC_STRING)
+        message(SEND_ERROR "Required BRIEF_DOC_STRING value was not defined for component ${COMPONENT}")
     endif()
 
     # Parse the arguments for use in the following target-defining calls.
@@ -261,7 +266,7 @@ function(define_component_as_library COMPONENT)
             PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
             EXPLICIT_COMPONENT_DEPENDENCIES "${_arg_EXPLICIT_COMPONENT_DEPENDENCIES}"
             EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
-            BRIEF_DOC_STRINGS "${_arg_BRIEF_DOC_STRINGS}"
+            BRIEF_DOC_STRING "${_arg_BRIEF_DOC_STRING}"
             DETAILED_DOC_STRINGS "${_arg_DETAILED_DOC_STRINGS}"
             IS_HEADER_ONLY ${_is_header_only}
             IS_PHONY ${_is_phony}
@@ -276,42 +281,6 @@ function(define_component_as_library COMPONENT)
     # Append this component to the list of defined components.
     set(DEFINED_COMPONENTS ${DEFINED_COMPONENTS} ${_component_target_name} PARENT_SCOPE)
 endfunction()
-
-# function(define_install_rules TARGET DESIRED_COMPONENTS)
-#     # message("defining install rule for target ${TARGET}")
-#     set(INCLUDE_DIRECTORIES "")
-#     foreach(COMPONENT ${DESIRED_COMPONENTS}) # This loop should be replaced with determine_include_directories
-#         list(APPEND INCLUDE_DIRECTORIES include/${COMPONENT})
-#     endforeach()
-#     install(
-#         TARGETS ${TARGET}
-#         EXPORT ${TARGET}
-#         LIBRARY DESTINATION lib
-#         ARCHIVE DESTINATION lib
-#         INCLUDES DESTINATION ${INCLUDE_DIRECTORIES})
-#     install(
-#         EXPORT ${TARGET}
-#         DESTINATION .
-#         FILE ComponentsConfig.cmake)
-#     # message("defining install rules for components ${DESIRED_COMPONENTS}")
-#     foreach(COMPONENT ${DESIRED_COMPONENTS})
-#         # message("defining install rules for component ${COMPONENT}")
-#         foreach(SOURCE_TO_INSTALL ${${COMPONENT}_SOURCES_TO_INSTALL})
-#             # message("\tdefining include file install rule ${COMPONENT}/${SOURCE_TO_INSTALL} -> include/${COMPONENT}/${SOURCE_TO_INSTALL}")
-#             install(
-#                 FILES ${COMPONENT}/${SOURCE_TO_INSTALL}
-#                 DESTINATION include/${COMPONENT}
-#             )
-#         endforeach()
-#         foreach(RESOURCE_TO_INSTALL ${${COMPONENT}_RESOURCES_TO_INSTALL})
-#             # message("\tdefining resource file install rule ${COMPONENT}/${RESOURCE_TO_INSTALL} -> resources/${RESOURCE_TO_INSTALL}")
-#             install(
-#                 FILES ${COMPONENT}/${RESOURCE_TO_INSTALL}
-#                 DESTINATION resources
-#             )
-#         endforeach()
-#     endforeach()
-# endfunction()
 
 # This is a private helper function which implements the recursion of the graph traversal
 # algorithm.  The reason it's implemented using a macro instead of a function is because
@@ -365,6 +334,33 @@ function(compute_all_component_dependencies_of COMPONENT _retval_name)
     set(${_retval_name} ${VISITED} PARENT_SCOPE)
 endfunction()
 
+# This is a private helper function for print_dependency_graph_of_component.
+function(_print_dependency_graph_of_component COMPONENT RECURSION_INDENT)
+    get_target_property(_brief_doc_string ${COMPONENT} BRIEF_DOC_STRING)
+    message("${RECURSION_INDENT}${COMPONENT} -- ${_brief_doc_string}")
+    get_target_property(_explicit_component_dependencies ${COMPONENT} EXPLICIT_COMPONENT_DEPENDENCIES)
+    foreach(_dep ${_explicit_component_dependencies})
+        _print_dependency_graph_of_component(${_dep} "${RECURSION_INDENT}    ")
+    endforeach()
+endfunction()
+
+# This function prints a dependency graph of the given component, simply using
+# nested, indented text lines to denote dependency.
+function(print_dependency_graph_of_component COMPONENT)
+    _print_dependency_graph_of_component(${COMPONENT} "")
+endfunction()
+
+# This function prints a dependency graph for a library that explicitly depends on
+# the components listed in LINK_COMPONENTS.
+function(print_dependency_graph_of_component_linking_library LIBNAME LINK_COMPONENTS)
+    message("${LIBNAME} -- depends explicitly on [${LINK_COMPONENTS}]")
+    foreach(_link_component ${LINK_COMPONENTS})
+        _print_dependency_graph_of_component(${_link_component} "    ")
+    endforeach()
+endfunction()
+
+# TODO: write a dot graph generator which produces the dependency graph.
+
 ###################################################################################################
 # Test functions
 ###################################################################################################
@@ -417,4 +413,4 @@ function(test_compute_all_component_dependencies_of)
     # TODO: make tests for other complicated graph cases?
 endfunction()
 
-test_compute_all_component_dependencies_of()
+# test_compute_all_component_dependencies_of()
