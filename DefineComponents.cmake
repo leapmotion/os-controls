@@ -258,6 +258,13 @@ function(define_component_as_library COMPONENT)
     # something to chew on (there would be a linker-archiver error otherwise).  NOTE:
     # there will be a linker warning about an empty table of contents in the component's
     # library.
+    # TODO: Consider using `add_library(target OBJECT ...)` to make a library target
+    # which doesn't compile down to an archived library, but otherwise behaves as one.
+    # This may have caveats, such as calling
+    #   add_executable(user_app $<TARGET_OBJECTS:target>)
+    # (essentially treating it as a set of sources) instead of
+    #   target_link_libraries(user_app target)
+    # See the docs for add_library.
     list(LENGTH _sources _source_count)
     if(${_source_count} EQUAL 0)
         set(_is_header_only TRUE)
@@ -431,3 +438,4 @@ function(test_compute_all_component_dependencies_of)
     # TODO: make tests for other complicated graph cases?
 endfunction()
 
+test_compute_all_component_dependencies_of()

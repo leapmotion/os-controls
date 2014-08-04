@@ -18,14 +18,6 @@ set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})                      # For DefineComponents.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")   # For most other cmake modules
 
-# set(CMAKE_MODULE_PATH
-#     ${CMAKE_MODULE_PATH}
-#     ${CMAKE_CURRENT_SOURCE_DIR}                     # For DefineComponents.cmake
-#     "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules") # For most other cmake modules
-
-# include(ListSubdirectories)
-# include(TargetImportedLibraries) # for Walter's target_package command
-
 ###################################################################################################
 # We use an EXTERNAL_LIBRARY_DIR variable as a hint to where all the libraries can be found.
 # This is an optional means to not have to specify each library's root dir directly.
@@ -87,7 +79,6 @@ define_component_as_library(
     C++11
     COMPILE_OPTIONS
         -std=c++11
-        -stdlib=libc++
     BRIEF_DOC_STRINGS
         "The C++11 component is a phony target which just provides compiler options for enabling C++11."
 )
@@ -342,18 +333,80 @@ define_component_as_library(
 )
 
 ###################################################################################################
+# Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
+###################################################################################################
+
+# TODO: make these into target properties.  BUILD_WITH_INSTALL_RPATH is a target property.
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+# This specifies the directory prefix for the install name (see output of `otool -L libComponents.dylib`).
+# Shared libraries should use "@loader_path", and can be installed side by side with the application
+# binary.  See the Stub example app for usage.
+set(CMAKE_INSTALL_NAME_DIR "@loader_path")
+
+###################################################################################################
+# Global compiler options (and related) go here.  NOTE: ANY COMPONENT-SPECIFIC COMPILER OPTIONS
+# SHOULD BE MADE IN THE CORRESPONDING COMPONENT DEFINITION!
+###################################################################################################
+
+# TODO: look into using target_compile_definitions and target_compile_options,
+# though these seem sufficiently global to warrant the extreme measure of
+# setting CMAKE_CXX_FLAGS.
+
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+
+    # This ugly block of code is to conditionally add the -Wno-deprecated-register option
+    # for versions of Clang newer than 4.2.
+    # TODO: there's probably some "real" way to get the compiler version,
+    # or really just handle the -Wno-deprecated-register option more gracefully.
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE clang_full_version_string)
+    string(REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING ${clang_full_version_string})
+    # message("CLANG_VERSION_STRING = ${CLANG_VERSION_STRING}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
+    if (CLANG_VERSION_STRING VERSION_GREATER 4.2)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-register")
+    endif()
+elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU") # This is GCC
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX") # /WX is to treat warnings as errors.
+endif()
+
+# Special rules to handle use of the libc++ library on Mac with Clang.
+# TODO: Are there analogous rules for Mac with GCC?
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+    if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # GCC ("GNU") probably would require a different option
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    endif()
+endif()
+
+###################################################################################################
 # Definition of the actual Components library -- this is the target that will be used by external
 # projects that link this library.
 ###################################################################################################
+
+# TODO: We could build both static and shared libraries.  There will be a name collision in
+# the library target, which we can resolve using
+# http://datainfer.wordpress.com/2013/10/24/make-both-static-and-shared-libraries-in-one-build-with-cmake/
+# However I haven't implemented this directly because there is a different name collision
+# problem in multiple calls to target_package to specify dependencies (e.g. on Eigen).
+
+# TODO: could/should this be a target property?
+option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
 
 add_library(Components empty.cpp)
 foreach(_component ${DEFINED_COMPONENTS})
     target_link_libraries(Components PUBLIC ${_component})
 endforeach()
 
-export(TARGETS Components ${DEFINED_COMPONENTS} FILE ComponentsConfig.cmake)
+###################################################################################################
+# Export rule for creating the ComponentsConfig.cmake file in the build directory, which is
+# what is found by cmake in order to link to the Components library from its build directory,
+# e.g. for when you're developing in parallel the Components library and an app which uses it.
+###################################################################################################
 
-test_compute_all_component_dependencies_of()
+export(TARGETS Components ${DEFINED_COMPONENTS} FILE ComponentsConfig.cmake)
 
 ###################################################################################################
 # Here are the build rules for the overall library
@@ -382,113 +435,8 @@ set(NON_COMPONENTIZED_CODE
     Utilities.h
 )
 
-# TODO: write functinos for the following:
-# - Determining all component dependencies of a component (recursively).
-# - Determining all library dependencies of a component (recursively).
-# - Determining the include directories for a component.
-# - Determining the library link options for a component.
-# - Calling the appropriate function for defining a library for the component.
-
-# set(Components_SOURCES "")
-# set(Components_INCLUDE_DIRECTORIES "")
-# foreach(COMPONENT ${DEFINED_COMPONENTS})
-#     # message("adding sources for component ${COMPONENT}")
-#     foreach(SOURCE_FILE ${${COMPONENT}_SOURCES})
-#         set(SOURCE_PATH ${COMPONENT}/${SOURCE_FILE})
-#         # message("    adding ${SOURCE_PATH}")        
-#         set(Components_SOURCES ${Components_SOURCES} ${SOURCE_PATH})
-#     endforeach()
-#     # message("adding include directory for component ${COMPONENT}")
-#     set(Components_INCLUDE_DIRECTORIES ${Components_INCLUDE_DIRECTORIES} ${COMPONENT})
-# endforeach()
-
-# Add the non-componentized code
-# set(Components_SOURCES ${Components_SOURCES} ${NON_COMPONENTIZED_CODE})
-
 # TODO: make some cmake messages that complain about files in the non-componentized-code directory,
 # otherwise it could become a dumping ground like MathUtil or Utility.
-
-###################################################################################################
-# Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
-###################################################################################################
-
-# TODO: make these into target properties.  BUILD_WITH_INSTALL_RPATH is a target property.
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-# This specifies the directory prefix for the install name (see output of `otool -L libComponents.dylib`).
-# Shared libraries should use "@loader_path", and can be installed side by side with the application
-# binary.  See the Stub example app for usage.
-set(CMAKE_INSTALL_NAME_DIR "@loader_path")
-
-###################################################################################################
-# The Components library (static and/or shared) is defined here, along with library dependencies.
-###################################################################################################
-
-# TODO: We should build both static and shared libraries.  There will be a name collision in
-# the library target, which we can resolve using
-# http://datainfer.wordpress.com/2013/10/24/make-both-static-and-shared-libraries-in-one-build-with-cmake/
-# However I haven't implemented this directly because there is a different name collision
-# problem in multiple calls to target_package to specify dependencies (e.g. on Eigen).
-
-return() # TEMP
-
-# TODO: could/should this be a target property?
-option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
-
-# Define the "Components" target -- it's a library having the specified sources.
-add_library(Components ${Components_SOURCES})
-# TEMP: for now, just link all library dependencies.  TODO: determine the libraries to link
-# based on the desired set of components.
-
-# Please keep these in alphabetical order.
-target_package(Components Eigen 3.1.2 REQUIRED)
-target_package(Components FbxSdk REQUIRED)
-target_package(Components FreeImage REQUIRED)
-target_package(Components Glew 1.9.0 REQUIRED)
-target_package(Components OpenGL REQUIRED)
-target_package(Components SDL 2 REQUIRED)
-# This appears to be necessary (to build the Components library as a shared library on Mac).
-# I'm not sure why it's different than the others.
-target_link_libraries(Components ${OPENGL_gl_LIBRARY})
-
-# Define rules for creating a release distribution
-define_install_rules(Components "${DEFINED_COMPONENTS}")
-
-###################################################################################################
-# Include directories and compiler flags
-###################################################################################################
-
-# message("Components_INCLUDE_DIRECTORIES = ${Components_INCLUDE_DIRECTORIES}")
-# message("Components_SOURCES = ${Components_SOURCES}")
-
-# TEMP: for now, just include all include directories
-foreach(_include_directory ${Components_INCLUDE_DIRECTORIES})
-    target_include_directories(Components PRIVATE ${_include_directory})
-    target_include_directories(Components INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_include_directory}>)
-endforeach()
-
-# TODO: use target_compile_definitions and target_compile_options
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # This is the correct way to detect the Clang compiler -- see http://www.cmake.org/cmake/help/v3.0/variable/CMAKE_LANG_COMPILER_ID.html#variable:CMAKE_<LANG>_COMPILER_ID
-    # TODO: there's probably some "real" way to get the compiler version,
-    # or really just handle the -Wno-deprecated-register option more gracefully.
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE clang_full_version_string)
-    string(REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING ${clang_full_version_string})
-    # message("CLANG_VERSION_STRING = ${CLANG_VERSION_STRING}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
-    if (CLANG_VERSION_STRING VERSION_GREATER 4.2)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-register")
-    endif()
-endif() # TODO: GCC ("GNU"), MSVC
-
-# Some debug spew
-# include(PrintTargetProperties)
-# echo_target(Components)
-
-# This command causes a ComponentsConfig.cmake file to be generated, which defines
-# the cmake target properties for the Components target for use by external apps,
-# but only for when you want to include/link this library from the build dir.
-# NOTE: The file generated by this is NOT intended to be installed, and cmake is 
-# supposed to not install it.
-export(TARGETS Components FILE ComponentsConfig.cmake)
 
 ###################################################################################################
 # These Doxygen build rules were taken from 
@@ -516,32 +464,9 @@ if(BUILD_DOCUMENTATION)
     install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION ".")
 endif()
 
-###################################################################################################
-# CPack rules for automatic package generation -- just invoke `cpack` in the build dir.
-###################################################################################################
+return() # TEMP
 
-# include(CPack)
+# Define rules for creating a release distribution
+define_install_rules(Components "${DEFINED_COMPONENTS}")
 
-# # set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Components")
-# set(CPACK_PACKAGE_VENDOR "Leap Motion, Inc.")
-# # set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-# set(CPACK_PACKAGE_VERSION_MAJOR "0")
-# set(CPACK_PACKAGE_VERSION_MINOR "0")
-# set(CPACK_PACKAGE_VERSION_PATCH "1")
-# # set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
-# # if(WIN32 AND NOT UNIX)
-# #   There is a bug in NSI that does not handle full unix paths properly. Make
-# #   sure there is at least one set of four (4) backlasshes.
-# #   set(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
-# #   set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
-# #   set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
-# #   set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
-# #   set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
-# #   set(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
-# #   set(CPACK_NSIS_MODIFY_PATH ON)
-# # else(WIN32 AND NOT UNIX)
-# #   set(CPACK_STRIP_FILES "bin/MyExecutable")
-# #   set(CPACK_SOURCE_STRIP_FILES "")
-# # endif(WIN32 AND NOT UNIX)
-# # set(CPACK_PACKAGE_EXECUTABLES "MyExecutable" "My Executable")
-
+# TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages
