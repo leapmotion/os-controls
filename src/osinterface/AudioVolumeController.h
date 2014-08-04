@@ -14,5 +14,10 @@ public:
   /// <returns>
   /// Volume on current primary audio device, in the range [0, 1], referring to the percentage of maximum value
   /// </returns>
-  virtual double GetVolume(void) = 0;
+  virtual float GetVolume(void) = 0;
+
+  /// <summary>
+  /// Mutator counterpart to GetVolume
+  /// </returns>
+  virtual void SetVolume(float volume) = 0;
 };
