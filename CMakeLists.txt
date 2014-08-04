@@ -396,9 +396,39 @@ endif()
 option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
 
 add_library(Components empty.cpp)
+
+###################################################################################################
+# Define install rules for the library.  This is probably not the legit way to do it, and we
+# should figure out what the legit way is.
+###################################################################################################
+
+set(_Components_INCLUDE_DIRECTORIES "")
 foreach(_component ${DEFINED_COMPONENTS})
     target_link_libraries(Components PUBLIC ${_component})
+    get_target_property(_is_phony ${_component} IS_PHONY)
+    if(NOT _is_phony)
+        get_target_property(_dir ${_component} INTERFACE_INCLUDE_DIRECTORIES)
+        # message("making install rules for component ${_component}, include dir ${_dir}")
+        list(APPEND _Components_INCLUDE_DIRECTORIES "include/${_dir}")
+        get_target_property(_headers ${_component} PATH_PREFIXED_HEADERS)
+        install(
+            FILES ${_headers}
+            DESTINATION "include/${_component}")
+    endif()
 endforeach()
+
+install(
+    TARGETS Components ${DEFINED_COMPONENTS}
+    EXPORT Components
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    # INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
+)
+install(
+    EXPORT Components
+    DESTINATION .
+    FILE ComponentsConfig.cmake
+)
 
 ###################################################################################################
 # Export rule for creating the ComponentsConfig.cmake file in the build directory, which is
@@ -463,10 +493,5 @@ if(BUILD_DOCUMENTATION)
     # TODO: Ideally we would specify that the 'doc' target is a dependency of 'install'.
     install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION ".")
 endif()
-
-return() # TEMP
-
-# Define rules for creating a release distribution
-define_install_rules(Components "${DEFINED_COMPONENTS}")
 
 # TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages

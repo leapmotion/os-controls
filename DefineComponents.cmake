@@ -12,29 +12,20 @@
 # - Has well-defined dependencies, which are explicitly declared and are minimal.
 #
 # What is a good criteria for deciding how to group source code into components?
-# Consider the set of all reasonable (non-contrived) applications that may use the
-# code -- think of each source file to be a point in a plane.  Each application is
-# going to use some subset of that source code, which corresponds to some subset
-# of points in the plane.  For a given source file X, consider the set A of all
-# applications that use it, and take the intersection I of the sets of source code
-# that each application in A uses.  This will be some subset which contains X.  The
-# component that X should belong to should contain exactly the set of source code I,
-# which may contain more than just X.  TODO: visual example
+# The source code in a component should generally be mutually dependent or otherwise
+# inseparable.  Consider the set of all reasonable (non-contrived) applications that
+# may use the code -- think of each source file to be a point in a plane.  Each
+# application is going to use some subset of that source code, which corresponds to
+# some subset of points in the plane.  For a given source file X, consider the set A
+# of all applications that use it, and take the intersection I of the sets of source
+# code that each application in A uses.  This will be some subset which contains X.
+# The component that X should belong to should contain exactly the set of source code
+# I, which may contain more than just X.  TODO: visual example
 #
-# This is the list of defined components.  The component name should be identical to
-# the subdirectory which contains all its source files.  A component name should be
-# a C identifier that is WordCapitalized.  Each component should have
-# the following macros defined.
-#   Foo_SOURCES                         The list of source files for component "Foo"
-#   Foo_INSTALL_FILES                   The list of files to copy into a "release" archive.
-#   Foo_EXPLICIT_COMPONENT_DEPENDENCIES The list of components which component "Foo" explicitly depends on; not,
-#                                       for example, components which "Foo" depends on through other components.
-#                                       It's ok if there are redundancies here.
-#   Foo_EXPLICIT_LIBRARY_DEPENDENCIES   The list of library-version pairs which component "Foo" explicity depends
-#                                       on; not, for example, libraries which "Foo" depends on through other
-#                                       components or libraries.  It's ok if there are redundancies here.
-# The total component dependencies of a component can be determined recursively using these
-# definitions.  Similarly, the total library dependencies of a component can be determined.
+# The global variable DEFINED_COMPONENTS is a list containing the target names of each
+# of the defined components, in the order they were defined.  The component name should
+# be identical to the subdirectory which contains all its source files.  A component
+# name must therefore be acceptable as a directory name and as a cmake target name.
 
 # Design notes for components
 # ---------------------------
@@ -76,84 +67,9 @@ endmacro()
 
 function(set_component_target COMPONENT target_name)
     set(${target_name} ${COMPONENT} PARENT_SCOPE)
-    # set(${target_name} Component_${COMPONENT} PARENT_SCOPE)
 endfunction()
-
-# This is a private helper function which implements the recursion of the graph traversal
-# algorithm.  The reason it's implemented using a macro instead of a function is because
-# all variables set in functions are locally scoped, and the way to get around that, using
-# set with PARENT_SCOPE, is shitty and does not behave in a predictable way in this setting.
-# Also, the reason that the dumb nested if/else statements are used instead of early-out
-# return statements is because returning from a macro actually returns from the function
-# invoking it.
-#
-# This function CAN handle cyclic dependency graphs.
-macro(_compute_all_component_dependencies_of COMPONENT RECURSION_INDENT PRINT_DEBUG_MESSAGES)
-    set(_explicit_dependencies ${${COMPONENT}_EXPLICIT_COMPONENT_DEPENDENCIES})
-    list(LENGTH _explicit_dependencies _explicit_dependency_count)
-
-    # If COMPONENT has already been visited, return nothing
-    list(FIND VISITED ${COMPONENT} _index)
-    if(NOT ${_index} LESS 0) # If _index >= 0, then COMPONENT was found in _visited
-        if(${PRINT_DEBUG_MESSAGES})
-            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... base case -- already visited")
-        endif()
-    # If there are no explicit dependencies, return COMPONENT
-    elseif(${_explicit_dependency_count} EQUAL 0)
-        if(${PRINT_DEBUG_MESSAGES})
-            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... base case -- no explicit dependencies")
-        endif()
-        list(APPEND VISITED ${COMPONENT}) # Mark COMPONENT as visited.
-    # Otherwise there are unvisited dependencies to visit, so recurse on them.
-    else()
-        if(${PRINT_DEBUG_MESSAGES})
-            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... recursing on dependencies [${_explicit_dependencies}]")
-        endif()
-        list(APPEND VISITED ${COMPONENT}) # Mark COMPONENT as visited.
-        foreach(_dependency ${_explicit_dependencies})
-            _compute_all_component_dependencies_of(${_dependency} "${RECURSION_INDENT}    " ${PRINT_DEBUG_MESSAGES})
-        endforeach()
-    endif()
-endmacro()
-
-# This function traverses the directed graph of component dependencies (there may be
-# cycles of mutually-dependent components).  COMPONENT should be the component whose
-# dependencies will be computed.  The output is placed in _retval_name, which will be
-# set to the list of all dependencies of COMPONENT, and will be sorted alphabetically.
-# COMPONENT is considered a dependency of itself.
-#
-# This function CAN handle cyclic dependency graphs.
-function(compute_all_component_dependencies_of COMPONENT _retval_name)
-    set(VISITED "")
-    _compute_all_component_dependencies_of(${COMPONENT} "" 0)
-    list(SORT VISITED)
-    set(${_retval_name} ${VISITED} PARENT_SCOPE)
-endfunction()
-
-# TODO: use CMakePackageConfigHelpers: http://www.cmake.org/cmake/help/git-master/module/CMakePackageConfigHelpers.html#module:CMakePackageConfigHelpers
-macro(define_component NAME SOURCES_TO_INSTALL SOURCES_NO_INSTALL RESOURCES_TO_INSTALL EXPLICIT_COMPONENT_DEPENDENCIES EXPLICIT_LIBRARY_DEPENDENCIES)
-    # message("defining component \"${NAME}\" with:\n"
-    #         "\tSOURCES_TO_INSTALL = ${SOURCES_TO_INSTALL}\n"
-    #         "\tSOURCES_NO_INSTALL = ${SOURCES_NO_INSTALL}\n"
-    #         "\tRESOURCES_TO_INSTALL = ${RESOURCES_TO_INSTALL}\n"
-    #         "\tEXPLICIT_COMPONENT_DEPENDENCIES = ${EXPLICIT_COMPONENT_DEPENDENCIES}\n"
-    #         "\tEXPLICIT_LIBRARY_DEPENDENCIES = ${EXPLICIT_LIBRARY_DEPENDENCIES}")
-    set(DEFINED_COMPONENTS ${DEFINED_COMPONENTS} ${NAME})
-    set(${NAME}_SOURCES ${SOURCES_TO_INSTALL} ${SOURCES_NO_INSTALL})
-    set(${NAME}_SOURCES_TO_INSTALL ${SOURCES_TO_INSTALL})
-    set(${NAME}_RESOURCES_TO_INSTALL ${RESOURCES_TO_INSTALL})
-    set(${NAME}_EXPLICIT_COMPONENT_DEPENDENCIES ${EXPLICIT_COMPONENT_DEPENDENCIES})
-    set(${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES ${EXPLICIT_LIBRARY_DEPENDENCIES})
-    # message("defined cmake variables:\n"
-    #         "\t${NAME}_SOURCES = ${${NAME}_SOURCES}\n"
-    #         "\t${NAME}_SOURCES_TO_INSTALL = ${${NAME}_SOURCES_TO_INSTALL}\n"
-    #         "\t${NAME}_RESOURCES_TO_INSTALL = ${${NAME}_RESOURCES_TO_INSTALL}\n"
-    #         "\t${NAME}_EXPLICIT_COMPONENT_DEPENDENCIES = ${${NAME}_EXPLICIT_COMPONENT_DEPENDENCIES}\n"
-    #         "\t${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES = ${${NAME}_EXPLICIT_LIBRARY_DEPENDENCIES}\n")
-endmacro()
 
 include(CMakeParseArguments)
-#include(PrintTargetProperties)
 
 # This function defines a component (logical subgrouping of source, as described above)
 # as a library target.  The function uses the CMakeParseArguments paradigm, where all-uppercase
@@ -202,6 +118,10 @@ include(CMakeParseArguments)
 #
 # The following target properties will automatically be set on the component's library target.
 # Again, this is done before the ADDITIONAL_TARGET_PROPERTIES are set, so these can be overridden.
+# - HEADERS                             -- As described above.
+# - SOURCES                             -- As described above.
+# - PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the component name as a path prefix.
+# - PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the component name as a path prefix.
 # - EXPLICIT_COMPONENT_DEPENDENCIES     -- As described above.
 # - EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
 # - BRIEF_DOC_STRINGS                   -- As described above.
@@ -244,14 +164,14 @@ function(define_component_as_library COMPONENT)
     # Determine the target name of this component.
     set_component_target(${COMPONENT} _component_target_name)
     # Determine the relative paths of all the headers.
-    set(_headers "")
+    set(_path_prefixed_headers "")
     foreach(_header ${_arg_HEADERS})
-        list(APPEND _headers ${COMPONENT}/${_header})
+        list(APPEND _path_prefixed_headers ${COMPONENT}/${_header})
     endforeach()
     # Determine the relative paths of all the sources.
-    set(_sources "")
+    set(_path_prefixed_sources "")
     foreach(_source ${_arg_SOURCES})
-        list(APPEND _sources ${COMPONENT}/${_source})
+        list(APPEND _path_prefixed_sources ${COMPONENT}/${_source})
     endforeach()
 
     # If there are no sources, add an empty dummy source file so that the linker has
@@ -265,17 +185,17 @@ function(define_component_as_library COMPONENT)
     # (essentially treating it as a set of sources) instead of
     #   target_link_libraries(user_app target)
     # See the docs for add_library.
-    list(LENGTH _sources _source_count)
+    list(LENGTH _path_prefixed_sources _source_count)
     if(${_source_count} EQUAL 0)
         set(_is_header_only TRUE)
-        add_library(${_component_target_name} ${_exclude_from_all} ${_headers} empty.cpp)
+        add_library(${_component_target_name} ${_exclude_from_all} ${_path_prefixed_headers} empty.cpp)
     else()
         set(_is_header_only FALSE)
-        add_library(${_component_target_name} ${_exclude_from_all} ${_headers} ${_sources})
+        add_library(${_component_target_name} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
     endif()
 
     # Determine if this is a "phony" target, meaning there are no headers or sources.
-    list(LENGTH _headers _header_count)
+    list(LENGTH _path_prefixed_headers _header_count)
     if(${_header_count} EQUAL 0 AND ${_source_count} EQUAL 0)
         set(_is_phony TRUE)
     else()
@@ -288,7 +208,7 @@ function(define_component_as_library COMPONENT)
             ${_component_target_name}
             PUBLIC
                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${COMPONENT}>
-                $<INSTALL_INTERFACE:${COMPONENT}>)
+                $<INSTALL_INTERFACE:include/${COMPONENT}>)
     endif()
     # If there are compile definitions, add them.
     if(_arg_COMPILE_DEFINITIONS)
@@ -331,12 +251,14 @@ function(define_component_as_library COMPONENT)
         target_link_libraries(${_component_target_name} PUBLIC ${_lib_target_name})
     endforeach()
 
-    # echo_target(${_component_target_name})
-
     # Store several of the parameter values as target properties
     set_target_properties(
         ${_component_target_name}
         PROPERTIES
+            HEADERS "${_arg_HEADERS}"
+            SOURCES "${_arg_SOURCES}"
+            PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
+            PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
             EXPLICIT_COMPONENT_DEPENDENCIES "${_arg_EXPLICIT_COMPONENT_DEPENDENCIES}"
             EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
             BRIEF_DOC_STRINGS "${_arg_BRIEF_DOC_STRINGS}"
@@ -355,40 +277,92 @@ function(define_component_as_library COMPONENT)
     set(DEFINED_COMPONENTS ${DEFINED_COMPONENTS} ${_component_target_name} PARENT_SCOPE)
 endfunction()
 
-function(define_install_rules TARGET DESIRED_COMPONENTS)
-    # message("defining install rule for target ${TARGET}")
-    set(INCLUDE_DIRECTORIES "")
-    foreach(COMPONENT ${DESIRED_COMPONENTS}) # This loop should be replaced with determine_include_directories
-        list(APPEND INCLUDE_DIRECTORIES include/${COMPONENT})
-    endforeach()
-    install(
-        TARGETS ${TARGET}
-        EXPORT ${TARGET}
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        INCLUDES DESTINATION ${INCLUDE_DIRECTORIES})
-    install(
-        EXPORT ${TARGET}
-        DESTINATION .
-        FILE ComponentsConfig.cmake)
-    # message("defining install rules for components ${DESIRED_COMPONENTS}")
-    foreach(COMPONENT ${DESIRED_COMPONENTS})
-        # message("defining install rules for component ${COMPONENT}")
-        foreach(SOURCE_TO_INSTALL ${${COMPONENT}_SOURCES_TO_INSTALL})
-            # message("\tdefining include file install rule ${COMPONENT}/${SOURCE_TO_INSTALL} -> include/${COMPONENT}/${SOURCE_TO_INSTALL}")
-            install(
-                FILES ${COMPONENT}/${SOURCE_TO_INSTALL}
-                DESTINATION include/${COMPONENT}
-            )
+# function(define_install_rules TARGET DESIRED_COMPONENTS)
+#     # message("defining install rule for target ${TARGET}")
+#     set(INCLUDE_DIRECTORIES "")
+#     foreach(COMPONENT ${DESIRED_COMPONENTS}) # This loop should be replaced with determine_include_directories
+#         list(APPEND INCLUDE_DIRECTORIES include/${COMPONENT})
+#     endforeach()
+#     install(
+#         TARGETS ${TARGET}
+#         EXPORT ${TARGET}
+#         LIBRARY DESTINATION lib
+#         ARCHIVE DESTINATION lib
+#         INCLUDES DESTINATION ${INCLUDE_DIRECTORIES})
+#     install(
+#         EXPORT ${TARGET}
+#         DESTINATION .
+#         FILE ComponentsConfig.cmake)
+#     # message("defining install rules for components ${DESIRED_COMPONENTS}")
+#     foreach(COMPONENT ${DESIRED_COMPONENTS})
+#         # message("defining install rules for component ${COMPONENT}")
+#         foreach(SOURCE_TO_INSTALL ${${COMPONENT}_SOURCES_TO_INSTALL})
+#             # message("\tdefining include file install rule ${COMPONENT}/${SOURCE_TO_INSTALL} -> include/${COMPONENT}/${SOURCE_TO_INSTALL}")
+#             install(
+#                 FILES ${COMPONENT}/${SOURCE_TO_INSTALL}
+#                 DESTINATION include/${COMPONENT}
+#             )
+#         endforeach()
+#         foreach(RESOURCE_TO_INSTALL ${${COMPONENT}_RESOURCES_TO_INSTALL})
+#             # message("\tdefining resource file install rule ${COMPONENT}/${RESOURCE_TO_INSTALL} -> resources/${RESOURCE_TO_INSTALL}")
+#             install(
+#                 FILES ${COMPONENT}/${RESOURCE_TO_INSTALL}
+#                 DESTINATION resources
+#             )
+#         endforeach()
+#     endforeach()
+# endfunction()
+
+# This is a private helper function which implements the recursion of the graph traversal
+# algorithm.  The reason it's implemented using a macro instead of a function is because
+# all variables set in functions are locally scoped, and the way to get around that, using
+# set with PARENT_SCOPE, is shitty and does not behave in a predictable way in this setting.
+# Also, the reason that the dumb nested if/else statements are used instead of early-out
+# return statements is because returning from a macro actually returns from the function
+# invoking it.
+#
+# This function CAN handle cyclic dependency graphs.
+macro(_compute_all_component_dependencies_of COMPONENT RECURSION_INDENT PRINT_DEBUG_MESSAGES)
+    get_target_property(_explicit_dependencies ${COMPONENT} EXPLICIT_COMPONENT_DEPENDENCIES)
+    # set(_explicit_dependencies ${${COMPONENT}_EXPLICIT_COMPONENT_DEPENDENCIES})
+    list(LENGTH _explicit_dependencies _explicit_dependency_count)
+
+    # If COMPONENT has already been visited, return nothing
+    list(FIND VISITED ${COMPONENT} _index)
+    if(NOT ${_index} LESS 0) # If _index >= 0, then COMPONENT was found in _visited
+        if(${PRINT_DEBUG_MESSAGES})
+            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... base case -- already visited")
+        endif()
+    # If there are no explicit dependencies, return COMPONENT
+    elseif(${_explicit_dependency_count} EQUAL 0)
+        if(${PRINT_DEBUG_MESSAGES})
+            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... base case -- no explicit dependencies")
+        endif()
+        list(APPEND VISITED ${COMPONENT}) # Mark COMPONENT as visited.
+    # Otherwise there are unvisited dependencies to visit, so recurse on them.
+    else()
+        if(${PRINT_DEBUG_MESSAGES})
+            message("${RECURSION_INDENT}visiting component ${COMPONENT}, visited [${VISITED}] ... recursing on dependencies [${_explicit_dependencies}]")
+        endif()
+        list(APPEND VISITED ${COMPONENT}) # Mark COMPONENT as visited.
+        foreach(_dependency ${_explicit_dependencies})
+            _compute_all_component_dependencies_of(${_dependency} "${RECURSION_INDENT}    " ${PRINT_DEBUG_MESSAGES})
         endforeach()
-        foreach(RESOURCE_TO_INSTALL ${${COMPONENT}_RESOURCES_TO_INSTALL})
-            # message("\tdefining resource file install rule ${COMPONENT}/${RESOURCE_TO_INSTALL} -> resources/${RESOURCE_TO_INSTALL}")
-            install(
-                FILES ${COMPONENT}/${RESOURCE_TO_INSTALL}
-                DESTINATION resources
-            )
-        endforeach()
-    endforeach()
+    endif()
+endmacro()
+
+# This function traverses the directed graph of component dependencies (there may be
+# cycles of mutually-dependent components).  COMPONENT should be the component whose
+# dependencies will be computed.  The output is placed in _retval_name, which will be
+# set to the list of all dependencies of COMPONENT, and will be sorted alphabetically.
+# COMPONENT is considered a dependency of itself.
+#
+# This function CAN handle cyclic dependency graphs.
+function(compute_all_component_dependencies_of COMPONENT _retval_name)
+    set(VISITED "")
+    _compute_all_component_dependencies_of(${COMPONENT} "" 0)
+    list(SORT VISITED)
+    set(${_retval_name} ${VISITED} PARENT_SCOPE)
 endfunction()
 
 ###################################################################################################
@@ -404,32 +378,37 @@ macro(check_deps COMPONENT_NAME EXPECTED_DEPS)
     endif()
 endmacro()
 
+function(define_test_component COMPONENT EXPLICIT_COMPONENT_DEPENDENCIES)
+    add_custom_target(${COMPONENT})
+    set_target_properties(${COMPONENT} PROPERTIES EXPLICIT_COMPONENT_DEPENDENCIES "${EXPLICIT_COMPONENT_DEPENDENCIES}")
+endfunction()
+
 function(test_compute_all_component_dependencies_of)
     # Mutually-dependending components.
-    define_component(A "" "" "" "B" "")
-    define_component(B "" "" "" "A" "")
+    define_test_component(A "B")
+    define_test_component(B "A")
     check_deps(A "A;B")
     check_deps(B "A;B")
 
     # Self-dependending component (it's not necessary to specify self-dependency,
     # but it shouldn't hurt either).
-    define_component(O "" "" "" "O" "")
+    define_test_component(O "O")
     check_deps(O "O")
 
     # A 3-cycle of dependency.
-    define_component(P "" "" "" "Q" "")
-    define_component(Q "" "" "" "R" "")
-    define_component(R "" "" "" "P" "")
+    define_test_component(P "Q")
+    define_test_component(Q "R")
+    define_test_component(R "P")
     check_deps(P "P;Q;R")
     check_deps(Q "P;Q;R")
     check_deps(R "P;Q;R")
 
     # A diamond of dependency -- the more-northern components depend
     # on each more-southern components.
-    define_component(N "" "" "" "W;E" "")
-    define_component(W "" "" "" "S" "")
-    define_component(E "" "" "" "S" "")
-    define_component(S "" "" "" "" "")
+    define_test_component(N "W;E")
+    define_test_component(W "S")
+    define_test_component(E "S")
+    define_test_component(S "")
     check_deps(N "E;N;S;W")
     check_deps(W "S;W")
     check_deps(E "E;S")
