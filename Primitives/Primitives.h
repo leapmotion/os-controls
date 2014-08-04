@@ -2,6 +2,7 @@
 
 #include "PrimitiveBase.h"
 #include "RenderState.h"
+#include "PrimitiveGeometry.h"
 
 class Sphere : public PrimitiveBase {
 public:
@@ -79,4 +80,57 @@ public:
 private:
 
   Vector2 m_Size;
+};
+
+class PartialDisk : public PrimitiveBase {
+public:
+
+  PartialDisk();
+
+  double InnerRadius() const { return m_InnerRadius; }
+  void SetInnerRadius(double innerRad) {
+    if (m_InnerRadius != innerRad) {
+      m_RecomputeGeometry = true;
+    }
+    m_InnerRadius = innerRad;
+  }
+
+  double OuterRadius() const { return m_OuterRadius; }
+  void SetOuterRadius(double outerRad) {
+    if (m_OuterRadius != outerRad) {
+      m_RecomputeGeometry = true;
+    }
+    m_OuterRadius = outerRad;
+  }
+
+  double StartAngle() const { return m_StartAngle; }
+  void SetStartAngle(double startAngleRadians) {
+    if (m_StartAngle != startAngleRadians) {
+      m_RecomputeGeometry = true;
+    }
+    m_StartAngle = startAngleRadians;
+  }
+  
+  double EndAngle() const { return m_EndAngle; }
+  void SetEndAngle(double endAngleRadians) {
+    if (m_EndAngle != endAngleRadians) {
+      m_RecomputeGeometry = true;
+    }
+    m_EndAngle = endAngleRadians;
+  }
+
+  virtual void Draw(RenderState& renderState) const;
+
+private:
+
+  void RecomputeGeometry() const;
+
+  // cache the previously drawn geometry for speed if the primitive parameters are unchanged
+  mutable PrimitiveGeometry m_Geometry;
+  mutable bool m_RecomputeGeometry;
+
+  double m_InnerRadius;
+  double m_OuterRadius;
+  double m_StartAngle;
+  double m_EndAngle;
 };
