@@ -1,6 +1,4 @@
 set(osinterface_SOURCES
-  osinterface.h
-  osinterface.cpp
   AudioVolumeController.h
   AudioVolumeController.cpp
   LeapInput.h
@@ -34,7 +32,7 @@ add_mac_sources(
 )
 
 add_library(osinterface ${osinterface_SOURCES})
-target_link_libraries(osinterface Autowiring utility interaction engine)
+target_link_libraries(osinterface Autowiring utility)
 target_package(osinterface SDL 2.0.1 REQUIRED)
 target_package(osinterface Leap REQUIRED)
 target_include_directories(osinterface PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
