@@ -60,6 +60,7 @@ void GLBuffer::CheckError(const std::string& loc) {
       std::cout << "at " << loc << ": ";
     }
     std::cout << "code: " << std::hex << err << std::endl;
+    throw std::runtime_error("CheckError failed");
   }
 }
 
@@ -71,5 +72,6 @@ void GLBuffer::CheckFrameBufferStatus(const std::string& loc) {
       std::cout << "at " << loc << ": ";
     }
     std::cout << "code: " << std::hex << status << std::endl;
+    throw std::runtime_error("CheckFrameBufferStatus failed");
   }
 }

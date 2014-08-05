@@ -83,10 +83,10 @@ void PrimitiveGeometry::UploadDataToBuffers() {
 }
 
 void PrimitiveGeometry::Draw(RenderState& renderState, GLenum drawMode) {
-  const bool haveVertices = m_VertexBuffer.IsCreated();
-  const bool haveNormals = m_NormalBuffer.IsCreated();
-  const bool haveColors = m_ColorBuffer.IsCreated();
-  const bool haveTexCoords = m_TexCoordBuffer.IsCreated();
+  const bool haveVertices = m_VertexBuffer.IsCreated() && renderState.HavePositionAttribute();
+  const bool haveNormals = m_NormalBuffer.IsCreated() && renderState.HaveNormalAttribute();
+  const bool haveColors = m_ColorBuffer.IsCreated() && renderState.HaveColorAttribute();
+  const bool haveTexCoords = m_TexCoordBuffer.IsCreated() && renderState.HaveTexCoordAttribute();
 
   if (haveVertices) {
     m_VertexBuffer.Bind();

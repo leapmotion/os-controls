@@ -44,6 +44,11 @@ public:
   void DisableColorAttribute();
   void DisableTexCoordAttribute();
 
+  bool HavePositionAttribute() const { return m_PositionAttribute >= 0; }
+  bool HaveNormalAttribute() const { return m_NormalAttribute >= 0; }
+  bool HaveColorAttribute() const { return m_ColorAttribute >= 0; }
+  bool HaveTexCoordAttribute() const { return m_TexCoordAttribute >= 0; }
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
