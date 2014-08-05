@@ -12,20 +12,31 @@ void PrimitiveGeometry::CleanUpBuffers() {
   if (m_IndexBuffer.IsCreated()) {
     m_IndexBuffer.Destroy();
   }
+  if (m_TexCoordBuffer.IsCreated()) {
+    m_TexCoordBuffer.Destroy();
+  }
   m_Vertices.clear();
   m_Normals.clear();
+  m_TexCoords.clear();
 }
 
 void PrimitiveGeometry::UploadDataToBuffers() {
   VertexIndexMap vboMap;
   std::vector<float> vertexData;
   std::vector<float> normalData;
+  std::vector<float> texCoordData;
   std::vector<unsigned int> indexData;
+
+  const bool haveTexCoords = !m_TexCoords.empty();
   
   // eliminate duplicate vertices using a temporary map
   assert(m_Vertices.size() == m_Normals.size());
   for (size_t i=0; i<m_Vertices.size(); i++) {
-    MapVertex cur(m_Vertices[i], m_Normals[i]);
+    Vector2f texCoord = Vector2f::Zero();
+    if (haveTexCoords) {
+      texCoord = m_TexCoords[i];
+    }
+    MapVertex cur(m_Vertices[i], m_Normals[i], texCoord);
     const VertexIndexMap::iterator result = vboMap.find(cur);
     if (result == vboMap.end()) {
       unsigned int newIndex = static_cast<unsigned int>(vertexData.size()/3);
@@ -35,6 +46,10 @@ void PrimitiveGeometry::UploadDataToBuffers() {
       normalData.push_back(cur.n[0]);
       normalData.push_back(cur.n[1]);
       normalData.push_back(cur.n[2]);
+      if (haveTexCoords) {
+        texCoordData.push_back(cur.t[0]);
+        texCoordData.push_back(cur.t[1]);
+      }
       indexData.push_back(newIndex);
       vboMap[cur] = newIndex;
     } else {
@@ -56,6 +71,13 @@ void PrimitiveGeometry::UploadDataToBuffers() {
   m_IndexBuffer.Bind();
   m_IndexBuffer.Allocate(static_cast<void*>(indexData.data()), static_cast<int>(indexData.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
   m_IndexBuffer.Release();
+
+  if (haveTexCoords) {
+    m_TexCoordBuffer.Create(GL_ARRAY_BUFFER);
+    m_TexCoordBuffer.Bind();
+    m_TexCoordBuffer.Allocate(static_cast<void*>(texCoordData.data()), static_cast<int>(texCoordData.size()*sizeof(float)), GL_STATIC_DRAW);
+    m_TexCoordBuffer.Release();
+  }
 
   m_NumIndices = static_cast<int>(indexData.size());
 }
@@ -228,6 +250,7 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
   PrimitiveGeometry geom;
   stdvectorV3f& vertices = geom.m_Vertices;
   stdvectorV3f& normals = geom.m_Normals;
+  stdvectorV2f& texCoords = geom.m_TexCoords;
 
   const Vector3f normal(Vector3f::UnitZ());
   const Vector3f p1(-1.0f, -1.0f, 0.0f);
@@ -241,6 +264,13 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
   vertices.push_back(p3);
   vertices.push_back(p4);
   vertices.push_back(p1);
+
+  texCoords.push_back(p1.head<2>()*0.5f + Vector2f::Constant(0.5f));
+  texCoords.push_back(p2.head<2>()*0.5f + Vector2f::Constant(0.5f));
+  texCoords.push_back(p3.head<2>()*0.5f + Vector2f::Constant(0.5f));
+  texCoords.push_back(p3.head<2>()*0.5f + Vector2f::Constant(0.5f));
+  texCoords.push_back(p4.head<2>()*0.5f + Vector2f::Constant(0.5f));
+  texCoords.push_back(p1.head<2>()*0.5f + Vector2f::Constant(0.5f));
   
   // all vertices have the same normal
   for (size_t i=0; i<vertices.size(); i++) {

@@ -34,16 +34,19 @@ private:
 
   // structure for eliminating duplicate vertices in a map
   struct MapVertex {
-    MapVertex(const Vector3f& pos, const Vector3f& normal) {
+    MapVertex(const Vector3f& pos, const Vector3f& normal, const Vector2f& texCoord = Vector2f::Zero()) {
       p[0] = pos[0];
       p[1] = pos[1];
       p[2] = pos[2];
       n[0] = normal[0];
       n[1] = normal[1];
       n[2] = normal[2];
+      t[0] = texCoord[0];
+      t[1] = texCoord[1];
     }
     float p[3];
     float n[3];
+    float t[2];
     bool operator<(const MapVertex& other) const {
       return memcmp((const void*)this, (const void*)(&other), sizeof(MapVertex)) > 0;
     }
@@ -54,6 +57,7 @@ private:
   int m_NumIndices;
   stdvectorV3f m_Vertices;
   stdvectorV3f m_Normals;
+  stdvectorV2f m_TexCoords;
   GLBuffer m_VertexBuffer;
   GLBuffer m_NormalBuffer;
   GLBuffer m_IndexBuffer;
