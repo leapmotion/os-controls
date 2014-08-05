@@ -53,7 +53,7 @@
 #   a packaged distribution.  This should be done by creating a ComponentsConfig.cmake file
 #   in the build dir which sets the include dirs (from ${CMAKE_CURRENT_SOURCE_DIR}/source)
 #   and the linking libraries (from the build dir).
-
+include(VerboseMessage)
 function(print_value_of VAR_NAME INDENT)
     message("${INDENT}${VAR_NAME} = ${${VAR_NAME}}")
 endfunction()
@@ -337,7 +337,7 @@ endfunction()
 # This is a private helper function for print_dependency_graph_of_component.
 function(_print_dependency_graph_of_component COMPONENT RECURSION_INDENT)
     get_target_property(_brief_doc_string ${COMPONENT} BRIEF_DOC_STRING)
-    message("${RECURSION_INDENT}${COMPONENT} -- ${_brief_doc_string}")
+    verbose_message("${RECURSION_INDENT}${COMPONENT} -- ${_brief_doc_string}")
     get_target_property(_explicit_component_dependencies ${COMPONENT} EXPLICIT_COMPONENT_DEPENDENCIES)
     foreach(_dep ${_explicit_component_dependencies})
         _print_dependency_graph_of_component(${_dep} "${RECURSION_INDENT}    ")
@@ -353,7 +353,7 @@ endfunction()
 # This function prints a dependency graph for a library that explicitly depends on
 # the components listed in LINK_COMPONENTS.
 function(print_dependency_graph_of_component_linking_library LIBNAME LINK_COMPONENTS)
-    message("${LIBNAME} -- depends explicitly on [${LINK_COMPONENTS}]")
+    verbose_message("${LIBNAME} -- depends explicitly on [${LINK_COMPONENTS}]")
     foreach(_link_component ${LINK_COMPONENTS})
         _print_dependency_graph_of_component(${_link_component} "    ")
     endforeach()

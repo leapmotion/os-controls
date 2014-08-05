@@ -18,6 +18,7 @@ set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})                      # For DefineComponents.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")   # For most other cmake modules
 
+include(VerboseMessage)
 ###################################################################################################
 # We use an EXTERNAL_LIBRARY_DIR variable as a hint to where all the libraries can be found.
 # This is an optional means to not have to specify each library's root dir directly.
@@ -406,7 +407,7 @@ foreach(_component ${DEFINED_COMPONENTS})
     endif()
 endforeach()
 
-message("_explicit_link_components = ${_explicit_link_components}")
+verbose_message("_explicit_link_components = ${_explicit_link_components}")
 print_dependency_graph_of_component_linking_library(Components "${_explicit_link_components}")
 
 ###################################################################################################
