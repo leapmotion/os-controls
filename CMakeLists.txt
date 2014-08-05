@@ -121,13 +121,17 @@ define_component_as_library(
 
 # NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
 # on Apple platforms.  It should be ignored on other platforms.
+set(_SDLController_SOURCES_temp "SDLController.cpp")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
+    list(APPEND _SDLController_SOURCES_temp MakeTransparent_Apple.mm)
+endif()
+
 define_component_as_library(
     SDLController
     HEADERS
         SDLController.h
     SOURCES
-        MakeTransparent_Apple.mm
-        SDLController.cpp
+        ${_SDLController_SOURCES_temp}
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES

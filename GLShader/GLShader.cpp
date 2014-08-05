@@ -1,5 +1,7 @@
 #include "GLShader.h"
 
+#include <stdexcept>
+
 GLShader::GLShader (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
   m_vertex_shader = Compile(GL_VERTEX_SHADER, vertex_shader_source);
   m_fragment_shader = Compile(GL_FRAGMENT_SHADER, fragment_shader_source);

@@ -1,5 +1,3 @@
-#if __APPLE__
-
 #include "SDLController.h"
 
 #include <AppKit/NSOpenGL.h>
@@ -28,7 +26,7 @@ void MakeTransparent_Apple (const SDL_SysWMinfo &sys_wm_info, SDL_GLContext c) {
   // Set the GL context opacity.
   {
     NSOpenGLContext *context = static_cast<NSOpenGLContext *>(c);
-    // The opacity var should technically be a GLint, but from 
+    // The opacity var should technically be a GLint, but from
     // http://www.opengl.org/wiki/OpenGL_Type -- GLint is necessarily 32 bit,
     // so we can use a fixed int type without including any GL headers here.
     int32_t opacity = 0;
@@ -52,5 +50,3 @@ void MakeTransparent_Apple (const SDL_SysWMinfo &sys_wm_info, SDL_GLContext c) {
                                    NSWindowCollectionBehaviorIgnoresCycle)];
   }
 }
-
-#endif

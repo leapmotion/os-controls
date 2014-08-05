@@ -12,8 +12,8 @@
   #include "windows.h"
 #else
   #include <GL/glew.h>
-  #include <gl/gl.h>
-  #include <gl/glu.h>
+  #include <GL/gl.h>
+  #include <GL/glu.h>
 #endif
 
 // TEMPORARY shim until std::is_same from <type_traits> is available
