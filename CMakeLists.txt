@@ -451,6 +451,7 @@ install(
 )
 install(
     EXPORT Components
+    NAMESPACE Components::
     DESTINATION .
     FILE ComponentsConfig.cmake
 )
@@ -461,7 +462,7 @@ install(
 # e.g. for when you're developing in parallel the Components library and an app which uses it.
 ###################################################################################################
 
-export(TARGETS Components ${DEFINED_COMPONENTS} FILE ComponentsConfig.cmake)
+export(TARGETS Components ${DEFINED_COMPONENTS} NAMESPACE Components:: FILE ComponentsConfig.cmake)
 
 ###################################################################################################
 # Here are the build rules for the overall library
