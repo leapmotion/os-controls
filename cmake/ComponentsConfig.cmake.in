@@ -6,7 +6,14 @@ get_filename_component(_current_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
 list(APPEND CMAKE_MODULE_PATH "${_current_dir}/cmake")
 include(ComponentsExport)
 
-# include(CMakeFindDependencyMacro)
-# find_dependency(TODO)
+include(CMakeFindDependencyMacro) # For find_dependency
+
+set(_deps "@ALL_LIBRARY_DEPENDENCIES@")
+foreach(_dep ${_deps})
+    message("    _dep = ${_dep}")
+    # For each library that hasn't been target_package'ed yet, call target_package on it.
+    string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
+    find_dependency(${_semicolon_delimited_dep})
+endforeach()
 
 

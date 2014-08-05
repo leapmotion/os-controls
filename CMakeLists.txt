@@ -91,9 +91,8 @@ define_component_as_library(
 
 # NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
 # on Apple platforms.  It should be ignored on other platforms.
-set(_SDLController_SOURCES_temp "SDLController.cpp")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
-    list(APPEND _SDLController_SOURCES_temp MakeTransparent_Apple.mm)
+    set(_maybe_MakeTransparent_Apple_mm "MakeTransparent_Apple.mm")
 endif()
 
 define_component_as_library(
@@ -101,7 +100,8 @@ define_component_as_library(
     HEADERS
         SDLController.h
     SOURCES
-        ${_SDLController_SOURCES_temp}
+        SDLController.cpp
+        ${_maybe_MakeTransparent_Apple_mm}
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
@@ -415,6 +415,17 @@ foreach(_component ${_all_link_components})
         )
     endif()
 endforeach()
+
+# Determine all library dependencies (of linked components) for purposes of generating find_dependency 
+# commands in ComponentsConfig.cmake.
+set(ALL_LIBRARY_DEPENDENCIES "")
+foreach(_component ${_all_link_components})
+    get_target_property(_explicit_library_dependencies ${_component} EXPLICIT_LIBRARY_DEPENDENCIES)
+    list(APPEND ALL_LIBRARY_DEPENDENCIES ${_explicit_library_dependencies})
+endforeach()
+list(SORT ALL_LIBRARY_DEPENDENCIES)
+list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
+message("ALL_LIBRARY_DEPENDENCIES = ${ALL_LIBRARY_DEPENDENCIES}")
 
 install(
     TARGETS Components ${_all_link_components}
