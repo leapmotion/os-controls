@@ -237,6 +237,7 @@ define_component_as_library(
     SOURCES
         ModelViewProjection.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
+        EigenTypes
         GLCompatibility
     BRIEF_DOC_STRING
         "Provides manipulation of modelview and projection matrices for usage in shaders."
@@ -348,8 +349,10 @@ define_component_as_library(
         RenderState.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
+        Color
         EigenTypes
         GLBuffer
+        GLMatrices
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )

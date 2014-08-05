@@ -1,5 +1,4 @@
 #include "ModelViewProjection.h"
-#include "GLBuffer.h"
 
 Projection::Projection() : m_matrix(Matrix4x4::Identity()) { }
 
