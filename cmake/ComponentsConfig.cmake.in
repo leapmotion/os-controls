@@ -1,0 +1,12 @@
+# This file was generated from the hand-written file components/source/cmake/ComponentsConfig.cmake.in
+# and is intended to load the automatically-generated export file cmake/ComponentsExport.cmake, which
+# has all the target definitions for the Components library.
+
+get_filename_component(_current_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
+list(APPEND CMAKE_MODULE_PATH "${_current_dir}/cmake")
+include(ComponentsExport)
+
+# include(CMakeFindDependencyMacro)
+# find_dependency(TODO)
+
+

@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSIO
 ###################################################################################################
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
-project(Components)
+project(Components VERSION 0.0)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
 # TODO: set a default value for CMAKE_INSTALL_PREFIX to something like
@@ -15,7 +15,7 @@ set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 ###################################################################################################
 
 # Module path and module includes
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})                      # For DefineComponents.cmake
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)                # For DefineComponents.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")   # For most other cmake modules
 
 include(VerboseMessage)
@@ -38,43 +38,13 @@ endif()
 list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 
 ###################################################################################################
-# Component definitions
+# Component lib'ary definitions
 ###################################################################################################
-
-# This section defines what a component is and defines helper macros.
-
-###################################################################################################
-# This call initializes the DEFINED_COMPONENTS var to empty -- defined components will be added to it.
-# NOTE: Please keep the component definitions in alphabetical order by component name.
-###################################################################################################
-
-# A "component" can be thought of as a "sub-library" (in the sense that it is a small library and
-# is subordinate to the whole library).  A component satisfies two requirements:
-# - Has a well-defined purpose, scope, and feature set.
-# - Has well-defined dependencies, which are explicitly declared and are minimal.
-#
-# This is the list of defined components.  The component name should be identical to
-# the subdirectory which contains all its source files.  A component name should be
-# a C identifier that is WordCapitalized.  Each component should have
-# the following macros defined.
-#   Foo_SOURCES                         The list of source files for component "Foo"
-#   Foo_INSTALL_FILES                   The list of files to copy into a "release" archive.
-#   Foo_EXPLICIT_COMPONENT_DEPENDENCIES The list of components which component "Foo" explicitly depends on; not,
-#                                       for example, components which "Foo" depends on through other components.
-#                                       It's ok if there are redundancies here.
-#   Foo_EXPLICIT_LIBRARY_DEPENDENCIES   The list of library-version pairs which component "Foo" explicity depends
-#                                       on; not, for example, libraries which "Foo" depends on through other
-#                                       components or libraries.  It's ok if there are redundancies here.
-# The total component dependencies of a component can be determined recursively using these
-# definitions.  Similarly, the total library dependencies of a component can be determined.
 
 include(DefineComponents)
 
+# The defined components will be accumulated in DEFINED_COMPONENTS
 begin_component_definitions()
-
-###################################################################################################
-# Component lib'ary definitions
-###################################################################################################
 
 define_component_as_library(
     C++11
@@ -453,11 +423,25 @@ install(
     ARCHIVE DESTINATION lib
     INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
 )
+# This causes automatically-generated export targets to be defined in
+#   ${CMAKE_INSTALL_PREFIX]/cmake/ComponentsExport.cmake
+# which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with 
+# configure_file and install).
 install(
     EXPORT Components
     NAMESPACE Components::
+    DESTINATION cmake
+    FILE ComponentsExport.cmake
+)
+# Generate the file ComponentsConfig.cmake that will be installed with the `make install` steps.
+# NOTE: This is distinct from the ComponentsConfig.cmake file that will be generated in
+# ${PROJECT_BINARY_DIR} by the export command below.
+configure_file(${CMAKE_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/cmake/ComponentsConfig.cmake @ONLY)
+# Install rule for the ComponentsConfig.cmake file just generated.  It goes in the root directory
+# of the installation, and is the file that cmake looks for and uses in find_package.
+install(
+    FILES ${PROJECT_BINARY_DIR}/cmake/ComponentsConfig.cmake
     DESTINATION .
-    FILE ComponentsConfig.cmake
 )
 
 ###################################################################################################
@@ -520,7 +504,7 @@ if(BUILD_DOCUMENTATION)
     # The DOXYGEN_OUTPUT_DIR var is used in Doxyfile.in to determine where to generate docs.
     set(DOXYGEN_OUTPUT_DIR ${PROJECT_BINARY_DIR}/doc)
     # Configure the template Doxyfile for our specific project.
-    configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+    configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
     # Add a custom target to run Doxygen when ever the project is built.
     add_custom_target(
         doc
