@@ -1,6 +1,8 @@
 set(interaction_SOURCES
-  interaction.h
-  interaction.cpp
+  HandExistTrigger.cpp
+  HandExistTrigger.h
+  GestureTriggerManifest.cpp
+  GestureTriggerManifest.h
 )
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
 #include "osinterface/LeapInput.h"
@@ -33,6 +34,8 @@ m_bRunning(false)
 
 void OsControl::Main(void) {
   ComInitializer initCom;
+  GestureTriggerManifest manifest;
+
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);
     m_outstanding.reset();
