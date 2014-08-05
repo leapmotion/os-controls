@@ -139,7 +139,7 @@ bool FrameBufferObject::initColor()
   if (m_Samples == 0) {
     GLTexture2Params params(m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE);
     params.SetInternalFormat(m_Format.internalColor);
-    m_ColorTexture = new GLTexture2(params, nullptr, m_Width * m_Height);
+    m_ColorTexture = new GLTexture2(params, nullptr, m_Width * m_Height * 4);
     
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
