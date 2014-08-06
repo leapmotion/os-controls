@@ -23,9 +23,6 @@ public:
   Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) {
     m_data << r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f;
   }
-  Color(int id, float a = 1.0f) {
-    m_data << static_cast<float>((id * 17 + 50) % 100) / 125.f + 0.2f, static_cast<float>((id * 31) % 100) / 125.f + 0.2f, static_cast<float>((id * 71) % 100) / 125.f + 0.2f, a;
-  }
 
   // convert to single brightness based on human perception
   float Luminance() const { return 0.2126f*R() + 0.7152f*G() + 0.0722f*B(); }
