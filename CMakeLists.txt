@@ -15,7 +15,7 @@ set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 ###################################################################################################
 
 # Module path and module includes
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)                # For DefineComponents.cmake
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)                # For AddSublibrary.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")   # For most other cmake modules
 
 include(VerboseMessage)
@@ -38,15 +38,14 @@ endif()
 list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 
 ###################################################################################################
-# Component lib'ary definitions
+# Sublibrary definitions
 ###################################################################################################
 
-include(DefineComponents)
+include(AddSublibrary)
 
-# The defined components will be accumulated in DEFINED_COMPONENTS
-begin_component_definitions()
+# The added sublibrary target names will be accumulated in ADDED_SUBLIBRARIES
 
-define_component_as_library(
+add_sublibrary(
     C++11
     COMPILE_OPTIONS
         -std=c++11
@@ -54,7 +53,7 @@ define_component_as_library(
         "A phony target which just provides compiler options for enabling C++11."
 )
 
-define_component_as_library(
+add_sublibrary(
     Application
     HEADERS
         Application.h
@@ -63,7 +62,7 @@ define_component_as_library(
         RenderableEventHandler.h
     SOURCES
         Application.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
@@ -71,19 +70,19 @@ define_component_as_library(
         "A simple framework for an SDL-based application."
 )
 
-define_component_as_library(
+add_sublibrary(
     Color
     HEADERS
         Color.h
     SOURCES
         Color.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_LIBRARY_DEPENDENCIES
         EigenTypes
     BRIEF_DOC_STRING
         "Provides RGBA color and some color-space conversions."
 )
 
-define_component_as_library(
+add_sublibrary(
     EigenTypes
     HEADERS
         EigenTypes.h
@@ -93,7 +92,7 @@ define_component_as_library(
         "Convenience typedefs for working with particular Eigen vector/matrix types."
 )
 
-define_component_as_library(
+add_sublibrary(
     ResourceManager
     HEADERS
         ResourceManager.h
@@ -107,14 +106,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Ma
     set(_maybe_MakeTransparent_Apple_mm "MakeTransparent_Apple.mm")
 endif()
 
-define_component_as_library(
+add_sublibrary(
     SDLController
     HEADERS
         SDLController.h
     SOURCES
         SDLController.cpp
         ${_maybe_MakeTransparent_Apple_mm}
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
@@ -122,13 +121,13 @@ define_component_as_library(
         "A single point of control for init, shutdown, and general use of SDL."
 )
 
-define_component_as_library(
+add_sublibrary(
     FbxSceneLoader
     HEADERS
         FbxSceneLoader.h
     SOURCES
         FbxSceneLoader.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         ResourceManager
         SDLController
     EXPLICIT_LIBRARY_DEPENDENCIES
@@ -137,7 +136,7 @@ define_component_as_library(
         "ResourceManager-managed loading of FbxScene objects using the FBX SDK."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLCompatibility
     HEADERS
         gl_glext_glu.h
@@ -148,20 +147,20 @@ define_component_as_library(
         "A means for including OpenGL (and related) headers in a platform-agnostic way."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLTexture2
     HEADERS
         GLTexture2.h
     SOURCES
         GLTexture2.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         GLCompatibility
     BRIEF_DOC_STRING
         "A C++ class for managing 2D textures in OpenGL."
 )
 
-define_component_as_library(
+add_sublibrary(
     FrameBufferObject
     HEADERS
         FrameBufferObject.h
@@ -169,64 +168,64 @@ define_component_as_library(
     SOURCES
         FrameBufferObject.cpp
         RenderBuffer.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTexture2
         GLCompatibility
     BRIEF_DOC_STRING
         "Render to an OpenGL render buffer or texture."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLBuffer
     HEADERS
         GLBuffer.h
     SOURCES
         GLBuffer.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLCompatibility
     BRIEF_DOC_STRING
         "A fast GPU buffer object for OpenGL geometry."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLController
     HEADERS
         GLController.h
     SOURCES
         GLController.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLCompatibility
     BRIEF_DOC_STRING
         "A single point of control for usage of OpenGL."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLMatrices
     HEADERS
         ModelViewProjection.h
     SOURCES
         ModelViewProjection.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
         GLCompatibility
     BRIEF_DOC_STRING
         "Provides manipulation of modelview and projection matrices for usage in shaders."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLShader
     HEADERS
         GLShader.h
     SOURCES
         GLShader.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         GLCompatibility
     BRIEF_DOC_STRING
         "A C++ class which manages GLSL-based shader programs."
 )
 
-define_component_as_library(
+add_sublibrary(
     Singleton
     HEADERS
         Singleton.h
@@ -234,18 +233,18 @@ define_component_as_library(
         "A simple mechanism for managing singleton C++ objects."
 )
 
-define_component_as_library(
+add_sublibrary(
     Resource
     HEADERS
         Resource.h
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         ResourceManager
         Singleton
     BRIEF_DOC_STRING
         "Convenient typed, ResourceManager-loaded resources via singleton."
 )
 
-define_component_as_library(
+add_sublibrary(
     TextAndBinaryFile
     HEADERS
         TextFile.h
@@ -253,11 +252,11 @@ define_component_as_library(
         "Simple C++ classes for loading/storing text/binary files."
 )
 
-define_component_as_library(
+add_sublibrary(
     TextAndBinaryFileLoader
     HEADERS
         TextFileLoader.h
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         ResourceManager
         SDLController
         TextAndBinaryFile
@@ -265,11 +264,11 @@ define_component_as_library(
         "ResourceManager-managed loading of text and binary files."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLShaderLoader
     HEADERS
         GLShaderLoader.h
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLShader
         Resource
         TextAndBinaryFileLoader
@@ -277,13 +276,13 @@ define_component_as_library(
         "ResourceManager-managed loading of GLSL-based shader programs."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLTexture2FreeImage
     HEADERS
         GLTexture2FreeImage.h
     SOURCES
         GLTexture2FreeImage.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTexture2
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FreeImage 3"
@@ -291,13 +290,13 @@ define_component_as_library(
         "Functionality for creating a GLTexture2 from an image file via FreeImage."
 )
 
-define_component_as_library(
+add_sublibrary(
     GLTexture2Loader
     HEADERS
         GLTexture2Loader.h
     SOURCES
         GLTexture2Loader.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTexture2FreeImage
         ResourceManager
         SDLController
@@ -305,7 +304,7 @@ define_component_as_library(
         "Provides ResourceManager-managed loading of GLTexture2 objects using FreeImage."
 )
 
-define_component_as_library(
+add_sublibrary(
     Primitives
     HEADERS
         PrimitiveBase.h
@@ -317,7 +316,9 @@ define_component_as_library(
         PrimitiveGeometry.cpp
         Primitives.cpp
         RenderState.cpp
-    EXPLICIT_COMPONENT_DEPENDENCIES
+        Primitive.cpp
+        Rectangle.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         Color
         EigenTypes
@@ -339,8 +340,8 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_NAME_DIR "@loader_path")
 
 ###################################################################################################
-# Global compiler options (and related) go here.  NOTE: ANY COMPONENT-SPECIFIC COMPILER OPTIONS
-# SHOULD BE MADE IN THE CORRESPONDING COMPONENT DEFINITION!
+# Global compiler options (and related) go here.  NOTE: ANY SUBLIBRARY-SPECIFIC COMPILER OPTIONS
+# SHOULD BE MADE IN THE CORRESPONDING SUBLIBRARY DEFINITION!
 ###################################################################################################
 
 # TODO: look into using target_compile_definitions and target_compile_options,
@@ -393,66 +394,66 @@ option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of stati
 add_library(Components empty.cpp)
 
 ###################################################################################################
-# Add options for defining which components should be linked into the Components library, and
+# Add options for defining which sublibraries should be linked into the Components library, and
 # link them.
 ###################################################################################################
 
-# Add options for explicitly requiring that each component be linked.  NOTE: some components may
+# Add options for explicitly requiring that each sublibrary be linked.  NOTE: some sublibraries may
 # not be explicitly required but will still be linked because they are indirectly depended upon.
-foreach(_component ${DEFINED_COMPONENTS})
-    get_target_property(_brief_doc_strings ${_component} BRIEF_DOC_STRING)
-    option(LINK_COMPONENT_${_component} "${_brief_doc_strings}" ON)
+foreach(_sublibrary ${ADDED_SUBLIBRARIES})
+    get_target_property(_brief_doc_strings ${_sublibrary} BRIEF_DOC_STRING)
+    option(REQUIRE_${_sublibrary} "${_brief_doc_strings}" ON)
 endforeach()
 
-# Construct the list of components that are required to be linked.
-set(_explicit_link_components "")
-foreach(_component ${DEFINED_COMPONENTS})
-    if(LINK_COMPONENT_${_component})
-        list(APPEND _explicit_link_components ${_component})
-        target_link_libraries(Components PUBLIC ${_component})
+# Construct the list of sublibraries that are required to be linked.
+set(_explicit_link_sublibraries "")
+foreach(_sublibrary ${ADDED_SUBLIBRARIES})
+    if(REQUIRE_${_sublibrary})
+        list(APPEND _explicit_link_sublibraries ${_sublibrary})
+        target_link_libraries(Components PUBLIC ${_sublibrary})
     endif()
 endforeach()
 
-verbose_message("_explicit_link_components = ${_explicit_link_components}")
-print_dependency_graph_of_component_linking_library(Components "${_explicit_link_components}")
+verbose_message("_explicit_link_sublibraries = ${_explicit_link_sublibraries}")
+print_dependency_graph_of_sublibrary_linking_library(Components "${_explicit_link_sublibraries}")
 
 ###################################################################################################
 # Define install rules for the library.  This is probably not the legit way to do it, and we
 # should figure out what the legit way is.
 ###################################################################################################
 
-# Recursively determine all component dependencies implicitly enabled via the explicit enabling.
-set(_all_link_components "")
-foreach(_component ${_explicit_link_components})
-    compute_all_component_dependencies_of(${_component} _component_deps)
-    list(APPEND _all_link_components ${_component_deps}) # This may append redundant components.
+# Recursively determine all sublibrary dependencies implicitly enabled via the explicit enabling.
+set(_all_link_sublibraries "")
+foreach(_sublibrary ${_explicit_link_sublibraries})
+    compute_all_sublibrary_dependencies_of(${_sublibrary} _sublibrary_deps)
+    list(APPEND _all_link_sublibraries ${_sublibrary_deps}) # This may append redundant sublibraries.
 endforeach()
 # Sort and and remove duplicates, because we will iterate through the list, defining install
 # rules for each, and we don't want to make redundant install rules.
-list(SORT _all_link_components)
-list(REMOVE_DUPLICATES _all_link_components)
+list(SORT _all_link_sublibraries)
+list(REMOVE_DUPLICATES _all_link_sublibraries)
 
 # Define the install rules while accumulating include directories.
 set(_Components_INCLUDE_DIRECTORIES "")
-foreach(_component ${_all_link_components})
-    get_target_property(_is_phony ${_component} IS_PHONY)
+foreach(_sublibrary ${_all_link_sublibraries})
+    get_target_property(_is_phony ${_sublibrary} IS_PHONY)
     if(NOT _is_phony)
-        get_target_property(_dir ${_component} INTERFACE_INCLUDE_DIRECTORIES)
-        # message("making install rules for component ${_component}, include dir ${_dir}")
+        get_target_property(_dir ${_sublibrary} INTERFACE_INCLUDE_DIRECTORIES)
+        # message("making install rules for sublibrary ${_sublibrary}, include dir ${_dir}")
         list(APPEND _Components_INCLUDE_DIRECTORIES "include/${_dir}")
-        get_target_property(_headers ${_component} PATH_PREFIXED_HEADERS)
+        get_target_property(_headers ${_sublibrary} PATH_PREFIXED_HEADERS)
         install(
             FILES ${_headers}
-            DESTINATION "include/${_component}"
+            DESTINATION "include/${_sublibrary}"
         )
     endif()
 endforeach()
 
-# Determine all library dependencies (of linked components) for purposes of generating find_dependency 
+# Determine all library dependencies (of linked sublibraries) for purposes of generating find_dependency 
 # commands in ComponentsConfig.cmake.
 set(ALL_LIBRARY_DEPENDENCIES "")
-foreach(_component ${_all_link_components})
-    get_target_property(_explicit_library_dependencies ${_component} EXPLICIT_LIBRARY_DEPENDENCIES)
+foreach(_sublibrary ${_all_link_sublibraries})
+    get_target_property(_explicit_library_dependencies ${_sublibrary} EXPLICIT_LIBRARY_DEPENDENCIES)
     list(APPEND ALL_LIBRARY_DEPENDENCIES ${_explicit_library_dependencies})
 endforeach()
 list(SORT ALL_LIBRARY_DEPENDENCIES)
@@ -460,7 +461,7 @@ list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
 message("ALL_LIBRARY_DEPENDENCIES = ${ALL_LIBRARY_DEPENDENCIES}")
 
 install(
-    TARGETS Components ${_all_link_components}
+    TARGETS Components ${_all_link_sublibraries}
     EXPORT Components
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -496,7 +497,7 @@ install(
 export(
     TARGETS
         Components
-        ${DEFINED_COMPONENTS}
+        ${ADDED_SUBLIBRARIES}
     NAMESPACE Components::
     FILE ComponentsConfig.cmake
 )
