@@ -76,8 +76,6 @@ private:
   void MakeTransparent_Windows(const SDL_SysWMinfo &sys_wm_info);
 #endif
 
-  int m_Width;
-  int m_Height;
   SDL_Window *m_SDL_Window;
   SDL_Renderer *m_SDL_Renderer;
   SDL_GLContext m_SDL_GLContext;

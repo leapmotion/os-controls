@@ -7,6 +7,8 @@
 #include "ModelViewProjection.h"
 #include "Color.h"
 
+class RenderState;
+
 // This class contains base functionality common to all primitives:
 // - 3D position
 // - 3D rotation, specified in Euler angles
@@ -48,7 +50,7 @@ public:
   void SetDiffuseColor(const Color& color) { m_DiffuseColor = color; }
   void SetAmbientFactor(float ambient) { m_AmbientFactor = ambient; }
 
-  virtual void Draw() const { }
+  virtual void Draw(RenderState& renderState) const { }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

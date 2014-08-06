@@ -55,7 +55,8 @@ private:
     }
   };
 
-  typedef std::map<MapVertex, unsigned int, std::less<MapVertex>, Eigen::aligned_allocator<std::pair<MapVertex, unsigned int> > > VertexIndexMap;
+  // typedef std::map<MapVertex, unsigned int, std::less<MapVertex>, Eigen::aligned_allocator<std::pair<MapVertex, unsigned int> > > VertexIndexMap;
+  typedef std::map<MapVertex, unsigned int, std::less<MapVertex>> VertexIndexMap;
 
   int m_NumIndices;
   stdvectorV3f m_Vertices;
