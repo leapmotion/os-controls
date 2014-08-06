@@ -76,7 +76,7 @@ add_sublibrary(
         Color.h
     SOURCES
         Color.cpp
-    EXPLICIT_LIBRARY_DEPENDENCIES
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
     BRIEF_DOC_STRING
         "Provides RGBA color and some color-space conversions."
@@ -316,8 +316,6 @@ add_sublibrary(
         PrimitiveGeometry.cpp
         Primitives.cpp
         RenderState.cpp
-        Primitive.cpp
-        Rectangle.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         Color
