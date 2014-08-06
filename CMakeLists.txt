@@ -72,6 +72,18 @@ define_component_as_library(
 )
 
 define_component_as_library(
+    Color
+    HEADERS
+        Color.h
+    SOURCES
+        Color.cpp
+    EXPLICIT_COMPONENT_DEPENDENCIES
+        EigenTypes
+    BRIEF_DOC_STRING
+        "Provides RGBA color and some color-space conversions."
+)
+
+define_component_as_library(
     EigenTypes
     HEADERS
         EigenTypes.h
@@ -189,6 +201,19 @@ define_component_as_library(
 )
 
 define_component_as_library(
+    GLMatrices
+    HEADERS
+        ModelViewProjection.h
+    SOURCES
+        ModelViewProjection.cpp
+    EXPLICIT_COMPONENT_DEPENDENCIES
+        EigenTypes
+        GLCompatibility
+    BRIEF_DOC_STRING
+        "Provides manipulation of modelview and projection matrices for usage in shaders."
+)
+
+define_component_as_library(
     GLShader
     HEADERS
         GLShader.h
@@ -283,14 +308,21 @@ define_component_as_library(
 define_component_as_library(
     Primitives
     HEADERS
-        Primitive.h
-        Rectangle.h
+        PrimitiveBase.h
+        PrimitiveGeometry.h
+        Primitives.h
+        RenderState.h
     SOURCES
-        Primitive.cpp
-        Rectangle.cpp
+        PrimitiveBase.cpp
+        PrimitiveGeometry.cpp
+        Primitives.cpp
+        RenderState.cpp
     EXPLICIT_COMPONENT_DEPENDENCIES
         C++11
+        Color
         EigenTypes
+        GLBuffer
+        GLMatrices
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )
@@ -477,16 +509,8 @@ export(
 # and require a nontrivial amount of integration work.
 # Please keep these alphabetized.
 set(NON_COMPONENTIZED_CODE
-    # Color.cpp # has other dependencies
-    # Color.h
-    # FrameBufferObject.cpp # depends on SimGL.h which has other dependencies
-    # FrameBufferObject.h
     OculusVR.cpp
     OculusVR.h
-    Primitive.cpp
-    Primitive.h
-    RenderBuffer.cpp
-    RenderBuffer.h
     # SimGL.cpp # has other dependencies
     # SimGL.h
     Texture.cpp 

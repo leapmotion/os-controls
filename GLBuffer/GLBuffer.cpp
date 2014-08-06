@@ -1,75 +1,79 @@
 #include "GLBuffer.h"
-#include <iostream>
+#include <sstream>
 
-GLBuffer::GLBuffer() : buffer_(0), type_(0) { }
+GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0) { }
 
-void GLBuffer::create(GLenum type) {
-  type_ = type;
-  glGenBuffers(1, &buffer_);
-  checkError("Create");
+void GLBuffer::Create(GLenum type) {
+  m_BufferType = type;
+  glGenBuffers(1, &m_BufferAddress);
+  CheckError("Create");
 }
 
-void GLBuffer::bind() {
-  glBindBuffer(type_, buffer_);
-  checkError("Bind");
+void GLBuffer::Bind() {
+  glBindBuffer(m_BufferType, m_BufferAddress);
+  CheckError("Bind");
 }
 
-void GLBuffer::allocate(const void* data, int count, GLenum pattern) {
-  glBufferData(type_, count, data, pattern);
-  checkError("Allocate");
+void GLBuffer::Allocate(const void* data, int count, GLenum pattern) {
+  glBufferData(m_BufferType, count, data, pattern);
+  CheckError("Allocate");
 }
 
-void GLBuffer::release() {
-  glBindBuffer(type_, 0);
-  checkError("Release");
+void GLBuffer::Release() {
+  glBindBuffer(m_BufferType, 0);
+  CheckError("Release");
 }
 
-int GLBuffer::size() const {
+int GLBuffer::Size() const {
   GLint value = -1;
-  glGetBufferParameteriv(type_, GL_BUFFER_SIZE, &value);
-  checkError("Size");
+  glGetBufferParameteriv(m_BufferType, GL_BUFFER_SIZE, &value);
+  CheckError("Size");
   return value;
 }
 
-void* GLBuffer::map(GLuint access) {
-  void* ptr = glMapBufferARB(type_, access);
-  checkError("Map");
+void* GLBuffer::Map(GLuint access) {
+  void* ptr = glMapBufferARB(m_BufferType, access);
+  CheckError("Map");
   return ptr;
 }
 
-bool GLBuffer::unmap() {
-  bool result = glUnmapBufferARB(type_) == GL_TRUE;
-  checkError("Unmap");
+bool GLBuffer::Unmap() {
+  bool result = glUnmapBufferARB(m_BufferType) == GL_TRUE;
+  CheckError("Unmap");
   return result;
 }
 
-bool GLBuffer::isCreated() const {
-  return buffer_ != 0;
+bool GLBuffer::IsCreated() const {
+  return m_BufferAddress != 0;
 }
 
-void GLBuffer::destroy() {
-  glDeleteBuffers(1, &buffer_);
-  buffer_ = 0;
+void GLBuffer::Destroy() {
+  glDeleteBuffers(1, &m_BufferAddress);
+  m_BufferAddress = 0;
 }
 
-void GLBuffer::checkError(const std::string& loc) {
+void GLBuffer::CheckError(const std::string& loc) {
   GLenum err = glGetError();
   if (err != GL_NO_ERROR) {
-    std::cout << "GL error ";
+    std::stringstream ss;
+    ss << "GL error ";
     if (!loc.empty()) {
-      std::cout << "at " << loc << ": ";
+      ss << "at " << loc << ": ";
     }
-    std::cout << "code: " << std::hex << err << std::endl;
+    ss << "code: " << std::hex << err;
+    throw std::runtime_error(ss.str());
   }
 }
 
-void GLBuffer::checkFrameBufferStatus(const std::string& loc) {
+void GLBuffer::CheckFrameBufferStatus(const std::string& loc) {
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE) {
-    std::cout << "Framebuffer error ";
+    std::stringstream ss;
+    ss << "Framebuffer error ";
     if (!loc.empty()) {
-      std::cout << "at " << loc << ": ";
+      ss << "at " << loc << ": ";
     }
-    std::cout << "code: " << std::hex << status << std::endl;
+    ss << "code: " << std::hex << status;
+    throw std::runtime_error(ss.str());
   }
 }

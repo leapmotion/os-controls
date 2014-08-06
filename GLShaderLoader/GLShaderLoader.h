@@ -54,6 +54,8 @@ struct ResourceLoader<GLShaderLoadParams> {
       return std::make_shared<GLShaderLoadParams>("material-vert.glsl", "wireframe-frag.glsl");
     } else if (name == "dummy") {
       return std::make_shared<GLShaderLoadParams>("dummy-vert.glsl", "dummy-frag.glsl");
+    } else if (name == "lighting") {
+      return std::make_shared<GLShaderLoadParams>("lighting-vert.glsl", "lighting-frag.glsl");
     } else {
       throw std::domain_error("no resource \"" + name + "\" found for type GLShaderLoadParams");
     }

@@ -33,7 +33,7 @@ public:
     auto filesize = in.tellg();
     in.seekg(0, std::ios_base::beg);    // Reset to beginning of file.
 
-    m_contents.resize(filesize);        // Make sure the buffer is the right size.
+    m_contents.resize(static_cast<size_t>(filesize));        // Make sure the buffer is the right size.
     in.read(&m_contents[0], filesize);  // Read the file contents.
     in.close();                         // Close the file
 
