@@ -1,5 +1,5 @@
 #include "GLBuffer.h"
-#include <iostream>
+#include <sstream>
 
 GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0) { }
 
@@ -55,23 +55,25 @@ void GLBuffer::Destroy() {
 void GLBuffer::CheckError(const std::string& loc) {
   GLenum err = glGetError();
   if (err != GL_NO_ERROR) {
-    std::cout << "GL error ";
+    std::stringstream ss;
+    ss << "GL error ";
     if (!loc.empty()) {
-      std::cout << "at " << loc << ": ";
+      ss << "at " << loc << ": ";
     }
-    std::cout << "code: " << std::hex << err << std::endl;
-    throw std::runtime_error("CheckError failed");
+    ss << "code: " << std::hex << err;
+    throw std::runtime_error(ss.str());
   }
 }
 
 void GLBuffer::CheckFrameBufferStatus(const std::string& loc) {
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE) {
-    std::cout << "Framebuffer error ";
+    std::stringstream ss;
+    ss << "Framebuffer error ";
     if (!loc.empty()) {
-      std::cout << "at " << loc << ": ";
+      ss << "at " << loc << ": ";
     }
-    std::cout << "code: " << std::hex << status << std::endl;
-    throw std::runtime_error("CheckFrameBufferStatus failed");
+    ss << "code: " << std::hex << status;
+    throw std::runtime_error(ss.str());
   }
 }
