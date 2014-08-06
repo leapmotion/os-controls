@@ -9,6 +9,12 @@
 #include "utility/ComInitializer.h"
 #include <SDL.h>
 
+class Drawable;
+
+struct Scene {
+  std::list<Drawable*> m_drawables;
+};
+
 int main(int argc, char **argv)
 {
   AutoCurrentContext ctxt;
@@ -52,6 +58,11 @@ void OsControl::Main(void) {
 
     // Pilot a packet through the system: 
     auto packet = factory->NewPacket();
+
+    Scene scene;
+    packet->DecorateImmediate(scene);
+    for(auto drawable : scene.m_drawables)
+      drawable->Draw();
   }
 }
 
