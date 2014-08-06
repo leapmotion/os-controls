@@ -2,12 +2,7 @@
 
 #include <algorithm>
 
-HandExistTrigger::HandExistGestures()
-{
-}
-
-
-HandExistTrigger::~HandExistGestures()
+HandExistTrigger::HandExistTrigger()
 {
 }
 
@@ -24,7 +19,7 @@ void HandExistTrigger::AutoFilter(Leap::Frame frame){
 
   {
     std::set<int32_t> newHands;
-    std::set_difference(hands.begin(), hands.end(), m_hands.begin(), m_hands.end(), newHands);
+    std::set_difference(hands.begin(), hands.end(), m_hands.begin(), m_hands.end(), std::inserter(newHands, newHands.begin()));
 
     for (auto hand : newHands) {
       m_eventTrigger(&HandExistGestureEvents::HandStart)(frame.hand(hand));
@@ -33,7 +28,7 @@ void HandExistTrigger::AutoFilter(Leap::Frame frame){
 
   {
     std::set<int32_t> sameHands;
-    std::set_union(hands.begin(), hands.end(), m_hands.begin(), m_hands.end(), sameHands);
+    std::set_union(hands.begin(), hands.end(), m_hands.begin(), m_hands.end(), std::inserter(sameHands, sameHands.begin()));
 
     for (auto hand : sameHands) {
       m_eventTrigger(&HandExistGestureEvents::HandUpdate)(frame.hand(hand));
@@ -42,7 +37,7 @@ void HandExistTrigger::AutoFilter(Leap::Frame frame){
 
   {
     std::set<int32_t> deadHands;
-    std::set_difference(m_hands.begin(), m_hands.end(), hands.begin(), hands.end(), deadHands);
+    std::set_difference(m_hands.begin(), m_hands.end(), hands.begin(), hands.end(), std::inserter(deadHands, deadHands.begin()));
 
     for (auto hand : deadHands) {
       m_eventTrigger(&HandExistGestureEvents::HandEnd)(m_oldFrame.hand(hand));
