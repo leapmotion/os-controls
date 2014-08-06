@@ -27,6 +27,8 @@ add_windows_sources(
 
 add_mac_sources(
   osinterface_SOURCES
+  AudioVolumeControllerMac.h
+  AudioVolumeControllerMac.cpp
   MediaControllerMac.h
   MediaControllerMac.cpp
 )
