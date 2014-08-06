@@ -8,7 +8,7 @@ if(WIN32)
 endif()
 
 add_executable(oscontrols ${oscontrols_EXEFLAGS} ${oscontrols_SOURCES})
-target_link_libraries(oscontrols Autowiring utility interaction engine osinterface)
+target_link_libraries(oscontrols Autowiring utility interaction graphics osinterface)
 target_include_directories(oscontrols PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 find_package(SFML 2.1 REQUIRED)
