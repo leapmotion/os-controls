@@ -19,3 +19,5 @@ CTestTestfile.cmake
 DartConfiguration.tcl
 *.user
 build/
+**/CMakeScripts
+**/*.xcodeproj
