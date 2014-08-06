@@ -7,6 +7,13 @@
 #include "ModelViewProjection.h"
 #include "Color.h"
 
+// This class contains base functionality common to all primitives:
+// - 3D position
+// - 3D rotation, specified in Euler angles
+// - Parent/child transform hierarchy (in progress)
+// - Local/global coordinate system conversion (in progress)
+// - Diffuse and ambient color components
+// - Drawing
 class PrimitiveBase : public std::enable_shared_from_this<PrimitiveBase> {
 
 public:

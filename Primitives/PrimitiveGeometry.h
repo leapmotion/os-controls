@@ -6,6 +6,9 @@
 #include <vector>
 #include <map>
 
+// Convenience class for creating and managing GPU geometry.
+// Simple shapes can be created/uploaded automatically using the available factory functions.
+// More complex shapes can created by manually inputting triangles then calling UploadDataToBuffers()
 class PrimitiveGeometry {
 
 public:

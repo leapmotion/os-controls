@@ -3,6 +3,8 @@
 #include "ModelViewProjection.h"
 #include "Color.h"
 
+// This class is the bridge between geometry and the OpenGL state machine.
+// Its main role is to encapsulate attribute and uniform addresses along with the viewing matrix transforms.
 class RenderState {
 
 public:

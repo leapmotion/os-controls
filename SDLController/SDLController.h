@@ -5,7 +5,18 @@
 
 #include <string>
 
-// This class bundles all the SDL usage/state into a single point of control.
+// Encapsulates various SDL/OpenGL parameters to be passed into SDLController::Initialize()
+// Currently the following fields are supported:
+// - Desired window width in pixels (ignored and reset when fullscreen = true)
+// - Desired window height in pixels (ignored and reset when fullscreen = true)
+// - Desired window position X in pixels (ignored and reset when fullscreen = true)
+// - Desired window position Y in pixels (ignored and reset when fullscreen = true)
+// - Whether to resize the window the be the resolution of the primary monitor
+// - Transparency on or off
+// - Whether the window will stay on top of other windows
+// - Use vertical synchronization on or off
+// - Use anti-aliasing on or off
+// - Window title of the application
 struct SDLControllerParams {
   SDLControllerParams() :
     windowWidth(640),
@@ -32,6 +43,7 @@ struct SDLControllerParams {
   std::string windowTitle;
 };
 
+// This class bundles all the SDL usage/state into a single point of control.
 class SDLController {
 public:
 
