@@ -126,6 +126,20 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    SFMLController
+    HEADERS
+        SFMLController.h
+    SOURCES
+        SFMLController.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "SFML 2.1"
+    BRIEF_DOC_STRING
+        "A single point of control for init, shutdown, and general use of SFML."
+)
+
+add_sublibrary(
     FbxSceneLoader
     HEADERS
         FbxSceneLoader.h
