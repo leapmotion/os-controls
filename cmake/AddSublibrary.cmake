@@ -26,22 +26,19 @@
 # be identical to the subdirectory which contains all its source files.  A sublibrary
 # name must therefore be acceptable as both a directory name and as a cmake target name.
 
+include(CMakeParseArguments)
 include(VerboseMessage)
-function(print_value_of VAR_NAME INDENT)
-    message("${INDENT}${VAR_NAME} = ${${VAR_NAME}}")
-endfunction()
 
 # ADDED_SUBLIBRARIES is a list of the target names of all the defined sublibraries.  Defining a
 # sublibrary via the add_sublibrary will append to it.
 macro(begin_sublibrary_definitions)
     set(ADDED_SUBLIBRARIES "")
+    set(LIBRARY_DEPENDENCY_MAP "")
 endmacro()
 
-function(sub_sublibrary_target_name SUBLIBRARY target_name)
+function(get_sublibrary_target_name SUBLIBRARY target_name)
     set(${target_name} ${SUBLIBRARY} PARENT_SCOPE)
 endfunction()
-
-include(CMakeParseArguments)
 
 # This function defines a sublibrary (logical subgrouping of source, as described above)
 # as a library target.  The function uses the CMakeParseArguments paradigm, where all-uppercase
@@ -108,6 +105,8 @@ include(CMakeParseArguments)
 #                                          and no SOURCES, i.e. if this is a "phony" target,
 #                                          and is otherwise set to FALSE.
 function(add_sublibrary SUBLIBRARY_NAME)
+    verbose_message("add_sublibrary(${SUBLIBRARY_NAME} ...)")
+
     # Do the fancy map-style parsing of the arguments
     set(_options EXCLUDE_FROM_ALL)
     set(_one_value_args
@@ -139,7 +138,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     endif()
 
     # Determine the target name of this sublibrary.
-    sub_sublibrary_target_name(${SUBLIBRARY_NAME} _sublibrary_target_name)
+    get_sublibrary_target_name(${SUBLIBRARY_NAME} _sublibrary_target_name)
     # Determine the relative paths of all the headers.
     set(_path_prefixed_headers "")
     foreach(_header ${_arg_HEADERS})
@@ -202,7 +201,10 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # INTERFACE_LINK_LIBRARIES) during build time from the dependencies to their
     # dependents.
     foreach(_dep ${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES})
-        sub_sublibrary_target_name(${_dep} _dep_target_name)
+        get_sublibrary_target_name(${_dep} _dep_target_name)
+        if(NOT TARGET ${_dep_target_name})
+            message(SEND_ERROR "sublibrary \"${_dep}\" can't be depended upon -- it hasn't been defined yet!")
+        endif()
         # Specify the dependency.
         target_link_libraries(${_sublibrary_target_name} PUBLIC ${_dep_target_name})
     endforeach()
@@ -252,6 +254,19 @@ function(add_sublibrary SUBLIBRARY_NAME)
 
     # Append this sublibrary to the list of defined sublibraries.
     set(ADDED_SUBLIBRARIES ${ADDED_SUBLIBRARIES} ${_sublibrary_target_name} PARENT_SCOPE)
+    # For later generation of automatic library dependency finding, determine all library dependencies
+    # of the added sublibrary recursively.
+    compute_all_sublibrary_dependencies_of(${_sublibrary_target_name} _deps)
+    set(_all_library_dependencies "")
+    foreach(_dep ${_deps})
+        get_target_property(_dep_explicit_library_dependencies ${_dep} EXPLICIT_LIBRARY_DEPENDENCIES)
+        list(APPEND _all_library_dependencies ${_dep_explicit_library_dependencies})
+    endforeach()
+    list(SORT _all_library_dependencies)
+    list(REMOVE_DUPLICATES _all_library_dependencies)
+    verbose_message("all library dependencies of ${_sublibrary_target_name} : ${_all_library_dependencies}")
+    # Store the dependencies in a "map" format which can be later parsed by cmake_parse_arguments.
+    set(LIBRARY_DEPENDENCY_MAP ${LIBRARY_DEPENDENCY_MAP} ${_sublibrary_target_name} ${_all_library_dependencies} PARENT_SCOPE)
 endfunction()
 
 # This is a private helper function which implements the recursion of the graph traversal

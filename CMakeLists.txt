@@ -45,10 +45,14 @@ include(AddSublibrary)
 
 # The added sublibrary target names will be accumulated in ADDED_SUBLIBRARIES
 
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+    set(_cxx11_compiler_flags "-std=c++11")
+endif()
+
 add_sublibrary(
     C++11
     COMPILE_OPTIONS
-        -std=c++11
+        ${_cxx11_compiler_flags}
     BRIEF_DOC_STRING
         "A phony target which just provides compiler options for enabling C++11."
 )
@@ -71,6 +75,16 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    EigenTypes
+    HEADERS
+        EigenTypes.h
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "Eigen 3.1.2"
+    BRIEF_DOC_STRING
+        "Convenience typedefs for working with particular Eigen vector/matrix types."
+)
+
+add_sublibrary(
     Color
     HEADERS
         Color.h
@@ -80,16 +94,6 @@ add_sublibrary(
         EigenTypes
     BRIEF_DOC_STRING
         "Provides RGBA color and some color-space conversions."
-)
-
-add_sublibrary(
-    EigenTypes
-    HEADERS
-        EigenTypes.h
-    EXPLICIT_LIBRARY_DEPENDENCIES
-        "Eigen 3.1.2"
-    BRIEF_DOC_STRING
-        "Convenience typedefs for working with particular Eigen vector/matrix types."
 )
 
 add_sublibrary(
@@ -456,7 +460,6 @@ foreach(_sublibrary ${_all_link_sublibraries})
 endforeach()
 list(SORT ALL_LIBRARY_DEPENDENCIES)
 list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
-message("ALL_LIBRARY_DEPENDENCIES = ${ALL_LIBRARY_DEPENDENCIES}")
 
 install(
     TARGETS Components ${_all_link_sublibraries}

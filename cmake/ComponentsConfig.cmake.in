@@ -7,14 +7,44 @@ get_filename_component(_current_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
 list(APPEND CMAKE_MODULE_PATH "${_current_dir}/cmake")
 include(ComponentsExport)
 
+
 include(CMakeFindDependencyMacro) # For find_dependency
+include(CMakeParseArguments)
+include(VerboseMessage)
 
-set(_deps "@ALL_LIBRARY_DEPENDENCIES@")
-foreach(_dep ${_deps})
-    message("    _dep = ${_dep}")
-    # For each library that hasn't been target_package'ed yet, call target_package on it.
-    string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
-    find_dependency(${_semicolon_delimited_dep})
-endforeach()
+set(_added_sublibraries "@ADDED_SUBLIBRARIES@")
+set(_library_dependency_map "@LIBRARY_DEPENDENCY_MAP@")
 
+verbose_message_print_vars(_added_sublibraries _library_dependency_map)
+verbose_message("_library_dependency_map = ${_library_dependency_map}")
+
+# TARGET should be the name of the target to link to, and LINK_TYPE should be
+# one of: "" PUBLIC PRIVATE INTERFACE, and will be the second argument for
+# target_link_libraries (see docs for target_link_libraries).
+function(target_link_components TARGET LINK_TYPE ...)
+    list(REMOVE_AT ARGV 0) # Pop the TARGET argument, leaving the rest.
+    list(REMOVE_AT ARGV 0) # Pop the LINK_TYPE argument, leaving the rest.
+
+    # Do the fancy map-style parsing of the library dependency map
+    set(_options "")
+    set(_one_value_args "")
+    set(_multi_value_args ${_added_sublibraries})
+    cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${_library_dependency_map})
+    foreach(_sublib ${ARGV})
+        verbose_message("finding dependencies for sublibrary Components::${_sublib}")
+        if(NOT TARGET Components::${_sublib})
+            message(SEND_ERROR "Component::${_sublib} is not a target that is defined in the Components library as built.")
+        endif()
+        
+        set(_deps "${_arg_${_sublib}}")
+        verbose_message_print_vars(_sublib _deps)
+        foreach(_dep ${_deps})
+            string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
+            find_dependency(${_semicolon_delimited_dep})
+        endforeach()
+
+        # Now call target_link_libraries on TARGET, to link Components::{_sublib} with the given link type.
+        target_link_libraries(${TARGET} ${LINK_TYPE} Components::${_sublib})
+    endforeach()
+endfunction()
 
