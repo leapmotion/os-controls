@@ -63,21 +63,16 @@ public:
 
 private:
 
-  void ConfigureFrameBuffer();
-  void ConfigureAntialiasing();
   void InitWindow();
-  void ConfigureRenderer();
-  void InitGLContext();
-  void ConfigureTransparentWindow();
 
 #if _WIN32
-  //void MakeTransparent_Windows(const SDL_SysWMinfo &sys_wm_info);
+  void MakeTransparent_Windows();
 #endif
 
   int m_Width;
   int m_Height;
 
   sf::ContextSettings m_Settings;
-  sf::Window m_Window;
+  mutable sf::Window m_Window;
   SFMLControllerParams m_Params;
 };
