@@ -5,8 +5,6 @@ set(osinterface_SOURCES
   LeapInput.cpp
   MediaController.h
   MediaController.cpp
-  RenderingContext.h
-  RenderingContext.cpp
   WindowingSystem.h
   WindowingSystem.cpp
   WindowSpaces.h
