@@ -3,11 +3,11 @@
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
 #include "osinterface/LeapInput.h"
-#include "osinterface/MainWindow.h"
 #include "osinterface/MediaController.h"
-#include "osinterface/SdlInitializer.h"
 #include "utility/ComInitializer.h"
-#include <SDL.h>
+
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 
 int main(int argc, char **argv)
 {
@@ -27,10 +27,11 @@ int main(int argc, char **argv)
 }
 
 OsControl::OsControl(void) :
-m_mw(""),
+m_mw(sf::VideoMode(800,600),"Leap Os Control"),
 m_bShouldStop(false),
 m_bRunning(false)
-{}
+{
+}
 
 void OsControl::Main(void) {
   ComInitializer initCom;
@@ -46,18 +47,19 @@ void OsControl::Main(void) {
 
   // Dispatch events until told to quit:
   while (!ShouldStop()) {
-    SDL_Event ev;
-    while (SDL_PollEvent(&ev))
-      HandleEvent(ev);
+    sf::Event event;
+    while (m_mw->pollEvent(event)){
+      HandleEvent(event);
+    }
 
     // Pilot a packet through the system: 
     auto packet = factory->NewPacket();
   }
 }
 
-void OsControl::HandleEvent(const SDL_Event& ev) const {
+void OsControl::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
-  case SDL_QUIT:
+  case sf::Event::Closed:
     AutoCurrentContext()->SignalShutdown();
     break;
   }

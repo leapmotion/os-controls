@@ -3,10 +3,12 @@
 
 class AudioVolumeController;
 class LeapInput;
-class MainWindow;
 class MediaController;
-class SdlInitializer;
-union SDL_Event;
+
+namespace sf {
+  class Event;
+  class RenderWindow;
+}
 
 int oscontrols_main(int argc, char **argv);
 
@@ -21,11 +23,11 @@ private:
   std::mutex m_lock;
   std::condition_variable m_stateCondition;
 
-  AutoRequired<SdlInitializer> m_initializer;
   AutoDesired<AudioVolumeController> m_avcontrol;
-  AutoConstruct<MainWindow> m_mw;
   AutoRequired<MediaController> m_media;
   AutoRequired<LeapInput> m_leapInput;
+
+  Autowired<sf::RenderWindow> m_mw;
 
   // Requirements for this to be a CoreRunnable:
   bool m_bShouldStop;
@@ -33,9 +35,9 @@ private:
   std::shared_ptr<Object> m_outstanding;
 
   /// <summary>
-  /// Handles an SDL event from the primary event dispatch loop
+  /// Handles window & keyboard events from the primary event dispatch loop
   /// </summary>
-  void HandleEvent(const SDL_Event& ev) const;
+  void HandleEvent(const sf::Event& ev) const;
 
 public:
   void Main(void);

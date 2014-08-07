@@ -3,12 +3,8 @@ set(osinterface_SOURCES
   AudioVolumeController.cpp
   LeapInput.h
   LeapInput.cpp
-  MainWindow.h
-  MainWindow.cpp
   MediaController.h
   MediaController.cpp
-  SdlInitializer.h
-  SdlInitializer.cpp
   RenderingContext.h
   RenderingContext.cpp
   WindowingSystem.h
