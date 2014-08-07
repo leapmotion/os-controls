@@ -465,8 +465,8 @@ install(
     ARCHIVE DESTINATION lib
     INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
 )
-# This causes automatically-generated export targets to be defined in
-#   ${CMAKE_INSTALL_PREFIX]/cmake/ComponentsExport.cmake
+# This causes automatically-generated export targets to be defined during the install step in
+#   ${CMAKE_INSTALL_PREFIX}/cmake/ComponentsExport.cmake
 # which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with 
 # configure_file and install).
 install(
@@ -478,11 +478,19 @@ install(
 # Generate the file ComponentsConfig.cmake that will be installed with the `make install` steps.
 # NOTE: This is distinct from the ComponentsConfig.cmake file that will be generated in
 # ${PROJECT_BINARY_DIR} by the export command below.
-configure_file(${CMAKE_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/cmake/ComponentsConfig.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake @ONLY)
 # Install rule for the ComponentsConfig.cmake file just generated.  It goes in the root directory
 # of the installation, and is the file that cmake looks for and uses in find_package.
 install(
-    FILES ${PROJECT_BINARY_DIR}/cmake/ComponentsConfig.cmake
+    FILES ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake
+    DESTINATION .
+)
+# Generate the version configuration file.  This is the preferred method for indicating the presence
+# of a library and conveying version information to the find_package cmake command.
+configure_file(${CMAKE_SOURCE_DIR}/cmake/GenericConfigVersion.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake @ONLY)
+# Install rule for the version configuration file.  It should go in the root dir of the install.
+install(
+    FILES ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake
     DESTINATION .
 )
 
@@ -492,12 +500,15 @@ install(
 # e.g. for when you're developing in parallel the Components library and an app which uses it.
 ###################################################################################################
 
+# Generate the file ComponentsConfig.cmake that will be generated in the build dir by the build.
+configure_file(${CMAKE_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfig.cmake @ONLY)
+# Generate the file which defines all the targets of this project.
 export(
     TARGETS
         Components
         ${ADDED_SUBLIBRARIES}
     NAMESPACE Components::
-    FILE ComponentsConfig.cmake
+    FILE cmake/ComponentsExport.cmake
 )
 
 ###################################################################################################
