@@ -27,7 +27,7 @@ private:
   AutoRequired<MediaController> m_media;
   AutoRequired<LeapInput> m_leapInput;
 
-  Autowired<sf::RenderWindow> m_mw;
+  AutoConstruct<sf::RenderWindow> m_mw;
 
   // Requirements for this to be a CoreRunnable:
   bool m_bShouldStop;
