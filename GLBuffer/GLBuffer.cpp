@@ -1,4 +1,6 @@
 #include "GLBuffer.h"
+
+#include <stdexcept>
 #include <sstream>
 
 GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0) { }
