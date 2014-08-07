@@ -1,11 +1,12 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
-#include "SnoopTest.hpp"
 #include "TestFixtures/Decoration.hpp"
 
-class UpBroadcastListener:
-  public virtual EventReceiver
-{
+class SnoopTest:
+  public testing::Test
+{};
+
+class UpBroadcastListener {
 public:
   virtual void SimpleCall(void) {}
 };
@@ -45,9 +46,7 @@ class IgnoredParentMember:
   public SnoopTestBase
 {};
 
-class SimpleEvent:
-public virtual EventReceiver
-{
+class SimpleEvent {
 public:
   virtual void ZeroArgs(void) {}
 };

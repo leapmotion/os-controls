@@ -3,12 +3,13 @@
 #include "CoreThread.h"
 #include "Autowired.h"
 #include "AutowiringEvents.h"
-#include "TypeRegistry.h"
 #include <json11/json11.hpp>
 #include <websocketpp/server.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <map>
 #include <set>
+
+struct TypeIdentifierBase;
 
 class AutoNetServer:
   public CoreThread,

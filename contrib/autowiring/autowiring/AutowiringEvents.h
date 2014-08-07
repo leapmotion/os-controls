@@ -1,14 +1,15 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #pragma once
-#include "EventReceiver.h"
 #include TYPE_INDEX_HEADER
 
 struct AnySharedPointer;
 class CoreContext;
 
-class AutowiringEvents:
-  public virtual EventReceiver
-{
+/// <summary>
+/// These events are broadcast internally by Autowiring
+/// for visualizing internal behavior.
+/// </summary
+class AutowiringEvents {
 public:
   virtual void NewContext(CoreContext&)=0;
   virtual void ExpiredContext(CoreContext&)=0;

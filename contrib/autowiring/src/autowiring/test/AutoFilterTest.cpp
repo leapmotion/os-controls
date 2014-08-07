@@ -1,15 +1,23 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
-#include "AutoFilterTest.hpp"
 #include "TestFixtures/Decoration.hpp"
 #include <autowiring/AutoPacket.h>
 #include <autowiring/AutoPacketFactory.h>
+#include <autowiring/Deferred.h>
 #include <autowiring/NewAutoFilter.h>
 #include THREAD_HEADER
 
-TEST_F(AutoFilterTest, VerifyDescendentAwareness) {
-  AutoCurrentContext()->Initiate();
+class AutoFilterTest:
+  public testing::Test
+{
+public:
+  AutoFilterTest(void) {
+    // All decorator tests must run from an initiated context
+    AutoCurrentContext()->Initiate();
+  }
+};
 
+TEST_F(AutoFilterTest, VerifyDescendentAwareness) {
   // Create a packet while the factory has no subscribers:
   AutoRequired<AutoPacketFactory> parentFactory;
   auto packet1 = parentFactory->NewPacket();
@@ -64,8 +72,6 @@ TEST_F(AutoFilterTest, VerifyDescendentAwareness) {
 }
 
 TEST_F(AutoFilterTest, VerifySimpleFilter) {
-  AutoCurrentContext()->Initiate();
-
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<FilterA> filterA;
 
@@ -98,7 +104,6 @@ TEST_F(AutoFilterTest, VerifySimpleFilter) {
 }
 
 TEST_F(AutoFilterTest, VerifyOptionalFilter) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   AutoRequired<FilterGen<Decoration<0>, optional_ptr<Decoration<1>>>> fgA;
@@ -147,8 +152,6 @@ TEST_F(AutoFilterTest, VerifyOptionalFilter) {
 }
 
 TEST_F(AutoFilterTest, VerifyNoMultiDecorate) {
-  AutoCurrentContext()->Initiate();
-
   AutoRequired<FilterA> filterA;
   AutoRequired<AutoPacketFactory> factory;
 
@@ -188,7 +191,6 @@ TEST_F(AutoFilterTest, VerifyNoMultiDecorate) {
 }
 
 TEST_F(AutoFilterTest, VerifyNoNullCheckout) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   std::shared_ptr<Decoration<0>> nulldeco;
@@ -228,7 +230,6 @@ public:
 };
 
 TEST_F(AutoFilterTest, VerifyTwoAutoFilterCalls) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<FilterGather<0,1>> zero2one;
   AutoRequired<FilterGather<1,0>> one2zero;
@@ -286,7 +287,6 @@ public:
 };
 
 TEST_F(AutoFilterTest, VerifyTwoAutoFilterCallsAutoOut) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<FilterGatherAutoOut<0,1>> zero2one;
   AutoRequired<FilterGatherAutoOut<1,0>> one2zero;
@@ -319,9 +319,6 @@ TEST_F(AutoFilterTest, VerifyInterThreadDecoration) {
   AutoRequired<AutoPacketFactory> factory;
   AutoCurrentContext ctxt;
 
-  // Kick off all threads:
-  ctxt->Initiate();
-
   // Obtain a packet for processing and decorate it:
   auto packet = factory->NewPacket();
   packet->Decorate(Decoration<0>());
@@ -340,7 +337,6 @@ TEST_F(AutoFilterTest, VerifyInterThreadDecoration) {
 }
 
 TEST_F(AutoFilterTest, VerifyTeardownArrangement) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   std::weak_ptr<FilterA> filterAWeak;
@@ -387,7 +383,6 @@ TEST_F(AutoFilterTest, VerifyTeardownArrangement) {
 }
 
 TEST_F(AutoFilterTest, VerifyCheckout) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<FilterA> filterA;
   AutoRequired<AutoPacketFactory> factory;
 
@@ -425,7 +420,6 @@ TEST_F(AutoFilterTest, VerifyCheckout) {
 }
 
 TEST_F(AutoFilterTest, RollbackCorrectness) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<FilterA> filterA;
   AutoRequired<AutoPacketFactory> factory;
 
@@ -447,8 +441,6 @@ TEST_F(AutoFilterTest, RollbackCorrectness) {
 }
 
 TEST_F(AutoFilterTest, VerifyAntiDecorate) {
-  AutoCurrentContext()->Initiate();
-
   AutoRequired<FilterA> filterA;
   AutoRequired<AutoPacketFactory> factory;
 
@@ -496,8 +488,6 @@ TEST_F(AutoFilterTest, VerifyReflexiveReciept) {
   ASSERT_FALSE(good_autofilter<BadFilterA>::test) << "Failed to identify multiple defintiions of AutoFilter";
 
   AutoRequired<AutoPacketFactory> factory;
-
-  AutoCurrentContext()->Initiate();
 
   // Obtain a packet first:
   auto packet = factory->NewPacket();
@@ -570,10 +560,7 @@ public:
   size_t nReceived;
 };
 
-TEST_F(AutoFilterTest, DeferredRecieptInSubContext)
-{
-  AutoCurrentContext()->Initiate();
-
+TEST_F(AutoFilterTest, DeferredRecieptInSubContext) {
   static const size_t nPackets = 5;
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<DeferredAutoFilter>();
@@ -661,7 +648,6 @@ public:
 };
 
 TEST_F(AutoFilterTest, AnyAutoFilter) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<HasAWeirdAutoFilterMethod> t;
   AutoRequired<AutoPacketFactory> factory;
   auto packet = factory->NewPacket();
@@ -706,8 +692,6 @@ TEST_F(AutoFilterTest, SingleImmediate) {
   // Add a few filter entities
   AutoRequired<SimpleIntegerFilter> sif;
   AutoRequired<DeferredIntegerFilter> dif;
-
-  AutoCurrentContext()->Initiate();
 
   AutoRequired<AutoPacketFactory> factory;
 
@@ -762,7 +746,6 @@ public:
 };
 
 TEST_F(AutoFilterTest, NoImplicitDecorationCaching) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   auto ptr = std::make_shared<int>(1012);
 
@@ -787,7 +770,6 @@ TEST_F(AutoFilterTest, NoImplicitDecorationCaching) {
 }
 
 TEST_F(AutoFilterTest, MultiImmediate) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<FilterGen<Decoration<0>, Decoration<1>>> fg;
 
@@ -803,7 +785,6 @@ TEST_F(AutoFilterTest, MultiImmediate) {
 }
 
 TEST_F(AutoFilterTest, ImmediateWithPrior) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   // The filter which should get an immediate hit
@@ -819,7 +800,6 @@ TEST_F(AutoFilterTest, ImmediateWithPrior) {
 }
 
 TEST_F(AutoFilterTest, MultiImmediateComplex) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   // All of the filters that we're adding
@@ -844,7 +824,6 @@ TEST_F(AutoFilterTest, MultiImmediateComplex) {
 }
 
 TEST_F(AutoFilterTest, PostHocSatisfactionAttempt) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   // Filter that accepts two types, but one of the two will be DecorateImmediate'd too early
@@ -863,7 +842,6 @@ TEST_F(AutoFilterTest, PostHocSatisfactionAttempt) {
 }
 
 TEST_F(AutoFilterTest, AutoOutTest) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<FilterOutA> foA;
   AutoRequired<FilterOutB> foB;
@@ -898,7 +876,6 @@ TEST_F(AutoFilterTest, NoDeferredImmediateSatisfaction) {
   // Create a waiter, then obtain its lock before sending it off:
   AutoRequired<WaitsForInternalLock> wfil;
   std::lock_guard<std::mutex> lk(wfil->m_continueLock);
-  AutoCurrentContext()->Initiate();
 
   // Now create a packet that we will DecorateImmediate with our decoration:
   AutoRequired<AutoPacketFactory> factory;
@@ -936,7 +913,6 @@ public:
 };
 
 TEST_F(AutoFilterTest, SharedPtrCollapse) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<AcceptsConstReference> constr_filter;
   AutoRequired<AcceptsSharedPointer> shared_filter;
@@ -1002,7 +978,6 @@ public:
 };
 
 TEST_F(AutoFilterTest, SharedPointerRecieptRules) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<AcceptsSharedPointerAndReference> filter;
   AutoRequired<FilterGen<std::shared_ptr<int>>> genFilter1;
@@ -1017,7 +992,6 @@ TEST_F(AutoFilterTest, SharedPointerRecieptRules) {
 }
 
 TEST_F(AutoFilterTest, SharedPointerAliasingRules) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<AcceptsSharedPointerAndReference> filter;
   AutoRequired<FilterGen<std::shared_ptr<int>>> genFilter1;
@@ -1032,8 +1006,6 @@ TEST_F(AutoFilterTest, SharedPointerAliasingRules) {
 }
 
 TEST_F(AutoFilterTest, GetSharedPointer) {
-  AutoCurrentContext()->Initiate();
-
   // Attach a simple decoration
   AutoRequired<AutoPacketFactory> factory;
   auto packet = factory->NewPacket();
@@ -1062,11 +1034,10 @@ TEST_F(AutoFilterTest, GetSharedPointer) {
 }
 
 TEST_F(AutoFilterTest, WaitWhilePacketOutstanding) {
-  AutoCurrentContext ctxt;
-  ctxt->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   auto packet = factory->NewPacket();
 
+  AutoCurrentContext ctxt;
   ctxt->SignalShutdown();
   ASSERT_FALSE(ctxt->Wait(std::chrono::milliseconds(100))) << "Wait incorrectly returned while packets were outstanding";
   packet.reset();
@@ -1088,7 +1059,6 @@ TEST_F(AutoFilterTest, DeferredDecorateOnly) {
   AutoRequired<DecoratesAndAcceptsNothing> daan;
   AutoRequired<AutoPacketFactory> factory;
 
-  ctxt->Initiate();
   auto packet = factory->NewPacket();
 
   ctxt->SignalShutdown();

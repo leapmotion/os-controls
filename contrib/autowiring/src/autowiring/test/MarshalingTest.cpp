@@ -1,6 +1,5 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
-#include "MarshalingTest.hpp"
 #include <autowiring/EventInputStream.h>
 #include <autowiring/EventOutputStream.h>
 #include <autowiring/CoreThread.h>
@@ -9,6 +8,9 @@
 #include <string>
 #include <sstream>
 
+class MarshalingTest:
+  public testing::Test
+{};
                                                          
 /*
 EXTRA SPECS to code to that have not yet been implemented as unit tests.
@@ -27,9 +29,7 @@ If the types aren't POD. At the very least, tests need to be written which viola
 "I can do everything with stringstreams" implementation currently passing
 */
 
-
-
-struct StandardType : public Auto::Serialize{
+struct StandardType : public autowiring::Serialize{
   std::string m_str1;
   std::string m_str2;
   std::string m_str3;
@@ -60,8 +60,7 @@ struct StandardType : public Auto::Serialize{
   }
 };
 
-DECLARE_UUID(EventWithUuid, "6EC2129F-5DD7-43D5-ACB5-864E8BB5D6B4") :
-  public virtual EventReceiver
+DECLARE_UUID(EventWithUuid, "6EC2129F-5DD7-43D5-ACB5-864E8BB5D6B4")
 {
 public:
   virtual void SampleEventFiring(const std::string* str) = 0;

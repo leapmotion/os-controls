@@ -15,7 +15,5 @@ private:
   AutoRequired<Leap::Controller> m_controller;
   AutoRequired<AutoPacketFactory> m_factory;
 
-public:
   void onFrame(const Leap::Controller& controller) override;
 };
-

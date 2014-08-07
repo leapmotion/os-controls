@@ -3,8 +3,8 @@ if(NOT AUTOWIRING_BUILD_BENCHMARKS)
 endif()
 
 set(AutowiringBenchmarkTest_SRCS
-  AutowiringBenchmarkTest.hpp
   AutowiringBenchmarkTest.cpp
+  CanBoostPriorityTest.cpp
 )
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" AutowiringBenchmarkTest_SRCS)

@@ -1,9 +1,31 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
 #include "AutoNetServer.h"
+#include "TypeRegistry.h"
+#include "EventRegistry.h"
 #include "at_exit.h"
 #include <iostream>
 #include FUTURE_HEADER
+
+//
+// Demangle type names on mac and linux.
+// Just returns type_info.name() on windows
+//
+#if __GNUG__
+#include <cxxabi.h>
+static std::string demangle(const std::type_info& ti) {
+  int status;
+  std::unique_ptr<char, void(*)(void*)> res {
+    abi::__cxa_demangle(ti.name(), nullptr, nullptr, &status),
+    std::free
+  };
+  return std::string(status == 0 ? res.get() : ti.name());
+}
+#else
+static std::string demangle(const std::type_info& ti) {
+  return std::string(ti.name());
+}
+#endif
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -14,23 +36,23 @@ AutoNetServer::AutoNetServer():
   m_Server(std::make_shared<server>()),
   m_Port(8000)
 {
-  // Register handlers and configure websocketpp
+  // Configure websocketpp
   m_Server->init_asio();
+  m_Server->set_access_channels(websocketpp::log::alevel::none);
+  
+  // Register handlers
   m_Server->set_open_handler(std::bind(&AutoNetServer::OnOpen, this, ::_1));
   m_Server->set_close_handler(std::bind(&AutoNetServer::OnClose, this, ::_1));
   m_Server->set_message_handler(std::bind(&AutoNetServer::OnMessage, this, ::_1, ::_2));
   
-  // Generate lists of types from type registry
-  for (auto type = g_pFirstEntry; type; type = type->pFlink) {
-    if (type->IsEventReceiver())
-      m_EventTypes.insert(type->NewTypeIdentifier());
-    
-    if (type->CanInject()) {
-      m_AllTypes[type->ti.name()] = [type]{
-        type->Inject();
-      };
-    }
-  }
+  // Generate list of all types from type registry
+  for (auto type = g_pFirstTypeEntry; type; type = type->pFlink)
+    if (type->CanInject())
+      m_AllTypes[demangle(type->ti)] = [type]{ type->Inject(); };
+  
+  // Generate list of all events from event registry
+  for (auto event = g_pFirstEventEntry; event; event = event->pFlink)
+    m_EventTypes.insert(event->NewTypeIdentifier());
 }
 
 AutoNetServer::~AutoNetServer(){}
@@ -112,7 +134,7 @@ void AutoNetServer::NewContext(CoreContext& newCtxt){
 
   *this += [this, ctxt] {
     Json::object context {
-      {"name", ctxt->GetSigilType().name()}
+      {"name", demangle(ctxt->GetSigilType())}
     };
 
     if (ctxt->GetParentContext()){
@@ -139,12 +161,12 @@ void AutoNetServer::NewObject(CoreContext& ctxt, const AnySharedPointer& object)
     std::shared_ptr<Object> objectPtr(*object);
 
     // Add object data
-    objData["name"] = typeid(*objectPtr).name();
+    objData["name"] = demangle(typeid(*objectPtr));
     {
       Json::array slots;
       for (auto slot = object->GetSlotInformation().pHead; slot; slot = slot->pFlink) {
         slots.push_back(Json::object{
-          {"name", slot->type.name()},
+          {"name", demangle(slot->type)},
           {"autoRequired", slot->autoRequired},
           {"offset", int(slot->slotOffset)}
         });
@@ -174,15 +196,16 @@ void AutoNetServer::NewObject(CoreContext& ctxt, const AnySharedPointer& object)
       };
     }
 
-    auto eventRcvr = autowiring::fast_pointer_cast<EventReceiver>(objectPtr);
-    if (eventRcvr) {
+    // Check if type receives any events
+    {
       Json::array listenerTypes;
-      for (auto event : m_EventTypes) {
-        if (event->Is(objectPtr.get()))
-          listenerTypes.push_back(event->Type().name());
+      for (auto& event : m_EventTypes) {
+        if (event->IsSameAs(objectPtr.get()))
+          listenerTypes.push_back(demangle(event->Type()));
       }
-
-      types["eventReceiver"] = listenerTypes;
+      
+      if (!listenerTypes.empty())
+        types["eventReceiver"] = listenerTypes;
     }
 
     auto filter = autowiring::fast_pointer_cast<ExceptionFilter>(objectPtr);
@@ -194,7 +217,7 @@ void AutoNetServer::NewObject(CoreContext& ctxt, const AnySharedPointer& object)
     if (bolt) {
       Json::array sigils;
       for(auto cur = bolt->GetContextSigils(); *cur; cur++){
-        sigils.push_back((*cur)->name());
+        sigils.push_back(demangle(**cur));
       }
       types["bolt"] = sigils;
     }
@@ -205,7 +228,7 @@ void AutoNetServer::NewObject(CoreContext& ctxt, const AnySharedPointer& object)
 
 void AutoNetServer::EventFired(CoreContext& context, const std::type_info& info){
   int contextID = ResolveContextID(&context);
-  std::string name = info.name();
+  std::string name = demangle(info);
 
   *this += [this, contextID, name] {
     BroadcastMessage("eventFired", contextID, Json::object{{"name", name}});
@@ -299,7 +322,7 @@ void AutoNetServer::PollThreadUtilization(std::chrono::milliseconds period){
 
       // Broadcast current thread utilization
       int contextID = ResolveContextID(thread->GetContext().get());
-      std::string name = typeid(*thread.get()).name();
+      std::string name = demangle(typeid(*thread.get()));
 
       std::chrono::duration<double> periodDbl = period;
       double kmPercent = 100.0 * (deltaRuntimeKM.count() / periodDbl.count());

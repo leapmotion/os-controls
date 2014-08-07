@@ -1,9 +1,12 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
-#include "CoreJobTest.hpp"
 #include <autowiring/CoreJob.h>
 #include THREAD_HEADER
 #include FUTURE_HEADER
+
+class CoreJobTest:
+  public testing::Test
+{};
 
 TEST_F(CoreJobTest, VerifySimpleProperties) {
   AutoRequired<CoreJob> jb;
@@ -72,9 +75,7 @@ TEST_F(CoreJobTest, VerifyTeardown) {
   EXPECT_TRUE(check3) << "Lambda 3 didn't finish";
 }
 
-struct SimpleListen:
-  virtual EventReceiver
-{
+struct SimpleListen{
   SimpleListen():
     m_flag(false)
   {}

@@ -1,12 +1,15 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
-#include "BoltTest.hpp"
 #include <autowiring/Autowired.h>
 #include <autowiring/Bolt.h>
 #include <autowiring/ContextCreator.h>
 #include "TestFixtures/SimpleObject.hpp"
 #include <string>
 #include <iostream>
+
+class BoltTest:
+  public testing::Test
+{};
 
 struct Pipeline {};
 struct OtherContext {};
@@ -190,4 +193,55 @@ TEST_F(BoltTest, EmptyBolt) {
     ASSERT_TRUE(innerSo.IsAutowired()) << "CountObject not injected into named context";
     ASSERT_EQ(1, innerSo->count) << "ContextCreated() called incorrect number of times";
   }
+}
+
+template<class target>
+class TargetBoltable: public Boltable<target> {
+  static int numCons;
+  static int numDest;
+
+public:
+  static void InitializeNum() {
+    numCons = 0;
+    numDest = 0;
+  }
+  static int ConstructedNum() {return numCons;}
+  static int DestructedNum() {return numDest;}
+
+  TargetBoltable() {++numCons;}
+  ~TargetBoltable() {++numDest;}
+};
+template<class target>
+int TargetBoltable<target>::numCons = 0;
+template<class target>
+int TargetBoltable<target>::numDest = 0;
+
+TEST_F(BoltTest, BoltBeforeContext) {
+  AutoCurrentContext ctxt;
+  TargetBoltable<Pipeline>::InitializeNum();
+  AutoEnable<TargetBoltable<Pipeline>>();
+  ASSERT_EQ(0, TargetBoltable<Pipeline>::ConstructedNum()) << "Instantiated Boltable without context";
+  auto otherCtx = ctxt->Create<OtherContext>();
+  ASSERT_EQ(0, TargetBoltable<Pipeline>::ConstructedNum()) << "Instantiated on creation of unmatched context";
+
+  {
+    auto created = ctxt->Create<Pipeline>();
+    ASSERT_EQ(1, TargetBoltable<Pipeline>::ConstructedNum()) << "Failed to instantiate on creation of matching context";
+  }
+  ASSERT_EQ(1, TargetBoltable<Pipeline>::DestructedNum()) << "Failed to be destroyed with matching context";
+}
+
+TEST_F(BoltTest, BoltAfterContext) {
+  AutoCurrentContext ctxt;
+  TargetBoltable<OtherContext>::InitializeNum();
+  TargetBoltable<Pipeline>::InitializeNum();
+
+  {
+    auto created = ctxt->Create<Pipeline>();
+    AutoEnable<TargetBoltable<OtherContext>>();
+    ASSERT_EQ(0, TargetBoltable<OtherContext>::ConstructedNum()) << "Instantiated Boltable without context";
+    AutoEnable<TargetBoltable<Pipeline>>();
+    ASSERT_EQ(1, TargetBoltable<Pipeline>::ConstructedNum()) << "Failed to instantiate on creation of matching context";
+  }
+  ASSERT_EQ(1, TargetBoltable<Pipeline>::DestructedNum()) << "Failed to be destroyed with matching context";
 }

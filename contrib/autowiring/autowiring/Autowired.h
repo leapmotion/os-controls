@@ -2,8 +2,8 @@
 #pragma once
 #include "AutowirableSlot.h"
 #include "Decompose.h"
+#include "Deferred.h"
 #include "GlobalCoreContext.h"
-#include "TypeRegistry.h"
 #include MEMORY_HEADER
 #include ATOMIC_HEADER
 
@@ -120,7 +120,6 @@ public:
     AutowirableSlot<T>(ctxt ? ctxt->template ResolveAnchor<T>() : ctxt),
     m_pFirstChild(nullptr)
   {
-    (void) RegType<T>::r;
     if(ctxt)
       ctxt->Autowire(*this);
   }
@@ -325,21 +324,14 @@ template<class T>
 public:
   AutoFired(const std::shared_ptr<CoreContext>& ctxt = CoreContext::CurrentContext()):
     m_junctionBox(ctxt->GetJunctionBox<T>())
-  {
-    static_assert(std::is_base_of<EventReceiver, T>::value, "Cannot AutoFire a non-event type, your type must inherit EventReceiver");
-
-    // Add an utterance of the TypeRegistry so we can add this AutoFired type to our collection
-    (void) RegType<T>::r;
-  }
+  {}
 
   /// <summary>
   /// Utility constructor, used when the receiver is already known
   /// </summary>
   AutoFired(const std::shared_ptr<JunctionBox<T>>& junctionBox) :
     m_junctionBox(junctionBox)
-  {
-    (void) RegType<T>::r;
-  }
+  {}
 
   /// <summary>
   /// Utility constructor, used to support movement operations

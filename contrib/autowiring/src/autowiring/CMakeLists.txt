@@ -54,15 +54,15 @@ set(Autowiring_SRCS
   Decompose.h
   DecorationDisposition.h
   Deserialize.h
-  deferred_ptr.h
+  Deferred.h
   DispatchQueue.h
   DispatchQueue.cpp
   DispatchThunk.h
   EventInputStream.h
   EventOutputStream.h
   EventOutputStream.cpp
-  EventReceiver.h
-  EventReceiver.cpp
+  EventRegistry.h
+  EventRegistry.cpp
   fast_pointer_cast.h
   JunctionBox.h
   JunctionBoxBase.h
@@ -76,6 +76,7 @@ set(Autowiring_SRCS
   has_autofilter.h
   has_simple_constructor.h
   has_static_new.h
+  index_tuple.h
   is_any.h
   is_shared_ptr.h
   InterlockedExchange.h
@@ -98,6 +99,7 @@ set(Autowiring_SRCS
   ThreadStatusBlock.h
   ThreadStatusBlock.cpp
   thread_specific_ptr.h
+  TypeIdentifier.h
   TypeRegistry.h
   TypeRegistry.cpp
   TypeUnifier.h
