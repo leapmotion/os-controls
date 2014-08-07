@@ -4,8 +4,7 @@
 
 #include "Leap.h"
 
-class HandExistGestureEvents :
-  public EventReceiver
+class HandExistGestureEvents 
 {
 public:
   virtual void HandStart(Leap::Hand) {}
