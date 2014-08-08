@@ -414,24 +414,22 @@ add_library(Components empty.cpp)
 # link them.
 ###################################################################################################
 
-# Add options for explicitly requiring that each sublibrary be linked.  NOTE: some sublibraries may
-# not be explicitly required but will still be linked because they are indirectly depended upon.
-foreach(_sublibrary ${ADDED_SUBLIBRARIES})
-    get_target_property(_brief_doc_strings ${_sublibrary} BRIEF_DOC_STRING)
-    option(REQUIRE_${_sublibrary} "${_brief_doc_strings}" ON)
-endforeach()
-
 # Construct the list of sublibraries that are required to be linked.
 set(_explicit_link_sublibraries "")
 foreach(_sublibrary ${ADDED_SUBLIBRARIES})
-    if(REQUIRE_${_sublibrary})
-        list(APPEND _explicit_link_sublibraries ${_sublibrary})
-        target_link_libraries(Components PUBLIC ${_sublibrary})
-    endif()
+    list(APPEND _explicit_link_sublibraries ${_sublibrary})
+    target_link_libraries(Components PUBLIC ${_sublibrary})
 endforeach()
 
-verbose_message("_explicit_link_sublibraries = ${_explicit_link_sublibraries}")
-print_dependency_graph_of_sublibrary_linking_library(Components "${_explicit_link_sublibraries}")
+set(_temp "${ADDED_SUBLIBRARIES}")
+list(SORT _temp)
+set(SUBLIBRARIES_DEFINED_readonly ${_temp} CACHE STRING "This is the list of sublibraries that were successfully defined (all dependencies were met)." FORCE)
+
+set(_temp "${UNADDED_SUBLIBRARIES}")
+list(SORT _temp)
+set(SUBLIBRARIES_UNDEFINED_readonly ${_temp} CACHE STRING "This is the list of sublibraries that were not successfully defined (some dependencies were unmet)." FORCE)
+
+print_dependency_graph_of_sublibrary_linking_library(Components "${ADDED_SUBLIBRARIES}")
 
 ###################################################################################################
 # Define install rules for the library.  This is probably not the legit way to do it, and we
