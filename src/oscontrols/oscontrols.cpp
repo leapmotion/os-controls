@@ -11,6 +11,7 @@
 
 int main(int argc, char **argv)
 {
+  ComInitializer initCom;
   AutoCurrentContext ctxt;
   ctxt->Initiate();
 
@@ -34,7 +35,7 @@ m_bRunning(false)
 }
 
 void OsControl::Main(void) {
-  ComInitializer initCom;
+  
   GestureTriggerManifest manifest;
 
   auto clearOutstanding = MakeAtExit([this] {
