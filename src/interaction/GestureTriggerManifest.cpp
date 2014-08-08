@@ -5,9 +5,7 @@
 
 GestureTriggerManifest::GestureTriggerManifest()
 {
-  AutoRequired<HandExistTrigger>();
-}
+  //List all gesture triggers here so that they will be created in the correct context
 
-void GestureTriggerManifest::AutoFilter(Leap::Frame frame, const HandExistenceState& state, GestureTriggerManifestState& gtmfState) {
-  
+  AutoRequired<HandExistTrigger>();
 }
