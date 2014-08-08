@@ -18,7 +18,7 @@ void HandExistTrigger::AutoFilter(Leap::Frame frame, HandExistenceState& heg){
   }
 
   std::vector<int32_t> newHands;
-  std::set_difference(hands.begin(), hands.end(), m_hands.begin(), m_hands.end(), newHands);
+  std::set_difference(hands.begin(), hands.end(), m_hands.begin(), m_hands.end(), std::inserter(newHands,newHands.begin()));
   for(auto hand : newHands)
     heg.m_newHands.push_back(frame.hand(hand));
 }
