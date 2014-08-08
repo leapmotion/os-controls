@@ -79,7 +79,7 @@ add_sublibrary(
     HEADERS
         EigenTypes.h
     EXPLICIT_LIBRARY_DEPENDENCIES
-        "Eigen 3.1.2"
+        "Eigen 3.2.1"
     BRIEF_DOC_STRING
         "Convenience typedefs for working with particular Eigen vector/matrix types."
 )
