@@ -161,6 +161,9 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, 
   glGetTexLevelParameteriv(m_params.Target(), 0, GL_TEXTURE_INTERNAL_FORMAT, &actual_internal_format);
   ThrowOnGLError("in glGetTexParameteriv");
   m_params.SetInternalFormat(actual_internal_format);  
+
+  // Unbind the texture to minimize the possibility that other GL calls may modify this texture.
+  glBindTexture(m_params.Target(), 0);
 }
 
 GLTexture2::~GLTexture2 () {
