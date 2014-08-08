@@ -72,6 +72,11 @@ void GLTexture2Params::SetTexParameteri (GLenum pname, GLint value) {
 // TODO: somehow make this less version-specific (?), or come up with a version-agnostic way
 // to determine the size of each pixel from given pixel data format and type.
 size_t ComponentsInPixelFormat (GLenum format) {
+  // Allowable OpenGL 2.1 values: GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, GL_LUMINANCE_ALPHA
+  // Allowable OpenGL 3.3 values: GL_RED, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA
+  // Overlap between 2.1 and 3.3: GL_RED, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA
+  // Only in OpenGL 2.1         : GL_COLOR_INDEX, GL_GREEN, GL_BLUE, GL_ALPHA, GL_LUMINANCE, GL_LUMINANCE_ALPHA
+  // Only in OpenGL 3.3         : GL_RG
   switch (format) {
     case GL_COLOR_INDEX:
     case GL_RED:
@@ -80,7 +85,8 @@ size_t ComponentsInPixelFormat (GLenum format) {
     case GL_ALPHA:
     case GL_LUMINANCE:        return 1;
 
-    case GL_LUMINANCE_ALPHA:  return 2;
+    case GL_LUMINANCE_ALPHA:
+    case GL_RG:               return 2;
 
     case GL_RGB:
     case GL_BGR:              return 3;
@@ -88,7 +94,7 @@ size_t ComponentsInPixelFormat (GLenum format) {
     case GL_RGBA:
     case GL_BGRA:             return 4;
 
-    default: throw std::invalid_argument("invalid pixel format; must be one of GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, and GL_LUMINANCE_ALPHA");
+    default: throw std::invalid_argument("invalid pixel format; must be one of GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, and GL_LUMINANCE_ALPHA");
   }
 }
 
