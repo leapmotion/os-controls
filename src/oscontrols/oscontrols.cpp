@@ -9,6 +9,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
+struct OSControlContext {};
+
 int main(int argc, char **argv)
 {
   ComInitializer initCom;
@@ -16,12 +18,13 @@ int main(int argc, char **argv)
   ctxt->Initiate();
 
   try {
+    AutoCreateContextT<OSControlContext> osCtxt;
+    CurrentContextPusher pshr(osCtxt);
     AutoRequired<OsControl> control;
+    osCtxt->Initiate();
     control->Main();
   }
-  catch (...) {
-    return -1;
-  }
+  catch (...) {}
 
   ctxt->SignalShutdown(true);
   return 0;
@@ -35,7 +38,7 @@ m_bRunning(false)
 }
 
 void OsControl::Main(void) {
-  
+
   GestureTriggerManifest manifest;
 
   auto clearOutstanding = MakeAtExit([this] {
@@ -53,7 +56,7 @@ void OsControl::Main(void) {
       HandleEvent(event);
     }
 
-    // Pilot a packet through the system: 
+    // Pilot a packet through the system:
     auto packet = factory->NewPacket();
   }
 }
@@ -61,6 +64,7 @@ void OsControl::Main(void) {
 void OsControl::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
   case sf::Event::Closed:
+    m_mw->close();
     AutoCurrentContext()->SignalShutdown();
     break;
   }
