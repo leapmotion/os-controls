@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
 
 #include <string>
 
@@ -65,12 +65,7 @@ private:
 
   void InitWindow();
 
-#if _WIN32
-  void MakeTransparent_Windows();
-#endif
-
-  int m_Width;
-  int m_Height;
+  void MakeTransparent();
 
   sf::ContextSettings m_Settings;
   mutable sf::Window m_Window;

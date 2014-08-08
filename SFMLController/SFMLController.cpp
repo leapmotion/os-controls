@@ -4,13 +4,36 @@
 #include <Windows.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
+#elif __APPLE__
+#include <AppKit/NSColor.h>
+#include <AppKit/NSOpenGL.h>
+#include <AppKit/NSOpenGLView.h>
+#include <AppKit/NSWindow.h>
+#include <AppKit/NSView.h>
+#include <objc/runtime.h>
+#include <mutex>
 #endif
 
 #include <cassert>
-#include <iostream> // TEMP
 #include <stdexcept>
 
-SFMLController::SFMLController() { }
+SFMLController::SFMLController() {
+#if __APPLE__
+  static std::once_flag s_flag;
+  std::call_once(s_flag, [] {
+    //
+    // The isOpaque method in the SFOpenGLView class of SFML always returns YES
+    // (as it just uses the default implementation of NSOpenGLView). This
+    // causes us to always get an opaque view. We workaround this problem by
+    // replacing that method with our own implementation that returns the
+    // opaqueness based on the enclosing window, all thanks to the power of
+    // Objective-C.
+    //
+    method_setImplementation(class_getInstanceMethod(NSClassFromString(@"SFOpenGLView"), @selector(isOpaque)),
+                            imp_implementationWithBlock(^BOOL(id self, id arg) { return [[self window] isOpaque]; }));
+  });
+#endif
+}
 
 SFMLController::~SFMLController() {
 }
@@ -36,16 +59,9 @@ std::string SFMLController::BasePath () {
   return "";
 }
 
-// It's necessary to put the Apple-specific code in a separate file because
-// it is Objective-C++ and needs to be compiled as such (the source file name
-// is MakeTransparent_Apple.mm).
-#if __APPLE__
-extern void MakeTransparent_Apple (const SDL_SysWMinfo &sys_wm_info, SDL_GLContext c);
-#endif
-
-#if defined(WIN32)
-void SFMLController::MakeTransparent_Windows () {
+void SFMLController::MakeTransparent () {
   sf::WindowHandle handle = m_Window.getSystemHandle();
+#if _WIN32
   HWND hWnd = static_cast<HWND>(handle);
   if (hWnd) {
     LONG flags = ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT;
@@ -55,7 +71,7 @@ void SFMLController::MakeTransparent_Windows () {
     ::SetWindowLongA(hWnd, GWL_EXSTYLE, flags);
     ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
   } else {
-    throw std::runtime_error("Error retrieiving native window");
+    throw std::runtime_error("Error retrieving native window");
   }
   if (m_Params.alwaysOnTop) {
     ::SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -65,8 +81,39 @@ void SFMLController::MakeTransparent_Windows () {
   bb.fEnable = true;
   bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
   ::DwmEnableBlurBehindWindow(hWnd, &bb);
-}
+#elif __APPLE__
+  NSWindow* window = static_cast<NSWindow*>(handle);
+  NSOpenGLView* view = [window contentView];
+
+  if (!window || !view) {
+    throw std::runtime_error("Error retrieving native window");
+  }
+
+  // Set the GL context opacity.
+  NSOpenGLContext* context = [view openGLContext];
+  // The opacity var should technically be a GLint, but from
+  // http://www.opengl.org/wiki/OpenGL_Type -- GLint is necessarily 32 bit,
+  // so we can use a fixed int type without including any GL headers here.
+  int32_t opacity = 0;
+  [context setValues:&opacity forParameter:NSOpenGLCPSurfaceOpacity];
+
+  // Set window properties.
+  [window setOpaque:NO];
+  [window setHasShadow:NO];
+  [window setHidesOnDeactivate:NO];
+  [window setBackgroundColor:[NSColor clearColor]];
+  [window setBackingType:NSBackingStoreBuffered];
+  [window setSharingType:NSWindowSharingNone];
+  [window setLevel:CGShieldingWindowLevel()];
+  [window setCollectionBehavior:(NSWindowCollectionBehaviorCanJoinAllSpaces |
+                                 NSWindowCollectionBehaviorStationary |
+                                 NSWindowCollectionBehaviorFullScreenAuxiliary |
+                                 NSWindowCollectionBehaviorIgnoresCycle)];
+  [window display];
+#else
+  throw std::runtime_error("Missing implementation of MakeTransparent");
 #endif
+}
 
 void SFMLController::InitWindow() {
   sf::Uint32 windowStyle = sf::Style::Default;
@@ -90,17 +137,12 @@ void SFMLController::InitWindow() {
   m_Settings.depthBits = 24;
 
   m_Window.create(sf::VideoMode(m_Params.windowWidth, m_Params.windowHeight, 32U), m_Params.windowTitle, windowStyle, m_Settings);
-
+  m_Window.setVisible(false);
   m_Window.setVerticalSyncEnabled(m_Params.vsync);
 
   if (m_Params.transparentWindow) {
     // Make the OS-specific call to make the window transparent.
-#ifdef WIN32 
-    MakeTransparent_Windows();
-#elif __APPLE__ 
-    MakeTransparent_Apple(sys_wm_info, m_SDL_GLContext);
-#else 
-    //TODO
-#endif
+    MakeTransparent();
   }
+  m_Window.setVisible(true);
 }

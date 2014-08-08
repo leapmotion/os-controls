@@ -79,7 +79,7 @@ add_sublibrary(
     HEADERS
         EigenTypes.h
     EXPLICIT_LIBRARY_DEPENDENCIES
-        "Eigen 3.1.2"
+        "Eigen 3.2.1"
     BRIEF_DOC_STRING
         "Convenience typedefs for working with particular Eigen vector/matrix types."
 )
@@ -138,6 +138,9 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "A single point of control for init, shutdown, and general use of SFML."
 )
+if(APPLE)
+  set_property(SOURCE SFMLController/SFMLController.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
+endif()
 
 add_sublibrary(
     FbxSceneLoader
