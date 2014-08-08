@@ -245,6 +245,7 @@ if(NOT EXISTS SDL_ROOT_DIR)
           include/SDL2/SDL_Version.h 
           include/SDL/SDL_version.h 
     HINTS $ENV{SDLDIR} ${_ok_folders}
+    
   )
   
 endif()
