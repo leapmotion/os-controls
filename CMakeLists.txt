@@ -45,6 +45,33 @@ include(AddSublibrary)
 
 # The added sublibrary target names will be accumulated in ADDED_SUBLIBRARIES
 
+# TODO: use Threads package instead
+# if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+# #     set(_cxx11test_explicit_library_dependencies "pthread")
+#     # TODO: we would really need a Findpthread.cmake module -- pthread should be in EXPLICIT_LIBRARY_DEPENDENCIES
+#     set(_cxx11test_compiler_options "-lpthread")
+# elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+#     set(_cxx11test_compiler_options "/MTd") # TODO: Will some Windows user verify if this is right?
+# endif()
+
+add_sublibrary(
+    GTest
+    SOURCE_PATH
+        ../gtest-1.7.0/fused-src
+    HEADERS
+        gtest/gtest.h
+    SOURCES
+        gtest/gtest-all.cc
+        gtest/gtest_main.cc
+    COMPILE_OPTIONS
+        #${_cxx11test_compiler_options}
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        #${_cxx11test_explicit_library_dependencies}
+#         "Threads"
+    BRIEF_DOC_STRING
+        "Provides easy way to link the Google Test framework"
+)
+
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
     set(_cxx11_compiler_flags "-std=c++11")
 endif()
@@ -55,6 +82,19 @@ add_sublibrary(
         ${_cxx11_compiler_flags}
     BRIEF_DOC_STRING
         "A phony target which just provides compiler options for enabling C++11."
+)
+
+add_sublibrary(
+    C++11Test
+    SOURCE_PATH
+        C++11/Test
+    SOURCES
+        C++11Compliance.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+        GTest
+    BRIEF_DOC_STRING
+        "Tests to check the compiler's C++11 compliance (really just positive compile tests)."
 )
 
 add_sublibrary(
@@ -564,3 +604,23 @@ if(BUILD_DOCUMENTATION)
 endif()
 
 # TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# TODO get this actually working -- there is a FindThreads.cmake module that should do the job
+
+# add_executable(Test test_main.cpp)
+# # set_target_properties(Test APPEND PROPERTIES LINK_FLAGS -lpthread)
+# # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
+# target_link_libraries(Test PUBLIC C++11Test)# pthread)

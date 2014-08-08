@@ -51,6 +51,9 @@ endfunction()
 # - Parameters taking a single argument:
 #   * BRIEF_DOC_STRING <string> -- A brief description of this sublibrary which should fit within
 #     one line (about 80 chars).
+#   * SOURCE_PATH -- The path, relative to CMAKE_CURRENT_SOURCE_DIR, containing all the sublibrary
+#     headers and sources.  If this value is left unspecified, then it will default to the sublibrary
+#     name.
 # - Parameters taking multiple arguments (each one is optional, unless otherwise specified):
 #   * HEADERS [header1 [header2 [...]]] -- The list of headers for the sublibrary.  Each of these
 #     should be specified using a relative path, based at the sublibrary's subdirectory.
@@ -91,11 +94,12 @@ endfunction()
 #
 # The following target properties will automatically be set on the sublibrary's library target.
 # Again, this is done before the ADDITIONAL_TARGET_PROPERTIES are set, so these can be overridden.
+# - SOURCE_PATH                         -- As described above.
 # - HEADERS                             -- As described above.
 # - SOURCES                             -- As described above.
-# - PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the sublibrary name as a path prefix.
-# - PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the sublibrary name as a path prefix.
-# - EXPLICIT_SUBLIBRARY_DEPENDENCIES     -- As described above.
+# - PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the sublibrary directory as a path prefix.
+# - PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the sublibrary directory as a path prefix.
+# - EXPLICIT_SUBLIBRARY_DEPENDENCIES    -- As described above.
 # - EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
 # - BRIEF_DOC_STRING                    -- As described above.
 # - DETAILED_DOC_STRINGS                -- As described above.
@@ -110,6 +114,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # Do the fancy map-style parsing of the arguments
     set(_options EXCLUDE_FROM_ALL)
     set(_one_value_args
+        SOURCE_PATH             # Optional specification of relative path to headers and sources.
         BRIEF_DOC_STRING        # A one-line, short (no more than about 80 chars) description of the sublibrary.
     )
     set(_multi_value_args
@@ -131,23 +136,32 @@ function(add_sublibrary SUBLIBRARY_NAME)
     endif()
 
     # Parse the arguments for use in the following target-defining calls.
-    if(${_arg_EXCLUDE_FROM_ALL})
+    if(_arg_EXCLUDE_FROM_ALL)
         set(_exclude_from_all "EXCLUDE_FROM_ALL")
     else()
         set(_exclude_from_all "")
     endif()
 
+    # Determine the directory for the sublibrary sources.
+    if(_arg_SOURCE_PATH)
+        verbose_message("    using explicitly-specified SOURCE_PATH (${_arg_SOURCE_PATH}) for SOURCE_PATH")
+        set(_sublibrary_source_path ${_arg_SOURCE_PATH})
+    else()
+        verbose_message("    using SUBLIBRARY_NAME (${SUBLIBRARY_NAME}) for SOURCE_PATH")
+        set(_sublibrary_source_path ${SUBLIBRARY_NAME})
+    endif()
+    
     # Determine the target name of this sublibrary.
     get_sublibrary_target_name(${SUBLIBRARY_NAME} _sublibrary_target_name)
     # Determine the relative paths of all the headers.
     set(_path_prefixed_headers "")
     foreach(_header ${_arg_HEADERS})
-        list(APPEND _path_prefixed_headers ${SUBLIBRARY_NAME}/${_header})
+        list(APPEND _path_prefixed_headers ${_sublibrary_source_path}/${_header})
     endforeach()
     # Determine the relative paths of all the sources.
     set(_path_prefixed_sources "")
     foreach(_source ${_arg_SOURCES})
-        list(APPEND _path_prefixed_sources ${SUBLIBRARY_NAME}/${_source})
+        list(APPEND _path_prefixed_sources ${_sublibrary_source_path}/${_source})
     endforeach()
 
     # If there are no sources, add an empty dummy source file so that the linker has
@@ -183,8 +197,8 @@ function(add_sublibrary SUBLIBRARY_NAME)
         target_include_directories(
             ${_sublibrary_target_name}
             PUBLIC
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SUBLIBRARY_NAME}>
-                $<INSTALL_INTERFACE:include/${SUBLIBRARY_NAME}>)
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}>
+                $<INSTALL_INTERFACE:include/${_sublibrary_source_path}>)
     endif()
     # If there are compile definitions, add them.
     if(_arg_COMPILE_DEFINITIONS)
@@ -234,6 +248,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     set_target_properties(
         ${_sublibrary_target_name}
         PROPERTIES
+            SOURCE_PATH "${_sublibrary_source_path}"
             HEADERS "${_arg_HEADERS}"
             SOURCES "${_arg_SOURCES}"
             PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
@@ -264,7 +279,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     endforeach()
     list(SORT _all_library_dependencies)
     list(REMOVE_DUPLICATES _all_library_dependencies)
-    verbose_message("all library dependencies of ${_sublibrary_target_name} : ${_all_library_dependencies}")
+    verbose_message("    all library dependencies of ${_sublibrary_target_name} : ${_all_library_dependencies}")
     # Store the dependencies in a "map" format which can be later parsed by cmake_parse_arguments.
     set(LIBRARY_DEPENDENCY_MAP ${LIBRARY_DEPENDENCY_MAP} ${_sublibrary_target_name} ${_all_library_dependencies} PARENT_SCOPE)
 endfunction()
