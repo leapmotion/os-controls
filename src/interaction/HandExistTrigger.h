@@ -23,4 +23,3 @@ private:
   std::set<int32_t> m_hands;
   Leap::Frame m_oldFrame;
 };
-

@@ -3,14 +3,8 @@ set(osinterface_SOURCES
   AudioVolumeController.cpp
   LeapInput.h
   LeapInput.cpp
-  MainWindow.h
-  MainWindow.cpp
   MediaController.h
   MediaController.cpp
-  SdlInitializer.h
-  SdlInitializer.cpp
-  RenderingContext.h
-  RenderingContext.cpp
   WindowingSystem.h
   WindowingSystem.cpp
   WindowSpaces.h
@@ -35,8 +29,14 @@ add_mac_sources(
 
 add_library(osinterface ${osinterface_SOURCES})
 target_link_libraries(osinterface Autowiring utility)
-target_package(osinterface SDL 2.0.1 REQUIRED)
+target_package(osinterface SFML 2.1 REQUIRED)
 target_package(osinterface Leap REQUIRED)
 target_include_directories(osinterface PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
+if(APPLE)
+  find_library(CORE_AUDIO_FRAMEWORK CoreAudio)
+  include_directories(${CORE_AUDIO_FRAMEWORK}/Headers)
+  mark_as_advanced(CORE_AUDIO_FRAMEWORK)
+  target_link_libraries(osinterface ${CORE_AUDIO_FRAMEWORK})
+endif()
 
 add_subdirectory(test)

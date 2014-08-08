@@ -14,5 +14,6 @@ include(ConditionalSources)
 
 enable_testing()
 
+set(SFML_STATIC_LIBRARIES ON)
 add_subdirectory(contrib)
 add_subdirectory(src)

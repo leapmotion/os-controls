@@ -3,11 +3,13 @@
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
 #include "osinterface/LeapInput.h"
-#include "osinterface/MainWindow.h"
 #include "osinterface/MediaController.h"
-#include "osinterface/SdlInitializer.h"
 #include "utility/ComInitializer.h"
-#include <SDL.h>
+
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+
+struct OSControlContext {};
 
 class Drawable;
 
@@ -17,29 +19,32 @@ struct Scene {
 
 int main(int argc, char **argv)
 {
+  ComInitializer initCom;
   AutoCurrentContext ctxt;
   ctxt->Initiate();
 
   try {
+    AutoCreateContextT<OSControlContext> osCtxt;
+    CurrentContextPusher pshr(osCtxt);
     AutoRequired<OsControl> control;
+    osCtxt->Initiate();
     control->Main();
   }
-  catch (...) {
-    return -1;
-  }
+  catch (...) {}
 
   ctxt->SignalShutdown(true);
   return 0;
 }
 
 OsControl::OsControl(void) :
-m_mw(""),
+m_mw(sf::VideoMode(800,600),"Leap Os Control"),
 m_bShouldStop(false),
 m_bRunning(false)
-{}
+{
+}
 
 void OsControl::Main(void) {
-  ComInitializer initCom;
+
   GestureTriggerManifest manifest;
 
   auto clearOutstanding = MakeAtExit([this] {
@@ -52,11 +57,12 @@ void OsControl::Main(void) {
 
   // Dispatch events until told to quit:
   while (!ShouldStop()) {
-    SDL_Event ev;
-    while (SDL_PollEvent(&ev))
-      HandleEvent(ev);
+    sf::Event event;
+    while (m_mw->pollEvent(event)){
+      HandleEvent(event);
+    }
 
-    // Pilot a packet through the system: 
+    // Pilot a packet through the system:
     auto packet = factory->NewPacket();
 
     Scene scene;
@@ -66,9 +72,10 @@ void OsControl::Main(void) {
   }
 }
 
-void OsControl::HandleEvent(const SDL_Event& ev) const {
+void OsControl::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
-  case SDL_QUIT:
+  case sf::Event::Closed:
+    m_mw->close();
     AutoCurrentContext()->SignalShutdown();
     break;
   }
