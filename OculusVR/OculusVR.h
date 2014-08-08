@@ -53,6 +53,17 @@ typedef union ovrGLTexture_s
 } ovrGLTexture;
 
 
+// Provides an interface for retrieving tracking data and correcting distortion for an Oculus VR headset.
+// Instructions for use:
+// 1) Create an instance of OculusVR in your app
+// 2) Call Init() and verify it returns true
+// 3) Inside your app's main render loop:
+//   a) Call BeginFrame()
+//   b) Retrieve the eye viewport information with EyeViewport and call glViewport
+//   c) Retrieve the eye transform using EyeProjection, EyeTranslation, and EyeRotation
+//   d) Set up the OpenGL projection and modelview matrices appropriately
+//   e) Render your geometry
+//   f) Call EndFrame()
 class OculusVR {
 
 public:
@@ -64,6 +75,22 @@ public:
   void EndFrame();
 
   void DismissHealthWarning();
+  
+  const ovrRecti& EyeViewport(int eye) const {
+    return m_EyeRenderViewport[eye];
+  }
+
+  const ovrMatrix4f& EyeProjection(int eye) const {
+    return m_EyeProjection[eye];
+  }
+
+  const ovrVector3f& EyeTranslation(int eye) const {
+    return m_EyeTranslation[eye];
+  }
+
+  const ovrQuatf& EyeRotation(int eye) const {
+    return m_EyeRotation[eye];
+  }
 
 private:
 
