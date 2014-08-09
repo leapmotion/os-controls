@@ -9,8 +9,8 @@
 #elif _WIN32
   #define GLEW_STATIC
   #include <GL/glew.h>
-  #define WIN32_LEAN_AND_MEAN 1
-  #define NOMINMAX 1
+  #define WIN32_LEAN_AND_MEAN
+  #define NOMINMAX
   #include "windows.h"
 #else
   #include <GL/glew.h>
