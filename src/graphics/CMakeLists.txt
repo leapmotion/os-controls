@@ -5,6 +5,7 @@ set(graphics_SOURCES
   graphics.cpp
   GraphicsStateMachine.h
   GraphicsStateMachine.cpp
+  State.h
   VolumeControl.h
   VolumeControl.cpp
 )
