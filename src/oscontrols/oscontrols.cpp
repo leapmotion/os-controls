@@ -5,13 +5,16 @@
 #include "osinterface/LeapInput.h"
 #include "osinterface/MediaController.h"
 #include "utility/ComInitializer.h"
-
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
 struct OSControlContext {};
 
-class Drawable;
+//STUB IMPL!!!
+class Drawable {
+public:
+  void Draw() {}
+};
 
 struct Scene {
   std::list<Drawable*> m_drawables;
