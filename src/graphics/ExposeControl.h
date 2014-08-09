@@ -1,5 +1,5 @@
 #pragma once
-#include "osinterface/Scene.h"
+#include "graphics/Scene.h"
 
 class ExposeControl
 {

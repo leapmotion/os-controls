@@ -1,6 +1,6 @@
 #pragma once
 #include "State.h"
-#include "osinterface/Scene.h"
+#include "graphics/Scene.h"
 
 class VolumeControl
 {
