@@ -6,6 +6,7 @@ set(oscontrols_SOURCES
 if(WIN32)
   set(oscontrols_EXEFLAGS WIN32)
 elseif(APPLE)
+  set_property(SOURCE oscontrols.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
   set(oscontrols_EXEFLAGS MACOSX_BUNDLE)
   set(MACOSX_BUNDLE_BUNDLE_NAME "oscontrols")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "1")

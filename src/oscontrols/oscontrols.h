@@ -1,5 +1,13 @@
 #pragma once
 #include <autowiring/autowiring.h>
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+
+struct OsControlContext {};
+struct OsControlRender {
+  std::shared_ptr<sf::RenderWindow> renderWindow;
+  std::chrono::duration<double> timeDelta;
+};
 
 class AudioVolumeController;
 class LeapInput;
@@ -38,6 +46,11 @@ private:
   /// Handles window & keyboard events from the primary event dispatch loop
   /// </summary>
   void HandleEvent(const sf::Event& ev) const;
+
+  /// <summary>
+  /// Make a RenderWindow transparent
+  /// </summary>
+  static void MakeTransparent(const std::shared_ptr<sf::RenderWindow>& renderWindow);
 
 public:
   void Main(void);
