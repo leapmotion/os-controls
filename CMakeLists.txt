@@ -610,7 +610,7 @@ endif()
 
 # TODO get this actually working -- there is a FindThreads.cmake module that should do the job
 
-add_executable(Test test_main.cpp)
+add_executable(Test ../gtest-1.7.0/fused-src/gtest/gtest_main.cc)
 # set_target_properties(Test APPEND PROPERTIES LINK_FLAGS -lpthread)
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
 target_link_libraries(Test PUBLIC C++11Test)# pthread)
