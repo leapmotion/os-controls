@@ -4,12 +4,10 @@
 
 #include "Leap.h"
 
-class HandExistGestureEvents 
-{
-public:
-  virtual void HandStart(Leap::Hand) {}
-  virtual void HandEnd(Leap::Hand) {}
-  virtual void HandUpdate(Leap::Hand) {}
+struct HandExistenceState {
+  std::vector<Leap::Hand> m_newHands;
+  std::vector<Leap::Hand> m_stableHands;
+  std::vector<Leap::Hand> m_goneHands;
 };
 
 class HandExistTrigger:
@@ -19,11 +17,9 @@ public:
   HandExistTrigger();
   virtual ~HandExistTrigger() {};
 
-  void AutoFilter(Leap::Frame frame);
+  void AutoFilter(Leap::Frame frame, HandExistenceState& heg);
 
 private:
   std::set<int32_t> m_hands;
   Leap::Frame m_oldFrame;
-
-  AutoFired<HandExistGestureEvents> m_eventTrigger;
 };

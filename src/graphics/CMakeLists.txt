@@ -1,6 +1,15 @@
 set(graphics_SOURCES
+  ExposeControl.h
+  ExposeControl.cpp
   graphics.h
   graphics.cpp
+  GraphicsStateMachine.h
+  GraphicsStateMachine.cpp
+  Scene.h
+  Scene.cpp
+  State.h
+  VolumeControl.h
+  VolumeControl.cpp
 )
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)

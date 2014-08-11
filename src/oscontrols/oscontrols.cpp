@@ -5,7 +5,6 @@
 #include "osinterface/LeapInput.h"
 #include "osinterface/MediaController.h"
 #include "utility/ComInitializer.h"
-
 #if __APPLE__
 #include <AppKit/NSColor.h>
 #include <AppKit/NSOpenGL.h>
@@ -38,6 +37,16 @@ class GraphicsObject : public Object {
   private:
     sf::CircleShape m_shape;
     double m_time;
+};
+
+//STUB IMPL!!!
+class Drawable {
+public:
+  void Draw() {}
+};
+
+struct Scene {
+  std::list<Drawable*> m_drawables;
 };
 
 int main(int argc, char **argv)
