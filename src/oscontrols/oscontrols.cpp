@@ -27,11 +27,10 @@ class GraphicsObject : public Object {
 
     void AutoFilter(const OsControlRender& render) {
       const auto size = render.renderWindow->getSize();
-      const auto position = render.renderWindow->getPosition();
       m_time += render.timeDelta.count();
       const double radius = static_cast<double>(m_shape.getRadius());
-      const float x = static_cast<float>((size.x/2.0 - radius)*cos(m_time/4.0*M_PI) - position.x);
-      const float y = static_cast<float>((size.y/2.0 - radius)*sin(m_time/4.0*M_PI) - position.y);
+      const float x = static_cast<float>((size.x/2.0 - radius)*cos(m_time/4.0*M_PI));
+      const float y = static_cast<float>((size.y/2.0 - radius)*sin(m_time/4.0*M_PI));
       m_shape.setPosition(size.x/2.0f + x, size.y/2.0f + y);
       render.renderWindow->draw(m_shape);
     }
