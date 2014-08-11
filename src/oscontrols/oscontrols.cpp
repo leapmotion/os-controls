@@ -1,19 +1,14 @@
 #include "stdafx.h"
+
 #include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MediaController.h"
 #include "utility/ComInitializer.h"
-#if __APPLE__
-#include <AppKit/NSColor.h>
-#include <AppKit/NSOpenGL.h>
-#include <AppKit/NSOpenGLView.h>
-#include <AppKit/NSWindow.h>
-#include <AppKit/NSView.h>
-#include <OpenGL/GL.h>
-#include <objc/runtime.h>
-#endif
+#include "utility/NativeWindow.h"
+
+
 
 class GraphicsObject : public Object {
   public:
@@ -86,67 +81,10 @@ OsControl::OsControl(void) :
   m_bShouldStop(false),
   m_bRunning(false)
 {
-  MakeTransparent(m_mw);
-}
-
-void OsControl::MakeTransparent(const std::shared_ptr<sf::RenderWindow>& renderWindow) {
-  if (!renderWindow)
-    return;
-  renderWindow->setVisible(false);
-  sf::WindowHandle handle = renderWindow->getSystemHandle();
-#if _WIN32
-  HWND hWnd = static_cast<HWND>(handle);
-  if (hWnd) {
-    LONG flags = ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT;
-    if (m_Params.alwaysOnTop) {
-      flags |= WS_EX_TOPMOST;
-    }
-    ::SetWindowLongA(hWnd, GWL_EXSTYLE, flags);
-    ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
-  } else {
-    throw std::runtime_error("Error retrieving native window");
-  }
-  if (m_Params.alwaysOnTop) {
-    ::SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-  }
-  DWM_BLURBEHIND bb = { 0 };
-  bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-  bb.fEnable = true;
-  bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
-  ::DwmEnableBlurBehindWindow(hWnd, &bb);
-#elif __APPLE__
-  NSWindow* window = static_cast<NSWindow*>(handle);
-  NSOpenGLView* view = [window contentView];
-
-  if (!window || !view) {
-    throw std::runtime_error("Error retrieving native window");
-  }
-
-  // Set the GL context opacity.
-  NSOpenGLContext* context = [view openGLContext];
-  // The opacity var should technically be a GLint, but from
-  // http://www.opengl.org/wiki/OpenGL_Type -- GLint is necessarily 32 bit,
-  // so we can use a fixed int type without including any GL headers here.
-  int32_t opacity = 0;
-  [context setValues:&opacity forParameter:NSOpenGLCPSurfaceOpacity];
-
-  // Set window properties.
-  [window setOpaque:NO];
-  [window setHasShadow:NO];
-  [window setHidesOnDeactivate:NO];
-  [window setBackgroundColor:[NSColor clearColor]];
-  [window setBackingType:NSBackingStoreBuffered];
-  [window setSharingType:NSWindowSharingNone];
-  [window setLevel:CGShieldingWindowLevel()];
-  [window setCollectionBehavior:(NSWindowCollectionBehaviorCanJoinAllSpaces |
-                                 NSWindowCollectionBehaviorStationary |
-                                 NSWindowCollectionBehaviorFullScreenAuxiliary |
-                                 NSWindowCollectionBehaviorIgnoresCycle)];
-  [window display];
-#else
-  throw std::runtime_error("Missing transparent window implementation");
-#endif
-  renderWindow->setVisible(true);
+  m_mw->setVisible(false);
+  NativeWindow::MakeTransparent(m_mw->getSystemHandle());
+  NativeWindow::MakeAlwaysOnTop(m_mw->getSystemHandle());
+  m_mw->setVisible(true);
 }
 
 void OsControl::Main(void) {

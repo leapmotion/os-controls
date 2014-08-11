@@ -47,11 +47,6 @@ private:
   /// </summary>
   void HandleEvent(const sf::Event& ev) const;
 
-  /// <summary>
-  /// Make a RenderWindow transparent
-  /// </summary>
-  static void MakeTransparent(const std::shared_ptr<sf::RenderWindow>& renderWindow);
-
 public:
   void Main(void);
   void Filter(void);

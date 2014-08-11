@@ -5,6 +5,15 @@ set(utility_SOURCES
   ComInitializer.cpp
   Config.h
   Config.cpp
+  NativeWindow.h
+)
+
+add_windows_sources(utility_SOURCES 
+  NativeWindowWin.cpp
+)
+
+add_mac_sources(utility_SOURCES
+  NativeWindowMac.cpp
 )
 
 add_library(utility ${utility_SOURCES})
