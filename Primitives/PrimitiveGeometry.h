@@ -1,10 +1,11 @@
 #pragma once
 
-#include "GLBuffer.h"
 #include "EigenTypes.h"
+#include "GLBuffer.h"
 #include "RenderState.h"
-#include <vector>
+
 #include <map>
+#include <vector>
 
 // Convenience class for creating and managing GPU geometry.
 // Simple shapes can be created/uploaded automatically using the available factory functions.
@@ -55,7 +56,6 @@ private:
     }
   };
 
-  // typedef std::map<MapVertex, unsigned int, std::less<MapVertex>, Eigen::aligned_allocator<std::pair<MapVertex, unsigned int> > > VertexIndexMap;
   typedef std::map<MapVertex, unsigned int, std::less<MapVertex>> VertexIndexMap;
 
   int m_NumIndices;
@@ -67,5 +67,4 @@ private:
   GLBuffer m_IndexBuffer;
   GLBuffer m_ColorBuffer;
   GLBuffer m_TexCoordBuffer;
-
 };

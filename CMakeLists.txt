@@ -326,6 +326,17 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    SceneGraph
+    HEADERS
+        SceneGraphNode.h
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+        EigenTypes
+    BRIEF_DOC_STRING
+        "Provides a C++ baseclass which implements the 'scene graph' design pattern (see Wikipedia)."
+)
+
+add_sublibrary(
     Primitives
     HEADERS
         PrimitiveBase.h
@@ -338,11 +349,10 @@ add_sublibrary(
         Primitives.cpp
         RenderState.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
         Color
-        EigenTypes
         GLBuffer
         GLMatrices
+        SceneGraph
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )
