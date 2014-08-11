@@ -45,15 +45,6 @@ include(AddSublibrary)
 
 # The added sublibrary target names will be accumulated in ADDED_SUBLIBRARIES
 
-# TODO: use Threads package instead
-# if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-# #     set(_cxx11test_explicit_library_dependencies "pthread")
-#     # TODO: we would really need a Findpthread.cmake module -- pthread should be in EXPLICIT_LIBRARY_DEPENDENCIES
-#     set(_cxx11test_compiler_options "-lpthread")
-# elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-#     set(_cxx11test_compiler_options "/MTd") # TODO: Will some Windows user verify if this is right?
-# endif()
-
 add_sublibrary(
     GTest
     SOURCE_PATH
@@ -66,10 +57,9 @@ add_sublibrary(
     COMPILE_OPTIONS
         #${_cxx11test_compiler_options}
     EXPLICIT_LIBRARY_DEPENDENCIES
-        #${_cxx11test_explicit_library_dependencies}
-#         "Threads"
+        "Threads"
     BRIEF_DOC_STRING
-        "Provides easy way to link the Google Test framework"
+        "Provides an easy way to include and link the Google Test framework."
 )
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
@@ -620,7 +610,7 @@ endif()
 
 # TODO get this actually working -- there is a FindThreads.cmake module that should do the job
 
-# add_executable(Test test_main.cpp)
-# # set_target_properties(Test APPEND PROPERTIES LINK_FLAGS -lpthread)
-# # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
-# target_link_libraries(Test PUBLIC C++11Test)# pthread)
+add_executable(Test test_main.cpp)
+# set_target_properties(Test APPEND PROPERTIES LINK_FLAGS -lpthread)
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
+target_link_libraries(Test PUBLIC C++11Test)# pthread)
