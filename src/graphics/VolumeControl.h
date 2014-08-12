@@ -1,6 +1,8 @@
 #pragma once
 #include "State.h"
 #include "graphics/RenderFrame.h"
+
+#include "RenderState.h"
 #include "Primitives.h"
 
 #include "Resource.h"
@@ -13,9 +15,12 @@ public:
   ~VolumeControl();
 
   void AutoFilter(const RenderFrame& frame, const StateSentry<State::VolumeControl>& in);
+
+ EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 private:
-  PartialDisk m_disk;
+  PartialDisk m_partialDisk;
   double m_time;
 
   Resource<GLShader> m_shader;
+  RenderState m_renderState; 
 };
