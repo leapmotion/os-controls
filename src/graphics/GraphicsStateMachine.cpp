@@ -3,7 +3,7 @@
 #include <autowiring/autowiring.h>
 #include "RenderState.h"
 
-GraphicsStateMachine::GraphicsStateMachine()
+GraphicsStateMachine::GraphicsStateMachine() : m_state(State::VolumeControl)
 {
 }
 

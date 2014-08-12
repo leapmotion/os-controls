@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "graphics/graphics.h"
+#include "graphics/RenderFrame.h"
 #include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
@@ -11,6 +12,7 @@
 
 int main(int argc, char **argv)
 {
+  
 #if __APPLE__
   NativeWindow::AllowTransparency();
 #endif
@@ -21,6 +23,7 @@ int main(int argc, char **argv)
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
     CurrentContextPusher pshr(osCtxt);
+
     AutoRequired<OsControl> control;
     osCtxt->Initiate();
     control->Main();
@@ -79,13 +82,17 @@ void OsControl::Main(void) {
     std::chrono::duration<double> timeDelta = now - then;
     then = now;
 
+    m_mw->setActive(true);
+
     // Have objects rendering into the specified window with the supplied change in time
-    OsControlRender render = { m_mw, timeDelta };
+    RenderFrame render = { m_mw, timeDelta };
 
     // Draw all of the objects
-    if (packet->HasSubscribers(typeid(OsControlRender))) {
+    if (packet->HasSubscribers(typeid(RenderFrame))) {
       packet->DecorateImmediate(render);
     }
+
+    m_mw->setActive(false);
 
     // Update the window
     m_mw->display();
