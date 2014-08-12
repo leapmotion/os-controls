@@ -417,7 +417,7 @@ endif()
 # TODO: could/should this be a target property?
 option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
 
-add_library(Components empty.cpp)
+add_library(Components INTERFACE)
 
 ###################################################################################################
 # Add options for defining which sublibraries should be linked into the Components library, and
@@ -428,7 +428,7 @@ add_library(Components empty.cpp)
 set(_explicit_link_sublibraries "")
 foreach(_sublibrary ${ADDED_SUBLIBRARIES})
     list(APPEND _explicit_link_sublibraries ${_sublibrary})
-    target_link_libraries(Components PUBLIC ${_sublibrary})
+    target_link_libraries(Components INTERFACE ${_sublibrary})
 endforeach()
 
 set(_temp "${ADDED_SUBLIBRARIES}")
