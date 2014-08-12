@@ -18,6 +18,7 @@ namespace NativeWindow
 
 #endif
 
-  void MakeTransparent(const Handle window);
-  void MakeAlwaysOnTop(const Handle window);
+  void MakeTransparent(const Handle& window);
+  void MakeAlwaysOnTop(const Handle& window);
+  void AllowInput(const Handle& window, bool allowInput);
 }

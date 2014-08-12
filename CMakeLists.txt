@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 project(oscontrols)
 include(CTest)
 
+set(APP_VERSION "0.0.1")
+set(APP_COPYRIGHT "Copyright © 2014 Leap Motion, Inc. All rights reserved.")
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 include(LeapCMakeTemplates)
 

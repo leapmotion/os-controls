@@ -22,8 +22,8 @@ void NativeWindow::AllowTransparency() {
                            imp_implementationWithBlock(^BOOL(id self, id arg) { return NO; }));
 }
 
-void NativeWindow::MakeTransparent(const Handle handle) {
-  NSWindow* window = static_cast<NSWindow*>(handle);
+void NativeWindow::MakeTransparent(const Handle& handle) {
+  const NSWindow* window = static_cast<const NSWindow*>(handle);
   NSOpenGLView* view = [window contentView];
 
   if (!window || !view) {
@@ -53,10 +53,19 @@ void NativeWindow::MakeTransparent(const Handle handle) {
   [window display];
 }
 
-void NativeWindow::MakeAlwaysOnTop(const Handle handle) {
-  NSWindow* window = static_cast<NSWindow*>(handle);
+void NativeWindow::MakeAlwaysOnTop(const Handle& handle) {
+  const NSWindow* window = static_cast<const NSWindow*>(handle);
   if (!window) {
     throw std::runtime_error("Error retrieving native window");
   }
   [window setLevel : CGShieldingWindowLevel()];
+}
+
+void NativeWindow::AllowInput(const Handle& handle, bool allowInput) {
+  const NSWindow* window = static_cast<const NSWindow*>(handle);
+  if (!window) {
+    throw std::runtime_error("Error retrieving native window");
+  }
+  [window setAcceptsMouseMovedEvents:allowInput];
+  [window setIgnoresMouseEvents:!allowInput];
 }
