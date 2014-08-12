@@ -49,7 +49,8 @@ endfunction()
 #
 # - Optional boolean arguments (an option's presence enables that argument, and its non-presence
 #   implicitly disables that argument -- this is the default):
-#   * EXCLUDE_FROM_ALL -- Excludes this sublibrary's target from the "make all" target.
+#   * EXCLUDE_FROM_ALL -- Excludes this sublibrary's target from the "make all" target.  Does
+#     not apply to interface-only sublibraries (see below at INTERFACE_IS_INTERFACE_ONLY).
 #   * REQUIRED -- Indicates that this sublibrary (and therefore all of its dependencies) is required
 #     by the build, and any failure to define its target and link dependencies should result in
 #     an error.  This flag will also be set if the global REQUIRE_${SUBLIBRARY_NAME} flag is set.
@@ -96,19 +97,22 @@ endfunction()
 #
 # The following target properties will automatically be set on the sublibrary's library target.
 # Again, this is done before the ADDITIONAL_TARGET_PROPERTIES are set, so these can be overridden.
-# - HEADERS                             -- As described above.
-# - SOURCES                             -- As described above.
-# - PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the sublibrary name as a path prefix.
-# - PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the sublibrary name as a path prefix.
-# - EXPLICIT_SUBLIBRARY_DEPENDENCIES     -- As described above.
-# - EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
-# - BRIEF_DOC_STRING                    -- As described above.
-# - DETAILED_DOC_STRINGS                -- As described above.
-# - IS_HEADER_ONLY                      -- Is set to TRUE if and only if there are no SOURCES,
-#                                          and is otherwise set to FALSE.
-# - IS_PHONY                            -- Is set to TRUE if and only if there are no HEADERS
-#                                          and no SOURCES, i.e. if this is a "phony" target,
-#                                          and is otherwise set to FALSE.
+# Node that the INTERFACE_ prefix is only required for INTERFACE targets (e.g. HEADERS or IS_PHONY
+# would be an allowable target property name on a non-interface target), but uniformity in the
+# target property names was desired over minimality in this case.
+# - INTERFACE_HEADERS                             -- As described above.
+# - INTERFACE_SOURCES                             -- As described above.
+# - INTERFACE_PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the sublibrary name as a path prefix.
+# - INTERFACE_PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the sublibrary name as a path prefix.
+# - INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES    -- As described above.
+# - INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
+# - INTERFACE_BRIEF_DOC_STRING                    -- As described above.
+# - INTERFACE_DETAILED_DOC_STRINGS                -- As described above.
+# - INTERFACE_IS_INTERFACE_ONLY                   -- Is set to TRUE if and only if there are no SOURCES,
+#                                                    and is otherwise set to FALSE.
+# - INTERFACE_IS_PHONY                            -- Is set to TRUE if and only if there are no HEADERS
+#                                                    and no SOURCES, i.e. if this is a "phony" target,
+#                                                    and is otherwise set to FALSE.
 function(add_sublibrary SUBLIBRARY_NAME)
     verbose_message("add_sublibrary(${SUBLIBRARY_NAME} ...)")
 
@@ -132,7 +136,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         DETAILED_DOC_STRINGS    # This is for a more in-depth description of the purpose and scope of the sublibrary.
     )
     cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
-  
+
     # Check the validity/presence of certain options
     if(NOT _arg_BRIEF_DOC_STRING)
         message(SEND_ERROR "Required BRIEF_DOC_STRING value was not defined for sublibrary ${SUBLIBRARY_NAME}")
@@ -217,11 +221,16 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # See the docs for add_library.
     list(LENGTH _path_prefixed_sources _source_count)
     if(${_source_count} EQUAL 0)
-        set(_is_header_only TRUE)
-        add_library(${_sublibrary_target_name} ${_exclude_from_all} ${_path_prefixed_headers} empty.cpp)
+        set(_is_interface_only TRUE)
+        add_library(${_sublibrary_target_name} INTERFACE)
+        # This is the scope specifier for use in the target_* functions called on this target.
+        # In particular, INTERFACE targets can only have INTERFACE scope.
+        set(_target_scope INTERFACE)
     else()
-        set(_is_header_only FALSE)
+        set(_is_interface_only FALSE)
         add_library(${_sublibrary_target_name} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
+        # This is the scope specifier for use in the target_* functions called on this target.
+        set(_target_scope PUBLIC)
     endif()
 
     # Determine if this is a "phony" target, meaning there are no headers or sources.
@@ -236,17 +245,17 @@ function(add_sublibrary SUBLIBRARY_NAME)
     if(_arg_HEADERS)
         target_include_directories(
             ${_sublibrary_target_name}
-            PUBLIC
+            ${_target_scope}
                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SUBLIBRARY_NAME}>
                 $<INSTALL_INTERFACE:include/${SUBLIBRARY_NAME}>)
     endif()
     # If there are compile definitions, add them.
     if(_arg_COMPILE_DEFINITIONS)
-        target_compile_definitions(${_sublibrary_target_name} PUBLIC ${_arg_COMPILE_DEFINITIONS})
+        target_compile_definitions(${_sublibrary_target_name} ${_target_scope} ${_arg_COMPILE_DEFINITIONS})
     endif()
     # If there are compile options, add them.
     if(_arg_COMPILE_OPTIONS)
-        target_compile_options(${_sublibrary_target_name} PUBLIC ${_arg_COMPILE_OPTIONS})
+        target_compile_options(${_sublibrary_target_name} ${_target_scope} ${_arg_COMPILE_OPTIONS})
     endif()
 
     # Add link libraries from each sublibrary dependency.  The target_link_directories
@@ -256,7 +265,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # dependents.
     foreach(_dep ${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES})
         get_sublibrary_target_name(${_dep} _dep_target_name)
-        target_link_libraries(${_sublibrary_target_name} PUBLIC ${_dep_target_name})
+        target_link_libraries(${_sublibrary_target_name} ${_target_scope} ${_dep_target_name})
     endforeach()
 
     # Add include directories and link libraries from each library dependency,
@@ -267,23 +276,23 @@ function(add_sublibrary SUBLIBRARY_NAME)
         string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
         list(GET _semicolon_delimited_dep 0 _lib_name)
         set(_lib_target_name ${_lib_name}::${_lib_name})
-        target_link_libraries(${_sublibrary_target_name} PUBLIC ${_lib_target_name})
+        target_link_libraries(${_sublibrary_target_name} ${_target_scope} ${_lib_target_name})
     endforeach()
 
     # Store several of the parameter values as target properties
     set_target_properties(
         ${_sublibrary_target_name}
         PROPERTIES
-            HEADERS "${_arg_HEADERS}"
-            SOURCES "${_arg_SOURCES}"
-            PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
-            PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
-            EXPLICIT_SUBLIBRARY_DEPENDENCIES "${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES}"
-            EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
-            BRIEF_DOC_STRING "${_arg_BRIEF_DOC_STRING}"
-            DETAILED_DOC_STRINGS "${_arg_DETAILED_DOC_STRINGS}"
-            IS_HEADER_ONLY ${_is_header_only}
-            IS_PHONY ${_is_phony}
+            INTERFACE_HEADERS "${_arg_HEADERS}"
+            INTERFACE_SOURCES "${_arg_SOURCES}"
+            INTERFACE_PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
+            INTERFACE_PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
+            INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES "${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES}"
+            INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
+            INTERFACE_BRIEF_DOC_STRING "${_arg_BRIEF_DOC_STRING}"
+            INTERFACE_DETAILED_DOC_STRINGS "${_arg_DETAILED_DOC_STRINGS}"
+            INTERFACE_IS_INTERFACE_ONLY ${_is_interface_only}
+            INTERFACE_IS_PHONY ${_is_phony}
     )
 
     # Add any other particular target properties.  NOTE: This should be done last, so it can override
@@ -299,7 +308,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     compute_all_sublibrary_dependencies_of(${_sublibrary_target_name} _deps)
     set(_all_library_dependencies "")
     foreach(_dep ${_deps})
-        get_target_property(_dep_explicit_library_dependencies ${_dep} EXPLICIT_LIBRARY_DEPENDENCIES)
+        get_target_property(_dep_explicit_library_dependencies ${_dep} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
         list(APPEND _all_library_dependencies ${_dep_explicit_library_dependencies})
     endforeach()
     list(SORT _all_library_dependencies)
@@ -319,7 +328,7 @@ endfunction()
 #
 # This function CAN handle cyclic dependency graphs.
 macro(_compute_all_sublibrary_dependencies_of SUBLIBRARY RECURSION_INDENT PRINT_DEBUG_MESSAGES)
-    get_target_property(_explicit_dependencies ${SUBLIBRARY} EXPLICIT_SUBLIBRARY_DEPENDENCIES)
+    get_target_property(_explicit_dependencies ${SUBLIBRARY} INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
     list(LENGTH _explicit_dependencies _explicit_dependency_count)
 
     # If SUBLIBRARY has already been visited, return nothing
@@ -348,7 +357,7 @@ endmacro()
 
 # This function traverses the directed graph of sublibrary dependencies (there may be
 # cycles of mutually-dependent sublibraries, though add_sublibrary is incapable
-# of creating such cycles).  SUBLIBRARY should be the sublibrary whose dependencies will be 
+# of creating such cycles).  SUBLIBRARY should be the sublibrary whose dependencies will be
 # computed.  The output is placed in _retval_name, which will be set to the list of all
 # dependencies of SUBLIBRARY, and will be sorted alphabetically.  SUBLIBRARY is considered
 # a dependency of itself.
@@ -363,9 +372,9 @@ endfunction()
 
 # This is a private helper function for print_dependency_graph_of_sublibrary.
 function(_print_dependency_graph_of_sublibrary SUBLIBRARY RECURSION_INDENT)
-    get_target_property(_brief_doc_string ${SUBLIBRARY} BRIEF_DOC_STRING)
+    get_target_property(_brief_doc_string ${SUBLIBRARY} INTERFACE_BRIEF_DOC_STRING)
     verbose_message("${RECURSION_INDENT}${SUBLIBRARY} -- ${_brief_doc_string}")
-    get_target_property(_explicit_sublibrary_dependencies ${SUBLIBRARY} EXPLICIT_SUBLIBRARY_DEPENDENCIES)
+    get_target_property(_explicit_sublibrary_dependencies ${SUBLIBRARY} INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
     foreach(_dep ${_explicit_sublibrary_dependencies})
         _print_dependency_graph_of_sublibrary(${_dep} "${RECURSION_INDENT}    ")
     endforeach()
