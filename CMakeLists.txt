@@ -460,12 +460,12 @@ list(REMOVE_DUPLICATES _all_link_sublibraries)
 # Define the install rules while accumulating include directories.
 set(_Components_INCLUDE_DIRECTORIES "")
 foreach(_sublibrary ${_all_link_sublibraries})
-    get_target_property(_is_phony ${_sublibrary} IS_PHONY)
+    get_target_property(_is_phony ${_sublibrary} INTERFACE_IS_PHONY)
     if(NOT _is_phony)
         get_target_property(_dir ${_sublibrary} INTERFACE_INCLUDE_DIRECTORIES)
         # message("making install rules for sublibrary ${_sublibrary}, include dir ${_dir}")
         list(APPEND _Components_INCLUDE_DIRECTORIES "include/${_dir}")
-        get_target_property(_headers ${_sublibrary} PATH_PREFIXED_HEADERS)
+        get_target_property(_headers ${_sublibrary} INTERFACE_PATH_PREFIXED_HEADERS)
         install(
             FILES ${_headers}
             DESTINATION "include/${_sublibrary}"
@@ -473,11 +473,11 @@ foreach(_sublibrary ${_all_link_sublibraries})
     endif()
 endforeach()
 
-# Determine all library dependencies (of linked sublibraries) for purposes of generating find_dependency 
+# Determine all library dependencies (of linked sublibraries) for purposes of generating find_dependency
 # commands in ComponentsConfig.cmake.
 set(ALL_LIBRARY_DEPENDENCIES "")
 foreach(_sublibrary ${_all_link_sublibraries})
-    get_target_property(_explicit_library_dependencies ${_sublibrary} EXPLICIT_LIBRARY_DEPENDENCIES)
+    get_target_property(_explicit_library_dependencies ${_sublibrary} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
     list(APPEND ALL_LIBRARY_DEPENDENCIES ${_explicit_library_dependencies})
 endforeach()
 list(SORT ALL_LIBRARY_DEPENDENCIES)
@@ -492,7 +492,7 @@ install(
 )
 # This causes automatically-generated export targets to be defined during the install step in
 #   ${CMAKE_INSTALL_PREFIX}/cmake/ComponentsExport.cmake
-# which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with 
+# which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with
 # configure_file and install).
 install(
     EXPORT Components
@@ -548,7 +548,7 @@ set(NON_COMPONENTIZED_CODE
     OculusVR.h
     # SimGL.cpp # has other dependencies
     # SimGL.h
-    Texture.cpp 
+    Texture.cpp
     Texture.h
     UtilGL.cpp
     UtilGL.h
@@ -559,7 +559,7 @@ set(NON_COMPONENTIZED_CODE
 # otherwise it could become a dumping ground like MathUtil or Utility.
 
 ###################################################################################################
-# These Doxygen build rules were taken from 
+# These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
 
