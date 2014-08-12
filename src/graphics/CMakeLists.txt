@@ -9,9 +9,8 @@ set(graphics_SOURCES
   State.h
   VolumeControl.h
   VolumeControl.cpp
-  default-frag.glsl
-  default-vert.glsl
 )
+
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
 
