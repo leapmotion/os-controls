@@ -12,5 +12,10 @@ public:
   void VolumeUp(void) override;
   void VolumeDown(void) override;
   void Mute(void) override;
+private:
+  void SendSpecialKeyEvent(int32_t keyType, bool isDown);
+  void SendSpecialKeyEventPair(int32_t keyType) {
+    SendSpecialKeyEvent(keyType, true);
+    SendSpecialKeyEvent(keyType, false);
+  }
 };
-

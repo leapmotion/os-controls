@@ -22,4 +22,6 @@ public:
   // AudioVolumeController overrides:
   float GetVolume(void) override;
   void SetVolume(float volume) override;
+  void SetMute(bool mute) override;
+  bool IsMuted(void) override;
 };

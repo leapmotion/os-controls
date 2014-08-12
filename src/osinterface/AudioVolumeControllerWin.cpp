@@ -28,6 +28,21 @@ float AudioVolumeControllerWin::GetVolume(void) {
   return level;
 }
 
+void AudioVolumeControllerWin::SetMute(bool mute) {
+  BOOL bMute = mute ? TRUE : FALSE;
+  HRESULT hr = SetMute(bMute, nullptr);
+  if(FAILED(hr))
+    throw std::runetime_error("Failed to set muting state");
+}
+
+bool AudioVolumeControllerWin::IsMuted(void) {
+  BOOL bMute = FALSE;
+  HRESULT hr = m_pAudioEndpointVolume->GetMute(&bMute);
+  if(FAILED(hr))
+    throw std::runtime_error("Failed to obtain muting state");
+  return bMute != FALSE;
+}
+
 void AudioVolumeControllerWin::SetVolume(float volume) {
   m_pAudioEndpointVolume->SetMasterVolumeLevelScalar(volume, nullptr);
 }

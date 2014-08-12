@@ -18,10 +18,17 @@ TEST_F(AudioControllerTest, VerifyVolumeRange) {
   ASSERT_GE(1.0f, volume) << oob;
 }
 
-TEST_F(AudioControllerTest, GetSetGet) {
+TEST_F(AudioControllerTest, VerifyGetSetMuteVolume) {
   AutoDesired<AudioVolumeController> ac;
   if(!ac)
     return;
+
+  const bool wasMuted = ac->IsMuted();
+  if (wasMuted) {
+    ac->SetMute(false);
+  }
+  // Muting should be off
+  ASSERT_FALSE(ac->IsMuted()) << "Volume control is expected to be unmuted";
  
   // Get the current volume, mutate it, and verify the mutation is correct
   const float volume = ac->GetVolume();
@@ -35,7 +42,17 @@ TEST_F(AudioControllerTest, GetSetGet) {
   ac->SetVolume(volume);
   // Check to see how far off we actually were
   const float deltaVolume = fabs(expectedVolume - actualVolume);
-  
+
+  // Mute the volume control
+  ac->SetMute(true);
+  ASSERT_TRUE(ac->IsMuted()) << "Failed to mute volume control";
+
+  if (!wasMuted) {
+    // If the volume control was initially unmuted, return it to that state
+    ac->SetMute(false);
+    ASSERT_FALSE(ac->IsMuted()) << "Failed to unmute volume control";
+  }
+
   // Verify the assignment worked as we expected (within 1%):
   ASSERT_GT(0.01f, deltaVolume) << "Volume assignment did not actually update system volume levels";
 }

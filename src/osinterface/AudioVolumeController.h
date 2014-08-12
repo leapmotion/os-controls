@@ -20,4 +20,14 @@ public:
   /// Mutator counterpart to GetVolume
   /// </returns>
   virtual void SetVolume(float volume) = 0;
+
+  /// <summary>
+  /// Turn on or off muting of the primary audio device
+  /// </summary>
+  virtual void SetMute(bool mute) = 0;
+
+  /// <returns>
+  /// Indicate whether or not the volume control for the primary audio device is muted
+  /// </returns>
+  virtual bool IsMuted(void) = 0;
 };
