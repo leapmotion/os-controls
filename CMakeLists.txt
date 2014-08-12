@@ -109,7 +109,7 @@ add_sublibrary(
     HEADERS
         EigenTypes.h
     EXPLICIT_LIBRARY_DEPENDENCIES
-        "Eigen 3.1.2"
+        "Eigen 3.2.1"
     BRIEF_DOC_STRING
         "Convenience typedefs for working with particular Eigen vector/matrix types."
 )
@@ -154,6 +154,23 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "A single point of control for init, shutdown, and general use of SDL."
 )
+
+add_sublibrary(
+    SFMLController
+    HEADERS
+        SFMLController.h
+    SOURCES
+        SFMLController.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "SFML 2.1"
+    BRIEF_DOC_STRING
+        "A single point of control for init, shutdown, and general use of SFML."
+)
+if(APPLE)
+  set_property(SOURCE SFMLController/SFMLController.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
+endif()
 
 add_sublibrary(
     FbxSceneLoader
@@ -339,6 +356,17 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    SceneGraph
+    HEADERS
+        SceneGraphNode.h
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+        EigenTypes
+    BRIEF_DOC_STRING
+        "Provides a C++ baseclass which implements the 'scene graph' design pattern (see Wikipedia)."
+)
+
+add_sublibrary(
     Primitives
     HEADERS
         PrimitiveBase.h
@@ -351,13 +379,26 @@ add_sublibrary(
         Primitives.cpp
         RenderState.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
         Color
-        EigenTypes
         GLBuffer
         GLMatrices
+        SceneGraph
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
+)
+
+add_sublibrary(
+    LeapListener
+    HEADERS
+        LeapListener.h
+    SOURCES
+        LeapListener.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "Leap"
+    BRIEF_DOC_STRING
+        "Provides a small but useful extension of the Leap::Listener class."
 )
 
 ###################################################################################################
@@ -380,21 +421,7 @@ set(CMAKE_INSTALL_NAME_DIR "@loader_path")
 # though these seem sufficiently global to warrant the extreme measure of
 # setting CMAKE_CXX_FLAGS.
 
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
-
-    # This ugly block of code is to conditionally add the -Wno-deprecated-register option
-    # for versions of Clang newer than 4.2.
-    # TODO: there's probably some "real" way to get the compiler version,
-    # or really just handle the -Wno-deprecated-register option more gracefully.
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE clang_full_version_string)
-    string(REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING ${clang_full_version_string})
-    # message("CLANG_VERSION_STRING = ${CLANG_VERSION_STRING}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
-    if (CLANG_VERSION_STRING VERSION_GREATER 4.2)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-register")
-    endif()
-elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU") # This is GCC
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU") # "GNU" is GCC
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX") # /WX is to treat warnings as errors.
@@ -423,31 +450,29 @@ endif()
 # TODO: could/should this be a target property?
 option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
 
-add_library(Components empty.cpp)
+add_library(Components INTERFACE)
 
 ###################################################################################################
 # Add options for defining which sublibraries should be linked into the Components library, and
 # link them.
 ###################################################################################################
 
-# Add options for explicitly requiring that each sublibrary be linked.  NOTE: some sublibraries may
-# not be explicitly required but will still be linked because they are indirectly depended upon.
-foreach(_sublibrary ${ADDED_SUBLIBRARIES})
-    get_target_property(_brief_doc_strings ${_sublibrary} BRIEF_DOC_STRING)
-    option(REQUIRE_${_sublibrary} "${_brief_doc_strings}" ON)
-endforeach()
-
 # Construct the list of sublibraries that are required to be linked.
 set(_explicit_link_sublibraries "")
 foreach(_sublibrary ${ADDED_SUBLIBRARIES})
-    if(REQUIRE_${_sublibrary})
-        list(APPEND _explicit_link_sublibraries ${_sublibrary})
-        target_link_libraries(Components PUBLIC ${_sublibrary})
-    endif()
+    list(APPEND _explicit_link_sublibraries ${_sublibrary})
+    target_link_libraries(Components INTERFACE ${_sublibrary})
 endforeach()
 
-verbose_message("_explicit_link_sublibraries = ${_explicit_link_sublibraries}")
-print_dependency_graph_of_sublibrary_linking_library(Components "${_explicit_link_sublibraries}")
+set(_temp "${ADDED_SUBLIBRARIES}")
+list(SORT _temp)
+set(SUBLIBRARIES_DEFINED_readonly ${_temp} CACHE STRING "This is the list of sublibraries that were successfully defined (all dependencies were met)." FORCE)
+
+set(_temp "${UNADDED_SUBLIBRARIES}")
+list(SORT _temp)
+set(SUBLIBRARIES_UNDEFINED_readonly ${_temp} CACHE STRING "This is the list of sublibraries that were not successfully defined (some dependencies were unmet)." FORCE)
+
+print_dependency_graph_of_sublibrary_linking_library(Components "${ADDED_SUBLIBRARIES}")
 
 ###################################################################################################
 # Define install rules for the library.  This is probably not the legit way to do it, and we
@@ -468,12 +493,12 @@ list(REMOVE_DUPLICATES _all_link_sublibraries)
 # Define the install rules while accumulating include directories.
 set(_Components_INCLUDE_DIRECTORIES "")
 foreach(_sublibrary ${_all_link_sublibraries})
-    get_target_property(_is_phony ${_sublibrary} IS_PHONY)
+    get_target_property(_is_phony ${_sublibrary} INTERFACE_IS_PHONY)
     if(NOT _is_phony)
         get_target_property(_dir ${_sublibrary} INTERFACE_INCLUDE_DIRECTORIES)
         # message("making install rules for sublibrary ${_sublibrary}, include dir ${_dir}")
         list(APPEND _Components_INCLUDE_DIRECTORIES "include/${_dir}")
-        get_target_property(_headers ${_sublibrary} PATH_PREFIXED_HEADERS)
+        get_target_property(_headers ${_sublibrary} INTERFACE_PATH_PREFIXED_HEADERS)
         install(
             FILES ${_headers}
             DESTINATION "include/${_sublibrary}"
@@ -481,11 +506,11 @@ foreach(_sublibrary ${_all_link_sublibraries})
     endif()
 endforeach()
 
-# Determine all library dependencies (of linked sublibraries) for purposes of generating find_dependency 
+# Determine all library dependencies (of linked sublibraries) for purposes of generating find_dependency
 # commands in ComponentsConfig.cmake.
 set(ALL_LIBRARY_DEPENDENCIES "")
 foreach(_sublibrary ${_all_link_sublibraries})
-    get_target_property(_explicit_library_dependencies ${_sublibrary} EXPLICIT_LIBRARY_DEPENDENCIES)
+    get_target_property(_explicit_library_dependencies ${_sublibrary} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
     list(APPEND ALL_LIBRARY_DEPENDENCIES ${_explicit_library_dependencies})
 endforeach()
 list(SORT ALL_LIBRARY_DEPENDENCIES)
@@ -500,7 +525,7 @@ install(
 )
 # This causes automatically-generated export targets to be defined during the install step in
 #   ${CMAKE_INSTALL_PREFIX}/cmake/ComponentsExport.cmake
-# which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with 
+# which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with
 # configure_file and install).
 install(
     EXPORT Components
@@ -556,7 +581,7 @@ set(NON_COMPONENTIZED_CODE
     OculusVR.h
     # SimGL.cpp # has other dependencies
     # SimGL.h
-    Texture.cpp 
+    Texture.cpp
     Texture.h
     UtilGL.cpp
     UtilGL.h
@@ -567,7 +592,7 @@ set(NON_COMPONENTIZED_CODE
 # otherwise it could become a dumping ground like MathUtil or Utility.
 
 ###################################################################################################
-# These Doxygen build rules were taken from 
+# These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
 

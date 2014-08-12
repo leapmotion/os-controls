@@ -1,69 +1,39 @@
 #pragma once
 
-#include <unordered_set>
-#include <memory>
-
-#include "EigenTypes.h"
-#include "ModelViewProjection.h"
 #include "Color.h"
+#include "SceneGraphNode.h"
+
+#include <stack>
 
 class RenderState;
 
-// This class contains base functionality common to all primitives:
-// - 3D position
-// - 3D rotation, specified in Euler angles
-// - Parent/child transform hierarchy (in progress)
-// - Local/global coordinate system conversion (in progress)
-// - Diffuse and ambient color components
-// - Drawing
-class PrimitiveBase : public std::enable_shared_from_this<PrimitiveBase> {
-
+// This is the base class for all 3D primitives.  It inherits SceneGraphNode<...> which
+// provides the "scene graph" design pattern (see Wikipedia article on scene graph).
+// A primitive can be drawn, and has a diffuse color and an "ambient factor" (TODO:
+// what is an ambient factor?).
+class PrimitiveBase : public SceneGraphNode<MATH_TYPE,3> {
 public:
 
-  typedef std::unordered_set< std::shared_ptr<PrimitiveBase> > ChildSet;
+  typedef SceneGraphNode<MATH_TYPE,3> Parent_SceneGraphNode;
+  typedef Parent_SceneGraphNode::Transform Transform;
+  typedef std::stack<Transform> TransformStack;
 
-  PrimitiveBase();
-  virtual ~PrimitiveBase();
+  PrimitiveBase() : m_DiffuseColor(Color::White()), m_AmbientFactor(0.0f) { }
+  virtual ~PrimitiveBase() { }
 
-  const Vector3& Position() const { return m_Position; }
-  void SetPosition(const Vector3& position) { m_Position = position; }
-
-  void SetEulerRotation(const Vector3& rotation) { m_EulerRotation = rotation; }
-  
-  void SetPitch(double pitch) { m_EulerRotation.x() = pitch; }
-  void SetYaw(double yaw) { m_EulerRotation.y() = yaw; }
-  void SetRoll(double roll) { m_EulerRotation.z() = roll; }
-
-  double Pitch() const { return m_EulerRotation.x(); }
-  double Yaw() const { return m_EulerRotation.y(); }
-  double Roll() const { return m_EulerRotation.z(); }
-
-  void AddChild(std::shared_ptr<PrimitiveBase>& child);
-  void RemoveFromParent();
-
-  Vector3 LocalToGlobal(const Vector3& point);
-  Vector3 GlobalToLocal(const Vector3& point);
-
-  const ChildSet& Children() const { return m_Children; }
-  ChildSet& Children() { return m_Children; }
+  const Color& DiffuseColor () const { return m_DiffuseColor; }
+  float AmbientFactor () const { return m_AmbientFactor; }
 
   void SetDiffuseColor(const Color& color) { m_DiffuseColor = color; }
   void SetAmbientFactor(float ambient) { m_AmbientFactor = ambient; }
 
-  virtual void Draw(RenderState& renderState) const { }
-
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  // TODO: this sort of doesn't need to be a method, and could be global.
+  void DrawScene (RenderState &render_state) const;
 
 protected:
 
-  void ApplyRotation(ModelView& modelView) const;
-
-  ChildSet m_Children;
-  std::weak_ptr<PrimitiveBase> m_Parent;
-
-  // These are relative to origin, which depends on whether you have m_Parent
-  Vector3 m_Position;
-  Vector3 m_EulerRotation;
+  // This method should be overridden in each subclass to draw the particular geometry that it represents.
+  virtual void Draw (RenderState &render_state, TransformStack &transform_stack) const = 0;
 
   Color m_DiffuseColor;
   float m_AmbientFactor;

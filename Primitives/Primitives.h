@@ -1,8 +1,8 @@
 #pragma once
 
 #include "PrimitiveBase.h"
-#include "RenderState.h"
 #include "PrimitiveGeometry.h"
+#include "RenderState.h"
 
 class Sphere : public PrimitiveBase {
 public:
@@ -11,9 +11,12 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
 
 private:
+
   double m_Radius;
 };
 
@@ -31,9 +34,12 @@ public:
   double Height() const { return m_Height; }
   void SetHeight(double height) { m_Height = height; }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
 
 private:
+
   double m_Radius;
   double m_Height;
 };
@@ -45,9 +51,12 @@ public:
   const Vector3& Size() const { return m_Size; }
   void SetSize(const Vector3& size) { m_Size = size; }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
 
 private:
+
   Vector3 m_Size;
 };
 
@@ -58,9 +67,12 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
 
 private:
+
   double m_Radius;
 };
 
@@ -75,7 +87,9 @@ public:
   const Vector2& Size() const { return m_Size; }
   void SetSize(const Vector2& size) { m_Size = size; }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
 
 private:
 
@@ -119,7 +133,9 @@ public:
     m_EndAngle = endAngleRadians;
   }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
 
 private:
 

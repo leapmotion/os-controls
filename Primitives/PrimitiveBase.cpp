@@ -1,45 +1,27 @@
 #include "PrimitiveBase.h"
 
-PrimitiveBase::PrimitiveBase() :
-  m_Position(Vector3::Zero()),
-  m_EulerRotation(Vector3::Zero()),
-  m_DiffuseColor(Color::White()),
-  m_AmbientFactor(0.0f)
-{
+#include <stack>
 
+void PrimitiveBase::DrawScene (RenderState &render_state) const {
+  // Create a transform stack with the identity on the top.
+  TransformStack transform_stack;
+  transform_stack.push(Transform::Identity());
+  // This function will be called on each node before its children are traversed to.
+  std::function<void(const Parent_SceneGraphNode &)> pre_child_traversal_draw = [&transform_stack, &render_state] (const Parent_SceneGraphNode &node) {
+    assert(dynamic_cast<const PrimitiveBase *>(&node) != nullptr && "unexpected non-PrimitiveBase nodes in scene graph");
+    const PrimitiveBase &primitive_base_node = static_cast<const PrimitiveBase &>(node);
+    // Pre-multiply each transformation, because the top of the stack is what is 
+    // applied first to the geometry.
+    transform_stack.push(transform_stack.top() * node.FullTransform());
+    // Draw this node -- this is a virtual call to PrimitiveBase::Draw.
+    primitive_base_node.Draw(render_state, transform_stack);
+  };
+  // This function will be called on each node after its children are traversed to.
+  std::function<void(const Parent_SceneGraphNode &)> post_child_traversal_draw = [&transform_stack] (const Parent_SceneGraphNode &node) {
+    // Restore the stack after this node and all its children are drawn.
+    transform_stack.pop();
+  };
+  // This actually performs the traversal with the specified functions.
+  DepthFirstTraverse(pre_child_traversal_draw, post_child_traversal_draw);
 }
 
-PrimitiveBase::~PrimitiveBase() {
-
-}
-
-void PrimitiveBase::AddChild(std::shared_ptr<PrimitiveBase>& child) {
-  m_Children.emplace(child);
-  child->m_Parent = shared_from_this();
-}
-
-void PrimitiveBase::RemoveFromParent() {
-  std::shared_ptr<PrimitiveBase> sp = m_Parent.lock();
-  if (sp) {
-    sp->m_Children.erase(shared_from_this());
-    m_Parent.reset();
-  }
-}
-
-Vector3 PrimitiveBase::LocalToGlobal(const Vector3& point) {
-  // TODO: implement
-  // check m_Parent
-  return point;
-}
-
-Vector3 PrimitiveBase::GlobalToLocal(const Vector3& point) {
-  // TODO: implement
-  // check m_Parent
-  return point;
-}
-
-void PrimitiveBase::ApplyRotation(ModelView& modelView) const {
-  modelView.Rotate(Vector3::UnitX(), Pitch());
-  modelView.Rotate(Vector3::UnitY(), Yaw());
-  modelView.Rotate(Vector3::UnitZ(), Roll());
-}
