@@ -71,8 +71,10 @@ OsControl::OsControl(void) :
   m_bRunning(false)
 {
   m_mw->setVisible(false);
-  NativeWindow::MakeTransparent(m_mw->getSystemHandle());
-  NativeWindow::MakeAlwaysOnTop(m_mw->getSystemHandle());
+  const auto handle = m_mw->getSystemHandle();
+  NativeWindow::MakeTransparent(handle);
+  NativeWindow::MakeAlwaysOnTop(handle);
+  NativeWindow::AllowInput(handle, false);
   m_mw->setVisible(true);
 }
 
