@@ -9,6 +9,8 @@ set(graphics_SOURCES
   State.h
   VolumeControl.h
   VolumeControl.cpp
+  default-frag.glsl
+  default-vert.glsl
 )
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
@@ -21,4 +23,4 @@ target_include_directories(graphics PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowirin
 target_package(graphics SFML 2.1 REQUIRED LINK_TYPE PUBLIC)
 target_package(graphics Leap REQUIRED LINK_TYPE PUBLIC)
 
-target_link_components(graphics PUBLIC Primitives SceneGraph)
+target_link_components(graphics PUBLIC Primitives SceneGraph Resource GLShader GLShaderLoader)

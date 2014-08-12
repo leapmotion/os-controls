@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "graphics/graphics.h"
 #include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
@@ -7,40 +8,6 @@
 #include "osinterface/MediaController.h"
 #include "utility/ComInitializer.h"
 #include "utility/NativeWindow.h"
-
-class GraphicsObject : public Object {
-  public:
-    GraphicsObject() : m_shape(100), m_time(0) {
-      const auto radius = m_shape.getRadius();
-      m_shape.setFillColor(sf::Color::Red);
-      m_shape.setOrigin(radius,radius);
-    }
-    ~GraphicsObject() {}
-
-    void AutoFilter(const OsControlRender& render) {
-      const auto size = render.renderWindow->getSize();
-      m_time += render.timeDelta.count();
-      const double radius = static_cast<double>(m_shape.getRadius());
-      const float x = static_cast<float>((size.x/2.0 - radius)*cos(m_time/4.0*M_PI));
-      const float y = static_cast<float>((size.y/2.0 - radius)*sin(m_time/4.0*M_PI));
-      m_shape.setPosition(size.x/2.0f + x, size.y/2.0f + y);
-      render.renderWindow->draw(m_shape);
-    }
-
-  private:
-    sf::CircleShape m_shape;
-    double m_time;
-};
-
-//STUB IMPL!!!
-class Drawable {
-public:
-  void Draw() {}
-};
-
-struct Scene {
-  std::list<Drawable*> m_drawables;
-};
 
 int main(int argc, char **argv)
 {
@@ -55,7 +22,6 @@ int main(int argc, char **argv)
     AutoCreateContextT<OsControlContext> osCtxt;
     CurrentContextPusher pshr(osCtxt);
     AutoRequired<OsControl> control;
-    AutoRequired<GraphicsObject> go;
     osCtxt->Initiate();
     control->Main();
   }
@@ -78,6 +44,7 @@ OsControl::OsControl(void) :
 
 void OsControl::Main(void) {
   GestureTriggerManifest manifest;
+  GraphicsInitialize();
 
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);
