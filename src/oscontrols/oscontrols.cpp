@@ -7,6 +7,7 @@
 #include "osinterface/MediaController.h"
 #include "utility/ComInitializer.h"
 #include "utility/NativeWindow.h"
+#include "utility/VirtualScreen.h"
 
 class GraphicsObject : public Object {
   public:
@@ -54,6 +55,7 @@ int main(int argc, char **argv)
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
     CurrentContextPusher pshr(osCtxt);
+    AutoRequired<leap::VirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
     AutoRequired<GraphicsObject> go;
     osCtxt->Initiate();
@@ -66,11 +68,31 @@ int main(int argc, char **argv)
 }
 
 OsControl::OsControl(void) :
-  m_mw(sf::VideoMode::getDesktopMode(),"Leap Os Control",sf::Style::None),
+  m_mw(sf::VideoMode(m_virtualScreen->PrimaryScreen().Width(),
+                     m_virtualScreen->PrimaryScreen().Height()),
+                     "Leap Os Control", sf::Style::None),
   m_bShouldStop(false),
-  m_bRunning(false)
+  m_bRunning(false),
+  m_desktopChanged{1} // Also perform an adjust in the main loop
 {
+  AdjustDesktopWindow();
+}
+
+void OsControl::AdjustDesktopWindow(void) {
   m_mw->setVisible(false);
+  const sf::Vector2i olPosition = m_mw->getPosition();
+  const sf::Vector2u oldSize = m_mw->getSize();
+
+  const auto bounds = m_virtualScreen->PrimaryScreen().Bounds();
+  const sf::Vector2i newPosition = { static_cast<int32_t>(bounds.origin.x),
+                                     static_cast<int32_t>(bounds.origin.y) };
+  const sf::Vector2u newSize = { static_cast<uint32_t>(bounds.size.width),
+                                 static_cast<uint32_t>(bounds.size.height) };
+
+  if (oldSize != newSize) {
+    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Os Control", sf::Style::None);
+  }
+  m_mw->setPosition(newPosition);
   const auto handle = m_mw->getSystemHandle();
   NativeWindow::MakeTransparent(handle);
   NativeWindow::MakeAlwaysOnTop(handle);
@@ -96,6 +118,12 @@ void OsControl::Main(void) {
 
   // Dispatch events until told to quit:
   while (!ShouldStop()) {
+    // Our chance to position and possibly recreate the window if the desktop has changed
+    if (m_desktopChanged) {
+      --m_desktopChanged; // Do one at a time
+      AdjustDesktopWindow();
+    }
+
     sf::Event event;
     while (m_mw->pollEvent(event)) {
       HandleEvent(event);

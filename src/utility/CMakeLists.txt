@@ -5,7 +5,13 @@ set(utility_SOURCES
   ComInitializer.cpp
   Config.h
   Config.cpp
+  Geometry.h
   NativeWindow.h
+  Screen.h
+  Screen.cpp
+  ScreenBase.h
+  VirtualScreen.h
+  VirtualScreen.cpp
 )
 
 add_windows_sources(utility_SOURCES 
