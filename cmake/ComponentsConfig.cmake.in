@@ -18,33 +18,49 @@ set(_library_dependency_map "@LIBRARY_DEPENDENCY_MAP@")
 verbose_message_print_vars(_added_sublibraries _library_dependency_map)
 verbose_message("_library_dependency_map = ${_library_dependency_map}")
 
-# TARGET should be the name of the target to link to, and LINK_TYPE should be
-# one of: "" PUBLIC PRIVATE INTERFACE, and will be the second argument for
-# target_link_libraries (see docs for target_link_libraries).
-function(target_link_components TARGET LINK_TYPE ...)
-    list(REMOVE_AT ARGV 0) # Pop the TARGET argument, leaving the rest.
-    list(REMOVE_AT ARGV 0) # Pop the LINK_TYPE argument, leaving the rest.
+# TARGET should be the name of the target to link to.  The remaining arguments
+# should be component targets (e.g. Components::GLShader, Components::C++11, etc)
+# prefixed by INTERFACE, PRIVATE, or PUBLIC, as is documented in target_link_libraries.
+function(target_link_components TARGET)
+    # Do the fancy map-style parsing of the arguments
+    set(_options "")
+    set(_one_value_args "")
+    set(_multi_value_args
+        INTERFACE # As in the docs for target_link_libraries
+        PRIVATE   # As in the docs for target_link_libraries
+        PUBLIC    # As in the docs for target_link_libraries
+    )
+    verbose_message_print_vars(_options _one_value_args _multi_value_args)
+    cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
+    verbose_message_print_vars(_arg_INTERFACE _arg_PRIVATE _arg_PUBLIC)
 
     # Do the fancy map-style parsing of the library dependency map
     set(_options "")
     set(_one_value_args "")
     set(_multi_value_args ${_added_sublibraries})
-    cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${_library_dependency_map})
-    foreach(_sublib ${ARGV})
-        verbose_message("finding dependencies for sublibrary Components::${_sublib}")
-        if(NOT TARGET Components::${_sublib})
-            message(SEND_ERROR "Component::${_sublib} is not a target that is defined in the Components library as built.")
-        endif()
-        
-        set(_deps "${_arg_${_sublib}}")
-        verbose_message_print_vars(_sublib _deps)
-        foreach(_dep ${_deps})
-            string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
-            find_dependency(${_semicolon_delimited_dep})
-        endforeach()
+    cmake_parse_arguments(_lib_dep "${_options}" "${_one_value_args}" "${_multi_value_args}" ${_library_dependency_map})
 
-        # Now call target_link_libraries on TARGET, to link Components::{_sublib} with the given link type.
-        target_link_libraries(${TARGET} ${LINK_TYPE} Components::${_sublib})
+    # For each of INTERFACE, PUBLIC, PRIVATE,
+    foreach(_link_type INTERFACE PUBLIC PRIVATE)
+        verbose_message("processing ${_link_type} targets: ${_arg_${_link_type}}")
+        # Load the library dependencies of the sublibrary and then call target_link_libraries
+        # on the sublibrary dependencies with the specified link type.
+        foreach(_sublib ${_arg_${_link_type}})
+            verbose_message("finding dependencies for sublibrary Components::${_sublib}")
+            if(NOT TARGET Components::${_sublib})
+                message(SEND_ERROR "Component::${_sublib} is not a target that is defined in the Components library as built.")
+            endif()
+
+            set(_deps "${_lib_dep_${_sublib}}")
+            verbose_message_print_vars(_sublib _deps)
+            foreach(_dep ${_deps})
+                string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
+                find_dependency(${_semicolon_delimited_dep})
+            endforeach()
+
+            # Now call target_link_libraries on TARGET, to link Components::{_sublib} with the given link type.
+            target_link_libraries(${TARGET} ${_link_type} Components::${_sublib})
+        endforeach()
     endforeach()
 endfunction()
 
