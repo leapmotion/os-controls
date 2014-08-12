@@ -4,6 +4,7 @@
 #include "VolumeControl.h"
 
 class AutoPacket;
+struct RenderFrame;
 
 class GraphicsStateMachine
 {
@@ -13,6 +14,7 @@ public:
 
   State m_state;
 
-  void AutoFilter(AutoPacket& packet, const Scene& scene);
+  //Handle RenderFrames
+  void AutoFilter(AutoPacket& packet, const RenderFrame& frame);
 };
 
