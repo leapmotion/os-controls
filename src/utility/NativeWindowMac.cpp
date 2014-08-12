@@ -9,6 +9,19 @@
 #include <OpenGL/GL.h>
 #include <objc/runtime.h>
 
+void NativeWindow::AllowTransparency() {
+  //
+  // The isOpaque method in the SFOpenGLView class of SFML always returns YES
+  // (as it just uses the default implementation of NSOpenGLView). This
+  // causes us to always get an opaque view. We workaround this problem by
+  // replacing that method with our own implementation that returns the
+  // opaqueness based on the enclosing window, all thanks to the power of
+  // Objective-C.
+  //
+  method_setImplementation(class_getInstanceMethod(NSClassFromString(@"SFOpenGLView"), @selector(isOpaque)),
+                           imp_implementationWithBlock(^BOOL(id self, id arg) { return NO; }));
+}
+
 void NativeWindow::MakeTransparent(const Handle handle) {
   NSWindow* window = static_cast<NSWindow*>(handle);
   NSOpenGLView* view = [window contentView];
@@ -32,14 +45,18 @@ void NativeWindow::MakeTransparent(const Handle handle) {
   [window setBackgroundColor : [NSColor clearColor]];
   [window setBackingType : NSBackingStoreBuffered];
   [window setSharingType : NSWindowSharingNone];
-  [window setLevel : CGShieldingWindowLevel()];
   [window setCollectionBehavior : (NSWindowCollectionBehaviorCanJoinAllSpaces |
     NSWindowCollectionBehaviorStationary |
     NSWindowCollectionBehaviorFullScreenAuxiliary |
     NSWindowCollectionBehaviorIgnoresCycle)];
+  [view setWantsBestResolutionOpenGLSurface:YES];
   [window display];
 }
 
 void NativeWindow::MakeAlwaysOnTop(const Handle handle) {
-  static_assert("Jon, please implement me!");
+  NSWindow* window = static_cast<NSWindow*>(handle);
+  if (!window) {
+    throw std::runtime_error("Error retrieving native window");
+  }
+  [window setLevel : CGShieldingWindowLevel()];
 }

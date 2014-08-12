@@ -2,18 +2,16 @@
 
 namespace NativeWindow
 {
-
   //Taken from SFML 2.1
-#if defined(_WIN32)
-
+#if _WIN32
   // Window handle is HWND (HWND__*) on Windows
   typedef HWND__* Handle;
 
-#elif defined(__APPLE__)
-
+#elif __APPLE__
   // Window handle is NSWindow (void*) on Mac OS X - Cocoa
   typedef void* Handle;
 
+  void AllowTransparency();
 #elif
   // Window handle is Window (unsigned long) on Unix - X11
   typedef unsigned long Handle;
@@ -22,5 +20,4 @@ namespace NativeWindow
 
   void MakeTransparent(const Handle window);
   void MakeAlwaysOnTop(const Handle window);
-};
-
+}
