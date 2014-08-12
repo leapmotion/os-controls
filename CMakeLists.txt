@@ -398,7 +398,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     # for versions of Clang newer than 4.2.
     # TODO: there's probably some "real" way to get the compiler version,
     # or really just handle the -Wno-deprecated-register option more gracefully.
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE clang_full_version_string)
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE clang_full_version_string)
     string(REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING ${clang_full_version_string})
     # message("CLANG_VERSION_STRING = ${CLANG_VERSION_STRING}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Werror")
