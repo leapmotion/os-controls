@@ -15,7 +15,7 @@ class PrimitiveBase : public SceneGraphNode<MATH_TYPE,3> {
 public:
 
   typedef SceneGraphNode<MATH_TYPE,3> Parent_SceneGraphNode;
-  typedef typename Parent_SceneGraphNode::Transform Transform;
+  typedef Parent_SceneGraphNode::Transform Transform;
   typedef std::stack<Transform> TransformStack;
 
   PrimitiveBase() : m_DiffuseColor(Color::White()), m_AmbientFactor(0.0f) { }
