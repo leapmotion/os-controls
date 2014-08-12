@@ -13,9 +13,9 @@ public:
   void VolumeDown(void) override;
   void Mute(void) override;
 private:
-  void SendSpecialKeyEvent(int32_t keyType, bool isDown);
-  void SendSpecialKeyEventPair(int32_t keyType) {
-    SendSpecialKeyEvent(keyType, true);
-    SendSpecialKeyEvent(keyType, false);
+  void SendSpecialKeyEvent(int32_t keyType, uint32_t mask, bool isDown);
+  void SendSpecialKeyEventPair(int32_t keyType, uint32_t mask = 0) {
+    SendSpecialKeyEvent(keyType, mask, true);
+    SendSpecialKeyEvent(keyType, mask, false);
   }
 };
