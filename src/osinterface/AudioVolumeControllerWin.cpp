@@ -30,9 +30,9 @@ float AudioVolumeControllerWin::GetVolume(void) {
 
 void AudioVolumeControllerWin::SetMute(bool mute) {
   BOOL bMute = mute ? TRUE : FALSE;
-  HRESULT hr = SetMute(bMute, nullptr);
+  HRESULT hr = m_pAudioEndpointVolume->SetMute(bMute, nullptr);
   if(FAILED(hr))
-    throw std::runetime_error("Failed to set muting state");
+    throw std::runtime_error("Failed to set muting state");
 }
 
 bool AudioVolumeControllerWin::IsMuted(void) {
