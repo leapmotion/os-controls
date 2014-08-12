@@ -53,11 +53,6 @@ add_sublibrary(
         gtest/gtest.h
     SOURCES
         gtest/gtest-all.cc
-        gtest/gtest_main.cc
-    COMPILE_OPTIONS
-        #${_cxx11test_compiler_options}
-    EXPLICIT_LIBRARY_DEPENDENCIES
-        "Threads"
     BRIEF_DOC_STRING
         "Provides an easy way to include and link the Google Test framework."
 )
@@ -633,9 +628,8 @@ endif()
 
 
 
-# TODO get this actually working -- there is a FindThreads.cmake module that should do the job
-
-add_executable(Test ../gtest-1.7.0/fused-src/gtest/gtest_main.cc)
-# set_target_properties(Test APPEND PROPERTIES LINK_FLAGS -lpthread)
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
-target_link_libraries(Test PUBLIC C++11Test)# pthread)
+add_executable(RunAllTests ../gtest-1.7.0/fused-src/gtest/gtest_main.cc)
+include_directories(../gtest-1.7.0/fused-src) # for gtest/gtest.h
+target_link_libraries(RunAllTests PUBLIC
+    C++11Test
+)
