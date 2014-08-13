@@ -208,10 +208,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
         list(APPEND _path_prefixed_sources ${SUBLIBRARY_NAME}/${_source})
     endforeach()
 
-    # If there are no sources, add an empty dummy source file so that the linker has
-    # something to chew on (there would be a linker-archiver error otherwise).  NOTE:
-    # there will be a linker warning about an empty table of contents in the sublibrary's
-    # library file (the file with extension .lib or .a depending on the platform).
     # TODO: Consider using `add_library(target OBJECT ...)` to make a library target
     # which doesn't compile down to an archived library, but otherwise behaves as one.
     # This may have caveats, such as calling
