@@ -51,7 +51,6 @@ add_sublibrary(
         ../gtest-1.7.0/fused-src
     HEADERS
         gtest/gtest.h
-        gtest/gtest_macro.h
     SOURCES
         gtest/gtest-all.cc
     BRIEF_DOC_STRING
@@ -68,19 +67,6 @@ add_sublibrary(
         ${_cxx11_compiler_flags}
     BRIEF_DOC_STRING
         "A phony target which just provides compiler options for enabling C++11."
-)
-
-add_sublibrary(
-    C++11Test
-    SOURCE_PATH
-        C++11/Test
-    SOURCES
-        C++11Compliance.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        GTest
-    BRIEF_DOC_STRING
-        "Tests to check the compiler's C++11 compliance (really just positive compile tests)."
 )
 
 add_sublibrary(
@@ -626,10 +612,14 @@ endif()
 
 
 
+# Add Test files
+set(Testing_SRCS
+    ../gtest-1.7.0/fused-src/gtest/gtest_main.cc
+    C++11/Test/C++11Compliance.cpp
+)
 
-
-
-add_executable(RunAllTests Testing/RunAllTests.cpp)
+add_executable(RunAllTests ${Testing_SRCS})
 target_link_libraries(RunAllTests 
-    C++11Test
+    GTest
+    C++11
 )

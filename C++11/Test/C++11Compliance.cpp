@@ -1,8 +1,5 @@
 #include <gtest/gtest.h>
-#include <gtest/gtest_macro.h>
 #include <iostream>
-
-GTEST_REGISTER(cpp11)
 
 class CPPComplianceTest:
   public testing::Test
