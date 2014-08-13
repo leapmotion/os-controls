@@ -8,17 +8,13 @@
 #include "osinterface/AudioVolumeController.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MediaController.h"
-#include "utility/ComInitializer.h"
 #include "utility/NativeWindow.h"
+#include "utility/PlatformInitializer.h"
 #include "utility/VirtualScreen.h"
 
 int main(int argc, char **argv)
 {
-  
-#if __APPLE__
-  NativeWindow::AllowTransparency();
-#endif
-  ComInitializer initCom;
+  PlatformInitializer init;
   AutoCurrentContext ctxt;
   ctxt->Initiate();
 
@@ -79,11 +75,9 @@ void OsControl::Main(void) {
     m_stateCondition.notify_all();
   });
 
-  AutoRequired<AutoPacketFactory> factory;
-
   auto then = std::chrono::steady_clock::now();
 
-  m_mw->setFramerateLimit(60);
+  m_mw->setFramerateLimit(0);
   m_mw->setVerticalSyncEnabled(true);
 
   // Dispatch events until told to quit:

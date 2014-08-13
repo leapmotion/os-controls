@@ -4,8 +4,8 @@ set(oscontrols_SOURCES
 )
 
 set(oscontrols_RESOURCES
-  ../shaders/default-frag.glsl
-  ../shaders/default-vert.glsl
+  ${CMAKE_SOURCE_DIR}/src/shaders/default-frag.glsl
+  ${CMAKE_SOURCE_DIR}/src/shaders/default-vert.glsl
 )
 
 
@@ -19,14 +19,15 @@ elseif(APPLE)
 endif()
 
 add_executable(oscontrols ${oscontrols_EXEFLAGS} ${oscontrols_SOURCES})
-set_property(TARGET oscontrols APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
 target_link_libraries(oscontrols Autowiring utility interaction graphics osinterface)
 target_include_directories(oscontrols PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 target_package(oscontrols Leap REQUIRED)
 target_package(oscontrols SFML 2.1 REQUIRED)
 
-if(APPLE)
+if(WIN32)
+  set_property(TARGET oscontrols APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+elseif(APPLE)
   set_target_properties(oscontrols PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/oscontrols/oscontrols.plist.in)
 endif()
@@ -36,10 +37,10 @@ foreach(_resource ${oscontrols_RESOURCES})
     add_custom_command(TARGET oscontrols POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:oscontrols>\"
     )
-  elseif()
-    get_target_property(_is_bundle ${target} MACOSX_BUNDLE)
+  elseif(APPLE)
+    get_target_property(_is_bundle oscontrols MACOSX_BUNDLE)
     if(_is_bundle)
-      add_custom_command(TARGET ${target} POST_BUILD
+      add_custom_command(TARGET oscontrols POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory \"$<TARGET_FILE_DIR:oscontrols>/../Resources/\"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:oscontrols>/../Resources/\"
       )
