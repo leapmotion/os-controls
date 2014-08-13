@@ -607,6 +607,11 @@ add_sublibrary(
         "Provides an easy way to include and link the Google Test framework."
 )
 
+# This effectively resets ADDED_SUBLIBRARIES and UNADDED_SUBLIBRARIES.  It is intentionally
+# called after the call to add_sublibrary(GTest ...) so that only the unit test components
+# show up in ADDED_SUBLIBRARIES.
+begin_sublibrary_definitions()
+
 add_sublibrary(
     C++11Test
     SOURCE_PATH
@@ -620,7 +625,7 @@ add_sublibrary(
         "Unit tests for the C++11 component."
 )
 
-set(_tests C++11Test)
+set(_tests ${ADDED_SUBLIBRARIES})
 
 # In order for gtest to "see" the unit tests, the sources apparently have to be linked
 # directly into the test executable.  The call to target_link_libraries seems redundant
@@ -629,6 +634,8 @@ set(_tests C++11Test)
 # target_link_libraries is what propagates all the necessary include directories and
 # libraries to link into the executable.  This sort of hack-ish solution allows unit
 # tests to be organized in the "sublibrary" paradigm as the other components are.
+# NOTE: Because of this hack, the unit test sources will be built twice (once to build
+# the unit test component targets, and a second time to build the Test executable).
 set(Test_SOURCES "")
 foreach(_test ${_tests})
     get_target_property(_headers ${_test} INTERFACE_PATH_PREFIXED_HEADERS)
@@ -636,4 +643,5 @@ foreach(_test ${_tests})
     list(APPEND Test_SOURCES ${_headers} ${_sources})
 endforeach()
 add_executable(Test ${Test_SOURCES})
-target_link_libraries(Test PUBLIC C++11Test)
+# Link all the unit test components (this does not include the GTest component)
+target_link_libraries(Test PUBLIC ${_tests})
