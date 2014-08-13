@@ -35,6 +35,8 @@ private:
   std::mutex m_lock;
   std::condition_variable m_stateCondition;
 
+  sf::ContextSettings m_contextSettings;
+
   Autowired<leap::VirtualScreen> m_virtualScreen;
   AutoDesired<AudioVolumeController> m_avcontrol;
   AutoRequired<MediaController> m_media;

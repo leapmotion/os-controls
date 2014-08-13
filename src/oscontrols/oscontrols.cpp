@@ -33,9 +33,11 @@ int main(int argc, char **argv)
 }
 
 OsControl::OsControl(void) :
+  m_contextSettings(0, 0, 4),
   m_mw(sf::VideoMode(m_virtualScreen->PrimaryScreen().Width(),
                      m_virtualScreen->PrimaryScreen().Height()),
-                     "Leap Os Control", sf::Style::None),
+                     "Leap Os Control", sf::Style::None,
+                     m_contextSettings),
   m_bShouldStop(false),
   m_bRunning(false),
   m_desktopChanged{1} // Also perform an adjust in the main loop
@@ -55,7 +57,7 @@ void OsControl::AdjustDesktopWindow(void) {
                                  static_cast<uint32_t>(bounds.size.height) };
 
   if (oldSize != newSize) {
-    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Os Control", sf::Style::None);
+    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Os Control", sf::Style::None, m_contextSettings);
   }
   m_mw->setPosition(newPosition);
   const auto handle = m_mw->getSystemHandle();
