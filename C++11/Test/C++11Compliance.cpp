@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-class CPPComplianceTest:
-  public testing::Test
-{};
+class CPPComplianceTest : public testing::Test { };
 
 // Verifying that variadic templates work.
 

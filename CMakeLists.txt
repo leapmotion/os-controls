@@ -45,18 +45,6 @@ include(AddSublibrary)
 
 # The added sublibrary target names will be accumulated in ADDED_SUBLIBRARIES
 
-add_sublibrary(
-    GTest
-    SOURCE_PATH
-        ../gtest-1.7.0/fused-src
-    HEADERS
-        gtest/gtest.h
-    SOURCES
-        gtest/gtest-all.cc
-    BRIEF_DOC_STRING
-        "Provides an easy way to include and link the Google Test framework."
-)
-
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
     set(_cxx11_compiler_flags "-std=c++11")
 endif()
@@ -602,24 +590,50 @@ endif()
 
 # TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages
 
+###################################################################################################
+# Unit test components and rules
+###################################################################################################
 
-
-
-
-
-
-
-
-
-
-# Add Test files
-set(Testing_SRCS
-    ../gtest-1.7.0/fused-src/gtest/gtest_main.cc
-    C++11/Test/C++11Compliance.cpp
-)
-
-add_executable(RunAllTests ${Testing_SRCS})
-target_link_libraries(RunAllTests 
+add_sublibrary(
     GTest
-    C++11
+    SOURCE_PATH
+        ../gtest-1.7.0/fused-src
+    HEADERS
+        gtest/gtest.h
+    SOURCES
+        gtest/gtest-all.cc
+        gtest/gtest_main.cc
+    BRIEF_DOC_STRING
+        "Provides an easy way to include and link the Google Test framework."
 )
+
+add_sublibrary(
+    C++11Test
+    SOURCE_PATH
+        C++11/Test
+    SOURCES
+        C++11Compliance.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+        GTest
+    BRIEF_DOC_STRING
+        "Unit tests for the C++11 component."
+)
+
+set(_tests C++11Test)
+
+# In order for gtest to "see" the unit tests, the sources apparently have to be linked
+# directly into the test executable.  The call to target_link_libraries seems redundant
+# and also seems like it would cause duplicate symbol linker errors, but the linker
+# effectively throws out the entire contents of the linked components.  The call to
+# target_link_libraries is what propagates all the necessary include directories and
+# libraries to link into the executable.  This sort of hack-ish solution allows unit
+# tests to be organized in the "sublibrary" paradigm as the other components are.
+set(Test_SOURCES "")
+foreach(_test ${_tests})
+    get_target_property(_headers ${_test} INTERFACE_PATH_PREFIXED_HEADERS)
+    get_target_property(_sources ${_test} INTERFACE_PATH_PREFIXED_SOURCES)
+    list(APPEND Test_SOURCES ${_headers} ${_sources})
+endforeach()
+add_executable(Test ${Test_SOURCES})
+target_link_libraries(Test PUBLIC C++11Test)
