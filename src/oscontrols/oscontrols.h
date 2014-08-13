@@ -14,6 +14,7 @@ struct OsControlRender {
 class AudioVolumeController;
 class LeapInput;
 class MediaController;
+class RenderEngine;
 
 namespace sf {
   class Event;
@@ -38,6 +39,7 @@ private:
   AutoDesired<AudioVolumeController> m_avcontrol;
   AutoRequired<MediaController> m_media;
   AutoRequired<LeapInput> m_leapInput;
+  AutoRequired<RenderEngine> m_render;
 
   AutoConstruct<sf::RenderWindow> m_mw;
 

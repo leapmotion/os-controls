@@ -2,6 +2,7 @@
 
 #include "graphics/graphics.h"
 #include "graphics/RenderFrame.h"
+#include "graphics/RenderEngine.h"
 #include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
@@ -98,33 +99,13 @@ void OsControl::Main(void) {
       HandleEvent(event);
     }
 
-    // Active the window for OpenGL rendering
-    m_mw->setActive();
-    // Clear window
-    m_mw->clear(sf::Color::Transparent);
-
-    // Pilot a packet through the system:
-    auto packet = factory->NewPacket();
-
     // Determine how long it has been since we were last here
     auto now = std::chrono::steady_clock::now();
     std::chrono::duration<double> timeDelta = now - then;
     then = now;
 
-    m_mw->setActive(true);
-
-    // Have objects rendering into the specified window with the supplied change in time
-    RenderFrame render = { m_mw, timeDelta };
-
-    // Draw all of the objects
-    if (packet->HasSubscribers(typeid(RenderFrame))) {
-      packet->DecorateImmediate(render);
-    }
-
-    m_mw->setActive(false);
-
-    // Update the window
-    m_mw->display();
+    m_render->Frame(m_mw, timeDelta);
+   
   }
 }
 
