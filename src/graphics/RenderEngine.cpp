@@ -48,7 +48,7 @@ void RenderEngine::Frame(const std::shared_ptr<sf::RenderWindow> &target, const 
   auto packet = m_factory->NewPacket();
 
   const auto windowSize = target->getSize();
-  m_renderState.GetProjection().Orthographic(0, windowSize.x, windowSize.y, 0, 0, 100);
+  m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 0, 100);
   m_renderState.GetModelView().Reset();
   
   m_shader->Bind();
