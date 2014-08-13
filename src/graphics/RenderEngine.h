@@ -5,11 +5,13 @@
 
 #include <autowiring/Autowired.h>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/GlResource.hpp>
 #include <chrono>
 
 class GLShader;
 
-class RenderEngine
+class RenderEngine :
+  public sf::GlResource
 {
 public:
   RenderEngine();
