@@ -1,5 +1,7 @@
 #pragma once
-#include "graphics/Scene.h"
+
+#include "RenderFrame.h"
+#include "State.h"
 
 class ExposeControl
 {
@@ -7,6 +9,6 @@ public:
   ExposeControl();
   ~ExposeControl();
 
-  void AutoFilter(const Scene& scene);
+  void AutoFilter(const RenderFrame& frame, const StateSentry<State::ExposeMaker>& in);
 };
 

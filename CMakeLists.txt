@@ -17,6 +17,11 @@ include(ConditionalSources)
 
 enable_testing()
 
+find_package(Components REQUIRED COMPONENTS SceneGraph Primitives)
+find_package(Eigen 3.2.1 REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(Glew 1.9.0 REQUIRED)
+
 set(SFML_STATIC_LIBRARIES ON)
 add_subdirectory(contrib)
 add_subdirectory(src)

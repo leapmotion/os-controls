@@ -10,5 +10,6 @@ ExposeControl::~ExposeControl()
 {
 }
 
-void ExposeControl::AutoFilter(const Scene& scene) {
+void ExposeControl::AutoFilter(const RenderFrame& frame, const StateSentry<State::ExposeMaker>& in) {
+
 }

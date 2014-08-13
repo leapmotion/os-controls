@@ -1,54 +1,20 @@
 #include "stdafx.h"
 
+#include "graphics/graphics.h"
+#include "graphics/RenderFrame.h"
+#include "graphics/RenderEngine.h"
 #include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
 #include "osinterface/AudioVolumeController.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MediaController.h"
-#include "utility/ComInitializer.h"
 #include "utility/NativeWindow.h"
+#include "utility/PlatformInitializer.h"
 #include "utility/VirtualScreen.h"
-
-class GraphicsObject : public Object {
-  public:
-    GraphicsObject() : m_shape(100), m_time(0) {
-      const auto radius = m_shape.getRadius();
-      m_shape.setFillColor(sf::Color::Red);
-      m_shape.setOrigin(radius,radius);
-    }
-    ~GraphicsObject() {}
-
-    void AutoFilter(const OsControlRender& render) {
-      const auto size = render.renderWindow->getSize();
-      m_time += render.timeDelta.count();
-      const double radius = static_cast<double>(m_shape.getRadius());
-      const float x = static_cast<float>((size.x/2.0 - radius)*cos(m_time/4.0*M_PI));
-      const float y = static_cast<float>((size.y/2.0 - radius)*sin(m_time/4.0*M_PI));
-      m_shape.setPosition(size.x/2.0f + x, size.y/2.0f + y);
-      render.renderWindow->draw(m_shape);
-    }
-
-  private:
-    sf::CircleShape m_shape;
-    double m_time;
-};
-
-//STUB IMPL!!!
-class Drawable {
-public:
-  void Draw() {}
-};
-
-struct Scene {
-  std::list<Drawable*> m_drawables;
-};
 
 int main(int argc, char **argv)
 {
-#if __APPLE__
-  NativeWindow::AllowTransparency();
-#endif
-  ComInitializer initCom;
+  PlatformInitializer init;
   AutoCurrentContext ctxt;
   ctxt->Initiate();
 
@@ -57,7 +23,6 @@ int main(int argc, char **argv)
     CurrentContextPusher pshr(osCtxt);
     AutoRequired<leap::VirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
-    AutoRequired<GraphicsObject> go;
     osCtxt->Initiate();
     control->Main();
   }
@@ -102,6 +67,7 @@ void OsControl::AdjustDesktopWindow(void) {
 
 void OsControl::Main(void) {
   GestureTriggerManifest manifest;
+  GraphicsInitialize();
 
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);
@@ -109,11 +75,9 @@ void OsControl::Main(void) {
     m_stateCondition.notify_all();
   });
 
-  AutoRequired<AutoPacketFactory> factory;
-
   auto then = std::chrono::steady_clock::now();
 
-  m_mw->setFramerateLimit(60);
+  m_mw->setFramerateLimit(0);
   m_mw->setVerticalSyncEnabled(true);
 
   // Dispatch events until told to quit:
@@ -129,29 +93,13 @@ void OsControl::Main(void) {
       HandleEvent(event);
     }
 
-    // Active the window for OpenGL rendering
-    m_mw->setActive();
-    // Clear window
-    m_mw->clear(sf::Color::Transparent);
-
-    // Pilot a packet through the system:
-    auto packet = factory->NewPacket();
-
     // Determine how long it has been since we were last here
     auto now = std::chrono::steady_clock::now();
     std::chrono::duration<double> timeDelta = now - then;
     then = now;
 
-    // Have objects rendering into the specified window with the supplied change in time
-    OsControlRender render = { m_mw, timeDelta };
-
-    // Draw all of the objects
-    if (packet->HasSubscribers(typeid(OsControlRender))) {
-      packet->DecorateImmediate(render);
-    }
-
-    // Update the window
-    m_mw->display();
+    m_render->Frame(m_mw, timeDelta);
+   
   }
 }
 

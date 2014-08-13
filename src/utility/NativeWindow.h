@@ -11,8 +11,7 @@ namespace NativeWindow
   // Window handle is NSWindow (void*) on Mac OS X - Cocoa
   typedef void* Handle;
 
-  void AllowTransparency();
-#elif
+#else
   // Window handle is Window (unsigned long) on Unix - X11
   typedef unsigned long Handle;
 

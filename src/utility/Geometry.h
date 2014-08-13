@@ -4,6 +4,10 @@
 #if __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #else
+#if _WIN32
+  #undef min //stupid windows.h...
+  #undef max
+#endif
 #include <algorithm>
 #endif
 
