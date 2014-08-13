@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceManager.h"
-#include "SDLController.h"
+#include "SFMLController.h"
 #include "TextFile.h"
 
 // Template specialization of ResourceLoader<TextFile> which defines how to load such a resource.
@@ -11,7 +11,7 @@ struct ResourceLoader<TextFile> {
   static std::shared_ptr<TextFile> LoadResource (const std::string &name, ResourceManager<TextFile> &calling_manager) {
     // TODO: do real filesystem path lookup, or have some sort of configuration singleton that has this path
     try {
-      return std::make_shared<TextFile>(SDLController::BasePath() + name);
+      return std::make_shared<TextFile>(SFMLController::BasePath() + name);
     } catch (const std::exception &e) {
       // change the generic exception into a type-specific one.
       throw ResourceExceptionOfType<TextFile>(e.what());

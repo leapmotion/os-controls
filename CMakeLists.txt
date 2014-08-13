@@ -279,7 +279,7 @@ add_sublibrary(
         TextFileLoader.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         ResourceManager
-        SDLController
+        SFMLController
         TextAndBinaryFile
     BRIEF_DOC_STRING
         "ResourceManager-managed loading of text and binary files."
