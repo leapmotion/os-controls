@@ -6,6 +6,7 @@
 
 class RenderState;
 
+// Attach to a packet to request a frame to get rendered
 struct RenderFrame
 {
   std::shared_ptr<sf::RenderTarget> renderWindow;
