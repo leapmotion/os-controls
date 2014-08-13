@@ -309,8 +309,8 @@ function(add_sublibrary SUBLIBRARY_NAME)
             INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
             INTERFACE_BRIEF_DOC_STRING "${_arg_BRIEF_DOC_STRING}"
             INTERFACE_DETAILED_DOC_STRINGS "${_arg_DETAILED_DOC_STRINGS}"
-            INTERFACE_IS_INTERFACE_ONLY ${_is_interface_only}
-            INTERFACE_IS_PHONY ${_is_phony}
+            INTERFACE_IS_INTERFACE_ONLY "${_is_interface_only}"
+            INTERFACE_IS_PHONY "${_is_phony}"
     )
 
     # Add any other particular target properties.  NOTE: This should be done last, so it can override
