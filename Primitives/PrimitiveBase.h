@@ -16,7 +16,7 @@ public:
 
   typedef SceneGraphNode<MATH_TYPE,3> Parent_SceneGraphNode;
   typedef Parent_SceneGraphNode::Transform Transform;
-  typedef std::stack<Transform> TransformStack;
+  typedef std::stack<Transform, std::vector<Transform,Eigen::aligned_allocator<Transform>>> TransformStack;
 
   PrimitiveBase() : m_DiffuseColor(Color::White()), m_AmbientFactor(0.0f) { }
   virtual ~PrimitiveBase() { }
@@ -30,6 +30,7 @@ public:
   // TODO: this sort of doesn't need to be a method, and could be global.
   void DrawScene (RenderState &render_state) const;
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 protected:
 
   // This method should be overridden in each subclass to draw the particular geometry that it represents.

@@ -57,7 +57,10 @@ struct ResourceLoader<GLShaderLoadParams> {
     } else if (name == "lighting") {
       return std::make_shared<GLShaderLoadParams>("lighting-vert.glsl", "lighting-frag.glsl");
     } else {
-      throw std::domain_error("no resource \"" + name + "\" found for type GLShaderLoadParams");
+      const std::string vert = name + "-vert.glsl";
+      const std::string frag = name + "-frag.glsl";
+
+      return std::make_shared<GLShaderLoadParams>(vert,frag);
     }
   }
 };
@@ -87,6 +90,9 @@ struct ResourceLoader<GLShader> {
       // Load the source files.
       auto vertex_shader_source = Resource<TextFile>(params->VertexShaderFilename());
       auto fragment_shader_source = Resource<TextFile>(params->FragmentShaderFilename());
+      if( !vertex_shader_source || !fragment_shader_source)
+        throw std::domain_error("no resource \"" + name + "\" found for type GLShader");
+      
       return std::make_shared<GLShader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
     }
   }

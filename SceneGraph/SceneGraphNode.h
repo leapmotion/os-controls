@@ -40,9 +40,12 @@ public:
   //   A*X'
   // and produces the same 3x1 column matrix value as the expression L*X + T.
   typedef Eigen::Transform<Scalar,DIM,Eigen::AffineCompact> Transform;
-  typedef std::unordered_set<std::shared_ptr<SceneGraphNode>> ChildSet;
-
   SceneGraphNode() { m_transform.setIdentity(); }
+  typedef std::unordered_set<std::shared_ptr<SceneGraphNode>,
+    std::hash<std::shared_ptr<SceneGraphNode>>,
+    std::equal_to<std::shared_ptr<SceneGraphNode>>,
+    Eigen::aligned_allocator<std::shared_ptr<SceneGraphNode>>
+  > ChildSet;
   virtual ~SceneGraphNode() { }
 
   using std::enable_shared_from_this<SceneGraphNode<Scalar,DIM>>::shared_from_this;
@@ -195,13 +198,15 @@ private:
     }
   }
 
-  // This uses a weak_ptr to avoid a cycle of shared_ptrs which would then be indestructible.
-  std::weak_ptr<SceneGraphNode> m_parent;
-  // This is the set of all child nodes.
-  ChildSet m_children;
   // The transform member gives the coordinate transformation (an affine transformation)
   // from this node's coordinate system to its parent's.  For the root node, the "parent
   // coordinate system" is the standard coordinate system (which can be thought of as
   // some kind of global coordinates).
   Transform m_transform;
+
+  // This uses a weak_ptr to avoid a cycle of shared_ptrs which would then be indestructible.
+  std::weak_ptr<SceneGraphNode> m_parent;
+  // This is the set of all child nodes.
+  ChildSet m_children;
+  
 };

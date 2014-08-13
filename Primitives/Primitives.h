@@ -133,6 +133,7 @@ public:
     m_EndAngle = endAngleRadians;
   }
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 protected:
 
   virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
