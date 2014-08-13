@@ -27,9 +27,9 @@ public:
   ~GLShader ();
 
   // This method should be called to bind this shader.
-  void Bind() { glUseProgram(m_prog); CheckError("UseProgram"); }
+  void Bind () { glUseProgram(m_prog); }
   // This method should be called when no shader program should be used.
-  static void Unbind() { glUseProgram(0); CheckError("UseProgram 0"); }
+  static void Unbind () { glUseProgram(0); }
 
   // Returns true iff the shader uniform exists.
   bool HasUniform (const std::string &name) const { return LocationOfUniform(name) != -1; }
@@ -65,12 +65,10 @@ public:
   // Sets the named uniform to the given GLint value.
   void SetUniformi (const std::string &name, GLint value) {
     glUniform1i(LocationOfUniform(name), value);
-    CheckError("SetUniform1i");
   }
   // Sets the named uniform to the given GLfloat value.
   void SetUniformf (const std::string &name, GLfloat value) {
     glUniform1f(LocationOfUniform(name), value);
-    CheckError("SetUniform1f");
   }
   // Sets the named uniform to the given value which must be a packed 
   // POD type consisting of exactly 1, 2, 3, or 4 GLint values.
@@ -80,7 +78,6 @@ public:
     static_assert(UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLint components.
     UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::eval(LocationOfUniform(name), 1, reinterpret_cast<const GLint *>(&value));
-    CheckError("SetUniformI");
   }
   // Sets the named uniform to the given value which must be a packed 
   // POD type consisting of exactly 1, 2, 3, or 4 GLfloat values.
@@ -90,7 +87,6 @@ public:
     static_assert(UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLfloat components.
     UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::eval(LocationOfUniform(name), 1, reinterpret_cast<const GLfloat *>(&value));
-    CheckError("SetUniformF");
   }
 
   // Uniform modifiers to specify arrays of data, where the array component has various
@@ -99,12 +95,10 @@ public:
   // Sets the named uniform to the given std::vector of GLint values.
   void SetUniformi (const std::string &name, const std::vector<GLint> &array) {
     glUniform1iv(LocationOfUniform(name), array.size(), array.data());
-    CheckError("Uniformi");
   }
   // Sets the named uniform to the given std::vector of GLfloat values.
   void SetUniformf (const std::string &name, const std::vector<GLfloat> &array) {
     glUniform1fv(LocationOfUniform(name), array.size(), array.data());
-    CheckError("Uniform1fv");
   }
   // Sets the named uniform to the given std::vector of values each of which must be
   // a packed POD type consisting of exactly 1, 2, 3, or 4 GLint values.
@@ -149,7 +143,6 @@ public:
   }
 
 private:
-  static void CheckError(const std::string& loc);
 
   // Compiles the specified type of shader program, using the given source.  If an error
   // in encountered, a std::logic_error is thrown.
