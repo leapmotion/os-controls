@@ -13,7 +13,7 @@ public:
   VolumeControl();
   ~VolumeControl();
 
-  void AutoFilter(const RenderFrame& frame, const StateSentry<State::VolumeControl>& in);
+  void draw(const RenderFrame& frame);
 
  EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 private:

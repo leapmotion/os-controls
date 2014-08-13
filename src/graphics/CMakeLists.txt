@@ -5,6 +5,10 @@ set(graphics_SOURCES
   graphics.cpp
   GraphicsStateMachine.h
   GraphicsStateMachine.cpp
+  MediaView.h
+  MediaView.cpp
+  RadialButton.h
+  RadialButton.cpp
   RenderEngine.h
   RenderEngine.cpp
   RenderFrame.h

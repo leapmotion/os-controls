@@ -17,7 +17,7 @@ VolumeControl::~VolumeControl()
 {
 }
 
-void VolumeControl::AutoFilter(const RenderFrame& frame, const StateSentry<State::VolumeControl>& in) {
+void VolumeControl::draw(const RenderFrame& frame) {
   const auto size = frame.renderWindow->getSize();
   
   m_time += frame.deltaT.count(); 

@@ -3,7 +3,7 @@
 #include <autowiring/autowiring.h>
 #include "RenderState.h"
 
-GraphicsStateMachine::GraphicsStateMachine() : m_state(State::VolumeControl)
+GraphicsStateMachine::GraphicsStateMachine() : m_state(State::MediaView)
 {
 }
 
@@ -13,8 +13,8 @@ GraphicsStateMachine::~GraphicsStateMachine()
 
 void GraphicsStateMachine::AutoFilter(AutoPacket& packet, const RenderFrame& scene) {
   switch(m_state) {
-  case State::VolumeControl:
-    packet.Decorate(StateSentry<State::VolumeControl>());
+  case State::MediaView:
+    packet.Decorate(StateSentry<State::MediaView>());
     break;
   case State::ExposeMaker:
     packet.Decorate(StateSentry<State::ExposeMaker>());
