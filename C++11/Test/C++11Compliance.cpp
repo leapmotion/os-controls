@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
+#include <gtest/gtest_macro.h>
 #include <iostream>
+
+GTEST_REGISTER(cpp11)
 
 class CPPComplianceTest:
   public testing::Test
@@ -7,16 +10,13 @@ class CPPComplianceTest:
 
 // Verifying that variadic templates work.
 
-void PrintArgs () { }
-
-template <typename T>
-void PrintArgs (const T &arg) {
-  std::cout << arg << std::endl;
+void PrintArgs () { 
+  std::cout << std::endl;
 }
 
-template <typename T1, typename T2, typename... Types>
-void PrintArgs (const T1 &arg1, const T2 &arg2, Types... args) {
-  std::cout << arg1 << " "<< arg2 << " ";
+template <typename T, typename... Types>
+void PrintArgs (const T &arg, Types... args) {
+  std::cout << arg << " ";
   PrintArgs(args...);
 }
 

@@ -51,6 +51,7 @@ add_sublibrary(
         ../gtest-1.7.0/fused-src
     HEADERS
         gtest/gtest.h
+        gtest/gtest_macro.h
     SOURCES
         gtest/gtest-all.cc
     BRIEF_DOC_STRING
@@ -628,8 +629,7 @@ endif()
 
 
 
-add_executable(RunAllTests ../gtest-1.7.0/fused-src/gtest/gtest_main.cc)
-include_directories(../gtest-1.7.0/fused-src) # for gtest/gtest.h
-target_link_libraries(RunAllTests PUBLIC
+add_executable(RunAllTests Testing/RunAllTests.cpp)
+target_link_libraries(RunAllTests 
     C++11Test
 )
