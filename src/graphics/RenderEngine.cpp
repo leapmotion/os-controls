@@ -38,7 +38,7 @@ RenderEngine::~RenderEngine()
 {
 }
 
-void RenderEngine::Frame(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT){
+void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT){
   // Active the window for OpenGL rendering
   target->setActive();
   // Clear window
