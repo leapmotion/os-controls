@@ -89,12 +89,6 @@ TEST_F(GLShaderTest, temp) {
 }
 
 TEST_F(GLShaderTest, temp2) {
-  try {
-    Resource<GLShader> shader("lighting");
-  } catch (const std::exception &e) {
-    std::cout << "exception: " << e.what() << '\n';
-  }
-  // Resource<TextFile> file("lighting-vert.glsl");
-  // std::cout << file->Contents() << '\n';
+  Resource<GLShader> shader("lighting");
 }
 

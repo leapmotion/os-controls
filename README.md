@@ -119,3 +119,62 @@ Relevant technologies/links:
 - http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html - Lovely resource on GPU-based Bezier curve rendering
 - https://code.google.com/p/poly2tri/ - Triangulation of polygon (related but unnecessary)
 
+#### Design notes for primitives/GL refactor
+
+The RenderState and PrimitiveGeometry classes, and lighting-frag.glsl and
+lighting-vert.glsl shader programs are currently a single piece of spaghetti
+that stretches between the Components lib and the BasicShapes app.  This can
+really be divided up into several more-modular components.
+
+GLMesh
+- contains and shovels the following data to GL
+  * mesh vertices
+  * mesh indices (for GL_TRIANGLES, but this should be configurable)
+  * one normal per vertex
+  * one texture coord per vertex (this might not actually be correct, because
+    of UV mapping not necessarily being continuous)
+  * one color per vertex (again, maybe not totally correct)
+  * customizable data per vertex (?)
+- currently, PrimitiveGeometry calls into RenderState, which is backwards, because
+  RenderState depends on a particular shader program.
+- the operations that GLMesh should provide are
+  * defining all of the properties listed above (this is intermediate storage)
+  * "uploading" to the GPU, meaning that buffer objects are created for them
+    and the relevant data is loaded into them.
+  * optionally clearing the intermediate storage upon upload
+  * modifying intermediate data and re-uploading (e.g. for GL_DYNAMIC_DRAW or 
+    other usage hints)
+  * binding the various buffers
+GLShaderInterfaceMatrices
+- Easy-to-use interface for setting particular matrix uniforms in a shader.
+  Specifically targeted to shaders that have modelview, projection, and normal
+  matrices.  This is currently done through RenderState and is specifically
+  dependent on lighting-vert.glsl, but should be modularized.
+- The names of the uniforms should be specifiable, and perhaps not all of them
+  need to exist.
+- It will provide methods for setting the modelview, projection, and normal matrices,
+  each of which will make the correct calls to find the location of the respective
+  uniform and set the uniform value.
+GLShaderInterfaceMaterial
+- Similar interface as GLShaderInterfaceMatrices, but for material parameters.
+  This one will be tailored to material uniforms of a particular shader (lighting-*.glsl)
+
+Perhaps there should be a GLShaderInterface class which provides the dictionary
+functionality that would be common to these classes.  Then each subclass would
+just provide a small amount of data and perhaps specialized methods for setting
+fixed uniforms.
+
+GLShaderInterface -- or maybe this functionality should go directly into GLShader
+- discovery of shader uniforms and attributes
+- storing discovered uniforms and attributes in a dictionary (unordered_map)
+  of name -> (type, location, other useful info)
+- type checking on the modifier methods
+- use glGetActiveUniform and glGetActiveAttrib, which will also return names
+  that are prefixed with "gl_".  these are built-in values which maybe should
+  be stored statically or in some singleton, because they will (likely?) be
+  identical in every shader.
+  NOTE: uniforms and attributes are indexed in a contiguous block starting at 0
+  and the number of them can be queried via glGetProgram with GL_ACTIVE_UNIFORMS
+  or GL_ACTIVE_ATTRIBUTES
+  NOTE: in order to allocate enough memory to store a name, glGetProgram can
+  be used with GL_ACTIVE_UNIFORM_MAX_LENGTH or GL_ACTIVE_ATTRIBUTE_MAX_LENGTH
