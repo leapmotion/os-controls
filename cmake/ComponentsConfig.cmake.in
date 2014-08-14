@@ -40,10 +40,6 @@ function(target_link_components TARGET)
     set(_multi_value_args ${_added_sublibraries})
     cmake_parse_arguments(_lib_dep "${_options}" "${_one_value_args}" "${_multi_value_args}" ${_library_dependency_map})
 
-	if(NOT _arg_INTERFACE AND NOT _arg_PUBLIC AND NOT _arg_PRIVATE)
-		message(FATAL_ERROR "No linkage specified for targets: ${_arg_UNPARSED_ARGUMENTS}.  Did you forget a [PUBLIC|PRIVATE|INTERFACE] keyword?")
-	endif()
-	
     # For each of INTERFACE, PUBLIC, PRIVATE,
     foreach(_link_type INTERFACE PUBLIC PRIVATE)
         verbose_message("processing ${_link_type} targets: ${_arg_${_link_type}}")
@@ -66,7 +62,5 @@ function(target_link_components TARGET)
             target_link_libraries(${TARGET} ${_link_type} Components::${_sublib})
         endforeach()
     endforeach()
-	
-	
 endfunction()
 
