@@ -100,6 +100,7 @@ void OsControl::Main(void) {
     std::chrono::duration<double> timeDelta = now - then;
     then = now;
 
+    m_render->Update(timeDelta);
     m_render->Render(m_mw, timeDelta);
    
   }

@@ -8,10 +8,12 @@
 #include "Resource.h"
 
 #include <SFML/Graphics/Shader.hpp>
+#include <vector>
+#include <memory>
+#include <algorithm>
 
 RenderEngine::RenderEngine()
 {
-  
   m_renderState.GetModelView().Reset();
   m_renderState.GetModelView().LookAt(Vector3(0, 0, 0), Vector3(0, 0, -1), Vector3::UnitY());
  
@@ -33,9 +35,15 @@ RenderEngine::RenderEngine()
   m_renderState.SetAmbientFactorUniform(m_shader->LocationOfUniform("ambientFactor"));
 }
 
-
 RenderEngine::~RenderEngine()
 {
+}
+
+void RenderEngine::Update(const std::chrono::duration<double> deltaT) {
+  m_rootNode->DepthFirstTraverse([deltaT](SceneGraphNode<double, 3>& node) {
+    RenderEngineNode &renderNode = static_cast<RenderEngineNode &>(node);
+    renderNode.Update(deltaT.count());
+  }, nullptr);
 }
 
 void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT){
@@ -43,23 +51,42 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
   target->setActive();
   // Clear window
   target->clear(sf::Color::Transparent);
-  
-  // Pilot a packet through the system:
-  auto packet = m_factory->NewPacket();
 
   const auto windowSize = target->getSize();
   m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 0, 100);
   m_renderState.GetModelView().Reset();
-  
+
   m_shader->Bind();
 
   // Have objects rendering into the specified window with the supplied change in time
-  RenderFrame render = { target, &m_renderState, deltaT };
+  RenderFrame frame = { target, m_renderState, deltaT };
 
-  // Draw all of the objects
-  if (packet->HasSubscribers(typeid(RenderFrame))) {
-    packet->DecorateImmediate(render);
+  //Call AnimationUpdate Depth First (pre-visitation order)
+  auto &zList = m_renderList;
+  m_rootNode->DepthFirstTraverse([&zList, &frame](SceneGraphNode<double, 3>& node){
+    RenderEngineNode &renderNode = static_cast<RenderEngineNode &>(node);
+
+    auto& mv = frame.renderState.GetModelView();
+    mv.Push();
+    mv.Translate(node.Translation());
+    mv.Multiply(Matrix3x3(node.LinearTransformation()));
+
+    renderNode.AnimationUpdate(frame);
+    zList.push_back(std::make_pair(&renderNode, mv));
+    },
+    [&frame](SceneGraphNode<double, 3>& node) {
+      frame.renderState.GetModelView().Pop();
+    });
+
+  std::stable_sort(zList.begin(), zList.end(), 
+    [](const RenderListElement_t& a, const RenderListElement_t& b){ return a.first->Translation().z() < a.first->Translation().z(); }
+  );
+
+  for (auto element : zList) {
+    frame.renderState.GetModelView() = element.second;
+    element.first->Render(frame);
   }
+  m_renderList.clear(); //Todo: temporal coherency - scan the list to look for changes instead of clearing/rebuilding?
 
   m_shader->Unbind();
 
