@@ -3,8 +3,6 @@ set(graphics_SOURCES
   ExposeControl.cpp
   graphics.h
   graphics.cpp
-  GraphicsStateMachine.h
-  GraphicsStateMachine.cpp
   MediaView.h
   MediaView.cpp
   RadialButton.h
@@ -12,7 +10,6 @@ set(graphics_SOURCES
   RenderEngine.h
   RenderEngine.cpp
   RenderFrame.h
-  State.h
   VolumeControl.h
   VolumeControl.cpp
 )
