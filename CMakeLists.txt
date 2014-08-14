@@ -624,6 +624,21 @@ add_sublibrary(
         "Unit tests for the C++11 component."
 )
 
+add_sublibrary(
+    GLShaderTest
+    SOURCE_PATH
+        GLShader/Test
+    SOURCES
+        GLShaderTest.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLShader
+        GLShaderLoader
+        GTest
+        SDLController # For creating the GL context
+    BRIEF_DOC_STRING
+        "Unit tests for the GLShader component."
+)
+
 set(_tests ${ADDED_SUBLIBRARIES})
 
 # In order for gtest to "see" the unit tests, the sources apparently have to be linked
@@ -642,5 +657,34 @@ foreach(_test ${_tests})
     list(APPEND Test_SOURCES ${_headers} ${_sources})
 endforeach()
 add_executable(Test ${Test_SOURCES})
-# Link all the unit test components (this does not include the GTest component)
-target_link_libraries(Test PUBLIC ${_tests})
+
+# Link each of the dependencies of each unit test components.  The reason for this
+# indirection is because the test sources must be specified directly in the call to
+# add_executable above.  This is a totally suboptimal solution in terms of cmake
+# code duplication and fragility but avoids redundant compilation.
+# The alternative which is a tradeoff between simplicity and technical incorrectness is:
+# target_link_libraries(Test PUBLIC ${_tests})
+foreach(_test ${_tests})
+    # Set compile definitions and options.
+    get_target_property(_compile_definitions ${_test} INTERFACE_COMPILE_DEFINITIONS)
+    if(_compile_definitions)
+        target_compile_definitions(Test PUBLIC ${_compile_definitions})
+    endif()
+    get_target_property(_compile_options ${_test} INTERFACE_COMPILE_OPTIONS)
+    if(_compile_options)
+        target_compile_options(Test PUBLIC ${_compile_options})
+    endif()
+    # Link the explicit sublibrary dependencies of each test
+    get_target_property(_explicit_sublibrary_dependencies ${_test} INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
+    foreach(_dep ${_explicit_sublibrary_dependencies})
+        target_link_libraries(Test PUBLIC ${_dep})
+    endforeach()
+    # Link the explicit library dependencies of each test
+    get_target_property(_explicit_library_dependencies ${_test} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
+    foreach(_dep ${_explicit_library_dependencies})
+        string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
+        list(GET _semicolon_delimited_dep 0 _lib_name)
+        set(_lib_target_name ${_lib_name}::${_lib_name})
+        target_link_libraries(Test PUBLIC ${_lib_target_name})
+    endforeach()
+endforeach()
