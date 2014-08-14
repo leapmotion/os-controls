@@ -15,6 +15,7 @@ set(graphics_SOURCES
   State.h
   VolumeControl.h
   VolumeControl.cpp
+  MostRecent.h
 )
 
 

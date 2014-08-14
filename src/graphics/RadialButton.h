@@ -19,6 +19,7 @@ public:
   void nudge(float offset);
   
   void draw(const RenderFrame& frame);
+  void setOpacity(float opacity);
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:

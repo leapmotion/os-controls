@@ -18,7 +18,7 @@ VolumeControl::~VolumeControl()
 }
 
 void VolumeControl::draw(const RenderFrame& frame) {
-  const auto size = frame.renderWindow->getSize();
+//  const auto size = frame.renderWindow->getSize();
   
   m_time += frame.deltaT.count(); 
 
