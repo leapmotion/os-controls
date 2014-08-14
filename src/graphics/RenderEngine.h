@@ -21,7 +21,7 @@ public:
 
   template<typename T>
   void AddSceneNode(std::shared_ptr<T> &node){
-    m_root.AddChild(node);
+    m_rootNode->AddChild(node);
   }
 
   void Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT);
