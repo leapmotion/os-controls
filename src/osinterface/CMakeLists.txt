@@ -35,7 +35,7 @@ target_include_directories(osinterface PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowi
 if(APPLE)
   set_property(SOURCE MediaControllerMac.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
   find_library(CORE_AUDIO_FRAMEWORK CoreAudio)
-  mark_as_advanced(CORE_GRAPHICS_FRAMEWORK)
+  mark_as_advanced(CORE_AUDIO_FRAMEWORK)
   target_link_libraries(osinterface ${CORE_AUDIO_FRAMEWORK})
 endif()
 
