@@ -17,7 +17,8 @@ public:
   RenderEngine();
   ~RenderEngine();
 
-  void Frame(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT);
+
+  void Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT);
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:

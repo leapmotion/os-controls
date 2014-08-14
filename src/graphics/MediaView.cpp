@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-const static double PI = 3.14159265;
+const static float PI = 3.14159265f;
 
 MediaView::MediaView(const Vector3& center, float offset) :
   m_leftButton(center, 50-offset, 100, 3*PI/4, 5*PI/4, Vector3(-1 * offset, 0, 0)),
