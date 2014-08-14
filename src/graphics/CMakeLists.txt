@@ -7,9 +7,12 @@ set(graphics_SOURCES
   MediaView.cpp
   RadialButton.h
   RadialButton.cpp
+  Renderable.h
   RenderEngine.h
   RenderEngine.cpp
+  RenderEngineNode.h
   RenderFrame.h
+  Updatable.h
   VolumeControl.h
   VolumeControl.cpp
 )
