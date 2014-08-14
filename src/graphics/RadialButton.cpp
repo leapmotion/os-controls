@@ -5,8 +5,9 @@
 
 #include <iostream>
 
-RadialButton::RadialButton(const Vector3& center, float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset) {
-  m_partialDisk.Translation() = center + offset;
+RadialButton::RadialButton(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset) {
+  Translation() = offset;
+
   m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
   m_partialDisk.SetAmbientFactor(0.9f);
   
@@ -27,9 +28,9 @@ void RadialButton::nudge(float offset) {
   m_partialDisk.SetOuterRadius(m_outerRadius + offset);
 }
 
-void RadialButton::draw(const RenderFrame& frame) {
+void RadialButton::Render(const RenderFrame& frame) const {
   // draw primitives
-  m_partialDisk.DrawScene(*frame.renderState);
+  m_partialDisk.Draw(frame.renderState);
 }
 
 void RadialButton::setOpacity(float opacity) {
