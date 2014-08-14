@@ -7,7 +7,7 @@
 
 RadialButton::RadialButton(const Vector3& center, float innerRadius, float width, float startAngle, float endAngle) {
   m_partialDisk.Translation() = center;
-  m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, 1.0f));
+  m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
   m_partialDisk.SetAmbientFactor(0.9f);
   
   m_innerRadius = innerRadius;
