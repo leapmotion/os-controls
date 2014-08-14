@@ -7,11 +7,13 @@
 const static float PI = 3.14159265f;
 
 MediaView::MediaView(const Vector3& center, float offset) :
-  m_leftButton(new RadialButton(center, 50 - offset, 100, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0))),
-  m_topButton(new RadialButton(center, 50-offset, 100, 5*PI/4, 7*PI/4, Vector3(0, -1 * offset, 0))),
-  m_rightButton(new RadialButton(center, 50 - offset, 100, -PI / 4, PI / 4, Vector3(offset, 0, 0))),
-  m_time(0)
+  m_leftButton(new RadialButton(50 - offset, 100, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0))),
+  m_topButton(new RadialButton(50-offset, 100, 5*PI/4, 7*PI/4, Vector3(0, -1 * offset, 0))),
+  m_rightButton(new RadialButton(50 - offset, 100, -PI / 4, PI / 4, Vector3(offset, 0, 0))),
+  m_time(0),
+  m_scale(0)
 {
+  Translation() = center;
 }
 
 void MediaView::InitChildren() {

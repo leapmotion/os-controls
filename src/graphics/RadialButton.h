@@ -13,7 +13,7 @@ class RadialButton :
   public RenderEngineNode
 {
 public:
-  RadialButton(const Vector3& center, float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset);
+  RadialButton(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset);
   ~RadialButton();
   
   void nudge(float offset);
