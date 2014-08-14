@@ -17,7 +17,7 @@ public:
   HandExistTrigger();
   virtual ~HandExistTrigger() {};
 
-  void AutoFilter(Leap::Frame frame, HandExistenceState& heg);
+  void AutoFilter(AutoPacket& packet, Leap::Frame frame, HandExistenceState& heg);
 
 private:
   std::set<int32_t> m_hands;

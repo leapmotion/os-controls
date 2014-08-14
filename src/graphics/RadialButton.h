@@ -17,7 +17,7 @@ public:
   ~RadialButton();
   
   void nudge(float offset);
-  
+  void setOpacity(float opacity);
   void Render(const RenderFrame& frame) const override;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
