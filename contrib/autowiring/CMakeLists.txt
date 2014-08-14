@@ -8,6 +8,12 @@ set(autowiring_VERSION_MAJOR 0)
 set(autowiring_VERSION_MINOR 1)
 set(autowiring_VERSION_PATCH 0)
 
+# If there's an external libraries directory path, use it as a search prefix
+if(EXTERNAL_LIBRARY_DIR)
+  list(APPEND CMAKE_PREFIX_PATH ${EXTERNAL_LIBRARY_DIR})
+  list(APPEND CMAKE_INCLUDE_PATH ${EXTERNAL_LIBRARY_DIR})
+endif()
+
 # Clang needs special additional flags to build with C++11
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   message("Clang C++11")
@@ -25,6 +31,7 @@ endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 include(CMakeModules/pch.cmake)
+set(AUTOWIRING_BUILD_AUTONET_DEFAULT ON)
 
 # We don't build tests unless we're being built by ourselves in our own source tree
 # When we're embedded in someone else's subtree, it's not likely that they will want
@@ -34,7 +41,6 @@ get_filename_component(AUTOWIRING_ROOT_DIR . ABSOLUTE)
 if(CMAKE_SOURCE_DIR STREQUAL AUTOWIRING_ROOT_DIR)
   set(AUTOWIRING_BUILD_TESTS_DEFAULT ON)
   set(AUTOWIRING_BUILD_EXAMPLES_DEFAULT ON)
-  set(AUTOWIRING_BUILD_AUTONET_DEFAULT ON)
   
   # All of our binaries go to one place:  The binaries output directory.  We only want to tinker
   # with this if we're building by ourselves, otherwise we just do whatever the enclosing project
@@ -43,7 +49,6 @@ if(CMAKE_SOURCE_DIR STREQUAL AUTOWIRING_ROOT_DIR)
 else()
   set(AUTOWIRING_BUILD_TESTS_DEFAULT OFF)
   set(AUTOWIRING_BUILD_EXAMPLES_DEFAULT OFF)
-  set(AUTOWIRING_BUILD_AUTONET_DEFAULT OFF)
 endif()
 
 option(AUTOWIRING_BUILD_TESTS "Build Autowiring unit tests" ${AUTOWIRING_BUILD_TESTS_DEFAULT})
@@ -58,7 +63,7 @@ function(rewrite_header_paths target_SRC_VAR)
   set(SRCS_TEMP ${${target_SRC_VAR}})
   set(SRCS)
   foreach(i ${SRCS_TEMP})
-    string(REGEX MATCH ".*\\.h" hfile ${i})
+    string(REGEX MATCH ".*\\.h$" hfile ${i})
     if(hfile)
       list(APPEND SRCS ${PROJECT_SOURCE_DIR}/autowiring/${i})
     else()

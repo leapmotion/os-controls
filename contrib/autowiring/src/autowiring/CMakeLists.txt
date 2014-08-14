@@ -51,6 +51,7 @@ set(Autowiring_SRCS
   CreationRules.h
   CurrentContextPusher.cpp
   CurrentContextPusher.h
+  DeclareAutoFilter.h
   Decompose.h
   DecorationDisposition.h
   Deserialize.h
@@ -79,10 +80,10 @@ set(Autowiring_SRCS
   index_tuple.h
   is_any.h
   is_shared_ptr.h
+  is_auto_filter.h
   InterlockedExchange.h
   InvokeRelay.h
   atomic_object.h
-  shared_object.h
   unlock_object.h
   Object.h
   ObjectPool.h
@@ -90,6 +91,7 @@ set(Autowiring_SRCS
   ObjectPoolMonitor.cpp
   optional_ptr.h
   SatCounter.h
+  MicroAutoFilter.h
   MicroBolt.h
   SharedPointerSlot.h
   SlotInformation.h
@@ -156,8 +158,10 @@ rewrite_header_paths(Autowiring_SRCS)
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" Autowiring_SRCS)
 add_library(Autowiring STATIC ${Autowiring_SRCS})
 set_property(TARGET Autowiring PROPERTY FOLDER "Autowiring")
+
+# Might as well reference the boost libraries to satisfy link dependencies, if we know they exist
+find_package(Boost COMPONENTS system date_time QUIET)
 if(Boost_FOUND)
-  # Might as well reference the boost libraries to satisfy link dependencies, if we know they exist
   target_link_libraries(Autowiring ${Boost_LIBRARIES})
 endif()
 
