@@ -23,4 +23,5 @@ private:
   std::shared_ptr<VolumeControl> m_volumeControl;
 
   float m_time;
+  float m_scale;
 };
