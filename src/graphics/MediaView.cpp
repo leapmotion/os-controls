@@ -6,10 +6,10 @@
 
 const static double PI = 3.14159265;
 
-MediaView::MediaView(const Vector3& center) :
-  m_leftButton(center, 50-5, 100, 3*PI/4, 5*PI/4, Vector3(-5, 0, 0)),
-  m_topButton(center, 50-5, 100, 5*PI/4, 7*PI/4, Vector3(0, -5, 0)),
-  m_rightButton(center, 50-5, 100, -PI/4, PI/4, Vector3(5, 0, 0))
+MediaView::MediaView(const Vector3& center, float offset) :
+  m_leftButton(center, 50-offset, 100, 3*PI/4, 5*PI/4, Vector3(-1 * offset, 0, 0)),
+  m_topButton(center, 50-offset, 100, 5*PI/4, 7*PI/4, Vector3(0, -1 * offset, 0)),
+  m_rightButton(center, 50-offset, 100, -PI/4, PI/4, Vector3(offset, 0, 0))
 {
 }
 

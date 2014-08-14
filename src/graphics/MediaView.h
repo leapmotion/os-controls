@@ -10,7 +10,7 @@
 
 class MediaView {
 public:
-  MediaView(const Vector3& center);
+  MediaView(const Vector3& center, float offset);
   
   void AutoFilter(const RenderFrame& frame, const StateSentry<State::MediaView>& in);
   

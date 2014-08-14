@@ -7,5 +7,5 @@
 void GraphicsInitialize(void) {
   AutoRequired<GraphicsStateMachine>();
   AutoRequired<VolumeControl>();
-  AutoConstruct<MediaView>(Vector3(300, 300, 0));
+  AutoConstruct<MediaView>(Vector3(300, 300, 0), 5);
 }
