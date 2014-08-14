@@ -2,81 +2,59 @@
 
 Sphere::Sphere() : m_Radius(1) { }
 
-void Sphere::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+void Sphere::Draw(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(30);
 
   ModelView& modelView = renderState.GetModelView();
-
   modelView.Push();
-  // // This primitive's transformation is applied first (meaning on the right)
-  // transform_stack.push(transform_stack.top() * FullTransform())
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3::Constant(m_Radius));
 
   renderState.UploadMatrices();
   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
 
   geom.Draw(renderState, GL_TRIANGLES);
-
   modelView.Pop();
-  // transform_stack.pop();
 }
 
 Cylinder::Cylinder() : m_Radius(1), m_Height(1) { }
 
-void Cylinder::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+void Cylinder::Draw(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(50, 1);
 
   ModelView& modelView = renderState.GetModelView();
-
   modelView.Push();
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3(m_Radius, m_Height, m_Radius));
 
   renderState.UploadMatrices();
   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
 
   geom.Draw(renderState, GL_TRIANGLES);
-
   modelView.Pop();
 }
 
 Box::Box() : m_Size(Vector3::Constant(1.0)) { }
 
-void Box::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+void Box::Draw(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitBox();
 
   ModelView& modelView = renderState.GetModelView();
-
   modelView.Push();
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(m_Size);
 
   renderState.UploadMatrices();
   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
 
   geom.Draw(renderState, GL_TRIANGLES);
-
   modelView.Pop();
 }
 
 Disk::Disk() : m_Radius(1) { }
 
-void Disk::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+void Disk::Draw(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitDisk(75);
 
   ModelView& modelView = renderState.GetModelView();
-
   modelView.Push();
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3::Constant(m_Radius));
 
   renderState.UploadMatrices();
@@ -89,15 +67,11 @@ void Disk::Draw(RenderState& renderState, TransformStack& transform_stack) const
 
 RectanglePrim::RectanglePrim() : m_Size(1, 1) { }
 
-void RectanglePrim::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+void RectanglePrim::Draw(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSquare();
 
   ModelView& modelView = renderState.GetModelView();
-
   modelView.Push();
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
 
   renderState.UploadMatrices();
@@ -110,7 +84,7 @@ void RectanglePrim::Draw(RenderState& renderState, TransformStack& transform_sta
 
 PartialDisk::PartialDisk() : m_RecomputeGeometry(true), m_InnerRadius(0.5), m_OuterRadius(1), m_StartAngle(0), m_EndAngle(2*M_PI) { }
 
-void PartialDisk::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+void PartialDisk::Draw(RenderState& renderState) const {
   if (m_InnerRadius >= m_OuterRadius || m_StartAngle >= m_EndAngle) {
     // don't proceed if the shape is empty
     return;
@@ -120,19 +94,10 @@ void PartialDisk::Draw(RenderState& renderState, TransformStack& transform_stack
     RecomputeGeometry();
   }
 
-  ModelView& modelView = renderState.GetModelView();
-
-  modelView.Push();
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
-
   renderState.UploadMatrices();
   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
 
   m_Geometry.Draw(renderState, GL_TRIANGLES);
-
-  modelView.Pop();
 }
 
 void PartialDisk::RecomputeGeometry() const {

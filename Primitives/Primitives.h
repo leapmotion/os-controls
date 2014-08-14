@@ -11,9 +11,7 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -34,9 +32,7 @@ public:
   double Height() const { return m_Height; }
   void SetHeight(double height) { m_Height = height; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -51,9 +47,7 @@ public:
   const Vector3& Size() const { return m_Size; }
   void SetSize(const Vector3& size) { m_Size = size; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -67,9 +61,7 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -87,9 +79,7 @@ public:
   const Vector2& Size() const { return m_Size; }
   void SetSize(const Vector2& size) { m_Size = size; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -133,10 +123,7 @@ public:
     m_EndAngle = endAngleRadians;
   }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 

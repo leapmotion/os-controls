@@ -13,10 +13,12 @@ class RenderState;
 // what is an ambient factor?).
 class PrimitiveBase : public SceneGraphNode<MATH_TYPE,3> {
 public:
+  static void DrawSceneGraph(const PrimitiveBase &root, RenderState &render_state); 
+
+public:
 
   typedef SceneGraphNode<MATH_TYPE,3> Parent_SceneGraphNode;
   typedef Parent_SceneGraphNode::Transform Transform;
-  typedef std::stack<Transform, std::vector<Transform,Eigen::aligned_allocator<Transform>>> TransformStack;
 
   PrimitiveBase() : m_DiffuseColor(Color::White()), m_AmbientFactor(0.0f) { }
   virtual ~PrimitiveBase() { }
@@ -27,15 +29,11 @@ public:
   void SetDiffuseColor(const Color& color) { m_DiffuseColor = color; }
   void SetAmbientFactor(float ambient) { m_AmbientFactor = ambient; }
 
-  // TODO: this sort of doesn't need to be a method, and could be global.
-  void DrawScene (RenderState &render_state) const;
+  // This method should be overridden in each subclass to draw the particular geometry that it represents.
+  virtual void Draw(RenderState &render_state) const = 0;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 protected:
-
-  // This method should be overridden in each subclass to draw the particular geometry that it represents.
-  virtual void Draw (RenderState &render_state, TransformStack &transform_stack) const = 0;
-
   Color m_DiffuseColor;
   float m_AmbientFactor;
 };
