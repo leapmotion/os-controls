@@ -16,6 +16,7 @@
 // TODO: write a design for a generalized property propagation scheme in which
 //       each property would be defined partially by an "application" operation
 //       which defines how the properties propagate from parent to child.
+
 template <typename Scalar, unsigned int DIM>
 class SceneGraphNode : public std::enable_shared_from_this<SceneGraphNode<Scalar,DIM>> {
 public:
@@ -82,40 +83,33 @@ public:
     }
   }
 
-  enum class DFTCallOrder { CALL_ON_PARENT_BEFORE_CHILDREN, CALL_ON_PARENT_AFTER_CHILDREN };
-
   // Traverse this tree, depth-first, calling call_this_function_first (if valid) 
   // on this node, then calling this function recursively on the child nodes, then 
   // calling call_this_function_last (if valid) on this node.
-  void DepthFirstTraverse (std::function<void(const SceneGraphNode&)> &call_this_function_first,
-                           std::function<void(const SceneGraphNode&)> &call_this_function_last) const {
-    if (call_this_function_first) {
-      call_this_function_first(*this);
-    }
+  template<class _FnPre, class _FnPost>
+  void DepthFirstTraverse(_FnPre preTraversal, _FnPost postTraversal) {
+    CallFunction(preTraversal, *this);
     for (auto it = m_children.begin(); it != m_children.end(); ++it) {
       const std::shared_ptr<SceneGraphNode> &child = *it;
       assert(bool(child));
-      child->DepthFirstTraverse(call_this_function_first, call_this_function_last);
+      child->DepthFirstTraverse(preTraversal, postTraversal);
     }
-    if (call_this_function_last) {
-      call_this_function_last(*this);
-    }
-  }
-  // Traverse this tree, depth-first, calling the specified function on each node.
-  // The call_order parameter specifies if the function should be called on each
-  // parent node before its children or after.
-  void DepthFirstTraverse (std::function<void(const SceneGraphNode&)> &call_this_function_on_each_node,
-                           DFTCallOrder call_order) const {
-    std::function<void(const SceneGraphNode&)> call_this_function_first; // invalid/empty
-    std::function<void(const SceneGraphNode&)> call_this_function_last;  // invalid/empty
-    if (call_order == DFTCallOrder::CALL_ON_PARENT_BEFORE_CHILDREN) {
-      call_this_function_first = call_this_function_on_each_node;
-    } else { // call_order == DFTCallOrder::CALL_ON_PARENT_AFTER_CHILDREN
-      call_this_function_last = call_this_function_on_each_node;
-    }
-    DepthFirstTraverse(call_this_function_first, call_this_function_last);
+    CallFunction(postTraversal,*this);
   }
 
+ 
+  template<class _FnPre, class _FnPost>
+  void DepthFirstTraverse(_FnPre preTraversal, _FnPost postTraversal) const {
+    CallFunction(preTraversal, *this);
+    for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+      const std::shared_ptr<SceneGraphNode> &child = *it;
+      assert(bool(child));
+      child->DepthFirstTraverse(preTraversal, postTraversal);
+    }
+    CallFunction(postTraversal, *this);
+  }
+
+  
   // This computes the transformation taking points in this node's coordinate
   // system and produces those points expressed in the coordinate system of
   // the other node.
@@ -187,6 +181,14 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+
+  //Silly function call wrapper that allows you to also pass nullptr as a function if you want.
+  template<class _Fn, typename... _Args>
+  static void CallFunction(_Fn function, _Args& ... args) { function(args...); }
+  
+  template<typename... _Args>
+  static void CallFunction(std::nullptr_t, _Args&...) {}
+  
 
   // This populates a vector with the ancestors of this node, starting with this node,
   // then its parent, then its parent's parent, etc (i.e. this node, going toward the root).
