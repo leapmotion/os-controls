@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL.h"
-#include <SDL_syswm.h>
+#include "SDL_syswm.h"
 
 #include <string>
 
@@ -70,7 +70,12 @@ private:
   void InitWindow();
   void ConfigureRenderer();
   void InitGLContext();
+  void InitGlew();
   void ConfigureTransparentWindow();
+
+  // This is called to ensure that the created resources (and only those) 
+  // are cleaned up in the correct order.
+  void CleanUpInitializedResources();
 
 #if _WIN32
   void MakeTransparent_Windows(const SDL_SysWMinfo &sys_wm_info);
