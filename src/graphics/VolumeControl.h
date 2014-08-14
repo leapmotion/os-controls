@@ -1,5 +1,4 @@
 #pragma once
-#include "State.h"
 #include "graphics/RenderFrame.h"
 
 #include "Primitives.h"

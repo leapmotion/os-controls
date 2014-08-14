@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "graphics.h"
-#include "GraphicsStateMachine.h"
 #include "VolumeControl.h"
 #include "MediaView.h"
 #include "GL/glew.h"
