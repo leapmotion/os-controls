@@ -588,3 +588,59 @@ if(BUILD_DOCUMENTATION)
 endif()
 
 # TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages
+
+###################################################################################################
+# Unit test components and rules
+###################################################################################################
+
+add_sublibrary(
+    GTest
+    SOURCE_PATH
+        ../gtest-1.7.0/fused-src
+    HEADERS
+        gtest/gtest.h
+    SOURCES
+        gtest/gtest-all.cc
+        gtest/gtest_main.cc
+    BRIEF_DOC_STRING
+        "Provides an easy way to include and link the Google Test framework."
+)
+
+# This effectively resets ADDED_SUBLIBRARIES and UNADDED_SUBLIBRARIES.  It is intentionally
+# called after the call to add_sublibrary(GTest ...) so that only the unit test components
+# show up in ADDED_SUBLIBRARIES.
+begin_sublibrary_definitions()
+
+add_sublibrary(
+    C++11Test
+    SOURCE_PATH
+        C++11/Test
+    SOURCES
+        C++11Compliance.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+        GTest
+    BRIEF_DOC_STRING
+        "Unit tests for the C++11 component."
+)
+
+set(_tests ${ADDED_SUBLIBRARIES})
+
+# In order for gtest to "see" the unit tests, the sources apparently have to be linked
+# directly into the test executable.  The call to target_link_libraries seems redundant
+# and also seems like it would cause duplicate symbol linker errors, but the linker
+# effectively throws out the entire contents of the linked components.  The call to
+# target_link_libraries is what propagates all the necessary include directories and
+# libraries to link into the executable.  This sort of hack-ish solution allows unit
+# tests to be organized in the "sublibrary" paradigm as the other components are.
+# NOTE: Because of this hack, the unit test sources will be built twice (once to build
+# the unit test component targets, and a second time to build the Test executable).
+set(Test_SOURCES "")
+foreach(_test ${_tests})
+    get_target_property(_headers ${_test} INTERFACE_PATH_PREFIXED_HEADERS)
+    get_target_property(_sources ${_test} INTERFACE_PATH_PREFIXED_SOURCES)
+    list(APPEND Test_SOURCES ${_headers} ${_sources})
+endforeach()
+add_executable(Test ${Test_SOURCES})
+# Link all the unit test components (this does not include the GTest component)
+target_link_libraries(Test PUBLIC ${_tests})
