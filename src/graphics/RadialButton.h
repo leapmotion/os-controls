@@ -1,6 +1,5 @@
 #pragma once
-#include "State.h"
-#include "graphics/RenderFrame.h"
+#include "graphics/RenderEngineNode.h"
 
 #include "Primitives.h"
 #include "Color.h"
@@ -10,7 +9,8 @@
 
 #include <string>
 
-class RadialButton
+class RadialButton :
+  public RenderEngineNode
 {
 public:
   RadialButton(const Vector3& center, float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset);
@@ -18,7 +18,7 @@ public:
   
   void nudge(float offset);
   
-  void draw(const RenderFrame& frame);
+  void Render(const RenderFrame& frame) const override;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:

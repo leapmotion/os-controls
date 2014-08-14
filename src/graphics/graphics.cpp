@@ -6,4 +6,8 @@
 void GraphicsInitialize(void) {
   AutoRequired<RenderEngineNode> rootNode;
 
+  //Debug
+  auto node = RenderEngineNode::Create<MediaView>(Vector3(300, 300, 0), 5.0f);
+
+  rootNode->AddChild(node);
 }
