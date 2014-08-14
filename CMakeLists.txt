@@ -162,8 +162,8 @@ add_sublibrary(
     HEADERS
         gl_glext_glu.h
     EXPLICIT_LIBRARY_DEPENDENCIES
-        "OpenGL 2.1"
         "Glew 1.9.0"
+        "OpenGL 2.1" # It is necessary to link GL after Glew on Linux.
     BRIEF_DOC_STRING
         "A means for including OpenGL (and related) headers in a platform-agnostic way."
 )
@@ -602,6 +602,8 @@ add_sublibrary(
     SOURCES
         gtest/gtest-all.cc
         gtest/gtest_main.cc
+    COMPILE_DEFINITIONS
+        GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
     BRIEF_DOC_STRING
         "Provides an easy way to include and link the Google Test framework."
 )
