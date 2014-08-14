@@ -83,9 +83,9 @@ public:
     }
   }
 
-  // Traverse this tree, depth-first, calling call_this_function_first (if valid) 
+  // Traverse this tree, depth-first, calling preTraversal (if not nullptr) 
   // on this node, then calling this function recursively on the child nodes, then 
-  // calling call_this_function_last (if valid) on this node.
+  // calling postTraversal (if not nullptr) on this node.
   template<class _FnPre, class _FnPost>
   void DepthFirstTraverse(_FnPre preTraversal, _FnPost postTraversal) {
     CallFunction(preTraversal, *this);
@@ -97,12 +97,12 @@ public:
     CallFunction(postTraversal,*this);
   }
 
- 
+  //As above, but const.
   template<class _FnPre, class _FnPost>
   void DepthFirstTraverse(_FnPre preTraversal, _FnPost postTraversal) const {
     CallFunction(preTraversal, *this);
     for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-      const std::shared_ptr<SceneGraphNode> &child = *it;
+      const std::shared_ptr<const SceneGraphNode> &child = *it;
       assert(bool(child));
       child->DepthFirstTraverse(preTraversal, postTraversal);
     }
@@ -184,10 +184,10 @@ private:
 
   //Silly function call wrapper that allows you to also pass nullptr as a function if you want.
   template<class _Fn, typename... _Args>
-  static void CallFunction(_Fn function, _Args& ... args) { function(args...); }
+  static void CallFunction(_Fn function, _Args&& ... args) { function(args...); }
   
   template<typename... _Args>
-  static void CallFunction(std::nullptr_t, _Args&...) {}
+  static void CallFunction(std::nullptr_t, _Args&&...) {}
   
 
   // This populates a vector with the ancestors of this node, starting with this node,
