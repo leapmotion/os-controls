@@ -40,12 +40,12 @@ function(target_link_components TARGET)
     set(_multi_value_args ${_added_sublibraries})
     cmake_parse_arguments(_lib_dep "${_options}" "${_one_value_args}" "${_multi_value_args}" ${_library_dependency_map})
 
-	if(NOT _arg_INTERFACE AND NOT _arg_PUBLIC AND NOT _arg_PRIVATE)
-		message(FATAL_ERROR "No linkage specified for targets: ${_arg_UNPARSED_ARGUMENTS}.  Did you forget a [PUBLIC|PRIVATE|INTERFACE] keyword?")
-	endif()
-	
+    if(NOT _arg_INTERFACE AND NOT _arg_PUBLIC AND NOT _arg_PRIVATE)
+        set(_arg_DEFAULT_LINK ${_arg_UNPARSED_ARGUMENTS})
+    endif()
+
     # For each of INTERFACE, PUBLIC, PRIVATE,
-    foreach(_link_type INTERFACE PUBLIC PRIVATE)
+    foreach(_link_type INTERFACE PUBLIC PRIVATE DEFAULT_LINK)
         verbose_message("processing ${_link_type} targets: ${_arg_${_link_type}}")
         # Load the library dependencies of the sublibrary and then call target_link_libraries
         # on the sublibrary dependencies with the specified link type.
@@ -63,10 +63,12 @@ function(target_link_components TARGET)
             endforeach()
 
             # Now call target_link_libraries on TARGET, to link Components::{_sublib} with the given link type.
-            target_link_libraries(${TARGET} ${_link_type} Components::${_sublib})
+            if(_link_type STREQUAL "DEFAULT_LINK")
+                target_link_libraries(${TARGET} Components::${_sublib})
+            else()
+                target_link_libraries(${TARGET} ${_link_type} Components::${_sublib})
+            endif()
         endforeach()
     endforeach()
-	
-	
 endfunction()
 
