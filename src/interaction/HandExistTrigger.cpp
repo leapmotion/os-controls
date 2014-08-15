@@ -6,7 +6,7 @@ HandExistTrigger::HandExistTrigger()
 {
 }
 
-void HandExistTrigger::AutoFilter(AutoPacket& packet, Leap::Frame frame, HandExistenceState& heg){
+void HandExistTrigger::AutoFilter(Leap::Frame frame, HandExistenceState& heg){
   std::set<int32_t> hands;
   //std::cout << "test" << std::endl;
   for (auto hand : frame.hands()) {
@@ -39,6 +39,4 @@ void HandExistTrigger::AutoFilter(AutoPacket& packet, Leap::Frame frame, HandExi
   }
   
   m_hands = hands;
-  
-  packet.DecorateImmediate(&heg);
 }
