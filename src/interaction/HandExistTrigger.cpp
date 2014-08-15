@@ -8,7 +8,7 @@ HandExistTrigger::HandExistTrigger()
 
 void HandExistTrigger::AutoFilter(AutoPacket& packet, Leap::Frame frame, HandExistenceState& heg){
   std::set<int32_t> hands;
-
+  //std::cout << "test" << std::endl;
   for (auto hand : frame.hands()) {
     hands.insert(hand.id());
   }

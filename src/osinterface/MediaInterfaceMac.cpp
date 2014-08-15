@@ -1,47 +1,47 @@
 #include "stdafx.h"
-#include "MediaControllerMac.h"
+#include "MediaInterfaceMac.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <AppKit/NSEvent.h>
 #include <Foundation/Foundation.h>
 #include <IOKit/hidsystem/ev_keymap.h>
 
-MediaController* MediaController::New(void) {
-  return new MediaControllerMac;
+MediaInterface* MediaInterface::New(void) {
+  return new MediaInterfaceMac;
 }
 
-void MediaControllerMac::PlayPause(void) {
+void MediaInterfaceMac::PlayPause(void) {
   SendSpecialKeyEventPair(NX_KEYTYPE_PLAY);
 }
 
-void MediaControllerMac::Stop(void) {
+void MediaInterfaceMac::Stop(void) {
   // No concept of Stop on Mac
 }
 
-void MediaControllerMac::Next(void) {
+void MediaInterfaceMac::Next(void) {
   SendSpecialKeyEventPair(NX_KEYTYPE_NEXT);
 }
 
-void MediaControllerMac::Prev(void) {
+void MediaInterfaceMac::Prev(void) {
   SendSpecialKeyEventPair(NX_KEYTYPE_PREVIOUS);
 }
 
-void MediaControllerMac::VolumeUp(void) {
+void MediaInterfaceMac::VolumeUp(void) {
   // Include shift-key modifier so the control doesn't produce "pop" noise
   SendSpecialKeyEventPair(NX_KEYTYPE_SOUND_UP, NSShiftKeyMask);
 }
 
-void MediaControllerMac::VolumeDown(void) {
+void MediaInterfaceMac::VolumeDown(void) {
   // Include shift-key modifier so the control doesn't produce "pop" noise
   SendSpecialKeyEventPair(NX_KEYTYPE_SOUND_DOWN, NSShiftKeyMask);
 }
 
-void MediaControllerMac::Mute(void) {
+void MediaInterfaceMac::Mute(void) {
   // Include shift-key modifier so the control doesn't produce "pop" noise
   SendSpecialKeyEventPair(NX_KEYTYPE_MUTE, NSShiftKeyMask);
 }
 
-void MediaControllerMac::SendSpecialKeyEvent(int32_t keyType, uint32_t mask, bool isDown) {
+void MediaInterfaceMac::SendSpecialKeyEvent(int32_t keyType, uint32_t mask, bool isDown) {
   const NSUInteger flags = (isDown ? NX_KEYDOWN : NX_KEYUP) << 8;
   const NSInteger data1 = (keyType << 16) | flags;
 

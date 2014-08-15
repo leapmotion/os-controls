@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "AudioVolumeControllerMac.h"
+#include "AudioVolumeInterfaceMac.h"
 
-AudioVolumeControllerMac::AudioVolumeControllerMac(void) {
+AudioVolumeInterfaceMac::AudioVolumeInterfaceMac(void) {
 }
 
-AudioVolumeController* AudioVolumeController::New(void) {
-  return new AudioVolumeControllerMac;
+AudioVolumeInterface* AudioVolumeInterface::New(void) {
+  return new AudioVolumeInterfaceMac;
 }
 
-float AudioVolumeControllerMac::GetVolume(void) {
+float AudioVolumeInterfaceMac::GetVolume(void) {
   float volume = 0;
   AudioDeviceID audioDevice = GetAudioDeviceID();
   // Try to get the master channel. If it fails, try to then get left channel and right channel
@@ -32,7 +32,7 @@ float AudioVolumeControllerMac::GetVolume(void) {
   return volume;
 }
 
-void AudioVolumeControllerMac::SetVolume(float volume) {
+void AudioVolumeInterfaceMac::SetVolume(float volume) {
   AudioDeviceID audioDevice = GetAudioDeviceID();
   // Try to set the master channel. If it fails, try to then set left channel and right channel
   for (AudioObjectPropertyElement channel = 0; channel < 3; channel++) {
@@ -50,7 +50,7 @@ void AudioVolumeControllerMac::SetVolume(float volume) {
   }
 }
 
-void AudioVolumeControllerMac::SetMute(bool mute) {
+void AudioVolumeInterfaceMac::SetMute(bool mute) {
   AudioDeviceID audioDevice = GetAudioDeviceID();
   // Try to set the master channel. If it fails, try to then set left channel and right channel
   for (AudioObjectPropertyElement channel = 0; channel < 3; channel++) {
@@ -68,7 +68,7 @@ void AudioVolumeControllerMac::SetMute(bool mute) {
   }
 }
 
-bool AudioVolumeControllerMac::IsMuted(void) {
+bool AudioVolumeInterfaceMac::IsMuted(void) {
   bool muted = false;
   bool setMutedState = false;
   AudioDeviceID audioDevice = GetAudioDeviceID();
@@ -91,7 +91,7 @@ bool AudioVolumeControllerMac::IsMuted(void) {
   return muted;
 }
 
-AudioDeviceID AudioVolumeControllerMac::GetAudioDeviceID() {
+AudioDeviceID AudioVolumeInterfaceMac::GetAudioDeviceID() {
   AudioObjectPropertyAddress outputDeviceAddress = { kAudioHardwarePropertyDefaultOutputDevice,
                                                      kAudioObjectPropertyScopeGlobal,
                                                      kAudioObjectPropertyElementMaster };

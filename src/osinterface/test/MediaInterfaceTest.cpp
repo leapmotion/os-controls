@@ -1,17 +1,17 @@
 #include "stdafx.h"
-#include "MediaController.h"
-#include "AudioVolumeController.h"
+#include "MediaInterface.h"
+#include "AudioVolumeInterface.h"
 
 #include <chrono>
 #include <thread>
 
-class MediaControllerTest:
+class MediaInterfaceTest:
   public testing::Test
 {};
 
-TEST_F(MediaControllerTest, VerifyVolumeControls) {
-  AutoDesired<AudioVolumeController> ac;
-  AutoDesired<MediaController> mc;
+TEST_F(MediaInterfaceTest, VerifyVolumeControls) {
+  AutoDesired<AudioVolumeInterface> ac;
+  AutoDesired<MediaInterface> mc;
   if(!ac || !mc)
     return;
 

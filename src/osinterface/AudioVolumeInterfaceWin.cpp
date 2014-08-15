@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "AudioVolumeControllerWin.h"
+#include "AudioVolumeInterfaceWin.h"
 #include <Endpointvolume.h>
 #include <Mmdeviceapi.h>
 
-AudioVolumeControllerWin::AudioVolumeControllerWin(void) {
+AudioVolumeInterfaceWin::AudioVolumeInterfaceWin(void) {
   // Enumerate all volume devices, find one we can talk to
   m_devEnumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL);
   if(!m_devEnumerator)
@@ -18,24 +18,24 @@ AudioVolumeControllerWin::AudioVolumeControllerWin(void) {
     throw std::runtime_error("Cannot open a handle to the audio volume session manager");
 }
 
-AudioVolumeController* AudioVolumeController::New(void) {
-  return new AudioVolumeControllerWin;
+AudioVolumeInterface* AudioVolumeInterface::New(void) {
+  return new AudioVolumeInterfaceWin;
 }
 
-float AudioVolumeControllerWin::GetVolume(void) {
+float AudioVolumeInterfaceWin::GetVolume(void) {
   float level;
   m_pAudioEndpointVolume->GetMasterVolumeLevelScalar(&level);
   return level;
 }
 
-void AudioVolumeControllerWin::SetMute(bool mute) {
+void AudioVolumeInterfaceWin::SetMute(bool mute) {
   BOOL bMute = mute ? TRUE : FALSE;
   HRESULT hr = m_pAudioEndpointVolume->SetMute(bMute, nullptr);
   if(FAILED(hr))
     throw std::runtime_error("Failed to set muting state");
 }
 
-bool AudioVolumeControllerWin::IsMuted(void) {
+bool AudioVolumeInterfaceWin::IsMuted(void) {
   BOOL bMute = FALSE;
   HRESULT hr = m_pAudioEndpointVolume->GetMute(&bMute);
   if(FAILED(hr))
@@ -43,6 +43,6 @@ bool AudioVolumeControllerWin::IsMuted(void) {
   return bMute != FALSE;
 }
 
-void AudioVolumeControllerWin::SetVolume(float volume) {
+void AudioVolumeInterfaceWin::SetVolume(float volume) {
   m_pAudioEndpointVolume->SetMasterVolumeLevelScalar(volume, nullptr);
 }

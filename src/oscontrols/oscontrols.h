@@ -11,9 +11,9 @@ struct OsControlRender {
   std::chrono::duration<double> timeDelta;
 };
 
-class AudioVolumeController;
+class AudioVolumeInterface;
 class LeapInput;
-class MediaController;
+class MediaInterface;
 class RenderEngine;
 
 namespace sf {
@@ -38,8 +38,8 @@ private:
   sf::ContextSettings m_contextSettings;
 
   Autowired<leap::VirtualScreen> m_virtualScreen;
-  AutoDesired<AudioVolumeController> m_avcontrol;
-  AutoRequired<MediaController> m_media;
+  AutoDesired<AudioVolumeInterface> m_avcontrol;
+  AutoRequired<MediaInterface> m_media;
   AutoRequired<LeapInput> m_leapInput;
   AutoRequired<RenderEngine> m_render;
 

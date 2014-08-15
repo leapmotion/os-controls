@@ -1,12 +1,12 @@
 #pragma once
 
-class AudioVolumeController:
+class AudioVolumeInterface:
   public ContextMember
 {
 public:
-  AudioVolumeController(void);
+  AudioVolumeInterface(void);
 
-  static AudioVolumeController* New(void);
+  static AudioVolumeInterface* New(void);
 
 private:
 

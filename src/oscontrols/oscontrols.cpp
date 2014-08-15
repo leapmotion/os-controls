@@ -5,9 +5,9 @@
 #include "graphics/RenderEngine.h"
 #include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
-#include "osinterface/AudioVolumeController.h"
+#include "osinterface/AudioVolumeInterface.h"
 #include "osinterface/LeapInput.h"
-#include "osinterface/MediaController.h"
+#include "osinterface/MediaInterface.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
 #include "utility/VirtualScreen.h"
@@ -68,6 +68,7 @@ void OsControl::AdjustDesktopWindow(void) {
 }
 
 void OsControl::Main(void) {
+  std::cout << "main" << std::endl;
   GestureTriggerManifest manifest;
   GraphicsInitialize();
 

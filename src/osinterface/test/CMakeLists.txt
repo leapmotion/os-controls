@@ -1,7 +1,7 @@
 set(osinterfacetest_SRCS
   osinterfacetest.cpp
-  AudioVolumeControllerTest.cpp
-  MediaControllerTest.cpp
+  AudioVolumeInterfaceTest.cpp
+  MediaInterfaceTest.cpp
 )
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" osinterfacetest_SRCS)

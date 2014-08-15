@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "AudioVolumeController.h"
+#include "AudioVolumeInterface.h"
 
-class AudioControllerTest:
+class AudioInterfaceTest:
   public testing::Test
 {};
 
-TEST_F(AudioControllerTest, VerifyVolumeRange) {
-  AutoDesired<AudioVolumeController> ac;
+TEST_F(AudioInterfaceTest, VerifyVolumeRange) {
+  AutoDesired<AudioVolumeInterface> ac;
   if(!ac)
     return;
 
@@ -18,8 +18,8 @@ TEST_F(AudioControllerTest, VerifyVolumeRange) {
   ASSERT_GE(1.0f, volume) << oob;
 }
 
-TEST_F(AudioControllerTest, VerifyGetSetMuteVolume) {
-  AutoDesired<AudioVolumeController> ac;
+TEST_F(AudioInterfaceTest, VerifyGetSetMuteVolume) {
+  AutoDesired<AudioVolumeInterface> ac;
   if(!ac)
     return;
 
