@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include "graphics/graphics.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "interaction/GestureTriggerManifest.h"
@@ -70,7 +69,6 @@ void OsControl::AdjustDesktopWindow(void) {
 void OsControl::Main(void) {
   std::cout << "main" << std::endl;
   GestureTriggerManifest manifest;
-  GraphicsInitialize();
 
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);

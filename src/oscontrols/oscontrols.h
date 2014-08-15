@@ -1,5 +1,6 @@
 #pragma once
 #include "utility/VirtualScreen.h"
+#include "MediaMenuController.h"
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -44,6 +45,8 @@ private:
   AutoRequired<RenderEngine> m_render;
 
   AutoConstruct<sf::RenderWindow> m_mw;
+  
+  MediaMenuController m_mediaMenuController;
 
   // Requirements for this to be a CoreRunnable:
   bool m_bShouldStop;

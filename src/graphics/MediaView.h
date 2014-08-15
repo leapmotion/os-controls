@@ -24,15 +24,11 @@ private:
     FADE_OUT,
     FADE_IN
   };
-    
-  bool findHandInVector(std::vector<Leap::Hand> vect, Leap::Hand goalHand);
+  
+  void setOpacity(float opacity);
   
   FadeState fadeState;
   
-  AutoRequired<MostRecent> m_hes;
-  
-  Leap::Hand controllingHand;
-
   std::shared_ptr<RadialButton> m_leftButton;
   std::shared_ptr<RadialButton> m_topButton;
   std::shared_ptr<RadialButton> m_rightButton;

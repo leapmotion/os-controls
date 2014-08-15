@@ -1,4 +1,6 @@
 set(oscontrols_SOURCES
+  MediaMenuController.h
+  MediaMenuController.cpp
   oscontrols.h
   oscontrols.cpp
 )
