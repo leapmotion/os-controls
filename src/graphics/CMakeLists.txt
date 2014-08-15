@@ -1,8 +1,6 @@
 set(graphics_SOURCES
   ExposeControl.h
   ExposeControl.cpp
-  graphics.h
-  graphics.cpp
   MediaView.h
   MediaView.cpp
   RadialButton.h

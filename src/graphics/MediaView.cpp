@@ -13,7 +13,6 @@ MediaView::MediaView(const Vector3& center, float offset) :
   m_time(0),
   m_scale(1)
 {
-  fadeState = FADE_OUT;
   Translation() = center;
 }
 

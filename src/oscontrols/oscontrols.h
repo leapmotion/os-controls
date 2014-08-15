@@ -46,7 +46,7 @@ private:
 
   AutoConstruct<sf::RenderWindow> m_mw;
   
-  MediaMenuController m_mediaMenuController;
+  AutoRequired<MediaMenuController> m_mediaMenuController;
 
   // Requirements for this to be a CoreRunnable:
   bool m_bShouldStop;

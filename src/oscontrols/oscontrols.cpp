@@ -67,7 +67,6 @@ void OsControl::AdjustDesktopWindow(void) {
 }
 
 void OsControl::Main(void) {
-  std::cout << "main" << std::endl;
   GestureTriggerManifest manifest;
 
   auto clearOutstanding = MakeAtExit([this] {

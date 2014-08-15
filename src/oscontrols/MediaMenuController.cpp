@@ -2,6 +2,7 @@
 
 
 MediaMenuController::MediaMenuController() :
+m_fadeState(FADE_OUT),
 m_mediaView(new MediaView(Vector3(300, 300, 0), 5.0f))
 {
   m_controllingHand = Leap::Hand::invalid();
@@ -15,30 +16,29 @@ void MediaMenuController::AutoFilter(const HandExistenceState &hes) {
     if(!hes.m_newHands.empty())
     {
       m_controllingHand = hes.m_newHands[0];
-      fadeState = FADE_IN;
+      m_fadeState = FADE_IN;
       std::cout << "set new controlling hand" << std::endl;
     }
   }
   else {
     //std::cout << "has controlling hand" << std::endl;
     if(!findHandInVector(hes.m_stableHands, m_controllingHand)) {
-      fadeState = FADE_OUT;
-      controllingHand = Leap::Hand::invalid();
+      m_fadeState = FADE_OUT;
+      m_controllingHand = Leap::Hand::invalid();
       std::cout << "remove controlling hand" << std::endl;
     }
   }
   
-  switch (fadeState) {
+  switch (m_fadeState) {
     case FADE_IN:
-      m_leftButton->setOpacity(1.0f);
-      m_topButton->setOpacity(1.0f);
-      m_rightButton->setOpacity(1.0f);
+      m_mediaView->setOpacity(1.0f);
       break;
     case FADE_OUT:
-      m_leftButton->setOpacity(0.0f);
-      m_topButton->setOpacity(0.0f);
-      m_rightButton->setOpacity(0.0f);
+      m_mediaView->setOpacity(0.0f);
       break;
+    default:
+      break;
+      // woo
   }
 }
 

@@ -15,20 +15,12 @@ public:
   MediaView(const Vector3& center, float offset);
   
   void InitChildren() override;
-  void Update(double deltaT) override;
   void AnimationUpdate(const RenderFrame& frame) override;
-  
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-private:
-  enum FadeState {
-    FADE_OUT,
-    FADE_IN
-  };
   
   void setOpacity(float opacity);
   
-  FadeState fadeState;
-  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+private:
   std::shared_ptr<RadialButton> m_leftButton;
   std::shared_ptr<RadialButton> m_topButton;
   std::shared_ptr<RadialButton> m_rightButton;
