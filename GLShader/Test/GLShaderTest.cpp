@@ -70,14 +70,12 @@ void GLShaderTest::SetUp () {
 //   // Create the GL context based on the renderer.
 //   m_SDL_GLContext = 
 
-  std::cout << "GLShader::SetUp();\n";
   m_SDLController.Initialize();
 }
 
 void GLShaderTest::TearDown () {
   // Shut down the created things in reverse order
 
-  std::cout << "GLShader::TearDown();\n";
   m_SDLController.Shutdown();
 }
 
