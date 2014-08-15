@@ -14,9 +14,6 @@
 
 RenderEngine::RenderEngine()
 {
-  m_renderState.GetModelView().Reset();
-  m_renderState.GetModelView().LookAt(Vector3(0, 0, 0), Vector3(0, 0, -1), Vector3::UnitY());
- 
   if (!sf::Shader::isAvailable()) //This also calls glewInit for us
     throw std::runtime_error("Shaders are not supported!");
 
