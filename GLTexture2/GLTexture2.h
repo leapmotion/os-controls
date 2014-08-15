@@ -5,6 +5,10 @@
 
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 
+// TEMPORARY shim until std::is_same from <type_traits> is available
+template <typename T0_, typename T1_> struct is_same { static const bool value = false; };
+template <typename T_> struct is_same<T_,T_> { static const bool value = true; };
+
 // This is an invaluable resource: http://www.opengl.org/wiki/Common_Mistakes
 
 // Notes for improvement/redesign of GLTexture2Params
