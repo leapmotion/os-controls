@@ -32,12 +32,25 @@ void MediaView::AnimationUpdate(const RenderFrame& frame) {
   m_topButton->nudge(20 * (0.5f + 0.5f * std::sin(5*m_time + 2)));
   m_rightButton->nudge(20 * (0.5f + 0.5f * std::sin(5*m_time + 4)));
 
+  //TODO: make this animate
+  switch (m_fadeState) {
+  case FADE_IN:
+    setOpacity(1.0f);
+    break;
+  case FADE_OUT:
+    setOpacity(0.0f);
+    break;
+  }
+
   frame.renderState.GetModelView().Scale(Vector3::Constant(m_scale + .5f*std::sin(3*m_time)));
+}
+
+void MediaView::SetFadeState(FadeState newState){
+  m_fadeState = newState;
 }
 
 void MediaView::setOpacity(float opacity) {
   m_leftButton->setOpacity(opacity);
   m_topButton->setOpacity(opacity);
   m_rightButton->setOpacity(opacity);
-
 }
