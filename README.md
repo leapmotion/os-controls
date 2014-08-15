@@ -159,22 +159,4 @@ GLShaderInterfaceMaterial
 - Similar interface as GLShaderInterfaceMatrices, but for material parameters.
   This one will be tailored to material uniforms of a particular shader (lighting-*.glsl)
 
-Perhaps there should be a GLShaderInterface class which provides the dictionary
-functionality that would be common to these classes.  Then each subclass would
-just provide a small amount of data and perhaps specialized methods for setting
-fixed uniforms.
-
-GLShaderInterface -- or maybe this functionality should go directly into GLShader
-- discovery of shader uniforms and attributes
-- storing discovered uniforms and attributes in a dictionary (unordered_map)
-  of name -> (type, location, other useful info)
-- type checking on the modifier methods
-- use glGetActiveUniform and glGetActiveAttrib, which will also return names
-  that are prefixed with "gl_".  these are built-in values which maybe should
-  be stored statically or in some singleton, because they will (likely?) be
-  identical in every shader.
-  NOTE: uniforms and attributes are indexed in a contiguous block starting at 0
-  and the number of them can be queried via glGetProgram with GL_ACTIVE_UNIFORMS
-  or GL_ACTIVE_ATTRIBUTES
-  NOTE: in order to allocate enough memory to store a name, glGetProgram can
-  be used with GL_ACTIVE_UNIFORM_MAX_LENGTH or GL_ACTIVE_ATTRIBUTE_MAX_LENGTH
+GLShader now implements a dictionary for uniforms and attributes (name -> (location, type, size)).

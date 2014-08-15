@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <map> // TODO: use unordered_map, but wait until Cinder is cut out of FreeForm so it can use C++11.
 #include <string>
 #include <vector>
 
@@ -14,10 +15,44 @@ template <size_t ROWS_, size_t COLUMNS_> struct UniformMatrixFunction { static c
 
 enum MatrixStorageConvention { COLUMN_MAJOR, ROW_MAJOR };
 
-// This class wraps compiling and binding GLSL shaders.  It was initially taken from Jerry Coffin's
-// answer at http://stackoverflow.com/questions/2795044/easy-framework-for-opengl-shaders-in-c-c
+/// @brief This class wraps compiling and binding GLSL shaders, as well as discovering and
+/// setting their uniforms and attributes.
+/// @details Some of the code was initially taken from Jerry Coffin's answer at
+/// http://stackoverflow.com/questions/2795044/easy-framework-for-opengl-shaders-in-c-c
+/// Currently only the OpenGL 2.1 standard uniform types are supported (in particular, this
+/// is missing unsigned ints, unsigned int vectors, and a bunch of sampler types).
+///
+/// Upon successful linking, the shader program will be queried for all its active uniforms
+/// and attributes, storing the relevant info (name, location, size, type) in a map which is
+/// indexed by name.  These maps can be accessed via the UniformInfoMap and AttributeInfoMap
+/// methods.
 class GLShader {
 public:
+
+  // Stores information about a named variable in a shader program.
+  class VarInfo {
+  public:
+
+    VarInfo () { } // TEMP until C++11 compatibility allows use of std::map::emplace
+    VarInfo (const std::string &name, GLint location, GLint size, GLenum type);
+
+    const std::string &Name () const { return m_name; }
+    GLint Location () const { return m_location; }
+    GLint Size () const { return m_size; }
+    // The Type defines what uniform modifier function can be used with each variable.
+    // Note that sampler types must be set using integer values indicating which texture
+    // unit is bound to it.  See http://www.opengl.org/wiki/Sampler_(GLSL)#Binding_textures_to_samplers
+    GLenum Type () const { return m_type; }
+
+  private:
+
+    std::string m_name;
+    GLint m_location;
+    GLint m_size;
+    GLenum m_type;
+  };
+
+  typedef std::map<std::string,VarInfo> VarInfoMap;
 
   // TODO: make GLShader-specific std::exception subclass?
 
@@ -31,28 +66,35 @@ public:
   // This method should be called when no shader program should be used.
   static void Unbind () { glUseProgram(0); }
 
+  // Returns a map, indexed by name, containing all the active uniforms in this shader program.
+  const VarInfoMap &UniformInfoMap () const { return m_uniform_info_map; }
+  // Returns a map, indexed by name, containing all the active attributes in this shader program.
+  const VarInfoMap &AttributeInfoMap () const { return m_attribute_info_map; }
+
   // Returns true iff the shader uniform exists.
   bool HasUniform (const std::string &name) const { return LocationOfUniform(name) != -1; }
+  // Returns the VarInfo data for the requested uniform, or throws if that uniform is not found.
+  const VarInfo &UniformInfo (const std::string &name) const {
+    VarInfoMap::const_iterator it = m_uniform_info_map.find(name);
+    if (it == m_uniform_info_map.end()) {
+      throw std::domain_error("no uniform named \"" + name + "\" found in shader program");
+    }
+    return it->second;
+  }
   // Returns true iff the shader attribute exists.
   bool HasAttribute (const std::string &name) const { return LocationOfAttribute(name) != -1; }
-  // Returns the location of the requested uniform -- it's handle into the GL apparatus.
-  GLint LocationOfUniform (const std::string &name) const {
-    // TODO: cache these in a dictionary
-    // TODO: throw if the name is not found?
-    // QUESTION: there are two shaders -- fragment and vertex, each of which could define the same
-    // uniform name using different types.  is this a problem, or does the shader compiler/linker
-    // check this?
-    return glGetUniformLocation(m_prog, name.c_str());
+  // Returns the VarInfo data for the requested attribute, or throws if that attribute is not found.
+  const VarInfo &AttributeInfo (const std::string &name) const {
+    VarInfoMap::const_iterator it = m_attribute_info_map.find(name);
+    if (it == m_attribute_info_map.end()) {
+      throw std::domain_error("no attribute named \"" + name + "\" found in shader program");
+    }
+    return it->second;
   }
-  // Returns the location of the requested attribute -- it's handle into the GL apparatus.
-  GLint LocationOfAttribute (const std::string &name) const {
-    // TODO: cache these in a dictionary
-    // TODO: throw if the name is not found?
-    // QUESTION: there are two shaders -- fragment and vertex, each of which could define the same
-    // uniform name using different types.  is this a problem, or does the shader compiler/linker
-    // check this?
-    return glGetAttribLocation(m_prog, name.c_str());
-  }
+  // Returns the location of the requested uniform -- its handle into the GL apparatus.
+  GLint LocationOfUniform (const std::string &name) const { return UniformInfo(name).Location(); }
+  // Returns the location of the requested attribute -- its handle into the GL apparatus.
+  GLint LocationOfAttribute (const std::string &name) const { return AttributeInfo(name).Location(); }
 
   // These SetUniform* methods require this shader to currently be bound.  They are named
   // with type annotators to avoid confusion in situations where types are implicitly coerced.
@@ -64,6 +106,7 @@ public:
   }
   // Sets the named uniform to the given GLint value.
   void SetUniformi (const std::string &name, GLint value) {
+    // TODO: type checking
     glUniform1i(LocationOfUniform(name), value);
   }
   // Sets the named uniform to the given GLfloat value.
@@ -151,6 +194,9 @@ private:
   GLuint m_vertex_shader;   ///< Handle to the vertex shader in the GL apparatus.
   GLuint m_fragment_shader; ///< Handle to the fragment shader in the GL apparatus.
   GLuint m_prog;            ///< Handle to the shader program in the GL apparatus.
+
+  VarInfoMap m_uniform_info_map;
+  VarInfoMap m_attribute_info_map;
 };
 
 // Template specializations of UniformFunction and UniformMatrixFunction.
