@@ -69,12 +69,14 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
     mv.Multiply(Matrix3x3(node.LinearTransformation()));
 
     renderNode.AnimationUpdate(frame);
-    zList.push_back(std::make_pair(&renderNode, mv));
-    },
+    renderNode.Render(frame);
+    //zList.push_back(std::make_pair(&renderNode, mv));
+  },
     [&frame](SceneGraphNode<double, 3>& node) {
       frame.renderState.GetModelView().Pop();
-    });
-
+    }
+  );
+    /*
   std::stable_sort(zList.begin(), zList.end(), 
     [](const RenderListElement_t& a, const RenderListElement_t& b){ return a.first->Translation().z() < a.first->Translation().z(); }
   );
@@ -82,8 +84,8 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
   for (auto element : zList) {
     frame.renderState.GetModelView() = element.second;
     element.first->Render(frame);
-  }
-  m_renderList.clear(); //Todo: temporal coherency - scan the list to look for changes instead of clearing/rebuilding?
+  }*/
+  //m_renderList.clear(); //Todo: temporal coherency - scan the list to look for changes instead of clearing/rebuilding?
 
   m_shader->Unbind();
 
