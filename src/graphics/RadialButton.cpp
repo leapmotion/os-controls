@@ -23,7 +23,7 @@ RadialButton::RadialButton(float innerRadius, float width, float startAngle, flo
 RadialButton::~RadialButton() {
 }
 
-void RadialButton::nudge(float offset) {
+void RadialButton::Nudge(float offset) {
   m_partialDisk.SetInnerRadius(m_innerRadius + offset);
   m_partialDisk.SetOuterRadius(m_outerRadius + offset);
 }
@@ -36,7 +36,7 @@ void RadialButton::Render(const RenderFrame& frame) const {
   m_partialDisk.Draw(frame.renderState);
 }
 
-void RadialButton::setOpacity(float opacity) {
+void RadialButton::SetOpacity(float opacity) {
   //opacity = std::max(0.0f, std::min(1.0f, opacity));
   m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, opacity));
 }

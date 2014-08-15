@@ -1,6 +1,7 @@
 #pragma once
 #include "utility/VirtualScreen.h"
 #include "MediaMenuController.h"
+#include "CursorController.h"
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -46,6 +47,7 @@ private:
 
   AutoRequired<RenderEngine> m_render;
   AutoRequired<MediaMenuController> m_mediaMenuController;
+  AutoRequired<CursorController> m_cursorController;
 
   //SFML Stuff
   AutoConstruct<sf::RenderWindow> m_mw;
