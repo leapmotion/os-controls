@@ -29,6 +29,9 @@ void RadialButton::nudge(float offset) {
 }
 
 void RadialButton::Render(const RenderFrame& frame) const {
+  if (m_partialDisk.DiffuseColor().A() == 0.0f)
+    return;
+
   // draw primitives
   m_partialDisk.Draw(frame.renderState);
 }
