@@ -595,6 +595,7 @@ endif()
 
 add_sublibrary(
     GTest
+    EXCLUDE_FROM_ALL
     SOURCE_PATH
         ../gtest-1.7.0/fused-src
     HEADERS
@@ -615,6 +616,7 @@ begin_sublibrary_definitions()
 
 add_sublibrary(
     C++11Test
+    EXCLUDE_FROM_ALL
     SOURCE_PATH
         C++11/Test
     SOURCES
@@ -628,6 +630,7 @@ add_sublibrary(
 
 add_sublibrary(
     GLShaderTest
+    EXCLUDE_FROM_ALL
     SOURCE_PATH
         GLShader/Test
     SOURCES
