@@ -38,15 +38,17 @@ private:
 
   sf::ContextSettings m_contextSettings;
 
+  //This might need to be changed to be a manifest?
   Autowired<leap::VirtualScreen> m_virtualScreen;
   AutoDesired<AudioVolumeInterface> m_avcontrol;
   AutoRequired<MediaInterface> m_media;
   AutoRequired<LeapInput> m_leapInput;
-  AutoRequired<RenderEngine> m_render;
 
-  AutoConstruct<sf::RenderWindow> m_mw;
-  
+  AutoRequired<RenderEngine> m_render;
   AutoRequired<MediaMenuController> m_mediaMenuController;
+
+  //SFML Stuff
+  AutoConstruct<sf::RenderWindow> m_mw;
 
   // Requirements for this to be a CoreRunnable:
   bool m_bShouldStop;

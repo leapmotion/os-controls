@@ -8,9 +8,8 @@
 VolumeControl::VolumeControl() :
 m_time(0)
 {
-  Translation() = Vector3(600, 600, 0);
-
-  m_partialDisk.SetDiffuseColor(Color(1.0f, 0.3f, 1.0f, 1.0f));
+  Translation().z() = -10;
+  m_partialDisk.SetDiffuseColor(Color(1.0f, 0.3f, 1.0f, .4f));
   m_partialDisk.SetAmbientFactor(0.9f);
 }
 
