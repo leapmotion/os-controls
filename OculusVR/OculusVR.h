@@ -2,6 +2,7 @@
 
 #include "EigenTypes.h"
 #include "OVR.h"
+#include "OVR_Kernel.h"
 #include "GLTexture2.h"
 #include "FrameBufferObject.h"
 
@@ -80,17 +81,25 @@ public:
     return m_EyeRenderViewport[eye];
   }
 
-  const ovrMatrix4f& EyeProjection(int eye) const {
+  const OVR::Matrix4f& EyeProjection(int eye) const {
     return m_EyeProjection[eye];
   }
 
-  const ovrVector3f& EyeTranslation(int eye) const {
+  const OVR::Vector3f& EyeTranslation(int eye) const {
     return m_EyeTranslation[eye];
   }
 
-  const ovrQuatf& EyeRotation(int eye) const {
+  const OVR::Quatf& EyeRotation(int eye) const {
     return m_EyeRotation[eye];
   }
+
+  const OVR::Matrix4f& EyeView(int eye) const {
+    return m_EyeView[eye];
+  }
+
+#if _WIN32
+  HWND m_HWND;
+#endif
 
 private:
 
@@ -99,14 +108,20 @@ private:
   ovrHmd m_HMD;
   bool m_Debug;
 
-  FrameBufferObject* m_HMDFbo;
+  //FrameBufferObject* m_HMDFbo;
+
+  GLuint m_FrameBuffer;
+  GLuint m_Texture;
+  GLuint m_RenderBuffer;
+
   ovrRecti m_EyeRenderViewport[2];
   ovrGLTexture m_EyeTexture[2];
   ovrPosef m_EyeRenderPose[2];
   ovrEyeRenderDesc m_EyeRenderDesc[2];
 
-  ovrMatrix4f m_EyeProjection[2];
-  ovrVector3f m_EyeTranslation[2];
-  ovrQuatf m_EyeRotation[2];
+  OVR::Matrix4f m_EyeProjection[2];
+  OVR::Matrix4f m_EyeView[2];
+  OVR::Vector3f m_EyeTranslation[2];
+  OVR::Quatf m_EyeRotation[2];
 
 };
