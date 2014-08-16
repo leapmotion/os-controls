@@ -166,7 +166,9 @@ public:
 
   // Sets the named uniform to the given value which must be a packed POD type
   // consisting of exactly ROWS_*COLUMNS_ GLfloat values.  The matrix storage
-  // convention must be specified; either ROW_MAJOR or COLUMN_MAJOR.
+  // convention must be specified; either ROW_MAJOR or COLUMN_MAJOR.  Note that
+  // the ROWS_ and COLUMNS_ template parameters can't be deduced from the argument,
+  // so they must be explicitly declared.
   template <size_t ROWS_, size_t COLUMNS_, typename T_>
   void SetUniformMatrixf (const std::string &name, const T_ &matrix, MatrixStorageConvention matrix_storage_convention) {
     static_assert(UniformMatrixFunction<ROWS_,COLUMNS_>::exists, "There is no glUniformMatrix* function matching the requested ROWS_ and COLUMNS_");
@@ -176,7 +178,9 @@ public:
   }
   // Sets the named uniform to the given std::vector of values each of which must be
   // a packed POD type consisting of exactly ROWS_*COLUMNS_ GLfloat values.  The matrix
-  // storage convention must be specified; either ROW_MAJOR or COLUMN_MAJOR.
+  // storage convention must be specified; either ROW_MAJOR or COLUMN_MAJOR.  Note that
+  // the ROWS_ and COLUMNS_ template parameters can't be deduced from the argument,
+  // so they must be explicitly declared.
   template <size_t ROWS_, size_t COLUMNS_, typename T_>
   void SetUniformMatrixf (const std::string &name, const std::vector<T_> &array, MatrixStorageConvention matrix_storage_convention) {
     static_assert(UniformMatrixFunction<ROWS_,COLUMNS_>::exists, "There is no glUniformMatrix* function matching the requested ROWS_ and COLUMNS_");

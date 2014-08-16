@@ -247,6 +247,19 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    GLShaderInterface
+    HEADERS
+        GLShaderInterfaceMatrices.h
+    SOURCES
+        GLShaderInterfaceMatrices.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        EigenTypes
+        GLShader
+    BRIEF_DOC_STRING
+        "Provides C++ interfaces to shader programs with specific uniforms."
+)
+
+add_sublibrary(
     Singleton
     HEADERS
         Singleton.h
