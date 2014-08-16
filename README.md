@@ -86,6 +86,34 @@ Algorithm:
 Time estimate:
   TODO
 
+Integration into the larger context (this would consume the "Bezier shape" component
+and produce an SVGPrimitiveLoader component):
+- Loading an SVG (via the header-only library "nanosvg" referenced below) should produce
+  a hierarchy of PrimitiveBase nodes, which is exactly the scene graph defined by the SVG
+  file.  There is a conceptually direct mapping from the SVG scene graph and its child-node
+  transformations to our SceneGraphNode and its transformations.
+- We could add a "name" property to PrimitiveBase, and in loading an SVG, extract the
+  "name" (or "id"?) attribute from each SVG node.  Then add an accessor to PrimitiveBase
+  which retrieves a named node by specifying the path through its ancestry tree.  For
+  example, if there is a tree of Primitives
+
+  SceneRoot
+    ControlPanel
+      VolumeControls
+        VolumeKnob
+        MuteButton
+      VideoControls
+        GammaCorrectionSlider
+        FullScreenButton
+    ...
+
+  Then the application code could conveniently access any node in this tree through
+  a call like the following:
+
+    SceneRoot.Descendant("ControlPanel.VolumeControls") // returns the VolumeControls node
+    SceneRoot.Descendant("ControlPanel.VolumeControls.VolumeKnob") // returns the VolumeKnob node
+    SceneRoot.Descendant("") // returns SceneRoot (trivial case necessary for domain closure of the "Descendant" function)
+
 Relevant technologies/links:
 - https://github.com/memononen/nanosvg - Conversion of SVG to cubic Bezier curves
 - http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html - Lovely resource on GPU-based Bezier curve rendering
