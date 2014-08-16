@@ -40,4 +40,54 @@ also the CMakeLists.txt include directories.  Each component can even have its o
 - Write a cmake function which looks at the set of components and generates a dot graph of their
   dependency graph -- for components and for [system] libraries.
 
+#### 2014.08.15 - Proposal/Overview for Shader-based SVG rendering (Bezier-curve-only)
+
+Proposed solution
+- Two parts to the rendering
+  1. Using piecewise polygon which the Bezier curves' control points define,
+     invert-draw (flip bits in the stencil buffer) a triangle fan whose center
+     point is an arbitrary point (can choose the centroid or median of the shape).
+     This gives a piecewise-linear approximation of the smooth shape.
+  2. Invert-draw each Bezier curve convex hull using the shader program which does
+     the perfect curve computation.
+- Define the "inside" of the curve to be to the left of the curve along its
+  "drawing" direction (think of this as the direction the curve would go as you
+  draw it with a pencil).
+
+Algorithm:
+  0. Shader program for drawing "perfect" Bezier curve quads:
+    a. Resource: http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html
+    b. Implementing this is not totally trivial, as the resource doesn't provide
+       shader code for the cubic case.
+  1. For each piecewise Bezier curve path, the following pre-processing will be done once:
+    a. Ensure the path is closed by adding a straight Bezier curve between the
+       endpoints if they are distinct.
+    b. Determine the convex hull for each Bezier curve making up the path.  Store
+       the vertices for a hull in counterclockwise winding order.  These convex
+       hulls are attached at their "endpoints" which lie on the curve.
+    c. Determine the piecewise linear path resulting from traversing the convex
+       hulls in the curve direction and always to the left of the convex hull.
+    d. Populate a vertex buffer with this piecewise linear path.  This defines
+       a triangle fan that will be used to draw to the stencil buffer.
+    e. Populate a vertex buffer with the convex hulls of the Bezier curves.
+       Populate a texture coordinate buffer correspondingly to define curve
+       space mappings for the convex hulls for the shader.  These points should
+       probably be layed out in the buffer probably using GL_TRIANGLES.
+  2. To draw a shape which consists of several piecewise Bezier curve paths:
+    a. In order to draw a piecewise Bezier curve path, start with a cleared stencil
+       buffer, and using an invert-draw operation (drawing a pixel means flipping
+       that bit in the stencil buffer), draw the triangle fan defined in part (1.d).
+    b. Load the cubic Bezier drawing shader program and invert-draw the Bezier
+       curves defined in part (1.e).
+    c. Using the stencil buffer to mask the color buffer drawing operation, draw
+       the desired color over the entire stenciled region.  It would be sufficient
+       to draw a quad over the bounding box.
+
+Time estimate:
+  TODO
+
+Relevant technologies/links:
+- https://github.com/memononen/nanosvg - Conversion of SVG to cubic Bezier curves
+- http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html - Lovely resource on GPU-based Bezier curve rendering
+- https://code.google.com/p/poly2tri/ - Triangulation of polygon (related but unnecessary)
 
