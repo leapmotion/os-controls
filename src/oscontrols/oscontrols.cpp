@@ -25,7 +25,9 @@ int main(int argc, char **argv)
     osCtxt->Initiate();
     control->Main();
   }
-  catch (...) {}
+  catch (std::exception e) {
+    std::cout << e.what() << std::endl;
+  }
 
   ctxt->SignalShutdown(true);
   return 0;

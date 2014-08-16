@@ -24,4 +24,6 @@ private:
   PartialDisk m_partialDisk;
   PartialDisk m_activePartialDisk;
   double m_time;
+  
+  float m_maxOpacity;
 };

@@ -3,8 +3,15 @@
 #include "Leap.h"
 #include "EigenTypes.h"
 
-namespace CoordinateUtility {
-  static Vector2 LeapToScreen(const Leap::Vector leapCoords);
-  static Vector3 LeapToScreenNormal(const Leap::Vector leapCoords);
-  static Vector2 ScreenNormalToScreenPixels(const Vector3 normalCoords);
+#include "Autowiring/Autowired.h"
+#include <SFML/Window/Window.hpp>
+
+class CoordinateUtility {
+public:
+  Vector2 LeapToScreen(Leap::Vector leapCoords);
+  Vector3 LeapToScreenNormal(Leap::Vector leapCoords);
+  Vector2 ScreenNormalToScreenPixels(Vector3 normalCoords);
+  
+private:
+  Autowired<sf::Window> m_window;
 };

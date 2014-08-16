@@ -12,7 +12,7 @@
 
 void HandCoordinatesDecorator::AutoFilter(Leap::Frame frame, CursorMap& handScreenLocations) {
   for(auto hand : frame.hands()) {
-    Vector2 screenLocation = CoordinateUtility::LeapToScreen(hand.palmPosition());
+    Vector2 screenLocation = m_coordinateUtility->LeapToScreen(hand.palmPosition());
     handScreenLocations[hand.id()] = screenLocation;
   }
   //Creates a handScreenLocations reference and decorates the packet at the end of the packet.

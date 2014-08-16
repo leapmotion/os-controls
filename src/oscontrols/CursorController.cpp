@@ -7,7 +7,7 @@ CursorController::CursorController()
   m_rootNode->AddChild(m_cursor);
 }
 
-void CursorController::AutoFilter(const HandExistenceState &hes) {
+void CursorController::AutoFilter(const HandExistenceState &hes, const CursorMap& handScreenLocations) {
   if(!m_controllingHand.isValid()) { // if there is NOT a controlling hand
     if(!hes.m_newHands.empty()) {
       m_controllingHand = hes.m_newHands[0];
@@ -15,9 +15,18 @@ void CursorController::AutoFilter(const HandExistenceState &hes) {
       m_cursor->Move(300, 300);
     }
   }
-  else if(!findHandInVector(hes.m_stableHands, m_controllingHand)) {
-    m_controllingHand = Leap::Hand::invalid();
-    m_cursor->SetFadeState(Cursor::FADE_OUT);
+  else {
+    if(!findHandInVector(hes.m_stableHands, m_controllingHand)) {
+      m_controllingHand = Leap::Hand::invalid();
+      m_cursor->SetFadeState(Cursor::FADE_OUT);
+      return;
+    }
+    
+    auto q = handScreenLocations.find(m_controllingHand.id());
+    if (q != handScreenLocations.end()) {
+      m_cursor->Move(q->second.x(), -q->second.y());
+      std::cout << q->second.x() << " " << q->second.y() << std::endl;
+    }
   }
 }
 

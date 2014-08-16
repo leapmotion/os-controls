@@ -27,4 +27,5 @@ private:
   
   float m_innerRadius;
   float m_outerRadius;
+  float m_maxOpacity;
 };

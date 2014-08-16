@@ -1,6 +1,7 @@
 #pragma once
 
 #include "interaction/HandExistTrigger.h"
+#include "interaction/HandCoordinatesDecorator.h"
 #include "graphics/Cursor.h"
 #include "graphics/RenderEngine.h"
 #include "Leap.h"
@@ -12,7 +13,7 @@ class CursorController {
 public:
   CursorController(void);
   
-  void AutoFilter(const HandExistenceState& hes);
+  void AutoFilter(const HandExistenceState &hes, const CursorMap& handScreenLocations);
   
 private:
   
