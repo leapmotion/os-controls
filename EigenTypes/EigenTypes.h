@@ -39,3 +39,9 @@ typedef std::vector<Vector3, Eigen::aligned_allocator<Vector3> > stdvectorV3;
 typedef std::vector<Vector2f, Eigen::aligned_allocator<Vector2f> > stdvectorV2f;
 typedef std::vector<Vector3f, Eigen::aligned_allocator<Vector3f> > stdvectorV3f;
 typedef std::vector<Vector4f, Eigen::aligned_allocator<Vector4f> > stdvectorV4f;
+
+//Marshaling functions
+//NOTE:I really, really tried to make this a template function, but got stuck in template hell and did not
+//have time to make it work.  This is actually fairly robust, so we'll use it untill someone more familiar
+//with Eigen has the time to sort this out. --WG
+#define ProjectVector(_outDim, data) data.block<_outDim,1>(0,0)
