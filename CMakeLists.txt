@@ -378,7 +378,7 @@ add_sublibrary(
         OculusVR.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
-        FrameBufferObject
+        GLCompatibility
     EXPLICIT_LIBRARY_DEPENDENCIES
         "OculusSDK"
     BRIEF_DOC_STRING

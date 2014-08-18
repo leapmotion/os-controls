@@ -26,17 +26,6 @@ bool OculusVR::Init() {
   renderTargetSize.w = recommendedTex0Size.w + recommendedTex1Size.w;
   renderTargetSize.h = std::max(recommendedTex0Size.h, recommendedTex1Size.h);
 
-#if 0
-  FrameBufferObject::Format format;
-  format.depth = true;
-  format.samples = 0;
-  m_HMDFbo = FrameBufferObject::Create(renderTargetSize.w, renderTargetSize.h, format);
-
-  if (!m_HMDFbo) {
-    Shutdown();
-    return false;
-  }
-#else
   glGenFramebuffers(1, &m_FrameBuffer);
 
   glGenTextures(1, &m_Texture);
@@ -58,8 +47,6 @@ bool OculusVR::Init() {
     Shutdown();
     return false;
   }
-#endif
-
 
   ovrFovPort eyeFov[2] = { m_HMD->DefaultEyeFov[0], m_HMD->DefaultEyeFov[1] };
 
@@ -104,7 +91,6 @@ bool OculusVR::Init() {
 }
 
 OculusVR::~OculusVR() {
-  //delete m_HMDFbo;
   glDeleteFramebuffers(1, &m_FrameBuffer);
   glDeleteTextures(1, &m_Texture);
   glDeleteRenderbuffers(1, &m_RenderBuffer);
@@ -112,35 +98,29 @@ OculusVR::~OculusVR() {
 
 void OculusVR::BeginFrame() {
   ovrFrameTiming frameTiming = ovrHmd_BeginFrame(m_HMD, 0);
-  //ovrFrameTiming frameTiming = ovrHmd_BeginFrameTiming(m_HMD, 0);
   
   static OVR::Vector3f HeadPos(0.0f, 1.6f, -5.0f);
   HeadPos.y = ovrHmd_GetFloat(m_HMD, OVR_KEY_EYE_HEIGHT, HeadPos.y);
 
   glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
-  //m_HMDFbo->Bind();
 
   for (int eyeIndex = 0; eyeIndex < ovrEye_Count; eyeIndex++) {
     ovrEyeType eye = m_HMD->EyeRenderOrder[eyeIndex];
     m_EyeRenderPose[eye] = ovrHmd_GetEyePose(m_HMD, eye);
     m_EyeProjection[eye] = ovrMatrix4f_Projection(m_EyeRenderDesc[eye].Fov, 0.1f, 10000.0f, true);
-    m_EyeTranslation[eye] = m_EyeRenderDesc[eye].ViewAdjust;
-    m_EyeRotation[eye] = m_EyeRenderPose[eye].Orientation;
 
-    OVR::Matrix4f rollPitchYaw       = OVR::Matrix4f::RotationY(0);
-    OVR::Matrix4f finalRollPitchYaw  = rollPitchYaw * OVR::Matrix4f(m_EyeRenderPose[eye].Orientation);
-    OVR::Vector3f finalUp            = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
-    OVR::Vector3f finalForward       = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
-    OVR::Vector3f shiftedEyePos      = HeadPos + rollPitchYaw.Transform(m_EyeRenderPose[eye].Position);
-    OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
+    const OVR::Matrix4f rollPitchYaw = OVR::Matrix4f::RotationY(0);
+    const OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(m_EyeRenderPose[eye].Orientation);
+    const OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
+    const OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
+    const OVR::Vector3f shiftedEyePos = HeadPos + rollPitchYaw.Transform(m_EyeRenderPose[eye].Position);
+    const OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
     m_EyeView[eye] = OVR::Matrix4f::Translation(m_EyeRenderDesc[eye].ViewAdjust) * view;
   }
 }
 
 void OculusVR::EndFrame() {
-  //m_HMDFbo->Unbind();
   ovrHmd_EndFrame(m_HMD, m_EyeRenderPose, &m_EyeTexture[0].Texture);
-  //ovrHmd_EndFrameTiming(m_HMD);
 }
 
 void OculusVR::DismissHealthWarning() {

@@ -3,9 +3,7 @@
 #include "EigenTypes.h"
 #include "OVR.h"
 #include "OVR_Kernel.h"
-#include "GLTexture2.h"
-#include "FrameBufferObject.h"
-
+#include <gl_glext_glu.h>
 
 /// Used to configure slave GL rendering (i.e. for devices created externally).
 typedef struct ovrGLConfigData_s
@@ -81,24 +79,18 @@ public:
     return m_EyeRenderViewport[eye];
   }
 
-  const OVR::Matrix4f& EyeProjection(int eye) const {
-    return m_EyeProjection[eye];
+  Matrix4x4f EyeView(int eye) const {
+    return Matrix4x4f(&m_EyeView[eye].Transposed().M[0][0]);
   }
 
-  const OVR::Vector3f& EyeTranslation(int eye) const {
-    return m_EyeTranslation[eye];
-  }
-
-  const OVR::Quatf& EyeRotation(int eye) const {
-    return m_EyeRotation[eye];
-  }
-
-  const OVR::Matrix4f& EyeView(int eye) const {
-    return m_EyeView[eye];
+  Matrix4x4f EyeProjection(int eye) const {
+    return Matrix4x4f(&m_EyeProjection[eye].Transposed().M[0][0]);
   }
 
 #if _WIN32
-  HWND m_HWND;
+  void SetHWND(const HWND& hwnd) {
+    m_HWND = hwnd;
+  }
 #endif
 
 private:
@@ -107,8 +99,6 @@ private:
 
   ovrHmd m_HMD;
   bool m_Debug;
-
-  //FrameBufferObject* m_HMDFbo;
 
   GLuint m_FrameBuffer;
   GLuint m_Texture;
@@ -121,7 +111,9 @@ private:
 
   OVR::Matrix4f m_EyeProjection[2];
   OVR::Matrix4f m_EyeView[2];
-  OVR::Vector3f m_EyeTranslation[2];
-  OVR::Quatf m_EyeRotation[2];
+
+#if _WIN32
+  HWND m_HWND;
+#endif
 
 };
