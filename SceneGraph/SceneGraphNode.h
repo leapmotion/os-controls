@@ -147,6 +147,12 @@ public:
     return other_transform_stack.inverse(Eigen::Affine) * this_transform_stack;
   }
 
+  Transform ComputeGlobalCoordinates() const {
+    Transform global;
+    ComputeTransformRecursive(global);
+    return global;
+  }
+
   // This will return an empty shared_ptr if there was no common ancestor, which
   // should happen if and only if the two nodes come from different scene graph trees.
   std::shared_ptr<SceneGraphNode> ClosestCommonAncestor (const SceneGraphNode &other) const {
@@ -189,6 +195,12 @@ private:
   template<typename... _Args>
   static void CallFunction(std::nullptr_t, _Args&&...) {}
   
+  void ComputeTransformRecursive(Transform& transform) const {
+    transform *= m_transform; //This multiply order may need to be reversed.
+    auto parent = m_parent.lock();
+    if (parent)
+      parent->ComputeTransformRecursive(transform);
+  }
 
   // This populates a vector with the ancestors of this node, starting with this node,
   // then its parent, then its parent's parent, etc (i.e. this node, going toward the root).
