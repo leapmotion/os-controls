@@ -126,7 +126,7 @@ public:
     auto traversal_node = shared_from_this();
     while (traversal_node != closest_common_ancestor) {
       // A node's transform gives the node-to-parent coordinate transformation.
-      this_transform_stack *= traversal_node->FullTransform(); 
+      this_transform_stack = this_transform_stack * traversal_node->FullTransform();
     }
 
     // Compute the transformation from the other node's coordinate system
@@ -135,7 +135,7 @@ public:
     other_transform_stack.setIdentity();
     traversal_node = other.shared_from_this();
     while (traversal_node != closest_common_ancestor) {
-      other_transform_stack *= traversal_node->FullTransform();
+      other_transform_stack = other_transform_stack * traversal_node->FullTransform();
     }
 
     // TODO: somehow check that other_transform_stack is actually invertible (it's not
@@ -147,18 +147,31 @@ public:
     return other_transform_stack.inverse(Eigen::Affine) * this_transform_stack;
   }
 
-  Transform ComputeGlobalCoordinates() const {
-    Transform global;
-    ComputeTransformRecursive(global);
-    return global;
+  std::shared_ptr<const SceneGraphNode> RootNode() const {
+    auto node = shared_from_this();
+    auto parent = node->m_parent.lock();
+    while(parent)
+    {
+      node = parent;
+      parent = node->m_parent.lock();
+    }
+    return node;
+  }
+  
+  Transform ComputeTransformToGlobalCoordinates() const {
+    return ComputeTransformToCoordinatesOf(*RootNode());
+  }
+  
+  Transform ComputeTransformFromGlobalCoordinates() const {
+    return RootNode()->ComputeTransformToCoordinatesOf(*this);
   }
 
   // This will return an empty shared_ptr if there was no common ancestor, which
   // should happen if and only if the two nodes come from different scene graph trees.
-  std::shared_ptr<SceneGraphNode> ClosestCommonAncestor (const SceneGraphNode &other) const {
+  std::shared_ptr<const SceneGraphNode> ClosestCommonAncestor (const SceneGraphNode &other) const {
     // TODO: develop ancestry lists for each, then find the last common one, root-down.
-    std::vector<SceneGraphNode> this_ancestors;
-    std::vector<SceneGraphNode> other_ancestors;
+    std::vector<std::shared_ptr<const SceneGraphNode>> this_ancestors;
+    std::vector<std::shared_ptr<const SceneGraphNode>> other_ancestors;
     this->AppendAncestors(this_ancestors);
     other.AppendAncestors(other_ancestors);
 
@@ -177,7 +190,7 @@ public:
     if (this_it >= this_ancestors.rbegin()) {
       return *this_it;
     } else { // otherwise return empty.
-      return std::shared_ptr<SceneGraphNode>();
+      return std::shared_ptr<const SceneGraphNode>();
     }
   }
 
@@ -195,16 +208,9 @@ private:
   template<typename... _Args>
   static void CallFunction(std::nullptr_t, _Args&&...) {}
   
-  void ComputeTransformRecursive(Transform& transform) const {
-    transform *= m_transform; //This multiply order may need to be reversed.
-    auto parent = m_parent.lock();
-    if (parent)
-      parent->ComputeTransformRecursive(transform);
-  }
-
   // This populates a vector with the ancestors of this node, starting with this node,
   // then its parent, then its parent's parent, etc (i.e. this node, going toward the root).
-  void AppendAncestors (std::vector<std::shared_ptr<SceneGraphNode>> &ancestors) const {
+  void AppendAncestors (std::vector<std::shared_ptr<const SceneGraphNode>> &ancestors) const {
     ancestors.emplace_back(shared_from_this());
     std::shared_ptr<SceneGraphNode> parent(m_parent.lock());
     if (parent) {
