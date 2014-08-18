@@ -249,14 +249,18 @@ add_sublibrary(
 add_sublibrary(
     GLShaderInterface
     HEADERS
+        GLShaderInterface.h
+        # GLShaderInterfaceMaterial.h
         GLShaderInterfaceMatrices.h
     SOURCES
+        GLShaderInterface.cpp
+        # GLShaderInterfaceMaterial.cpp
         GLShaderInterfaceMatrices.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
         GLShader
     BRIEF_DOC_STRING
-        "Provides C++ interfaces to shader programs with specific uniforms."
+        "Provides C++ interfaces to shader programs with specific uniforms and attributes."
 )
 
 add_sublibrary(
@@ -618,6 +622,8 @@ add_sublibrary(
         gtest/gtest_main.cc
     COMPILE_DEFINITIONS
         GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
+    COMPILE_OPTIONS
+        "-fvisibility=default"
     BRIEF_DOC_STRING
         "Provides an easy way to include and link the Google Test framework."
 )
@@ -649,12 +655,28 @@ add_sublibrary(
     SOURCES
         GLShaderTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLShader
         GLShaderLoader
         GTest
         SDLController # For creating the GL context
     BRIEF_DOC_STRING
         "Unit tests for the GLShader component."
+)
+
+add_sublibrary(
+    GLShaderInterfaceTest
+    EXCLUDE_FROM_ALL
+    SOURCE_PATH
+        GLShaderInterface/Test
+    SOURCES
+        GLShaderInterfaceTest.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLController
+        GLShaderInterface
+        GLShaderLoader
+        GTest
+        SDLController
+    BRIEF_DOC_STRING
+        "Unit tests for the GLShaderInterface component."
 )
 
 set(_tests ${ADDED_SUBLIBRARIES})

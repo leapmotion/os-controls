@@ -101,9 +101,14 @@ GLuint GLShader::Compile (GLuint type, const std::string &source) {
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   if (!compiled) {
     GLint length;
+    // This length includes the null terminating character.
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
     std::string log(length, ' ');
+    // Extract the log, which should contain compile/link error messages.
     glGetShaderInfoLog(shader, length, &length, &log[0]);
+    // Resize the log based on the actual length.
+    log.resize(length);
+    // std::cerr << "GL shader compile/link error: " << log << '\n';
     throw std::logic_error(log);
   }
   return shader;

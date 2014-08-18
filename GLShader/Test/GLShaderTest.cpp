@@ -82,11 +82,18 @@ void GLShaderTest::TearDown () {
 // TODO: the test's setup should create a GL context (ideally with no window and as
 // little overhead as possible) so that GL calls can be made.
 
-TEST_F(GLShaderTest, temp) {
-  ASSERT_EQ(42, 42) << "this is the failure message for this assert";
-}
-
-TEST_F(GLShaderTest, temp2) {
-  Resource<GLShader> shader("lighting");
+TEST_F(GLShaderTest, CompileAndLink) {
+  std::string vertex_shader_source(
+    "void main () {\n"
+    "    gl_Position = ftransform();\n"
+    "    gl_FrontColor = gl_Color;\n"
+    "}\n"
+  );
+  std::string fragment_shader_source(
+    "void main () {\n"
+    "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
+    "}\n"
+  );
+  EXPECT_NO_THROW(auto valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
 }
 

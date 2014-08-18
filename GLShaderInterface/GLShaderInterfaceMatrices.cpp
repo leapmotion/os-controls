@@ -5,23 +5,11 @@
 
 GLShaderInterfaceMatrices::GLShaderInterfaceMatrices (const std::shared_ptr<GLShader> &attached_shader)
   :
-  m_attached_shader(attached_shader)
+  GLShaderInterface(attached_shader)
 {
-  if (!m_attached_shader) {
-    throw std::invalid_argument("must specify a valid attached shader");
-  }
-  if (!m_attached_shader->HasUniform("projection_times_model_view_matrix") ||
-      m_attached_shader->UniformInfo("projection_times_model_view_matrix").Type() != GL_FLOAT_MAT4) {
-    throw std::invalid_argument("attached shader must have a uniform mat4 projection_times_model_view_matrix");
-  }
-  if (!m_attached_shader->HasUniform("model_view_matrix") ||
-      m_attached_shader->UniformInfo("model_view_matrix").Type() != GL_FLOAT_MAT4) {
-    throw std::invalid_argument("attached shader must have a uniform mat4 model_view_matrix");
-  }
-  if (!m_attached_shader->HasUniform("normal_matrix") ||
-      m_attached_shader->UniformInfo("normal_matrix").Type() != GL_FLOAT_MAT4) {
-    throw std::invalid_argument("attached shader must have a uniform mat4 normal_matrix");
-  }
+  CheckForTypedUniform("projection_times_model_view_matrix", GL_FLOAT_MAT4);
+  CheckForTypedUniform("model_view_matrix", GL_FLOAT_MAT4);
+  CheckForTypedUniform("normal_matrix", GL_FLOAT_MAT4);
 }
 
 void GLShaderInterfaceMatrices::SetMatrices (const Matrix4x4 &model_view, const Matrix4x4 &projection) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EigenTypes.h"
+#include "GLShaderInterface.h"
 #include <memory>
 
 class GLShader;
@@ -11,7 +12,7 @@ class GLShader;
 // - model_view_matrix
 // - normal_matrix
 // These quantities are derived from the model view matrix and the projection matrix.
-class GLShaderInterfaceMatrices {
+class GLShaderInterfaceMatrices : public GLShaderInterface {
 public:
 
   // A valid shader must be attached to this object during construction.  If
@@ -23,6 +24,7 @@ public:
   // If these uniforms aren't present in the shader with the correct types
   // (GL_FLOAT_MAT4), an exception will be thrown.
   GLShaderInterfaceMatrices (const std::shared_ptr<GLShader> &attached_shader);
+  virtual ~GLShaderInterfaceMatrices () { }
 
   // All the matrix uniforms in the shader can be derived from the modelview and
   // projection matrices.  This method derives the necessary matrices and sets them.
