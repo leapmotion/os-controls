@@ -1,8 +1,8 @@
 #pragma once
-#include "MediaController.h"
+#include "MediaInterface.h"
 
-class MediaControllerMac:
-  public MediaController
+class MediaInterfaceMac:
+  public MediaInterface
 {
 public:
   void PlayPause(void) override;

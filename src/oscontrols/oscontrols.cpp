@@ -1,13 +1,12 @@
 #include "stdafx.h"
 
-#include "graphics/graphics.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "interaction/GestureTriggerManifest.h"
 #include "oscontrols.h"
-#include "osinterface/AudioVolumeController.h"
+#include "osinterface/AudioVolumeInterface.h"
 #include "osinterface/LeapInput.h"
-#include "osinterface/MediaController.h"
+#include "osinterface/MediaInterface.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
 #include "utility/VirtualScreen.h"
@@ -26,7 +25,9 @@ int main(int argc, char **argv)
     osCtxt->Initiate();
     control->Main();
   }
-  catch (...) {}
+  catch (std::exception e) {
+    std::cout << e.what() << std::endl;
+  }
 
   ctxt->SignalShutdown(true);
   return 0;
@@ -34,8 +35,8 @@ int main(int argc, char **argv)
 
 OsControl::OsControl(void) :
   m_contextSettings(0, 0, 4),
-  m_mw(sf::VideoMode(m_virtualScreen->PrimaryScreen().Width(),
-                     m_virtualScreen->PrimaryScreen().Height()),
+  m_mw(sf::VideoMode((int)m_virtualScreen->PrimaryScreen().Width(),
+                     (int)m_virtualScreen->PrimaryScreen().Height()),
                      "Leap Os Control", sf::Style::None,
                      m_contextSettings),
   m_bShouldStop(false),
@@ -69,7 +70,6 @@ void OsControl::AdjustDesktopWindow(void) {
 
 void OsControl::Main(void) {
   GestureTriggerManifest manifest;
-  GraphicsInitialize();
 
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);
@@ -100,7 +100,8 @@ void OsControl::Main(void) {
     std::chrono::duration<double> timeDelta = now - then;
     then = now;
 
-    m_render->Frame(m_mw, timeDelta);
+    m_render->Update(timeDelta);
+    m_render->Render(m_mw, timeDelta);
    
   }
 }

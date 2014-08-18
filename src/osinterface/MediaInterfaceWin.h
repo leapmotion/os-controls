@@ -1,8 +1,8 @@
 #pragma once
-#include "MediaController.h"
+#include "MediaInterface.h"
 
-class MediaControllerWin:
-  public MediaController
+class MediaInterfaceWin:
+  public MediaInterface
 {
 private:
   static void SendMediaKeyCode(uint32_t vk);

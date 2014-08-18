@@ -10,7 +10,7 @@ class RenderState;
 struct RenderFrame
 {
   std::shared_ptr<sf::RenderTarget> renderWindow;
-  RenderState* renderState;
+  RenderState& renderState;
   std::chrono::duration<double> deltaT;
 };
 

@@ -1,19 +1,19 @@
 #pragma once
-#include "AudioVolumeController.h"
+#include "AudioVolumeInterface.h"
 
 #include <CoreAudio/AudioHardware.h>
 
-class AudioVolumeControllerMac:
-  public AudioVolumeController
+class AudioVolumeInterfaceMac:
+  public AudioVolumeInterface
 {
 public:
-  AudioVolumeControllerMac(void);
+  AudioVolumeInterfaceMac(void);
 
 private:
   static AudioDeviceID GetAudioDeviceID();
 
 public:
-  // AudioVolumeController overrides:
+  // AudioVolumeInterface overrides:
   float GetVolume(void) override;
   void SetVolume(float volume) override;
   void SetMute(bool mute) override;

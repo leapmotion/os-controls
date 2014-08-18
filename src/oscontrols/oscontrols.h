@@ -1,5 +1,7 @@
 #pragma once
 #include "utility/VirtualScreen.h"
+#include "MediaMenuController.h"
+#include "CursorController.h"
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -11,9 +13,9 @@ struct OsControlRender {
   std::chrono::duration<double> timeDelta;
 };
 
-class AudioVolumeController;
+class AudioVolumeInterface;
 class LeapInput;
-class MediaController;
+class MediaInterface;
 class RenderEngine;
 
 namespace sf {
@@ -37,13 +39,26 @@ private:
 
   sf::ContextSettings m_contextSettings;
 
+  //////////////////////////////////////////////////////
+  ///// DONT CHANGE THE ORDER OF THIS SECTION //////////
+  //This might need to be changed to be a manifest?
   Autowired<leap::VirtualScreen> m_virtualScreen;
-  AutoDesired<AudioVolumeController> m_avcontrol;
-  AutoRequired<MediaController> m_media;
-  AutoRequired<LeapInput> m_leapInput;
+  
+  // Must be before m_mw;
   AutoRequired<RenderEngine> m_render;
-
+  
+  //SFML Stuff
+  // This must happen after virtualscreen but before anything
+  // attempts to access the primaryWindow()
   AutoConstruct<sf::RenderWindow> m_mw;
+  /////////////////////////////////////////////////////
+  
+  AutoDesired<AudioVolumeInterface> m_avcontrol;
+  AutoRequired<MediaInterface> m_media;
+  AutoRequired<LeapInput> m_leapInput;
+
+  AutoRequired<MediaMenuController> m_mediaMenuController;
+  AutoRequired<CursorController> m_cursorController;
 
   // Requirements for this to be a CoreRunnable:
   bool m_bShouldStop;

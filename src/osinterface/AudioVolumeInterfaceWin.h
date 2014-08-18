@@ -1,5 +1,5 @@
 #pragma once
-#include "AudioVolumeController.h"
+#include "AudioVolumeInterface.h"
 
 struct IAudioEndpointVolume;
 struct IAudioSessionManager;
@@ -7,11 +7,11 @@ struct IMMDevice;
 struct IMMDeviceEnumerator;
 struct ISimpleAudioVolume;
 
-class AudioVolumeControllerWin:
-  public AudioVolumeController
+class AudioVolumeInterfaceWin:
+  public AudioVolumeInterface
 {
 public:
-  AudioVolumeControllerWin(void);
+  AudioVolumeInterfaceWin(void);
 
 private:
   CComPtr<IMMDeviceEnumerator> m_devEnumerator;
@@ -19,7 +19,7 @@ private:
   CComPtr<IAudioEndpointVolume> m_pAudioEndpointVolume;
 
 public:
-  // AudioVolumeController overrides:
+  // AudioVolumeInterface overrides:
   float GetVolume(void) override;
   void SetVolume(float volume) override;
   void SetMute(bool mute) override;

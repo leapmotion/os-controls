@@ -1,22 +1,29 @@
 #pragma once
-#include "State.h"
-#include "graphics/RenderFrame.h"
+#include "graphics/RenderEngineNode.h"
 
 #include "Primitives.h"
 
 #include "Resource.h"
 #include "GLShader.h"
 
-class VolumeControl
+class VolumeControl :
+  public RenderEngineNode
 {
 public:
-  VolumeControl();
-  ~VolumeControl();
+  VolumeControl(float radius, float width);
+  
+  void SetVolume(float volume);
 
-  void AutoFilter(const RenderFrame& frame, const StateSentry<State::VolumeControl>& in);
+  void AnimationUpdate(const RenderFrame& frame) override;
+  void Render(const RenderFrame& frame) const override;
+  
+  void SetOpacity(float opacity);
 
  EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 private:
   PartialDisk m_partialDisk;
+  PartialDisk m_activePartialDisk;
   double m_time;
+  
+  float m_maxOpacity;
 };

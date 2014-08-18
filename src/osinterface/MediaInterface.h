@@ -1,13 +1,13 @@
 #pragma once
 
-class MediaController:
+class MediaInterface:
   public ContextMember
 {
 public:
-  MediaController(void);
-  ~MediaController(void);
+  MediaInterface(void);
+  ~MediaInterface(void);
 
-  static MediaController* New(void);
+  static MediaInterface* New(void);
 
 public:
   virtual void PlayPause(void) = 0;
