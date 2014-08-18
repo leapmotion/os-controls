@@ -52,7 +52,7 @@ TEST_F(GLShaderInterfaceTest, ValidAttachedShader) {
       "}\n"
     );
     std::shared_ptr<GLShader> valid_shader;
-    EXPECT_NO_THROW(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+    ASSERT_NO_THROW(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
     EXPECT_NO_THROW(GLShaderInterface interface(valid_shader));
   }
 }
@@ -66,26 +66,23 @@ TEST_F(GLShaderInterfaceTest, ValidAttachedShader) {
     EXPECT_TRUE(false) << "Expected no exception thrown, but one was thrown (no message available)"; \
   }
 
-TEST_F(GLShaderInterfaceTest, CheckForTypedUniformInVertexShader) {
-  // try {
-    std::invalid_argument x("thingy");
-    std::logic_error &y = x;
-    std::invalid_argument &z = dynamic_cast<std::invalid_argument &>(y);
-    std::cerr << z.what() << '\n';
-    // throw std::invalid_argument("hippo");
-  // } catch (const std::logic_error &e) {
-    // std::cerr << "correctly caught exception " << e.what() << '\n';
-  // }
-/*
+TEST_F(GLShaderInterfaceTest, DISABLED_CheckForTypedUniformInVertexShader) {
   const auto &type_map = GLShaderInterface::OPENGL_2_1_TYPE_MAP;
   for (auto it = type_map.begin(); it != type_map.end(); ++it) {
+    GLenum uniform_type = it->first;
+    const std::string &uniform_type_name = it->second;
+//     std::string uniform_variable_name("test_" + uniform_type_name);
     // Construct a vertex shader source code with one of each type of allowable uniform.
     std::string vertex_shader_source("#version 120\n");
-    vertex_shader_source += "uniform " + it->second + " test_" + it->second + ";\n";
+    vertex_shader_source += "uniform " + uniform_type_name + " test0;\n";
+    vertex_shader_source += "uniform " + uniform_type_name + " test1;\n";
     vertex_shader_source +=
       "void main () {\n"
-      "    gl_Position = ftransform();\n"
-      "    gl_FrontColor = gl_Color;\n"
+      "    bool condition = test0 == test1;\n" // This dumb indirection is to try to get around unused uniforms maybe being compiled out of the shader.
+      "    if (condition) {\n"
+      "        gl_Position = ftransform();\n"
+      "        gl_FrontColor = gl_Color;\n"
+      "    }\n"
       "}\n";
     // Dummy fragment shader source
     std::string fragment_shader_source(
@@ -94,15 +91,14 @@ TEST_F(GLShaderInterfaceTest, CheckForTypedUniformInVertexShader) {
       "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
       "}\n"
     );
-    // std::cout << vertex_shader_source << '\n';
+    std::cout << vertex_shader_source << '\n';
 
     // Construct the shader and the GLShaderInterface.
     std::shared_ptr<GLShader> valid_shader;
     ASSERT_NO_THROW(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
     GLShaderInterface interface(valid_shader);
-    EXPECT_NO_THROW_(throw std::invalid_argument("blah"));
-    // EXPECT_NO_THROW_(interface.CheckForTypedUniform("test_" + it->second, it->first));
+    EXPECT_NO_THROW_(interface.CheckForTypedUniform("test0", uniform_type));
+    EXPECT_NO_THROW_(interface.CheckForTypedUniform("test1", uniform_type));
   }
-  */
 }
 
