@@ -16,6 +16,7 @@ void MediaMenuController::AutoFilter(const HandPointingMap &hpm, const CursorMap
     if(!hpm.empty()) {
       m_controllingHand = hpm.begin()->second;
       m_mediaView->SetFadeState(MediaView::FADE_IN);
+      m_mediaView->SetVolume(m_audioVolumeInterface->GetVolume());
       m_isInteractionComplete = false;
       
       Vector2 newPosition = handScreenLocations.at(m_controllingHand.id());
@@ -53,16 +54,12 @@ void MediaMenuController::updateVolumeControl(const GestureMap& handGestures) {
         direction = -1.0f;
       }
       
-      std::cout << "Progress Diff: " << circleGesture.progress() - m_lastProgress << std::endl;
-      
       if (m_lastProgress == std::numeric_limits<float>::min() || std::abs(circleGesture.progress() - m_lastProgress) > 0.2f) {
         m_lastProgress = circleGesture.progress();
         return;
       }
       
       m_mediaView->NudgeVolume(direction*(circleGesture.progress() - m_lastProgress)/10.0f);
-      std::cout << "Nudge Volume: " << direction * (circleGesture.progress() - m_lastProgress)/10.0f << std::endl;
-      
       m_audioVolumeInterface->SetVolume(m_mediaView->Volume());
       
       m_lastProgress = circleGesture.progress();
