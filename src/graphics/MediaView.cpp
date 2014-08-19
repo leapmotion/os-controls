@@ -55,7 +55,7 @@ void MediaView::AnimationUpdate(const RenderFrame& frame) {
     break;
   case FADE_OUT:
     if ( m_opacity > 0.0f ) {
-      m_opacity = std::max(0.0, m_opacity - (2.0 * frame.deltaT.count()) );
+      m_opacity = std::max(0.0f, (float)(m_opacity - (2.0 * frame.deltaT.count())) );
     }
     setMenuOpacity(m_opacity);
     break;
