@@ -49,9 +49,12 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
   // Clear window
   target->clear(sf::Color::Transparent);
 
+  //Set the mode
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   const auto windowSize = target->getSize();
-  m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 0, 100);
-  m_renderState.GetModelView().Reset();
+  m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 1, -100);
 
   m_shader->Bind();
 
@@ -70,22 +73,26 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
 
     renderNode.AnimationUpdate(frame);
     renderNode.Render(frame);
-    //zList.push_back(std::make_pair(&renderNode, mv));
+    zList.push_back(std::make_pair(&renderNode, mv.Matrix()));
   },
     [&frame](SceneGraphNode<double, 3>& node) {
       frame.renderState.GetModelView().Pop();
     }
   );
-    /*
+    
+  //Greatest Z-Values (furthest away) should be rendered first
   std::stable_sort(zList.begin(), zList.end(), 
-    [](const RenderListElement_t& a, const RenderListElement_t& b){ return a.first->Translation().z() < a.first->Translation().z(); }
+    [](const RenderListElement_t& a, const RenderListElement_t& b){ return a.first->Translation().z() > b.first->Translation().z(); }
   );
 
-  for (auto element : zList) {
-    frame.renderState.GetModelView() = element.second;
+  for (auto &element : zList) {
+    frame.renderState.GetModelView().Push();
+    frame.renderState.GetModelView().Multiply(element.second);
     element.first->Render(frame);
-  }*/
-  //m_renderList.clear(); //Todo: temporal coherency - scan the list to look for changes instead of clearing/rebuilding?
+    frame.renderState.GetModelView().Pop();
+  }
+
+  m_renderList.clear(); //Todo: temporal coherency - scan the list to look for changes instead of clearing/rebuilding?
 
   m_shader->Unbind();
 

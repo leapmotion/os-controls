@@ -9,8 +9,7 @@ VolumeControl::VolumeControl(float radius, float width) :
 m_time(0),
 m_maxOpacity(0.8)
 {
-  Translation().z() = -10;
-  m_partialDisk.SetDiffuseColor(Color(0.7f, 0.7f, 0.7f));
+  m_partialDisk.SetDiffuseColor(Color(0.7f, 0.7f, 0.7f,m_maxOpacity));
   m_partialDisk.SetAmbientFactor(0.9f);
   
   m_partialDisk.SetInnerRadius(radius);
@@ -19,7 +18,7 @@ m_maxOpacity(0.8)
   m_partialDisk.SetEndAngle(M_PI/4);
   
   
-  m_activePartialDisk.SetDiffuseColor(Color(0.3486f, 0.573f, 0.0784f));
+  m_activePartialDisk.SetDiffuseColor(Color(0.3486f, 0.573f, 0.0784f,m_maxOpacity));
   m_activePartialDisk.SetAmbientFactor(0.9f);
   
   m_activePartialDisk.SetInnerRadius(radius);
