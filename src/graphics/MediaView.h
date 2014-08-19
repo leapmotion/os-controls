@@ -25,7 +25,8 @@ public:
   
   enum FadeState {
     FADE_OUT,
-    FADE_IN
+    FADE_IN,
+    INVISIBLE
   };
   
   void SetFadeState(FadeState newState);

@@ -5,6 +5,7 @@
 
 #include <iostream>
 
+//TODO: Update the "offset" concept to work with non-cardinal direcitons
 RadialButton::RadialButton(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset, bool isNullWedge) :
 m_isNullWedge(isNullWedge),
 m_innerRadius(innerRadius),
