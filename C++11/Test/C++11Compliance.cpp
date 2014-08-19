@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-class CPPComplianceTest : public testing::Test { };
+class CPP11ComplianceTest : public testing::Test { };
 
 // Verifying that variadic templates work.
 
@@ -16,7 +16,7 @@ void PrintArgs (const T &arg, Types... args) {
 }
 
 
-TEST_F(CPPComplianceTest, VariadicTemplate) {
+TEST_F(CPP11ComplianceTest, VariadicTemplate) {
   PrintArgs(1234567, 42.0f, "hello", false);
 
   ASSERT_EQ(42, 42) << "What's the question?";
