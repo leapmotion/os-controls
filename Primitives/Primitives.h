@@ -4,16 +4,6 @@
 #include "PrimitiveGeometry.h"
 #include "RenderState.h"
 
-class InvisiblePrimitive : public PrimitiveBase {
-public:
-
-  virtual ~InvisiblePrimitive () { }
-
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override { }
-};
-
 class GenericShape : public PrimitiveBase {
 public:
 

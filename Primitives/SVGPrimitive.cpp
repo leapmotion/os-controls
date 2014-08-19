@@ -70,20 +70,58 @@ bool Curve::IsSufficientlyFlat(const Bezier& bezier) {
   return (u.cwiseProduct(u).cwiseMax(v.cwiseProduct(v)).sum() < m_tolerance);
 }
 
-SVGPrimitive::SVGPrimitive(const std::string& svg) {
-  std::string copy{svg};
-  NSVGimage *image = nsvgParse(const_cast<char*>(copy.c_str()), "px", 96.0f);
-  if (image) {
-    for (NSVGshape* shape = image->shapes; shape != NULL; shape = shape->next) {
+SVGPrimitive::SVGPrimitive(const std::string& svg) :
+  m_Image(nullptr),
+  m_RecomputeGeometry(false)
+{
+  if (!svg.empty()) {
+    Set(svg);
+  }
+}
+
+SVGPrimitive::~SVGPrimitive()
+{
+  if (m_Image) {
+    nsvgDelete(m_Image);
+  }
+}
+
+void SVGPrimitive::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+  if (m_RecomputeGeometry) {
+    const_cast<SVGPrimitive*>(this)->RecomputeChildren(); // This objects children need to be recomputed
+  }
+}
+
+void SVGPrimitive::Set(const std::string& svg)
+{
+  if (m_Image) {
+    nsvgDelete(m_Image);
+    m_Image = nullptr;
+    Children().clear();
+  }
+  std::string svgCopy{svg}; // Make a copy so that nanosvg can modify its contents (horrors)
+  m_Image = nsvgParse(const_cast<char*>(svgCopy.c_str()), "px", 96.0f);
+  if (m_Image) {
+    m_RecomputeGeometry = true;
+  }
+}
+
+void SVGPrimitive::RecomputeChildren() {
+  m_RecomputeGeometry = false;
+  if (m_Image) {
+    Children().clear();
+    for (NSVGshape* shape = m_Image->shapes; shape != NULL; shape = shape->next) {
+      if (shape->fill.type == NSVG_PAINT_COLOR) {
+        // Fill
+      } else if (shape->fill.type == NSVG_PAINT_NONE) {
+        // Stoke -- FIXME
+        continue;
+      } else {
+        // Gradient -- FIXME
+        continue;
+      }
       std::vector<p2t::Point*> polylines;
       p2t::CDT* cdt = nullptr;
-
-      SetAmbientFactor(1.0f);
-      const uint32_t abgr = shape->fill.color;
-      SetDiffuseColor(Color(static_cast<uint8_t>(abgr      ),
-                            static_cast<uint8_t>(abgr >>  8),
-                            static_cast<uint8_t>(abgr >> 16),
-                            static_cast<uint8_t>(abgr >> 24)));
 
       for (NSVGpath* path = shape->paths; path != NULL; path = path->next) {
         Curve curve(0.5f);
@@ -108,11 +146,21 @@ SVGPrimitive::SVGPrimitive(const std::string& svg) {
         }
       }
       if (cdt) {
+        auto genericShape = std::make_shared<GenericShape>();
+        auto& geometry = genericShape->Geometry();
+        const uint32_t abgr = shape->fill.color;
+
+        geometry.CleanUpBuffers();
+
+        genericShape->SetAmbientFactor(1.0f);
+        genericShape->SetDiffuseColor(Color(static_cast<uint8_t>(abgr      ),
+                                            static_cast<uint8_t>(abgr >>  8),
+                                            static_cast<uint8_t>(abgr >> 16),
+                                            static_cast<uint8_t>(abgr >> 24)));
         cdt->Triangulate();
         auto triangles = cdt->GetTriangles();
-        m_Geometry.CleanUpBuffers();
-        stdvectorV3f& vertices = m_Geometry.Vertices();
-        stdvectorV3f& normals = m_Geometry.Normals();
+        stdvectorV3f& vertices = geometry.Vertices();
+        stdvectorV3f& normals = geometry.Normals();
         for (const auto& triangle : triangles) {
           for (int i = 0; i < 3; i++) {
             p2t::Point& pt = *triangle->GetPoint(i);
@@ -122,28 +170,14 @@ SVGPrimitive::SVGPrimitive(const std::string& svg) {
           }
         }
         delete cdt;
-        m_Geometry.UploadDataToBuffers();
+
+        geometry.UploadDataToBuffers();
+
+        AddChild(genericShape);
       }
       for (auto point : polylines) {
         delete point;
       }
     }
-    nsvgDelete(image);
   }
-}
-
-void SVGPrimitive::Draw(RenderState& renderState, TransformStack& transform_stack) const {
-  ModelView& modelView = renderState.GetModelView();
-
-  modelView.Push();
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
-
-  renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
-
-  m_Geometry.Draw(renderState, GL_TRIANGLES);
-
-  modelView.Pop();
 }
