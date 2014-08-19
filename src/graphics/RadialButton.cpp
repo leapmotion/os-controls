@@ -38,6 +38,5 @@ void RadialButton::Render(const RenderFrame& frame) const {
 }
 
 void RadialButton::SetOpacity(float opacity) {
-  //opacity = std::max(0.0f, std::min(1.0f, opacity));
   m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, opacity * m_maxOpacity));
 }

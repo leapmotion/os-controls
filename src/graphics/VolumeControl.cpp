@@ -9,7 +9,6 @@ VolumeControl::VolumeControl(float radius, float width) :
 m_time(0),
 m_maxOpacity(0.8)
 {
-  Translation().z() = -10;
   m_partialDisk.SetDiffuseColor(Color(0.7f, 0.7f, 0.7f));
   m_partialDisk.SetAmbientFactor(0.9f);
   

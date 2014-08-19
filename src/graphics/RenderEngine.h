@@ -37,7 +37,7 @@ private:
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
 
-  typedef std::pair<RenderEngineNode*, ModelView> RenderListElement_t;
-  mutable std::vector<RenderListElement_t> m_renderList;
+  typedef std::pair<RenderEngineNode*, Matrix4x4> RenderListElement_t;
+  mutable Eigen::vector<RenderListElement_t> m_renderList;
 };
 
