@@ -151,7 +151,8 @@ void SVGPrimitive::RecomputeChildren() {
         }
       }
       if (cdt) {
-        auto genericShape = std::make_shared<GenericShape>();
+        auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
+
         auto& geometry = genericShape->Geometry();
         const uint32_t abgr = shape->fill.color;
 
@@ -169,7 +170,7 @@ void SVGPrimitive::RecomputeChildren() {
         for (const auto& triangle : triangles) {
           for (int i = 0; i < 3; i++) {
             p2t::Point& pt = *triangle->GetPoint(i);
-            Vector3f point(pt.x, pt.y, 0.0f);
+            Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
             vertices.push_back(point);
             normals.push_back(Vector3f::UnitZ());
           }

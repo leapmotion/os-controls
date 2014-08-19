@@ -72,10 +72,10 @@ public:
   // these are virtual so that particular behavior can be added while adding/removing nodes.
   // any overrides should make sure to call the base class' version of the method, of course.
   virtual void AddChild(std::shared_ptr<SceneGraphNode> child) {
-    m_children.emplace_back(child);
+    m_children.emplace(child);
     try {
       child->m_parent = shared_from_this();
-    } catch (const std::bad_weak_ptr& e) {
+    } catch (const std::bad_weak_ptr&) {
       child->m_parent.reset(); // Unable to obtain weak pointer (parent most likely isn't a shared pointer)
     }
   }
