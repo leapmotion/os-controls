@@ -6,6 +6,8 @@
 #include <nanosvg.h>
 #include <poly2tri.h>
 
+#include <cfloat>
+
 struct Bezier {
   Eigen::Vector2f b[4];
 };
@@ -40,9 +42,12 @@ void Curve::Append(const Bezier& bezier) {
     if (m_points.empty()) {
       m_points.push_back(new p2t::Point(bezier.b[0].x(), bezier.b[0].y()));
     }
-    if (bezier.b[3].x() == m_points[0]->x &&
-        bezier.b[3].y() == m_points[0]->y) {
-      return;
+    auto dx = bezier.b[3].x() - m_points[0]->x;
+    if (std::abs(dx) < FLT_EPSILON) {
+      auto dy = bezier.b[3].y() - m_points[0]->y;
+      if (std::abs(dy) < FLT_EPSILON) {
+        return;
+      }
     }
     m_points.push_back(new p2t::Point(bezier.b[3].x(), bezier.b[3].y()));
   } else {
