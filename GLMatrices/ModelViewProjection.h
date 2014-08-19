@@ -14,6 +14,7 @@ public:
   void Orthographic(double left, double bottom, double right, double top, double nearClip, double farClip);
   Vector2 Project(const Vector3& point) const;
   void SetUniform(int address) const;
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
   Matrix4x4 m_matrix;
@@ -38,6 +39,7 @@ public:
   void SetUniform(int address) const;
   void Push();
   void Pop();
+  void Clear();
 private:
   std::vector<Matrix4x4, Eigen::aligned_allocator<Matrix4x4> > m_stack;
 };
