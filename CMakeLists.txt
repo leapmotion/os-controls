@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSIO
 ###################################################################################################
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
-project(Components VERSION 0.0)
+project(Components VERSION 0.1)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
 # TODO: set a default value for CMAKE_INSTALL_PREFIX to something like
