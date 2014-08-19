@@ -89,9 +89,9 @@ void MediaView::setMenuOpacity(float opacity) {
 
 int MediaView::setActiveWedgeFromPoint(const Vector2& point) {
   int retVal = -1;
-  int minDist = INT_MAX;
+  float minDist = std::numeric_limits<float>::max();
   
-  for(int i=0; i < m_wedges.size(); i++) {
+  for(size_t i=0; i < m_wedges.size(); i++) {
     auto wedge = m_wedges[i];
     float dist = wedge->DistanceToCenter(point);
     if ( dist < minDist ) {
@@ -102,7 +102,7 @@ int MediaView::setActiveWedgeFromPoint(const Vector2& point) {
   }
   
   std::cout << std::endl;
-  return retVal; // return the index of the selected wedge.
+  return static_cast<int>(retVal); // return the index of the selected wedge.
 }
 
 void MediaView::SetInteractionDistance(float distance) {
