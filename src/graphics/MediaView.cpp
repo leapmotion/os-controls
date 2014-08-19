@@ -7,8 +7,7 @@
 const static float PI = 3.14159265f;
 
 MediaView::MediaView(const Vector3& center, float offset) :
-m_time(0),
-m_scale(1)
+m_time(0)
 {
   m_leftButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0));
   m_topButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0));
@@ -45,6 +44,18 @@ void MediaView::AnimationUpdate(const RenderFrame& frame) {
 
 void MediaView::SetFadeState(FadeState newState){
   m_fadeState = newState;
+}
+
+float MediaView::Volume() {
+  return m_volumeControl->Volume();
+}
+
+void MediaView::SetVolume(float volume) {
+  m_volumeControl->SetVolume(volume);
+}
+
+void MediaView::NudgeVolume(float dVolume) {
+  m_volumeControl->NudgeVolume(dVolume);
 }
 
 void MediaView::setOpacity(float opacity) {

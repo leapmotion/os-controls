@@ -10,7 +10,7 @@
 #include "CoordinateUtility.h"
 
 
-void HandCoordinatesDecorator::AutoFilter(Leap::Frame frame, CursorMap& handScreenLocations) {
+void HandCoordinatesDecorator::AutoFilter(const Leap::Frame& frame, CursorMap& handScreenLocations) {
   for(auto hand : frame.hands()) {
     Vector2 screenLocation = m_coordinateUtility->LeapToScreen(hand.palmPosition());
     handScreenLocations[hand.id()] = screenLocation;

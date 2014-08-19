@@ -1,4 +1,6 @@
 set(interaction_SOURCES
+  CircleGestureTrigger.cpp
+  CircleGestureTrigger.h
   HandExistTrigger.cpp
   HandExistTrigger.h
   GestureTriggerManifest.cpp
