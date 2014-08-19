@@ -13,13 +13,13 @@ m_scale(1)
 {
   m_wedges.resize(4);
   //top
-  m_wedges[0] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0));
+  m_wedges[0] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset,   5 * PI / 4,   7 * PI / 4,   Vector3(0, -1 * offset, 0));
   //right
-  m_wedges[1] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, -PI / 4, PI / 4, Vector3(offset, 0, 0));
+  m_wedges[1] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset,   -PI / 4,      PI / 4,       Vector3(offset, 0, 0));
   //down
-  m_wedges[2] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, -3 * PI / 4, -PI / 4, Vector3(0, offset, 0), true);
+  m_wedges[2] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset,   PI / 4,       3 * PI / 4,  Vector3(0, offset, 0), true);
   //left
-  m_wedges[3] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0));
+  m_wedges[3] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset,   3 * PI / 4,   5 * PI / 4,   Vector3(-1 * offset, 0, 0));
   
   m_volumeControl = RenderEngineNode::Create<VolumeControl>(50 - 10 - offset, 10);
 
@@ -75,13 +75,16 @@ int MediaView::setActiveWedgeFromPoint(const Vector2& point) {
   
   for(int i=0; i < m_wedges.size(); i++) {
     auto wedge = m_wedges[i];
-    float dist = wedge->DistanceToOriginalCenter(point);
+    float dist = wedge->DistanceToCenter(point);
+    std::cout << "index: " << i << " dist: " << dist << std::endl;
     if ( dist < minDist ) {
+      minDist = dist;
       retVal = i;
       m_activeWedge = wedge;
-      break;
     }
   }
+  
+  std::cout << std::endl;
   return retVal; // return the index of the selected wedge.
 }
 

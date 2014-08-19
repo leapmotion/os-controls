@@ -30,10 +30,6 @@ m_maxOpacity(0.8)
 RadialButton::~RadialButton() {
 }
 
-void RadialButton::OnParentChanged() {
-  m_originalCenterOfMass = GetCenterOfMass();
-}
-
 void RadialButton::Nudge(float offset) {
   m_partialDisk.SetInnerRadius(m_innerRadius + offset);
   m_partialDisk.SetOuterRadius(m_outerRadius + offset);
@@ -62,14 +58,9 @@ Vector2 RadialButton::GetCenterOfMass() const {
   float normalizedX = cosf(centerAngle);
   float normalizedY = sinf(centerAngle);
   
-  Vector2 position = ProjectVector(2,ComputeTransformToGlobalCoordinates().translation());
-  position.x() += normalizedX * centerDistance;
-  position.y() += normalizedY * centerDistance;
+  Vector2 position = ProjectVector( 2, ComputeTransformToGlobalCoordinates().translation() );
+  position.x() = position.x() + normalizedX * centerDistance;
+  position.y() = position.y() + normalizedY * centerDistance;
   return position;
-}
-
-//Return the cached center of mass
-Vector2 RadialButton::GetOriginalCenterOfMass() const {
-  return m_originalCenterOfMass;
 }
 

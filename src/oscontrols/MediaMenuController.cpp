@@ -33,6 +33,7 @@ void MediaMenuController::AutoFilter(const HandExistenceState &hes, const Cursor
     auto q = handScreenLocations.find(m_controllingHand.id());
     if(q != handScreenLocations.end()) {
       userPosition = q->second;
+      userPosition.y() *= -1;
     }
     else {
       throw std::runtime_error("no coords for controlling hand.");
@@ -41,10 +42,11 @@ void MediaMenuController::AutoFilter(const HandExistenceState &hes, const Cursor
     
     float distance = (position - userPosition).norm();
     
+    selectedWedgeIndex = m_mediaView->setActiveWedgeFromPoint(userPosition);
     //Logic to perform depending on where the user's input is relative to the menu in terms of distance and screen position
     if(distance >= configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS) { // Dragging a wedge out
-      selectedWedgeIndex = m_mediaView->setActiveWedgeFromPoint(userPosition);
-      m_mediaView->setInteractionDistance(distance);
+      
+      m_mediaView->setInteractionDistance(distance - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS);
       
       if( distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS ) { // Making a selection
         closeMenu(true);
