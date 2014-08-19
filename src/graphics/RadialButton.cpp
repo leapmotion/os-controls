@@ -44,6 +44,8 @@ void RadialButton::Render(const RenderFrame& frame) const {
 void RadialButton::AnimationUpdate(const RenderFrame& frame) {
   float renderedOpacity = std::min(m_maxOpacity, m_alpha);
   m_partialDisk.SetDiffuseColor(Color(m_color.R(), m_color.G(), m_color.B(), renderedOpacity));
+  // NOTE: Leaving this here for future debugging.
+  //std::cout << "r:" << m_color.R() << " g:" << m_color.G() << " b:" << m_color.B() << " a:" << renderedOpacity << std::endl;
 }
 
 void RadialButton::SetMaxOpacity(float opacity) {
