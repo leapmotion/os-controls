@@ -48,8 +48,8 @@ void MediaView::AnimationUpdate(const RenderFrame& frame) {
   //TODO: make this animate
   switch (m_fadeState) {
   case FADE_IN:
-    if ( m_opacity < 1.0f ) {
-      m_opacity = std::min(1.0, m_opacity + (2.0 * frame.deltaT.count()) );
+      if ( m_opacity < config::MEDIA_BASE_OPACITY ) {
+        m_opacity = std::min(config::MEDIA_BASE_OPACITY, (float)(m_opacity + (2.0f * frame.deltaT.count())) );
     }
     setMenuOpacity(m_opacity);
     break;
