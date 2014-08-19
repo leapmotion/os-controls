@@ -12,7 +12,7 @@ class RenderEngineNode :
 public:
 
   template<typename T, typename... _Args>
-  static std::shared_ptr<T> Create(_Args... args) {
+  static std::shared_ptr<T> Create(_Args&&... args) {
     auto ptr = std::shared_ptr<T>(new T(args...)); //cannot use make_shared due to eigen alignment requirements.
     ptr->InitChildren();
     return ptr;
