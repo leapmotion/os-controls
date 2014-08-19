@@ -28,7 +28,7 @@ public:
   Vector2 GetCenterOfMass() const;
   
   template<class V>
-  float DistanceToCenter(const V& point) { return (point - GetCenterOfMass()).norm(); }
+  float DistanceToCenter(const V& point) { return static_cast<float>((point - GetCenterOfMass()).norm()); }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
@@ -37,9 +37,6 @@ private:
   bool m_isNullWedge;
   
   Color m_color;
-  //float m_color_r;
-  //float m_color_g;
-  //float m_color_b;
   float m_alpha;
   
   float m_innerRadius;

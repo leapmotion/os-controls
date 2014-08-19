@@ -15,7 +15,7 @@ void MediaMenuController::AutoFilter(const HandPointingMap &hpm, const CursorMap
   if(!m_controllingHand.isValid()) { // if there is NOT a controlling hand
     if(!hpm.empty()) {
       m_controllingHand = hpm.begin()->second;
-      m_mediaView->SetFadeState(MediaView::FADE_IN);
+      m_mediaView->FadeIn();
       m_mediaView->SetVolume(m_audioVolumeInterface->GetVolume());
       m_isInteractionComplete = false;
       
@@ -29,7 +29,7 @@ void MediaMenuController::AutoFilter(const HandPointingMap &hpm, const CursorMap
       hpm.at(m_controllingHand.id());
     }
     catch (std::out_of_range e) {
-      m_mediaView->SetFadeState(MediaView::FADE_OUT);
+      m_mediaView->FadeOut();
       m_controllingHand = Leap::Hand::invalid();
       return;
     }
@@ -83,12 +83,12 @@ void MediaMenuController::updateWedges(const HandPointingMap &hpm, const CursorM
     return;
   }
   
-  double distance = (position - userPosition).norm();
+  float distance = static_cast<float>((position - userPosition).norm());
   
   selectedWedgeIndex = m_mediaView->setActiveWedgeFromPoint(userPosition);
+  
   //Logic to perform depending on where the user's input is relative to the menu in terms of distance and screen position
   if(distance >= configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS) { // Dragging a wedge out
-    
     m_mediaView->SetInteractionDistance(distance - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS);
     
     if( distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS ) { // Making a selection

@@ -8,6 +8,7 @@
 #include "Leap.h"
 
 #include "Primitives.h"
+#include "Animation.h"
 
 
 class MediaView :
@@ -23,14 +24,10 @@ public:
   void DeselectWedges();
   void CloseMenu(double selectionCloseDelayTime = false); // override that leaves the current active wedge visible for a given time
   
-  enum FadeState {
-    FADE_OUT,
-    FADE_IN,
-    INVISIBLE
-  };
-  
-  void SetFadeState(FadeState newState);
-  
+  void SetGoalOpacity(float goalOpacity);
+  void FadeIn(){ SetGoalOpacity(config::MEDIA_BASE_OPACITY); }
+  void FadeOut() { SetGoalOpacity(0.0f); }
+
   float Volume();
   void SetVolume(float volume);
   void NudgeVolume(float dVolume);
@@ -39,9 +36,7 @@ public:
 private:
   void setMenuOpacity(float opacity);
 
-  float m_time;
-  float m_opacity;
-  FadeState m_fadeState;
+  Animated<float> m_opacity;
   
   float m_interactionDistance;
   std::shared_ptr<RadialButton> m_activeWedge;
