@@ -74,12 +74,17 @@ public:
   virtual void AddChild(std::shared_ptr<SceneGraphNode>& child) {
     m_children.emplace(child);
     child->m_parent = shared_from_this();
+    child->OnParentChanged();
   }
+  
+  virtual void OnParentChanged() {};
+  
   virtual void RemoveFromParent() {
     std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
     if (parent) {
       parent->m_children.erase(shared_from_this());
       m_parent.reset();
+      OnParentChanged();
     }
   }
 
@@ -127,6 +132,7 @@ public:
     while (traversal_node != closest_common_ancestor) {
       // A node's transform gives the node-to-parent coordinate transformation.
       this_transform_stack = this_transform_stack * traversal_node->FullTransform();
+      traversal_node = traversal_node->m_parent.lock();
     }
 
     // Compute the transformation from the other node's coordinate system
@@ -136,6 +142,7 @@ public:
     traversal_node = other.shared_from_this();
     while (traversal_node != closest_common_ancestor) {
       other_transform_stack = other_transform_stack * traversal_node->FullTransform();
+      traversal_node = traversal_node->m_parent.lock();
     }
 
     // TODO: somehow check that other_transform_stack is actually invertible (it's not
@@ -214,7 +221,7 @@ private:
     ancestors.emplace_back(shared_from_this());
     std::shared_ptr<SceneGraphNode> parent(m_parent.lock());
     if (parent) {
-      AppendAncestors(ancestors);
+      parent->AppendAncestors(ancestors);
     }
   }
 
