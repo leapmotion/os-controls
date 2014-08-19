@@ -85,6 +85,18 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    Animation
+    HEADERS
+        Animation.h
+    SOURCES
+        Animation.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        EigenTypes
+    BRIEF_DOC_STRING
+        "Basic templated animation and interpolation."
+)
+
+add_sublibrary(
     Color
     HEADERS
         Color.h
