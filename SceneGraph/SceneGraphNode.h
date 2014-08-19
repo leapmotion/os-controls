@@ -42,9 +42,7 @@ public:
   // and produces the same 3x1 column matrix value as the expression L*X + T.
   typedef Eigen::Transform<Scalar,DIM,Eigen::AffineCompact> Transform;
   SceneGraphNode() { m_transform.setIdentity(); }
-  typedef std::unordered_set<std::shared_ptr<SceneGraphNode>,
-    std::hash<std::shared_ptr<SceneGraphNode>>,
-    std::equal_to<std::shared_ptr<SceneGraphNode>>,
+  typedef std::vector<std::shared_ptr<SceneGraphNode>,
     Eigen::aligned_allocator<std::shared_ptr<SceneGraphNode>>
   > ChildSet;
   virtual ~SceneGraphNode() { }
@@ -72,20 +70,21 @@ public:
   // these are virtual so that particular behavior can be added while adding/removing nodes.
   // any overrides should make sure to call the base class' version of the method, of course.
   virtual void AddChild(std::shared_ptr<SceneGraphNode> child) {
-    m_children.emplace(child);
+    m_children.emplace_back(child);
     try {
       child->m_parent = shared_from_this();
     } catch (const std::bad_weak_ptr&) {
       child->m_parent.reset(); // Unable to obtain weak pointer (parent most likely isn't a shared pointer)
     }
   }
-  virtual void RemoveFromParent() {
-    std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
-    if (parent) {
-      parent->m_children.erase(shared_from_this());
-      m_parent.reset();
-    }
-  }
+// Disable the ability to remove a child from parent until it is needed
+//  virtual void RemoveFromParent() {
+//    std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
+//    if (parent) {
+//      parent->m_children.erase(shared_from_this());
+//      m_parent.reset();
+//    }
+//  }
 
   // Traverse this tree, depth-first, calling preTraversal (if not nullptr) 
   // on this node, then calling this function recursively on the child nodes, then 
