@@ -8,7 +8,7 @@
 
 #include <autowiring/Autowired.h>
 
-struct CursorMap : public std::map<int32_t, Vector2> {};
+struct CursorMap : public Eigen::map<int32_t, Vector2> {};
 
 class HandCoordinatesDecorator {
 public:
