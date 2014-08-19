@@ -87,14 +87,18 @@ int MediaView::setActiveWedgeFromPoint(const Vector2& point) {
   return retVal; // return the index of the selected wedge.
 }
 
-void MediaView::setInteractionDistance(float distance) {
+void MediaView::SetInteractionDistance(float distance) {
   m_interactionDistance = distance;
 }
 
-void MediaView::deselectWedges() {
+void MediaView::DeselectWedges() {
   m_activeWedge = nullptr;
 }
 
-void MediaView::closeMenu(double selectionCloseDelayTime = false) {
+void MediaView::CloseMenu(double selectionCloseDelayTime) {
   SetFadeState(INVISIBLE);
+}
+
+void MediaView::Move(const Vector3& coords) {
+  Translation() = coords;
 }

@@ -11,19 +11,29 @@ MediaMenuController::MediaMenuController()
 }
 
 //Update
-void MediaMenuController::AutoFilter(const HandExistenceState &hes, const CursorMap& handScreenLocations) {
+void MediaMenuController::AutoFilter(const HandPointingMap &hpm, const CursorMap& handScreenLocations) {
   if(!m_controllingHand.isValid()) { // If there is NOT a controlling hand
-    if(!hes.m_newHands.empty()) {
-      m_controllingHand = hes.m_newHands[0];
+    if(!hpm.empty()) {
+      m_controllingHand = hpm.begin()->second;
       m_mediaView->SetFadeState(MediaView::FADE_IN);
       m_isInteractionComplete = false;
+      
+      Vector2 newPosition = handScreenLocations.at(m_controllingHand.id());
+      m_mediaView->Move(Vector3(newPosition.x(), newPosition.y(), 0));
     }
   }
-  else if(!isHandInVector(hes.m_stableHands, m_controllingHand)) { // There is no longer a controlling hand
-    m_mediaView->SetFadeState(MediaView::FADE_OUT); 
-    m_controllingHand = Leap::Hand::invalid();
-  }
   else { // Update Logic when a hand is controlling the menu
+    
+    //Check if controlling hand is still pointing
+    try {
+      hpm.at(m_controllingHand.id());
+    }
+    catch (std::out_of_range e) {
+      m_mediaView->SetFadeState(MediaView::FADE_OUT);
+      m_controllingHand = Leap::Hand::invalid();
+      return;
+    }
+    
     if ( !m_isInteractionComplete ) {
       RenderEngineNode::Transform transform = m_mediaView->ComputeTransformToGlobalCoordinates();
       const auto positionRaw = transform.translation();
@@ -32,12 +42,10 @@ void MediaMenuController::AutoFilter(const HandExistenceState &hes, const Cursor
       int selectedWedgeIndex = -1;
       
       // Figure out where the user's input is relative to the center of the menu
-      auto q = handScreenLocations.find(m_controllingHand.id());
-      if(q != handScreenLocations.end()) {
-        userPosition = q->second;
-        userPosition.y() *= -1;
+      try {
+        userPosition = handScreenLocations.at(m_controllingHand.id());
       }
-      else {
+      catch (std::out_of_range e) {
         throw std::runtime_error("no coords for controlling hand.");
         return;
       }
@@ -48,7 +56,7 @@ void MediaMenuController::AutoFilter(const HandExistenceState &hes, const Cursor
       //Logic to perform depending on where the user's input is relative to the menu in terms of distance and screen position
       if(distance >= configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS) { // Dragging a wedge out
         
-        m_mediaView->setInteractionDistance(distance - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS);
+        m_mediaView->SetInteractionDistance(distance - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS);
         
         if( distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS ) { // Making a selection
           closeMenu(true);
@@ -56,10 +64,16 @@ void MediaMenuController::AutoFilter(const HandExistenceState &hes, const Cursor
           //TODO: Hook up wedge event actions maybe with a switch statement
           switch(selectedWedgeIndex) {
             case 0:
+              std::cout << "activate top" << std::endl;
+              m_mediaInterface->PlayPause();
               break;
             case 1:
+              std::cout << "activate right" << std::endl;
+              m_mediaInterface->Next();
               break;
-            case 2:
+            case 3:
+              std::cout << "activate left" << std::endl;
+              m_mediaInterface->Prev();
               break;
             default:
               break;
@@ -67,24 +81,14 @@ void MediaMenuController::AutoFilter(const HandExistenceState &hes, const Cursor
         }
       }
       else { // within the deadzone
-        m_mediaView->deselectWedges();
+        m_mediaView->DeselectWedges();
       }
     }
   }
 }
 
 void MediaMenuController::closeMenu(bool keepSelectionVisible) {
-  m_mediaView->closeMenu(0.5);
-}
-
-bool MediaMenuController::isHandInVector(std::vector<Leap::Hand> vect, Leap::Hand goalHand) {
-  bool retVal = false;
-  for(Leap::Hand hand : vect) {
-    if(hand.id() == goalHand.id()) {
-      retVal = true;
-    }
-  }
-  return retVal;
+  m_mediaView->CloseMenu(0.5);
 }
 
 

@@ -18,10 +18,10 @@ public:
   void InitChildren() override;
   void AnimationUpdate(const RenderFrame& frame) override;
   int setActiveWedgeFromPoint(const Vector2& point);
-  void setInteractionDistance(float distance);
-  void deselectWedges();
-  void closeMenu();
-  void closeMenu(double selectionCloseDelayTime); // override that leaves the current active wedge visible for a given time
+  void Move(const Vector3& coords);
+  void SetInteractionDistance(float distance);
+  void DeselectWedges();
+  void CloseMenu(double selectionCloseDelayTime = false); // override that leaves the current active wedge visible for a given time
   
   enum FadeState {
     FADE_OUT,

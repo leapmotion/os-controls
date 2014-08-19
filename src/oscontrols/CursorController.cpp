@@ -24,7 +24,7 @@ void CursorController::AutoFilter(const HandExistenceState &hes, const CursorMap
     
     auto q = handScreenLocations.find(m_controllingHand.id());
     if (q != handScreenLocations.end()) {
-      m_cursor->Move(q->second.x(), -q->second.y());
+      m_cursor->Move(q->second.x(), q->second.y());
       //std::cout << q->second.x() << " " << q->second.y() << std::endl;
     }
   }
