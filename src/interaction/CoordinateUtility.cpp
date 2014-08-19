@@ -7,9 +7,7 @@
 //
 
 #include "CoordinateUtility.h"
-
-static const Vector3 m_leapMin(-60.0f,200.0f,-30.0f);
-static const Vector3 m_leapMax(60.0f,400.0f,30.0f);
+#include "InteractionConfigs.h"
 
 
 float normalizeFloat(float val, float min, float max) {
@@ -31,7 +29,7 @@ Vector2 CoordinateUtility::LeapToScreen(Leap::Vector leapCoords) {
 
 Vector3 CoordinateUtility::LeapToScreenNormal(Leap::Vector leapCoords) {
   const Vector3 eigenLeapCoords = leapCoords.toVector3<Vector3>();
-  return normalizeVec3(eigenLeapCoords, m_leapMin, m_leapMax);
+  return normalizeVec3(eigenLeapCoords, config::m_leapMin, config::m_leapMax);
 }
 
 Vector2 CoordinateUtility::ScreenNormalToScreenPixels(Vector3 normalCoords) {
