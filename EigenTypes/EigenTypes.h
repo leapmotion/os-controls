@@ -1,7 +1,10 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <Eigen/StdVector>
+#include <Eigen/StdVector> //This is not nessecary in c++11 according to stack overflow.
+
+#include <map>
+#include <set>
 
 // geometry storage types
 typedef double MATH_TYPE;
@@ -33,12 +36,24 @@ typedef Eigen::Matrix<float, 2, 1> Vector2f;
 typedef Eigen::Matrix<float, 3, 1> Vector3f;
 typedef Eigen::Matrix<float, 4, 1> Vector4f;
 
-// standard library containers
-typedef std::vector<Vector2, Eigen::aligned_allocator<Vector2> > stdvectorV2;
-typedef std::vector<Vector3, Eigen::aligned_allocator<Vector3> > stdvectorV3;
-typedef std::vector<Vector2f, Eigen::aligned_allocator<Vector2f> > stdvectorV2f;
-typedef std::vector<Vector3f, Eigen::aligned_allocator<Vector3f> > stdvectorV3f;
-typedef std::vector<Vector4f, Eigen::aligned_allocator<Vector4f> > stdvectorV4f;
+namespace Eigen{
+  // standard library containers
+  template<typename _T>
+  using vector = std::vector<_T, Eigen::aligned_allocator<_T>>;
+
+  template<typename _T, typename _C = std::less<_T>>
+  using set = std::set<_T, _C, Eigen::aligned_allocator<_T>>;
+
+  template<typename _K, typename _V, typename _C = std::less<_K>>
+  using map = std::map<_K, _V, _C, Eigen::aligned_allocator<std::pair<_K, _V>>>;
+}
+
+//legacy typedefs
+typedef Eigen::vector<Vector2> stdvectorV2;
+typedef Eigen::vector<Vector3> stdvectorV3;
+typedef Eigen::vector<Vector2f> stdvectorV2f;
+typedef Eigen::vector<Vector3f> stdvectorV3f;
+typedef Eigen::vector<Vector4f> stdvectorV4f;
 
 //Marshaling functions
 //NOTE:I really, really tried to make this a template function, but got stuck in template hell and did not

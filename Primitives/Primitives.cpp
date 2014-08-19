@@ -112,8 +112,8 @@ void PartialDisk::RecomputeGeometry() const {
 
   m_Geometry.CleanUpBuffers();
 
-  stdvectorV3f& vertices = m_Geometry.Vertices();
-  stdvectorV3f& normals = m_Geometry.Normals();
+  Eigen::vector<Vector3f>& vertices = m_Geometry.Vertices();
+  Eigen::vector<Vector3f>& normals = m_Geometry.Normals();
 
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
