@@ -28,7 +28,7 @@ public:
   Vector2 GetCenterOfMass() const;
   
   template<class V>
-  float DistanceToCenter(V point) { return (point - GetCenterOfMass()).norm(); }
+  float DistanceToCenter(const V& point) { return (point - GetCenterOfMass()).norm(); }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
