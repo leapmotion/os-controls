@@ -33,8 +33,8 @@ float VolumeControl::Volume() {
 }
 
 void VolumeControl::SetVolume(float volume) {
+  volume = std::max(0.0f, std::min(1.0f, volume));
   double angle = angleFromVolume(volume);
-  angle = std::max(-5.0f*M_PI/4.0f, std::min(M_PI/4.0f, angle));
   m_activePartialDisk.SetEndAngle(angle);
 }
 
@@ -42,7 +42,7 @@ void VolumeControl::NudgeVolume(float dVolume) {
   std::cout << "dVolume: " << dVolume << std::endl;
   float angle = m_activePartialDisk.EndAngle() + VolumeControl::dAngleFromVolume(dVolume);
   m_activePartialDisk.SetEndAngle(angle);
-  std::cout << "New Angle: " << angle << std::endl;
+  std::cout << "New Volume: " << volumeFromAngle(angle) << std::endl;
 }
 
 void VolumeControl::AnimationUpdate(const RenderFrame& frame) {

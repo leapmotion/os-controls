@@ -6,6 +6,7 @@
 #include "graphics/MediaView.h"
 #include "graphics/RenderEngine.h"
 #include "Leap.h"
+#include "osinterface/AudioVolumeInterface.h"
 
 #include <autowiring/autowiring.h>
 
@@ -25,4 +26,6 @@ private:
 
   std::shared_ptr<MediaView> m_mediaView;
   AutoRequired<RenderEngineNode> m_rootNode;
+  
+  AutoRequired<AudioVolumeInterface> m_audioVolumeInterface;
 };

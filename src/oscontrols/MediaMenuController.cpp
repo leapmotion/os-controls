@@ -40,13 +40,15 @@ void MediaMenuController::AutoFilter(const HandExistenceState& hes, const Cursor
         
         std::cout << "Progress Diff: " << circleGesture.progress() - m_lastProgress << std::endl;
         
-        if (m_lastProgress == std::numeric_limits<float>::min() || circleGesture.progress() - m_lastProgress > 2) {
+        if (m_lastProgress == std::numeric_limits<float>::min() || std::abs(circleGesture.progress() - m_lastProgress) > 0.2f) {
           m_lastProgress = circleGesture.progress();
           return;
         }
         
         m_mediaView->NudgeVolume(direction*(circleGesture.progress() - m_lastProgress)/10.0f);
         std::cout << "Nudge Volume: " << direction * (circleGesture.progress() - m_lastProgress)/10.0f << std::endl;
+        
+        m_audioVolumeInterface->SetVolume(m_mediaView->Volume());
         
         m_lastProgress = circleGesture.progress();
       }
