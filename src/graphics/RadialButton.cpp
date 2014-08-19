@@ -5,14 +5,20 @@
 
 #include <iostream>
 
-RadialButton::RadialButton(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset) :
+RadialButton::RadialButton(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset, bool isNullWedge) :
+m_isNullWedge(isNullWedge),
 m_innerRadius(innerRadius),
 m_outerRadius(innerRadius+width),
 m_maxOpacity(0.8)
 {
   Translation() = offset;
-
-  m_partialDisk.SetDiffuseColor(Color(0.7f, 0.7f, 0.7f, 0.5f));
+  
+  m_color_r = 0.7f;
+  m_color_g = 0.7f;
+  m_color_b = 0.7f;
+  m_color_a = m_isNullWedge ? 0.0f : 1.0f;
+  
+  m_partialDisk.SetDiffuseColor(Color(m_color_r, m_color_g, m_color_b, m_color_a));
   m_partialDisk.SetAmbientFactor(0.9f);
   
   m_partialDisk.SetInnerRadius(m_innerRadius);
@@ -22,6 +28,10 @@ m_maxOpacity(0.8)
 }
 
 RadialButton::~RadialButton() {
+}
+
+void RadialButton::OnParentChanged() {
+  m_originalCenterOfMass = GetCenterOfMass();
 }
 
 void RadialButton::Nudge(float offset) {
@@ -38,6 +48,28 @@ void RadialButton::Render(const RenderFrame& frame) const {
 }
 
 void RadialButton::SetOpacity(float opacity) {
-  //opacity = std::max(0.0f, std::min(1.0f, opacity));
-  m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, opacity * m_maxOpacity));
+  if( !m_isNullWedge ) {
+    opacity = std::max(0.0f, std::min(m_maxOpacity, opacity));
+    m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, opacity));
+  }
 }
+
+//Returns the center of mass in screen coordinates
+Vector2 RadialButton::GetCenterOfMass() const {
+  float centerAngle = m_partialDisk.StartAngle() + ((m_partialDisk.EndAngle() - m_partialDisk.StartAngle()) / 2.0f);
+  float centerDistance = m_innerRadius + ((m_outerRadius - m_innerRadius) / 2.0);
+  
+  float normalizedX = cosf(centerAngle);
+  float normalizedY = sinf(centerAngle);
+  
+  Vector2 position = ProjectVector(2,ComputeTransformToGlobalCoordinates().translation());
+  position.x() += normalizedX * centerDistance;
+  position.y() += normalizedY * centerDistance;
+  return position;
+}
+
+//Return the cached center of mass
+Vector2 RadialButton::GetOriginalCenterOfMass() const {
+  return m_originalCenterOfMass;
+}
+

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MediaView.h"
 #include "RenderState.h"
+#include "limits.h"
 
 #include <iostream>
 
@@ -10,27 +11,41 @@ MediaView::MediaView(const Vector3& center, float offset) :
 m_time(0),
 m_scale(1)
 {
-  m_leftButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0));
-  m_topButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0));
-  m_rightButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, -PI / 4, PI / 4, Vector3(offset, 0, 0));
+  m_wedges.resize(4);
+  //top
+  m_wedges[0] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0));
+  //right
+  m_wedges[1] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, -PI / 4, PI / 4, Vector3(offset, 0, 0));
+  //down
+  m_wedges[2] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, -3 * PI / 4, -PI / 4, Vector3(0, offset, 0), true);
+  //left
+  m_wedges[3] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0));
+  
   m_volumeControl = RenderEngineNode::Create<VolumeControl>(50 - 10 - offset, 10);
 
   Translation() = center;
 }
 
 void MediaView::InitChildren() {
-  AddChild(m_leftButton);
-  AddChild(m_topButton);
-  AddChild(m_rightButton);
+  for(std::shared_ptr<RadialButton> radial : m_wedges) {
+    AddChild(radial);
+  }
   AddChild(m_volumeControl);
 }
 
 void MediaView::AnimationUpdate(const RenderFrame& frame) {
   m_time += static_cast<float>(frame.deltaT.count());
   
-  m_leftButton->Nudge(20 * (0.5f + 0.5f * std::sin(5*m_time)));
-  m_topButton->Nudge(20 * (0.5f + 0.5f * std::sin(5*m_time + 2)));
-  m_rightButton->Nudge(20 * (0.5f + 0.5f * std::sin(5*m_time + 4)));
+  for(auto wedge : m_wedges) {
+    //TODO: Wedge Coloring and Such
+    if ( m_activeWedge == wedge ) {
+      wedge->Nudge(m_interactionDistance);
+    }
+    else
+    {
+      wedge->Nudge(0);
+    }
+  }
 
   //TODO: make this animate
   switch (m_fadeState) {
@@ -48,8 +63,40 @@ void MediaView::SetFadeState(FadeState newState){
 }
 
 void MediaView::setOpacity(float opacity) {
-  m_leftButton->SetOpacity(opacity);
-  m_topButton->SetOpacity(opacity);
-  m_rightButton->SetOpacity(opacity);
+  m_wedges[0]->SetOpacity(opacity);
+  m_wedges[1]->SetOpacity(opacity);
+  m_wedges[3]->SetOpacity(opacity);
   m_volumeControl->SetOpacity(opacity);
+}
+
+int MediaView::setActiveWedgeFromPoint(const Vector2& point) {
+  int retVal = -1;
+  int minDist = INT_MAX;
+  
+  for(int i=0; i < m_wedges.size(); i++) {
+    auto wedge = m_wedges[i];
+    float dist = wedge->DistanceToOriginalCenter(point);
+    if ( dist < minDist ) {
+      retVal = i;
+      m_activeWedge = wedge;
+      break;
+    }
+  }
+  return retVal; // return the index of the selected wedge.
+}
+
+void MediaView::setInteractionDistance(float distance) {
+  m_interactionDistance = distance;
+}
+
+void MediaView::deselectWedges() {
+  m_activeWedge = nullptr;
+}
+
+void MediaView::closeMenu() {
+  
+}
+
+void MediaView::closeMenu(double selectionCloseDelayTime) {
+  
 }
