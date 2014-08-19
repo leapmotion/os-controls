@@ -9,7 +9,8 @@ const static float PI = 3.14159265f;
 
 MediaView::MediaView(const Vector3& center, float offset) :
 m_time(0),
-m_scale(1)
+m_scale(1),
+m_opacity(0.0f)
 {
   //TODO: Move this into a for loop that handles the sweep angle calculations
   m_wedges.resize(4);
@@ -47,13 +48,19 @@ void MediaView::AnimationUpdate(const RenderFrame& frame) {
   //TODO: make this animate
   switch (m_fadeState) {
   case FADE_IN:
-    setOpacity(1.0f);
+    if ( m_opacity < 1.0f ) {
+      m_opacity = std::min(1.0, m_opacity + (2.0 * frame.deltaT.count()) );
+    }
+    setMenuOpacity(m_opacity);
     break;
   case FADE_OUT:
-    setOpacity(0.0f);
+    if ( m_opacity > 0.0f ) {
+      m_opacity = std::max(0.0, m_opacity - (2.0 * frame.deltaT.count()) );
+    }
+    setMenuOpacity(m_opacity);
     break;
   case INVISIBLE:
-    setOpacity(0.0f);
+    setMenuOpacity(0.0f);
     break;
   }
 }
@@ -62,10 +69,10 @@ void MediaView::SetFadeState(FadeState newState){
   m_fadeState = newState;
 }
 
-void MediaView::setOpacity(float opacity) {
-  m_wedges[0]->SetOpacity(opacity);
-  m_wedges[1]->SetOpacity(opacity);
-  m_wedges[3]->SetOpacity(opacity);
+void MediaView::setMenuOpacity(float opacity) {
+  m_wedges[0]->SetMaxOpacity(opacity);
+  m_wedges[1]->SetMaxOpacity(opacity);
+  m_wedges[3]->SetMaxOpacity(opacity);
   m_volumeControl->SetOpacity(opacity);
 }
 
@@ -96,7 +103,7 @@ void MediaView::DeselectWedges() {
 }
 
 void MediaView::CloseMenu(double selectionCloseDelayTime) {
-  SetFadeState(INVISIBLE);
+  SetFadeState(FADE_OUT);
 }
 
 void MediaView::Move(const Vector3& coords) {

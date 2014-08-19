@@ -34,10 +34,11 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
   
-  void setOpacity(float opacity);
+  void setMenuOpacity(float opacity);
 
   float m_time;
   float m_scale;
+  float m_opacity;
   FadeState m_fadeState;
   
   float m_interactionDistance;

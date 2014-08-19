@@ -10,16 +10,13 @@ RadialButton::RadialButton(float innerRadius, float width, float startAngle, flo
 m_isNullWedge(isNullWedge),
 m_innerRadius(innerRadius),
 m_outerRadius(innerRadius+width),
-m_maxOpacity(0.8)
+m_maxOpacity(1.0)
 {
   Translation() = offset;
   
-  m_color_r = 0.7f;
-  m_color_g = 0.7f;
-  m_color_b = 0.7f;
-  m_color_a = m_isNullWedge ? 0.0f : 1.0f;
+  m_color = config::MEDIA_BASE_COLOR;
+  m_alpha = m_isNullWedge ? 0.0f : 1.0f;
   
-  m_partialDisk.SetDiffuseColor(Color(m_color_r, m_color_g, m_color_b, m_color_a));
   m_partialDisk.SetAmbientFactor(0.9f);
   
   m_partialDisk.SetInnerRadius(m_innerRadius);
@@ -44,11 +41,26 @@ void RadialButton::Render(const RenderFrame& frame) const {
   m_partialDisk.Draw(frame.renderState);
 }
 
-void RadialButton::SetOpacity(float opacity) {
+void RadialButton::AnimationUpdate(const RenderFrame& frame) {
+  float renderedOpacity = std::min(m_maxOpacity, m_alpha);
+  m_partialDisk.SetDiffuseColor(Color(m_color.R(), m_color.G(), m_color.B(), renderedOpacity));
+}
+
+void RadialButton::SetMaxOpacity(float opacity) {
   if( !m_isNullWedge ) {
-    opacity = std::max(0.0f, std::min(m_maxOpacity, opacity));
-    m_partialDisk.SetDiffuseColor(Color(0.5f, 0.5f, 0.5f, opacity));
+    m_maxOpacity = opacity;
   }
+  else {
+    m_maxOpacity = 0.0f;
+  }
+}
+
+void RadialButton::SetOpacity(float opacity) {
+  m_alpha = std::max(0.0f, std::min(1.0f, opacity));
+}
+
+const float RadialButton::GetOpacity() const {
+  return m_alpha;
 }
 
 //Returns the center of mass in screen coordinates
