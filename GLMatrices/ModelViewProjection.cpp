@@ -143,5 +143,6 @@ void ModelView::Pop() {
 }
 
 void ModelView::Clear() {
-  m_stack.empty();
+  m_stack.clear();
+  m_stack.push_back(Matrix4x4::Identity());
 }
