@@ -83,7 +83,7 @@ void MediaMenuController::updateWedges(const HandPointingMap &hpm, const CursorM
     return;
   }
   
-  float distance = (position - userPosition).norm();
+  double distance = (position - userPosition).norm();
   
   selectedWedgeIndex = m_mediaView->setActiveWedgeFromPoint(userPosition);
   //Logic to perform depending on where the user's input is relative to the menu in terms of distance and screen position
