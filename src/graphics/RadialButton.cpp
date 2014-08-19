@@ -12,7 +12,7 @@ m_maxOpacity(0.8)
 {
   Translation() = offset;
 
-  m_partialDisk.SetDiffuseColor(Color(0.7f, 0.7f, 0.7f, 0.5f));
+  m_partialDisk.SetDiffuseColor(Color(0.9f, 0.4f, 0.4f, 0.8f));
   m_partialDisk.SetAmbientFactor(0.9f);
   
   m_partialDisk.SetInnerRadius(m_innerRadius);

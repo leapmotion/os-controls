@@ -6,7 +6,7 @@
 #include <iostream>
 
 Cursor::Cursor(float radius, const Color& color) {
-  Translation() = Vector3(400, 400, 0);
+  Translation() = Vector3(400, 400, -1);
   
   m_disk.SetDiffuseColor(color);
   m_disk.SetAmbientFactor(0.9f);
