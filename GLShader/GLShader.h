@@ -15,6 +15,8 @@ template <size_t ROWS_, size_t COLUMNS_> struct UniformMatrixFunction { static c
 
 enum MatrixStorageConvention { COLUMN_MAJOR, ROW_MAJOR };
 
+enum class ShaderBindRequirement { BIND_AND_UNBIND, DONT_BIND_OR_UNBIND };
+
 /// @brief This class wraps compiling and binding GLSL shaders, as well as discovering and
 /// setting their uniforms and attributes.
 /// @details Some of the code was initially taken from Jerry Coffin's answer at
@@ -65,6 +67,9 @@ public:
   void Bind () { glUseProgram(m_prog); }
   // This method should be called when no shader program should be used.
   static void Unbind () { glUseProgram(0); }
+
+  // Checks for the uniform with given name and type.  If not found, an exception will be thrown.
+  void RequireTypedUniform (const std::string &name, GLenum type);
 
   // Returns a map, indexed by name, containing all the active uniforms in this shader program.
   const VarInfoMap &UniformInfoMap () const { return m_uniform_info_map; }
@@ -188,6 +193,13 @@ public:
     // TODO: somehow check that T_ is actually a POD containing only GLType_ components.
     UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), array.size(), matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(array.data()));
   }
+
+  // Returns (enum_name_string, type_name_string) for the given uniform type.  Throws an
+  // error if that type is not a uniform type.
+  static const std::string &UniformTypeString (GLenum type);
+  
+  static const std::map<GLenum,std::string> OPENGL_2_1_UNIFORM_TYPE_MAP;
+  static const std::map<GLenum,std::string> OPENGL_3_3_UNIFORM_TYPE_MAP;
 
 private:
 

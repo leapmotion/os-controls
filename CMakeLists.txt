@@ -247,20 +247,19 @@ add_sublibrary(
 )
 
 add_sublibrary(
-    GLShaderInterface
+    Material
     HEADERS
-        GLShaderInterface.h
-        # GLShaderInterfaceMaterial.h
-        GLShaderInterfaceMatrices.h
+        GLShaderMatrices.h
+        Material.h
     SOURCES
-        GLShaderInterface.cpp
-        # GLShaderInterfaceMaterial.cpp
-        GLShaderInterfaceMatrices.cpp
+        GLShaderMatrices.cpp
+        Material.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
         EigenTypes
         GLShader
     BRIEF_DOC_STRING
-        "Provides C++ interfaces to shader programs with specific uniforms and attributes."
+        "A C++ class which provides high-level management of a 'material' shader."
 )
 
 add_sublibrary(
@@ -660,23 +659,6 @@ add_sublibrary(
         SDLController # For creating the GL context
     BRIEF_DOC_STRING
         "Unit tests for the GLShader component."
-)
-
-add_sublibrary(
-    GLShaderInterfaceTest
-    EXCLUDE_FROM_ALL
-    SOURCE_PATH
-        GLShaderInterface/Test
-    SOURCES
-        GLShaderInterfaceTest.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLController
-        GLShaderInterface
-        GLShaderLoader
-        GTest
-        SDLController
-    BRIEF_DOC_STRING
-        "Unit tests for the GLShaderInterface component."
 )
 
 set(_tests ${ADDED_SUBLIBRARIES})
