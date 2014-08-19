@@ -12,7 +12,9 @@ class VolumeControl :
 public:
   VolumeControl(float radius, float width);
   
+  float Volume();
   void SetVolume(float volume);
+  void NudgeVolume(float dVolume);
 
   void AnimationUpdate(const RenderFrame& frame) override;
   void Render(const RenderFrame& frame) const override;
@@ -26,4 +28,8 @@ private:
   double m_time;
   
   float m_maxOpacity;
+  
+  float volumeFromAngle(float angle);
+  float angleFromVolume(float volume);
+  float dAngleFromVolume(float dVolume);
 };

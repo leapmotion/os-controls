@@ -27,15 +27,24 @@ m_maxOpacity(0.8f)
   m_activePartialDisk.SetEndAngle(-5*M_PI/4);
 }
 
+float VolumeControl::Volume() {
+  return volumeFromAngle(m_activePartialDisk.EndAngle());
+}
+
 void VolumeControl::SetVolume(float volume) {
-  float angle = 3*M_PI/2*volume - 5*M_PI/4;
+  volume = std::max(0.0f, std::min(1.0f, volume));
+  double angle = angleFromVolume(volume);
   m_activePartialDisk.SetEndAngle(angle);
 }
 
-void VolumeControl::AnimationUpdate(const RenderFrame& frame) {
-  m_time += frame.deltaT.count();
+void VolumeControl::NudgeVolume(float dVolume) {
+  std::cout << "dVolume: " << dVolume << std::endl;
+  float angle = m_activePartialDisk.EndAngle() + VolumeControl::dAngleFromVolume(dVolume);
+  m_activePartialDisk.SetEndAngle(angle);
+  std::cout << "New Volume: " << volumeFromAngle(angle) << std::endl;
+}
 
-  SetVolume(0.5 + 0.5*std::sin(0.5*m_time));
+void VolumeControl::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void VolumeControl::Render(const RenderFrame& frame) const {
@@ -55,4 +64,16 @@ void VolumeControl::SetOpacity(float opacity) {
   c = m_activePartialDisk.DiffuseColor();
   c.A() = opacity * m_maxOpacity;
   m_activePartialDisk.SetDiffuseColor(c);
+}
+
+float VolumeControl::volumeFromAngle(float angle) {
+  return (angle + 5*M_PI/4)/(3*M_PI/2);
+}
+
+float VolumeControl::angleFromVolume(float volume) {
+  return ((3*M_PI)/2)*volume - (5*M_PI)/4;
+}
+
+float VolumeControl::dAngleFromVolume(float dVolume) {
+  return ((3*M_PI)/2)*dVolume;
 }

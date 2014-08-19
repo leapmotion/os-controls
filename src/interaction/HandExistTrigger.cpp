@@ -6,7 +6,7 @@ HandExistTrigger::HandExistTrigger()
 {
 }
 
-void HandExistTrigger::AutoFilter(Leap::Frame frame, HandExistenceState& heg){
+void HandExistTrigger::AutoFilter(const Leap::Frame& frame, HandExistenceState& heg){
   std::set<int32_t> hands;
   //std::cout << "test" << std::endl;
   for (auto hand : frame.hands()) {

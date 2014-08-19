@@ -13,7 +13,7 @@ class CursorController {
 public:
   CursorController(void);
   
-  void AutoFilter(const HandExistenceState &hes, const CursorMap& handScreenLocations);
+  void AutoFilter(const HandExistenceState& hes, const CursorMap& handScreenLocations);
   
 private:
   

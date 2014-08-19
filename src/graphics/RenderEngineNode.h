@@ -22,8 +22,9 @@ public:
   void AddChild(std::shared_ptr<T> &node) {
     std::shared_ptr<SceneGraphNode<double, 3>> sceneNode = std::dynamic_pointer_cast<SceneGraphNode<double, 3>>(node);
     SceneGraphNode<double,3>::AddChild(sceneNode);
+    
   }
-
+  
   //call AddChild for child members here!
   virtual void InitChildren() {};
 

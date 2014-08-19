@@ -19,6 +19,8 @@ void LeapInput::onFrame(const Leap::Controller& controller) {
   catch(autowiring_error&) {
     return;
   }
+  
+  controller.enableGesture(Leap::Gesture::TYPE_CIRCLE);
 
   packet->Decorate(controller.frame());
 }

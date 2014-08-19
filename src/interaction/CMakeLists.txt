@@ -1,4 +1,6 @@
 set(interaction_SOURCES
+  CircleGestureTrigger.cpp
+  CircleGestureTrigger.h
   HandExistTrigger.cpp
   HandExistTrigger.h
   GestureTriggerManifest.cpp
@@ -7,6 +9,9 @@ set(interaction_SOURCES
   CoordinateUtility.h
   HandCoordinatesDecorator.cpp
   HandCoordinatesDecorator.h
+  HandPointingDecorator.cpp
+  HandPointingDecorator.h
+  InteractionConfigs.h
 )
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
@@ -15,6 +20,7 @@ target_link_libraries(interaction Autowiring)
 target_include_directories(interaction PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 target_package(interaction SFML 2.1 REQUIRED)
+target_package(interaction Eigen 3.2.1 REQUIRED)
 target_package(interaction Leap REQUIRED)
 
 target_link_components(interaction EigenTypes)
