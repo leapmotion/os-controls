@@ -25,13 +25,13 @@ bool HandPointingDecorator::isPointing(Leap::Hand hand) const {
       float dot = handDirection.dot(fingerDirection); // How similar is the direciton of the hand and finger.
       
       if ( finger.type() == Leap::Finger::TYPE_INDEX) {
-        if ( dot < configs::MIN_DOT_FOR_POINTING ) { retVal = false; } // Not pointing if the index finger is not extended.
+        if ( dot < config::MIN_DOT_FOR_POINTING ) { retVal = false; } // Not pointing if the index finger is not extended.
       }
       else if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
         continue; // ignore the thumb
       }
       else {
-        if (dot > configs::MAX_DOT_FOR_CURLED ) { retVal = false; } // Not pointing if any non-thumb and non-index finger is extended.
+        if (dot > config::MAX_DOT_FOR_CURLED ) { retVal = false; } // Not pointing if any non-thumb and non-index finger is extended.
       }
     }
   }

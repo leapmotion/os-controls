@@ -24,7 +24,7 @@ void HandCoordinatesDecorator::AutoFilter(Leap::Frame frame, const HandPointingM
       {
         if ( finger.type() == Leap::Finger::TYPE_INDEX ) {
           Vector2 direction = ProjectVector(2, finger.direction().toVector3<Vector3>());
-          direction *= configs::FINGER_OFFSET_DISTANCE;
+          direction *= config::FINGER_OFFSET_DISTANCE;
           screenLocation += direction;
         }
       }
