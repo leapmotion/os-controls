@@ -1,4 +1,6 @@
 #pragma once
+#include <cassert>
+#include <cmath>
 
 // This is a simple animation utility class that will perform Poisson smoothing.
 // The class is templated and can be used with double, float, Vector3, or anything
