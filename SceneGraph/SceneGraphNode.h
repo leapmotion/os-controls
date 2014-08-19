@@ -74,17 +74,13 @@ public:
   virtual void AddChild(std::shared_ptr<SceneGraphNode>& child) {
     m_children.emplace(child);
     child->m_parent = shared_from_this();
-    child->OnParentChanged();
   }
-  
-  virtual void OnParentChanged() {};
   
   virtual void RemoveFromParent() {
     std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
     if (parent) {
       parent->m_children.erase(shared_from_this());
       m_parent.reset();
-      OnParentChanged();
     }
   }
 
