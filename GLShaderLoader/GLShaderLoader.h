@@ -88,10 +88,23 @@ struct ResourceLoader<GLShader> {
       auto params = Resource<GLShaderLoadParams>(name);
       assert(bool(params) && "resource was not loaded correctly");
       // Load the source files.
-      auto vertex_shader_source = Resource<TextFile>(params->VertexShaderFilename());
-      auto fragment_shader_source = Resource<TextFile>(params->FragmentShaderFilename());
-      if( !vertex_shader_source || !fragment_shader_source)
-        throw std::domain_error("no resource \"" + name + "\" found for type GLShader");
+      Resource<TextFile> vertex_shader_source;
+      Resource<TextFile> fragment_shader_source;
+      try {
+        vertex_shader_source = Resource<TextFile>(params->VertexShaderFilename());
+      } catch (...) {
+
+      }
+      try {
+        fragment_shader_source = Resource<TextFile>(params->FragmentShaderFilename());
+      } catch (...) {
+
+      }
+      if (!vertex_shader_source || !fragment_shader_source) {
+        // throw std::domain_error("no resource \"" + name + "\" found for type GLShader");
+        std::cout << "ResourceLoader<GLShader> : failed to load \"" << name << "\", falling back to \"dummy\".\n";
+        return LoadResource("dummy", calling_manager);
+      }
       
       return std::make_shared<GLShader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
     }
