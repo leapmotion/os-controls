@@ -10,10 +10,10 @@ MediaView::MediaView(const Vector3& center, float offset) :
 m_time(0),
 m_scale(1)
 {
-  m_leftButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0));
-  m_topButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0));
-  m_rightButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100, -PI / 4, PI / 4, Vector3(offset, 0, 0));
-  m_volumeControl = RenderEngineNode::Create<VolumeControl>(50 - 10 - offset, 10);
+  m_leftButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100.0f, 3 * PI / 4, 5 * PI / 4, Vector3(-1 * offset, 0, 0));
+  m_topButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100.0f, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0));
+  m_rightButton = RenderEngineNode::Create<RadialButton>(50 - offset, 100.0f, -PI / 4, PI / 4, Vector3(offset, 0, 0));
+  m_volumeControl = RenderEngineNode::Create<VolumeControl>(50 - 10 - offset, 10.0f);
 
   Translation() = center;
 }
