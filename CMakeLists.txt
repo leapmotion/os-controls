@@ -78,6 +78,8 @@ add_sublibrary(
     EigenTypes
     HEADERS
         EigenTypes.h
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
     EXPLICIT_LIBRARY_DEPENDENCIES
         "Eigen 3.2.1"
     BRIEF_DOC_STRING
