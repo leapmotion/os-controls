@@ -49,6 +49,10 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
   // Clear window
   target->clear(sf::Color::Transparent);
 
+  //Set the mode
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   const auto windowSize = target->getSize();
   m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 0, 100);
   m_renderState.GetModelView().Reset();
