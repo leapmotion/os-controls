@@ -8,9 +8,8 @@
 const static float PI = 3.14159265f;
 
 MediaView::MediaView(const Vector3& center, float offset) :
-m_opacity(0.0f, EasingFunctions::QuadInOut<float>)
+m_opacity(0.0f, 0.5, EasingFunctions::QuadInOut<float>)
 {
-  m_opacity.Duration() = .5f;
   //TODO: Move this into a for loop that handles the sweep angle calculations
   m_wedges.resize(4);
   m_wedges[0] = RenderEngineNode::Create<RadialButton>(50 - offset, 100 - offset, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0)); //top
