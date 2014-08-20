@@ -8,32 +8,55 @@
 #include "InteractionConfigs.h"
 #include "HandPointingDecorator.h"
 
-void HandPointingDecorator::AutoFilter(Leap::Frame frame, HandPointingMap& pointingHandsMap) {
-  for(auto hand : frame.hands()) {
-    if ( isPointing(hand) ) {
-      pointingHandsMap[hand.id()] = hand;
+void HandPointingDecorator::AutoFilter(Leap::Frame frame, HandPoseVector& poseVector) {
+  for(int i=0; i < 5; i++) {
+    HandPointMap handMap;
+    for(auto hand : frame.hands()) {
+      if ( isPointing(hand, i) ) {
+        handMap[hand.id()] = hand;
+      }
     }
+    poseVector.insert(poseVector.end(), handMap);
   }
 }
 
-bool HandPointingDecorator::isPointing(Leap::Hand hand) const {
-  bool retVal = true;
-  if ( hand.isValid() ) {
-    for( auto finger : hand.fingers() ) {
-      Vector3 handDirection = hand.direction().toVector3<Vector3>();
-      Vector3 fingerDirection = finger.direction().toVector3<Vector3>();
-      float dot = handDirection.dot(fingerDirection); // How similar is the direciton of the hand and finger.
-      
-      if ( finger.type() == Leap::Finger::TYPE_INDEX) {
-        if ( dot < config::MIN_DOT_FOR_POINTING ) { retVal = false; } // Not pointing if the index finger is not extended.
-      }
-      else if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
-        continue; // ignore the thumb
-      }
-      else {
-        if (dot > config::MAX_DOT_FOR_CURLED ) { retVal = false; } // Not pointing if any non-thumb and non-index finger is extended.
+bool HandPointingDecorator::isPointing(Leap::Hand hand, int nFingers) const {
+  std::map<int, int> handCodes = {{0, 0}, {8, 1}, {24, 1}, {12, 2}, {28, 3}, {14, 3}, {30, 4}, {15, 4}, {31, 5}};
+  
+  if ( !hand.isValid() ) {
+    return false;
+  }
+  
+  Vector3 handDirection = hand.direction().toVector3<Vector3>();
+  
+  int handCode = 0;
+  int i = 0;
+  
+  for( auto finger : hand.fingers() ) {
+    Vector3 fingerDirection = finger.direction().toVector3<Vector3>();
+    float dot = handDirection.dot(fingerDirection); // How similar is the direciton of the hand and finger.
+    
+    if (finger.type() == Leap::Finger::TYPE_THUMB) {
+      if (dot < config::MAX_DOT_FOR_THUMB_POINTING) {
+        handCode += (1 << (4-i));
       }
     }
+    else {
+      if ( dot > config::MIN_DOT_FOR_POINTING ) {
+        handCode += (1 << (4-i));
+      }
+    }
+
+    
+    i++;
   }
-  return retVal;
+  
+  std::cout << "Hand Code: " << handCode << std::endl;
+  int pointingFingers = handCodes.find(handCode)->second;
+  if (pointingFingers == nFingers) {
+    std::cout << "N Fingers: " << nFingers << std::endl;
+    return true;
+  }
+  
+  return false;
 }

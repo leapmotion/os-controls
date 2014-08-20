@@ -11,14 +11,14 @@
 #include "CoordinateUtility.h"
 #include "InteractionConfigs.h"
 
-void HandCoordinatesDecorator::AutoFilter(const Leap::Frame& frame, const HandPointingMap& hpm, CursorMap& handScreenLocations) {
+void HandCoordinatesDecorator::AutoFilter(const Leap::Frame& frame, const HandPoseVector& hpm, CursorMap& handScreenLocations) {
   for(auto hand : frame.hands()) {
     Vector2 screenLocation;
     
     screenLocation = m_coordinateUtility->LeapToScreen(hand.palmPosition());
     //If the hand is pointing, offset position with index finger.
     try {
-      hpm.at(hand.id());
+      hpm[0].at(hand.id());
       for ( auto finger : hand.fingers() )
       {
         if ( finger.type() == Leap::Finger::TYPE_INDEX ) {

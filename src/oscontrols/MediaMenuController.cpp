@@ -5,18 +5,23 @@
 
 
 MediaMenuController::MediaMenuController() :
-m_lastProgress(std::numeric_limits<float>::min())
+m_lastProgress(std::numeric_limits<float>::min()),
+m_lastRoll(std::numeric_limits<float>::min())
 {
   m_mediaView = RenderEngineNode::Create<MediaView>(Vector3(300, 300, 0), 5.0f);
   m_rootNode->AddChild(m_mediaView);
 }
 
-void MediaMenuController::AutoFilter(const HandPointingMap &hpm, const CursorMap& handScreenLocations, const GestureMap& handGestures) {
+void MediaMenuController::AutoFilter(const HandPoseVector &hpv, const CursorMap& handScreenLocations, const GestureMap& handGestures, const RollMap& handRolls) {
+  std::cout << "One Finger Extended: " << hpv[1].size() << std::endl;
   if(!m_controllingHand.isValid()) { // if there is NOT a controlling hand
-    if(!hpm.empty()) {
-      m_controllingHand = hpm.begin()->second;
+    if(!hpv[1].empty()) {
+      m_controllingHand = hpv[1].begin()->second;
       m_mediaView->FadeIn();
+
       m_mediaView->SetVolume(m_audioVolumeInterface->GetVolume());
+      m_lastRoll = std::numeric_limits<float>::min();
+      
       m_isInteractionComplete = false;
       
       Vector2 newPosition = handScreenLocations.at(m_controllingHand.id());
@@ -26,7 +31,7 @@ void MediaMenuController::AutoFilter(const HandPointingMap &hpm, const CursorMap
   else {
     //Check if controlling hand is still pointing
     try {
-      hpm.at(m_controllingHand.id());
+      hpv[1].at(m_controllingHand.id());
     }
     catch (std::out_of_range e) {
       m_mediaView->FadeOut();
@@ -36,38 +41,30 @@ void MediaMenuController::AutoFilter(const HandPointingMap &hpm, const CursorMap
     
     // Update
     if ( !m_isInteractionComplete ) {
-      updateVolumeControl(handGestures);
-      updateWedges(hpm, handScreenLocations);
+      updateVolumeControl(handRolls);
+      updateWedges(handScreenLocations);
     }
   }
 }
 
-void MediaMenuController::updateVolumeControl(const GestureMap& handGestures) {
-  auto q = handGestures.find(m_controllingHand.id());
-  if (q != handGestures.end()) {
-    if (q->second.type() == Leap::Gesture::TYPE_CIRCLE) {
-      auto circleGesture = static_cast<Leap::CircleGesture>(q->second);
-      
-      float direction = 1.0f;
-      
-      if (circleGesture.pointable().direction().angleTo(circleGesture.normal()) >= M_PI/2) {
-        direction = -1.0f;
-      }
-      
-      if (m_lastProgress == std::numeric_limits<float>::min() || std::abs(circleGesture.progress() - m_lastProgress) > 0.2f) {
-        m_lastProgress = circleGesture.progress();
-        return;
-      }
-      
-      m_mediaView->NudgeVolume(direction*(circleGesture.progress() - m_lastProgress)/10.0f);
-      m_audioVolumeInterface->SetVolume(m_mediaView->Volume());
-      
-      m_lastProgress = circleGesture.progress();
-    }
+void MediaMenuController::updateVolumeControl(const RollMap& handRolls) {
+  auto roll = handRolls.find(m_controllingHand.id())->second;
+
+  if (m_lastRoll == std::numeric_limits<float>::min() || std::abs(roll - m_lastRoll) > 0.5f) {
+    m_lastRoll = roll;
+    return;
   }
+  
+  std::cout << "Roll: " << roll << std::endl;
+  std::cout << "dRoll: " << roll - m_lastRoll << std::endl;
+  
+  m_mediaView->NudgeVolume((roll - m_lastRoll)/M_PI);
+  m_audioVolumeInterface->SetVolume(m_mediaView->Volume());
+  
+  m_lastRoll = roll;
 }
 
-void MediaMenuController::updateWedges(const HandPointingMap &hpm, const CursorMap& handScreenLocations) {
+void MediaMenuController::updateWedges(const CursorMap& handScreenLocations) {
   RenderEngineNode::Transform transform = m_mediaView->ComputeTransformToGlobalCoordinates();
   const auto positionRaw = transform.translation();
   const Vector2 position(positionRaw.x(),positionRaw.y());

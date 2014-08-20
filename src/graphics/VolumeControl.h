@@ -24,6 +24,7 @@ public:
 private:
   std::shared_ptr<PartialDisk> m_partialDisk;
   std::shared_ptr<PartialDisk> m_activePartialDisk;
+  std::shared_ptr<RectanglePrim> m_needle;
   
   float m_maxOpacity;
   

@@ -13,7 +13,7 @@ struct CursorMap : public Eigen::map<int32_t, Vector2> {};
 
 class HandCoordinatesDecorator {
 public:
-  void AutoFilter(const Leap::Frame& frame, const HandPointingMap& hpm, CursorMap& handScreenLocations);
+  void AutoFilter(const Leap::Frame& frame, const HandPoseVector& hpm, CursorMap& handScreenLocations);
 private:
   AutoRequired<CoordinateUtility> m_coordinateUtility;
 };

@@ -3,6 +3,7 @@
 
 #include "HandExistTrigger.h"
 #include "HandCoordinatesDecorator.h"
+#include "HandRollDecorator.h"
 #include "CircleGestureTrigger.h"
 #include "HandPointingDecorator.h"
 
@@ -14,4 +15,5 @@ GestureTriggerManifest::GestureTriggerManifest()
   AutoRequired<HandCoordinatesDecorator>();
   AutoRequired<CircleGestureTrigger>();
   AutoRequired<HandPointingDecorator>();
+  AutoRequired<HandRollDecorator>();
 }

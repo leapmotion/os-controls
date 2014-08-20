@@ -11,6 +11,8 @@ set(interaction_SOURCES
   HandCoordinatesDecorator.h
   HandPointingDecorator.cpp
   HandPointingDecorator.h
+  HandRollDecorator.cpp
+  HandRollDecorator.h
   InteractionConfigs.h
 )
 
