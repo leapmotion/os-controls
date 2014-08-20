@@ -12,6 +12,11 @@
 
 class GLShader;
 
+//Tracks & dispatches update & render calls to a SceneGraph. Intended for use
+//with RenderEngineNodes, but will also support PrimitiveBase children.  Eventually
+//destined for the components repo, and when that happens we should unify the type
+//hierarchy and remove the need for dynamic casts by either making SceneGraphNode
+//Renderable and Updatable, or by making PrimitiveBase a RenderEngineNode.
 class RenderEngine :
   public sf::GlResource
 {
