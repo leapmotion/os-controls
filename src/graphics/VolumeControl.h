@@ -12,20 +12,18 @@ class VolumeControl :
 public:
   VolumeControl(float radius, float width);
   
+  void InitChildren() override;
+
   float Volume();
   void SetVolume(float volume);
   void NudgeVolume(float dVolume);
 
-  void AnimationUpdate(const RenderFrame& frame) override;
-  void Render(const RenderFrame& frame) const override;
-  
   void SetOpacity(float opacity);
 
  EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 private:
-  PartialDisk m_partialDisk;
-  PartialDisk m_activePartialDisk;
-  double m_time;
+  std::shared_ptr<PartialDisk> m_partialDisk;
+  std::shared_ptr<PartialDisk> m_activePartialDisk;
   
   float m_maxOpacity;
   
