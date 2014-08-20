@@ -105,6 +105,7 @@ add_sublibrary(
     SOURCES
         Color.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
         EigenTypes
     BRIEF_DOC_STRING
         "Provides RGBA color and some color-space conversions."
@@ -356,16 +357,21 @@ add_sublibrary(
         PrimitiveGeometry.h
         Primitives.h
         RenderState.h
+        SVGPrimitive.h
     SOURCES
         PrimitiveBase.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp
         RenderState.cpp
+        SVGPrimitive.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLBuffer
         GLMatrices
         SceneGraph
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "NanoSVG"
+        "PolyPartition"
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )

@@ -4,10 +4,28 @@
 #include "PrimitiveGeometry.h"
 #include "RenderState.h"
 
+class GenericShape : public PrimitiveBase {
+public:
+
+  virtual ~GenericShape () { }
+
+  // Make sure to call UploadDataToBuffers on the geometry object before drawing.
+  PrimitiveGeometry &Geometry () { return m_geometry; }
+
+protected:
+
+  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+
+private:
+
+  mutable PrimitiveGeometry m_geometry;
+};
+
 class Sphere : public PrimitiveBase {
 public:
 
   Sphere();
+  virtual ~Sphere () { }
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
@@ -19,13 +37,14 @@ private:
 };
 
 class Ellipsoid : public PrimitiveBase {
-
+  virtual ~Ellipsoid () { }
 };
 
 class Cylinder : public PrimitiveBase {
 public:
 
   Cylinder();
+  virtual ~Cylinder () { }
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
@@ -44,6 +63,7 @@ class Box : public PrimitiveBase {
 public:
 
   Box();
+  virtual ~Box() { }
   const Vector3& Size() const { return m_Size; }
   void SetSize(const Vector3& size) { m_Size = size; }
 
@@ -58,6 +78,7 @@ class Disk : public PrimitiveBase {
 public:
 
   Disk();
+  virtual ~Disk () { }
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
