@@ -34,9 +34,12 @@ void PrimitiveGeometry::UploadDataToBuffers() {
 //   std::vector<float> vertexData;
 //   std::vector<float> normalData;
 //   std::vector<float> texCoordData;
-  std::vector<unsigned int> indexData;
+  std::vector<unsigned int> indices;
+  std::vector<Vertex> unique_vertices;
 
 //   const bool haveTexCoords = !m_TexCoords.empty();
+
+//   std::cout << "PrimitiveGeometry::UploadDataToBuffers(); number of input vertices: " << m_VertexAttributes.size() << " ... ";
   
   // eliminate duplicate vertices using a temporary map
 //   assert(m_Vertices.size() == m_Normals.size());
@@ -46,14 +49,17 @@ void PrimitiveGeometry::UploadDataToBuffers() {
     auto mapped_vertex = vertex_index_map.find(vertex);
     // If the current vertex is not in the vbo map already, add it.
     if (mapped_vertex == vertex_index_map.end()) {
-      unsigned int newIndex = vertex_index_map.size();
-      indexData.push_back(newIndex);
-      vertex_index_map[vertex] = newIndex;
+      unsigned int new_index = vertex_index_map.size();
+      indices.push_back(new_index);
+      unique_vertices.push_back(vertex);
+      vertex_index_map[vertex] = new_index;
     } else { // Otherwise, add the existing vertex's index.
-      indexData.push_back(mapped_vertex->second);
+      indices.push_back(mapped_vertex->second);
     }
   }
-  
+
+//   std::cout << "number of generated indices: " << unique_vertices.size() << '\n';
+
 /*
     
     Vector2f texCoord = Vector2f::Zero();
@@ -83,7 +89,7 @@ void PrimitiveGeometry::UploadDataToBuffers() {
 
   m_VertexAttributeBuffer.Create(GL_ARRAY_BUFFER);
   m_VertexAttributeBuffer.Bind();
-  m_VertexAttributeBuffer.Allocate(static_cast<void*>(m_VertexAttributes.data()), static_cast<int>(m_VertexAttributes.size()*sizeof(Vertex)), GL_STATIC_DRAW);
+  m_VertexAttributeBuffer.Allocate(static_cast<void*>(unique_vertices.data()), static_cast<int>(unique_vertices.size()*sizeof(Vertex)), GL_STATIC_DRAW);
   m_VertexAttributeBuffer.Unbind();
 
 //   m_VertexBuffer.Create(GL_ARRAY_BUFFER);
@@ -96,11 +102,11 @@ void PrimitiveGeometry::UploadDataToBuffers() {
 //   m_NormalBuffer.Allocate(static_cast<void*>(normalData.data()), static_cast<int>(normalData.size()*sizeof(float)), GL_STATIC_DRAW);
 //   m_NormalBuffer.Unbind();
 
-  m_NumIndices = static_cast<int>(indexData.size());
+  m_NumIndices = static_cast<int>(indices.size());
 
   m_IndexBuffer.Create(GL_ELEMENT_ARRAY_BUFFER);
   m_IndexBuffer.Bind();
-  m_IndexBuffer.Allocate(static_cast<void*>(indexData.data()), static_cast<int>(indexData.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
+  m_IndexBuffer.Allocate(static_cast<void*>(indices.data()), static_cast<int>(indices.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
   m_IndexBuffer.Unbind();
 
 //   if (haveTexCoords) {
@@ -161,10 +167,10 @@ void PrimitiveGeometry::Draw(const GLShader &bound_shader, GLenum drawMode) cons
 //   glEnableVertexAttribArray(color_loc);
   
   m_VertexAttributeBuffer.Bind();
-  glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, p)));
-  glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, n)));
-  glVertexAttribPointer(tex_coord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, t)));
-//   glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, sizeof(MapVertex), reinterpret_cast<void*>(offsetof(Vertex, c)));
+  glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(Vertex::OffsetOfPositionAttribute()));
+  glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), reinterpret_cast<void*>(Vertex::OffsetOfNormalAttribute()));
+  glVertexAttribPointer(tex_coord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(Vertex::OffsetOfTexCoordAttribute()));
+//   glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, sizeof(MapVertex), reinterpret_cast<void*>(Vertex::OffsetOfColorAttribute()));
   m_VertexAttributeBuffer.Unbind();
   
   m_IndexBuffer.Bind();

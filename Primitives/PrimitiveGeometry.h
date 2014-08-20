@@ -14,26 +14,35 @@ class GLShader;
 // Simple shapes can be created/uploaded automatically using the available factory functions.
 // More complex shapes can created by manually inputting triangles then calling UploadDataToBuffers()
 class PrimitiveGeometry {
-
 public:
 
   PrimitiveGeometry();
 
   // structure for eliminating duplicate vertices in a map
-  struct Vertex {
+  class Vertex {
+  public:
+    
     Vertex(const Vector3f& pos, const Vector3f& normal, const Vector2f& texCoord = Vector2f::Zero(), const Color &color = Color::White()) {
       p[0] =      pos[0]; p[1] =      pos[1];    p[2] = pos[2];
       n[0] =   normal[0]; n[1] =   normal[1]; n[2] = normal[2];
       t[0] = texCoord[0]; t[1] = texCoord[1];
       c[0] =   color.R(); c[1] =   color.G(); c[2] = color.B(); c[3] = color.A();
     }
+    bool operator<(const Vertex& other) const {
+      return memcmp(reinterpret_cast<const void*>(this), reinterpret_cast<const void*>(&other), sizeof(Vertex)) < 0;
+    }
+    
+    static size_t OffsetOfPositionAttribute () { return offsetof(Vertex, p); }
+    static size_t OffsetOfNormalAttribute ()   { return offsetof(Vertex, n); }
+    static size_t OffsetOfTexCoordAttribute () { return offsetof(Vertex, t); }
+    static size_t OffsetOfColorAttribute ()    { return offsetof(Vertex, c); }
+  
+  private:
+    
     float p[3];
     float n[3];
     float t[2];
     float c[4];
-    bool operator<(const Vertex& other) const {
-      return memcmp(reinterpret_cast<const void*>(this), reinterpret_cast<const void*>(&other), sizeof(Vertex)) < 0;
-    }
   };
 
   // functions for manually manipulating geometry
