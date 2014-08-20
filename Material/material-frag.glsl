@@ -1,8 +1,8 @@
 #version 120
 
 // These are the inputs from the vertex shader to the fragment shader, and must appear identically there.
-varying vec3 out_normal;
 varying vec3 out_position;
+varying vec3 out_normal;
 varying vec2 out_tex_coord;
 
 uniform vec3 light_position;                // The position of the (single) light for diffuse reflectance.  It is assumed to be white.

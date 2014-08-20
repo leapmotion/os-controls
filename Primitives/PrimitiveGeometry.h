@@ -16,6 +16,8 @@ class GLShader;
 class PrimitiveGeometry {
 public:
 
+  enum class ClearOption { KEEP_INTERMEDIATE_DATA, CLEAR_INTERMEDIATE_DATA };
+  
   PrimitiveGeometry();
 
   // structure for eliminating duplicate vertices in a map
@@ -28,10 +30,12 @@ public:
       t[0] = texCoord[0]; t[1] = texCoord[1];
       c[0] =   color.R(); c[1] =   color.G(); c[2] = color.B(); c[3] = color.A();
     }
+    // This defines a dictionary ordering on the array elements stored within and can be used to remove duplicates.
     bool operator<(const Vertex& other) const {
       return memcmp(reinterpret_cast<const void*>(this), reinterpret_cast<const void*>(&other), sizeof(Vertex)) < 0;
     }
-    
+
+    // These are used in glVertexAttribPointer to determine the offset of the various attributes into the buffer data.
     static size_t OffsetOfPositionAttribute () { return offsetof(Vertex, p); }
     static size_t OffsetOfNormalAttribute ()   { return offsetof(Vertex, n); }
     static size_t OffsetOfTexCoordAttribute () { return offsetof(Vertex, t); }
@@ -45,45 +49,43 @@ public:
     float c[4];
   };
 
-  // functions for manually manipulating geometry
-//   stdvectorV3f& Vertices() { return m_Vertices; }
-//   stdvectorV3f& Normals() { return m_Normals; }
-  std::vector<Vertex> &VertexAttributes () { return m_VertexAttributes; }
+  // Gives direct access to the list of vertices.
+  std::vector<Vertex> &Vertices () { return m_Vertices; }
 
   // functions for manipulating GPU-side buffers
   void CleanUpBuffers();
-  void UploadDataToBuffers();
+  void UploadDataToBuffers(ClearOption clear_option = ClearOption::CLEAR_INTERMEDIATE_DATA);
 
   // after geometry is uploaded, draws the geometry using the current render state
   void Draw(const GLShader &bound_shader, GLenum drawMode) const;
 
-  // factory functions for generating some simple shapes
+  // Factory functions for generating some simple shapes.  These functions assume that the draw mode (see Draw) is GL_TRIANGLES.
   static PrimitiveGeometry CreateUnitSphere(int resolution);
   static PrimitiveGeometry CreateUnitCylinder(int radialResolution, int verticalResolution);
-  static PrimitiveGeometry CreateUnitSquare(); // this actually creates a square that is 2x2, not a unit square (which is typically an AAB with corners (0,0) and (1,1)).
+  static PrimitiveGeometry CreateUnitSquare();
   static PrimitiveGeometry CreateUnitDisk(int resolution);
   static PrimitiveGeometry CreateUnitBox();
 
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding texture coordinates if requested.
+  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
+  // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushTri (const Vertex &p0, const Vertex &p1, const Vertex &p2);
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding texture coordinates if requested.
+  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
+  // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushTri (const Vector3f &p0, const Vector3f &p1, const Vector3f &p2);
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding texture coordinates if requested.
+  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
+  // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushQuad (const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, const Vector3f &p3);
   
 private:
 
   typedef std::map<Vertex, unsigned int, std::less<Vertex>> VertexIndexMap;
   
-  std::vector<Vertex> m_VertexAttributes;
-//   stdvectorV3f m_Vertices;
-//   stdvectorV3f m_Normals;
-//   stdvectorV2f m_TexCoords;
-//   GLBuffer m_VertexBuffer;
-//   GLBuffer m_NormalBuffer;
-  GLBuffer m_VertexAttributeBuffer;
+  // This intermediate storage for vertex data as it is being generated, and may be cleared during upload.
+  std::vector<Vertex> m_Vertices;
+  // This is the VBO that stores the indexed vertex data (no duplicate vertices).
+  GLBuffer m_VertexBuffer;
+  // This is the number of indices used to pass to glDrawElements when drawing the VBO.
   int m_NumIndices;
+  // This is the buffer containing the index elements.
   GLBuffer m_IndexBuffer;
-//   GLBuffer m_ColorBuffer;
-//   GLBuffer m_TexCoordBuffer;
 };

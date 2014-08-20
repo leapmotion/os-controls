@@ -58,11 +58,12 @@ void GLBuffer::CheckError(const std::string& loc) {
   GLenum err = glGetError();
   if (err != GL_NO_ERROR) {
     std::stringstream ss;
-    ss << "GL error ";
+//     ss << "GL error \"" << gluErrorString(err) << '\"';
+    ss << "GL error";
     if (!loc.empty()) {
-      ss << "at " << loc << ": ";
+      ss << " at " << loc << ":";
     }
-    ss << "code: 0x" << std::hex << err;
+    ss << " code: 0x" << std::hex << err;
     throw std::runtime_error(ss.str());
   }
 }

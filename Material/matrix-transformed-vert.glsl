@@ -10,8 +10,8 @@ attribute vec3 normal;
 attribute vec2 tex_coord;
 
 // These are the inputs from the vertex shader to the fragment shader, and must appear identically there.
-varying vec3 out_normal;
 varying vec3 out_position;
+varying vec3 out_normal;
 varying vec2 out_tex_coord;
 
 void main() {
