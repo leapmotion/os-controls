@@ -15,11 +15,11 @@ void Sphere::Draw(RenderState& renderState, TransformStack& transform_stack) con
   modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3::Constant(m_Radius));
 
-  renderState.UploadMatrices();
-//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
 
   modelView.Pop();
   // transform_stack.pop();
@@ -38,11 +38,11 @@ void Cylinder::Draw(RenderState& renderState, TransformStack& transform_stack) c
   modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3(m_Radius, m_Height, m_Radius));
 
-  renderState.UploadMatrices();
-//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
 
   modelView.Pop();
 }
@@ -60,11 +60,11 @@ void Box::Draw(RenderState& renderState, TransformStack& transform_stack) const 
   modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(m_Size);
 
-  renderState.UploadMatrices();
-//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
 
   modelView.Pop();
 }
@@ -82,11 +82,11 @@ void Disk::Draw(RenderState& renderState, TransformStack& transform_stack) const
   modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3::Constant(m_Radius));
 
-  renderState.UploadMatrices();
-//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
 
   modelView.Pop();
 }
@@ -104,11 +104,11 @@ void RectanglePrim::Draw(RenderState& renderState, TransformStack& transform_sta
   modelView.Multiply(Matrix3x3(t.linear()));
   modelView.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
 
-  renderState.UploadMatrices();
-//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
 
   modelView.Pop();
 }
@@ -132,11 +132,11 @@ void PartialDisk::Draw(RenderState& renderState, TransformStack& transform_stack
   modelView.Translate(t.translation());
   modelView.Multiply(Matrix3x3(t.linear()));
 
-  renderState.UploadMatrices();
-//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  m_Geometry.Draw(renderState, GL_TRIANGLES);
+  m_Geometry.Draw(*m_shader, GL_TRIANGLES);
 
   modelView.Pop();
 }

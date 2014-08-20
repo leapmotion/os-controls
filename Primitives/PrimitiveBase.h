@@ -1,6 +1,8 @@
 #pragma once
 
+#include "GLShaderMatrices.h"
 #include "Material.h"
+#include "Resource.h"
 #include "SceneGraphNode.h"
 
 #include <stack>
@@ -23,22 +25,18 @@ public:
 
   const ::Material &Material () const { return m_material; }
   ::Material &Material () { return m_material; }
-//   const Color& DiffuseColor () const { return m_DiffuseColor; }
-//   float AmbientFactor () const { return m_AmbientFactor; }
-// 
-//   void SetDiffuseColor(const Color& color) { m_DiffuseColor = color; }
-//   void SetAmbientFactor(float ambient) { m_AmbientFactor = ambient; }
 
   // TODO: this sort of doesn't need to be a method, and could be global.
   void DrawScene (RenderState &render_state) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
 protected:
 
   // This method should be overridden in each subclass to draw the particular geometry that it represents.
   virtual void Draw (RenderState &render_state, TransformStack &transform_stack) const = 0;
 
-//   Color m_DiffuseColor;
-//   float m_AmbientFactor;
+  Resource<GLShader> m_shader;
   ::Material m_material;
+  mutable GLShaderMatrices m_shader_matrices; // TODO: should not be mutable
 };

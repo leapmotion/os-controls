@@ -7,6 +7,8 @@
 #include <map>
 #include <vector>
 
+class GLShader;
+
 // Convenience class for creating and managing GPU geometry.
 // Simple shapes can be created/uploaded automatically using the available factory functions.
 // More complex shapes can created by manually inputting triangles then calling UploadDataToBuffers()
@@ -25,7 +27,7 @@ public:
   void UploadDataToBuffers();
 
   // after geometry is uploaded, draws the geometry using the current render state
-  void Draw(RenderState& renderState, GLenum drawMode);
+  void Draw(const GLShader &bound_shader, GLenum drawMode);
 
   // factory functions for generating some simple shapes
   static PrimitiveGeometry CreateUnitSphere(int resolution);

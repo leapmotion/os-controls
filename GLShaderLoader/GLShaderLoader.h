@@ -57,7 +57,7 @@ struct ResourceLoader<GLShaderLoadParams> {
     } else if (name == "lighting") {
       return std::make_shared<GLShaderLoadParams>("lighting-vert.glsl", "lighting-frag.glsl");
     } else if (name == "material") {
-      return std::make_shared<GLShaderLoadParams>("lighting-vert.glsl", "material-frag.glsl");
+      return std::make_shared<GLShaderLoadParams>("matrix-transformed-vert.glsl", "material-frag.glsl");
     } else {
       const std::string vert = name + "-vert.glsl";
       const std::string frag = name + "-frag.glsl";

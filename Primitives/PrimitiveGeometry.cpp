@@ -1,5 +1,7 @@
 #include "PrimitiveGeometry.h"
 
+#include "GLShader.h"
+
 PrimitiveGeometry::PrimitiveGeometry() : m_NumIndices(0) { }
 
 void PrimitiveGeometry::CleanUpBuffers() {
@@ -82,30 +84,38 @@ void PrimitiveGeometry::UploadDataToBuffers() {
   m_NumIndices = static_cast<int>(indexData.size());
 }
 
-void PrimitiveGeometry::Draw(RenderState& renderState, GLenum drawMode) {
-  const bool haveVertices = m_VertexBuffer.IsCreated() && renderState.HavePositionAttribute();
-  const bool haveNormals = m_NormalBuffer.IsCreated() && renderState.HaveNormalAttribute();
-  const bool haveColors = m_ColorBuffer.IsCreated() && renderState.HaveColorAttribute();
-  const bool haveTexCoords = m_TexCoordBuffer.IsCreated() && renderState.HaveTexCoordAttribute();
+void PrimitiveGeometry::Draw(const GLShader &bound_shader, GLenum drawMode) {
+  const bool haveVertices = m_VertexBuffer.IsCreated() && bound_shader.HasAttribute("position");
+  const bool haveNormals = m_NormalBuffer.IsCreated() && bound_shader.HasAttribute("normal");
+  const bool haveColors = m_ColorBuffer.IsCreated() && bound_shader.HasAttribute("color");
+  const bool haveTexCoords = m_TexCoordBuffer.IsCreated() && bound_shader.HasAttribute("tex_coord");
 
   if (haveVertices) {
     m_VertexBuffer.Bind();
-    renderState.EnablePositionAttribute();
+    GLint loc = bound_shader.LocationOfAttribute("position");
+    glEnableVertexAttribArray(loc);
+    glVertexAttribPointer(loc, 3, GL_FLOAT, GL_TRUE, 0, 0);
   }
 
   if (haveNormals) {
     m_NormalBuffer.Bind();
-    renderState.EnableNormalAttribute();
+    GLint loc = bound_shader.LocationOfAttribute("normal");
+    glEnableVertexAttribArray(loc);
+    glVertexAttribPointer(loc, 3, GL_FLOAT, GL_TRUE, 0, 0);
   }
 
   if (haveColors) {
     m_ColorBuffer.Bind();
-    renderState.EnableColorAttribute();
+    GLint loc = bound_shader.LocationOfAttribute("color");
+    glEnableVertexAttribArray(loc);
+    glVertexAttribPointer(loc, 3, GL_FLOAT, GL_TRUE, 0, 0);
   }
 
   if (haveTexCoords) {
     m_TexCoordBuffer.Bind();
-    renderState.EnableTexCoordAttribute();
+    GLint loc = bound_shader.LocationOfAttribute("tex_coord");
+    glEnableVertexAttribArray(loc);
+    glVertexAttribPointer(loc, 2, GL_FLOAT, GL_TRUE, 0, 0);
   }
 
   m_IndexBuffer.Bind();
@@ -113,22 +123,22 @@ void PrimitiveGeometry::Draw(RenderState& renderState, GLenum drawMode) {
   m_IndexBuffer.Release();
 
   if (haveVertices) {
-    renderState.DisablePositionAttribute();
+    glDisableVertexAttribArray(bound_shader.LocationOfAttribute("position"));
     m_VertexBuffer.Release();
   }
 
   if (haveNormals) {
-    renderState.DisableNormalAttribute();
+    glDisableVertexAttribArray(bound_shader.LocationOfAttribute("normal"));
     m_NormalBuffer.Release();
   }
 
   if (haveColors) {
-    renderState.DisableColorAttribute();
+    glDisableVertexAttribArray(bound_shader.LocationOfAttribute("color"));
     m_ColorBuffer.Release();
   }
 
   if (haveTexCoords) {
-    renderState.DisableTexCoordAttribute();
+    glDisableVertexAttribArray(bound_shader.LocationOfAttribute("tex_coord"));
     m_TexCoordBuffer.Release();
   }
 }

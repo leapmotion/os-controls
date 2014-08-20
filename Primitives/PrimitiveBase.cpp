@@ -1,11 +1,14 @@
 #include "PrimitiveBase.h"
 
+#include "GLShader.h"
 #include "GLShaderLoader.h"
 #include <stack>
 
 PrimitiveBase::PrimitiveBase()
   :
-  m_material(Resource<GLShader>("material"))
+  m_shader("material"),
+  m_material(m_shader),
+  m_shader_matrices(m_shader)
 { }
 
 void PrimitiveBase::DrawScene (RenderState &render_state) const {
@@ -30,4 +33,3 @@ void PrimitiveBase::DrawScene (RenderState &render_state) const {
   // This actually performs the traversal with the specified functions.
   DepthFirstTraverse(pre_child_traversal_draw, post_child_traversal_draw);
 }
-
