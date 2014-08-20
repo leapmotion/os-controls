@@ -12,9 +12,7 @@ public:
   // Make sure to call UploadDataToBuffers on the geometry object before drawing.
   PrimitiveGeometry &Geometry () { return m_geometry; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 

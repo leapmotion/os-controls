@@ -1,22 +1,14 @@
 #include "Primitives.h"
 
-void GenericShape::Draw(RenderState& renderState, TransformStack& transform_stack) const {
+void GenericShape::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
-
   modelView.Push();
-  // // This primitive's transformation is applied first (meaning on the right)
-  // transform_stack.push(transform_stack.top() * FullTransform())
-  const Transform &t = transform_stack.top();
-  modelView.Translate(t.translation());
-  modelView.Multiply(Matrix3x3(t.linear()));
 
   renderState.UploadMatrices();
   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
 
   m_geometry.Draw(renderState, GL_TRIANGLES);
-
   modelView.Pop();
-  // transform_stack.pop();
 }
 
 Sphere::Sphere() : m_Radius(1) { }

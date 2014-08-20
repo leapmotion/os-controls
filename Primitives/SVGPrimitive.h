@@ -12,9 +12,7 @@ public:
 
   void Set(const std::string& svg);
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
