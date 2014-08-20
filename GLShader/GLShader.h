@@ -64,12 +64,14 @@ public:
   ~GLShader ();
 
   // This method should be called to bind this shader.
-  void Bind () { glUseProgram(m_prog); }
+  void Bind () const { glUseProgram(m_prog); }
   // This method should be called when no shader program should be used.
   static void Unbind () { glUseProgram(0); }
 
   // Checks for the uniform with given name and type.  If not found, an exception will be thrown.
-  void RequireTypedUniform (const std::string &name, GLenum type);
+  void RequireTypedUniform (const std::string &name, GLenum type) const;
+  // Checks for the attribute with given name and type.  If not found, an exception will be thrown.
+  void RequireTypedAttribute (const std::string &name, GLenum type) const;
 
   // Returns a map, indexed by name, containing all the active uniforms in this shader program.
   const VarInfoMap &UniformInfoMap () const { return m_uniform_info_map; }
@@ -194,9 +196,9 @@ public:
     UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), array.size(), matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(array.data()));
   }
 
-  // Returns (enum_name_string, type_name_string) for the given uniform type.  Throws an
-  // error if that type is not a uniform type.
-  static const std::string &UniformTypeString (GLenum type);
+  // Returns (enum_name_string, type_name_string) for the given shader variable type.  Throws an
+  // error if that type is not a shader variable type.
+  static const std::string &VariableTypeString (GLenum type);
   
   static const std::map<GLenum,std::string> OPENGL_2_1_UNIFORM_TYPE_MAP;
   static const std::map<GLenum,std::string> OPENGL_3_3_UNIFORM_TYPE_MAP;

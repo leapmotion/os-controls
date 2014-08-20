@@ -92,17 +92,27 @@ GLShader::~GLShader () {
   glDeleteShader(m_fragment_shader);
 }
 
-void GLShader::RequireTypedUniform (const std::string &name, GLenum type) {
+void GLShader::RequireTypedUniform (const std::string &name, GLenum type) const {
   if (!HasUniform(name)) {
-    throw std::invalid_argument("shader is missing required \"uniform " + UniformTypeString(type) + ' ' + name + '\"');
+    throw std::invalid_argument("shader is missing required \"uniform " + VariableTypeString(type) + ' ' + name + '\"');
   }
   const auto &actual_type = UniformInfo(name).Type();
   if (actual_type != type) {
-    throw std::invalid_argument("shader has \"uniform " + UniformTypeString(actual_type) + ' ' + name + "\" but is missing required \"uniform " + UniformTypeString(type) + ' ' + name + '\"');
+    throw std::invalid_argument("shader has \"uniform " + VariableTypeString(actual_type) + ' ' + name + "\" but is missing required \"uniform " + VariableTypeString(type) + ' ' + name + '\"');
   }
 }
 
-const std::string &GLShader::UniformTypeString (GLenum type) {
+void GLShader::RequireTypedAttribute (const std::string &name, GLenum type) const {
+  if (!HasAttribute(name)) {
+    throw std::invalid_argument("shader is missing required \"attribute " + VariableTypeString(type) + ' ' + name + '\"');
+  }
+  const auto &actual_type = AttributeInfo(name).Type();
+  if (actual_type != type) {
+    throw std::invalid_argument("shader has \"attribute " + VariableTypeString(actual_type) + ' ' + name + "\" but is missing required \"attribute " + VariableTypeString(type) + ' ' + name + '\"');
+  }
+}
+
+const std::string &GLShader::VariableTypeString (GLenum type) {
   auto it = OPENGL_3_3_UNIFORM_TYPE_MAP.find(type);
   if (it == OPENGL_3_3_UNIFORM_TYPE_MAP.end()) {
     throw std::invalid_argument("specified type is not a valid uniform type in OpenGL 3.3");
