@@ -4,9 +4,10 @@
 #define NANOSVG_ALL_COLOR_KEYWORDS  // Include full list of color keywords.
 #define NANOSVG_IMPLEMENTATION
 #include <nanosvg.h>
-#include <poly2tri.h>
+#include <polypartition.h>
 
 #include <cfloat>
+#include <cassert>
 
 struct Bezier {
   Eigen::Vector2f b[4];
@@ -19,14 +20,14 @@ class Curve {
 
     void Append(const Bezier& bezier);
 
-    const std::vector<p2t::Point*>& Points() const { return m_points; }
+    const std::vector<TPPLPoint>& Points() const { return m_points; }
 
   private:
     void Subdivide(const Bezier& bezier, Bezier& left, Bezier& right);
     bool IsSufficientlyFlat(const Bezier& bezier);
     float m_tolerance;
 
-    std::vector<p2t::Point*> m_points;
+    std::vector<TPPLPoint> m_points;
 };
 
 Curve::Curve(float tolerance) : m_tolerance(16.0f*tolerance*tolerance) // 16*tolerance^2
@@ -40,16 +41,22 @@ Curve::~Curve()
 void Curve::Append(const Bezier& bezier) {
   if (IsSufficientlyFlat(bezier)) {
     if (m_points.empty()) {
-      m_points.push_back(new p2t::Point(bezier.b[0].x(), bezier.b[0].y()));
+      TPPLPoint point;
+      point.x = bezier.b[0].x();
+      point.y = bezier.b[0].y();
+      m_points.emplace_back(std::move(point));
     }
-    auto dx = bezier.b[3].x() - m_points[0]->x;
+    TPPLPoint point;
+    point.x = bezier.b[3].x();
+    point.y = bezier.b[3].y();
+    const auto dx = point.x - m_points[0].x;
     if (std::abs(dx) < FLT_EPSILON) {
-      auto dy = bezier.b[3].y() - m_points[0]->y;
+      const auto dy = point.y - m_points[0].y;
       if (std::abs(dy) < FLT_EPSILON) {
         return;
       }
     }
-    m_points.push_back(new p2t::Point(bezier.b[3].x(), bezier.b[3].y()));
+    m_points.emplace_back(std::move(point));
   } else {
     Bezier left, right;
     Subdivide(bezier, left, right);
@@ -125,8 +132,7 @@ void SVGPrimitive::RecomputeChildren() {
         // Gradient -- FIXME
         continue;
       }
-      std::vector<p2t::Point*> polylines;
-      p2t::CDT* cdt = nullptr;
+      std::list<TPPLPoly> polys;
 
       for (NSVGpath* path = shape->paths; path != NULL; path = path->next) {
         Curve curve(0.5f);
@@ -139,18 +145,34 @@ void SVGPrimitive::RecomputeChildren() {
           bezier.b[3] << p[6], p[7];
           curve.Append(bezier);
         }
-        const auto& polyline = curve.Points();
-        if (!polyline.empty()) {
-          polylines.reserve(polylines.size() + polyline.size());
-          polylines.insert(polylines.end(), polyline.begin(), polyline.end());
-          if (cdt) {
-            cdt->AddHole(polyline); // We are assuming that any additional paths are holes -- FIXME
-          } else {
-            cdt = new p2t::CDT(polyline);
+        const auto& points = curve.Points();
+        if (!points.empty()) {
+          TPPLPoly poly;
+          size_t numPoints = points.size();
+
+          poly.Init(static_cast<long>(numPoints));
+          for (size_t i = 0; i < numPoints; i++) {
+            poly[i] = points[i];
           }
+          // We are assuming that ONLY the last path is not a hole
+          if (path->next) {
+            poly.SetHole(true);
+            poly.SetOrientation(TPPL_CW);
+          } else {
+            poly.SetHole(false);
+            poly.SetOrientation(TPPL_CCW);
+          }
+          polys.emplace_back(std::move(poly));
         }
       }
-      if (cdt) {
+      if (!polys.empty()) {
+        TPPLPartition partition;
+        std::list<TPPLPoly> triangles;
+
+        if (!partition.Triangulate_EC(&polys, &triangles)) {
+          continue; // Failed to triangulate!
+        }
+
         auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
 
         auto& geometry = genericShape->Geometry();
@@ -163,26 +185,19 @@ void SVGPrimitive::RecomputeChildren() {
                                             static_cast<uint8_t>(abgr >>  8),
                                             static_cast<uint8_t>(abgr >> 16),
                                             static_cast<uint8_t>(abgr >> 24)));
-        cdt->Triangulate();
-        auto triangles = cdt->GetTriangles();
         stdvectorV3f& vertices = geometry.Vertices();
         stdvectorV3f& normals = geometry.Normals();
-        for (const auto& triangle : triangles) {
+        for (auto& triangle : triangles) {
+          assert(triangle.GetNumPoints() == 3);
           for (int i = 0; i < 3; i++) {
-            p2t::Point& pt = *triangle->GetPoint(i);
-            Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
+            Vector3f point(static_cast<float>(triangle[i].x), static_cast<float>(triangle[i].y), 0.0f);
             vertices.push_back(point);
             normals.push_back(Vector3f::UnitZ());
           }
         }
-        delete cdt;
-
         geometry.UploadDataToBuffers();
 
         AddChild(genericShape);
-      }
-      for (auto point : polylines) {
-        delete point;
       }
     }
   }

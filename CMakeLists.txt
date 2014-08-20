@@ -357,7 +357,7 @@ add_sublibrary(
         SceneGraph
     EXPLICIT_LIBRARY_DEPENDENCIES
         "NanoSVG"
-        "Poly2Tri"
+        "PolyPartition"
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )
