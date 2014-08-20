@@ -32,7 +32,7 @@ public:
   // factory functions for generating some simple shapes
   static PrimitiveGeometry CreateUnitSphere(int resolution);
   static PrimitiveGeometry CreateUnitCylinder(int radialResolution, int verticalResolution);
-  static PrimitiveGeometry CreateUnitSquare();
+  static PrimitiveGeometry CreateUnitSquare(); // this actually creates a square that is 2x2, not a unit square (which is typically an AAB with corners (0,0) and (1,1)).
   static PrimitiveGeometry CreateUnitDisk(int resolution);
   static PrimitiveGeometry CreateUnitBox();
 
