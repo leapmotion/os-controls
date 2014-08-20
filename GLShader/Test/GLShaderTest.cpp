@@ -144,7 +144,7 @@ TEST_F(GLShaderTest, CompileUnsuccessfully) {
     EXPECT_TRUE(false) << "Expected no exception thrown, but one was thrown (no message available)"; \
   }
 
-TEST_F(GLShaderTest, DISABLED_RequireTypedUniformInVertexShader) {
+TEST_F(GLShaderTest, DISABLED_SetTypedUniformCheckInVertexShader) {
   const auto &type_map = GLShader::OPENGL_2_1_UNIFORM_TYPE_MAP;
   for (auto it = type_map.begin(); it != type_map.end(); ++it) {
     GLenum uniform_type = it->first;
@@ -174,8 +174,8 @@ TEST_F(GLShaderTest, DISABLED_RequireTypedUniformInVertexShader) {
     // Construct the shader and the GLShaderInterface.
     std::shared_ptr<GLShader> shader;
     ASSERT_NO_THROW(shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
-    EXPECT_NO_THROW_(shader->RequireTypedUniform("test0", uniform_type));
-    EXPECT_NO_THROW_(shader->RequireTypedUniform("test1", uniform_type));
+    EXPECT_NO_THROW_(shader->CheckForTypedUniform("test0", uniform_type, VariableIs::REQUIRED));
+    EXPECT_NO_THROW_(shader->CheckForTypedUniform("test1", uniform_type, VariableIs::REQUIRED));
   }
 }
 

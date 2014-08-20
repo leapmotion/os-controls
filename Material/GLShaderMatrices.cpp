@@ -9,9 +9,9 @@ GLShaderMatrices::GLShaderMatrices (const std::shared_ptr<GLShader> &attached_sh
   if (!m_attached_shader) {
     throw std::invalid_argument("must specify a valid attached shader");
   }
-  m_attached_shader->RequireTypedUniform("projection_times_model_view_matrix", GL_FLOAT_MAT4);
-  m_attached_shader->RequireTypedUniform("model_view_matrix", GL_FLOAT_MAT4);
-  m_attached_shader->RequireTypedUniform("normal_matrix", GL_FLOAT_MAT4);
+  m_attached_shader->CheckForTypedUniform("projection_times_model_view_matrix", GL_FLOAT_MAT4, VariableIs::OPTIONAL_BUT_WARN);
+  m_attached_shader->CheckForTypedUniform("model_view_matrix", GL_FLOAT_MAT4, VariableIs::OPTIONAL_BUT_WARN);
+  m_attached_shader->CheckForTypedUniform("normal_matrix", GL_FLOAT_MAT4, VariableIs::OPTIONAL_BUT_WARN);
   m_model_view.setIdentity();
   m_projection.setIdentity();
 }

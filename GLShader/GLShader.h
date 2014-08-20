@@ -17,6 +17,8 @@ enum MatrixStorageConvention { COLUMN_MAJOR, ROW_MAJOR };
 
 enum class ShaderBindRequirement { BIND_AND_UNBIND, DONT_BIND_OR_UNBIND };
 
+enum class VariableIs { REQUIRED, OPTIONAL, OPTIONAL_BUT_WARN };
+
 /// @brief This class wraps compiling and binding GLSL shaders, as well as discovering and
 /// setting their uniforms and attributes.
 /// @details Some of the code was initially taken from Jerry Coffin's answer at
@@ -68,10 +70,18 @@ public:
   // This method should be called when no shader program should be used.
   static void Unbind () { glUseProgram(0); }
 
-  // Checks for the uniform with given name and type.  If not found, an exception will be thrown.
-  void RequireTypedUniform (const std::string &name, GLenum type) const;
-  // Checks for the attribute with given name and type.  If not found, an exception will be thrown.
-  void RequireTypedAttribute (const std::string &name, GLenum type) const;
+  // Checks for the uniform with given name and type.  If the variable is not found, then the behavior
+  // depends on the value of check_type:
+  //   VariableIs::OPTIONAL: Do nothing.
+  //   VariableIs::OPTIONAL_BUT_WARN: Print a message indicating the missing variable.
+  //   VariableIs::REQUIRED: Throw an exception with information indicating the missing variable.
+  void CheckForTypedUniform (const std::string &name, GLenum type, VariableIs check_type) const;
+  // Checks for the attribute with given name and type.  If the variable is not found, then the behavior
+  // depends on the value of check_type:
+  //   VariableIs::OPTIONAL: Do nothing.
+  //   VariableIs::OPTIONAL_BUT_WARN: Print a message indicating the missing variable.
+  //   VariableIs::REQUIRED: Throw an exception with information indicating the missing variable.
+  void CheckForTypedAttribute (const std::string &name, GLenum type, VariableIs check_type) const;
 
   // Returns a map, indexed by name, containing all the active uniforms in this shader program.
   const VarInfoMap &UniformInfoMap () const { return m_uniform_info_map; }
@@ -98,16 +108,26 @@ public:
     }
     return it->second;
   }
-  // Returns the location of the requested uniform -- its handle into the GL apparatus.
-  GLint LocationOfUniform (const std::string &name) const { return UniformInfo(name).Location(); }
-  // Returns the location of the requested attribute -- its handle into the GL apparatus.
-  GLint LocationOfAttribute (const std::string &name) const { return AttributeInfo(name).Location(); }
+  // Returns the location of the requested uniform (its handle into the GL apparatus) or -1 if not found.
+  // The -1 return value is what is used by the glUniform* functions as a sentinel value for "this
+  // uniform is not found, so do nothing silently".
+  GLint LocationOfUniform (const std::string &name) const {
+    auto it = m_uniform_info_map.find(name);
+    return it != m_uniform_info_map.end() ? it->second.Location() : -1;
+  }
+  // Returns the location of the requested attribute (its handle into the GL apparatus) or -1 if not found.
+  // The -1 return value is what is used by the glUniform* functions as a sentinel value for "this
+  // uniform is not found, so do nothing silently".
+  GLint LocationOfAttribute (const std::string &name) const {
+    auto it = m_attribute_info_map.find(name);
+    return it != m_attribute_info_map.end() ? it->second.Location() : -1;
+  }
 
   // These SetUniform* methods require this shader to currently be bound.  They are named
   // with type annotators to avoid confusion in situations where types are implicitly coerced.
   // The uniform has a fixed type in the shader, so the call to SetUniform* should reflect that.
 
-  // Sets the named uniform to the given bool value (casted to GLint)
+  // Sets the named uniform to the given bool value (casted to GLint).
   void SetUniformi (const std::string &name, bool value) {
     SetUniformi(name, GLint(value));
   }

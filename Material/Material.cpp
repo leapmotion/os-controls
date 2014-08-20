@@ -19,12 +19,12 @@ Material::Material (const std::shared_ptr<GLShader> &attached_shader)
   }
   GLShader &shader = *m_attached_shader;
   // Check for the required uniforms.  Any unmet requirement will cause an exception to be thrown.
-//   shader.RequireTypedUniform("light_position", GL_FLOAT_VEC3);
-  shader.RequireTypedUniform("diffuse_light_color", GL_FLOAT_VEC4);
-  shader.RequireTypedUniform("ambient_light_color", GL_FLOAT_VEC4);
-  shader.RequireTypedUniform("ambient_lighting_proportion", GL_FLOAT);
-  shader.RequireTypedUniform("use_texture", GL_BOOL);
-  shader.RequireTypedUniform("texture", GL_SAMPLER_2D);
+  shader.CheckForTypedUniform("light_position", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
+  shader.CheckForTypedUniform("diffuse_light_color", GL_FLOAT_VEC4, VariableIs::OPTIONAL_BUT_WARN);
+  shader.CheckForTypedUniform("ambient_light_color", GL_FLOAT_VEC4, VariableIs::OPTIONAL_BUT_WARN);
+  shader.CheckForTypedUniform("ambient_lighting_proportion", GL_FLOAT, VariableIs::OPTIONAL_BUT_WARN);
+  shader.CheckForTypedUniform("use_texture", GL_BOOL, VariableIs::OPTIONAL_BUT_WARN);
+  shader.CheckForTypedUniform("texture", GL_SAMPLER_2D, VariableIs::OPTIONAL_BUT_WARN);
   // Ensure the material properties are uploaded.
   UploadUniforms(ShaderBindRequirement::BIND_AND_UNBIND);
 }
