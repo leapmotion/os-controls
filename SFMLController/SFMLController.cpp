@@ -60,8 +60,8 @@ std::string SFMLController::BasePath () {
 }
 
 void SFMLController::MakeTransparent () {
-  sf::WindowHandle handle = m_Window.getSystemHandle();
 #if _WIN32
+  sf::WindowHandle handle = m_Window.getSystemHandle();
   HWND hWnd = static_cast<HWND>(handle);
   if (hWnd) {
     LONG flags = ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT;
@@ -82,6 +82,7 @@ void SFMLController::MakeTransparent () {
   bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
   ::DwmEnableBlurBehindWindow(hWnd, &bb);
 #elif __APPLE__
+  sf::WindowHandle handle = m_Window.getSystemHandle();
   NSWindow* window = static_cast<NSWindow*>(handle);
   NSOpenGLView* view = [window contentView];
 
