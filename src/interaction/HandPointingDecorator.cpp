@@ -21,7 +21,7 @@ void HandPointingDecorator::AutoFilter(Leap::Frame frame, HandPoseVector& poseVe
 }
 
 bool HandPointingDecorator::isPointing(Leap::Hand hand, int nFingers) const {
-  std::map<int, int> handCodes = {{0, 0}, {8, 1}, {24, 1}, {12, 2}, {28, 3}, {14, 3}, {30, 4}, {15, 4}, {31, 5}};
+  const static std::map<int, int> handCodes = {{0, 0}, {8, 1}, {24, 1}, {12, 2}, {28, 3}, {14, 3}, {30, 4}, {15, 4}, {31, 5}};
   
   if ( !hand.isValid() ) {
     return false;
@@ -52,8 +52,8 @@ bool HandPointingDecorator::isPointing(Leap::Hand hand, int nFingers) const {
   }
   
   std::cout << "Hand Code: " << handCode << std::endl;
-  int pointingFingers = handCodes.find(handCode)->second;
-  if (pointingFingers == nFingers) {
+  auto found = handCodes.find(handCode);
+  if (found != handCodes.end() && found->second == nFingers) {
     std::cout << "N Fingers: " << nFingers << std::endl;
     return true;
   }
