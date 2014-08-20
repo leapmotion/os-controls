@@ -2,7 +2,7 @@
 
 #include "Color.h"
 #include "EigenTypes.h"
-#include "GLShaderMatrices.h"
+#include "GLShader.h"
 #include <memory>
 
 class GLShader;
@@ -17,8 +17,6 @@ class GLShader;
 //   uniform sampler2D texture;
 // Material should only affect fragment shading.
 // Setting these uniforms is done through specialized modifiers in this class.
-// This class also has a GLShaderInterfaceMatrices, which requires the existence of
-// particular matrix uniforms.  See GLShaderInterfaceMatrices.
 class Material {
 public:
 
@@ -28,11 +26,10 @@ public:
   // the correct types, an exception will be thrown.
   Material (const std::shared_ptr<GLShader> &attached_shader);
 
-  // Frontend for the matrices of this shader.  See GLShaderMatrices.
-  // TODO: this should not be in Material, because Material should only affect fragment shading.
-//   void SetMatrices (const Matrix4x4 &model_view, const Matrix4x4 &projection) { m_shader_matrices.SetMatrices(model_view, projection); }
+  const std::shared_ptr<GLShader> &AttachedShader () const { return m_attached_shader; }
+  
   // Modifiers for the uniforms of a material.
-  void SetLightPosition (const Vector3f &p) { m_light_position = p; }
+  void SetLightPosition (const Vector3f &p) { m_light_position = p; } // TODO: move this elsewhere -- it doesn't belong here
   void SetDiffuseLightColor (const Color &c) { m_diffuse_light_color = c; }
   void SetAmbientLightColor (const Color &c) { m_ambient_light_color = c; }
   void SetAmbientLightingProportion (float f) { m_ambient_lighting_proportion = f; }
@@ -46,7 +43,6 @@ public:
 private:
 
   std::shared_ptr<GLShader> m_attached_shader;
-//   GLShaderMatrices m_shader_matrices; // TODO: this should really be a part of a GLMesh component, not Material
   Vector3f m_light_position;
   Color m_diffuse_light_color;
   Color m_ambient_light_color;

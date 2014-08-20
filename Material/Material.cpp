@@ -6,7 +6,6 @@
 Material::Material (const std::shared_ptr<GLShader> &attached_shader)
   :
   m_attached_shader(attached_shader),
-//   m_shader_matrices(attached_shader),
   // Use reasonable defaults for all the material properties.
   m_light_position(Vector3f::Zero()),           // The light position is the origin.
   m_diffuse_light_color(Color::White()),        // Sensible default color.
@@ -20,7 +19,7 @@ Material::Material (const std::shared_ptr<GLShader> &attached_shader)
   }
   GLShader &shader = *m_attached_shader;
   // Check for the required uniforms.  Any unmet requirement will cause an exception to be thrown.
-  shader.RequireTypedUniform("light_position", GL_FLOAT_VEC3);
+//   shader.RequireTypedUniform("light_position", GL_FLOAT_VEC3);
   shader.RequireTypedUniform("diffuse_light_color", GL_FLOAT_VEC4);
   shader.RequireTypedUniform("ambient_light_color", GL_FLOAT_VEC4);
   shader.RequireTypedUniform("ambient_lighting_proportion", GL_FLOAT);
@@ -34,10 +33,9 @@ void Material::UploadUniforms (ShaderBindRequirement req) const {
   if (req == ShaderBindRequirement::BIND_AND_UNBIND) {
     m_attached_shader->Bind();
   }
-//   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   GLShader &shader = *m_attached_shader;
   // TODO: add "dirty cache" variables so that only changed uniforms are uploaded.
-  shader.SetUniformf("light_position", m_light_position);
+//   shader.SetUniformf("light_position", m_light_position);
   shader.SetUniformf("diffuse_light_color", m_diffuse_light_color);
   shader.SetUniformf("ambient_light_color", m_ambient_light_color);
   shader.SetUniformf("ambient_lighting_proportion", m_ambient_lighting_proportion);
