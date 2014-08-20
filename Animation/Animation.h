@@ -27,11 +27,15 @@ namespace EasingFunctions{
   }
 }
 
-/// A class for animated parameters
+/// A class for animated parameters.
 /// Accepts an easing function, the default one being a simple linear easing.
 /// The importaint feature is that you can precicely control how long it will take
 /// the variable to reach it's goal, and once the goal is set all you have to do
-/// is call the update function.
+/// is call the update function.  Setting a new goal while the animation is in progress
+/// will cause completion to reset to 0, and the value at the time of setting to be the
+/// new start value.  This makes it unsuitable for chasing behaviors where Set is called
+/// often, however it makes it great for fire and forget animations where you want precice
+/// control of the behavior.
 template <class T>
 class Animated{
 public:
@@ -43,7 +47,7 @@ public:
     m_duration(1.0), m_completion(0.0), m_easing(func)
   {}
 
-  double& Duration() { return m_duration; }
+  //If a SetDuration function is added, make sure you handle the implied change to m_completion!
   const double& Duration() const { return m_duration; }
 
   const T& Current() const { return m_current; }
