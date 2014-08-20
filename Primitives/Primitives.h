@@ -77,7 +77,7 @@ public:
 
   RectanglePrim();
   const Vector2& Size() const { return m_Size; }
-  void SetSize(const Vector2& size) { m_Size = size; }
+  void SetSize(const Vector2& size) { m_Size = size/2.0; }
 
   virtual void Draw(RenderState& renderState) const override;
 
