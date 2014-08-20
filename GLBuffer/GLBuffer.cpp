@@ -8,40 +8,40 @@ GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0) { }
 void GLBuffer::Create(GLenum type) {
   m_BufferType = type;
   glGenBuffers(1, &m_BufferAddress);
-  CheckError("Create");
+  CheckError("during GLBuffer::Create");
 }
 
 void GLBuffer::Bind() {
   glBindBuffer(m_BufferType, m_BufferAddress);
-  CheckError("Bind");
+  CheckError("during GLBuffer::Bind");
 }
 
 void GLBuffer::Allocate(const void* data, int count, GLenum pattern) {
   glBufferData(m_BufferType, count, data, pattern);
-  CheckError("Allocate");
+  CheckError("during GLBuffer::Allocate");
 }
 
 void GLBuffer::Release() {
   glBindBuffer(m_BufferType, 0);
-  CheckError("Release");
+  CheckError("during GLBuffer::Release");
 }
 
 int GLBuffer::Size() const {
   GLint value = -1;
   glGetBufferParameteriv(m_BufferType, GL_BUFFER_SIZE, &value);
-  CheckError("Size");
+  CheckError("during GLBuffer::Size");
   return value;
 }
 
 void* GLBuffer::Map(GLuint access) {
   void* ptr = glMapBufferARB(m_BufferType, access);
-  CheckError("Map");
+  CheckError("during GLBuffer::Map");
   return ptr;
 }
 
 bool GLBuffer::Unmap() {
   bool result = glUnmapBufferARB(m_BufferType) == GL_TRUE;
-  CheckError("Unmap");
+  CheckError("during GLBuffer::Unmap");
   return result;
 }
 
@@ -62,7 +62,7 @@ void GLBuffer::CheckError(const std::string& loc) {
     if (!loc.empty()) {
       ss << "at " << loc << ": ";
     }
-    ss << "code: " << std::hex << err;
+    ss << "code: 0x" << std::hex << err;
     throw std::runtime_error(ss.str());
   }
 }
@@ -75,7 +75,7 @@ void GLBuffer::CheckFrameBufferStatus(const std::string& loc) {
     if (!loc.empty()) {
       ss << "at " << loc << ": ";
     }
-    ss << "code: " << std::hex << status;
+    ss << "code: 0x" << std::hex << status;
     throw std::runtime_error(ss.str());
   }
 }
