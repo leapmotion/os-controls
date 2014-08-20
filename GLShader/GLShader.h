@@ -79,7 +79,7 @@ public:
   const VarInfoMap &AttributeInfoMap () const { return m_attribute_info_map; }
 
   // Returns true iff the shader uniform exists.
-  bool HasUniform (const std::string &name) const { return LocationOfUniform(name) != -1; }
+  bool HasUniform (const std::string &name) const { return m_uniform_info_map.find(name) != m_uniform_info_map.end(); }
   // Returns the VarInfo data for the requested uniform, or throws if that uniform is not found.
   const VarInfo &UniformInfo (const std::string &name) const {
     VarInfoMap::const_iterator it = m_uniform_info_map.find(name);
@@ -89,7 +89,7 @@ public:
     return it->second;
   }
   // Returns true iff the shader attribute exists.
-  bool HasAttribute (const std::string &name) const { return LocationOfAttribute(name) != -1; }
+  bool HasAttribute (const std::string &name) const { return m_attribute_info_map.find(name) != m_attribute_info_map.end(); }
   // Returns the VarInfo data for the requested attribute, or throws if that attribute is not found.
   const VarInfo &AttributeInfo (const std::string &name) const {
     VarInfoMap::const_iterator it = m_attribute_info_map.find(name);
