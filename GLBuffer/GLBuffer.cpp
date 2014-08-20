@@ -11,19 +11,19 @@ void GLBuffer::Create(GLenum type) {
   CheckError("during GLBuffer::Create");
 }
 
-void GLBuffer::Bind() {
+void GLBuffer::Bind() const {
   glBindBuffer(m_BufferType, m_BufferAddress);
   CheckError("during GLBuffer::Bind");
+}
+
+void GLBuffer::Unbind() const {
+  glBindBuffer(m_BufferType, 0);
+  CheckError("during GLBuffer::Release");
 }
 
 void GLBuffer::Allocate(const void* data, int count, GLenum pattern) {
   glBufferData(m_BufferType, count, data, pattern);
   CheckError("during GLBuffer::Allocate");
-}
-
-void GLBuffer::Release() {
-  glBindBuffer(m_BufferType, 0);
-  CheckError("during GLBuffer::Release");
 }
 
 int GLBuffer::Size() const {

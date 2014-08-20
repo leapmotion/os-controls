@@ -1,6 +1,5 @@
 #include "GLShaderMatrices.h"
 
-// #include "GLShader.h"
 #include <stdexcept>
 
 GLShaderMatrices::GLShaderMatrices (const std::shared_ptr<GLShader> &attached_shader)
@@ -10,9 +9,9 @@ GLShaderMatrices::GLShaderMatrices (const std::shared_ptr<GLShader> &attached_sh
   if (!m_attached_shader) {
     throw std::invalid_argument("must specify a valid attached shader");
   }
-//   m_attached_shader->RequireTypedUniform("projection_times_model_view_matrix", GL_FLOAT_MAT4);
-//   m_attached_shader->RequireTypedUniform("model_view_matrix", GL_FLOAT_MAT4);
-//   m_attached_shader->RequireTypedUniform("normal_matrix", GL_FLOAT_MAT4);
+  m_attached_shader->RequireTypedUniform("projection_times_model_view_matrix", GL_FLOAT_MAT4);
+  m_attached_shader->RequireTypedUniform("model_view_matrix", GL_FLOAT_MAT4);
+  m_attached_shader->RequireTypedUniform("normal_matrix", GL_FLOAT_MAT4);
   m_model_view.setIdentity();
   m_projection.setIdentity();
 }

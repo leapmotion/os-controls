@@ -9,9 +9,9 @@ public:
 
   GLBuffer();
   void Create(GLenum type);
-  void Bind();
+  void Bind() const;
+  void Unbind () const;
   void Allocate(const void* data, int count, GLenum pattern);
-  void Release();
   int Size() const;
   void* Map(GLuint access);
   bool Unmap();

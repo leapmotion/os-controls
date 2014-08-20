@@ -153,8 +153,8 @@ void PartialDisk::RecomputeGeometry() const {
 
   m_Geometry.CleanUpBuffers();
 
-  stdvectorV3f& vertices = m_Geometry.Vertices();
-  stdvectorV3f& normals = m_Geometry.Normals();
+//   stdvectorV3f& vertices = m_Geometry.Vertices();
+//   stdvectorV3f& normals = m_Geometry.Normals();
 
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
@@ -170,22 +170,24 @@ void PartialDisk::RecomputeGeometry() const {
     const Vector3f curInner(static_cast<float>(m_InnerRadius*cosCur), static_cast<float>(m_InnerRadius*sinCur), 0.0f);
     const Vector3f curOuter(static_cast<float>(m_OuterRadius*cosCur), static_cast<float>(m_OuterRadius*sinCur), 0.0f);
 
-    vertices.push_back(prevInner);
-    vertices.push_back(prevOuter);
-    vertices.push_back(curOuter);
-
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-
-    vertices.push_back(curOuter);
-    vertices.push_back(curInner);
-    
-    vertices.push_back(prevInner);
-
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
+    m_Geometry.PushTri(prevInner, prevOuter, curOuter);
+    m_Geometry.PushTri(curOuter, curInner, prevInner);
+//     vertices.push_back(prevInner);
+//     vertices.push_back(prevOuter);
+//     vertices.push_back(curOuter);
+// 
+//     normals.push_back(Vector3f::UnitZ());
+//     normals.push_back(Vector3f::UnitZ());
+//     normals.push_back(Vector3f::UnitZ());
+// 
+//     vertices.push_back(curOuter);
+//     vertices.push_back(curInner);
+//     
+//     vertices.push_back(prevInner);
+// 
+//     normals.push_back(Vector3f::UnitZ());
+//     normals.push_back(Vector3f::UnitZ());
+//     normals.push_back(Vector3f::UnitZ());
 
     prevInner = curInner;
     prevOuter = curOuter;

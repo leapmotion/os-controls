@@ -4,8 +4,6 @@
 #include "GLShader.h"
 #include <memory>
 
-// class GLShader;
-
 // Presents a C++ interface specifically tailored to shaders having matrix uniforms
 // with the following names:
 //   uniform mat4 projection_times_model_view_matrix
