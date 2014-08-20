@@ -10,6 +10,7 @@ class RenderEngineNode :
   public Updatable
 {
 public:
+  typedef SceneGraphNode<double, 3> BaseSceneNode_t;
 
   template<typename T, typename... _Args>
   static std::shared_ptr<T> Create(_Args&&... args) {
@@ -26,6 +27,8 @@ public:
   }
   
   //call AddChild for child members here!
+  //This is required because to add something to a scene graph, it must have a shared_ptr that
+  //owns it, which is impossible in a constructor.
   virtual void InitChildren() {};
 
   virtual void Update(double deltaT) override {};

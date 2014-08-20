@@ -6,6 +6,7 @@
 #include "GLShaderLoader.h"
 
 #include "Resource.h"
+#include "PrimitiveBase.h"
 
 #include <SFML/Graphics/Shader.hpp>
 #include <vector>
@@ -37,9 +38,10 @@ RenderEngine::~RenderEngine()
 }
 
 void RenderEngine::Update(const std::chrono::duration<double> deltaT) {
-  m_rootNode->DepthFirstTraverse([deltaT](SceneGraphNode<double, 3>& node) {
-    RenderEngineNode &renderNode = static_cast<RenderEngineNode &>(node);
-    renderNode.Update(deltaT.count());
+  m_rootNode->DepthFirstTraverse([deltaT](RenderEngineNode::BaseSceneNode_t& node) {
+    Updatable *updatable = dynamic_cast<Updatable*>(&node);
+    if (updatable)
+      updatable->Update(deltaT.count());
   }, nullptr);
 }
 
@@ -64,19 +66,20 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
 
   //Call AnimationUpdate Depth First (pre-visitation order)
   auto &zList = m_renderList;
-  m_rootNode->DepthFirstTraverse([&zList, &frame](SceneGraphNode<double, 3>& node){
-    RenderEngineNode &renderNode = static_cast<RenderEngineNode &>(node);
+  m_rootNode->DepthFirstTraverse([&zList, &frame](RenderEngineNode::BaseSceneNode_t& node){
 
     auto& mv = frame.renderState.GetModelView();
     mv.Push();
     mv.Translate(node.Translation());
     mv.Multiply(Matrix3x3(node.LinearTransformation()));
 
-    renderNode.AnimationUpdate(frame);
-    renderNode.Render(frame);
-    zList.push_back(std::make_pair(&renderNode, mv.Matrix()));
+    Renderable* renderable = dynamic_cast<Renderable*>(&node);
+    if (renderable)
+      renderable->AnimationUpdate(frame);
+
+    zList.push_back(std::make_pair(&node, mv.Matrix()));
   },
-    [&frame](SceneGraphNode<double, 3>& node) {
+    [&frame](RenderEngineNode::BaseSceneNode_t& node) {
       frame.renderState.GetModelView().Pop();
     }
   );
@@ -89,7 +92,15 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
   for (auto &element : zList) {
     frame.renderState.GetModelView().Push();
     frame.renderState.GetModelView().Multiply(element.second);
-    element.first->Render(frame);
+
+    Renderable* renderable = dynamic_cast<Renderable*>(element.first);
+    if (renderable)
+      renderable->Render(frame);
+    else{
+      PrimitiveBase* primitive = dynamic_cast<PrimitiveBase*>(element.first);
+      if (primitive)
+        primitive->Draw(frame.renderState);
+    }
     frame.renderState.GetModelView().Pop();
   }
 
