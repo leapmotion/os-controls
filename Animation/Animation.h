@@ -1,6 +1,6 @@
 #pragma once
 #include <cassert>
-#include <cmath>
+#include <algorithm>
 
 #include <functional>
 #include <stdexcept>
@@ -23,7 +23,7 @@ namespace EasingFunctions{
     if ((t /= d / 2) < 1)
       current = static_cast<T>(((c / 2)*(t*t)) + b);
     else
-      current = static_cast<T>(-c / 2 * (((t - 2)*(--t)) - 1) + b);
+      current = static_cast<T>(-c / 2 * (((t - 2)*(t-1)) - 1) + b);
   }
 }
 
