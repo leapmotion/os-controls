@@ -20,10 +20,12 @@ namespace EasingFunctions{
     T b = start;
 
     //Taken from http://gizma.com/easing/
-    if ((t /= d / 2) < 1)
+    if ((t /= d / 2) < 1){
       current = static_cast<T>(((c / 2)*(t*t)) + b);
-    else
-      current = static_cast<T>(-c / 2 * (((t - 2)*(t-1)) - 1) + b);
+    }
+    else{
+      current = static_cast<T>(-c / 2 * (((t-3)*(t-1)) - 1) + b);
+    }
   }
 }
 
