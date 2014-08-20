@@ -1,6 +1,12 @@
 #include "PrimitiveBase.h"
 
+#include "GLShaderLoader.h"
 #include <stack>
+
+PrimitiveBase::PrimitiveBase()
+  :
+  m_material(Resource<GLShader>("material"))
+{ }
 
 void PrimitiveBase::DrawScene (RenderState &render_state) const {
   // Create a transform stack with the identity on the top.

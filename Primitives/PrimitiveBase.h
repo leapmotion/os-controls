@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Color.h"
+#include "Material.h"
 #include "SceneGraphNode.h"
 
 #include <stack>
@@ -18,14 +18,16 @@ public:
   typedef Parent_SceneGraphNode::Transform Transform;
   typedef std::stack<Transform, std::vector<Transform,Eigen::aligned_allocator<Transform>>> TransformStack;
 
-  PrimitiveBase() : m_DiffuseColor(Color::White()), m_AmbientFactor(0.0f) { }
+  PrimitiveBase();
   virtual ~PrimitiveBase() { }
 
-  const Color& DiffuseColor () const { return m_DiffuseColor; }
-  float AmbientFactor () const { return m_AmbientFactor; }
-
-  void SetDiffuseColor(const Color& color) { m_DiffuseColor = color; }
-  void SetAmbientFactor(float ambient) { m_AmbientFactor = ambient; }
+  const ::Material &Material () const { return m_material; }
+  ::Material &Material () { return m_material; }
+//   const Color& DiffuseColor () const { return m_DiffuseColor; }
+//   float AmbientFactor () const { return m_AmbientFactor; }
+// 
+//   void SetDiffuseColor(const Color& color) { m_DiffuseColor = color; }
+//   void SetAmbientFactor(float ambient) { m_AmbientFactor = ambient; }
 
   // TODO: this sort of doesn't need to be a method, and could be global.
   void DrawScene (RenderState &render_state) const;
@@ -36,6 +38,7 @@ protected:
   // This method should be overridden in each subclass to draw the particular geometry that it represents.
   virtual void Draw (RenderState &render_state, TransformStack &transform_stack) const = 0;
 
-  Color m_DiffuseColor;
-  float m_AmbientFactor;
+//   Color m_DiffuseColor;
+//   float m_AmbientFactor;
+  ::Material m_material;
 };

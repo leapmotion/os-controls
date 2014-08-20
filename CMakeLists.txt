@@ -367,6 +367,8 @@ add_sublibrary(
         Color
         GLBuffer
         GLMatrices
+        GLShaderLoader
+        Material
         SceneGraph
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."

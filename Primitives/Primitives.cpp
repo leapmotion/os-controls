@@ -16,7 +16,8 @@ void Sphere::Draw(RenderState& renderState, TransformStack& transform_stack) con
   modelView.Scale(Vector3::Constant(m_Radius));
 
   renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
   geom.Draw(renderState, GL_TRIANGLES);
 
@@ -38,7 +39,8 @@ void Cylinder::Draw(RenderState& renderState, TransformStack& transform_stack) c
   modelView.Scale(Vector3(m_Radius, m_Height, m_Radius));
 
   renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
   geom.Draw(renderState, GL_TRIANGLES);
 
@@ -59,7 +61,8 @@ void Box::Draw(RenderState& renderState, TransformStack& transform_stack) const 
   modelView.Scale(m_Size);
 
   renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
   geom.Draw(renderState, GL_TRIANGLES);
 
@@ -80,7 +83,8 @@ void Disk::Draw(RenderState& renderState, TransformStack& transform_stack) const
   modelView.Scale(Vector3::Constant(m_Radius));
 
   renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
   geom.Draw(renderState, GL_TRIANGLES);
 
@@ -101,7 +105,8 @@ void RectanglePrim::Draw(RenderState& renderState, TransformStack& transform_sta
   modelView.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
 
   renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
   geom.Draw(renderState, GL_TRIANGLES);
 
@@ -128,7 +133,8 @@ void PartialDisk::Draw(RenderState& renderState, TransformStack& transform_stack
   modelView.Multiply(Matrix3x3(t.linear()));
 
   renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+//   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
   m_Geometry.Draw(renderState, GL_TRIANGLES);
 

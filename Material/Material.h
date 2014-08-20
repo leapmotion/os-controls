@@ -9,11 +9,13 @@ class GLShader;
 
 // Presents a C++ interface specifically tailored to the "material" shader having
 // particular uniforms:
-//   uniform vec4 diffuse_color;
 //   uniform vec3 light_position;
-//   uniform float ambient_factor;
+//   uniform vec4 diffuse_light_color;
+//   uniform vec4 ambient_light_color;
+//   uniform float ambient_lighting_proportion;
 //   uniform bool use_texture;
 //   uniform sampler2D texture;
+// Material should only affect fragment shading.
 // Setting these uniforms is done through specialized modifiers in this class.
 // This class also has a GLShaderInterfaceMatrices, which requires the existence of
 // particular matrix uniforms.  See GLShaderInterfaceMatrices.
@@ -27,25 +29,28 @@ public:
   Material (const std::shared_ptr<GLShader> &attached_shader);
 
   // Frontend for the matrices of this shader.  See GLShaderMatrices.
-  void SetMatrices (const Matrix4x4 &model_view, const Matrix4x4 &projection) { m_shader_matrices.SetMatrices(model_view, projection); }
+  // TODO: this should not be in Material, because Material should only affect fragment shading.
+//   void SetMatrices (const Matrix4x4 &model_view, const Matrix4x4 &projection) { m_shader_matrices.SetMatrices(model_view, projection); }
   // Modifiers for the uniforms of a material.
-  void SetDiffuseColor (const Color &diffuse_color) { m_diffuse_color = diffuse_color; }
-  void SetLightPosition (const Vector3f &light_position) { m_light_position = light_position; }
-  void SetAmbientFactor (float ambient_factor) { m_ambient_factor = ambient_factor; }
-  void SetUseTexture (bool use_texture) { m_use_texture = use_texture; }
+  void SetLightPosition (const Vector3f &p) { m_light_position = p; }
+  void SetDiffuseLightColor (const Color &c) { m_diffuse_light_color = c; }
+  void SetAmbientLightColor (const Color &c) { m_ambient_light_color = c; }
+  void SetAmbientLightingProportion (float f) { m_ambient_lighting_proportion = f; }
+  void SetUseTexture (bool b) { m_use_texture = b; }
   void SetTexture (GLint texture_unit_index) { m_texture_unit_index = texture_unit_index; }
 
-  void UploadUniforms (ShaderBindRequirement req);
+  void UploadUniforms (ShaderBindRequirement req) const;
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
 private:
 
   std::shared_ptr<GLShader> m_attached_shader;
-  GLShaderMatrices m_shader_matrices; // TODO: this should really be a part of a GLMesh component, not Material
-  Color m_diffuse_color;
+//   GLShaderMatrices m_shader_matrices; // TODO: this should really be a part of a GLMesh component, not Material
   Vector3f m_light_position;
-  float m_ambient_factor;
+  Color m_diffuse_light_color;
+  Color m_ambient_light_color;
+  float m_ambient_lighting_proportion;
   bool m_use_texture;
   GLint m_texture_unit_index;
 };
