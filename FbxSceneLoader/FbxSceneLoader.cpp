@@ -2,9 +2,9 @@
 
 #include "SDLController.h"
 
-static FbxManager * gFbxManager = FbxManager::Create();
-
 std::shared_ptr<FbxScene> ResourceLoader<FbxScene>::LoadResource (const std::string &name, ResourceManager<FbxScene> &calling_manager) {
+  static FbxManager * gFbxManager = FbxManager::Create();
+
   std::string filepath(SDLController::BasePath() + name);
   
   FbxImporter * importer = FbxImporter::Create(gFbxManager, "");
