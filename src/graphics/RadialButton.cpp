@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RadialButton.h"
 #include "GLShaderLoader.h"
+#include "RenderFrame.h"
 #include "RenderState.h"
 
 #include <iostream>

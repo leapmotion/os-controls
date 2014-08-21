@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MediaView.h"
+#include "RenderFrame.h"
 #include "RenderState.h"
 #include "limits.h"
 
