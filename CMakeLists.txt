@@ -361,7 +361,6 @@ add_sublibrary(
         PrimitiveBase.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp
-        RenderState.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLBuffer
