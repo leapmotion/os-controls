@@ -19,11 +19,9 @@ public:
   void Destroy();
 
   static void CheckError(const std::string& loc = "");
-  static void CheckFrameBufferStatus(const std::string& loc = "");
 
 private:
 
   GLuint m_BufferAddress;
   GLenum m_BufferType;
-
 };

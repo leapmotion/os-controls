@@ -67,16 +67,3 @@ void GLBuffer::CheckError(const std::string& loc) {
     throw std::runtime_error(ss.str());
   }
 }
-
-void GLBuffer::CheckFrameBufferStatus(const std::string& loc) {
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (status != GL_FRAMEBUFFER_COMPLETE) {
-    std::stringstream ss;
-    ss << "Framebuffer error ";
-    if (!loc.empty()) {
-      ss << "at " << loc << ": ";
-    }
-    ss << "code: 0x" << std::hex << status;
-    throw std::runtime_error(ss.str());
-  }
-}
