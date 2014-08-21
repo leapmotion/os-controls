@@ -9,8 +9,8 @@ set(interaction_SOURCES
   CoordinateUtility.h
   FrameFragmenter.h
   FrameFragmenter.cpp
-  HandCoordinatesDecorator.cpp
-  HandCoordinatesDecorator.h
+  HandLocationRecognizer.cpp
+  HandLocationRecognizer.h
   HandPoseRecognizer.cpp
   HandPoseRecognizer.h
   InteractionConfigs.h

@@ -1,6 +1,8 @@
 #pragma once
 #include "StateMachineContext.h"
 #include "graphics/Updatable.h"
+#include "HandLocationRecognizer.h"
+#include "HandPoseRecognizer.h"
 #include "EigenTypes.h"
 
 namespace Leap {
@@ -61,7 +63,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
 
-  void AutoFilter(Leap::Hand* pHand, const Vector2& handCoordinates, const float handRoll, const int fingerCount);
+  void AutoFilter(Leap::Hand* pHand, const HandLocation& handLocation, const HandPose handPose);
 
   // Updatable overrides:
   void Update(double deltaT) override;
