@@ -7,6 +7,8 @@ set(interaction_SOURCES
   GestureTriggerManifest.h
   CoordinateUtility.cpp
   CoordinateUtility.h
+  FrameFragmenter.h
+  FrameFragmenter.cpp
   HandCoordinatesDecorator.cpp
   HandCoordinatesDecorator.h
   HandPointingDecorator.cpp
@@ -14,6 +16,9 @@ set(interaction_SOURCES
   HandRollDecorator.cpp
   HandRollDecorator.h
   InteractionConfigs.h
+  StateMachine.h
+  StateMachine.cpp
+  StateMachineContext.h
 )
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
