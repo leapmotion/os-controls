@@ -487,9 +487,20 @@ list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
 
 install(
     TARGETS Components ${_all_link_sublibraries}
-    EXPORT Components
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+    EXPORT ComponentsRelease
+    CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
+    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
+    LIBRARY DESTINATION lib/Release
+    ARCHIVE DESTINATION lib/Release
+    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
+)
+install(
+    TARGETS Components ${_all_link_sublibraries}
+    EXPORT ComponentsDebug
+    CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
+    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
+    LIBRARY DESTINATION lib/Debug
+    ARCHIVE DESTINATION lib/Debug
     INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
 )
 # This causes automatically-generated export targets to be defined during the install step in
@@ -497,7 +508,15 @@ install(
 # which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with
 # configure_file and install).
 install(
-    EXPORT Components
+    EXPORT ComponentsRelease
+    CONFIGURATIONS Release
+    NAMESPACE Components::
+    DESTINATION cmake
+    FILE ComponentsExport.cmake
+)
+install(
+    EXPORT ComponentsDebug
+    CONFIGURATIONS Debug
     NAMESPACE Components::
     DESTINATION cmake
     FILE ComponentsExport.cmake
