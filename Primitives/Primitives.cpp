@@ -1,5 +1,7 @@
 #include "Primitives.h"
 
+#include "GLTexture2.h"
+
 void GenericShape::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
@@ -86,9 +88,18 @@ void RectanglePrim::Draw(RenderState& renderState) const {
   modelView.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
 
   renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
+  renderState.UploadMaterial(DiffuseColor(), AmbientFactor(), useTexture, 0); // 0 is the texture unit, unused if texture is not enabled
 
+  if (useTexture) {
+    glEnable(GL_TEXTURE_2D);
+    m_texture->Bind();
+  }
   geom.Draw(renderState, GL_TRIANGLES);
+  if (useTexture) {
+    glDisable(GL_TEXTURE_2D);
+    m_texture->Unbind();
+  }
 
   modelView.Pop();
 }

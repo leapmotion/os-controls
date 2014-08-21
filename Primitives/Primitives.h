@@ -4,6 +4,8 @@
 #include "PrimitiveGeometry.h"
 #include "RenderState.h"
 
+class GLTexture2;
+
 class GenericShape : public PrimitiveBase {
 public:
 
@@ -98,13 +100,17 @@ public:
 
   RectanglePrim();
   const Vector2& Size() const { return m_Size; }
-  void SetSize(const Vector2& size) { m_Size = size/2.0; }
+  void SetSize(const Vector2& size) { m_Size = size; }
+
+  const std::shared_ptr<GLTexture2> &Texture () const { return m_texture; }
+  void SetTexture (const std::shared_ptr<GLTexture2> &texture) { m_texture = texture; }
 
   virtual void Draw(RenderState& renderState) const override;
 
 private:
 
   Vector2 m_Size;
+  std::shared_ptr<GLTexture2> m_texture;
 };
 
 class PartialDisk : public PrimitiveBase {

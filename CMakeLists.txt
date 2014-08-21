@@ -370,6 +370,8 @@ add_sublibrary(
         Color
         GLBuffer
         GLMatrices
+        GLShader
+        GLTexture2
         SceneGraph
     EXPLICIT_LIBRARY_DEPENDENCIES
         "NanoSVG"

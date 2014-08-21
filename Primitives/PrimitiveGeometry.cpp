@@ -252,27 +252,36 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
   Eigen::vector<Vector3f>& normals = geom.m_Normals;
   Eigen::vector<Vector2f>& texCoords = geom.m_TexCoords;
 
-  const Vector3f normal(Vector3f::UnitZ());
-  const Vector3f p1(-1.0f, -1.0f, 0.0f);
-  const Vector3f p2(1.0f, -1.0f, 0.0f);
-  const Vector3f p3(1.0f, 1.0f, 0.0f);
-  const Vector3f p4(-1.0f, 1.0f, 0.0f);
+  static const GLfloat X = 0.5f;
+  static const Vector3f POSITIONS[4] = {
+    Vector3f(-X, -X, 0),
+    Vector3f( X, -X, 0),
+    Vector3f( X,  X, 0),
+    Vector3f(-X,  X, 0)
+  };
+  static const Vector2f TEX_COORDS[4] = {
+    Vector2f(0, 0),
+    Vector2f(1, 0),
+    Vector2f(1, 1),
+    Vector2f(0, 1)
+  };
 
-  vertices.push_back(p1);
-  vertices.push_back(p2);
-  vertices.push_back(p3);
-  vertices.push_back(p3);
-  vertices.push_back(p4);
-  vertices.push_back(p1);
+  vertices.push_back(POSITIONS[0]);
+  vertices.push_back(POSITIONS[1]);
+  vertices.push_back(POSITIONS[2]);
+  texCoords.push_back(TEX_COORDS[0]);
+  texCoords.push_back(TEX_COORDS[1]);
+  texCoords.push_back(TEX_COORDS[2]);
 
-  texCoords.push_back(p1.head<2>()*0.5f + Vector2f::Constant(0.5f));
-  texCoords.push_back(p2.head<2>()*0.5f + Vector2f::Constant(0.5f));
-  texCoords.push_back(p3.head<2>()*0.5f + Vector2f::Constant(0.5f));
-  texCoords.push_back(p3.head<2>()*0.5f + Vector2f::Constant(0.5f));
-  texCoords.push_back(p4.head<2>()*0.5f + Vector2f::Constant(0.5f));
-  texCoords.push_back(p1.head<2>()*0.5f + Vector2f::Constant(0.5f));
+  vertices.push_back(POSITIONS[0]);
+  vertices.push_back(POSITIONS[2]);
+  vertices.push_back(POSITIONS[3]);
+  texCoords.push_back(TEX_COORDS[0]);
+  texCoords.push_back(TEX_COORDS[2]);
+  texCoords.push_back(TEX_COORDS[3]);
   
   // all vertices have the same normal
+  const Vector3f normal(Vector3f::UnitZ());
   for (size_t i=0; i<vertices.size(); i++) {
     normals.push_back(normal);
   }
