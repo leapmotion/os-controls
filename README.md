@@ -39,6 +39,9 @@ also the CMakeLists.txt include directories.  Each component can even have its o
   components.
 - Write a cmake function which looks at the set of components and generates a dot graph of their
   dependency graph -- for components and for [system] libraries.
+- Add a "static std::string ResourceTypeName ()" method to ResourceLoader<T> which returns a
+  std::string containing the name of T (e.g. ResourceLoader<GLShader>::ResourceTypeName() would
+  return "GLShader").  This will be useful in ResourceManager messages.
 
 #### 2014.08.15 - Proposal/Overview for Shader-based SVG rendering (Bezier-curve-only)
 
