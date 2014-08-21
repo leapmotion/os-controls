@@ -11,7 +11,9 @@ enum class HandPose {
   ZeroFingers,
   OneFinger,
   TwoFingers,
-  ThreeFingers
+  ThreeFingers,
+  FourFingers,
+  FiveFingers
 };
 
 class HandPoseRecognizer {
