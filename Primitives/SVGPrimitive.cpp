@@ -8,7 +8,6 @@
 
 #include <cfloat>
 #include <cassert>
-#include <algorithm>
 
 struct Bezier {
   Eigen::Vector2f b[4];
@@ -179,7 +178,7 @@ void SVGPrimitive::RecomputeChildren() {
           genericShape->SetAmbientFactor(1.0f);
 
           // We don't yet handle stroke widths. For now, simulate a stroke width less than 1 by adjusting the alpha
-          const float simulatedStrokeWidth = std::min(strokeWidth, 1.0f);
+          const float simulatedStrokeWidth = strokeWidth >= 1.0f ? 1.0f : strokeWidth;
           const float alpha = static_cast<float>((strokeColor >> 24) & 0xFF)/255.0f;
           const float blue  = static_cast<float>((strokeColor >> 16) & 0xFF)/255.0f;
           const float green = static_cast<float>((strokeColor >>  8) & 0xFF)/255.0f;
