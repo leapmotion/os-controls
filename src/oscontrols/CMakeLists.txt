@@ -42,6 +42,9 @@ foreach(_resource ${oscontrols_RESOURCES})
     add_custom_command(TARGET oscontrols POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:oscontrols>\"
     )
+    add_custom_command(TARGET oscontrols POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" "${CMAKE_CURRENT_BINARY_DIR}"
+    )
   elseif(APPLE)
     get_target_property(_is_bundle oscontrols MACOSX_BUNDLE)
     if(_is_bundle)
