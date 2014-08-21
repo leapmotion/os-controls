@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     osCtxt->Initiate();
     control->Main();
   }
-  catch (std::exception e) {
+  catch (std::exception& e) {
     std::cout << e.what() << std::endl;
   }
 

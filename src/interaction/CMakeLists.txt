@@ -11,8 +11,8 @@ set(interaction_SOURCES
   FrameFragmenter.cpp
   HandCoordinatesDecorator.cpp
   HandCoordinatesDecorator.h
-  HandPoseDecorator.cpp
-  HandPoseDecorator.h
+  HandPoseRecognizer.cpp
+  HandPoseRecognizer.h
   InteractionConfigs.h
   StateMachine.h
   StateMachine.cpp

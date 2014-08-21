@@ -7,9 +7,16 @@
 
 #include <autowiring/Autowired.h>
 
-class HandPoseDecorator {
+enum class HandPose {
+  ZeroFingers,
+  OneFinger,
+  TwoFingers,
+  ThreeFingers
+};
+
+class HandPoseRecognizer {
 public:
-  void AutoFilter(Leap::Hand* pHand);
+  void AutoFilter(const Leap::Hand& frame, HandPose& handPose);
 private:
   bool isPointing(Leap::Hand hand, int nFingers) const;
 };
