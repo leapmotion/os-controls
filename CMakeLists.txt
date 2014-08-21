@@ -372,6 +372,21 @@ add_sublibrary(
         "Provides a small but useful extension of the Leap::Listener class."
 )
 
+add_sublibrary(
+    OculusVR
+    HEADERS
+        OculusVR.h
+    SOURCES
+        OculusVR.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        EigenTypes
+        GLCompatibility
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "OculusSDK"
+    BRIEF_DOC_STRING
+        "Provides Oculus VR tracking and distortion functionality."
+)
+
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
 ###################################################################################################

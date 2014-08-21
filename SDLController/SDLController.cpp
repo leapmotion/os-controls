@@ -18,6 +18,9 @@ SDLController::SDLController ()
 {
   // TEMP
   std::cerr << "SDLController::BasePath() = \"" << BasePath() << "\"\n";
+#if _WIN32
+  m_HWND = nullptr;
+#endif
 }
 
 SDLController::~SDLController () {
@@ -136,7 +139,7 @@ void SDLController::InitWindow() {
     }
   }
 
-  Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+  Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
   if (m_Params.transparentWindow) {
     // Transparent window only works properly when the window is borderless
     windowFlags |= SDL_WINDOW_BORDERLESS;
@@ -181,33 +184,36 @@ void SDLController::InitGLContext() {
 }
 
 void SDLController::ConfigureTransparentWindow() {
-  if (m_Params.transparentWindow) {
-    struct SDL_SysWMinfo sys_wm_info;
-    SDL_VERSION(&sys_wm_info.version);
+  struct SDL_SysWMinfo sys_wm_info;
+  SDL_VERSION(&sys_wm_info.version);
 
-    // Retrieve the window info.
-    if (!SDL_GetWindowWMInfo(m_SDL_Window, &sys_wm_info)) {
-      throw std::runtime_error("Error retrieving window WM info");
-    }
+  // Retrieve the window info.
+  if (!SDL_GetWindowWMInfo(m_SDL_Window, &sys_wm_info)) {
+    throw std::runtime_error("Error retrieving window WM info");
+  }
 
-    // Make the OS-specific call to make the window transparent.
-    switch (sys_wm_info.subsystem) {
+  // Make the OS-specific call to make the window transparent.
+  switch (sys_wm_info.subsystem) {
 #ifdef WIN32 
-    case SDL_SYSWM_WINDOWS:
+  case SDL_SYSWM_WINDOWS:
+    m_HWND = sys_wm_info.info.win.window;
+    if (m_Params.transparentWindow) {
       MakeTransparent_Windows(sys_wm_info);
-      break;
-#elif __APPLE__ 
-    case SDL_SYSWM_COCOA:
-      MakeTransparent_Apple(sys_wm_info, m_SDL_GLContext);
-      break;
-#else 
-    case SDL_SYSWM_X11:
-      // TODO
-      break;
-#endif 
-    default:
-      throw std::runtime_error("Error identifying WM subsystem");
-      break;
     }
+    break;
+#elif __APPLE__ 
+  case SDL_SYSWM_COCOA:
+    if (m_Params.transparentWindow) {
+      MakeTransparent_Apple(sys_wm_info, m_SDL_GLContext);
+    }
+    break;
+#else 
+  case SDL_SYSWM_X11:
+    // TODO
+    break;
+#endif 
+  default:
+    throw std::runtime_error("Error identifying WM subsystem");
+    break;
   }
 }

@@ -4,6 +4,11 @@
 
 #include <string>
 
+#if _WIN32
+#define NOMINMAX
+#include <Windows.h>
+#endif
+
 // Encapsulates various SFML/OpenGL parameters to be passed into SFMLController::Initialize()
 // Currently the following fields are supported:
 // - Desired window width in pixels (ignored and reset when fullscreen = true)
@@ -61,6 +66,10 @@ public:
 
   const SFMLControllerParams& GetParams() const { return m_Params; }
 
+#if _WIN32
+  HWND GetHWND() { return m_HWND; }
+#endif
+
 private:
 
   void InitWindow();
@@ -70,4 +79,9 @@ private:
   sf::ContextSettings m_Settings;
   mutable sf::Window m_Window;
   SFMLControllerParams m_Params;
+  sf::WindowHandle m_WindowHandle;
+
+#if _WIN32
+  HWND m_HWND;
+#endif
 };

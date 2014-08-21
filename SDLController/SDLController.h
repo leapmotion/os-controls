@@ -62,6 +62,10 @@ public:
 
   const SDLControllerParams& GetParams() const { return m_Params; }
 
+#if _WIN32
+  HWND GetHWND() { return m_HWND; }
+#endif
+
 private:
 
   void InitSDL();
@@ -74,6 +78,8 @@ private:
 
 #if _WIN32
   void MakeTransparent_Windows(const SDL_SysWMinfo &sys_wm_info);
+
+  HWND m_HWND;
 #endif
 
   SDL_Window *m_SDL_Window;
