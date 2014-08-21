@@ -22,13 +22,13 @@ public:
 TEST_F(AutoFilterTest, VerifyDescendentAwareness) {
   // Create a packet while the factory has no subscribers:
   AutoRequired<AutoPacketFactory> parentFactory;
-  auto packet1 = parentFactory->NewPacket();
+  std::shared_ptr<AutoPacket> firstPacket = parentFactory->NewPacket();
 
   // Verify subscription-free status:
-  EXPECT_FALSE(packet1->HasSubscribers<Decoration<0>>()) << "Subscription exists where one should not have existed";
+  EXPECT_FALSE(firstPacket->HasSubscribers<Decoration<0>>()) << "Subscription exists where one should not have existed";
 
-  std::shared_ptr<AutoPacket> packet2;
-  std::weak_ptr<AutoPacket> packet3;
+  std::shared_ptr<AutoPacket> strongPacket;
+  std::weak_ptr<AutoPacket> weakPacket;
   std::weak_ptr<FilterA> filterChecker;
 
   // Create a subcontext
@@ -41,36 +41,39 @@ TEST_F(AutoFilterTest, VerifyDescendentAwareness) {
       AutoRequired<FilterA> subFilter;
       filterChecker = subFilter;
     }
+    EXPECT_FALSE(firstPacket->HasSubscribers<Decoration<0>>()) << "Subscription was incorrectly, retroactively added to a packet";
 
     //Create a packet where a subscriber exists only in a subcontext
-    packet2 = parentFactory->NewPacket();
-    auto strongPacket3 = parentFactory->NewPacket();
-    packet3 = strongPacket3;
-    EXPECT_TRUE(packet2->HasSubscribers<Decoration<0>>()) << "Packet lacked expected subscription from subcontext";
-    EXPECT_TRUE(packet3.lock()->HasSubscribers<Decoration<0>>()) << "Packet lacked expected subscription from subcontext";
+    strongPacket = parentFactory->NewPacket();
+    std::shared_ptr<AutoPacket> holdPacket = parentFactory->NewPacket();
+    weakPacket = holdPacket;
+    EXPECT_TRUE(strongPacket->HasSubscribers<Decoration<0>>()) << "Packet lacked expected subscription from subcontext";
+    EXPECT_TRUE(weakPacket.lock()->HasSubscribers<Decoration<0>>()) << "Packet lacked expected subscription from subcontext";
   }
-  EXPECT_TRUE(packet3.expired()) << "Packet was not destroyed when it's subscribers were removed";
+  EXPECT_TRUE(weakPacket.expired()) << "Packet was not destroyed when it's subscribers were removed";
   EXPECT_FALSE(filterChecker.expired()) << "Packet keeping subcontext member alive";
-
-  // Create a packet after the subcontext has been destroyed
-  auto packet4 = parentFactory->NewPacket();
-  EXPECT_FALSE(packet4->HasSubscribers<Decoration<0>>()) << "Subscription exists where one should not have existed";
-
-  // Verify the first packet still does not have subscriptions:
-  EXPECT_FALSE(packet1->HasSubscribers<Decoration<0>>()) << "Subscription was incorrectly, retroactively added to a packet";
-
-  packet2->Decorate(Decoration<0>());
 
   // Verify the second packet will no longer have subscriptions  -
   // normally removing a subscriber would mean the packet still has the subscriber, but
   // in this case, the subscriber was actually destroyed so the packet has lost a subscriber.
-  EXPECT_TRUE(packet2->HasSubscribers<Decoration<0>>()) << "Packet lacked an expected subscription";
+  EXPECT_TRUE(strongPacket->HasSubscribers<Decoration<0>>()) << "Missing subscriber from destroyed subcontext";
 
-  // Verify the third one does not:
-  EXPECT_FALSE(packet4->HasSubscribers<Decoration<0>>()) << "Subscription was incorrectly, retroactively added to a packet";
+  // Call the subscriber... this will either succeed or segfault.
+  strongPacket->Decorate(Decoration<0>());
+  strongPacket->Decorate(Decoration<1>());
+  EXPECT_TRUE(strongPacket->HasSubscribers<Decoration<0>>()) << "Calling a subscriber should not remove it";
+  {
+    std::shared_ptr<FilterA> holdFilter = filterChecker.lock();
+    ASSERT_EQ(1, holdFilter->m_called) << "Subcontext filter was not called";
+  }
 
-  packet2.reset();
-  EXPECT_TRUE(filterChecker.expired()) << "Subscriber didn't expire after packet was reset.";
+  // Create a packet after the subcontext has been destroyed
+  auto lastPacket = parentFactory->NewPacket();
+  EXPECT_FALSE(lastPacket->HasSubscribers<Decoration<0>>()) << "Subscription was incorrectly, retroactively added to a packet";
+
+  // Verify that strongPacket was responsible for keeping subFilter alive
+  strongPacket.reset();
+  EXPECT_TRUE(filterChecker.expired()) << "Subscriber from destroyed subcontext didn't expire after packet was reset.";
 }
 
 TEST_F(AutoFilterTest, VerifySimpleFilter) {
@@ -174,7 +177,7 @@ TEST_F(AutoFilterTest, VerifyNoMultiDecorate) {
   EXPECT_ANY_THROW(packet->Decorate(isDeco0type())) << "Typedef failed to throw exception";
 
   //NOTE: A shared_ptr to an existing type will throw an exception
-  std::shared_ptr<Decoration<0>> sharedDeco0(new Decoration<0>);
+  auto sharedDeco0 = std::make_shared<Decoration<0>>();
   EXPECT_ANY_THROW(packet->Decorate(sharedDeco0)) << "Reduction of shared_ptr to base type failed";
 
   //NOTE: Inheritance will not throw an exception
@@ -347,7 +350,7 @@ TEST_F(AutoFilterTest, VerifyTeardownArrangement) {
     std::shared_ptr<AutoPacket> packet;
     {
       // Create the filter and subscribe it
-      std::shared_ptr<FilterA> filterA(new FilterA);
+      auto filterA = std::make_shared<FilterA>();
       filterAWeak = filterA;
       factory->AddSubscriber(filterA);
 
@@ -466,7 +469,6 @@ TEST_F(AutoFilterTest, VerifyAntiDecorate) {
 /// </summary>
 template<typename T>
 struct good_autofilter {
-
   // Evaluates to false when T does not include an AutoFilter method with at least one argument.
   static const bool value = has_unambiguous_autofilter<T>::value;
 
@@ -1008,7 +1010,6 @@ TEST_F(AutoFilterTest, SharedPointerAliasingRules) {
 }
 
 TEST_F(AutoFilterTest, AutoSelfUpdateTest) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<AutoSelfUpdate<Decoration<0>>> filter;
 
@@ -1140,7 +1141,6 @@ struct MultiFilter01 {
 };
 
 TEST_F(AutoFilterTest, DeclareAutoFilterTest) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
   AutoRequired<MultiFilter01> mf01;
 
@@ -1168,7 +1168,6 @@ TEST_F(AutoFilterTest, FunctionDecorationTest) {
   // This must be satisfied by decoration of type a,
   // independent of the order of decoration.
 
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   //Decoration with data first
@@ -1192,7 +1191,6 @@ TEST_F(AutoFilterTest, FunctionDecorationTest) {
 }
 
 TEST_F(AutoFilterTest, FunctionDecorationLambdaTest) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   //Decoration with function first
@@ -1212,7 +1210,6 @@ TEST_F(AutoFilterTest, FunctionDecorationLambdaTest) {
 typedef std::function<void(auto_out<Decoration<0>>)> InjectorFunctionType;
 
 TEST_F(AutoFilterTest, FunctionInjectorTest) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   auto packet = factory->NewPacket();
@@ -1228,7 +1225,6 @@ TEST_F(AutoFilterTest, FunctionInjectorTest) {
 typedef std::function<void(const Decoration<1>&)> ExtractorFunctionType;
 
 TEST_F(AutoFilterTest, FunctionExtractorTest) {
-  AutoCurrentContext()->Initiate();
   AutoRequired<AutoPacketFactory> factory;
 
   auto packet = factory->NewPacket();

@@ -10,8 +10,8 @@ DispatchQueue::DispatchQueue(void):
 
 DispatchQueue::~DispatchQueue(void) {
   // Wipe out each entry in the queue, we can't call any of them because we're in teardown
-  for(auto q = m_dispatchQueue.begin(); q != m_dispatchQueue.end(); q++)
-    delete *q;
+  for(DispatchThunkBase* thunk : m_dispatchQueue)
+    delete thunk;
   
   while (!m_delayedQueue.empty()) {
     DispatchThunkDelayed thunk = m_delayedQueue.top();
@@ -81,7 +81,7 @@ void DispatchQueue::DispatchEventUnsafe(std::unique_lock<std::mutex>& lk) {
         m_queueUpdated.notify_all();
     }
   ),
-	(*thunk)();
+  (*thunk)();
 }
 
 bool DispatchQueue::DispatchEvent(void) {

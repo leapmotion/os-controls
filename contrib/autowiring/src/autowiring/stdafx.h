@@ -5,9 +5,11 @@
 // Currently this is only supported on MSVC
 #ifdef _MSC_VER
   #include <thread>
-  #define NOMINMAX
+  #ifndef NOMINMAX
+    #define NOMINMAX
+  #endif
 #endif
-	
+  
 #ifndef _MSC_VER
   #include <stdlib.h>
 #endif

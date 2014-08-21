@@ -123,16 +123,16 @@ set(Autowiring_Win_SRCS
 )
 
 set(Autowiring_Unix_SRCS
-	InterlockedExchangeUnix.cpp
+  InterlockedExchangeUnix.cpp
   thread_specific_ptr_unix.h
 )
 
 set(Autowiring_Mac_SRCS
-	CoreThreadMac.cpp
+  CoreThreadMac.cpp
 )
 
 set(Autowiring_Linux_SRCS
-	CoreThreadLinux.cpp
+  CoreThreadLinux.cpp
 )
 
 ADD_MSVC_DISABLED_FILES("Unix Source" Autowiring_SRCS ${Autowiring_Unix_SRCS})
@@ -157,27 +157,36 @@ endif()
 rewrite_header_paths(Autowiring_SRCS)
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" Autowiring_SRCS)
 add_library(Autowiring STATIC ${Autowiring_SRCS})
+if(CMAKE_MAJOR_VERSION GREATER 2)
+  target_include_directories(Autowiring INTERFACE "../..")
+endif()
 set_property(TARGET Autowiring PROPERTY FOLDER "Autowiring")
 
 # Might as well reference the boost libraries to satisfy link dependencies, if we know they exist
-find_package(Boost COMPONENTS system date_time QUIET)
+find_package(Boost COMPONENTS thread atomic chrono system date_time QUIET)
 if(Boost_FOUND)
   target_link_libraries(Autowiring ${Boost_LIBRARIES})
 endif()
 
-if(UNIX)
-  target_link_libraries(Autowiring pthread)
+# Need multithreading services if available
+find_package(Threads)
+if(Threads_FOUND)
+  if(CMAKE_USE_PTHREADS_INIT)
+    target_link_libraries(Autowiring ${CMAKE_THREAD_LIBS_INIT})
+  endif()
 endif()
 
-install(TARGETS Autowiring DESTINATION lib COMPONENT autowiring CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
+if(NOT AUTOWIRING_IS_EMBEDDED)
+  install(TARGETS Autowiring DESTINATION ${CMAKE_BINARY_DIR}/lib COMPONENT autowiring CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
 
-foreach (src ${Autowiring_SRCS})
-  string(REGEX MATCH ".*\\.h" hfile ${src})
-  if(hfile)
-    install(
-      FILES ${hfile}
-      DESTINATION "include/Autowiring"
-      COMPONENT autowiring
-    )
-  endif()
-endforeach()
+  foreach (src ${Autowiring_SRCS})
+    string(REGEX MATCH ".*\\.h" hfile ${src})
+    if(hfile)
+      install(
+        FILES ${hfile}
+        DESTINATION "${CMAKE_SOURCE_DIR}/include/Autowiring"
+        COMPONENT autowiring
+      )
+    endif()
+  endforeach()
+endif()
