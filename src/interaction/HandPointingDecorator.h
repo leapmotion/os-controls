@@ -7,12 +7,9 @@
 
 #include <autowiring/Autowired.h>
 
-struct HandPointMap : public std::map<int32_t, Leap::Hand> {};
-struct HandPoseVector : public std::vector<HandPointMap> {};
-
-class HandPointingDecorator {
+class HandPoseDecorator {
 public:
-  void AutoFilter(Leap::Frame frame, HandPoseVector& poseVector);
+  void AutoFilter(Leap::Hand* pHand);
 private:
   bool isPointing(Leap::Hand hand, int nFingers) const;
 };

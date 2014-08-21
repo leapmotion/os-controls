@@ -8,7 +8,7 @@
 #include "InteractionConfigs.h"
 #include "HandPointingDecorator.h"
 
-void HandPointingDecorator::AutoFilter(Leap::Frame frame, HandPoseVector& poseVector) {
+void HandPoseDecorator::AutoFilter(Leap::Hand* pHand) {
   for(int i=0; i < 5; i++) {
     HandPointMap handMap;
     for(auto hand : frame.hands()) {
