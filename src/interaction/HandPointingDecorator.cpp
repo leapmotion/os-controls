@@ -8,23 +8,11 @@
 #include "InteractionConfigs.h"
 #include "HandPointingDecorator.h"
 
-void HandPointingDecorator::AutoFilter(Leap::Frame frame, HandPoseVector& poseVector) {
-  for(int i=0; i < 5; i++) {
-    HandPointMap handMap;
-    for(auto hand : frame.hands()) {
-      if ( isPointing(hand, i) ) {
-        handMap[hand.id()] = hand;
-      }
-    }
-    poseVector.insert(poseVector.end(), handMap);
-  }
-}
-
-bool HandPointingDecorator::isPointing(Leap::Hand hand, int nFingers) const {
+void HandPointingDecorator::AutoFilter(const Leap::Hand& hand, HandPoses& handPose) {
   const static std::map<int, int> handCodes = {{0, 0}, {8, 1}, {24, 1}, {12, 2}, {28, 3}, {14, 3}, {30, 4}, {15, 4}, {31, 5}};
   
   if ( !hand.isValid() ) {
-    return false;
+    return;
   }
   
   Vector3 handDirection = hand.direction().toVector3<Vector3>();
@@ -50,13 +38,4 @@ bool HandPointingDecorator::isPointing(Leap::Hand hand, int nFingers) const {
     
     i++;
   }
-  
-  std::cout << "Hand Code: " << handCode << std::endl;
-  auto found = handCodes.find(handCode);
-  if (found != handCodes.end() && found->second == nFingers) {
-    std::cout << "N Fingers: " << nFingers << std::endl;
-    return true;
-  }
-  
-  return false;
 }

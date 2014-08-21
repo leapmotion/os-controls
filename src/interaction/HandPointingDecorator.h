@@ -10,9 +10,14 @@
 struct HandPointMap : public std::map<int32_t, Leap::Hand> {};
 struct HandPoseVector : public std::vector<HandPointMap> {};
 
+enum class HandPoses {
+  ZeroFingers,
+  OneFinger,
+  TwoFingers,
+  ThreeFingers
+};
+
 class HandPointingDecorator {
 public:
-  void AutoFilter(Leap::Frame frame, HandPoseVector& poseVector);
-private:
-  bool isPointing(Leap::Hand hand, int nFingers) const;
+  void AutoFilter(const Leap::Hand& frame, HandPoses& handPose);
 };
