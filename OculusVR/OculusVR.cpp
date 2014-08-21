@@ -1,6 +1,10 @@
 #include "OculusVR.h"
 #include <algorithm>
 
+extern "C" {
+void ovrhmd_EnableHSWDisplaySDKRender(ovrHmd hmd, ovrBool enabled);
+}
+
 bool OculusVR::Init() {
   m_Debug = false;
 
@@ -125,6 +129,7 @@ void OculusVR::EndFrame() {
 
 void OculusVR::DismissHealthWarning() {
   ovrHmd_DismissHSWDisplay(m_HMD);
+  ovrhmd_EnableHSWDisplaySDKRender(m_HMD, false);
 }
 
 void OculusVR::Shutdown() {
