@@ -141,3 +141,8 @@ void ModelView::Pop() {
   assert(m_stack.size() > 1);
   m_stack.pop_back();
 }
+
+void ModelView::Clear() {
+  m_stack.clear();
+  m_stack.push_back(Matrix4x4::Identity());
+}

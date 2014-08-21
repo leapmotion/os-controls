@@ -42,9 +42,7 @@ public:
   // and produces the same 3x1 column matrix value as the expression L*X + T.
   typedef Eigen::Transform<Scalar,DIM,Eigen::AffineCompact> Transform;
   SceneGraphNode() { m_transform.setIdentity(); }
-  typedef std::unordered_set<std::shared_ptr<SceneGraphNode>,
-    std::hash<std::shared_ptr<SceneGraphNode>>,
-    std::equal_to<std::shared_ptr<SceneGraphNode>>,
+  typedef std::vector<std::shared_ptr<SceneGraphNode>,
     Eigen::aligned_allocator<std::shared_ptr<SceneGraphNode>>
   > ChildSet;
   virtual ~SceneGraphNode() { }
@@ -71,17 +69,22 @@ public:
 
   // these are virtual so that particular behavior can be added while adding/removing nodes.
   // any overrides should make sure to call the base class' version of the method, of course.
-  virtual void AddChild(std::shared_ptr<SceneGraphNode>& child) {
-    m_children.emplace(child);
-    child->m_parent = shared_from_this();
-  }
-  virtual void RemoveFromParent() {
-    std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
-    if (parent) {
-      parent->m_children.erase(shared_from_this());
-      m_parent.reset();
+  virtual void AddChild(std::shared_ptr<SceneGraphNode> child) {
+    m_children.emplace_back(child);
+    try {
+      child->m_parent = shared_from_this();
+    } catch (const std::bad_weak_ptr&) {
+      child->m_parent.reset(); // Unable to obtain weak pointer (parent most likely isn't a shared pointer)
     }
   }
+// Disable the ability to remove a child from parent until it is needed
+//  virtual void RemoveFromParent() {
+//    std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
+//    if (parent) {
+//      parent->m_children.erase(shared_from_this());
+//      m_parent.reset();
+//    }
+//  }
 
   // Traverse this tree, depth-first, calling preTraversal (if not nullptr) 
   // on this node, then calling this function recursively on the child nodes, then 
@@ -126,7 +129,8 @@ public:
     auto traversal_node = shared_from_this();
     while (traversal_node != closest_common_ancestor) {
       // A node's transform gives the node-to-parent coordinate transformation.
-      this_transform_stack *= traversal_node->FullTransform(); 
+      this_transform_stack = this_transform_stack * traversal_node->FullTransform();
+      traversal_node = traversal_node->m_parent.lock();
     }
 
     // Compute the transformation from the other node's coordinate system
@@ -135,7 +139,8 @@ public:
     other_transform_stack.setIdentity();
     traversal_node = other.shared_from_this();
     while (traversal_node != closest_common_ancestor) {
-      other_transform_stack *= traversal_node->FullTransform();
+      other_transform_stack = other_transform_stack * traversal_node->FullTransform();
+      traversal_node = traversal_node->m_parent.lock();
     }
 
     // TODO: somehow check that other_transform_stack is actually invertible (it's not
@@ -147,12 +152,31 @@ public:
     return other_transform_stack.inverse(Eigen::Affine) * this_transform_stack;
   }
 
+  std::shared_ptr<const SceneGraphNode> RootNode() const {
+    auto node = shared_from_this();
+    auto parent = node->m_parent.lock();
+    while(parent)
+    {
+      node = parent;
+      parent = node->m_parent.lock();
+    }
+    return node;
+  }
+  
+  Transform ComputeTransformToGlobalCoordinates() const {
+    return ComputeTransformToCoordinatesOf(*RootNode());
+  }
+  
+  Transform ComputeTransformFromGlobalCoordinates() const {
+    return RootNode()->ComputeTransformToCoordinatesOf(*this);
+  }
+
   // This will return an empty shared_ptr if there was no common ancestor, which
   // should happen if and only if the two nodes come from different scene graph trees.
-  std::shared_ptr<SceneGraphNode> ClosestCommonAncestor (const SceneGraphNode &other) const {
+  std::shared_ptr<const SceneGraphNode> ClosestCommonAncestor (const SceneGraphNode &other) const {
     // TODO: develop ancestry lists for each, then find the last common one, root-down.
-    std::vector<SceneGraphNode> this_ancestors;
-    std::vector<SceneGraphNode> other_ancestors;
+    std::vector<std::shared_ptr<const SceneGraphNode>> this_ancestors;
+    std::vector<std::shared_ptr<const SceneGraphNode>> other_ancestors;
     this->AppendAncestors(this_ancestors);
     other.AppendAncestors(other_ancestors);
 
@@ -171,7 +195,7 @@ public:
     if (this_it >= this_ancestors.rbegin()) {
       return *this_it;
     } else { // otherwise return empty.
-      return std::shared_ptr<SceneGraphNode>();
+      return std::shared_ptr<const SceneGraphNode>();
     }
   }
 
@@ -189,14 +213,13 @@ private:
   template<typename... _Args>
   static void CallFunction(std::nullptr_t, _Args&&...) {}
   
-
   // This populates a vector with the ancestors of this node, starting with this node,
   // then its parent, then its parent's parent, etc (i.e. this node, going toward the root).
-  void AppendAncestors (std::vector<std::shared_ptr<SceneGraphNode>> &ancestors) const {
+  void AppendAncestors (std::vector<std::shared_ptr<const SceneGraphNode>> &ancestors) const {
     ancestors.emplace_back(shared_from_this());
     std::shared_ptr<SceneGraphNode> parent(m_parent.lock());
     if (parent) {
-      AppendAncestors(ancestors);
+      parent->AppendAncestors(ancestors);
     }
   }
 

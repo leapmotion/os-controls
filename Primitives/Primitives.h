@@ -4,16 +4,32 @@
 #include "PrimitiveGeometry.h"
 #include "RenderState.h"
 
+class GenericShape : public PrimitiveBase {
+public:
+
+  GenericShape(GLenum drawMode = GL_TRIANGLES) : m_drawMode(drawMode) { }
+  virtual ~GenericShape () { }
+
+  // Make sure to call UploadDataToBuffers on the geometry object before drawing.
+  PrimitiveGeometry &Geometry () { return m_geometry; }
+
+  virtual void Draw(RenderState& renderState) const override;
+
+private:
+
+  mutable PrimitiveGeometry m_geometry;
+  GLenum m_drawMode;
+};
+
 class Sphere : public PrimitiveBase {
 public:
 
   Sphere();
+  virtual ~Sphere () { }
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -21,22 +37,21 @@ private:
 };
 
 class Ellipsoid : public PrimitiveBase {
-
+  virtual ~Ellipsoid () { }
 };
 
 class Cylinder : public PrimitiveBase {
 public:
 
   Cylinder();
+  virtual ~Cylinder () { }
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
   double Height() const { return m_Height; }
   void SetHeight(double height) { m_Height = height; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -48,12 +63,11 @@ class Box : public PrimitiveBase {
 public:
 
   Box();
+  virtual ~Box() { }
   const Vector3& Size() const { return m_Size; }
   void SetSize(const Vector3& size) { m_Size = size; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -64,12 +78,11 @@ class Disk : public PrimitiveBase {
 public:
 
   Disk();
+  virtual ~Disk () { }
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -85,11 +98,9 @@ public:
 
   RectanglePrim();
   const Vector2& Size() const { return m_Size; }
-  void SetSize(const Vector2& size) { m_Size = size; }
+  void SetSize(const Vector2& size) { m_Size = size/2.0; }
 
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 
@@ -133,10 +144,7 @@ public:
     m_EndAngle = endAngleRadians;
   }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-protected:
-
-  virtual void Draw(RenderState& renderState, TransformStack& transform_stack) const override;
+  virtual void Draw(RenderState& renderState) const override;
 
 private:
 

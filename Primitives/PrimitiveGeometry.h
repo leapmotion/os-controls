@@ -17,8 +17,8 @@ public:
   PrimitiveGeometry();
 
   // functions for manually manipulating geometry
-  stdvectorV3f& Vertices() { return m_Vertices; }
-  stdvectorV3f& Normals() { return m_Normals; }
+  Eigen::vector<Vector3f>& Vertices() { return m_Vertices; }
+  Eigen::vector<Vector3f>& Normals() { return m_Normals; }
 
   // functions for manipulating GPU-side buffers
   void CleanUpBuffers();
@@ -59,9 +59,9 @@ private:
   typedef std::map<MapVertex, unsigned int, std::less<MapVertex>> VertexIndexMap;
 
   int m_NumIndices;
-  stdvectorV3f m_Vertices;
-  stdvectorV3f m_Normals;
-  stdvectorV2f m_TexCoords;
+  Eigen::vector<Vector3f> m_Vertices;
+  Eigen::vector<Vector3f> m_Normals;
+  Eigen::vector<Vector2f> m_TexCoords;
   GLBuffer m_VertexBuffer;
   GLBuffer m_NormalBuffer;
   GLBuffer m_IndexBuffer;
