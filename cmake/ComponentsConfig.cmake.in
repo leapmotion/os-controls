@@ -59,7 +59,11 @@ function(target_link_components TARGET)
             verbose_message_print_vars(_sublib _deps)
             foreach(_dep ${_deps})
                 string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
-                find_dependency(${_semicolon_delimited_dep})
+                list(GET _semicolon_delimited_dep 0 _lib_name)
+                set(_lib_target_name ${_lib_name}::${_lib_name})
+                if(NOT TARGET ${_lib_target_name})
+                    find_dependency(${_semicolon_delimited_dep})
+                endif()
             endforeach()
 
             # Now call target_link_libraries on TARGET, to link Components::{_sublib} with the given link type.
