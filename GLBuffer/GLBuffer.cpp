@@ -34,14 +34,18 @@ int GLBuffer::Size() const {
 }
 
 void* GLBuffer::Map(GLuint access) {
+  Bind();
   void* ptr = glMapBufferARB(m_BufferType, access);
   CheckError("Map");
+  Release();
   return ptr;
 }
 
 bool GLBuffer::Unmap() {
+  Bind();
   bool result = glUnmapBufferARB(m_BufferType) == GL_TRUE;
   CheckError("Unmap");
+  Release();
   return result;
 }
 
