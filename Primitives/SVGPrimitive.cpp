@@ -8,6 +8,7 @@
 
 #include <cfloat>
 #include <cassert>
+#include <algorithm>
 
 struct Bezier {
   Eigen::Vector2f b[4];
@@ -123,16 +124,19 @@ void SVGPrimitive::RecomputeChildren() {
   if (m_Image) {
     Children().clear();
     for (NSVGshape* shape = m_Image->shapes; shape != NULL; shape = shape->next) {
-      if (shape->fill.type == NSVG_PAINT_COLOR) {
-        // Fill
-      } else if (shape->fill.type == NSVG_PAINT_NONE) {
-        // Stoke -- FIXME
-        continue;
-      } else {
-        // Gradient -- FIXME
-        continue;
+      const uint32_t fillColor = shape->fill.color;
+      const uint32_t strokeColor = shape->stroke.color;
+      const float opacity = shape->opacity;
+      const float strokeWidth = shape->strokeWidth;
+      const bool doFill = (fillColor & 0xFF000000) != 0 && shape->fill.type == NSVG_PAINT_COLOR;
+      const bool doStroke = (strokeColor & 0xFF000000) != 0 && strokeWidth > FLT_EPSILON &&
+                            (shape->fill.type == NSVG_PAINT_COLOR || shape->fill.type == NSVG_PAINT_NONE);
+
+      if ((!doFill && !doStroke) || opacity <= FLT_EPSILON) {
+        continue; // Nothing to do...
       }
       std::list<TPPLPoly> polys;
+      std::vector<std::shared_ptr<GenericShape>> strokes;
 
       for (NSVGpath* path = shape->paths; path != NULL; path = path->next) {
         Curve curve(0.5f);
@@ -147,24 +151,54 @@ void SVGPrimitive::RecomputeChildren() {
         }
         const auto& points = curve.Points();
         if (!points.empty()) {
-          TPPLPoly poly;
-          size_t numPoints = points.size();
+          if (doFill) {
+            TPPLPoly poly;
+            size_t numPoints = points.size();
 
-          poly.Init(static_cast<long>(numPoints));
-          for (size_t i = 0; i < numPoints; i++) {
-            poly[i] = points[i];
+            poly.Init(static_cast<long>(numPoints));
+            for (size_t i = 0; i < numPoints; i++) {
+              poly[i] = points[i];
+            }
+            // We are assuming that ONLY the last path is not a hole
+            if (path->next) {
+              poly.SetHole(true);
+              poly.SetOrientation(TPPL_CW);
+            } else {
+              poly.SetHole(false);
+              poly.SetOrientation(TPPL_CCW);
+            }
+            polys.emplace_back(std::move(poly));
           }
-          // We are assuming that ONLY the last path is not a hole
-          if (path->next) {
-            poly.SetHole(true);
-            poly.SetOrientation(TPPL_CW);
-          } else {
-            poly.SetHole(false);
-            poly.SetOrientation(TPPL_CCW);
+        }
+        if (doStroke) {
+          const bool isClosed = path->closed != '\0';
+          auto genericShape = std::shared_ptr<GenericShape>(new GenericShape(isClosed ? GL_LINE_LOOP : GL_LINE_STRIP));
+          auto& geometry = genericShape->Geometry();
+
+          geometry.CleanUpBuffers();
+          genericShape->SetAmbientFactor(1.0f);
+
+          // We don't yet handle stroke widths. For now, simulate a stroke width less than 1 by adjusting the alpha
+          const float simulatedStrokeWidth = std::min(strokeWidth, 1.0f);
+          const float alpha = static_cast<float>((strokeColor >> 24) & 0xFF)/255.0f;
+          const float blue  = static_cast<float>((strokeColor >> 16) & 0xFF)/255.0f;
+          const float green = static_cast<float>((strokeColor >>  8) & 0xFF)/255.0f;
+          const float red   = static_cast<float>( strokeColor        & 0xFF)/255.0f;
+          genericShape->SetDiffuseColor(Color(red, green, blue, alpha*opacity*simulatedStrokeWidth));
+          stdvectorV3f& vertices = geometry.Vertices();
+          stdvectorV3f& normals = geometry.Normals();
+          const auto& points = curve.Points();
+          for (const auto& pt : points) {
+            Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
+            vertices.push_back(point);
+            normals.push_back(Vector3f::UnitZ());
           }
-          polys.emplace_back(std::move(poly));
+          geometry.UploadDataToBuffers();
+          // Gather the strokes; they will be applied after the fill
+          strokes.push_back(genericShape);
         }
       }
+      // Add the fill (if applicable)
       if (!polys.empty()) {
         TPPLPartition partition;
         std::list<TPPLPoly> triangles;
@@ -172,19 +206,16 @@ void SVGPrimitive::RecomputeChildren() {
         if (!partition.Triangulate_EC(&polys, &triangles)) {
           continue; // Failed to triangulate!
         }
-
         auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
-
         auto& geometry = genericShape->Geometry();
-        const uint32_t abgr = shape->fill.color;
 
         geometry.CleanUpBuffers();
-
         genericShape->SetAmbientFactor(1.0f);
-        genericShape->SetDiffuseColor(Color(static_cast<uint8_t>(abgr      ),
-                                            static_cast<uint8_t>(abgr >>  8),
-                                            static_cast<uint8_t>(abgr >> 16),
-                                            static_cast<uint8_t>(abgr >> 24)));
+        const float alpha = static_cast<float>((fillColor >> 24) & 0xFF)/255.0f;
+        const float blue  = static_cast<float>((fillColor >> 16) & 0xFF)/255.0f;
+        const float green = static_cast<float>((fillColor >>  8) & 0xFF)/255.0f;
+        const float red   = static_cast<float>( fillColor        & 0xFF)/255.0f;
+        genericShape->SetDiffuseColor(Color(red, green, blue, alpha*opacity));
         stdvectorV3f& vertices = geometry.Vertices();
         stdvectorV3f& normals = geometry.Normals();
         for (auto& triangle : triangles) {
@@ -196,8 +227,13 @@ void SVGPrimitive::RecomputeChildren() {
           }
         }
         geometry.UploadDataToBuffers();
-
         AddChild(genericShape);
+      }
+      // Add any strokes after the fill
+      if (!strokes.empty()) {
+        for (auto& stroke : strokes) {
+          AddChild(stroke);
+        }
       }
     }
   }

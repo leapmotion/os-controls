@@ -7,7 +7,7 @@ void GenericShape::Draw(RenderState& renderState) const {
   renderState.UploadMatrices();
   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
 
-  m_geometry.Draw(renderState, GL_TRIANGLES);
+  m_geometry.Draw(renderState, m_drawMode);
   modelView.Pop();
 }
 
