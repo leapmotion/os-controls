@@ -60,29 +60,27 @@ std::string SFMLController::BasePath () {
 }
 
 void SFMLController::MakeTransparent () {
-  sf::WindowHandle handle = m_Window.getSystemHandle();
 #if _WIN32
-  HWND hWnd = static_cast<HWND>(handle);
-  if (hWnd) {
-    LONG flags = ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT;
+  if (m_HWND) {
+    LONG flags = ::GetWindowLongA(m_HWND, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT;
     if (m_Params.alwaysOnTop) {
       flags |= WS_EX_TOPMOST;
     }
-    ::SetWindowLongA(hWnd, GWL_EXSTYLE, flags);
-    ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
+    ::SetWindowLongA(m_HWND, GWL_EXSTYLE, flags);
+    ::SetLayeredWindowAttributes(m_HWND, RGB(0, 0, 0), 255, LWA_ALPHA);
   } else {
     throw std::runtime_error("Error retrieving native window");
   }
   if (m_Params.alwaysOnTop) {
-    ::SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    ::SetWindowPos(m_HWND, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
   DWM_BLURBEHIND bb = { 0 };
   bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
   bb.fEnable = true;
   bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
-  ::DwmEnableBlurBehindWindow(hWnd, &bb);
+  ::DwmEnableBlurBehindWindow(m_HWND, &bb);
 #elif __APPLE__
-  NSWindow* window = static_cast<NSWindow*>(handle);
+  NSWindow* window = static_cast<NSWindow*>(m_WindowHandle);
   NSOpenGLView* view = [window contentView];
 
   if (!window || !view) {
@@ -140,6 +138,10 @@ void SFMLController::InitWindow() {
   m_Window.setVisible(false);
   m_Window.setVerticalSyncEnabled(m_Params.vsync);
 
+  m_WindowHandle = m_Window.getSystemHandle();
+#if _WIN32
+  m_HWND = static_cast<HWND>(m_WindowHandle);
+#endif
   if (m_Params.transparentWindow) {
     // Make the OS-specific call to make the window transparent.
     MakeTransparent();
