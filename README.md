@@ -121,42 +121,37 @@ Relevant technologies/links:
 
 #### Design notes for primitives/GL refactor
 
-The RenderState and PrimitiveGeometry classes, and lighting-frag.glsl and
-lighting-vert.glsl shader programs are currently a single piece of spaghetti
-that stretches between the Components lib and the BasicShapes app.  This can
-really be divided up into several more-modular components.
-
-GLMesh
-- contains and shovels the following data to GL
-  * mesh vertices
-  * mesh indices (for GL_TRIANGLES, but this should be configurable)
-  * one normal per vertex
-  * one texture coord per vertex (this might not actually be correct, because
-    of UV mapping not necessarily being continuous)
-  * one color per vertex (again, maybe not totally correct)
-  * customizable data per vertex (?)
-- currently, PrimitiveGeometry calls into RenderState, which is backwards, because
-  RenderState depends on a particular shader program.
-- the operations that GLMesh should provide are
-  * defining all of the properties listed above (this is intermediate storage)
-  * "uploading" to the GPU, meaning that buffer objects are created for them
-    and the relevant data is loaded into them.
-  * optionally clearing the intermediate storage upon upload
-  * modifying intermediate data and re-uploading (e.g. for GL_DYNAMIC_DRAW or 
-    other usage hints)
-  * binding the various buffers
-GLShaderInterfaceMatrices
-- Easy-to-use interface for setting particular matrix uniforms in a shader.
-  Specifically targeted to shaders that have modelview, projection, and normal
-  matrices.  This is currently done through RenderState and is specifically
-  dependent on lighting-vert.glsl, but should be modularized.
-- The names of the uniforms should be specifiable, and perhaps not all of them
-  need to exist.
-- It will provide methods for setting the modelview, projection, and normal matrices,
-  each of which will make the correct calls to find the location of the respective
-  uniform and set the uniform value.
-GLShaderInterfaceMaterial
-- Similar interface as GLShaderInterfaceMatrices, but for material parameters.
-  This one will be tailored to material uniforms of a particular shader (lighting-*.glsl)
-
 GLShader now implements a dictionary for uniforms and attributes (name -> (location, type, size)).
+GLShaderMatrices provides an interface for setting the expected matrix uniforms for shaders.
+Material is now an interface for setting the parameters of a particular material fragment shader.
+
+GLVertexBuffer
+- Should somehow take a compile-time-specified list of vertex attributes and define
+  a "vertex" structure which will contain data for rendering each vertex in a VBO.
+- Should present a strongly-typed interface for adding these attributes to an intermediate
+  representation of the vertex attributes before it's uploaded to GL.
+- Should present a way to upload the intermediate vertex data to GL, and optionally
+  clear the intermediate data.
+- Should present a way to modify the intermediate vertex data.
+- Should present a way to request to modify the uploaded data.
+- Should have methods for indicating to GL that this VBO should be enabled (see PrimitiveGeometry::Draw),
+  and that it should be disabled.
+
+GLMesh<DIM>
+- These are particular instances of GLVertexBuffer implemented for the following vertex attribs:
+  * Position
+  * Normal
+  * Texture Coordinate
+  * Color
+  * Others?
+  These should be dimension-specific
+- This should probably present a few high-level methods for:
+  * Defining a mesh
+    ~ Specifying how the vertices are drawn (e.g. GL_TRIANGLES, GL_TRIANGLE_FAN, etc)
+    ~ Uploading to GL
+  * Modifying a mesh that has already been loaded
+  * Drawing a mesh
+  * Assigning UV coordinates
+  * Generating particular geometric primitives (e.g. spheres, cylinders, etc)
+  * Specifying which other attributes should be on a vertex.
+
