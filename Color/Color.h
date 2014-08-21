@@ -2,6 +2,8 @@
 
 #include "EigenTypes.h"
 
+#include <cstdint>
+
 class Color {
 public:
   Color() {
@@ -20,7 +22,7 @@ public:
   Color(const Color& other, float blend) {
     m_data << other.R(), other.G(), other.B(), blend*other.A();
   }
-  Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) {
+  Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) {
     m_data << r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f;
   }
 

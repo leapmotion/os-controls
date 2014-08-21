@@ -135,8 +135,8 @@ void PrimitiveGeometry::Draw(RenderState& renderState, GLenum drawMode) {
 
 PrimitiveGeometry PrimitiveGeometry::CreateUnitSphere(int resolution) {
   PrimitiveGeometry geom;
-  stdvectorV3f& vertices = geom.m_Vertices;
-  stdvectorV3f& normals = geom.m_Normals;
+  Eigen::vector<Vector3f>& vertices = geom.m_Vertices;
+  Eigen::vector<Vector3f>& normals = geom.m_Normals;
 
   const float resFloat = static_cast<float>(resolution);
   const float pi = static_cast<float>(M_PI);
@@ -195,8 +195,8 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSphere(int resolution) {
 
 PrimitiveGeometry PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalResolution) {
   PrimitiveGeometry geom;
-  stdvectorV3f& vertices = geom.m_Vertices;
-  stdvectorV3f& normals = geom.m_Normals;
+  Eigen::vector<Vector3f>& vertices = geom.m_Vertices;
+  Eigen::vector<Vector3f>& normals = geom.m_Normals;
 
   const float radialRes = 1.0f / static_cast<float>(radialResolution);
   const float verticalRes = 1.0f / static_cast<float>(verticalResolution);
@@ -248,9 +248,9 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitCylinder(int radialResolution, in
 
 PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
   PrimitiveGeometry geom;
-  stdvectorV3f& vertices = geom.m_Vertices;
-  stdvectorV3f& normals = geom.m_Normals;
-  stdvectorV2f& texCoords = geom.m_TexCoords;
+  Eigen::vector<Vector3f>& vertices = geom.m_Vertices;
+  Eigen::vector<Vector3f>& normals = geom.m_Normals;
+  Eigen::vector<Vector2f>& texCoords = geom.m_TexCoords;
 
   const Vector3f normal(Vector3f::UnitZ());
   const Vector3f p1(-1.0f, -1.0f, 0.0f);
@@ -283,8 +283,8 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
 
 PrimitiveGeometry PrimitiveGeometry::CreateUnitDisk(int resolution) {
   PrimitiveGeometry geom;
-  stdvectorV3f& vertices = geom.m_Vertices;
-  stdvectorV3f& normals = geom.m_Normals;
+  Eigen::vector<Vector3f>& vertices = geom.m_Vertices;
+  Eigen::vector<Vector3f>& normals = geom.m_Normals;
 
   const Vector3f normal(Vector3f::UnitZ());
   const Vector3f center(Vector3f::Zero());
@@ -320,8 +320,8 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitDisk(int resolution) {
 
 PrimitiveGeometry PrimitiveGeometry::CreateUnitBox() {
   PrimitiveGeometry geom;
-  stdvectorV3f& vertices = geom.m_Vertices;
-  stdvectorV3f& normals = geom.m_Normals;
+  Eigen::vector<Vector3f>& vertices = geom.m_Vertices;
+  Eigen::vector<Vector3f>& normals = geom.m_Normals;
 
   const Vector3f p1(-1.0f, -1.0f, -1.0f);
   const Vector3f p2(1.0f, -1.0f, -1.0f);
