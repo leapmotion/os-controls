@@ -13,7 +13,7 @@ void GenericShape::Draw(RenderState& renderState, TransformStack& transform_stac
   renderState.UploadMatrices();
   renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
 
-  m_geometry.Draw(renderState, GL_TRIANGLES);
+  m_geometry.Draw(renderState, m_drawMode);
 
   modelView.Pop();
   // transform_stack.pop();

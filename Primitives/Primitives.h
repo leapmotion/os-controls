@@ -7,6 +7,7 @@
 class GenericShape : public PrimitiveBase {
 public:
 
+  GenericShape(GLenum drawMode = GL_TRIANGLES) : m_drawMode(drawMode) { }
   virtual ~GenericShape () { }
 
   // Make sure to call UploadDataToBuffers on the geometry object before drawing.
@@ -19,6 +20,7 @@ protected:
 private:
 
   mutable PrimitiveGeometry m_geometry;
+  GLenum m_drawMode;
 };
 
 class Sphere : public PrimitiveBase {
