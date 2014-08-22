@@ -56,6 +56,7 @@ float MediaView::Volume() {
 
 void MediaView::SetVolume(float volume) {
   m_volumeControl->SetVolume(volume);
+  m_mve(&MediaViewEventListener::OnVolumeChanged)(volume);
 }
 
 void MediaView::NudgeVolume(float dVolume) {

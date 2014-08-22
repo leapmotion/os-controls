@@ -1,4 +1,5 @@
 #pragma once
+#include "MediaViewEventListener.h"
 #include "graphics/RadialButton.h"
 #include "graphics/RenderEngineNode.h"
 #include "graphics/VolumeControl.h"
@@ -10,9 +11,9 @@
 #include "Primitives.h"
 #include "Animation.h"
 
-
 class MediaView :
-public RenderEngineNode {
+  public RenderEngineNode
+{
 public:
   MediaView(const Vector3& center, float offset);
   
@@ -33,9 +34,11 @@ public:
   void NudgeVolume(float dVolume);
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 private:
   void setMenuOpacity(float opacity);
 
+  AutoFired<MediaViewEventListener> m_mve;
   Animated<float> m_opacity;
   
   float m_interactionDistance;

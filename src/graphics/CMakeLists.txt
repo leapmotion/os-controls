@@ -5,6 +5,7 @@ set(graphics_SOURCES
   ExposeControl.cpp
   MediaView.h
   MediaView.cpp
+  MediaViewEventListener.h
   RadialButton.h
   RadialButton.cpp
   Renderable.h

@@ -16,6 +16,8 @@ set(interaction_SOURCES
   HandRollDecorator.cpp
   HandRollDecorator.h
   InteractionConfigs.h
+  MediaViewController.h
+  MediaViewController.cpp
   StateMachine.h
   StateMachine.cpp
   StateMachineContext.h
