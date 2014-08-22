@@ -11,7 +11,14 @@
 #include "Primitives.h"
 #include "Animation.h"
 
+class AbstractVolumeControl {
+  virtual float Volume();
+  virtual void SetVolume(float volume);
+  virtual void NudgeVolume(float dVolume);
+};
+
 class MediaView :
+  public AbstractVolumeControl,
   public RenderEngineNode
 {
 public:
@@ -29,14 +36,22 @@ public:
   void FadeIn(){ SetGoalOpacity(config::MEDIA_BASE_OPACITY); }
   void FadeOut() { SetGoalOpacity(0.0f); }
 
-  float Volume();
-  void SetVolume(float volume);
-  void NudgeVolume(float dVolume);
+  float Volume() override;
+  void SetVolume(float volume) override;
+  void NudgeVolume(float dVolume) override;
   
+  void AutoFilter(OCSState state, const HandLocation& handLocation, const HandPose& handPose);
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
   void setMenuOpacity(float opacity);
+
+  enum class State {
+    Zero,
+    AlteringWedges
+  };
+  State m_state;
 
   AutoFired<MediaViewEventListener> m_mve;
   Animated<float> m_opacity;

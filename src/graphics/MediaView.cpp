@@ -56,11 +56,34 @@ float MediaView::Volume() {
 
 void MediaView::SetVolume(float volume) {
   m_volumeControl->SetVolume(volume);
-  m_mve(&MediaViewEventListener::OnVolumeChanged)(volume);
 }
 
 void MediaView::NudgeVolume(float dVolume) {
   m_volumeControl->NudgeVolume(dVolume);
+}
+
+void MediaView::AutoFilter(OCSState state, const HandLocation& handLocation, const HandPose& handPose) {
+  if(state != OCSState::MediaMenuVisible)
+    return;
+
+  // At this point, you need to figure out what to do with your input.  You might need to decide
+  // which sliders need to be engaged, you might need to decide whether you are going to transition
+  // states, or even possibly that an event has to be fired here.
+  float desiredVolme;
+
+
+
+
+  /// TODO:  Decide what state we're in
+
+
+
+  if(m_state == State::Zero) {
+    if(volumeNudge > threshold) {
+      NudgeVolume(volumeNudge);
+      m_mve(&MediaViewEventListener::OnVolumeChanged)(desiredVolme);
+    }
+  }
 }
 
 void MediaView::setMenuOpacity(float opacity) {
