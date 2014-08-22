@@ -9,12 +9,12 @@
 #include <cfloat>
 #include <cassert>
 
-struct Bezier {
-  Eigen::Vector2f b[4];
-};
-
 class Curve {
   public:
+    struct Bezier {
+      Eigen::Vector2f b[4];
+    };
+
     Curve(float tolerance = 1.0f);
     ~Curve();
 
@@ -86,6 +86,8 @@ SVGPrimitive::SVGPrimitive(const std::string& svg) :
   m_Image(nullptr),
   m_RecomputeGeometry(false)
 {
+  m_Origin << 0.0, 0.0;
+  m_Size << 0.0, 0.0;
   if (!svg.empty()) {
     Set(svg);
   }
@@ -114,6 +116,25 @@ void SVGPrimitive::Set(const std::string& svg)
   std::string svgCopy{svg}; // Make a copy so that nanosvg can modify its contents (horrors)
   m_Image = nsvgParse(const_cast<char*>(svgCopy.c_str()), "px", 96.0f);
   if (m_Image) {
+    float bounds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    bool isFirst = true;
+
+    for (NSVGshape* shape = m_Image->shapes; shape != NULL; shape = shape->next) {
+      if (isFirst) {
+        isFirst = false;
+        bounds[0] = shape->bounds[0];
+        bounds[1] = shape->bounds[1];
+        bounds[2] = shape->bounds[2];
+        bounds[3] = shape->bounds[3];
+      } else {
+        if (shape->bounds[0] < bounds[0]) { bounds[0] = shape->bounds[0]; }
+        if (shape->bounds[1] < bounds[1]) { bounds[1] = shape->bounds[1]; }
+        if (shape->bounds[2] > bounds[2]) { bounds[2] = shape->bounds[2]; }
+        if (shape->bounds[3] > bounds[3]) { bounds[3] = shape->bounds[3]; }
+      }
+    }
+    m_Origin << static_cast<MATH_TYPE>(bounds[0]), static_cast<MATH_TYPE>(bounds[1]);
+    m_Size << static_cast<MATH_TYPE>(bounds[2] - bounds[0]), static_cast<MATH_TYPE>(bounds[3] - bounds[1]);
     m_RecomputeGeometry = true;
   }
 }
@@ -141,7 +162,7 @@ void SVGPrimitive::RecomputeChildren() {
         Curve curve(0.5f);
         for (int i = 0; i < path->npts-1; i += 3) {
           const float* p = &path->pts[i*2];
-          Bezier bezier;
+          Curve::Bezier bezier;
           bezier.b[0] << p[0], p[1];
           bezier.b[1] << p[2], p[3];
           bezier.b[2] << p[4], p[5];
