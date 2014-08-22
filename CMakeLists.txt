@@ -724,8 +724,6 @@ add_sublibrary(
         gtest/gtest_main.cc
     COMPILE_DEFINITIONS
         GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
-    COMPILE_OPTIONS
-        "-fvisibility=default"
     BRIEF_DOC_STRING
         "Provides an easy way to include and link the Google Test framework."
 )
