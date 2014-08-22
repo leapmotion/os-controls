@@ -1,8 +1,7 @@
 #pragma once
 #include <autowiring/Autowired.h>
 #include <set>
-
-#include "Leap.h"
+#include <Leap.h>
 
 struct HandExistenceState {
   std::vector<Leap::Hand> m_newHands;

@@ -32,7 +32,8 @@ void FrameFragmenter::AutoFilter(const Leap::Frame& frame) {
       // Need to initialize a new context, spin it up and send it off
       ctxt = CreateMenuContext(hand);
 
-    // Decorate with a pointer to the hand
+    // Decorate with a pointer to the hand.  If a decision must be made about whether to drive this
+    // context, it must be made at this point.
     AutoRequired<AutoPacketFactory> factory(ctxt);
     auto packet = factory->NewPacket();
     packet->Decorate(&hand);

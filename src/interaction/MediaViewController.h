@@ -1,23 +1,25 @@
 #pragma once
+#include "uievents/MediaViewEventListener.h"
+#include "uievents/SystemMultimediaEventListener.h"
 
+class AbstractVolumeControl;
 class AudioVolumeInterface;
-class MediaView;
 
 /// <summary>
 /// Handles callbacks from the MediaView, and updates the view with information from the system
 /// </summary>
 class MediaViewController:
   public MediaViewEventListener,
-  public Updatable
+  public SystemMultimediaEventListener
 {
 public:
   MediaViewController(void);
   ~MediaViewController(void);
 
   Autowired<AudioVolumeInterface> m_avi;
-  Autowired<MediaView> m_mv;
+  Autowired<AbstractVolumeControl> m_mv;
 
-  void Update(double deltaT) override;
-  void OnVolumeChanged(float volume) override;
+  void OnUserChangedVolume(float volume) override;
+  void OnVolumeChanged(float oldVolume, float newVolume) override;
 };
 

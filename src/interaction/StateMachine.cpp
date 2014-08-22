@@ -12,7 +12,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(Leap::Hand* pHand, const HandLocation& handLocation, const HandPose handPose, OCSState& state) {
+void StateMachine::AutoFilter(Leap::Hand* pHand, const HandLocation& handLocation, const HandPose handPose, OSCState& state) {
   if(!pHand) {
     // Transition to this state unconditionally and short-circuit
     m_state = OSCState::Final;
@@ -23,8 +23,8 @@ void StateMachine::AutoFilter(Leap::Hand* pHand, const HandLocation& handLocatio
 }
 
 // Distpatch Loop
-void StateMachine::Update(double deltaT) {
-  if(m_state == OCSState::Final) {
+void StateMachine::Update(std::chrono::duration<double> deltaT) {
+  if(m_state == OSCState::Final) {
     m_context.reset();
     return;
   }

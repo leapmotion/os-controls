@@ -6,10 +6,10 @@
 #include <iostream>
 
 VolumeControl::VolumeControl(float radius, float width) :
-m_partialDisk(new PartialDisk()),
-m_activePartialDisk(new PartialDisk()),
-m_needle(new RectanglePrim()),
-m_maxOpacity(0.8f)
+  m_partialDisk(new PartialDisk()),
+  m_activePartialDisk(new PartialDisk()),
+  m_needle(new RectanglePrim()),
+  m_maxOpacity(0.8f)
 {
   m_partialDisk->SetDiffuseColor(Color(0.7f, 0.7f, 0.7f,m_maxOpacity));
   m_partialDisk->SetAmbientFactor(0.9f);

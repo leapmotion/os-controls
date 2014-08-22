@@ -1,15 +1,11 @@
-//
-//  HandCoordinatesDecorator.cpp
-//  oscontrols
-//
-//  Created by Daniel Plemmons on 8/15/14.
-//
-//
-
+#include "stdafx.h"
 #include "HandLocationRecognizer.h"
 #include "HandPoseRecognizer.h"
 #include "CoordinateUtility.h"
 #include "InteractionConfigs.h"
+
+HandLocationRecognizer::HandLocationRecognizer(void) {}
+HandLocationRecognizer::~HandLocationRecognizer(void) {}
 
 void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& handPose, HandLocation& handLocation) {
   Vector2 screenLocation;

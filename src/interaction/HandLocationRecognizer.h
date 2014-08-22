@@ -1,13 +1,10 @@
 #pragma once
-
 #include "Leap.h"
-#include "EigenTypes.h"
+#include "HandPoseRecognizer.h"
+#include <autowiring/Autowired.h>
 #include <map>
 
-#include "CoordinateUtility.h"
-#include "HandPoseRecognizer.h"
-
-#include <autowiring/Autowired.h>
+class CoordinateUtility;
 
 struct HandLocation {
   Vector2 screenCoordinates;
@@ -15,7 +12,11 @@ struct HandLocation {
 
 class HandLocationRecognizer {
 public:
+  HandLocationRecognizer(void);
+  ~HandLocationRecognizer(void);
+
   void AutoFilter(const Leap::Hand& hand, const HandPose& handPose, HandLocation& handLocation);
+
 private:
   AutoRequired<CoordinateUtility> m_coordinateUtility;
 };

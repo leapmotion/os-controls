@@ -1,21 +1,20 @@
 #pragma once
-#include "MediaViewEventListener.h"
 #include "graphics/RadialButton.h"
 #include "graphics/RenderEngineNode.h"
 #include "graphics/VolumeControl.h"
 #include "graphics/MostRecent.h"
 #include "interaction/HandExistTrigger.h"
+#include "uievents/AbstractVolumeControl.h"
+#include "uievents/MediaViewEventListener.h"
 #include "SceneGraphNode.h"
 #include "Leap.h"
 
 #include "Primitives.h"
 #include "Animation.h"
 
-class AbstractVolumeControl {
-  virtual float Volume();
-  virtual void SetVolume(float volume);
-  virtual void NudgeVolume(float dVolume);
-};
+enum class HandPose;
+enum class OSCState;
+struct HandLocation;
 
 class MediaView :
   public AbstractVolumeControl,
@@ -40,7 +39,7 @@ public:
   void SetVolume(float volume) override;
   void NudgeVolume(float dVolume) override;
   
-  void AutoFilter(OCSState state, const HandLocation& handLocation, const HandPose& handPose);
+  void AutoFilter(OSCState state, const HandLocation& handLocation, const HandPose& handPose);
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

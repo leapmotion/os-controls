@@ -5,7 +5,6 @@ set(graphics_SOURCES
   ExposeControl.cpp
   MediaView.h
   MediaView.cpp
-  MediaViewEventListener.h
   RadialButton.h
   RadialButton.cpp
   Renderable.h
@@ -13,7 +12,6 @@ set(graphics_SOURCES
   RenderEngine.cpp
   RenderEngineNode.h
   RenderFrame.h
-  Updatable.h
   VolumeControl.h
   VolumeControl.cpp
   MostRecent.h

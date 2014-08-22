@@ -16,6 +16,7 @@
 class MediaMenuController {
 public:
   MediaMenuController(void);
+
   void AutoFilter(const HandPoseVector &hpv, const CursorMap& handScreenLocations, const GestureMap& handGestures, const RollMap& handRolls);
 
 private:

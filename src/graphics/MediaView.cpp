@@ -3,7 +3,7 @@
 #include "RenderFrame.h"
 #include "RenderState.h"
 #include "limits.h"
-
+#include "uievents/OSCDomain.h"
 #include <iostream>
 
 const static float PI = 3.14159265f;
@@ -62,26 +62,25 @@ void MediaView::NudgeVolume(float dVolume) {
   m_volumeControl->NudgeVolume(dVolume);
 }
 
-void MediaView::AutoFilter(OCSState state, const HandLocation& handLocation, const HandPose& handPose) {
-  if(state != OCSState::MediaMenuVisible)
+void MediaView::AutoFilter(OSCState state, const HandLocation& handLocation, const HandPose& handPose) {
+  if(state != OSCState::MediaMenuVisible)
     return;
 
   // At this point, you need to figure out what to do with your input.  You might need to decide
   // which sliders need to be engaged, you might need to decide whether you are going to transition
   // states, or even possibly that an event has to be fired here.
-  float desiredVolme;
-
+  float volumeNudgeAmount = 0.012f;
 
 
 
   /// TODO:  Decide what state we're in
 
 
-
+  // Only try to nudge the volume if we're not presently interacting with any wedges
   if(m_state == State::Zero) {
-    if(volumeNudge > threshold) {
-      NudgeVolume(volumeNudge);
-      m_mve(&MediaViewEventListener::OnVolumeChanged)(desiredVolme);
+    if(volumeNudgeAmount > 0.0001f) {
+      NudgeVolume(volumeNudgeAmount);
+      m_mve(&MediaViewEventListener::OnUserChangedVolume)(volumeNudgeAmount);
     }
   }
 }
