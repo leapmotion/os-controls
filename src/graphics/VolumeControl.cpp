@@ -44,7 +44,7 @@ void VolumeControl::InitChildren() {
 }
 
 float VolumeControl::Volume() {
-  return volumeFromAngle(m_activePartialDisk->EndAngle());
+  return volumeFromAngle((float)m_activePartialDisk->EndAngle());
 }
 
 void VolumeControl::SetVolume(float volume) {
@@ -55,7 +55,7 @@ void VolumeControl::SetVolume(float volume) {
 
 void VolumeControl::NudgeVolume(float dVolume) {
   std::cout << "dVolume: " << dVolume << std::endl;
-  float angle = m_activePartialDisk->EndAngle() + VolumeControl::dAngleFromVolume(dVolume);
+  float angle = (float)m_activePartialDisk->EndAngle() + VolumeControl::dAngleFromVolume(dVolume);
   m_activePartialDisk->SetEndAngle(angle);
   std::cout << "New Volume: " << volumeFromAngle(angle) << std::endl;
 }
@@ -75,13 +75,13 @@ void VolumeControl::SetOpacity(float opacity) {
 }
 
 float VolumeControl::volumeFromAngle(float angle) {
-  return (angle + 5*M_PI/4)/(3*M_PI/2);
+  return (float)((angle + 5*M_PI/4)/(3*M_PI/2));
 }
 
 float VolumeControl::angleFromVolume(float volume) {
-  return ((3*M_PI)/2)*volume - (5*M_PI)/4;
+  return (float)(((3 * M_PI) / 2)*volume - (5 * M_PI) / 4);
 }
 
 float VolumeControl::dAngleFromVolume(float dVolume) {
-  return ((3*M_PI)/2)*dVolume;
+  return (float) (((3 * M_PI) / 2)*dVolume);
 }
