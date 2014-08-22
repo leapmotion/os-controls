@@ -16,8 +16,8 @@ set(interaction_SOURCES
   InteractionConfigs.h
   MediaViewController.h
   MediaViewController.cpp
-  RollDetector.h
-  RollDetector.cpp
+  HandRollRecognizer.h
+  HandRollRecognizer.cpp
   StateMachine.h
   StateMachine.cpp
   StateMachineContext.h

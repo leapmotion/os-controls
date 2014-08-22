@@ -12,11 +12,11 @@ struct DeltaRollAmount {
 /// <summary>
 /// A simplified thresholded roll detector
 /// </summary>
-class RollDetector
+class HandRollRecognizer
 {
 public:
-  RollDetector(void);
-  ~RollDetector(void);
+  HandRollRecognizer(void);
+  ~HandRollRecognizer(void);
 
   void AutoFilter(const Leap::Hand& hand, DeltaRollAmount& dra);
 

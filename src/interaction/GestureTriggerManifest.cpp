@@ -5,7 +5,7 @@
 #include "HandLocationRecognizer.h"
 #include "CircleGestureTrigger.h"
 #include "HandPoseRecognizer.h"
-#include "RollDetector.h"
+#include "HandRollRecognizer.h"
 #include "StateMachine.h"
 
 GestureTriggerManifest::GestureTriggerManifest()
@@ -16,6 +16,6 @@ GestureTriggerManifest::GestureTriggerManifest()
   AutoRequired<HandLocationRecognizer>();
   AutoRequired<CircleGestureTrigger>();
   AutoRequired<HandPoseRecognizer>();
-  AutoRequired<RollDetector>();
+  AutoRequired<HandRollRecognizer>();
   AutoRequired<StateMachine>();
 }

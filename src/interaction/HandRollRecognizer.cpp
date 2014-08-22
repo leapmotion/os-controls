@@ -1,17 +1,17 @@
 #include "stdafx.h"
-#include "RollDetector.h"
+#include "HandRollRecognizer.h"
 
-RollDetector::RollDetector(void):
+HandRollRecognizer::HandRollRecognizer(void):
   m_hasLast(false),
   m_lastRoll(0.0)
 {
 }
 
-RollDetector::~RollDetector(void)
+HandRollRecognizer::~HandRollRecognizer(void)
 {
 }
 
-void RollDetector::AutoFilter(const Leap::Hand& hand, DeltaRollAmount& dra) {
+void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, DeltaRollAmount& dra) {
   // Compute the roll amount, decide whether to floor it down to zero
   float roll = -hand.palmNormal().roll();
   if(std::abs(roll - m_lastRoll) > 0.5f)
