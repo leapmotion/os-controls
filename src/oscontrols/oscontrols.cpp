@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 }
 
 OsControl::OsControl(void) :
-  m_contextSettings(0, 0, 4),
+  m_contextSettings(0, 0, 16),
   m_mw(sf::VideoMode((int)m_virtualScreen->PrimaryScreen().Width(),
                      (int)m_virtualScreen->PrimaryScreen().Height()),
                      "Leap Os Control", sf::Style::None,
