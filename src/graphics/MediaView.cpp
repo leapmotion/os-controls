@@ -80,17 +80,6 @@ void MediaView::AutoFilter(OSCState state, const HandLocation& handLocation, con
   float volumeNudgeAmount = 0.012f;
 
 
-  if(m_lastRoll == std::numeric_limits<float>::min() || std::abs(roll - m_lastRoll) > 0.5f) {
-    m_lastRoll = roll;
-    return;
-  }
-
-  std::cout << "Roll: " << roll << std::endl;
-  std::cout << "dRoll: " << roll - m_lastRoll << std::endl;
-
-  volumeNudgeAmount = (roll - m_lastRoll) / M_PI;
-
-
 
   // Only try to nudge the volume if we're not presently interacting with any wedges
   if(m_state != State::AlteringWedges) {
@@ -146,7 +135,6 @@ void MediaView::updateWedges(const Vector2& userPosition) {
   RenderEngineNode::Transform transform = ComputeTransformToGlobalCoordinates();
   const auto positionRaw = transform.translation();
   const Vector2 position(positionRaw.x(), positionRaw.y());
-  Vector2 userPosition;
   int selectedWedgeIndex = -1;
 
   // Figure out where the user's input is relative to the center of the menu

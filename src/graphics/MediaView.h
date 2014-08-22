@@ -47,7 +47,7 @@ public:
 private:
   void setMenuOpacity(float opacity);
 
-  void updateWedges(void);
+  void updateWedges(const Vector2& userPosition);
 
   /// <summary>
   /// Inputs _to the media view state machine_, NOT the AutoFilter routine.
