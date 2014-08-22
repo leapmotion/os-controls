@@ -2,6 +2,13 @@
 #include "stdafx.h"
 #include "Screen.h"
 
+#include <AppKit/NSScreen.h>
+#include <AppKit/NSGraphicsContext.h>
+#include <AppKit/NSImage.h>
+#include <AppKit/NSWorkspace.h>
+#include <Foundation/NSKeyValueCoding.h>
+#include <Foundation/NSValue.h>
+
 namespace leap {
 
 void Screen::Update()
@@ -13,28 +20,40 @@ void Screen::Update()
 void Screen::GetBackgroundImage() const
 {
   @autoreleasepool {
-#if 0
-    int scaledWindowWidth = static_cast<int>(Globals::windowWidth*SCALE_FACTOR);
-    int scaledWindowHeight = static_cast<int>(Globals::windowHeight*SCALE_FACTOR);
+    NSScreen* screen = nil;
+    for (NSScreen* item in [NSScreen screens]) {
+      NSNumber* number = [[item deviceDescription] valueForKey:@"NSScreenNumber"];
+      if (m_screenID == [number unsignedIntValue]) {
+        screen = item;
+        break;
+      }
+    }
+    if (!screen) {
+      return;
+    }
+    const size_t width = static_cast<size_t>(Width());
+    const size_t height = static_cast<size_t>(Height());
+    const size_t bytesPerRow = width*4;
+    const size_t totalBytes = bytesPerRow*height;
 
-    ci::Surface8u surface = ci::Surface8u(scaledWindowWidth, scaledWindowHeight, true, ci::SurfaceChannelOrder::RGBA);
-    surface.setPremultiplied(true);
-    unsigned char* dstBytes = surface.getData();
-    ::memset(dstBytes, 0, scaledWindowWidth*scaledWindowHeight*4);
+    uint8_t* dstBytes = new uint8_t[totalBytes];
+    if (!dstBytes) {
+      return;
+    }
+    ::memset(dstBytes, 0, totalBytes);
 
-    NSScreen* screen = getDisplay()->getNsScreen();
     NSImage* nsImage = [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
     if (nsImage) {
       CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
       CGContextRef cgContextRef =
-        CGBitmapContextCreate(dstBytes, scaledWindowWidth, scaledWindowHeight, 8, 4*scaledWindowWidth, rgb, kCGImageAlphaPremultipliedLast);
+        CGBitmapContextCreate(dstBytes, width, height, 8, bytesPerRow, rgb, kCGImageAlphaPremultipliedLast);
       NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort:cgContextRef flipped:NO];
       [NSGraphicsContext saveGraphicsState];
       [NSGraphicsContext setCurrentContext:gc];
 
       const NSSize imageSize = [nsImage size];
-      const CGFloat scaleX = scaledWindowWidth/imageSize.width;
-      const CGFloat scaleY = scaledWindowHeight/imageSize.height;
+      const CGFloat scaleX = width/imageSize.width;
+      const CGFloat scaleY = height/imageSize.height;
       const CGFloat scale = (scaleX >= scaleY) ? scaleX : scaleY;
       const NSSize scaledImageSize = NSMakeSize(imageSize.width * scale, imageSize.height * scale);
       const CGFloat xoffset = (imageSize.width*scaleX - scaledImageSize.width)/2.0;
@@ -46,7 +65,7 @@ void Screen::GetBackgroundImage() const
       CGContextRelease(cgContextRef);
       CGColorSpaceRelease(rgb);
     }
-#endif
+    delete [] dstBytes;
   }
 }
 
