@@ -1,5 +1,5 @@
 #pragma once
-#include "utility/VirtualScreen.h"
+#include "osinterface/VirtualScreen.h"
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>

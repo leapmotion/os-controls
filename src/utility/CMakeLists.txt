@@ -1,17 +1,10 @@
 set(utility_SOURCES
-  utility.h
-  utility.cpp
   Config.h
   Config.cpp
   ExtendedStateMachine.h
   Geometry.h
   NativeWindow.h
   PlatformInitializer.h
-  Screen.h
-  Screen.cpp
-  ScreenBase.h
-  VirtualScreen.h
-  VirtualScreen.cpp
 )
 
 add_windows_sources(utility_SOURCES 

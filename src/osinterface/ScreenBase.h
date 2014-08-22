@@ -1,7 +1,7 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #pragma once
 
-#include "Geometry.h"
+#include "utility/Geometry.h"
 
 namespace leap {
 

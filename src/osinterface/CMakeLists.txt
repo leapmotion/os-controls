@@ -7,6 +7,11 @@ set(osinterface_SOURCES
   MediaInterface.cpp
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
+  Screen.h
+  Screen.cpp
+  ScreenBase.h
+  VirtualScreen.h
+  VirtualScreen.cpp
   WindowingSystem.h
   WindowingSystem.cpp
   WindowSpaces.h
