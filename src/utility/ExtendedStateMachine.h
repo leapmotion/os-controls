@@ -64,9 +64,9 @@ public:
       lambda();
   }
 
-  /// <summary>
-  /// Adds an action to be undertaken when a particular state is active
-  /// </summary>
+  /// <returns>
+  /// The list of lambdas that will be executed, in order, when a state is entered
+  /// </returns>
   LambdaList& operator[](S state) {
     return m_functions[state];
   }

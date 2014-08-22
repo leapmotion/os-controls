@@ -8,7 +8,6 @@ StateMachine::StateMachine(void):
 
 StateMachine::~StateMachine(void)
 {
-  
 }
 
 // Transition Checking Loop
