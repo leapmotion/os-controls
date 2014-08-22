@@ -1,5 +1,6 @@
 set(uievents_SOURCES
   MediaViewEventListener.h
+  MediaViewEventListener.cpp
   SystemMultimediaEventListener.h
   Updatable.h
 )
