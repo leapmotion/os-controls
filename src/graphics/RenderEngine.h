@@ -37,7 +37,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
 
-  Autowired<RenderEngineNode> m_rootNode;
+  AutoRequired<RenderEngineNode> m_rootNode;
 
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;

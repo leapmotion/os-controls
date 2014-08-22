@@ -53,7 +53,9 @@ private:
   
   //Send direction about max opacity and goal opacity to the individual wedges.
   void setMenuOpacity(float opacity);
-  
+
+  /// <summary>
+  /// Inputs _to the media view state machine_, NOT the AutoFilter routine.
   /// <summary>
   /// Decides which wedge is closest to the given point
   /// </summary>

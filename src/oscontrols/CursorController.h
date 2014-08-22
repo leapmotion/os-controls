@@ -21,5 +21,5 @@ private:
   Leap::Hand m_controllingHand;
   
   std::shared_ptr<Cursor> m_cursor;
-  AutoRequired<RenderEngineNode> m_rootNode;
+  Autowired<RenderEngineNode> m_rootNode;
 };
