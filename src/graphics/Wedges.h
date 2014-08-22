@@ -6,8 +6,10 @@
 class Wedge :
   public RadialButton
 {
-  using RadialButton::RadialButton;
+  //using RadialButton::RadialButton;
 public:
+  Wedge(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset, bool isNullWedge = false) :
+  RadialButton(innerRadius, width, startAngle, endAngle, offset, isNullWedge) {};
   virtual void OnSelected() {};
 protected:
   // Events fired by this Wedge
@@ -17,8 +19,10 @@ protected:
 class PlayPauseWedge :
   public Wedge
 {
-  using Wedge::Wedge;
+  //using RadialButton::RadialButton;
 public:
+  PlayPauseWedge(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset, bool isNullWedge = false) :
+  Wedge(innerRadius, width, startAngle, endAngle, offset, isNullWedge) {};
   void OnSelected() override {
     m_mediaViewEventListener(&MediaViewEventListener::OnUserPlayPause);
   }
@@ -27,8 +31,11 @@ public:
 class PrevWedge :
 public Wedge
 {
-  using Wedge::Wedge;
+  //using RadialButton::RadialButton;
 public:
+  PrevWedge(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset, bool isNullWedge = false) :
+  Wedge(innerRadius, width, startAngle, endAngle, offset, isNullWedge) {};
+  
   void OnSelected() override {
     m_mediaViewEventListener(&MediaViewEventListener::OnUserNextTrack);
   }
@@ -37,8 +44,11 @@ public:
 class NextWedge :
 public Wedge
 {
-  using Wedge::Wedge;
+  //using RadialButton::RadialButton;
 public:
+  NextWedge(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset, bool isNullWedge = false) :
+  Wedge(innerRadius, width, startAngle, endAngle, offset, isNullWedge) {};
+  
   void OnSelected() override {
     m_mediaViewEventListener(&MediaViewEventListener::OnUserPrevTrack);
   }
