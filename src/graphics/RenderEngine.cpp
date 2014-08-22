@@ -24,13 +24,7 @@ RenderEngine::RenderEngine()
   const Vector3f lightPos(0, 10, 10);
   m_shader->SetUniformf("lightPosition", lightPos);
 
-  m_renderState.SetPositionAttribute(m_shader->LocationOfAttribute("position"));
-  m_renderState.SetNormalAttribute(m_shader->LocationOfAttribute("normal"));
-  m_renderState.SetModelViewMatrixUniform(m_shader->LocationOfUniform("modelView"));
-  m_renderState.SetProjectionMatrixUniform(m_shader->LocationOfUniform("projection"));
-  m_renderState.SetNormalMatrixUniform(m_shader->LocationOfUniform("normalMatrix"));
-  m_renderState.SetDiffuseColorUniform(m_shader->LocationOfUniform("diffuseColor"));
-  m_renderState.SetAmbientFactorUniform(m_shader->LocationOfUniform("ambientFactor"));
+  m_renderState.SetShader(m_shader);
 }
 
 RenderEngine::~RenderEngine()
