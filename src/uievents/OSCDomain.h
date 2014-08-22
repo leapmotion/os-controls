@@ -4,7 +4,7 @@
 /// The set of possible states that the OS controls state machine can reside in
 /// </summary>
 enum class OSCState {
-  // The ground state
+  // The ground state, no controls visible, do nothing special
   Base,
 
   //The state where the media Raidal Menu menu has focus

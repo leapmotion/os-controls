@@ -5,6 +5,7 @@
 #include "graphics/MostRecent.h"
 #include "interaction/HandExistTrigger.h"
 #include "uievents/AbstractVolumeControl.h"
+#include "uievents/HandProperties.h"
 #include "uievents/MediaViewEventListener.h"
 #include "SceneGraphNode.h"
 #include "Leap.h"
@@ -46,18 +47,45 @@ public:
 private:
   void setMenuOpacity(float opacity);
 
+  void updateWedges(void);
+
+  /// <summary>
+  /// Inputs _to the media view state machine_, NOT the AutoFilter routine.
+  /// <summary>
+  /// <remarks>
+  /// These are facts about the inputs received by the AutoFilter routine.
+  /// </remarks>
+  enum class InputAlphabet {
+    // The user has made a selection of the NEXT menu
+    SelectedNext
+  };
+
   enum class State {
-    Zero,
+    // Means that this media view is not visible right now
+    Invisible,
+
+    // Nothing interesting is happening.  We "count" as being visible but the user is
+    // not currently interacting.  Even if we're presently fading out, this will continue
+    // to be our current state until we are actually faded out completely.
+    Visible,
+
+    // The user is messing with one of the wedges
     AlteringWedges
   };
   State m_state;
 
-  AutoFired<MediaViewEventListener> m_mve;
-  Animated<float> m_opacity;
-  
-  float m_interactionDistance;
-  std::shared_ptr<RadialButton> m_activeWedge;
+  // Last hand roll amount, used to guard against wander
+  float m_lastRoll;
 
+  // Events fired by this MediaView
+  AutoFired<MediaViewEventListener> m_mve;
+
+  // MediaView properties:
+  Animated<float> m_opacity;
+  float m_interactionDistance;
+
+
+  std::shared_ptr<RadialButton> m_activeWedge;
   std::vector<std::shared_ptr<RadialButton>> m_wedges; //0 - Top, 1 - Right, 2 - Down, 3 - Left
   std::shared_ptr<VolumeControl> m_volumeControl;
 };

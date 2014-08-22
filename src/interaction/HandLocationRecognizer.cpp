@@ -22,5 +22,6 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
   }
   
   screenLocation.y() *= -1;
-  handLocation.screenCoordinates = screenLocation;
+  handLocation.x = screenLocation.x();
+  handLocation.y = screenLocation.y();
 }

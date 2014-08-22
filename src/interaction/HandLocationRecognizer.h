@@ -1,14 +1,11 @@
 #pragma once
 #include "Leap.h"
 #include "HandPoseRecognizer.h"
+#include "uievents/HandProperties.h"
 #include <autowiring/Autowired.h>
 #include <map>
 
 class CoordinateUtility;
-
-struct HandLocation {
-  Vector2 screenCoordinates;
-};
 
 class HandLocationRecognizer {
 public:
