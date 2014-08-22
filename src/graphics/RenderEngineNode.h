@@ -34,6 +34,4 @@ public:
   virtual void Update(double deltaT) override {};
   virtual void AnimationUpdate(const RenderFrame& frame) override {};
   virtual void Render(const RenderFrame& frame) const override {};
-
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
