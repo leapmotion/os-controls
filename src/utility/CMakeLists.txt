@@ -14,13 +14,10 @@ add_windows_sources(utility_SOURCES
 )
 
 add_mac_sources(utility_SOURCES
-  NativeWindowMac.cpp
+  NativeWindowMac.mm
   PlatformInitializerMac.h
-  PlatformInitializerMac.cpp
+  PlatformInitializerMac.mm
 )
-if(APPLE)
-  set_property(SOURCE NativeWindowMac.cpp PlatformInitializerMac.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
-endif()
 
 add_library(utility ${utility_SOURCES})
 target_link_libraries(utility Autowiring)
