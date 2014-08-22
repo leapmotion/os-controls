@@ -3,6 +3,7 @@
 #include "RenderFrame.h"
 #include "RenderState.h"
 #include "limits.h"
+#include "uievents/osControlConfigs.h"
 #include "uievents/OSCDomain.h"
 #include <iostream>
 
@@ -141,55 +142,46 @@ void MediaView::Move(const Vector3& coords) {
   Translation() = coords;
 }
 
-void MediaView::updateWedges(const CursorMap& handScreenLocations) {
-  RenderEngineNode::Transform transform = m_mediaView->ComputeTransformToGlobalCoordinates();
+void MediaView::updateWedges(const Vector2& userPosition) {
+  RenderEngineNode::Transform transform = ComputeTransformToGlobalCoordinates();
   const auto positionRaw = transform.translation();
   const Vector2 position(positionRaw.x(), positionRaw.y());
   Vector2 userPosition;
   int selectedWedgeIndex = -1;
 
   // Figure out where the user's input is relative to the center of the menu
-  try {
-    userPosition = handScreenLocations.at(m_controllingHand.id());
-  }
-  catch(std::out_of_range e) {
-    throw std::runtime_error("no coords for controlling hand.");
-    return;
-  }
-
   float distance = static_cast<float>((position - userPosition).norm());
 
-  selectedWedgeIndex = m_mediaView->setActiveWedgeFromPoint(userPosition);
+  selectedWedgeIndex = setActiveWedgeFromPoint(userPosition);
 
   //Logic to perform depending on where the user's input is relative to the menu in terms of distance and screen position
-  if(distance >= configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS) { // Dragging a wedge out
-    m_mediaView->SetInteractionDistance(distance - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS);
+  if(distance < configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS)
+    // Distance too short to do anything, return here
+    return;
 
-    if(distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS) { // Making a selection
-      m_isInteractionComplete = true;
+  // Dragging a wedge out
+  SetInteractionDistance(distance - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS);
 
-      //TODO: Hook up wedge event actions maybe with a switch statement
-      switch(selectedWedgeIndex) {
-      case 0:
-        std::cout << "activate top" << std::endl;
-        m_mve(&MediaViewEventListener::OnUserPlayPause)
-        break;
-      case 1:
-        std::cout << "activate right" << std::endl;
-        m_mve(&MediaViewEventListener::OnUserNextTrack);
-        break;
-      case 3:
-        std::cout << "activate left" << std::endl;
-        m_mve(&MediaViewEventListener::OnUserPrevTrack);
-        break;
-      default:
-        break;
-      }
+  if(distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS) { // Making a selection
 
-      // OK, we've engaged an operation, we 
+    //TODO: Hook up wedge event actions maybe with a switch statement
+    switch(selectedWedgeIndex) {
+    case 0:
+      std::cout << "activate top" << std::endl;
+      m_mve(&MediaViewEventListener::OnUserPlayPause);
+      break;
+    case 1:
+      std::cout << "activate right" << std::endl;
+      m_mve(&MediaViewEventListener::OnUserNextTrack);
+      break;
+    case 3:
+      std::cout << "activate left" << std::endl;
+      m_mve(&MediaViewEventListener::OnUserPrevTrack);
+      break;
+    default:
+      break;
     }
-  }
-  else { // within the deadzone
-    m_mediaView->DeselectWedges();
+
+    // OK, we've engaged an operation, we 
   }
 }
