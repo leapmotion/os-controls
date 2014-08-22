@@ -1,9 +1,6 @@
 set(oscontrols_SOURCES
-  osControlConfigs.h
   CursorController.h
   CursorController.cpp
-  MediaMenuController.h
-  MediaMenuController.cpp
   oscontrols.h
   oscontrols.cpp
 )
@@ -41,6 +38,9 @@ foreach(_resource ${oscontrols_RESOURCES})
   if(WIN32)
     add_custom_command(TARGET oscontrols POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:oscontrols>\"
+    )
+    add_custom_command(TARGET oscontrols POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" "${CMAKE_CURRENT_BINARY_DIR}"
     )
   elseif(APPLE)
     get_target_property(_is_bundle oscontrols MACOSX_BUNDLE)

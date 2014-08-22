@@ -5,6 +5,8 @@ set(osinterface_SOURCES
   LeapInput.cpp
   MediaInterface.h
   MediaInterface.cpp
+  VolumeLevelChecker.h
+  VolumeLevelChecker.cpp
   WindowingSystem.h
   WindowingSystem.cpp
   WindowSpaces.h

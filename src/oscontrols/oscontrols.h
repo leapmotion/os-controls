@@ -1,7 +1,5 @@
 #pragma once
 #include "utility/VirtualScreen.h"
-#include "MediaMenuController.h"
-#include "CursorController.h"
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -14,6 +12,7 @@ struct OsControlRender {
 };
 
 class AudioVolumeInterface;
+class FrameFragmenter;
 class LeapInput;
 class MediaInterface;
 class RenderEngine;
@@ -44,6 +43,9 @@ private:
   //This might need to be changed to be a manifest?
   Autowired<leap::VirtualScreen> m_virtualScreen;
   
+  // Frame fragmenter, for creating the various menu contexts
+  AutoRequired<FrameFragmenter> m_fragmenter;
+
   // Must be before m_mw;
   AutoRequired<RenderEngine> m_render;
   
@@ -56,9 +58,6 @@ private:
   AutoDesired<AudioVolumeInterface> m_avcontrol;
   AutoRequired<MediaInterface> m_media;
   AutoRequired<LeapInput> m_leapInput;
-
-  AutoRequired<MediaMenuController> m_mediaMenuController;
-  AutoRequired<CursorController> m_cursorController;
 
   // Requirements for this to be a CoreRunnable:
   bool m_bShouldStop;

@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderEngineNode.h"
+#include "uievents/Updatable.h"
 
 //Components
 #include "RenderState.h"
@@ -18,7 +19,8 @@ class GLShader;
 //hierarchy and remove the need for dynamic casts by either making SceneGraphNode
 //Renderable and Updatable, or by making PrimitiveBase a RenderEngineNode.
 class RenderEngine :
-  public sf::GlResource
+  public sf::GlResource,
+  public Updatable
 {
 public:
   RenderEngine();
@@ -30,14 +32,12 @@ public:
   }
 
   void Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT);
-
-  //This should probably not be controlled by the RenderEngine
-  void Update(const std::chrono::duration<double> deltaT);
+  void Update(std::chrono::duration<double> deltaT) override;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
 
-  Autowired<RenderEngineNode> m_rootNode;
+  AutoRequired<RenderEngineNode> m_rootNode;
 
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;

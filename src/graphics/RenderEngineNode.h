@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Renderable.h"
-#include "Updatable.h"
 #include "SceneGraphNode.h"
+#include "uievents/Updatable.h"
 
 class RenderEngineNode :
   public SceneGraphNode<double, 3>,
@@ -31,9 +31,7 @@ public:
   //owns it, which is impossible in a constructor.
   virtual void InitChildren() {};
 
-  virtual void Update(double deltaT) override {};
+  virtual void Update(std::chrono::duration<double> deltaT) override {};
   virtual void AnimationUpdate(const RenderFrame& frame) override {};
   virtual void Render(const RenderFrame& frame) const override {};
-
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

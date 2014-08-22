@@ -35,7 +35,7 @@ void RenderEngine::Update(const std::chrono::duration<double> deltaT) {
   m_rootNode->DepthFirstTraverse([deltaT](RenderEngineNode::BaseSceneNode_t& node) {
     Updatable *updatable = dynamic_cast<Updatable*>(&node);
     if (updatable)
-      updatable->Update(deltaT.count());
+      updatable->Update(deltaT);
   }, nullptr);
 }
 

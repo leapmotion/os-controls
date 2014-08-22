@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "MediaView.h"
+#include "RenderFrame.h"
 #include "RenderState.h"
 #include "limits.h"
-
+#include "uievents/osControlConfigs.h"
+#include "uievents/OSCDomain.h"
 #include <iostream>
 
 const static float PI = 3.14159265f;
@@ -61,6 +63,33 @@ void MediaView::NudgeVolume(float dVolume) {
   m_volumeControl->NudgeVolume(dVolume);
 }
 
+void MediaView::AutoFilter(OSCState state, const HandLocation& handLocation, const HandPose& handPose) {
+  if(state != OSCState::MediaMenuVisible) {
+    // TODO:  If we're visible, we'd better be in the process of hiding ourselves.  Hopefully there is
+    // a single call that we can just make every time we receive control which will move us to the
+    // invisible state.
+    return;
+  }
+
+  // Update our position based on wherever the heck the hand is right now
+  Move(Vector3(handLocation.x, handLocation.y, 0));
+
+  // At this point, you need to figure out what to do with your input.  You might need to decide
+  // which sliders need to be engaged, you might need to decide whether you are going to transition
+  // states, or even possibly that an event has to be fired here.
+  float volumeNudgeAmount = 0.012f;
+
+
+
+  // Only try to nudge the volume if we're not presently interacting with any wedges
+  if(m_state != State::AlteringWedges) {
+    if(volumeNudgeAmount > 0.0001f) {
+      NudgeVolume(volumeNudgeAmount);
+      m_mve(&MediaViewEventListener::OnUserChangedVolume)(volumeNudgeAmount);
+    }
+  }
+}
+
 void MediaView::setMenuOpacity(float opacity) {
   m_wedges[0]->SetMaxOpacity(opacity);
   m_wedges[1]->SetMaxOpacity(opacity);
@@ -100,4 +129,47 @@ void MediaView::CloseMenu(double selectionCloseDelayTime) {
 
 void MediaView::Move(const Vector3& coords) {
   Translation() = coords;
+}
+
+void MediaView::updateWedges(const Vector2& userPosition) {
+  RenderEngineNode::Transform transform = ComputeTransformToGlobalCoordinates();
+  const auto positionRaw = transform.translation();
+  const Vector2 position(positionRaw.x(), positionRaw.y());
+  int selectedWedgeIndex = -1;
+
+  // Figure out where the user's input is relative to the center of the menu
+  float distance = static_cast<float>((position - userPosition).norm());
+
+  selectedWedgeIndex = setActiveWedgeFromPoint(userPosition);
+
+  //Logic to perform depending on where the user's input is relative to the menu in terms of distance and screen position
+  if(distance < configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS)
+    // Distance too short to do anything, return here
+    return;
+
+  // Dragging a wedge out
+  SetInteractionDistance(distance - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS);
+
+  if(distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS) { // Making a selection
+
+    //TODO: Hook up wedge event actions maybe with a switch statement
+    switch(selectedWedgeIndex) {
+    case 0:
+      std::cout << "activate top" << std::endl;
+      m_mve(&MediaViewEventListener::OnUserPlayPause);
+      break;
+    case 1:
+      std::cout << "activate right" << std::endl;
+      m_mve(&MediaViewEventListener::OnUserNextTrack);
+      break;
+    case 3:
+      std::cout << "activate left" << std::endl;
+      m_mve(&MediaViewEventListener::OnUserPrevTrack);
+      break;
+    default:
+      break;
+    }
+
+    // OK, we've engaged an operation, we 
+  }
 }

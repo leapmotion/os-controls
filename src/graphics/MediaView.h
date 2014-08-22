@@ -4,15 +4,23 @@
 #include "graphics/VolumeControl.h"
 #include "graphics/MostRecent.h"
 #include "interaction/HandExistTrigger.h"
+#include "uievents/AbstractVolumeControl.h"
+#include "uievents/HandProperties.h"
+#include "uievents/MediaViewEventListener.h"
 #include "SceneGraphNode.h"
 #include "Leap.h"
 
 #include "Primitives.h"
 #include "Animation.h"
 
+enum class HandPose;
+enum class OSCState;
+struct HandLocation;
 
 class MediaView :
-public RenderEngineNode {
+  public AbstractVolumeControl,
+  public RenderEngineNode
+{
 public:
   MediaView(const Vector3& center, float offset);
   
@@ -28,19 +36,56 @@ public:
   void FadeIn(){ SetGoalOpacity(config::MEDIA_BASE_OPACITY); }
   void FadeOut() { SetGoalOpacity(0.0f); }
 
-  float Volume();
-  void SetVolume(float volume);
-  void NudgeVolume(float dVolume);
+  float Volume() override;
+  void SetVolume(float volume) override;
+  void NudgeVolume(float dVolume) override;
   
+  void AutoFilter(OSCState state, const HandLocation& handLocation, const HandPose& handPose);
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 private:
   void setMenuOpacity(float opacity);
 
-  Animated<float> m_opacity;
-  
-  float m_interactionDistance;
-  std::shared_ptr<RadialButton> m_activeWedge;
+  void updateWedges(const Vector2& userPosition);
 
+  /// <summary>
+  /// Inputs _to the media view state machine_, NOT the AutoFilter routine.
+  /// <summary>
+  /// <remarks>
+  /// These are facts about the inputs received by the AutoFilter routine.
+  /// </remarks>
+  enum class InputAlphabet {
+    // The user has made a selection of the NEXT menu
+    SelectedNext
+  };
+
+  enum class State {
+    // Means that this media view is not visible right now
+    Invisible,
+
+    // Nothing interesting is happening.  We "count" as being visible but the user is
+    // not currently interacting.  Even if we're presently fading out, this will continue
+    // to be our current state until we are actually faded out completely.
+    Visible,
+
+    // The user is messing with one of the wedges
+    AlteringWedges
+  };
+  State m_state;
+
+  // Last hand roll amount, used to guard against wander
+  float m_lastRoll;
+
+  // Events fired by this MediaView
+  AutoFired<MediaViewEventListener> m_mve;
+
+  // MediaView properties:
+  Animated<float> m_opacity;
+  float m_interactionDistance;
+
+
+  std::shared_ptr<RadialButton> m_activeWedge;
   std::vector<std::shared_ptr<RadialButton>> m_wedges; //0 - Top, 1 - Right, 2 - Down, 3 - Left
   std::shared_ptr<VolumeControl> m_volumeControl;
 };

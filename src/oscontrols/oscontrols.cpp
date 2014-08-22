@@ -1,12 +1,13 @@
 #include "stdafx.h"
-
+#include "oscontrols.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
-#include "interaction/GestureTriggerManifest.h"
-#include "oscontrols.h"
+#include "interaction/FrameFragmenter.h"
 #include "osinterface/AudioVolumeInterface.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MediaInterface.h"
+#include "osinterface/VolumeLevelChecker.h"
+#include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
 #include "utility/VirtualScreen.h"
@@ -25,7 +26,7 @@ int main(int argc, char **argv)
     osCtxt->Initiate();
     control->Main();
   }
-  catch (std::exception e) {
+  catch (std::exception& e) {
     std::cout << e.what() << std::endl;
   }
 
@@ -43,6 +44,7 @@ OsControl::OsControl(void) :
   m_bRunning(false),
   m_desktopChanged{1} // Also perform an adjust in the main loop
 {
+  AutoRequired<VolumeLevelChecker>();
   AdjustDesktopWindow();
 }
 
@@ -69,8 +71,6 @@ void OsControl::AdjustDesktopWindow(void) {
 }
 
 void OsControl::Main(void) {
-  GestureTriggerManifest manifest;
-
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);
     m_outstanding.reset();
@@ -100,9 +100,9 @@ void OsControl::Main(void) {
     std::chrono::duration<double> timeDelta = now - then;
     then = now;
 
+    // Broadcast update event:
     m_render->Update(timeDelta);
     m_render->Render(m_mw, timeDelta);
-   
   }
 }
 
