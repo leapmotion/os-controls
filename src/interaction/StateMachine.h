@@ -69,6 +69,7 @@ public:
   void Update(double deltaT) override;
 
 private:
+  
   // Our current state
   OSCState m_state;
 
