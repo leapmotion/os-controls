@@ -5,23 +5,20 @@
 /// </summary>
 enum class OSCState {
   // The ground state, no controls visible, do nothing special
-  Base,
+  BASE,
 
   //The state where the media Raidal Menu menu has focus
-  MediaMenuVisible,
+  MEDIA_MENU_FOCUSED,
 
   //The state where the desktop switcher / expose accessor radial menu has focus
-  DesktopSwitcherVisible,
-
+  DESKTOP_SWITCHER_FOCUSED,
+  
   //The state where the expose full screen interaction view is visible
-  ExposeVisible,
-
-  //After a selection has been made, but before a menu should be reset
-  SelectionHold,
+  EXPOSE_FOCUSED,
 
   // The final state, transitioning here indicates that the AutoFilter routine has received a
   // null Leap::Hand and that this control will not receive further inputs.
-  Final
+  FINAL
 };
 
 /// <summary>

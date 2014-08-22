@@ -33,6 +33,6 @@ void MediaViewController::OnUserChangedVolume(float value) {
 
 void MediaViewController::OnVolumeChanged(float oldVolume, float newVolume) {
   if(m_mediaView) {
-    m_mediaView->SetVolume(newVolume);
+    m_mediaView->SetVolumeView(newVolume);
   }
 }

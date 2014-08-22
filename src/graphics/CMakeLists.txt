@@ -14,7 +14,7 @@ set(graphics_SOURCES
   RenderFrame.h
   VolumeControl.h
   VolumeControl.cpp
-  MostRecent.h
+  Wedges.h
   GraphicsConfigs.h
 )
 
