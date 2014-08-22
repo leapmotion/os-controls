@@ -49,16 +49,17 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
     glGetProgramiv(m_prog, GL_ACTIVE_UNIFORM_MAX_LENGTH, &active_uniform_max_length);
     // std::cout << "active uniform max length = " << active_uniform_max_length << '\n';
     
-    for (GLint index = 0; index < active_uniforms; ++index) {
+    for (GLuint index = 0; index < active_uniforms; ++index) {
       std::string name(active_uniform_max_length, ' ');
       GLsizei length;
       GLint size;
       GLenum type;
       glGetActiveUniform(m_prog, index, active_uniform_max_length, &length, &size, &type, &name[0]);
       name.resize(length);
-      // std::cout << "uniform " << index << " -- name \"" << name << "\", size = " << size << ", type = " << std::hex << type << std::dec << '\n';
+      GLint location = glGetUniformLocation(m_prog, name.c_str());
+      // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       // TODO: use emplace here, then get rid of default constructor for VarInfo
-      m_uniform_info_map[name] = VarInfo(name, index, size, type);
+      m_uniform_info_map[name] = VarInfo(name, location, size, type);
     }
   }
 
@@ -72,16 +73,17 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
     glGetProgramiv(m_prog, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &active_attrib_max_length);
     // std::cout << "active attrib max length = " << active_attrib_max_length << '\n';
     
-    for (GLint index = 0; index < active_attribs; ++index) {
+    for (GLuint index = 0; index < active_attribs; ++index) {
       std::string name(active_attrib_max_length, ' ');
       GLsizei length;
       GLint size;
       GLenum type;
       glGetActiveAttrib(m_prog, index, active_attrib_max_length, &length, &size, &type, &name[0]);
       name.resize(length);
-      // std::cout << "attrib " << index << " -- name \"" << name << "\", size = " << size << ", type = " << std::hex << type << std::dec << '\n';
+      GLint location = glGetAttribLocation(m_prog, name.c_str());
+      // std::cout << "attrib " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       // TODO: use emplace here, then get rid of default constructor for VarInfo
-      m_attribute_info_map[name] = VarInfo(name, index, size, type);
+      m_attribute_info_map[name] = VarInfo(name, location, size, type);
     }
   }
 }
