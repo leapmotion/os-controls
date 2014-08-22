@@ -2,18 +2,16 @@
 #include "GestureTriggerManifest.h"
 
 #include "HandExistTrigger.h"
-#include "HandCoordinatesDecorator.h"
-#include "HandRollDecorator.h"
+#include "HandLocationRecognizer.h"
 #include "CircleGestureTrigger.h"
-#include "HandPointingDecorator.h"
+#include "HandPoseRecognizer.h"
 
 GestureTriggerManifest::GestureTriggerManifest()
 {
   //List all gesture triggers here so that they will be created in the correct context
 
   AutoRequired<HandExistTrigger>();
-  AutoRequired<HandCoordinatesDecorator>();
+  AutoRequired<HandLocationRecognizer>();
   AutoRequired<CircleGestureTrigger>();
-  AutoRequired<HandPointingDecorator>();
-  AutoRequired<HandRollDecorator>();
+  AutoRequired<HandPoseRecognizer>();
 }

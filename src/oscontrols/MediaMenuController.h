@@ -1,9 +1,8 @@
 #pragma once
 
 #include "interaction/HandExistTrigger.h"
-#include "interaction/HandRollDecorator.h"
 #include "interaction/CircleGestureTrigger.h"
-#include "interaction/HandCoordinatesDecorator.h"
+#include "interaction/HandLocationRecognizer.h"
 #include "graphics/MediaView.h"
 #include "graphics/RenderEngine.h"
 #include "SceneGraphNode.h"

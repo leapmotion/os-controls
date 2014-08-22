@@ -9,12 +9,10 @@ set(interaction_SOURCES
   CoordinateUtility.h
   FrameFragmenter.h
   FrameFragmenter.cpp
-  HandCoordinatesDecorator.cpp
-  HandCoordinatesDecorator.h
-  HandPointingDecorator.cpp
-  HandPointingDecorator.h
-  HandRollDecorator.cpp
-  HandRollDecorator.h
+  HandLocationRecognizer.cpp
+  HandLocationRecognizer.h
+  HandPoseRecognizer.cpp
+  HandPoseRecognizer.h
   InteractionConfigs.h
   MediaViewController.h
   MediaViewController.cpp

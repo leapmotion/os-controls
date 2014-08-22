@@ -6,10 +6,10 @@
 //
 //
 #include "InteractionConfigs.h"
-#include "HandPointingDecorator.h"
+#include "HandPoseRecognizer.h"
 
-void HandPointingDecorator::AutoFilter(const Leap::Hand& hand, HandPoses& handPose) {
-  const static std::map<int, int> handCodes = {{0, 0}, {8, 1}, {24, 1}, {12, 2}, {28, 3}, {14, 3}, {30, 4}, {15, 4}, {31, 5}};
+
+void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) {
   
   if ( !hand.isValid() ) {
     return;
@@ -24,6 +24,7 @@ void HandPointingDecorator::AutoFilter(const Leap::Hand& hand, HandPoses& handPo
     Vector3 fingerDirection = finger.direction().toVector3<Vector3>();
     float dot = handDirection.dot(fingerDirection); // How similar is the direciton of the hand and finger.
     
+    //TODO: Fix pinkey finger extended and thumb extended.
     if (finger.type() == Leap::Finger::TYPE_THUMB) {
       if (dot < config::MAX_DOT_FOR_THUMB_POINTING) {
         handCode += (1 << (4-i));
@@ -35,7 +36,32 @@ void HandPointingDecorator::AutoFilter(const Leap::Hand& hand, HandPoses& handPo
       }
     }
 
-    
     i++;
+  }
+  
+  switch (handCode) {
+    case 0:  //00000
+      handPose = HandPose::ZeroFingers;
+      break;
+    case 8:  //01000
+    case 24: //11000
+      handPose = HandPose::OneFinger;
+      break;
+    case 12: //01100
+      handPose = HandPose::TwoFingers;
+      break;
+    case 28: //11100
+    case 14: //01110
+      handPose = HandPose::ThreeFingers;
+      break;
+    case 30: //11110
+    case 15: //01111
+      handPose = HandPose::FourFingers;
+      break;
+    case 31: //11111
+      handPose = HandPose::FiveFingers;
+      break;
+    default:
+      break;
   }
 }
