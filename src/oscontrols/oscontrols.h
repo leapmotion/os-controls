@@ -12,6 +12,7 @@ struct OsControlRender {
 };
 
 class AudioVolumeInterface;
+class FrameFragmenter;
 class LeapInput;
 class MediaInterface;
 class RenderEngine;
@@ -42,6 +43,9 @@ private:
   //This might need to be changed to be a manifest?
   Autowired<leap::VirtualScreen> m_virtualScreen;
   
+  // Frame fragmenter, for creating the various menu contexts
+  AutoRequired<FrameFragmenter> m_fragmenter;
+
   // Must be before m_mw;
   AutoRequired<RenderEngine> m_render;
   

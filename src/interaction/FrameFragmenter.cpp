@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "FrameFragmenter.h"
+#include "GestureTriggerManifest.h"
 #include "StateMachine.h"
 #include "StateMachineContext.h"
 #include <Leap.h>
@@ -14,10 +15,16 @@ FrameFragmenter::~FrameFragmenter(void)
 
 std::shared_ptr<CoreContext> FrameFragmenter::CreateMenuContext(const Leap::Hand& hand) const {
   AutoCreateContextT<StateMachineContext> ctxt;
-  ctxt->Inject<StateMachine>();
+  CurrentContextPusher pshr(ctxt);
+
+  // Stick the things in the context that we need in the context
+  AutoRequired<StateMachine>();
+  GestureTriggerManifest();
+
+  // Done setting it up, initiate it and hand it back
+  ctxt->Initiate();
   return ctxt;
 }
-
 
 void FrameFragmenter::AutoFilter(const Leap::Frame& frame) {
   // Hold on to our contexts, and then feed them back into m_contexts as we encounter them

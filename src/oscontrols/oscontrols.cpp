@@ -2,7 +2,7 @@
 #include "oscontrols.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
-#include "interaction/GestureTriggerManifest.h"
+#include "interaction/FrameFragmenter.h"
 #include "osinterface/AudioVolumeInterface.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MediaInterface.h"
@@ -71,8 +71,6 @@ void OsControl::AdjustDesktopWindow(void) {
 }
 
 void OsControl::Main(void) {
-  GestureTriggerManifest manifest;
-
   auto clearOutstanding = MakeAtExit([this] {
     std::lock_guard<std::mutex> lk(m_lock);
     m_outstanding.reset();
