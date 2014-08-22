@@ -1,5 +1,4 @@
 set(oscontrols_SOURCES
-  osControlConfigs.h
   CursorController.h
   CursorController.cpp
   MediaMenuController.h

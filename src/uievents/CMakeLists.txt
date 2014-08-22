@@ -1,4 +1,9 @@
 set(uievents_SOURCES
+  AbstractVolumeControl.h
+  AudioVolumeInterface.h
+  AudioVolumeInterface.cpp
+  osControlConfigs.h
+  OSCDomain.h
   MediaViewEventListener.h
   MediaViewEventListener.cpp
   SystemMultimediaEventListener.h
