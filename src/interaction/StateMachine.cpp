@@ -11,7 +11,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(Leap::Hand* pHand, const HandLocation& handLocation, const HandPose handPose, OSCState& state) {
+void StateMachine::AutoFilter(Leap::Hand* pHand, const HandPose handPose, OSCState& state) {
   if(!pHand) {
     // Transition to this state unconditionally and short-circuit
     m_state = OSCState::Final;

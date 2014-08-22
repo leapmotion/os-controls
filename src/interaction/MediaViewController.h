@@ -19,7 +19,13 @@ public:
   Autowired<AudioVolumeInterface> m_avi;
   Autowired<AbstractVolumeControl> m_mv;
 
+  //Implementation of MeidaViewEventListener
+  void OnUserPlayPause() override;
+  void OnUserNextTrack() override;
+  void OnUserPrevTrack() override;
   void OnUserChangedVolume(float volume) override;
+  
+  //Implementation of SystemMultimediaEventListener
   void OnVolumeChanged(float oldVolume, float newVolume) override;
 };
 

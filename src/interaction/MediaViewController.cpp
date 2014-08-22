@@ -11,12 +11,19 @@ MediaViewController::~MediaViewController(void)
 {
 }
 
+void MediaViewController::OnUserPlayPause() {
+  if(m_avi) { m_avi->Mex }
+}
+
 void MediaViewController::OnUserChangedVolume(float value) {
-  float vol = m_avi->GetVolume();
-  m_mv->SetVolume(vol);
+  if(m_avi) {
+    m_avi->SetVolume(value);
+  }
 }
 
 void MediaViewController::OnVolumeChanged(float oldVolume, float newVolume) {
-  if(m_avi)
-    m_avi->SetVolume(newVolume);
+  
+  if(m_mv) {
+    m_mv->SetVolume(newVolume);
+  }
 }
