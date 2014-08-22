@@ -55,11 +55,11 @@ float MediaView::Volume() {
   return m_volumeControl->Volume();
 }
 
-void MediaView::SetVolume(float volume) {
+void MediaView::SetVolumeView(float volume) {
   m_volumeControl->SetVolume(volume);
 }
 
-void MediaView::NudgeVolume(float dVolume) {
+void MediaView::NudgeVolumeView(float dVolume) {
   m_volumeControl->NudgeVolume(dVolume);
 }
 
@@ -128,10 +128,6 @@ int MediaView::setActiveWedgeFromPoint(const Vector2& point) {
 
 void MediaView::SetInteractionDistance(float distance) {
   m_interactionDistance = distance;
-}
-
-void MediaView::DeselectWedges() {
-  m_activeWedge = nullptr;
 }
 
 void MediaView::CloseMenu(double selectionCloseDelayTime) {
