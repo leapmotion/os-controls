@@ -2,8 +2,9 @@
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/SystemMultimediaEventListener.h"
 
-class AbstractVolumeControl;
+class MediaView;
 class AudioVolumeInterface;
+class MediaInterface;
 
 /// <summary>
 /// Handles callbacks from the MediaView, and updates the view with information from the system
@@ -16,8 +17,9 @@ public:
   MediaViewController(void);
   ~MediaViewController(void);
 
-  Autowired<AudioVolumeInterface> m_avi;
-  Autowired<AbstractVolumeControl> m_mv;
+  Autowired<AudioVolumeInterface> m_audioVolumeInterface;
+  Autowired<MediaInterface> m_mediaInterface;
+  Autowired<MediaView> m_mediaView;
 
   //Implementation of MeidaViewEventListener
   void OnUserPlayPause() override;
