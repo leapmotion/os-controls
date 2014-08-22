@@ -96,7 +96,7 @@ GLShader::~GLShader () {
 void GLShader::CheckForTypedUniform (const std::string &name, GLenum type, VariableIs check_type) const {
   std::string qualifier;
   switch (check_type) {
-    case VariableIs::OPTIONAL:
+    case VariableIs::OPTIONAL_NO_WARN:
     case VariableIs::OPTIONAL_BUT_WARN:
       qualifier = "optional ";
       break;
@@ -118,7 +118,7 @@ void GLShader::CheckForTypedUniform (const std::string &name, GLenum type, Varia
   } while (false);
   if (!message.empty()) {
     switch (check_type) {
-      case VariableIs::OPTIONAL: break; // Fail silently.
+      case VariableIs::OPTIONAL_NO_WARN: break; // Fail silently.
       case VariableIs::OPTIONAL_BUT_WARN: std::cout << message << '\n'; break; // TODO: come up with a better way to report this.
       case VariableIs::REQUIRED: throw std::runtime_error(message); break;
     }
@@ -129,7 +129,7 @@ void GLShader::CheckForTypedUniform (const std::string &name, GLenum type, Varia
 void GLShader::CheckForTypedAttribute (const std::string &name, GLenum type, VariableIs check_type) const {
   std::string qualifier;
   switch (check_type) {
-    case VariableIs::OPTIONAL:
+    case VariableIs::OPTIONAL_NO_WARN:
     case VariableIs::OPTIONAL_BUT_WARN:
       qualifier = "optional ";
       break;
@@ -151,7 +151,7 @@ void GLShader::CheckForTypedAttribute (const std::string &name, GLenum type, Var
   } while (false);
   if (!message.empty()) {
     switch (check_type) {
-      case VariableIs::OPTIONAL: break; // Fail silently.
+      case VariableIs::OPTIONAL_NO_WARN: break; // Fail silently.
       case VariableIs::OPTIONAL_BUT_WARN: std::cout << message << '\n'; break; // TODO: come up with a better way to report this.
       case VariableIs::REQUIRED: throw std::runtime_error(message); break;
     }
