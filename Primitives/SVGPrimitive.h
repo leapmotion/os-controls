@@ -14,6 +14,8 @@ public:
 
   virtual void Draw(RenderState& renderState) const override;
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 private:
 
   void RecomputeChildren();
