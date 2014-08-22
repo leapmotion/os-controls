@@ -8,42 +8,13 @@ namespace leap {
 // VirtualScreen
 //
 
-VirtualScreen::VirtualScreen()
+VirtualScreen::VirtualScreen() : ContextMember("VirtualScreen")
 {
-#if __APPLE__
-  CGDisplayRegisterReconfigurationCallback(ConfigurationChangeCallback, this);
-#elif _WIN32
-  m_hWnd = ::CreateWindowExW(WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT,
-                             MAKEINTRESOURCEW(VirtualScreenHelperClass::GetAtom()),
-                             L"", WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, nullptr, nullptr, nullptr, this);
-  ::SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
-  ::ShowWindow(m_hWnd, SW_HIDE);
-#endif
-  Update();
 }
 
 VirtualScreen::~VirtualScreen()
 {
-#if __APPLE__
-  CGDisplayRemoveReconfigurationCallback(ConfigurationChangeCallback, this);
-#elif _WIN32
-  if (m_hWnd) {
-    ::DestroyWindow(m_hWnd);
-  }
-#endif
 }
-
-#if __APPLE__
-// Called when the the display configuration changes
-void VirtualScreen::ConfigurationChangeCallback(CGDirectDisplayID display,
-                                                CGDisplayChangeSummaryFlags flags,
-                                                void *that)
-{
-  if ((flags & kCGDisplayBeginConfigurationFlag) == 0 && that) {
-    static_cast<VirtualScreen*>(that)->Update();
-  }
-}
-#endif
 
 Screen VirtualScreen::PrimaryScreen() const
 {
@@ -97,32 +68,7 @@ Screen VirtualScreen::ClosestScreen(const Point& position) const
 
 void VirtualScreen::Update()
 {
-  std::vector<Screen> screens;
-  uint32_t numDisplays = 0;
-
-#if __APPLE__
-  if (CGGetActiveDisplayList(0, 0, &numDisplays) == kCGErrorSuccess && numDisplays > 0) {
-    CGDirectDisplayID *screenIDs = new CGDirectDisplayID[numDisplays];
-
-    if (screenIDs) {
-      if (CGGetActiveDisplayList(numDisplays, screenIDs, &numDisplays) == kCGErrorSuccess) {
-        for (int i = 0; i < numDisplays; i++) {
-          screens.push_back(Screen(screenIDs[i]));
-        }
-      }
-      delete [] screenIDs;
-    }
-  }
-  if (screens.empty()) {
-    screens.push_back(Screen(CGMainDisplayID()));
-    numDisplays = 1;
-  }
-#elif _WIN32
-  EnumDisplayMonitors(0, 0, EnumerateDisplays, reinterpret_cast<LPARAM>(&screens));
-  numDisplays = static_cast<uint32_t>(screens.size());
-#else
-  // Linux -- FIXME
-#endif
+  auto screens = GetScreens();
   std::unique_lock<std::mutex> lock(m_mutex);
   m_screens = screens;
   m_bounds = ComputeBounds(m_screens);
@@ -148,55 +94,5 @@ Rect VirtualScreen::ComputeBounds(const std::vector<Screen>& screens)
     return RectZero;
   }
 }
-
-#if _WIN32
-LRESULT VirtualScreen::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-  if (uMsg == WM_DISPLAYCHANGE) {
-    Update();
-  }
-  return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-}
-
-BOOL CALLBACK VirtualScreen::EnumerateDisplays(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
-{
-  std::vector<Screen>& screens = *reinterpret_cast<std::vector<Screen>*>(dwData);
-  screens.push_back(Screen(hMonitor));
-  return true;
-}
-
-//
-// VirtualScreenHelperClass
-//
-
-VirtualScreenHelperClass::VirtualScreenHelperClass()
-{
-  m_wndClass.style = CS_NOCLOSE;
-  m_wndClass.lpfnWndProc = WndProc;
-  m_wndClass.cbWndExtra = sizeof(void*);
-  m_wndClass.cbClsExtra = 0;
-  m_wndClass.hInstance = nullptr;
-  m_wndClass.hIcon = nullptr;
-  m_wndClass.hCursor = nullptr;
-  m_wndClass.hbrBackground = nullptr;
-  m_wndClass.lpszMenuName = nullptr;
-  m_wndClass.lpszClassName = L"Leap::Desktop";
-  m_atom = RegisterClassW(&m_wndClass);
-}
-
-VirtualScreenHelperClass::~VirtualScreenHelperClass()
-{
-  UnregisterClassW(L"Leap::Desktop", nullptr);
-}
-
-LRESULT CALLBACK VirtualScreenHelperClass::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-  LONG_PTR val = GetWindowLongPtr(hwnd, GWLP_USERDATA);
-  if (val) {
-    return reinterpret_cast<VirtualScreen*>(val)->WndProc(uMsg, wParam, lParam);
-  }
-  return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-#endif
 
 }

@@ -4,21 +4,8 @@
 
 namespace leap {
 
-//
-// Screen
-//
-
-Screen::Screen(const DisplayID& screenID) : m_screenID(screenID), m_isPrimary(false)
-{
-  Update();
-}
-
 void Screen::Update()
 {
-#if __APPLE__
-  m_bounds = CGDisplayBounds(m_screenID);
-  m_isPrimary = CGDisplayIsMain(m_screenID);
-#elif _WIN32
   MONITORINFOEX info;
   info.cbSize = sizeof(MONITORINFOEX);
   GetMonitorInfo(m_screenID, &info);
@@ -31,9 +18,10 @@ void Screen::Update()
                   static_cast<Float>(info.rcMonitor.right - info.rcMonitor.left),
                   static_cast<Float>(info.rcMonitor.bottom - info.rcMonitor.top));
   m_isPrimary = ((info.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY);
-#else
-  // Linux -- FIXME
-#endif
+}
+
+void Screen::GetBackgroundImage() const
+{
 }
 
 }

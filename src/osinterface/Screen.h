@@ -25,15 +25,18 @@ class Screen : public ScreenBase {
     DisplayID ID() const { return m_screenID; }
     bool IsPrimary() const { return m_isPrimary; }
 
+    void GetBackgroundImage() const;
+
   private:
-    Screen(const DisplayID& screenID);
+    Screen(const DisplayID& screenID) : m_screenID(screenID), m_isPrimary(false) { Update(); }
 
     void Update();
 
     DisplayID m_screenID;
     bool m_isPrimary;
 
-    friend class VirtualScreen;
+    friend class VirtualScreenMac;
+    friend class VirtualScreenWin;
 };
 
 }

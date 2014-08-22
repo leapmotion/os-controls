@@ -8,7 +8,6 @@ set(osinterface_SOURCES
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
   Screen.h
-  Screen.cpp
   ScreenBase.h
   VirtualScreen.h
   VirtualScreen.cpp
@@ -24,6 +23,9 @@ add_windows_sources(
   AudioVolumeInterfaceWin.cpp
   MediaInterfaceWin.h
   MediaInterfaceWin.cpp
+  ScreenWin.cpp
+  VirtualScreenWin.h
+  VirtualScreenWin.cpp
 )
 
 add_mac_sources(
@@ -32,6 +34,9 @@ add_mac_sources(
   AudioVolumeInterfaceMac.cpp
   MediaInterfaceMac.h
   MediaInterfaceMac.cpp
+  ScreenMac.cpp
+  VirtualScreenMac.h
+  VirtualScreenMac.cpp
 )
 
 add_library(osinterface ${osinterface_SOURCES})
@@ -40,7 +45,7 @@ target_package(osinterface SFML 2.1 REQUIRED)
 target_package(osinterface Leap REQUIRED)
 target_include_directories(osinterface PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 if(APPLE)
-  set_property(SOURCE MediaInterfaceMac.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
+  set_property(SOURCE MediaInterfaceMac.cpp ScreenMac.cpp VirtualScreenMac.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
   find_library(CORE_AUDIO_FRAMEWORK CoreAudio)
   mark_as_advanced(CORE_AUDIO_FRAMEWORK)
   target_link_libraries(osinterface ${CORE_AUDIO_FRAMEWORK})
