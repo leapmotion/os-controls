@@ -21,7 +21,10 @@ void main() {
   float diffuse_brightness = max(0.0, dot(light_dir, surface_normal));
   
   // Blend the ambient and diffuse lighting.
-  gl_FragColor = ambient_lighting_proportion*ambient_light_color + (1.0-ambient_lighting_proportion)*diffuse_brightness*diffuse_light_color;
+
+  vec4 diffuse_color = diffuse_light_color;
+  diffuse_color.rgb = diffuse_brightness*diffuse_color.rgb;
+  gl_FragColor = ambient_lighting_proportion*ambient_light_color + (1.0-ambient_lighting_proportion)*diffuse_color;
   // If texturing is enabled, include its influence in the color.
   if (use_texture) {
     // The fragment color is used as a color mask, hence the multiplication.
