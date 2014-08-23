@@ -34,19 +34,19 @@ GLShader::VarInfo::VarInfo (const std::string &name, GLint location, GLint size,
 GLShader::GLShader (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
   m_vertex_shader = Compile(GL_VERTEX_SHADER, vertex_shader_source);
   m_fragment_shader = Compile(GL_FRAGMENT_SHADER, fragment_shader_source);
-  m_prog = glCreateProgram();
-  glAttachShader(m_prog, m_vertex_shader);
-  glAttachShader(m_prog, m_fragment_shader);
-  glLinkProgram(m_prog);
+  m_program_handle = glCreateProgram();
+  glAttachShader(m_program_handle, m_vertex_shader);
+  glAttachShader(m_program_handle, m_fragment_shader);
+  glLinkProgram(m_program_handle);
 
   // Populate the uniform map.
   {  
     GLint active_uniforms = 0;
-    glGetProgramiv(m_prog, GL_ACTIVE_UNIFORMS, &active_uniforms);
+    glGetProgramiv(m_program_handle, GL_ACTIVE_UNIFORMS, &active_uniforms);
     // std::cout << "active uniforms = " << active_uniforms << '\n';
     
     GLint active_uniform_max_length = 0;
-    glGetProgramiv(m_prog, GL_ACTIVE_UNIFORM_MAX_LENGTH, &active_uniform_max_length);
+    glGetProgramiv(m_program_handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &active_uniform_max_length);
     // std::cout << "active uniform max length = " << active_uniform_max_length << '\n';
     
     for (GLuint index = 0; index < active_uniforms; ++index) {
@@ -54,9 +54,9 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
       GLsizei length;
       GLint size;
       GLenum type;
-      glGetActiveUniform(m_prog, index, active_uniform_max_length, &length, &size, &type, &name[0]);
+      glGetActiveUniform(m_program_handle, index, active_uniform_max_length, &length, &size, &type, &name[0]);
       name.resize(length);
-      GLint location = glGetUniformLocation(m_prog, name.c_str());
+      GLint location = glGetUniformLocation(m_program_handle, name.c_str());
       // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       // TODO: use emplace here, then get rid of default constructor for VarInfo
       m_uniform_info_map[name] = VarInfo(name, location, size, type);
@@ -66,11 +66,11 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
   // Populate the attribute map.
   {
     GLint active_attribs = 0;
-    glGetProgramiv(m_prog, GL_ACTIVE_ATTRIBUTES, &active_attribs);
+    glGetProgramiv(m_program_handle, GL_ACTIVE_ATTRIBUTES, &active_attribs);
     // std::cout << "active attribs = " << active_attribs << '\n';
     
     GLint active_attrib_max_length = 0;
-    glGetProgramiv(m_prog, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &active_attrib_max_length);
+    glGetProgramiv(m_program_handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &active_attrib_max_length);
     // std::cout << "active attrib max length = " << active_attrib_max_length << '\n';
     
     for (GLuint index = 0; index < active_attribs; ++index) {
@@ -78,9 +78,9 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
       GLsizei length;
       GLint size;
       GLenum type;
-      glGetActiveAttrib(m_prog, index, active_attrib_max_length, &length, &size, &type, &name[0]);
+      glGetActiveAttrib(m_program_handle, index, active_attrib_max_length, &length, &size, &type, &name[0]);
       name.resize(length);
-      GLint location = glGetAttribLocation(m_prog, name.c_str());
+      GLint location = glGetAttribLocation(m_program_handle, name.c_str());
       // std::cout << "attrib " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       // TODO: use emplace here, then get rid of default constructor for VarInfo
       m_attribute_info_map[name] = VarInfo(name, location, size, type);
@@ -89,7 +89,7 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
 }
 
 GLShader::~GLShader () {
-  glDeleteProgram(m_prog);
+  glDeleteProgram(m_program_handle);
   glDeleteShader(m_vertex_shader);
   glDeleteShader(m_fragment_shader);
 }
