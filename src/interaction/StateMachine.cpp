@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "StateMachine.h"
+#include "graphics/MediaView.h"
 
 StateMachine::StateMachine(void):
   m_state(OSCState::BASE)
 {
+  AutoConstruct<MediaView>(Vector3(300, 300, 0), 5.0f);
 }
 
 StateMachine::~StateMachine(void)
