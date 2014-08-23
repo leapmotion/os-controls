@@ -172,3 +172,98 @@ void PartialDisk::RecomputeGeometry() const {
 
   m_RecomputeGeometry = false;
 }
+
+PartialDiskWithTriangle::PartialDiskWithTriangle() : m_TrianglePosition(0.5), m_TriangleWidth(0.1), m_TriangleOffset(0.35), m_TriangleSide(OUTSIDE) {}
+
+void PartialDiskWithTriangle::RecomputeGeometry() const {
+  double sweepAngle = m_EndAngle - m_StartAngle;
+  if (sweepAngle > 2*M_PI) {
+    sweepAngle = 2*M_PI;
+  }
+
+  static const double DESIRED_ANGLE_PER_SEGMENT = 0.1; // radians
+  int numSegments = static_cast<int>(sweepAngle / DESIRED_ANGLE_PER_SEGMENT) + 1;
+  const double anglePerSegment = sweepAngle / numSegments;
+
+  m_Geometry.CleanUpBuffers();
+
+  Eigen::vector<Vector3f>& vertices = m_Geometry.Vertices();
+  Eigen::vector<Vector3f>& normals = m_Geometry.Normals();
+
+  double curAngle = m_StartAngle;
+  const double cosStart = std::cos(m_StartAngle);
+  const double sinStart = std::sin(m_StartAngle);
+  Vector3f prevInner(static_cast<float>(m_InnerRadius*cosStart), static_cast<float>(m_InnerRadius*sinStart), 0.0f);
+  Vector3f prevOuter(static_cast<float>(m_OuterRadius*cosStart), static_cast<float>(m_OuterRadius*sinStart), 0.0f);
+
+  bool haveStarted = false;
+  bool havePassedMidpoint = false;
+  bool havePassedEnd = false;
+  bool haveTakenCareOfExtraAngle = false;
+
+  const double triangleAngle = sweepAngle * m_TriangleWidth;
+  const double triangleStart = m_TrianglePosition * sweepAngle + m_StartAngle - triangleAngle / 2.0;
+  const double triangleEnd = triangleStart + triangleAngle;
+  const double triangleMidpoint = 0.5*(triangleStart + triangleEnd);
+
+  while (curAngle < (m_EndAngle - 0.001)) {
+    curAngle += anglePerSegment;
+
+    if (!haveStarted && curAngle > triangleStart) {
+      curAngle = triangleStart;
+      haveStarted = true;
+    } else if (!havePassedMidpoint && curAngle > triangleMidpoint) {
+      curAngle = triangleMidpoint;
+      havePassedMidpoint = true;
+    } else if (!havePassedEnd && curAngle > triangleEnd) {
+      curAngle = triangleEnd;
+      havePassedEnd = true;
+    } else if (havePassedEnd && !haveTakenCareOfExtraAngle) {
+      haveTakenCareOfExtraAngle = true;
+      curAngle = m_StartAngle + anglePerSegment * (static_cast<int>((curAngle-m_StartAngle) / anglePerSegment));
+    }
+
+    double innerRadius = m_InnerRadius;
+    double outerRadius = m_OuterRadius;
+    if (curAngle >= triangleStart && curAngle <= triangleEnd) {
+      double ratio = (curAngle - triangleStart) / (triangleAngle);
+      double mult = -2 * std::abs(ratio-0.5) + 1;
+      const double triangleHeight = m_TriangleOffset * (m_OuterRadius - m_InnerRadius);
+      if (m_TriangleSide == INSIDE) {
+        innerRadius -= mult * triangleHeight;
+      } else if (m_TriangleSide == OUTSIDE) {
+        outerRadius += mult * triangleHeight;
+      }
+    }
+
+    const double cosCur = std::cos(curAngle);
+    const double sinCur = std::sin(curAngle);
+
+    const Vector3f curInner(static_cast<float>(innerRadius*cosCur), static_cast<float>(innerRadius*sinCur), 0.0f);
+    const Vector3f curOuter(static_cast<float>(outerRadius*cosCur), static_cast<float>(outerRadius*sinCur), 0.0f);
+
+    vertices.push_back(prevInner);
+    vertices.push_back(prevOuter);
+    vertices.push_back(curOuter);
+
+    normals.push_back(Vector3f::UnitZ());
+    normals.push_back(Vector3f::UnitZ());
+    normals.push_back(Vector3f::UnitZ());
+
+    vertices.push_back(curOuter);
+    vertices.push_back(curInner);
+
+    vertices.push_back(prevInner);
+
+    normals.push_back(Vector3f::UnitZ());
+    normals.push_back(Vector3f::UnitZ());
+    normals.push_back(Vector3f::UnitZ());
+
+    prevInner = curInner;
+    prevOuter = curOuter;
+  }
+
+  m_Geometry.UploadDataToBuffers();
+
+  m_RecomputeGeometry = false;
+}

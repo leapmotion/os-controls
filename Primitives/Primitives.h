@@ -152,16 +152,40 @@ public:
 
   virtual void Draw(RenderState& renderState) const override;
 
-private:
+protected:
 
-  void RecomputeGeometry() const;
+  virtual void RecomputeGeometry() const;
 
   // cache the previously drawn geometry for speed if the primitive parameters are unchanged
   mutable PrimitiveGeometry m_Geometry;
+
   mutable bool m_RecomputeGeometry;
 
   double m_InnerRadius;
   double m_OuterRadius;
   double m_StartAngle;
   double m_EndAngle;
+};
+
+class PartialDiskWithTriangle : public PartialDisk {
+public:
+
+  PartialDiskWithTriangle();
+  
+  enum TriangleSide { INSIDE, OUTSIDE };
+
+  void SetTriangleSide(TriangleSide side) { m_TriangleSide = side; }
+  void SetTrianglePosition(double pos) { m_TrianglePosition = pos; }
+  void SetTriangleWidth(double width) { m_TriangleWidth = width; }
+  void SetTriangleOffset(double offset) { m_TriangleOffset = offset; }
+
+protected:
+
+  virtual void RecomputeGeometry() const override;
+
+  TriangleSide m_TriangleSide;
+  double m_TrianglePosition;
+  double m_TriangleWidth;
+  double m_TriangleOffset;
+
 };
