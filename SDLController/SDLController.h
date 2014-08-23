@@ -28,6 +28,7 @@ struct SDLControllerParams {
     alwaysOnTop(false),
     vsync(false),
     antialias(false),
+    windowFlags(SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE),
     windowTitle("GLApp")
   { }
 
@@ -40,6 +41,7 @@ struct SDLControllerParams {
   bool alwaysOnTop;
   bool vsync;
   bool antialias;
+  Uint32 windowFlags;
   std::string windowTitle;
 };
 
