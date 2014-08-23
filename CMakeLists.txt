@@ -741,7 +741,7 @@ add_sublibrary(
     SOURCE_PATH
         C++11/Test
     SOURCES
-        C++11Compliance.cpp
+        C++11ComplianceTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         GTest
