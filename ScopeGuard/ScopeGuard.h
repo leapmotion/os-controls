@@ -1,7 +1,7 @@
 #pragma once
 
 // See ScopeGuard.
-enum class BindFlags : GLuint { NONE = 0, BIND = (1 << 0), UNBIND = (1 << 1), BIND_AND_UNBIND = BIND|UNBIND };
+enum class BindFlags : int { NONE = 0, BIND = (1 << 0), UNBIND = (1 << 1), BIND_AND_UNBIND = BIND|UNBIND };
 
 // A class which provides a convenient RAII way to handle binding and unbinding objects, where the bind
 // and unbind operations can be defined.
@@ -13,7 +13,7 @@ public:
   // The guarded object must live at least as long as this object, unless the bind flags don't require
   // unbinding.
   ScopeGuard (const Class_ &guarded_object, BindFlags bind_flags) : m_guarded_object(guarded_object), m_bind_flags(bind_flags) {
-    if (GLuint(m_bind_flags) & GLuint(BindFlags::BIND)) {
+    if (int(m_bind_flags) & int(BindFlags::BIND)) {
       BindingFunction_(m_guarded_object);
     }
   }
@@ -26,9 +26,9 @@ public:
 
   // Unbinds the guarded object (if necessary) at the time of this call, and disables unbinding upon destruction.
   void Release () {
-    if (GLuint(m_bind_flags) & GLuint(BindFlags::UNBIND)) {
+    if (int(m_bind_flags) & int(BindFlags::UNBIND)) {
       UnbindingFunction_(m_guarded_object);
-      m_bind_flags = BindFlags(GLuint(m_bind_flags) & ~GLuint(BindFlags::UNBIND)); // unset the UNBIND flag.
+      m_bind_flags = BindFlags(int(m_bind_flags) & ~int(BindFlags::UNBIND)); // unset the UNBIND flag.
     }
   }
 
