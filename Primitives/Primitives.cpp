@@ -173,7 +173,7 @@ void PartialDisk::RecomputeGeometry() const {
   m_RecomputeGeometry = false;
 }
 
-PartialDiskWithTriangle::PartialDiskWithTriangle() : m_TrianglePosition(0.5), m_TriangleWidth(0.1), m_TriangleOffset(0.35), m_TriangleSide(OUTSIDE) {}
+PartialDiskWithTriangle::PartialDiskWithTriangle() : m_TriangleSide(OUTSIDE), m_TrianglePosition(0.5), m_TriangleWidth(0.1), m_TriangleOffset(0.35) {}
 
 void PartialDiskWithTriangle::RecomputeGeometry() const {
   double sweepAngle = m_EndAngle - m_StartAngle;
