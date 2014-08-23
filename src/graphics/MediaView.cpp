@@ -61,49 +61,40 @@ void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const Ha
   
   switch( m_state )
   {
-    case State::INACTIVE:
-      if(appState == OSCState::MEDIA_MENU_FOCUSED) {
-        onMenuActive(handLocation);
-        m_state = State::ACTIVE;
-      }
-      break;
-    case State::ACTIVE:
-      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-        closeMenu();
-        m_state = State::INACTIVE;
-      }
-      break;
-    case State::SELECTION_MADE:
-      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-        closeMenu();
-        m_state = State::INACTIVE;
-      }
-      break;
+  case State::INACTIVE:
+    if(appState == OSCState::MEDIA_MENU_FOCUSED) {
+      onMenuActive(handLocation);
+      m_state = State::ACTIVE;
+    }
+    break;
+  case State::ACTIVE:
+    if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+      closeMenu();
+      m_state = State::INACTIVE;
+    }
+    break;
+  case State::SELECTION_MADE:
+    if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+      closeMenu();
+      m_state = State::INACTIVE;
+    }
+    break;
   }
   
   // State Loops
   switch (m_state) {
-    {
-    case State::INACTIVE:
-      // Wedge transparency is updated in AnimationUpdate loops
-      break;
-    }
-    {
-    case State::ACTIVE:
-      updateWedges(handLocation);
-      float volumeDelta = calculateVolumeDelta(dHandRoll.dTheta);
-      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(volumeDelta);
-      break;
-    }
-    {
-    case State::SELECTION_MADE:
-      //something
-      break;
-    }
-    {
-    default:
-      break;
-    }
+  case State::INACTIVE:
+    // Wedge transparency is updated in AnimationUpdate loops
+    break;
+  case State::ACTIVE:
+    updateWedges(handLocation);
+    m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
+    break;
+  case State::SELECTION_MADE:
+    //something
+    break;
+  default:
+    break;
   }
 
 }

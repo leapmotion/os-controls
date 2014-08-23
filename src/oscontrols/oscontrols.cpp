@@ -90,10 +90,8 @@ void OsControl::Main(void) {
       AdjustDesktopWindow();
     }
 
-    sf::Event event;
-    while (m_mw->pollEvent(event)) {
-      HandleEvent(event);
-    }
+    for(sf::Event evt; m_mw->pollEvent(evt);)
+      HandleEvent(evt);
 
     // Determine how long it has been since we were last here
     auto now = std::chrono::steady_clock::now();
