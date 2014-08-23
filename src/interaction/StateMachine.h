@@ -23,7 +23,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
 
-  void AutoFilter(Leap::Hand* pHand, const HandPose handPose, OSCState& state);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, OSCState& state);
 
   // Updatable overrides:
   void Update(std::chrono::duration<double> deltaT) override;
