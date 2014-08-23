@@ -776,6 +776,19 @@ add_sublibrary(
         "Unit tests for the GLShader component."
 )
 
+add_sublibrary(
+    GLTexture2Test
+    SOURCE_PATH
+        GLTexture2/Test
+    SOURCES
+        GLTexture2Test.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLTexture2
+        GLTestFramework
+    BRIEF_DOC_STRING
+        "Unit tests for the GLTexture2 component."
+)
+
 set(_tests ${ADDED_SUBLIBRARIES})
 
 # In order for gtest to "see" the unit tests, the sources apparently have to be linked

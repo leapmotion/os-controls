@@ -104,13 +104,13 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
 {
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
-    throw std::invalid_argument("GLTexture2Params must specify positive width and height");
+    throw std::invalid_argument("GLTexture2Params must specify positive width and height"); // TODO: should this requirement be removed?
   }
   if (!pixel_data.IsEmpty() && (pixel_data.Format() == GL_INVALID_ENUM || pixel_data.Type() == GL_INVALID_ENUM)) {
     throw std::invalid_argument("GLTexture2PixelData must be empty or specify valid GLenum values for pixel data format and type");
   }
   // Check that the supplied data is the correct size.
-  if (pixel_data.RawDataByteCount() != GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*m_params.Width()*m_params.Height()) {
+  if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() != GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*m_params.Width()*m_params.Height()) {
     throw std::invalid_argument("the number of components in pixel_data did not correspond to width*height");
   }
   glGenTextures(1, &m_texture_name);
