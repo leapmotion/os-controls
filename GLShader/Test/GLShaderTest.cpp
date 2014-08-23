@@ -18,7 +18,7 @@ TEST_F(GLShaderTest, CompileAndLink) {
     "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
     "}\n"
   );
-  EXPECT_NO_THROW(auto valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+  EXPECT_NO_THROW_(auto valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
 }
 
 TEST_F(GLShaderTest, CompileSuccessfully) {
@@ -36,7 +36,7 @@ TEST_F(GLShaderTest, CompileSuccessfully) {
       "}\n"
     );
     std::shared_ptr<GLShader> valid_shader;
-    ASSERT_NO_THROW(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+    ASSERT_NO_THROW_(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
   }
 }
 
@@ -58,15 +58,6 @@ TEST_F(GLShaderTest, CompileUnsuccessfully) {
     ASSERT_ANY_THROW(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
   }
 }
-
-#define EXPECT_NO_THROW_(statement) \
-  try { \
-    statement; \
-  } catch (const std::exception &e) { \
-    EXPECT_TRUE(false) << "Expected no exception thrown, but one was thrown: \"" << e.what() << '\"'; \
-  } catch (...) { \
-    EXPECT_TRUE(false) << "Expected no exception thrown, but one was thrown (no message available)"; \
-  }
 
 TEST_F(GLShaderTest, DISABLED_SetTypedUniformCheckInVertexShader) {
   const auto &type_map = GLShader::OPENGL_2_1_UNIFORM_TYPE_MAP;
@@ -97,7 +88,7 @@ TEST_F(GLShaderTest, DISABLED_SetTypedUniformCheckInVertexShader) {
 
     // Construct the shader and the GLShaderInterface.
     std::shared_ptr<GLShader> shader;
-    ASSERT_NO_THROW(shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+    ASSERT_NO_THROW_(shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
     EXPECT_NO_THROW_(shader->CheckForTypedUniform("test0", uniform_type, VariableIs::REQUIRED));
     EXPECT_NO_THROW_(shader->CheckForTypedUniform("test1", uniform_type, VariableIs::REQUIRED));
   }
