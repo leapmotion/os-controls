@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL.h"
-#include <SDL_syswm.h>
+#include "SDL_syswm.h"
 
 #include <string>
 
@@ -15,7 +15,7 @@
 // - Transparency on or off
 // - Whether the window will stay on top of other windows
 // - Use vertical synchronization on or off
-// - Use anti-aliasing on or off
+// - Use anti-aliasing on or off -- VD: Requesting Antialiasing was causing a failure in SDL_CreateWindow on my Linux machine due to the SDL_GL_SetAttribute calls regarding multisampling.
 // - Window title of the application
 struct SDLControllerParams {
   SDLControllerParams() :
@@ -27,7 +27,7 @@ struct SDLControllerParams {
     transparentWindow(false),
     alwaysOnTop(false),
     vsync(false),
-    antialias(true),
+    antialias(false),
     windowTitle("GLApp")
   { }
 
@@ -74,7 +74,12 @@ private:
   void InitWindow();
   void ConfigureRenderer();
   void InitGLContext();
+  void InitGlew();
   void ConfigureTransparentWindow();
+
+  // This is called to ensure that the created resources (and only those) 
+  // are cleaned up in the correct order.
+  void CleanUpInitializedResources();
 
 #if _WIN32
   void MakeTransparent_Windows(const SDL_SysWMinfo &sys_wm_info);

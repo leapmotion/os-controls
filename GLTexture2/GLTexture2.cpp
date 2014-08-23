@@ -137,14 +137,6 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, 
     ThrowOnGLError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << it->first << "), value = " << it->second));
   }
 
-  // glTexParameteri(m_params.Target(), GL_TEXTURE_MIN_FILTER, m_params.TextureMinFilter());
-  // ThrowOnGLError("in setting glTexParameteri for GL_TEXTURE_MIN_FILTER");
-  // glTexParameteri(m_params.Target(), GL_TEXTURE_MAG_FILTER, m_params.TextureMagFilter());
-  // ThrowOnGLError("in setting glTexParameteri for GL_TEXTURE_MAG_FILTER");
-  // // NOTE: GL_GENERATE_MIPMAP is deprecated/removed in 3.0/3.1, in preference of glGenerateMipmaps(m_params.Target())
-  // glTexParameteri(m_params.Target(), GL_GENERATE_MIPMAP, GL_TRUE); 
-  // ThrowOnGLError("in setting glTexParameteri for GL_GENERATE_MIPMAP");
-
   glTexImage2D(m_params.Target(),
                0,                               // mipmap level (for source images, this should be 0)
                m_params.InternalFormat(),
@@ -169,19 +161,3 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, 
 GLTexture2::~GLTexture2 () {
   glDeleteTextures(1, &m_texture_name);
 }
-
-// namespace {
-
-// // hack to do explicit instantiations of the constructor GLTexture2::GLTexture2<T_>.
-// // don't call this function.
-// void instantiate_particular_versions (const GLTexture2Params &params) {
-//   { GLTexture2 t(params, std::vector<GLbyte>()); }
-//   { GLTexture2 t(params, std::vector<GLubyte>()); }
-//   { GLTexture2 t(params, std::vector<GLshort>()); }
-//   { GLTexture2 t(params, std::vector<GLushort>()); }
-//   { GLTexture2 t(params, std::vector<GLint>()); }
-//   { GLTexture2 t(params, std::vector<GLuint>()); }
-//   { GLTexture2 t(params, std::vector<GLfloat>()); }
-// }
-
-// } // end of anonymous namespace

@@ -6,10 +6,12 @@ void GenericShape::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
 
-  renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  
+  m_geometry.Draw(*m_shader, m_drawMode);
 
-  m_geometry.Draw(renderState, m_drawMode);
   modelView.Pop();
 }
 
@@ -22,10 +24,12 @@ void Sphere::Draw(RenderState& renderState) const {
   modelView.Push();
   modelView.Scale(Vector3::Constant(m_Radius));
 
-  renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  
+  geom.Draw(*m_shader, GL_TRIANGLES);
 
-  geom.Draw(renderState, GL_TRIANGLES);
   modelView.Pop();
 }
 
@@ -38,10 +42,12 @@ void Cylinder::Draw(RenderState& renderState) const {
   modelView.Push();
   modelView.Scale(Vector3(m_Radius, m_Height, m_Radius));
 
-  renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
+
   modelView.Pop();
 }
 
@@ -54,10 +60,12 @@ void Box::Draw(RenderState& renderState) const {
   modelView.Push();
   modelView.Scale(m_Size);
 
-  renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
+
   modelView.Pop();
 }
 
@@ -70,10 +78,11 @@ void Disk::Draw(RenderState& renderState) const {
   modelView.Push();
   modelView.Scale(Vector3::Constant(m_Radius));
 
-  renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
 
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
 
   modelView.Pop();
 }
@@ -87,20 +96,22 @@ void RectanglePrim::Draw(RenderState& renderState) const {
   modelView.Push();
   modelView.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
 
-  renderState.UploadMatrices();
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  
   bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor(), useTexture, 0); // 0 is the texture unit, unused if texture is not enabled
 
   if (useTexture) {
     glEnable(GL_TEXTURE_2D);
     m_texture->Bind();
   }
-  geom.Draw(renderState, GL_TRIANGLES);
+  geom.Draw(*m_shader, GL_TRIANGLES);
   if (useTexture) {
     glDisable(GL_TEXTURE_2D);
     m_texture->Unbind();
   }
-
+  
   modelView.Pop();
 }
 
@@ -116,10 +127,17 @@ void PartialDisk::Draw(RenderState& renderState) const {
     RecomputeGeometry();
   }
 
-  renderState.UploadMatrices();
-  renderState.UploadMaterial(DiffuseColor(), AmbientFactor());
+  ModelView& modelView = renderState.GetModelView();
 
-  m_Geometry.Draw(renderState, GL_TRIANGLES);
+  modelView.Push();
+
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+  m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
+  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+
+  m_Geometry.Draw(*m_shader, GL_TRIANGLES);
+
+  modelView.Pop();
 }
 
 void PartialDisk::RecomputeGeometry() const {
@@ -133,9 +151,6 @@ void PartialDisk::RecomputeGeometry() const {
   const double anglePerSegment = sweepAngle / numSegments;
 
   m_Geometry.CleanUpBuffers();
-
-  Eigen::vector<Vector3f>& vertices = m_Geometry.Vertices();
-  Eigen::vector<Vector3f>& normals = m_Geometry.Normals();
 
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
@@ -151,22 +166,8 @@ void PartialDisk::RecomputeGeometry() const {
     const Vector3f curInner(static_cast<float>(m_InnerRadius*cosCur), static_cast<float>(m_InnerRadius*sinCur), 0.0f);
     const Vector3f curOuter(static_cast<float>(m_OuterRadius*cosCur), static_cast<float>(m_OuterRadius*sinCur), 0.0f);
 
-    vertices.push_back(prevInner);
-    vertices.push_back(prevOuter);
-    vertices.push_back(curOuter);
-
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-
-    vertices.push_back(curOuter);
-    vertices.push_back(curInner);
-    
-    vertices.push_back(prevInner);
-
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
+    m_Geometry.PushTri(prevInner, prevOuter, curOuter);
+    m_Geometry.PushTri(curOuter, curInner, prevInner);
 
     prevInner = curInner;
     prevOuter = curOuter;

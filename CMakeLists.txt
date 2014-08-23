@@ -121,12 +121,22 @@ add_sublibrary(
         "A means for loading and caching resources in a non-redundant way."
 )
 
+add_sublibrary(
+    GLCompatibility
+    HEADERS
+        gl_glext_glu.h
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "Glew 1.9.0"
+        "OpenGL 2.1" # It is necessary to link GL after Glew on Linux.
+    BRIEF_DOC_STRING
+        "A means for including OpenGL (and related) headers in a platform-agnostic way."
+)
+
 # NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
 # on Apple platforms.  It should be ignored on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
     set(_maybe_MakeTransparent_Apple_mm "MakeTransparent_Apple.mm")
 endif()
-
 add_sublibrary(
     SDLController
     HEADERS
@@ -136,6 +146,7 @@ add_sublibrary(
         ${_maybe_MakeTransparent_Apple_mm}
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
+        GLCompatibility
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
     BRIEF_DOC_STRING
@@ -172,17 +183,6 @@ add_sublibrary(
         "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
     BRIEF_DOC_STRING
         "ResourceManager-managed loading of FbxScene objects using the FBX SDK."
-)
-
-add_sublibrary(
-    GLCompatibility
-    HEADERS
-        gl_glext_glu.h
-    EXPLICIT_LIBRARY_DEPENDENCIES
-        "OpenGL 2.1"
-        "Glew 1.9.0"
-    BRIEF_DOC_STRING
-        "A means for including OpenGL (and related) headers in a platform-agnostic way."
 )
 
 add_sublibrary(
@@ -245,7 +245,6 @@ add_sublibrary(
         ModelViewProjection.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
-        GLCompatibility
     BRIEF_DOC_STRING
         "Provides manipulation of modelview and projection matrices for usage in shaders."
 )
@@ -261,6 +260,22 @@ add_sublibrary(
         GLCompatibility
     BRIEF_DOC_STRING
         "A C++ class which manages GLSL-based shader programs."
+)
+
+add_sublibrary(
+    Material
+    HEADERS
+        GLShaderMatrices.h
+        Material.h
+    SOURCES
+        GLShaderMatrices.cpp
+        Material.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
+        EigenTypes
+        GLShader
+    BRIEF_DOC_STRING
+        "A C++ class which provides high-level management of a 'material' shader."
 )
 
 add_sublibrary(
@@ -364,14 +379,15 @@ add_sublibrary(
         PrimitiveBase.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp
-        RenderState.cpp
         SVGPrimitive.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLBuffer
         GLMatrices
-        GLShader
         GLTexture2
+        GLShaderLoader
+        Material
+        Resource
         SceneGraph
     EXPLICIT_LIBRARY_DEPENDENCIES
         "NanoSVG"
@@ -653,6 +669,7 @@ endif()
 
 add_sublibrary(
     GTest
+    EXCLUDE_FROM_ALL
     SOURCE_PATH
         ../gtest-1.7.0/fused-src
     HEADERS
@@ -660,6 +677,10 @@ add_sublibrary(
     SOURCES
         gtest/gtest-all.cc
         gtest/gtest_main.cc
+    COMPILE_DEFINITIONS
+        GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
+    COMPILE_OPTIONS
+        "-fvisibility=default"
     BRIEF_DOC_STRING
         "Provides an easy way to include and link the Google Test framework."
 )
@@ -671,6 +692,7 @@ begin_sublibrary_definitions()
 
 add_sublibrary(
     C++11Test
+    EXCLUDE_FROM_ALL
     SOURCE_PATH
         C++11/Test
     SOURCES
@@ -680,6 +702,21 @@ add_sublibrary(
         GTest
     BRIEF_DOC_STRING
         "Unit tests for the C++11 component."
+)
+
+add_sublibrary(
+    GLShaderTest
+    EXCLUDE_FROM_ALL
+    SOURCE_PATH
+        GLShader/Test
+    SOURCES
+        GLShaderTest.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLShaderLoader
+        GTest
+        SDLController # For creating the GL context
+    BRIEF_DOC_STRING
+        "Unit tests for the GLShader component."
 )
 
 set(_tests ${ADDED_SUBLIBRARIES})
@@ -700,5 +737,34 @@ foreach(_test ${_tests})
     list(APPEND Test_SOURCES ${_headers} ${_sources})
 endforeach()
 add_executable(Test ${Test_SOURCES})
-# Link all the unit test components (this does not include the GTest component)
-target_link_libraries(Test PUBLIC ${_tests})
+
+# Link each of the dependencies of each unit test components.  The reason for this
+# indirection is because the test sources must be specified directly in the call to
+# add_executable above.  This is a totally suboptimal solution in terms of cmake
+# code duplication and fragility but avoids redundant compilation.
+# The alternative which is a tradeoff between simplicity and technical incorrectness is:
+# target_link_libraries(Test PUBLIC ${_tests})
+foreach(_test ${_tests})
+    # Set compile definitions and options.
+    get_target_property(_compile_definitions ${_test} INTERFACE_COMPILE_DEFINITIONS)
+    if(_compile_definitions)
+        target_compile_definitions(Test PUBLIC ${_compile_definitions})
+    endif()
+    get_target_property(_compile_options ${_test} INTERFACE_COMPILE_OPTIONS)
+    if(_compile_options)
+        target_compile_options(Test PUBLIC ${_compile_options})
+    endif()
+    # Link the explicit sublibrary dependencies of each test
+    get_target_property(_explicit_sublibrary_dependencies ${_test} INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
+    foreach(_dep ${_explicit_sublibrary_dependencies})
+        target_link_libraries(Test PUBLIC ${_dep})
+    endforeach()
+    # Link the explicit library dependencies of each test
+    get_target_property(_explicit_library_dependencies ${_test} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
+    foreach(_dep ${_explicit_library_dependencies})
+        string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
+        list(GET _semicolon_delimited_dep 0 _lib_name)
+        set(_lib_target_name ${_lib_name}::${_lib_name})
+        target_link_libraries(Test PUBLIC ${_lib_target_name})
+    endforeach()
+endforeach()

@@ -6,15 +6,6 @@ const Matrix4x4& Projection::Matrix() const {
   return m_matrix;
 }
 
-void Projection::LoadFromCurrent() {
-  glGetDoublev(GL_PROJECTION_MATRIX, m_matrix.data());
-}
-
-void Projection::SetCurrent() {
-  glMatrixMode(GL_PROJECTION);
-  glLoadMatrixd(m_matrix.data());
-}
-
 void Projection::Perspective(double left, double bottom, double right, double top, double nearClip, double farClip) {
   const double denom = 1/(nearClip - farClip);
   m_matrix << 2/(right - left),                0, (right + left)/(right - left),                        0,
@@ -46,26 +37,12 @@ Vector2 Projection::Project(const Vector3& point) const {
   return result;
 }
 
-void Projection::SetUniform(int address) const {
-  glUniformMatrix4fv(address, 1, GL_FALSE, m_matrix.cast<float>().eval().data());
-}
-
 ModelView::ModelView() {
   m_stack.push_back(Matrix4x4::Identity());
 }
 
 const Matrix4x4& ModelView::Matrix() const {
   return m_stack.back();
-}
-
-void ModelView::LoadFromCurrent() {
-  glGetDoublev(GL_MODELVIEW_MATRIX, m_stack.back().data());
-}
-
-void ModelView::SetCurrent() {
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glMultMatrixd(m_stack.back().data());
 }
 
 void ModelView::Reset() {
@@ -127,10 +104,6 @@ void ModelView::Multiply(const Matrix3x3& transform) {
   affine.block<1,3>(3,0).setZero();
   affine(3,3) = MATH_TYPE(1);
   Multiply(affine);
-}
-
-void ModelView::SetUniform(int address) const {
-  glUniformMatrix4fv(address, 1, GL_FALSE, m_stack.back().cast<float>().eval().data());
 }
 
 void ModelView::Push() {

@@ -1,7 +1,16 @@
 #include "PrimitiveBase.h"
 #include "RenderState.h"
 
+#include "GLShader.h"
+#include "GLShaderLoader.h"
 #include <stack>
+
+PrimitiveBase::PrimitiveBase()
+  :
+  m_shader("material"),
+  m_material(m_shader),
+  m_shader_matrices(m_shader)
+{ }
 
 void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &render_state) {
   // This actually performs the traversal with the specified functions.
@@ -25,4 +34,3 @@ void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &r
     }
   );
 }
-

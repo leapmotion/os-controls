@@ -1,6 +1,7 @@
 #include "GLController.h"
 
 #include <iostream> // TEMP
+#include <stdexcept>
 
 GLController::GLController () {
 
@@ -11,6 +12,9 @@ GLController::~GLController () {
 }
 
 void GLController::Initialize () {
+  if (glewInit() != GLEW_OK) {
+    throw std::runtime_error("Glew initialization failed");
+  }
   std::cerr << "GL_VERSION = \"" << GetString(GL_VERSION) << "\"\n";       // TEMP
   std::cerr << "GL_RENDERER = \"" << GetString(GL_RENDERER) << "\"\n";     // TEMP
   std::cerr << "GL_VENDOR = \"" << GetString(GL_VENDOR) << "\"\n";         // TEMP
@@ -22,7 +26,7 @@ void GLController::Shutdown () {
 }
 
 void GLController::BeginRender() const {
-  glClearColor(0, 0, 0, 0); // if using transparent window, clear alpha value must be 0
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // if using transparent window, clear alpha value must be 0
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

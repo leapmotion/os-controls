@@ -39,7 +39,7 @@ public:
       this->operator=(Singleton<ResourceManager<T>>::SafeRef().Get(name));
       assert(bool(*this)); // ResourceManager<T> is guaranteed to return a valid shared_ptr.
     } catch (const std::exception &e) {
-      std::cerr << "exception \"" << e.what() << "\" thrown while loading resource \"" << name << '\"';
+      std::cerr << "exception \"" << e.what() << "\" thrown while loading resource \"" << name << "\"\n";
       throw; // rethrow
     }
   }
