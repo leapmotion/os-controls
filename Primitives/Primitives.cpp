@@ -10,7 +10,7 @@ void GenericShape::Draw(RenderState& renderState) const {
   GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
   
   GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
   m_geometry.Draw(*m_shader, m_drawMode);
 
   modelView.Pop();
@@ -26,7 +26,7 @@ void Sphere::Draw(RenderState& renderState) const {
   GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
 
   GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(30);
   geom.Draw(*m_shader, GL_TRIANGLES);
 
@@ -43,7 +43,7 @@ void Cylinder::Draw(RenderState& renderState) const {
   GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
 
   GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(50, 1);
   geom.Draw(*m_shader, GL_TRIANGLES);
 
@@ -60,7 +60,7 @@ void Box::Draw(RenderState& renderState) const {
   GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
 
   GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitBox();
   geom.Draw(*m_shader, GL_TRIANGLES);
 
@@ -77,7 +77,7 @@ void Disk::Draw(RenderState& renderState) const {
   GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
 
   GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitDisk(75);
   geom.Draw(*m_shader, GL_TRIANGLES);
 
@@ -94,7 +94,7 @@ void RectanglePrim::Draw(RenderState& renderState) const {
   GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
 
   GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
   bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
   if (useTexture) {
     glEnable(GL_TEXTURE_2D);
@@ -128,8 +128,7 @@ void PartialDisk::Draw(RenderState& renderState) const {
   GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
 
   GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-
-  m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
+  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
   m_Geometry.Draw(*m_shader, GL_TRIANGLES);
   m_shader->Unbind();
 

@@ -17,8 +17,6 @@ template <size_t ROWS_, size_t COLUMNS_> struct UniformMatrixFunction { static c
 
 enum MatrixStorageConvention { COLUMN_MAJOR, ROW_MAJOR };
 
-enum class ShaderBindRequirement { BIND_AND_UNBIND, DONT_BIND_OR_UNBIND };
-
 enum class VariableIs { REQUIRED, OPTIONAL_NO_WARN, OPTIONAL_BUT_WARN };
 
 /// @brief This class wraps compiling and binding GLSL shaders, as well as discovering and

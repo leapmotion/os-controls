@@ -6,7 +6,7 @@
 namespace GLShaderMatrices {
 
 void CheckShaderForUniforms (const GLShader &shader, BindFlags bind_flags) {
-  GLShaderBindingScopeGuard bso(shader, bind_flags); // binds *m_shader now if necessary, unbinds upon end of scope if necessary.
+  GLShaderBindingScopeGuard bso(shader, bind_flags); // binds shader now if necessary, unbinds upon end of scope if necessary.
   
   shader.CheckForTypedUniform("projection_times_model_view_matrix", GL_FLOAT_MAT4, VariableIs::OPTIONAL_BUT_WARN);
   shader.CheckForTypedUniform("model_view_matrix", GL_FLOAT_MAT4, VariableIs::OPTIONAL_BUT_WARN);
@@ -25,7 +25,7 @@ void UploadUniforms (const GLShader &shader, const Matrix4x4 &model_view, const 
   // the inverse transpose is itself.
   Matrix4x4f normal_matrix(model_view.inverse().transpose().cast<float>());
 
-  GLShaderBindingScopeGuard bso(shader, bind_flags); // binds *m_shader now if necessary, unbinds upon end of scope if necessary.
+  GLShaderBindingScopeGuard bso(shader, bind_flags); // binds shader now if necessary, unbinds upon end of scope if necessary.
   
   // The use of COLUMN_MAJOR is because our Eigen-based Matrix4x4f typedef uses column-major data storage.
   shader.SetUniformMatrixf<4,4>("projection_times_model_view_matrix", projection_times_model_view_matrix, COLUMN_MAJOR);
