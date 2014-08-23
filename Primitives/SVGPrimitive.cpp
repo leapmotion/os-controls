@@ -174,8 +174,6 @@ void SVGPrimitive::RecomputeChildren() {
           auto genericShape = std::shared_ptr<GenericShape>(new GenericShape(isClosed ? GL_LINE_LOOP : GL_LINE_STRIP));
           auto& geometry = genericShape->Geometry();
 
-          geometry.CleanUpBuffers();
-
           // We don't yet handle stroke widths. For now, simulate a stroke width less than 1 by adjusting the alpha
           const float simulatedStrokeWidth = strokeWidth >= 1.0f ? 1.0f : strokeWidth;
           const float alpha = static_cast<float>((strokeColor >> 24) & 0xFF)/255.0f;
@@ -208,7 +206,6 @@ void SVGPrimitive::RecomputeChildren() {
         auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
         auto& geometry = genericShape->Geometry();
 
-        geometry.CleanUpBuffers();
         const float alpha = static_cast<float>((fillColor >> 24) & 0xFF)/255.0f;
         const float blue  = static_cast<float>((fillColor >> 16) & 0xFF)/255.0f;
         const float green = static_cast<float>((fillColor >>  8) & 0xFF)/255.0f;

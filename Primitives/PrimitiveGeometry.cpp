@@ -66,6 +66,7 @@ void PrimitiveGeometry::Draw(const GLShader &bound_shader, GLenum drawMode) cons
   // The calls to glVertexAttribPointer use the currently bound buffer object.
   // NOTE: There being no "else { glDisableVertexAttribArray(...); }" statement
   // relies on each vertex attrib array being disabled to begin with.
+  assert(m_VertexBuffer.IsCreated() && m_IndexBuffer.IsCreated() && "you forgot to call UploadDataToBuffers");
   m_VertexBuffer.Bind();
   if (position_loc != -1) {
     glEnableVertexAttribArray(position_loc);

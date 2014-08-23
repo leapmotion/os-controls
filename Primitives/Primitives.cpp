@@ -5,13 +5,13 @@
 void GenericShape::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
+  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
 
   m_shader->Bind();
-  m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
-  
   m_geometry.Draw(*m_shader, m_drawMode);
+  m_shader->Unbind();
 
   modelView.Pop();
 }
@@ -24,12 +24,13 @@ void Sphere::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
   modelView.Scale(Vector3::Constant(m_Radius));
-
   m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+
+  m_shader->Bind();
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
-  
   geom.Draw(*m_shader, GL_TRIANGLES);
+  m_shader->Unbind();
 
   modelView.Pop();
 }
@@ -42,12 +43,13 @@ void Cylinder::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
   modelView.Scale(Vector3(m_Radius, m_Height, m_Radius));
-
   m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+
+  m_shader->Bind();
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
-
   geom.Draw(*m_shader, GL_TRIANGLES);
+  m_shader->Unbind();
 
   modelView.Pop();
 }
@@ -60,12 +62,13 @@ void Box::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
   modelView.Scale(m_Size);
-
   m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+
+  m_shader->Bind();
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
-
   geom.Draw(*m_shader, GL_TRIANGLES);
+  m_shader->Unbind();
 
   modelView.Pop();
 }
@@ -78,12 +81,13 @@ void Disk::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
   modelView.Scale(Vector3::Constant(m_Radius));
-
   m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+
+  m_shader->Bind();
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
-
   geom.Draw(*m_shader, GL_TRIANGLES);
+  m_shader->Unbind();
 
   modelView.Pop();
 }
@@ -96,13 +100,12 @@ void RectanglePrim::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
   modelView.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
-
   m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+
+  m_shader->Bind();
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
-  
   bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
-
   if (useTexture) {
     glEnable(GL_TEXTURE_2D);
     m_texture->Bind();
@@ -112,6 +115,7 @@ void RectanglePrim::Draw(RenderState& renderState) const {
     glDisable(GL_TEXTURE_2D);
     m_texture->Unbind();
   }
+  m_shader->Unbind();
   
   modelView.Pop();
 }
@@ -129,14 +133,14 @@ void PartialDisk::Draw(RenderState& renderState) const {
   }
 
   ModelView& modelView = renderState.GetModelView();
-
   modelView.Push();
-
   m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
+
+  m_shader->Bind();
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
-
   m_Geometry.Draw(*m_shader, GL_TRIANGLES);
+  m_shader->Unbind();
 
   modelView.Pop();
 }
