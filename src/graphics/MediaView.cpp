@@ -179,6 +179,6 @@ void MediaView::checkForSelection(std::shared_ptr<Wedge> activeWedge, float dist
   }
 }
 
-float calculateVolumeDelta(float deltaHandRoll) {
+float MediaView::calculateVolumeDelta(float deltaHandRoll) {
   return deltaHandRoll / (3 * PI / 2.0);
 }
