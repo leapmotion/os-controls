@@ -28,6 +28,7 @@ public:
 
   Sphere();
   virtual ~Sphere () { }
+
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
@@ -38,15 +39,12 @@ private:
   double m_Radius;
 };
 
-class Ellipsoid : public PrimitiveBase {
-  virtual ~Ellipsoid () { }
-};
-
 class Cylinder : public PrimitiveBase {
 public:
 
   Cylinder();
   virtual ~Cylinder () { }
+  
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
@@ -66,6 +64,7 @@ public:
 
   Box();
   virtual ~Box() { }
+  
   const Vector3& Size() const { return m_Size; }
   void SetSize(const Vector3& size) { m_Size = size; }
 
@@ -81,6 +80,7 @@ public:
 
   Disk();
   virtual ~Disk () { }
+  
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
@@ -89,10 +89,6 @@ public:
 private:
 
   double m_Radius;
-};
-
-class Ellipse : public PrimitiveBase {
-
 };
 
 class RectanglePrim : public PrimitiveBase {
