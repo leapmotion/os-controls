@@ -281,6 +281,9 @@ add_sublibrary(
     SOURCES
         GLMaterial.cpp
         GLShaderMatrices.cpp
+    RESOURCES
+        material-frag.glsl
+        matrix-transformed-vert.glsl
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         EigenTypes
