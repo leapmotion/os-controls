@@ -135,6 +135,7 @@ public:
   virtual size_t RawDataByteCount () const = 0;
 
   static size_t ComponentsInFormat (GLenum format);
+  static size_t BytesInType (GLenum type);
   
 private:
 
@@ -197,7 +198,36 @@ private:
   size_t m_raw_pixel_data_byte_count;
 };
 
-// TODO: write GLTexture2PixelDataStorage
+// This class is used in the texel-loading operations to specify pixel data in GLTexture2.
+// An instance of this class creates a std::vector<Pixel_>, where Pixel_ is the template
+// parameter to this class.  This class should be used when you would like memory for pixel
+// data to be allocated/deallocated for you.
+template <typename Pixel_>
+class GLTexture2PixelDataStorage : public GLTexture2PixelData {
+public:
+  
+  GLTexture2PixelDataStorage (GLenum format, GLenum type, size_t raw_pixel_count)
+    :
+    GLTexture2PixelData(format, type),
+    m_raw_pixels(raw_pixel_count)
+  {
+    // TODO: checks for validity in the type and format arguments?
+    // TODO: check that Pixel_ is a POD of some type, and somehow check it against format and type.
+    if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
+      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+    }
+  }
+
+  const std::vector<Pixel_> &RawPixels () const { return m_raw_pixels; }
+  std::vector<Pixel_> &RawPixels () { return m_raw_pixels; }
+  
+  virtual const void *RawData () const override { return m_raw_pixels.data(); }
+  virtual size_t RawDataByteCount () const override { return m_raw_pixels.size()*sizeof(Pixel_); }
+
+private:
+
+  std::vector<Pixel_> m_raw_pixels;
+};
 
 // This class wraps creation and use of 2-dimensional GL textures.
 class GLTexture2 {
