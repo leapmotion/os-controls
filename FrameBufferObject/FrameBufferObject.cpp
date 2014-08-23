@@ -137,9 +137,9 @@ bool FrameBufferObject::checkStatus()
 bool FrameBufferObject::initColor()
 {
   if (m_Samples == 0) {
-    GLTexture2Params params(m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE);
+    GLTexture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalColor);
-    m_ColorTexture = new GLTexture2(params, nullptr, m_Width * m_Height * 4);
+    m_ColorTexture = new GLTexture2(params);
     
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
@@ -166,9 +166,9 @@ bool FrameBufferObject::initDepth()
   }
   
   if (m_Samples == 0) {
-    GLTexture2Params params(m_Width, m_Height, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE);
+    GLTexture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalDepth);
-    m_DepthTexture = new GLTexture2(params, nullptr, m_Width * m_Height);
+    m_DepthTexture = new GLTexture2(params);
 
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_DepthTexture->Id(), 0);

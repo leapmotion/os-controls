@@ -21,16 +21,10 @@ void ThrowOnGLError (const std::string &while_doing) {
 // GLTexture2Params
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GLTexture2Params::GLTexture2Params (
-  GLsizei width,
-  GLsizei height,
-  GLenum pixel_data_format,
-  GLenum pixel_data_type)
+GLTexture2Params::GLTexture2Params (GLsizei width, GLsizei height)
   :
   m_target(DEFAULT_TARGET),
-  m_internal_format(DEFAULT_INTERNAL_FORMAT),
-  m_pixel_data_format(pixel_data_format),
-  m_pixel_data_type(pixel_data_type)
+  m_internal_format(DEFAULT_INTERNAL_FORMAT)
 { 
   m_size[0] = width;
   m_size[1] = height;
@@ -66,12 +60,12 @@ void GLTexture2Params::SetTexParameteri (GLenum pname, GLint value) {
 }
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// GLTexture2
+// GLTexture2PixelData
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: somehow make this less version-specific (?), or come up with a version-agnostic way
 // to determine the size of each pixel from given pixel data format and type.
-size_t ComponentsInPixelFormat (GLenum format) {
+size_t GLTexture2PixelData::ComponentsInFormat (GLenum format) {
   // Allowable OpenGL 2.1 values: GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, GL_LUMINANCE_ALPHA
   // Allowable OpenGL 3.3 values: GL_RED, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL
   // Overlap between 2.1 and 3.3: GL_RED, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA
@@ -100,7 +94,11 @@ size_t ComponentsInPixelFormat (GLenum format) {
   }
 }
 
-GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, size_t pixel_data_byte_count)
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+// GLTexture2
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+
+GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
   :
   m_params(params)
 {
@@ -108,11 +106,11 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, 
   if (m_params.Width() == 0 || m_params.Height() == 0) {
     throw std::invalid_argument("GLTexture2Params must specify positive width and height");
   }
-  if (m_params.PixelDataFormat() == GL_INVALID_ENUM || m_params.PixelDataType() == GL_INVALID_ENUM) {
-    throw std::invalid_argument("GLTexture2Params must specify valid GLenum values for pixel data format and type");
+  if (!pixel_data.IsEmpty() && (pixel_data.Format() == GL_INVALID_ENUM || pixel_data.Type() == GL_INVALID_ENUM)) {
+    throw std::invalid_argument("GLTexture2PixelData must be empty or specify valid GLenum values for pixel data format and type");
   }
   // Check that the supplied data is the correct size.
-  if (pixel_data_byte_count != ComponentsInPixelFormat(m_params.PixelDataFormat())*m_params.Width()*m_params.Height()) {
+  if (pixel_data.RawDataByteCount() != GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*m_params.Width()*m_params.Height()) {
     throw std::invalid_argument("the number of components in pixel_data did not correspond to width*height");
   }
   glGenTextures(1, &m_texture_name);
@@ -143,16 +141,16 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, 
                m_params.Width(),
                m_params.Height(),
                0,                               // border (must be 0)
-               m_params.PixelDataFormat(),
-               m_params.PixelDataType(),
-               pixel_data);
+               pixel_data.Format(),
+               pixel_data.Type(),
+               pixel_data.RawData());
   ThrowOnGLError("in glTexImage2D");
 
   // Retrieve and store the actual internal format that this GL implementation used for this texture.
   GLint actual_internal_format;
   glGetTexLevelParameteriv(m_params.Target(), 0, GL_TEXTURE_INTERNAL_FORMAT, &actual_internal_format);
   ThrowOnGLError("in glGetTexParameteriv");
-  m_params.SetInternalFormat(actual_internal_format);  
+  m_params.SetInternalFormat(actual_internal_format);
 
   // Unbind the texture to minimize the possibility that other GL calls may modify this texture.
   glBindTexture(m_params.Target(), 0);

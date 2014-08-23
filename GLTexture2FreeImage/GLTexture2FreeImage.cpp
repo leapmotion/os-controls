@@ -177,8 +177,6 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
   params.SetWidth(width);
   params.SetHeight(height);
   params.SetInternalFormat(internal_format);
-  params.SetPixelDataFormat(pixel_data_format);
-  params.SetPixelDataType(pixel_data_type);
 
   // FreeImage_GetBits Returns a pointer to the data-bits of the bitmap. It is up to you to
   // interpret these bytes correctly, according to the results of FreeImage_GetBPP, 
@@ -187,12 +185,16 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
   // alignment boundary.  Note: FreeImage_GetBits will return NULL if the bitmap does not
   // contain pixel data (i.e. if it contains only header and possibly some or all metadata).
   // See also FreeImage_HasPixels.
-  const BYTE *pixel_data = FreeImage_GetBits(bitmap);
+  const void *raw_pixel_data = reinterpret_cast<const void *>(FreeImage_GetBits(bitmap));
+  if (raw_pixel_data == nullptr) {
+    throw std::runtime_error("FreeImage_GetBits returned nullptr, indicating there was no pixel data in the image.  We could add the capability to create an uninitialized GLTexture2 from this.");
+  }
   assert(bpp % 8 == 0 && "only whole-byte pixel formats are supported (convenience choice on the part of this function's design)");
   size_t bytes_per_pixel = bpp / 8;
-  size_t pixel_data_size = width * height * bytes_per_pixel;
-  // Create the GLTexture2 using the derived parameters and data.
-  return new GLTexture2(params, pixel_data, pixel_data_size);
+  size_t raw_pixel_data_size = width * height * bytes_per_pixel;
+  GLTexture2PixelDataReference pixel_data(pixel_data_format, pixel_data_type, raw_pixel_data, raw_pixel_data_size);
+  // Create the GLTexture2 using the derived parameters and pixel data.
+  return new GLTexture2(params, pixel_data);
 }
 
 GLTexture2 *LoadGLTexture2UsingFreeImage (const std::string &filepath, const GLTexture2Params &params) {
