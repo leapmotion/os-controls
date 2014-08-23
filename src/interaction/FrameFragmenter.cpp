@@ -44,6 +44,7 @@ void FrameFragmenter::AutoFilter(const Leap::Frame& frame) {
     // context, it must be made at this point.
     AutoRequired<AutoPacketFactory> factory(ctxt);
     auto packet = factory->NewPacket();
+    packet->Decorate(frame);
     packet->Decorate(hand);
     packet->Decorate(&hand);
 
