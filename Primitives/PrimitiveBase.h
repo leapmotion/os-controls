@@ -36,5 +36,4 @@ public:
 protected:
   Resource<GLShader> m_shader;
   ::Material m_material;
-  mutable GLShaderMatrices m_shader_matrices; // TODO: should not be mutable
 };

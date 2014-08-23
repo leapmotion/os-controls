@@ -8,8 +8,7 @@
 PrimitiveBase::PrimitiveBase()
   :
   m_shader("material"),
-  m_material(m_shader),
-  m_shader_matrices(m_shader)
+  m_material(m_shader)
 { }
 
 void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &render_state) {
