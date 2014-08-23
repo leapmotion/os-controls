@@ -110,6 +110,20 @@ void RectanglePrim::Draw(RenderState& renderState) const {
   modelView.Pop();
 }
 
+ImagePrimitive::ImagePrimitive(const std::shared_ptr<GLTexture2> &texture) {
+  if (!texture) {
+    throw std::invalid_argument("ImagePrimitive: must specify a valid texture");
+  }
+  SetTexture(texture);
+  SetScaleBasedOnTextureSize();
+  Material().SetAmbientLightingProportion(1.0f);
+  Material().SetUseTexture(true);
+}
+
+void ImagePrimitive::SetScaleBasedOnTextureSize () {
+  SetSize(Vector2(Texture()->Params().Width(), Texture()->Params().Height()));
+}
+
 PartialDisk::PartialDisk() : m_RecomputeGeometry(true), m_InnerRadius(0.5), m_OuterRadius(1), m_StartAngle(0), m_EndAngle(2*M_PI) { }
 
 void PartialDisk::Draw(RenderState& renderState) const {

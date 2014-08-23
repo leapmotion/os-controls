@@ -99,6 +99,8 @@ class RectanglePrim : public PrimitiveBase {
 public:
 
   RectanglePrim();
+  virtual ~RectanglePrim() { }
+  
   const Vector2& Size() const { return m_Size; }
   void SetSize(const Vector2& size) { m_Size = size; }
 
@@ -113,10 +115,22 @@ private:
   std::shared_ptr<GLTexture2> m_texture;
 };
 
+// This is a textured RectanglePrim which sets its aspect ratio based on the texture.
+// It also sets its x/y scale to the image width/height in pixels.
+class ImagePrimitive : public RectanglePrim {
+public:
+  
+  ImagePrimitive(const std::shared_ptr<GLTexture2> &texture);
+  virtual ~ImagePrimitive() { }
+  
+  void SetScaleBasedOnTextureSize ();
+};
+
 class PartialDisk : public PrimitiveBase {
 public:
 
   PartialDisk();
+  virtual ~PartialDisk() { }
 
   double InnerRadius() const { return m_InnerRadius; }
   void SetInnerRadius(double innerRad) {
