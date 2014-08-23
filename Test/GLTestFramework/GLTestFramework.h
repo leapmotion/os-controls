@@ -38,3 +38,30 @@ public:
   GLTestFramework_Headless () : GLTestFramework(Visibility::HEADLESS) { }
   virtual ~GLTestFramework_Headless () { }
 };
+
+// TODO: put this in a better place -- it doesn't depend on any GL stuff, only GTest.
+
+// Because GTest's ASSERT_NO_THROW doesn't print a message if available.
+#define EXPECT_NO_THROW_(x) \
+  try { \
+    x; \
+  } catch (const std::exception &e) { \
+    std::cerr << "exception caught: " << e.what() << '\n'; \
+    EXPECT_TRUE(false) << e.what(); \
+  } catch (...) { \
+    std::cerr << "exception caught (no message)\n"; \
+    EXPECT_TRUE(false); \
+  }
+
+// Because GTest's ASSERT_NO_THROW doesn't print a message if available.
+#define ASSERT_NO_THROW_(x) \
+  try { \
+    x; \
+  } catch (const std::exception &e) { \
+    std::cerr << "exception caught: " << e.what() << '\n'; \
+    ASSERT_TRUE(false) << e.what(); \
+  } catch (...) { \
+    std::cerr << "exception caught (no message)\n"; \
+    ASSERT_TRUE(false); \
+  }
+
