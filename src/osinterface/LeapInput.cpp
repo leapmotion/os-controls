@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "LeapInput.h"
 
-LeapInput::LeapInput(void)
+LeapInput::LeapInput(void):
+  ContextMember("LeapInput")
 {
   m_controller->addListener(*this);
 }
@@ -12,6 +13,7 @@ LeapInput::~LeapInput(void)
 }
 
 void LeapInput::onFrame(const Leap::Controller& controller) {
+  CurrentContextPusher pshr(this->GetContext());
   std::shared_ptr<AutoPacket> packet;
   try {
     packet = m_factory->NewPacket();

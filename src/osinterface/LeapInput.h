@@ -1,10 +1,12 @@
 #pragma once
+#include <autowiring/ContextMember.h>
 #include <Leap.h>
 
 /// <summary>
 /// Packet source which interfaces with the leap API
 /// </summary>
 class LeapInput:
+  public ContextMember,
   Leap::Listener
 {
 public:
