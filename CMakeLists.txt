@@ -125,6 +125,7 @@ add_sublibrary(
     GLCompatibility
     HEADERS
         gl_glext_glu.h
+        GLError.h # This might really belong in a different component
     EXPLICIT_LIBRARY_DEPENDENCIES
         "Glew 1.9.0"
         "OpenGL 2.1" # It is necessary to link GL after Glew on Linux.

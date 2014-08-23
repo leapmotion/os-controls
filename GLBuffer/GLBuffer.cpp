@@ -1,50 +1,42 @@
 #include "GLBuffer.h"
 
-#include <stdexcept>
-#include <sstream>
+#include "GLError.h"
 
 GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0) { }
 
 void GLBuffer::Create(GLenum type) {
   m_BufferType = type;
-  glGenBuffers(1, &m_BufferAddress);
-  CheckError("during GLBuffer::Create");
+  GL_THROW_UPON_ERROR(glGenBuffers(1, &m_BufferAddress));
 }
 
 void GLBuffer::Bind() const {
-  glBindBuffer(m_BufferType, m_BufferAddress);
-  CheckError("during GLBuffer::Bind");
+  GL_THROW_UPON_ERROR(glBindBuffer(m_BufferType, m_BufferAddress));
 }
 
 void GLBuffer::Unbind() const {
-  glBindBuffer(m_BufferType, 0);
-  CheckError("during GLBuffer::Release");
+  GL_THROW_UPON_ERROR(glBindBuffer(m_BufferType, 0));
 }
 
 void GLBuffer::Allocate(const void* data, int count, GLenum pattern) {
-  glBufferData(m_BufferType, count, data, pattern);
-  CheckError("during GLBuffer::Allocate");
+  GL_THROW_UPON_ERROR(glBufferData(m_BufferType, count, data, pattern));
 }
 
 int GLBuffer::Size() const {
   GLint value = -1;
-  glGetBufferParameteriv(m_BufferType, GL_BUFFER_SIZE, &value);
-  CheckError("during GLBuffer::Size");
+  GL_THROW_UPON_ERROR(glGetBufferParameteriv(m_BufferType, GL_BUFFER_SIZE, &value));
   return value;
 }
 
 void* GLBuffer::Map(GLuint access) {
   Bind();
-  void* ptr = glMapBufferARB(m_BufferType, access);
-  CheckError("during GLBuffer::Map");
+  GL_THROW_UPON_ERROR(void *ptr = glMapBufferARB(m_BufferType, access));
   Unbind();
   return ptr;
 }
 
 bool GLBuffer::Unmap() {
   Bind();
-  bool result = glUnmapBufferARB(m_BufferType) == GL_TRUE;
-  CheckError("during GLBuffer::Unmap");
+  GL_THROW_UPON_ERROR(bool result = glUnmapBufferARB(m_BufferType) == GL_TRUE);
   Unbind();
   return result;
 }
@@ -54,20 +46,6 @@ bool GLBuffer::IsCreated() const {
 }
 
 void GLBuffer::Destroy() {
-  glDeleteBuffers(1, &m_BufferAddress);
+  GL_THROW_UPON_ERROR(glDeleteBuffers(1, &m_BufferAddress));
   m_BufferAddress = 0;
-}
-
-void GLBuffer::CheckError(const std::string& loc) {
-  GLenum err = glGetError();
-  if (err != GL_NO_ERROR) {
-    std::stringstream ss;
-//     ss << "GL error \"" << gluErrorString(err) << '\"';
-    ss << "GL error";
-    if (!loc.empty()) {
-      ss << " at " << loc << ":";
-    }
-    ss << " code: 0x" << std::hex << err;
-    throw std::runtime_error(ss.str());
-  }
 }

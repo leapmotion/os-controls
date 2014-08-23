@@ -3,6 +3,7 @@
 #include "gl_glext_glu.h"
 #include <string>
 
+// A C++ wrapper class for OpenGL buffer objects, of types e.g. GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER.
 class GLBuffer {
 
 public:
@@ -17,8 +18,6 @@ public:
   bool Unmap();
   bool IsCreated() const;
   void Destroy();
-
-  static void CheckError(const std::string& loc = "");
 
 private:
 
