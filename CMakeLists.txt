@@ -728,6 +728,20 @@ add_sublibrary(
         "Provides an easy way to include and link the Google Test framework."
 )
 
+add_sublibrary(
+    GLTestFramework
+    SOURCE_PATH
+        Test/GLTestFramework
+    HEADERS
+        GLTestFramework.h
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLController
+        GTest
+        SDLController
+    BRIEF_DOC_STRING
+        "Provides an easy way to create GL-based tests."
+)
+
 # This effectively resets ADDED_SUBLIBRARIES and UNADDED_SUBLIBRARIES.  It is intentionally
 # called after the call to add_sublibrary(GTest ...) so that only the unit test components
 # show up in ADDED_SUBLIBRARIES.
