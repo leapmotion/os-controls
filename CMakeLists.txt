@@ -734,6 +734,8 @@ add_sublibrary(
         Test/GLTestFramework
     HEADERS
         GLTestFramework.h
+    SOURCES
+        GLTestFramework.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLController
         GTest
