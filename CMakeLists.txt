@@ -772,8 +772,7 @@ add_sublibrary(
         GLShaderTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLShaderLoader
-        GTest
-        SDLController # For creating the GL context
+        GLTestFramework
     BRIEF_DOC_STRING
         "Unit tests for the GLShader component."
 )
