@@ -1,7 +1,7 @@
 #pragma once
 
+#include "GLMaterial.h"
 #include "GLShaderMatrices.h"
-#include "Material.h"
 #include "Resource.h"
 #include "SceneGraphNode.h"
 
@@ -25,8 +25,8 @@ public:
   PrimitiveBase();
   virtual ~PrimitiveBase() { }
 
-  const ::Material &Material () const { return m_material; }
-  ::Material &Material () { return m_material; }
+  const GLMaterial &Material () const { return m_material; }
+  GLMaterial &Material () { return m_material; }
 
   // This method should be overridden in each subclass to draw the particular geometry that it represents.
   virtual void Draw(RenderState &render_state) const = 0;
@@ -35,5 +35,5 @@ public:
   
 protected:
   Resource<GLShader> m_shader;
-  ::Material m_material;
+  GLMaterial m_material;
 };

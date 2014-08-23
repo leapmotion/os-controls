@@ -9,7 +9,7 @@ PrimitiveBase::PrimitiveBase()
   :
   m_shader("material")
 {
-  Material::CheckShaderForUniforms(*m_shader);
+  GLMaterial::CheckShaderForUniforms(*m_shader);
 }
 
 void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &render_state) {

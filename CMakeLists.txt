@@ -274,13 +274,13 @@ add_sublibrary(
 )
 
 add_sublibrary(
-    Material
+    GLMaterial
     HEADERS
+        GLMaterial.h
         GLShaderMatrices.h
-        Material.h
     SOURCES
+        GLMaterial.cpp
         GLShaderMatrices.cpp
-        Material.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         EigenTypes
@@ -420,10 +420,10 @@ add_sublibrary(
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLBuffer
+        GLMaterial
         GLMatrices
         GLShaderLoader
         GLTexture2
-        Material
         NanoSVG
         PolyPartition
         Resource

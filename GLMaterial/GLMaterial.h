@@ -17,7 +17,7 @@ class GLShader;
 //   uniform sampler2D texture;
 // Material should only be concerned with fragment shading.  Uploading a Material's state
 // is done via the method UploadUniforms.
-class Material {
+class GLMaterial {
 public:
 
   // This function checks the given shader for the required uniforms.  If any are missing,
@@ -25,7 +25,7 @@ public:
   static void CheckShaderForUniforms (const GLShader &shader);
 
   // Constructs a Material with reasonable default values.
-  Material ();
+  GLMaterial ();
 
   // Modifiers for the properties of a material.
   void SetLightPosition (const Vector3f &p) { m_light_position = p; } // TODO: move this elsewhere -- it doesn't belong here
