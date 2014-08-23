@@ -6,6 +6,7 @@ void GenericShape::Draw(RenderState& renderState) const {
   ModelView& modelView = renderState.GetModelView();
   modelView.Push();
 
+  m_shader->Bind();
   m_shader_matrices.SetMatrices(modelView.Matrix(), renderState.GetProjection().Matrix());
   m_shader_matrices.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND);
   m_material.UploadUniforms(ShaderBindRequirement::DONT_BIND_OR_UNBIND); // this could be optimized
