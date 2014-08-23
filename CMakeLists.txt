@@ -368,6 +368,32 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    NanoSVG
+    SOURCE_PATH
+        External/NanoSVG
+    HEADERS
+        LICENSE.txt
+        nanosvg.h
+        nanosvgrast.h
+    BRIEF_DOC_STRING
+        "NanoSVG library for reading SVG files -- created by Mikko Mononen."
+)
+
+add_sublibrary(
+    PolyPartition
+    SOURCE_PATH
+        External/PolyPartition
+    HEADERS
+        polypartition.h
+    SOURCES
+        polypartition.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+    BRIEF_DOC_STRING
+        "PolyPartition library for triangulating polygons -- created by Ivan Fratric."
+)
+
+add_sublibrary(
     Primitives
     HEADERS
         PrimitiveBase.h
@@ -384,14 +410,13 @@ add_sublibrary(
         Color
         GLBuffer
         GLMatrices
-        GLTexture2
         GLShaderLoader
+        GLTexture2
         Material
+        NanoSVG
+        PolyPartition
         Resource
         SceneGraph
-    EXPLICIT_LIBRARY_DEPENDENCIES
-        "NanoSVG"
-        "PolyPartition"
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )
