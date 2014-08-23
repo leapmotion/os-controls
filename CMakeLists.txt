@@ -558,10 +558,16 @@ foreach(_sublibrary ${_all_link_sublibraries})
         get_target_property(_dir ${_sublibrary} INTERFACE_INCLUDE_DIRECTORIES)
         # message("making install rules for sublibrary ${_sublibrary}, include dir ${_dir}")
         list(APPEND _Components_INCLUDE_DIRECTORIES "include/${_dir}")
+        get_target_property(_source_path ${_sublibrary} INTERFACE_SOURCE_PATH)
         get_target_property(_headers ${_sublibrary} INTERFACE_PATH_PREFIXED_HEADERS)
         install(
             FILES ${_headers}
-            DESTINATION "include/${_sublibrary}"
+            DESTINATION "include/${_source_path}"
+        )
+        get_target_property(_resources ${_sublibrary} INTERFACE_PATH_PREFIXED_RESOURCES)
+        install(
+            FILES ${_resources}
+            DESTINATION "resources"
         )
     endif()
 endforeach()
