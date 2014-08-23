@@ -51,7 +51,7 @@ void MediaView::NudgeVolumeView(float dVolume) {
 
 void MediaView::onMenuActive(const HandLocation& handLocation) {
   // Update our position based on wherever the heck the hand is right now
-  Move(Vector3(handLocation.screenPosition.x(), handLocation.screenPosition.y(), 0));
+  Move(Vector3(handLocation.x, handLocation.y, 0));
   
   FadeIn();
 }
@@ -142,7 +142,7 @@ float MediaView::distanceFromCenter(const HandLocation& handLocation) {
   const Vector2 position(positionRaw.x(), positionRaw.y());
   
   // Figure out where the user's input is relative to the center of the menu
-  return static_cast<float>((position - handLocation.screenPosition).norm());
+  return static_cast<float>((position - handLocation.screenPosition()).norm());
 }
 
 std::shared_ptr<Wedge> MediaView::closestWedgeToPoint(const HandLocation& handLocation) {
@@ -150,7 +150,7 @@ std::shared_ptr<Wedge> MediaView::closestWedgeToPoint(const HandLocation& handLo
   float minDist = std::numeric_limits<float>::max();
   
   for(auto wedge : m_wedges) {
-    float dist = wedge->DistanceToCenter(handLocation.screenPosition);
+    float dist = wedge->DistanceToCenter(handLocation.screenPosition());
     if ( dist < minDist ) {
       minDist = dist;
       closestWedge = wedge;

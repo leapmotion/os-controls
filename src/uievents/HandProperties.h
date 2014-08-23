@@ -6,5 +6,10 @@
 /// Location of a single hand on screen in x-y virtual desktop coordinates
 /// </summary>
 struct HandLocation {
-  Vector2 screenPosition;
+  float x;
+  float y;
+
+  Vector2 screenPosition() const {
+    return Vector2(x, y);
+  }
 };
