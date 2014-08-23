@@ -7,10 +7,6 @@ set(osinterface_SOURCES
   MediaInterface.cpp
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
-  Screen.h
-  ScreenBase.h
-  VirtualScreen.h
-  VirtualScreen.cpp
   WindowingSystem.h
   WindowingSystem.cpp
   WindowSpaces.h
@@ -23,9 +19,6 @@ add_windows_sources(
   AudioVolumeInterfaceWin.cpp
   MediaInterfaceWin.h
   MediaInterfaceWin.cpp
-  ScreenWin.cpp
-  VirtualScreenWin.h
-  VirtualScreenWin.cpp
 )
 
 add_mac_sources(
@@ -34,9 +27,6 @@ add_mac_sources(
   AudioVolumeInterfaceMac.cpp
   MediaInterfaceMac.h
   MediaInterfaceMac.mm
-  ScreenMac.mm
-  VirtualScreenMac.h
-  VirtualScreenMac.mm
 )
 
 add_library(osinterface ${osinterface_SOURCES})
