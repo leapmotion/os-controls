@@ -77,7 +77,7 @@ add_sublibrary(
 )
 
 add_sublibrary(
-    EigenTypes
+    EigenTypes # TODO: this should probably be renamed to just Eigen
     HEADERS
         EigenTypes.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
@@ -812,6 +812,20 @@ add_sublibrary(
         GTest
     BRIEF_DOC_STRING
         "Unit tests for the C++11 component."
+)
+
+add_sublibrary(
+    EigenTest
+    EXCLUDE_FROM_ALL
+    SOURCE_PATH
+        EigenTypes/Test
+    SOURCES
+        EigenTest.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        EigenTypes
+        GTest
+    BRIEF_DOC_STRING
+        "Unit tests for the EigenTypes component." # TODO: EigenTypes should be renamed to Eigen
 )
 
 add_sublibrary(
