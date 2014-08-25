@@ -22,7 +22,7 @@ class MediaView :
 {
 public:
   MediaView(const Vector3& center, float offset);
-  
+
   //Create the sub-nodes of our current render node.
   void InitChildren() override;
   

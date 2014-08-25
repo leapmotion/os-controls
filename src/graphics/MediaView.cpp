@@ -10,11 +10,10 @@
 const static float PI = 3.14159265f;
 
 MediaView::MediaView(const Vector3& center, float offset) :
-m_state(State::INACTIVE),
-m_deadZone(true),
-m_opacity(0.0f, 0.5, EasingFunctions::QuadInOut<float>)
+  m_state(State::INACTIVE),
+  m_deadZone(true),
+  m_opacity(0.0f, 0.5, EasingFunctions::QuadInOut<float>)
 {
-  
   //TODO: Move this into a for loop that handles the sweep angle calculations
   m_wedges[0] = RenderEngineNode::Create<PlayPauseWedge>(50 - offset, 100 - offset, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0)); //top
   m_wedges[1] = RenderEngineNode::Create<NextWedge>(50 - offset, 100 - offset, -PI / 4, PI / 4, Vector3(offset, 0, 0)); //right

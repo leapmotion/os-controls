@@ -4,7 +4,7 @@
 StateMachine::StateMachine(void):
   m_state(OSCState::BASE)
 {
-  m_mediaView = RenderEngineNode::Create<MediaView>(Vector3(300, 300, 0), 5.0f);
+  m_mediaView = RenderEngineNode::Inject<MediaView>(Vector3(300, 300, 0), 5.0f);
   m_rootNode->AddChild(m_mediaView);
 }
 

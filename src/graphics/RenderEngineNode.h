@@ -19,6 +19,13 @@ public:
     return ptr;
   }
 
+  template<typename T, typename... _Args>
+  static std::shared_ptr<T> Inject(_Args&&... args) {
+    AutoConstruct<T> ptr(std::forward<_Args>(args)...);
+    ptr->InitChildren();
+    return ptr;
+  }
+
   template<typename T>
   void AddChild(std::shared_ptr<T> &node) {
     std::shared_ptr<SceneGraphNode<double, 3>> sceneNode = std::dynamic_pointer_cast<SceneGraphNode<double, 3>>(node);
