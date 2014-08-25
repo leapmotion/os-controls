@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "LeapInput.h"
+#include "interaction/FrameFragmenter.h"
 
 LeapInput::LeapInput(void):
   ContextMember("LeapInput")
 {
+  m_controller->enableGesture(Leap::Gesture::TYPE_CIRCLE);
   m_controller->addListener(*this);
 }
 
@@ -14,15 +16,5 @@ LeapInput::~LeapInput(void)
 
 void LeapInput::onFrame(const Leap::Controller& controller) {
   CurrentContextPusher pshr(this->GetContext());
-  std::shared_ptr<AutoPacket> packet;
-  try {
-    packet = m_factory->NewPacket();
-  }
-  catch(autowiring_error&) {
-    return;
-  }
-  
-  controller.enableGesture(Leap::Gesture::TYPE_CIRCLE);
-
-  packet->Decorate(controller.frame());
+  m_fragmenter->AutoFilter(controller.frame());
 }
