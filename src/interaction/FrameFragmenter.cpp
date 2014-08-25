@@ -50,8 +50,8 @@ void FrameFragmenter::AutoFilter(const Leap::Frame& frame) {
 
     // We found this context this time, do an implicit set difference by moving it
     // into our known set of subcontexts:
-    contexts.erase(hand.id());
     m_contexts[hand.id()] = ctxt;
+    contexts.erase(hand.id());
   }
 
   // Tell each orphan context that we've got no further information for them.  Then, when this
