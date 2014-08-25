@@ -1,6 +1,5 @@
 #pragma once
 
-#include "interaction/HandExistTrigger.h"
 #include "interaction/HandLocationRecognizer.h"
 #include "graphics/Cursor.h"
 #include "graphics/RenderEngine.h"

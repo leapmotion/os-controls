@@ -1,91 +1,114 @@
 #pragma once
-#include "graphics/RadialButton.h"
+#include "graphics/Wedges.h"
 #include "graphics/RenderEngineNode.h"
 #include "graphics/VolumeControl.h"
-#include "graphics/MostRecent.h"
-#include "interaction/HandExistTrigger.h"
-#include "uievents/AbstractVolumeControl.h"
+#include "interaction/HandRollRecognizer.h"
 #include "uievents/HandProperties.h"
 #include "uievents/MediaViewEventListener.h"
+//#include "utility/ExtendedStateMachine.h"
 #include "SceneGraphNode.h"
 #include "Leap.h"
 
 #include "Primitives.h"
 #include "Animation.h"
+#include <array>
 
 enum class HandPose;
 enum class OSCState;
 struct HandLocation;
 
 class MediaView :
-  public AbstractVolumeControl,
   public RenderEngineNode
 {
 public:
   MediaView(const Vector3& center, float offset);
   
+  //Create the sub-nodes of our current render node.
   void InitChildren() override;
-  void AnimationUpdate(const RenderFrame& frame) override;
-  int setActiveWedgeFromPoint(const Vector2& point);
-  void Move(const Vector3& coords);
-  void SetInteractionDistance(float distance);
-  void DeselectWedges();
-  void CloseMenu(double selectionCloseDelayTime = false); // override that leaves the current active wedge visible for a given time
   
+  //Non-User-Input driven animation and rendering update (eg. fade-in and fade-out)
+  void AnimationUpdate(const RenderFrame& frame) override;
+  
+  //Set the translation portion of our node's tranform.
+  void Move(const Vector3& coords);
+  
+  //Set the overall opacity of the menu (This is the high bound for opacity)
   void SetGoalOpacity(float goalOpacity);
+
+  //Wrappers on some fading in and out logic.
   void FadeIn(){ SetGoalOpacity(config::MEDIA_BASE_OPACITY); }
   void FadeOut() { SetGoalOpacity(0.0f); }
 
-  float Volume() override;
-  void SetVolume(float volume) override;
-  void NudgeVolume(float dVolume) override;
+  //Adjust the view for the volume control
+  void SetVolumeView(float volume);
+  void NudgeVolumeView(float dVolume);
   
-  void AutoFilter(OSCState state, const HandLocation& handLocation, const HandPose& handPose);
+  //All user and state machine driven changes to the view are dealt with from here.
+  void AutoFilter(OSCState appState, const Leap::Frame& frame, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll);
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+  void onMenuActive(const HandLocation& handLocation);
+  
+  //Send direction about max opacity and goal opacity to the individual wedges.
   void setMenuOpacity(float opacity);
-
-  void updateWedges(const Vector2& userPosition);
 
   /// <summary>
   /// Inputs _to the media view state machine_, NOT the AutoFilter routine.
   /// <summary>
+  /// Decides which wedge is closest to the given point
+  /// </summary>
   /// <remarks>
-  /// These are facts about the inputs received by the AutoFilter routine.
+  /// This method will always return some value, even if the point is very far from all wedges
+  /// or even in the dead zone
   /// </remarks>
-  enum class InputAlphabet {
-    // The user has made a selection of the NEXT menu
-    SelectedNext
-  };
+  void updateWedges(const HandLocation& handLocation);
+  float distanceFromCenter(const HandLocation& handLocation);
+  std::shared_ptr<Wedge> closestWedgeToPoint(const HandLocation& handLocation);
+  void updateWedgePositions(std::shared_ptr<Wedge> activeWedge, float distanceFromDeadzone);
+  void checkForSelection(std::shared_ptr<Wedge> activeWedge, float distanceFromDeadzone);
+  
+  float calculateVolumeDelta(float deltaHandRoll);
+  
+  void closeMenu();
+
+  /// <summary>
+  /// State for the wedge network on the media view control
+  /// </summary>
 
   enum class State {
-    // Means that this media view is not visible right now
-    Invisible,
-
-    // Nothing interesting is happening.  We "count" as being visible but the user is
-    // not currently interacting.  Even if we're presently fading out, this will continue
-    // to be our current state until we are actually faded out completely.
-    Visible,
-
-    // The user is messing with one of the wedges
-    AlteringWedges
+    
+    /*                        |----------V
+     *    --> Inactive --> Active --> SelectionMade
+     *           ^-----------|-----------|
+     */
+    
+    //Media View is created but not focused.
+    INACTIVE,
+    
+    //Taking user input, fading in, etc
+    ACTIVE,
+    
+    //Done taking input, has sent its event up the chain. Mostly for finished animations.
+    SELECTION_MADE
   };
+  
   State m_state;
 
-  // Last hand roll amount, used to guard against wander
-  float m_lastRoll;
-
   // Events fired by this MediaView
-  AutoFired<MediaViewEventListener> m_mve;
+  AutoFired<MediaViewEventListener> m_mediaViewEventListener;
 
-  // MediaView properties:
+  // True if the control is currently in the dead zone
+  bool m_deadZone;
+
+  // MediaView properties
   Animated<float> m_opacity;
   float m_interactionDistance;
 
+  int m_lastActiveWedgeIndex;
 
-  std::shared_ptr<RadialButton> m_activeWedge;
-  std::vector<std::shared_ptr<RadialButton>> m_wedges; //0 - Top, 1 - Right, 2 - Down, 3 - Left
+  //TODO: Get rid of magic number (which is the number of wedges
+  std::array<std::shared_ptr<Wedge>, 4> m_wedges;
   std::shared_ptr<VolumeControl> m_volumeControl;
 };

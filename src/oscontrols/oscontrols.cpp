@@ -23,6 +23,7 @@ int main(int argc, char **argv)
     CurrentContextPusher pshr(osCtxt);
     AutoRequired<leap::VirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
+    AutoRequired<FrameFragmenter> fragmenter;
     osCtxt->Initiate();
     control->Main();
   }
@@ -90,10 +91,8 @@ void OsControl::Main(void) {
       AdjustDesktopWindow();
     }
 
-    sf::Event event;
-    while (m_mw->pollEvent(event)) {
-      HandleEvent(event);
-    }
+    for(sf::Event evt; m_mw->pollEvent(evt);)
+      HandleEvent(evt);
 
     // Determine how long it has been since we were last here
     auto now = std::chrono::steady_clock::now();

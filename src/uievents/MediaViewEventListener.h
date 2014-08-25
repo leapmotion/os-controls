@@ -5,10 +5,10 @@
 /// </summary>
 class MediaViewEventListener {
 public:
-  virtual ~MediaViewEventListener(void);
+  virtual ~MediaViewEventListener(void) {};
 
-  virtual void OnUserPlayPause(void) {}
-  virtual void OnUserNextTrack(void) {}
-  virtual void OnUserPrevTrack(void) {}
-  virtual void OnUserChangedVolume(float volume) {}
+  virtual void OnUserPlayPause(void) {};
+  virtual void OnUserNextTrack(void) {};
+  virtual void OnUserPrevTrack(void) {};
+  virtual void OnUserChangedVolume(float volume) {};
 };

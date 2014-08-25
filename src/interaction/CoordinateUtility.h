@@ -4,7 +4,7 @@
 #include "EigenTypes.h"
 
 #include "Autowiring/Autowired.h"
-#include <SFML/Window/Window.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 class CoordinateUtility {
 public:
@@ -13,5 +13,5 @@ public:
   Vector2 ScreenNormalToScreenPixels(Vector3 normalCoords);
   
 private:
-  Autowired<sf::Window> m_window;
+  Autowired<sf::RenderWindow> m_window;
 };

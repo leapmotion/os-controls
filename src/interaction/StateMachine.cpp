@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "StateMachine.h"
+#include "graphics/MediaView.h"
 
 StateMachine::StateMachine(void):
-  m_state(OSCState::Base)
+  m_state(OSCState::BASE)
 {
+  AutoConstruct<MediaView>(Vector3(300, 300, 0), 5.0f);
 }
 
 StateMachine::~StateMachine(void)
@@ -11,24 +13,24 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(Leap::Hand* pHand, const HandLocation& handLocation, const HandPose handPose, OSCState& state) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, OSCState& state) {
   if(!pHand) {
     // Transition to this state unconditionally and short-circuit
-    m_state = OSCState::Final;
+    m_state = OSCState::FINAL;
     return;
   }
   
   // Map the hand pose to a candidate media control state
-  auto desiredState = OSCState::Base;
+  auto desiredState = OSCState::BASE;
   switch(handPose) {
   case HandPose::ZeroFingers:
-    desiredState = OSCState::Base;
+    desiredState = OSCState::BASE;
     break;
   case HandPose::OneFinger:
-    desiredState = OSCState::MediaMenuVisible;
+    desiredState = OSCState::MEDIA_MENU_FOCUSED;
     break;
   case HandPose::TwoFingers:
-    desiredState = OSCState::DesktopSwitcherVisible;
+    desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
     break;
   case HandPose::ThreeFingers:
   case HandPose::FourFingers:
@@ -37,7 +39,7 @@ void StateMachine::AutoFilter(Leap::Hand* pHand, const HandLocation& handLocatio
     return;
   }
 
-  if(desiredState == OSCState::Base || m_state == OSCState::Base)
+  if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
     // If we want to go to the base state, then transition there.  Just do it, don't think
     // about it, do it.  Views in the this context all have their own states and know where
     // they are, they'll be able to tell that we're in the Base state and that they should
@@ -55,7 +57,7 @@ void StateMachine::AutoFilter(Leap::Hand* pHand, const HandLocation& handLocatio
 
 // Distpatch Loop
 void StateMachine::Update(std::chrono::duration<double> deltaT) {
-  if(m_state == OSCState::Final) {
+  if(m_state == OSCState::FINAL) {
     m_context.reset();
     return;
   }

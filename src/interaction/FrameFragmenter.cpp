@@ -19,6 +19,7 @@ std::shared_ptr<CoreContext> FrameFragmenter::CreateMenuContext(const Leap::Hand
 
   // Stick the things in the context that we need in the context
   AutoRequired<StateMachine>();
+  AutoRequired<AutoPacketFactory>();
   GestureTriggerManifest();
 
   // Done setting it up, initiate it and hand it back
@@ -43,6 +44,8 @@ void FrameFragmenter::AutoFilter(const Leap::Frame& frame) {
     // context, it must be made at this point.
     AutoRequired<AutoPacketFactory> factory(ctxt);
     auto packet = factory->NewPacket();
+    packet->Decorate(frame);
+    packet->Decorate(hand);
     packet->Decorate(&hand);
 
     // We found this context this time, do an implicit set difference by moving it
