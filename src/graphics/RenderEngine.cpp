@@ -22,9 +22,9 @@ RenderEngine::RenderEngine()
 
   // set light position
   const Vector3f lightPos(0, 10, 10);
+  m_shader->Bind();
   m_shader->SetUniformf("lightPosition", lightPos);
-
-  m_renderState.SetShader(m_shader);
+  m_shader->Unbind();
 }
 
 RenderEngine::~RenderEngine()

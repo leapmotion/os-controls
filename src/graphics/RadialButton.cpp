@@ -18,7 +18,7 @@ m_maxOpacity(1.0)
   m_color = config::MEDIA_BASE_COLOR;
   m_alpha = m_isNullWedge ? 0.0f : 1.0f;
   
-  m_partialDisk.SetAmbientFactor(0.9f);
+  m_partialDisk.Material().SetAmbientLightingProportion(0.9f);
   
   m_partialDisk.SetInnerRadius(m_innerRadius);
   m_partialDisk.SetOuterRadius(m_outerRadius);
@@ -35,7 +35,7 @@ void RadialButton::Nudge(float offset) {
 }
 
 void RadialButton::Render(const RenderFrame& frame) const {
-  if (m_partialDisk.DiffuseColor().A() == 0.0f)
+  if (m_partialDisk.Material().DiffuseLightColor().A() == 0.0f)
     return;
 
   // draw primitives
@@ -44,7 +44,8 @@ void RadialButton::Render(const RenderFrame& frame) const {
 
 void RadialButton::AnimationUpdate(const RenderFrame& frame) {
   float renderedOpacity = std::min(m_maxOpacity, m_alpha);
-  m_partialDisk.SetDiffuseColor(Color(m_color.R(), m_color.G(), m_color.B(), renderedOpacity));
+  m_partialDisk.Material().SetDiffuseLightColor(Color(m_color.R(), m_color.G(), m_color.B(), renderedOpacity));
+  m_partialDisk.Material().SetAmbientLightColor(Color(m_color.R(), m_color.G(), m_color.B(), renderedOpacity));
   // NOTE: Leaving this here for future debugging.
   //std::cout << "r:" << m_color.R() << " g:" << m_color.G() << " b:" << m_color.B() << " a:" << renderedOpacity << std::endl;
 }

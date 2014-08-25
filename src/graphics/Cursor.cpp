@@ -9,8 +9,9 @@
 Cursor::Cursor(float radius, const Color& color) {
   Translation() = Vector3(400, 400, -1);
   
-  m_disk.SetDiffuseColor(color);
-  m_disk.SetAmbientFactor(0.9f);
+  m_disk.Material().SetDiffuseLightColor(color);
+  m_disk.Material().SetAmbientLightColor(color);
+  m_disk.Material().SetAmbientLightingProportion(0.9f);
   
   m_disk.SetRadius(radius);
 }
@@ -40,7 +41,7 @@ void Cursor::AnimationUpdate(const RenderFrame &frame) {
 }
 
 void Cursor::Render(const RenderFrame& frame) const {
-  if (m_disk.DiffuseColor().A() == 0.0f)
+  if (m_disk.Material().DiffuseLightColor().A() == 0.0f)
     return;
   
   // draw primitives
@@ -52,7 +53,8 @@ void Cursor::SetFadeState(FadeState newState){
 }
 
 void Cursor::setOpacity(float opacity) {
-  Color color = m_disk.DiffuseColor();
+  Color color = m_disk.Material().DiffuseLightColor();
   color.A() = opacity;
-  m_disk.SetDiffuseColor(color);
+  m_disk.Material().SetDiffuseLightColor(color);
+  m_disk.Material().SetAmbientLightColor(color);
 }

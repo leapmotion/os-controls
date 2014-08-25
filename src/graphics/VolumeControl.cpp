@@ -11,8 +11,9 @@ VolumeControl::VolumeControl(float radius, float width) :
   m_needle(new RectanglePrim()),
   m_maxOpacity(0.8f)
 {
-  m_partialDisk->SetDiffuseColor(Color(0.7f, 0.7f, 0.7f,m_maxOpacity));
-  m_partialDisk->SetAmbientFactor(0.9f);
+  m_partialDisk->Material().SetDiffuseLightColor(Color(0.7f, 0.7f, 0.7f,m_maxOpacity));
+  m_partialDisk->Material().SetAmbientLightColor(Color(0.7f, 0.7f, 0.7f,m_maxOpacity));
+  m_partialDisk->Material().SetAmbientLightingProportion(0.9f);
   
   m_partialDisk->SetInnerRadius(radius);
   m_partialDisk->SetOuterRadius(radius + width);
@@ -20,16 +21,18 @@ VolumeControl::VolumeControl(float radius, float width) :
   m_partialDisk->SetEndAngle(M_PI/4);
   
   
-  m_activePartialDisk->SetDiffuseColor(Color(0.3486f, 0.573f, 0.0784f,m_maxOpacity));
-  m_activePartialDisk->SetAmbientFactor(0.9f);
+  m_activePartialDisk->Material().SetDiffuseLightColor(Color(0.3486f, 0.573f, 0.0784f,m_maxOpacity));
+  m_activePartialDisk->Material().SetAmbientLightColor(Color(0.3486f, 0.573f, 0.0784f,m_maxOpacity));
+  m_activePartialDisk->Material().SetAmbientLightingProportion(0.9f);
   
   m_activePartialDisk->SetInnerRadius(radius);
   m_activePartialDisk->SetOuterRadius(radius + width);
   m_activePartialDisk->SetStartAngle(-5*M_PI/4);
   m_activePartialDisk->SetEndAngle(-5*M_PI/4);
   
-  m_needle->SetDiffuseColor(Color(0.7f, 0.7f, 0.7f, m_maxOpacity));
-  m_needle->SetAmbientFactor(0.9f);
+  m_needle->Material().SetDiffuseLightColor(Color(0.7f, 0.7f, 0.7f, m_maxOpacity));
+  m_needle->Material().SetAmbientLightColor(Color(0.7f, 0.7f, 0.7f, m_maxOpacity));
+  m_needle->Material().SetAmbientLightingProportion(0.9f);
   
   m_needle->SetSize(Vector2(radius, 2.0f));
   m_needle->FullTransform().translate(Vector3(radius, 0, 0));
@@ -61,17 +64,20 @@ void VolumeControl::NudgeVolume(float dVolume) {
 }
 
 void VolumeControl::SetOpacity(float opacity) {
-  Color c = m_partialDisk->DiffuseColor();
+  Color c = m_partialDisk->Material().DiffuseLightColor();
   c.A() = opacity * m_maxOpacity;
-  m_partialDisk->SetDiffuseColor(c);
+  m_partialDisk->Material().SetDiffuseLightColor(c);
+  m_partialDisk->Material().SetAmbientLightColor(c);
   
-  c = m_activePartialDisk->DiffuseColor();
+  c = m_activePartialDisk->Material().DiffuseLightColor();
   c.A() = opacity * m_maxOpacity;
-  m_activePartialDisk->SetDiffuseColor(c);
+  m_activePartialDisk->Material().SetDiffuseLightColor(c);
+  m_activePartialDisk->Material().SetAmbientLightColor(c);
   
-  c = m_needle->DiffuseColor();
+  c = m_needle->Material().DiffuseLightColor();
   c.A() = opacity * m_maxOpacity;
-  m_needle->SetDiffuseColor(c);
+  m_needle->Material().SetDiffuseLightColor(c);
+  m_needle->Material().SetAmbientLightColor(c);
 }
 
 float VolumeControl::volumeFromAngle(float angle) {
