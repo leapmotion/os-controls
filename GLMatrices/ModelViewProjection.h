@@ -7,6 +7,7 @@ class Projection {
 public:
   Projection();
   const Matrix4x4& Matrix() const;
+  Matrix4x4& Matrix();
   void LoadFromCurrent();
   void SetCurrent();
   void Perspective(double left, double bottom, double right, double top, double nearClip, double farClip);
@@ -24,6 +25,7 @@ class ModelView {
 public:
   ModelView();
   const Matrix4x4& Matrix() const;
+  Matrix4x4& Matrix();
   void LoadFromCurrent();
   void SetCurrent();
   void Reset();

@@ -6,6 +6,10 @@ const Matrix4x4& Projection::Matrix() const {
   return m_matrix;
 }
 
+Matrix4x4& Projection::Matrix() {
+  return m_matrix;
+}
+
 void Projection::LoadFromCurrent() {
   glGetDoublev(GL_PROJECTION_MATRIX, m_matrix.data());
 }
@@ -55,6 +59,10 @@ ModelView::ModelView() {
 }
 
 const Matrix4x4& ModelView::Matrix() const {
+  return m_stack.back();
+}
+
+Matrix4x4& ModelView::Matrix() {
   return m_stack.back();
 }
 
