@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "FrameFragmenter.h"
 #include "GestureTriggerManifest.h"
+#include "HandEventListener.h"
 #include "StateMachine.h"
 #include "StateMachineContext.h"
 #include <Leap.h>
@@ -58,7 +59,7 @@ void FrameFragmenter::AutoFilter(const Leap::Frame& frame) {
   // Tell each orphan context that we've got no further information for them.  Then, when this
   // loop exits, it will be the responsibility of these subcontexts to decide when they go away.
   for(auto& value : contexts) {
-    AutoRequired<AutoPacketFactory> factory(value.second);
-    factory->NewPacket()->Decorate((Leap::Hand*)nullptr);
+    AutoFired<HandEventListener> hel(value.second);
+    hel(&HandEventListener::OnHandVanished)();
   }
 }
