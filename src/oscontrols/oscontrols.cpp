@@ -20,11 +20,12 @@ int main(int argc, char **argv)
 
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
+    osCtxt->Initiate();
+
     CurrentContextPusher pshr(osCtxt);
     AutoRequired<leap::VirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
     AutoRequired<FrameFragmenter> fragmenter;
-    osCtxt->Initiate();
     control->Main();
   }
   catch (std::exception& e) {
