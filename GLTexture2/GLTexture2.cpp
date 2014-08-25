@@ -25,12 +25,13 @@ GLTexture2Params::GLTexture2Params (
   GLsizei width,
   GLsizei height,
   GLenum pixel_data_format,
-  GLenum pixel_data_type)
+  GLenum pixel_data_type,
+  GLenum internal_format)
   :
   m_target(DEFAULT_TARGET),
-  m_internal_format(DEFAULT_INTERNAL_FORMAT),
   m_pixel_data_format(pixel_data_format),
-  m_pixel_data_type(pixel_data_type)
+  m_pixel_data_type(pixel_data_type),
+  m_internal_format(internal_format)
 { 
   m_size[0] = width;
   m_size[1] = height;

@@ -52,7 +52,8 @@ public:
   GLTexture2Params (GLsizei width,
                     GLsizei height,
                     GLenum pixel_data_format,
-                    GLenum pixel_data_type);
+                    GLenum pixel_data_type,
+                    GLenum internal_format = DEFAULT_INTERNAL_FORMAT);
   // Default constructor sets necessary values that have no reasonable default values to
   // invalid values which *must* be filled in.
   GLTexture2Params ()
