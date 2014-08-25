@@ -6,8 +6,8 @@ set(oscontrols_SOURCES
 )
 
 set(oscontrols_RESOURCES
-  ${CMAKE_SOURCE_DIR}/src/shaders/default-frag.glsl
-  ${CMAKE_SOURCE_DIR}/src/shaders/default-vert.glsl
+  ${CMAKE_SOURCE_DIR}/src/shaders/material-frag.glsl
+  ${CMAKE_SOURCE_DIR}/src/shaders/matrix-transformed-vert.glsl
 )
 
 
