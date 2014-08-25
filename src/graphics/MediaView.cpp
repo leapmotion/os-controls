@@ -11,6 +11,7 @@ const static float PI = 3.14159265f;
 
 MediaView::MediaView(const Vector3& center, float offset) :
 m_state(State::INACTIVE),
+m_deadZone(true),
 m_opacity(0.0f, 0.5, EasingFunctions::QuadInOut<float>)
 {
   
@@ -34,6 +35,7 @@ void MediaView::InitChildren() {
 
 void MediaView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
+  std::cout << "Media View Opacity: " << m_opacity.Current() << std::endl;
   setMenuOpacity(m_opacity.Current());
 }
 
@@ -58,6 +60,8 @@ void MediaView::onMenuActive(const HandLocation& handLocation) {
 
 void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll) {
   // State Transitions
+  
+  std::cout << "Media View State: " << static_cast<int>(m_state) << std::endl;
   
   switch( m_state )
   {
@@ -119,12 +123,18 @@ void MediaView::updateWedges(const HandLocation& handLocation) {
   float distanceFromDeadzone = distanceFromCenter(handLocation) - configs::MEDIA_MENU_CENTER_DEADZONE_RADIUS;
   
   //Logic to perform depending on where the user's input is relative to the menu in terms of distance and screen position
-  if(distanceFromDeadzone < 0)
+  if(distanceFromDeadzone < 0) {
     // Distance too short to do anything, return here
+    m_deadZone = true;
     return;
+  } else {
+    m_deadZone = false;
+  }
   
   updateWedgePositions(activeWedge, distanceFromDeadzone);
   checkForSelection(activeWedge, distanceFromDeadzone);
+  
+  m_lastActiveWedge = activeWedge;
 }
 
 float MediaView::distanceFromCenter(const HandLocation& handLocation) {

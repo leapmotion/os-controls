@@ -4,6 +4,7 @@
 #include "HandPoseRecognizer.h"
 #include "uievents/OSCDomain.h"
 #include "uievents/Updatable.h"
+#include "graphics/MediaView.h"
 
 namespace Leap {
   class Hand;
@@ -32,6 +33,9 @@ private:
   // Our current state
   OSCState m_state;
 
+  Autowired<RenderEngineNode> m_rootNode;
+  std::shared_ptr<MediaView> m_mediaView;
+  
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
   AutoCurrentContext m_context;

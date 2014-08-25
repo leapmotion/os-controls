@@ -104,9 +104,8 @@ private:
 
   // MediaView properties
   Animated<float> m_opacity;
-  float m_interactionDistance;
 
-  int m_lastActiveWedgeIndex;
+  std::shared_ptr<Wedge> m_lastActiveWedge;
 
   //TODO: Get rid of magic number (which is the number of wedges
   std::array<std::shared_ptr<Wedge>, 4> m_wedges;
