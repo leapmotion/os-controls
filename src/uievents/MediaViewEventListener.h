@@ -5,7 +5,7 @@
 /// </summary>
 class MediaViewEventListener {
 public:
-  virtual ~MediaViewEventListener(void) {};
+  virtual ~MediaViewEventListener(void);
 
   virtual void OnUserPlayPause(void) {};
   virtual void OnUserNextTrack(void) {};

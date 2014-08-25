@@ -18,7 +18,7 @@ RenderEngine::RenderEngine()
   if (!sf::Shader::isAvailable()) //This also calls glewInit for us
     throw std::runtime_error("Shaders are not supported!");
 
-  m_shader = Resource<GLShader>("default");
+  m_shader = Resource<GLShader>("material");
 
   // set light position
   const Vector3f lightPos(0, 10, 10);

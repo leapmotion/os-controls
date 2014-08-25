@@ -21,7 +21,7 @@ set(interaction_SOURCES
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
 
-target_link_libraries(interaction Autowiring)
+target_link_libraries(interaction uievents Autowiring)
 target_include_directories(interaction PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 target_package(interaction SFML 2.1 REQUIRED)
