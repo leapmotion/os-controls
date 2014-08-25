@@ -70,6 +70,12 @@ std::string SDLController::BasePath () {
   return std::string(SDL_GetBasePath());
 }
 
+void SDLController::ToggleFullscreen() {
+  m_Params.fullscreen = !m_Params.fullscreen;
+  SDL_SetWindowFullscreen(m_SDL_Window, m_Params.fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+  SDL_GetWindowSize(m_SDL_Window, &m_Params.windowWidth, &m_Params.windowHeight);
+}
+
 // It's necessary to put the Apple-specific code in a separate file because
 // it is Objective-C++ and needs to be compiled as such (the source file name
 // is MakeTransparent_Apple.mm).
