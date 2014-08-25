@@ -12,11 +12,14 @@ StateMachine::~StateMachine(void)
 {
 }
 
+void StateMachine::AutoInit() {
+  std::shared_ptr<StateMachine> self = GetSelf<StateMachine>();
+  m_rootNode->AddChild(self);
+}
+
 // Transition Checking Loop
 void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, OSCState& state) {
-  if(!pHand) {
-    // Transition to this state unconditionally and short-circuit
-    m_state = OSCState::FINAL;
+  if (m_state == OSCState::FINAL) {
     return;
   }
   
@@ -53,6 +56,14 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
 
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
   state = m_state;
+}
+
+void StateMachine::OnHandVanished() {
+  m_state = OSCState::FINAL;
+  
+  // TODO: Do this more elegantly.
+  m_context.reset();
+  return;
 }
 
 // Distpatch Loop

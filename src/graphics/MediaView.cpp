@@ -50,11 +50,15 @@ void MediaView::NudgeVolumeView(float dVolume) {
   m_volumeControl->NudgeVolume(dVolume);
 }
 
-void MediaView::onMenuActive(const HandLocation& handLocation) {
+void MediaView::openMenu(const HandLocation& handLocation) {
   // Update our position based on wherever the heck the hand is right now
   Move(Vector3(handLocation.x, handLocation.y, 0));
   
   FadeIn();
+}
+
+void MediaView::closeMenu() {
+  FadeOut();
 }
 
 void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll) {
@@ -66,7 +70,7 @@ void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const Ha
   {
   case State::INACTIVE:
     if(appState == OSCState::MEDIA_MENU_FOCUSED) {
-      onMenuActive(handLocation);
+      openMenu(handLocation);
       m_state = State::ACTIVE;
     }
     break;
@@ -100,10 +104,6 @@ void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const Ha
     break;
   }
 
-}
-
-void MediaView::closeMenu() {
-  FadeOut();
 }
 
 void MediaView::setMenuOpacity(float opacity) {

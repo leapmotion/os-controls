@@ -49,7 +49,8 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  void onMenuActive(const HandLocation& handLocation);
+  void openMenu(const HandLocation& handLocation);
+  void closeMenu();
   
   //Send direction about max opacity and goal opacity to the individual wedges.
   void setMenuOpacity(float opacity);
@@ -71,7 +72,6 @@ private:
   
   float calculateVolumeDelta(float deltaHandRoll);
   
-  void closeMenu();
 
   /// <summary>
   /// State for the wedge network on the media view control
