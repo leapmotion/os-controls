@@ -2,6 +2,7 @@
 #include "StateMachine.h"
 
 StateMachine::StateMachine(void):
+  ContextMember("StateMachine"),
   m_state(OSCState::BASE),
   m_mediaView(Vector3(300, 300, 0), 5.0f)
 {
@@ -9,11 +10,6 @@ StateMachine::StateMachine(void):
 
 StateMachine::~StateMachine(void)
 {
-}
-
-void StateMachine::AutoInit() {
-  std::shared_ptr<StateMachine> self = GetSelf<StateMachine>();
-  m_rootNode->AddChild(self);
 }
 
 // Transition Checking Loop

@@ -19,16 +19,14 @@ namespace Leap {
 /// interaction system.  It is a top-level system, and 
 /// </remarks>
 class StateMachine:
+  public ContextMember,
   public Updatable,
-  public HandEventListener,
-  public ContextMember
+  public HandEventListener
 {
 public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoInit();
-
   void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, OSCState& state);
   
   void OnHandVanished();
