@@ -18,15 +18,6 @@ public:
   virtual ~OSWindow(void);
 
 public:
-  /// <returns>True if this window is still valid</returns>
-  /// <remarks>
-  /// A window handle can become invalid for many reasons.  The most likely cause, generally,
-  /// is that the window itself has closed while enumeration is underway.  Representations of
-  /// invalid handles should generally be destroyed as quickly as possible, as no operations
-  /// on an invalid handle can be valid.
-  /// </remarks>
-  virtual bool IsValid(void) = 0;
-
   /// <returns>
   /// The title of this window
   /// </returns>
@@ -35,11 +26,6 @@ public:
   /// only what's represented to the user, and therefore can change over time
   /// </remarks>
   virtual std::wstring GetTitle(void) = 0;
-
-  /// <returns>
-  /// The PID of the owning application
-  /// </returns>
-  virtual uint32_t GetOwningPid(void) = 0;
 
   /// <returns>
   /// The location of the top-left corner of the window

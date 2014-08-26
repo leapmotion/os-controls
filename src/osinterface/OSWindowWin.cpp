@@ -28,6 +28,12 @@ std::vector<std::shared_ptr<OSWindowNode>> OSWindowWin::EnumerateChildren(void) 
   return retVal;
 }
 
+uint32_t OSWindowWin::GetOwnerPid(void) {
+  DWORD pid;
+  GetWindowThreadProcessId(hwnd, &pid);
+  return pid;
+}
+
 bool OSWindowWin::IsValid(void) {
   return !!IsWindow(hwnd);
 }
@@ -37,12 +43,6 @@ std::wstring OSWindowWin::GetTitle(void) {
   int nch = GetWindowTextW(hwnd, &retVal[0], retVal.size());
   retVal.resize(nch);
   return retVal;
-}
-
-uint32_t OSWindowWin::GetOwningPid(void) {
-  DWORD pid;
-  GetWindowThreadProcessId(hwnd, &pid);
-  return pid;
 }
 
 OSPoint OSWindowWin::GetPosition(void) {

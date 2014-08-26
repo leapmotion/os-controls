@@ -12,12 +12,12 @@ public:
   const HWND hwnd;
 
   // OSWindowNode overrides:
+  bool IsValid(void) override;
+  uint32_t GetOwnerPid(void) override;
   std::vector<std::shared_ptr<OSWindowNode>> EnumerateChildren(void) override;
 
   // OSWindow overrides;
-  bool IsValid(void) override;
   std::wstring GetTitle(void) override;
-  uint32_t GetOwningPid(void) override;
   OSPoint GetPosition(void) override;
   void Cloak(void) override;
   void Uncloak(void) override;
