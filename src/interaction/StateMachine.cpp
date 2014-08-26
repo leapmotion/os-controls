@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "StateMachine.h"
+#include "Color.h"
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
-  m_mediaView(Vector3(300, 300, 0), 5.0f)
+  m_mediaView(Vector3(300, 300, 0), 5.0f),
+  m_cursorView(15, Color(1.0f, 1.0f, 1.0f, 0.0f))
 {
 }
 

@@ -1,6 +1,4 @@
 set(oscontrols_SOURCES
-  CursorController.h
-  CursorController.cpp
   oscontrols.h
   oscontrols.cpp
 )

@@ -5,6 +5,7 @@
 #include "uievents/OSCDomain.h"
 #include "uievents/Updatable.h"
 #include "graphics/MediaView.h"
+#include "graphics/CursorView.h"
 #include "interaction/HandEventListener.h"
 
 namespace Leap {
@@ -39,6 +40,7 @@ private:
   OSCState m_state;
   
   AutoConstruct<MediaView> m_mediaView;
+  AutoConstruct<CursorView> m_cursorView;
 
   Autowired<RenderEngineNode> m_rootNode;
   
