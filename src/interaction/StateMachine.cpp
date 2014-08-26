@@ -21,22 +21,22 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
   // Map the hand pose to a candidate media control state
   auto desiredState = OSCState::BASE;
   switch(handPose) {
-  case HandPose::ZeroFingers:
-    desiredState = OSCState::BASE;
-    break;
-  case HandPose::OneFinger:
-    desiredState = OSCState::BASE;
-    break;
-  case HandPose::TwoFingers:
-    desiredState = OSCState::MEDIA_MENU_FOCUSED;
-    break;
-  case HandPose::ThreeFingers:
-    desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
-    break;
-  case HandPose::FourFingers:
-  case HandPose::FiveFingers:
-  default:
-    break;
+    case HandPose::ZeroFingers:
+      desiredState = OSCState::BASE;
+      break;
+    case HandPose::OneFinger:
+      desiredState = OSCState::BASE;
+      break;
+    case HandPose::TwoFingers:
+      desiredState = OSCState::MEDIA_MENU_FOCUSED;
+      break;
+    case HandPose::ThreeFingers:
+      desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+      break;
+    case HandPose::FourFingers:
+    case HandPose::FiveFingers:
+    default:
+      break;
   }
 
   if(desiredState == OSCState::BASE || m_state == OSCState::BASE)

@@ -76,9 +76,6 @@ void MediaView::NudgeVolumeView(float dVolume) {
 
 void MediaView::AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll) {
   // State Transitions
-  
-  std::cout << "Media View State: " << static_cast<int>(m_state) << std::endl;
-  
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
     CloseMenu();
