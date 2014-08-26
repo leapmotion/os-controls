@@ -1,6 +1,6 @@
 set(graphics_SOURCES
-  Cursor.h
-  Cursor.cpp
+  CursorView.h
+  CursorView.cpp
   ExposeControl.h
   ExposeControl.cpp
   MediaView.h
