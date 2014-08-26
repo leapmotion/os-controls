@@ -52,7 +52,7 @@ private:
   void setGoalOpacity(float goalOpacity);
   
   //Wrappers on some fading in and out logic.
-  void fadeIn(){ m_opacity.Set(1.0f); }
+  void fadeIn() { m_opacity.Set(1.0f); }
   void fadeOut() { m_opacity.Set(0.0f); }
   
   //Send direction about max opacity and goal opacity to the individual wedges.
