@@ -56,11 +56,13 @@ void CursorView::AutoFilter(OSCState appState, const HandLocation& handLocation)
       break;
   }
   
-  
-  if(appState != OSCState::FINAL && appState != OSCState::BASE) {
-    Move(handLocation.x, handLocation.y);
-  }
-  else {
+  switch(m_state) {
+    case State::ACTIVE:
+      Move(handLocation.x, handLocation.y);
+      break;
+    case State::INACTIVE:
+    default:
+      break;
   }
 }
 
