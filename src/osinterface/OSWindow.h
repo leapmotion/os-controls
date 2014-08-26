@@ -28,6 +28,20 @@ public:
   virtual bool IsValid(void) = 0;
 
   /// <returns>
+  /// The title of this window
+  /// </returns>
+  /// <remarks>
+  /// The window title is not the same as the application name in that the window title is
+  /// only what's represented to the user, and therefore can change over time
+  /// </remarks>
+  virtual std::wstring GetTitle(void) = 0;
+
+  /// <returns>
+  /// The PID of the owning application
+  /// </returns>
+  virtual uint32_t GetOwningPid(void) = 0;
+
+  /// <returns>
   /// The location of the top-left corner of the window
   /// </returns>
   virtual OSPoint GetPosition(void) = 0;

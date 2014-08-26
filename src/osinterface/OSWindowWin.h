@@ -16,6 +16,8 @@ public:
 
   // OSWindow overrides;
   bool IsValid(void) override;
+  std::wstring GetTitle(void) override;
+  uint32_t GetOwningPid(void) override;
   OSPoint GetPosition(void) override;
   void Cloak(void) override;
   void Uncloak(void) override;
