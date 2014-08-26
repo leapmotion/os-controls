@@ -26,9 +26,6 @@ public:
   
   void AutoInit();
 
-  //Create the sub-nodes of our current render node.
-  void InitChildren() override;
-  
   //Non-User-Input driven animation and rendering update (eg. fade-in and fade-out)
   void AnimationUpdate(const RenderFrame& frame) override;
   

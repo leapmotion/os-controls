@@ -32,12 +32,11 @@ MediaView::~MediaView() {
 void MediaView::AutoInit() {
   auto self = shared_from_this();
   m_rootNode->AddChild(self);
-}
-
-void MediaView::InitChildren() {
+  
   for(std::shared_ptr<RadialButton> radial : m_wedges) {
     AddChild(radial);
   }
+  
   AddChild(m_volumeControl);
 }
 

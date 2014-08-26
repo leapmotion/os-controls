@@ -55,10 +55,6 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
 
 void StateMachine::OnHandVanished() {
   m_state = OSCState::FINAL;
-  
-  // TODO: Do this more elegantly.
-  m_context.reset();
-  return;
 }
 
 // Distpatch Loop

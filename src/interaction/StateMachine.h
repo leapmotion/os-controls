@@ -39,6 +39,7 @@ private:
   OSCState m_state;
 
   AutoConstruct<MediaView> m_mediaView;
+  
   Autowired<RenderEngineNode> m_rootNode;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
