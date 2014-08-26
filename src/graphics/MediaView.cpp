@@ -30,7 +30,7 @@ MediaView::~MediaView() {
 }
 
 void MediaView::AutoInit() {
-  std::shared_ptr<MediaView> self = GetSelf<MediaView>();
+  auto self = shared_from_this();
   m_rootNode->AddChild(self);
 }
 

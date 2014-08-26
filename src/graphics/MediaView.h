@@ -18,8 +18,7 @@ enum class OSCState;
 struct HandLocation;
 
 class MediaView :
-  public RenderEngineNode,
-  public ContextMember
+  public RenderEngineNode
 {
 public:
   MediaView(const Vector3& center, float offset);
