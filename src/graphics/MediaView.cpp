@@ -25,6 +25,10 @@ MediaView::MediaView(const Vector3& center, float offset) :
   Translation() = center;
 }
 
+MediaView::~MediaView() {
+  RemoveFromParent();
+}
+
 void MediaView::AutoInit() {
   std::shared_ptr<MediaView> self = GetSelf<MediaView>();
   m_rootNode->AddChild(self);
@@ -39,7 +43,6 @@ void MediaView::InitChildren() {
 
 void MediaView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
-  std::cout << "Media View Opacity: " << m_opacity.Current() << std::endl;
   setMenuOpacity(m_opacity.Current());
 }
 

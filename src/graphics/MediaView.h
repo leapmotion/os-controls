@@ -23,6 +23,7 @@ class MediaView :
 {
 public:
   MediaView(const Vector3& center, float offset);
+  ~MediaView();
   
   void AutoInit();
 
