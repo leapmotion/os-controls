@@ -12,7 +12,7 @@ const static float PI = 3.14159265f;
 MediaView::MediaView(const Vector3& center, float offset) :
   m_state(State::INACTIVE),
   m_deadZone(true),
-  m_opacity(0.0f, 0.5, EasingFunctions::QuadInOut<float>)
+  m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
 {
   //TODO: Move this into a for loop that handles the sweep angle calculations
   m_wedges[0] = RenderEngineNode::Create<PlayPauseWedge>(50 - offset, 100 - offset, 5 * PI / 4, 7 * PI / 4, Vector3(0, -1 * offset, 0)); //top
@@ -45,8 +45,23 @@ void MediaView::AnimationUpdate(const RenderFrame& frame) {
   setMenuOpacity(m_opacity.Current());
 }
 
-void MediaView::SetGoalOpacity(float goalOpacity) {
-  m_opacity.Set(goalOpacity);
+void MediaView::Move(const Vector3& coords) {
+  Translation() = coords;
+}
+
+void MediaView::OpenMenu(const HandLocation& handLocation) {
+  // Update our position based on wherever the heck the hand is right now
+  Move(Vector3(handLocation.x, handLocation.y, 0));
+  
+  fadeIn();
+}
+
+void MediaView::CloseMenu() {
+  fadeOut();
+}
+
+bool MediaView::IsVisible() {
+  return m_opacity.Current() > 0;
 }
 
 void MediaView::SetVolumeView(float volume) {
@@ -57,41 +72,43 @@ void MediaView::NudgeVolumeView(float dVolume) {
   m_volumeControl->NudgeVolume(dVolume);
 }
 
-void MediaView::openMenu(const HandLocation& handLocation) {
-  // Update our position based on wherever the heck the hand is right now
-  Move(Vector3(handLocation.x, handLocation.y, 0));
-  
-  FadeIn();
-}
-
-void MediaView::closeMenu() {
-  FadeOut();
-}
-
 void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll) {
   // State Transitions
   
   std::cout << "Media View State: " << static_cast<int>(m_state) << std::endl;
   
+  if (appState == OSCState::FINAL && m_state != State::FINAL) {
+    m_state = State::FINAL;
+    CloseMenu();
+    return;
+  }
+  
   switch( m_state )
   {
   case State::INACTIVE:
     if(appState == OSCState::MEDIA_MENU_FOCUSED) {
-      openMenu(handLocation);
+      resetWedges();
+      OpenMenu(handLocation);
       m_state = State::ACTIVE;
     }
     break;
   case State::ACTIVE:
     if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-      closeMenu();
+      CloseMenu();
       m_state = State::INACTIVE;
     }
     break;
   case State::SELECTION_MADE:
+    CloseMenu();
+    m_state = State::FADE_OUT;
+    break;
+  case State::FADE_OUT:
     if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-      closeMenu();
       m_state = State::INACTIVE;
     }
+    break;
+  case State::FINAL:
+  default:
     break;
   }
   
@@ -107,6 +124,7 @@ void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const Ha
   case State::SELECTION_MADE:
     //something
     break;
+  case State::FINAL:
   default:
     break;
   }
@@ -118,10 +136,6 @@ void MediaView::setMenuOpacity(float opacity) {
   m_wedges[1]->SetMaxOpacity(opacity);
   m_wedges[3]->SetMaxOpacity(opacity);
   m_volumeControl->SetOpacity(opacity);
-}
-
-void MediaView::Move(const Vector3& coords) {
-  Translation() = coords;
 }
 
 void MediaView::updateWedges(const HandLocation& handLocation) {
@@ -183,6 +197,12 @@ void MediaView::checkForSelection(std::shared_ptr<Wedge> activeWedge, float dist
   if(distanceFromDeadzone >= configs::MEDIA_MENU_ACTIVATION_RADIUS) { // Making a selection
     activeWedge->OnSelected();
     m_state = State::SELECTION_MADE;
+  }
+}
+
+void MediaView::resetWedges() {
+  for(auto wedge : m_wedges) {
+    wedge->Nudge(0);
   }
 }
 

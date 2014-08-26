@@ -25,12 +25,13 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     desiredState = OSCState::BASE;
     break;
   case HandPose::OneFinger:
-    desiredState = OSCState::MEDIA_MENU_FOCUSED;
+    desiredState = OSCState::BASE;
     break;
   case HandPose::TwoFingers:
-    desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+    desiredState = OSCState::MEDIA_MENU_FOCUSED;
     break;
   case HandPose::ThreeFingers:
+      desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
   case HandPose::FourFingers:
   case HandPose::FiveFingers:
     // Trash inputs for now, not certain what to do with these
@@ -59,7 +60,7 @@ void StateMachine::OnHandVanished() {
 
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
-  if(m_state == OSCState::FINAL) {
+  if(m_state == OSCState::FINAL && !m_mediaView->IsVisible()) {
     m_context.reset();
     return;
   }
