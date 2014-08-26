@@ -41,6 +41,7 @@ void CursorView::AutoInit() {
 }
 
 void CursorView::AutoFilter(OSCState appState, const HandLocation& handLocation) {
+  //State Transitions
   switch(m_state) {
     case State::INACTIVE:
       if(appState != OSCState::FINAL) {
@@ -56,6 +57,7 @@ void CursorView::AutoFilter(OSCState appState, const HandLocation& handLocation)
       break;
   }
   
+  //State Loops
   switch(m_state) {
     case State::ACTIVE:
       Move(handLocation.x, handLocation.y);
