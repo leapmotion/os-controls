@@ -66,7 +66,7 @@ void StateMachine::OnHandVanished() {
 }
 
 // Distpatch Loop
-void StateMachine::Update(std::chrono::duration<double> deltaT) {
+void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   if(m_state == OSCState::FINAL) {
     m_context.reset();
     return;

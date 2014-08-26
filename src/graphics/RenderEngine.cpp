@@ -31,14 +31,6 @@ RenderEngine::~RenderEngine()
 {
 }
 
-void RenderEngine::Update(const std::chrono::duration<double> deltaT) {
-  m_rootNode->DepthFirstTraverse([deltaT](RenderEngineNode::BaseSceneNode_t& node) {
-    Updatable *updatable = dynamic_cast<Updatable*>(&node);
-    if (updatable)
-      updatable->Update(deltaT);
-  }, nullptr);
-}
-
 void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT){
   // Active the window for OpenGL rendering
   target->setActive();

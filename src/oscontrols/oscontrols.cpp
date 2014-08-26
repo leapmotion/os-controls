@@ -83,6 +83,7 @@ void OsControl::Main(void) {
 
   m_mw->setFramerateLimit(0);
   m_mw->setVerticalSyncEnabled(true);
+  AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
   while (!ShouldStop()) {
@@ -101,7 +102,9 @@ void OsControl::Main(void) {
     then = now;
 
     // Broadcast update event:
-    m_render->Update(timeDelta);
+    upd(&Updatable::Tick)(timeDelta);
+
+    // Call the actual render behavior:
     m_render->Render(m_mw, timeDelta);
   }
 }

@@ -3,7 +3,7 @@
 #include "AudioVolumeInterface.h"
 #include "uievents/SystemMultimediaEventListener.h"
 
-void VolumeLevelChecker::Update(std::chrono::duration<double> deltaT) {
+void VolumeLevelChecker::Tick(std::chrono::duration<double> deltaT) {
   float volume = m_avi->GetVolume();
   if(m_oldVolume == volume)
     return;

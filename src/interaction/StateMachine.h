@@ -34,7 +34,7 @@ public:
   void OnHandVanished();
 
   // Updatable overrides:
-  void Update(std::chrono::duration<double> deltaT) override;
+  void Tick(std::chrono::duration<double> deltaT) override;
 
 private:
   // Our current state
