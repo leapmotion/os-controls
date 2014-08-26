@@ -2,6 +2,15 @@ set(osinterfacetest_SRCS
   osinterfacetest.cpp
   AudioVolumeInterfaceTest.cpp
   MediaInterfaceTest.cpp
+  OSWindowInterfaceTest.cpp
+  WindowCreatingTestFixture.h
+  WindowCreatingTestFixture.cpp
+)
+
+add_windows_sources(
+  osinterfacetest_SRCS
+  WindowCreatingTestFixtureWin.h
+  WindowCreatingTestFixtureWin.cpp
 )
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" osinterfacetest_SRCS)

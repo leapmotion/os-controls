@@ -7,6 +7,11 @@ set(osinterface_SOURCES
   MediaInterface.cpp
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
+  OSWindow.h
+  OSWindow.cpp
+  OSWindowNode.h
+  OSWindowManagerInterface.h
+  OSWindowManagerInterface.cpp
 )
 
 add_windows_sources(
@@ -15,6 +20,10 @@ add_windows_sources(
   AudioVolumeInterfaceWin.cpp
   MediaInterfaceWin.h
   MediaInterfaceWin.cpp
+  OSWindowWin.h
+  OSWindowWin.cpp
+  OSWindowManagerInterfaceWin.h
+  OSWindowManagerInterfaceWin.cpp
 )
 
 add_mac_sources(
