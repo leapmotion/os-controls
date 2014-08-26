@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 
+class OSApp;
 class OSWindowNode;
 
 /// <summary>
@@ -22,6 +23,11 @@ public:
   /// The PID of the owning application
   /// </returns>
   virtual uint32_t GetOwnerPid(void) = 0;
+
+  /// <returns>
+  /// The application named by
+  /// </returns>
+  virtual std::shared_ptr<OSApp> GetOwnerApp(void) = 0;
 
   /// <summary>
   /// Enumerates all children of this window

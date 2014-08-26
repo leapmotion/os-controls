@@ -14,6 +14,7 @@ public:
   // OSWindowNode overrides:
   bool IsValid(void) override;
   uint32_t GetOwnerPid(void) override;
+  std::shared_ptr<OSApp> GetOwnerApp(void) override;
   std::vector<std::shared_ptr<OSWindowNode>> EnumerateChildren(void) override;
 
   // OSWindow overrides;

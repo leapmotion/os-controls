@@ -9,11 +9,10 @@ public:
   OSWindowManagerInterfaceWin(void);
   ~OSWindowManagerInterfaceWin(void);
 
-private:
-  // Root node, we keep it here to simplify our EnumerateChildren call
-  OSWindowWin m_root;
-
 public:
-  std::vector<std::shared_ptr<OSWindowNode>> EnumerateTopLevel(void) override;
+  // OSWindowManagerInterface overrides
+  std::shared_ptr<OSWindow> GetForegroundWindow(void) override;
+  std::vector<std::shared_ptr<OSApp>> EnumerateInteractiveApplications(void) override;
+  std::vector<std::shared_ptr<OSWindow>> EnumerateVisibleTopLevelWindows(void) override;
 };
 
