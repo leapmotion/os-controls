@@ -59,7 +59,9 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
       GLint location = glGetUniformLocation(m_program_handle, name.c_str());
       // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       // TODO: use emplace here, then get rid of default constructor for VarInfo
-      m_uniform_info_map[name] = VarInfo(name, location, size, type);
+      if (location >= 0) {
+        m_uniform_info_map[name] = VarInfo(name, location, size, type);
+      }
     }
   }
 
@@ -83,7 +85,9 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
       GLint location = glGetAttribLocation(m_program_handle, name.c_str());
       // std::cout << "attrib " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       // TODO: use emplace here, then get rid of default constructor for VarInfo
-      m_attribute_info_map[name] = VarInfo(name, location, size, type);
+      if (location >= 0) {
+        m_attribute_info_map[name] = VarInfo(name, location, size, type);
+      }
     }
   }
 }
