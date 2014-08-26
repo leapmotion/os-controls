@@ -17,10 +17,14 @@ public:
   std::vector<std::shared_ptr<OSWindowNode>> EnumerateChildren(void) override;
 
   // OSWindow overrides;
+  uint64_t GetWindowID(void) const override { return (uint64_t) hwnd; }
+  void GetWindowBits(void* pBuf, size_t ncb) override;
+  bool GetFocus(void) override;
+  void SetFocus(void) override;
   std::wstring GetTitle(void) override;
   OSPoint GetPosition(void) override;
   void Cloak(void) override;
   void Uncloak(void) override;
 };
 
-static_assert(!std::is_abstract<OSWindowWin>::value, "OSWindowWon is meant to be a concrete type");
+static_assert(!std::is_abstract<OSWindowWin>::value, "OSWindowWin is meant to be a concrete type");

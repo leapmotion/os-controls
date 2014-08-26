@@ -19,6 +19,26 @@ public:
 
 public:
   /// <returns>
+  /// A unique identifier for this window
+  /// </returns>
+  virtual uint64_t GetWindowID(void) const = 0;
+
+  /// <summary>
+  /// Copies the image corresponding to a window into a buffer
+  /// </summary>
+  virtual void GetWindowBits(void* pBuf, size_t ncb) = 0;
+
+  /// <returns>
+  /// True if this window has focus
+  /// </returns>
+  virtual bool GetFocus(void) = 0;
+
+  /// <summary>
+  /// Makes this window a foreground window
+  /// </summary>
+  virtual void SetFocus(void) = 0;
+
+  /// <returns>
   /// The title of this window
   /// </returns>
   /// <remarks>
@@ -41,5 +61,9 @@ public:
   /// Reverses a prior call to Cloak
   /// </summary>
   virtual void Uncloak(void) = 0;
+
+  bool operator==(const OSWindow& rhs) const {
+    return GetWindowID() == rhs.GetWindowID();
+  }
 };
 

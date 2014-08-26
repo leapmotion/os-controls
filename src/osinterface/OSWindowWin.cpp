@@ -10,6 +10,29 @@ OSWindowWin::~OSWindowWin(void)
 {
 }
 
+bool OSWindowWin::IsValid(void) {
+  return !!IsWindow(hwnd);
+}
+
+uint32_t OSWindowWin::GetOwnerPid(void) {
+  DWORD pid;
+  GetWindowThreadProcessId(hwnd, &pid);
+  return pid;
+}
+
+void OSWindowWin::GetWindowBits(void* pBuf, size_t ncb) {
+
+}
+
+bool OSWindowWin::GetFocus(void) {
+  HWND foreground = GetForegroundWindow();
+  return !!IsChild(foreground, hwnd);
+}
+
+void OSWindowWin::SetFocus(void) {
+  ::SetFocus(hwnd);
+}
+
 std::vector<std::shared_ptr<OSWindowNode>> OSWindowWin::EnumerateChildren(void) {
   std::vector<std::shared_ptr<OSWindowNode>> retVal;
   EnumChildWindows(
@@ -26,16 +49,6 @@ std::vector<std::shared_ptr<OSWindowNode>> OSWindowWin::EnumerateChildren(void) 
     (LPARAM) &retVal
   );
   return retVal;
-}
-
-uint32_t OSWindowWin::GetOwnerPid(void) {
-  DWORD pid;
-  GetWindowThreadProcessId(hwnd, &pid);
-  return pid;
-}
-
-bool OSWindowWin::IsValid(void) {
-  return !!IsWindow(hwnd);
 }
 
 std::wstring OSWindowWin::GetTitle(void) {
