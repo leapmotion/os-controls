@@ -49,7 +49,7 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
     glGetProgramiv(m_program_handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &active_uniform_max_length);
     // std::cout << "active uniform max length = " << active_uniform_max_length << '\n';
     
-    for (GLuint index = 0; index < active_uniforms; ++index) {
+    for (GLint index = 0; index < active_uniforms; ++index) {
       std::string name(active_uniform_max_length, ' ');
       GLsizei length;
       GLint size;
@@ -73,7 +73,7 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
     glGetProgramiv(m_program_handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &active_attrib_max_length);
     // std::cout << "active attrib max length = " << active_attrib_max_length << '\n';
     
-    for (GLuint index = 0; index < active_attribs; ++index) {
+    for (GLint index = 0; index < active_attribs; ++index) {
       std::string name(active_attrib_max_length, ' ');
       GLsizei length;
       GLint size;

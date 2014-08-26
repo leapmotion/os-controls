@@ -207,7 +207,7 @@ public:
   void SetUniformi (const std::string &name, const std::vector<GLint> &array) const {
     assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
-      glUniform1iv(LocationOfUniform(name), array.size(), array.data())
+      glUniform1iv(LocationOfUniform(name), static_cast<GLsizei>(array.size()), array.data())
     );
   }
   // Sets the named uniform to the given std::vector of GLfloat values.
@@ -215,7 +215,7 @@ public:
   void SetUniformf (const std::string &name, const std::vector<GLfloat> &array) const {
     assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
-      glUniform1fv(LocationOfUniform(name), array.size(), array.data())
+      glUniform1fv(LocationOfUniform(name), static_cast<GLsizei>(array.size()), array.data())
     );
   }
   // Sets the named uniform to the given std::vector of values each of which must be
