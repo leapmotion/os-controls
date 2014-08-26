@@ -13,7 +13,11 @@ OSWindowManagerInterface* OSWindowManagerInterface::New(void) {
   return new OSWindowManagerInterfaceWin;
 }
 
-std::vector<std::shared_ptr<OSApp>> EnumerateInteractiveApplications(void) {
+void OSWindowManagerInterfaceWin::Tick(std::chrono::duration<double> deltaT) {
+
+}
+
+std::vector<std::shared_ptr<OSApp>> OSWindowManagerInterfaceWin::EnumerateInteractiveApplications(void) {
   std::vector<std::shared_ptr<OSApp>> retVal;
   return retVal;
 }
