@@ -10,5 +10,6 @@ public:
   virtual void OnUserPlayPause(void) {};
   virtual void OnUserNextTrack(void) {};
   virtual void OnUserPrevTrack(void) {};
+  virtual void OnInitializeVolume(void) {};
   virtual void OnUserChangedVolume(float volume) {};
 };

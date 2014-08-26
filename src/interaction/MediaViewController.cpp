@@ -6,6 +6,11 @@
 
 MediaViewController::MediaViewController(void)
 {
+  if(m_audioVolumeInterface) {
+    m_volume = m_audioVolumeInterface->GetVolume();
+  } else {
+    m_volume = 0.0f;
+  }
 }
 
 MediaViewController::~MediaViewController(void)
@@ -24,15 +29,24 @@ void MediaViewController::OnUserPrevTrack() {
   if(m_audioVolumeInterface) { m_mediaInterface->Prev(); }
 }
 
-
-void MediaViewController::OnUserChangedVolume(float value) {
+void MediaViewController::OnInitializeVolume() {
   if(m_audioVolumeInterface) {
-    m_audioVolumeInterface->SetVolume(value);
+    float systemVolume = m_audioVolumeInterface->GetVolume();
+    m_mediaView->SetVolumeView(systemVolume);
+    m_volume = systemVolume;
+  }
+}
+
+void MediaViewController::OnUserChangedVolume(float dVolume) {
+  if(m_audioVolumeInterface) {
+    m_volume += dVolume;
+    m_audioVolumeInterface->SetVolume(m_volume);
   }
 }
 
 void MediaViewController::OnVolumeChanged(float oldVolume, float newVolume) {
   if(m_mediaView) {
+    m_volume = newVolume;
     m_mediaView->SetVolumeView(newVolume);
   }
 }

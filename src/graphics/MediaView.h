@@ -42,7 +42,7 @@ public:
   void NudgeVolumeView(float dVolume);
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const Leap::Frame& frame, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll);
+  void AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll);
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
