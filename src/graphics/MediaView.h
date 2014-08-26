@@ -18,10 +18,13 @@ enum class OSCState;
 struct HandLocation;
 
 class MediaView :
-  public RenderEngineNode
+  public RenderEngineNode,
+  public ContextMember
 {
 public:
   MediaView(const Vector3& center, float offset);
+  
+  void AutoInit();
 
   //Create the sub-nodes of our current render node.
   void InitChildren() override;
@@ -110,4 +113,6 @@ private:
   //TODO: Get rid of magic number (which is the number of wedges
   std::array<std::shared_ptr<Wedge>, 4> m_wedges;
   std::shared_ptr<VolumeControl> m_volumeControl;
+  
+  Autowired<RenderEngineNode> m_rootNode;
 };

@@ -25,6 +25,11 @@ MediaView::MediaView(const Vector3& center, float offset) :
   Translation() = center;
 }
 
+void MediaView::AutoInit() {
+  std::shared_ptr<MediaView> self = GetSelf<MediaView>();
+  m_rootNode->AddChild(self);
+}
+
 void MediaView::InitChildren() {
   for(std::shared_ptr<RadialButton> radial : m_wedges) {
     AddChild(radial);
