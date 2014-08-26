@@ -93,6 +93,10 @@ public:
     return Vector3f(m_EyePosition[eye].x, m_EyePosition[eye].y, m_EyePosition[eye].z);
   }
 
+  Matrix4x4f EyeRotation(int eye) const {
+    return Matrix4x4f(&m_EyeRotation[eye].Transposed().M[0][0]);
+  }
+
   ovrHmd& GetHMD() {
     return m_HMD;
   }
@@ -123,6 +127,7 @@ private:
   OVR::Matrix4f m_EyeView[2];
 
   OVR::Vector3f m_EyePosition[2];
+  OVR::Matrix4f m_EyeRotation[2];
 
 #if _WIN32
   HWND m_HWND;
