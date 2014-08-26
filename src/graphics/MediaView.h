@@ -31,7 +31,6 @@ public:
   
   //Set the translation portion of our node's tranform.
   void Move(const Vector3& coords);
-  
 
   void OpenMenu(const HandLocation& handLocation);
   void CloseMenu();

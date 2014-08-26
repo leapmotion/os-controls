@@ -31,11 +31,12 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     desiredState = OSCState::MEDIA_MENU_FOCUSED;
     break;
   case HandPose::ThreeFingers:
-      desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+    desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+    break;
   case HandPose::FourFingers:
   case HandPose::FiveFingers:
-    // Trash inputs for now, not certain what to do with these
-    return;
+  default:
+    break;
   }
 
   if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
