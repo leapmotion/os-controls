@@ -19,6 +19,6 @@ private:
 
 public:
   // Updatable overrides:
-  void Update(std::chrono::duration<double> deltaT) override;
+  void Tick(std::chrono::duration<double> deltaT) override;
 };
 

@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "StateMachine.h"
-#include "graphics/MediaView.h"
 
 StateMachine::StateMachine(void):
-  m_state(OSCState::BASE)
+  ContextMember("StateMachine"),
+  m_state(OSCState::BASE),
+  m_mediaView(Vector3(300, 300, 0), 5.0f)
 {
-  AutoConstruct<MediaView>(Vector3(300, 300, 0), 5.0f);
 }
 
 StateMachine::~StateMachine(void)
@@ -14,9 +14,7 @@ StateMachine::~StateMachine(void)
 
 // Transition Checking Loop
 void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, OSCState& state) {
-  if(!pHand) {
-    // Transition to this state unconditionally and short-circuit
-    m_state = OSCState::FINAL;
+  if (m_state == OSCState::FINAL) {
     return;
   }
   
@@ -27,12 +25,13 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     desiredState = OSCState::BASE;
     break;
   case HandPose::OneFinger:
-    desiredState = OSCState::MEDIA_MENU_FOCUSED;
+    desiredState = OSCState::BASE;
     break;
   case HandPose::TwoFingers:
-    desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+    desiredState = OSCState::MEDIA_MENU_FOCUSED;
     break;
   case HandPose::ThreeFingers:
+      desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
   case HandPose::FourFingers:
   case HandPose::FiveFingers:
     // Trash inputs for now, not certain what to do with these
@@ -55,9 +54,13 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
   state = m_state;
 }
 
+void StateMachine::OnHandVanished() {
+  m_state = OSCState::FINAL;
+}
+
 // Distpatch Loop
-void StateMachine::Update(std::chrono::duration<double> deltaT) {
-  if(m_state == OSCState::FINAL) {
+void StateMachine::Tick(std::chrono::duration<double> deltaT) {
+  if(m_state == OSCState::FINAL && !m_mediaView->IsVisible()) {
     m_context.reset();
     return;
   }

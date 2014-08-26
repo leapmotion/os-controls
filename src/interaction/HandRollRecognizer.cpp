@@ -21,9 +21,6 @@ void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, DeltaRollAmount& dra
     // Below the threshold, zeroize
     dra.dTheta = 0.0;
 
-  std::cout << "Roll: " << roll << std::endl;
-  std::cout << "dRoll: " << roll - m_lastRoll << std::endl;
-
   // Need to keep track of what the last roll was, now
   m_lastRoll = roll;
 

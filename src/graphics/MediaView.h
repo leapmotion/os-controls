@@ -2,10 +2,10 @@
 #include "graphics/Wedges.h"
 #include "graphics/RenderEngineNode.h"
 #include "graphics/VolumeControl.h"
+#include "interaction/MediaViewController.h"
 #include "interaction/HandRollRecognizer.h"
 #include "uievents/HandProperties.h"
 #include "uievents/MediaViewEventListener.h"
-//#include "utility/ExtendedStateMachine.h"
 #include "SceneGraphNode.h"
 #include "Leap.h"
 
@@ -22,22 +22,20 @@ class MediaView :
 {
 public:
   MediaView(const Vector3& center, float offset);
+  ~MediaView();
   
-  //Create the sub-nodes of our current render node.
-  void InitChildren() override;
-  
+  void AutoInit();
+
   //Non-User-Input driven animation and rendering update (eg. fade-in and fade-out)
   void AnimationUpdate(const RenderFrame& frame) override;
   
   //Set the translation portion of our node's tranform.
   void Move(const Vector3& coords);
   
-  //Set the overall opacity of the menu (This is the high bound for opacity)
-  void SetGoalOpacity(float goalOpacity);
 
-  //Wrappers on some fading in and out logic.
-  void FadeIn(){ SetGoalOpacity(config::MEDIA_BASE_OPACITY); }
-  void FadeOut() { SetGoalOpacity(0.0f); }
+  void OpenMenu(const HandLocation& handLocation);
+  void CloseMenu();
+  bool IsVisible();
 
   //Adjust the view for the volume control
   void SetVolumeView(float volume);
@@ -49,7 +47,13 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  void onMenuActive(const HandLocation& handLocation);
+  
+  //Set the overall opacity of the menu (This is the high bound for opacity)
+  void setGoalOpacity(float goalOpacity);
+  
+  //Wrappers on some fading in and out logic.
+  void fadeIn(){ m_opacity.Set(1.0f); }
+  void fadeOut() { m_opacity.Set(0.0f); }
   
   //Send direction about max opacity and goal opacity to the individual wedges.
   void setMenuOpacity(float opacity);
@@ -68,10 +72,10 @@ private:
   std::shared_ptr<Wedge> closestWedgeToPoint(const HandLocation& handLocation);
   void updateWedgePositions(std::shared_ptr<Wedge> activeWedge, float distanceFromDeadzone);
   void checkForSelection(std::shared_ptr<Wedge> activeWedge, float distanceFromDeadzone);
+  void resetWedges();
   
   float calculateVolumeDelta(float deltaHandRoll);
   
-  void closeMenu();
 
   /// <summary>
   /// State for the wedge network on the media view control
@@ -91,7 +95,13 @@ private:
     ACTIVE,
     
     //Done taking input, has sent its event up the chain. Mostly for finished animations.
-    SELECTION_MADE
+    SELECTION_MADE,
+    
+    //Wait for animation to fade out
+    FADE_OUT,
+    
+    //Tear everything down.
+    FINAL
   };
   
   State m_state;
@@ -104,11 +114,14 @@ private:
 
   // MediaView properties
   Animated<float> m_opacity;
-  float m_interactionDistance;
 
-  int m_lastActiveWedgeIndex;
+  std::shared_ptr<Wedge> m_lastActiveWedge;
 
   //TODO: Get rid of magic number (which is the number of wedges
   std::array<std::shared_ptr<Wedge>, 4> m_wedges;
   std::shared_ptr<VolumeControl> m_volumeControl;
+  
+  Autowired<RenderEngineNode> m_rootNode;
+  
+  AutoRequired<MediaViewController> m_mediaViewController;
 };

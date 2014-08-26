@@ -6,8 +6,7 @@
 
 class RenderEngineNode :
   public SceneGraphNode<double, 3>,
-  public Renderable,
-  public Updatable
+  public Renderable
 {
 public:
   typedef SceneGraphNode<double, 3> BaseSceneNode_t;
@@ -23,7 +22,6 @@ public:
   void AddChild(std::shared_ptr<T> &node) {
     std::shared_ptr<SceneGraphNode<double, 3>> sceneNode = std::dynamic_pointer_cast<SceneGraphNode<double, 3>>(node);
     SceneGraphNode<double,3>::AddChild(sceneNode);
-    
   }
   
   //call AddChild for child members here!
@@ -31,7 +29,6 @@ public:
   //owns it, which is impossible in a constructor.
   virtual void InitChildren() {};
 
-  virtual void Update(std::chrono::duration<double> deltaT) override {};
   virtual void AnimationUpdate(const RenderFrame& frame) override {};
   virtual void Render(const RenderFrame& frame) const override {};
 };

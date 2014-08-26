@@ -5,6 +5,7 @@ set(interaction_SOURCES
   CoordinateUtility.h
   FrameFragmenter.h
   FrameFragmenter.cpp
+  HandEventListener.h
   HandLocationRecognizer.cpp
   HandLocationRecognizer.h
   HandPoseRecognizer.cpp
