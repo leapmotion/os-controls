@@ -7,10 +7,6 @@ set(osinterface_SOURCES
   MediaInterface.cpp
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
-  WindowingSystem.h
-  WindowingSystem.cpp
-  WindowSpaces.h
-  WindowSpaces.cpp
 )
 
 add_windows_sources(
