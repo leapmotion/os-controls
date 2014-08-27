@@ -187,9 +187,6 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
 
   m_Geometry.CleanUpBuffers();
 
-  Eigen::vector<Vector3f>& vertices = m_Geometry.Vertices();
-  Eigen::vector<Vector3f>& normals = m_Geometry.Normals();
-
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
   const double sinStart = std::sin(m_StartAngle);
@@ -242,22 +239,8 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
     const Vector3f curInner(static_cast<float>(innerRadius*cosCur), static_cast<float>(innerRadius*sinCur), 0.0f);
     const Vector3f curOuter(static_cast<float>(outerRadius*cosCur), static_cast<float>(outerRadius*sinCur), 0.0f);
 
-    vertices.push_back(prevInner);
-    vertices.push_back(prevOuter);
-    vertices.push_back(curOuter);
-
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-
-    vertices.push_back(curOuter);
-    vertices.push_back(curInner);
-
-    vertices.push_back(prevInner);
-
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
-    normals.push_back(Vector3f::UnitZ());
+    m_Geometry.PushTri(prevInner, prevOuter, curOuter);
+    m_Geometry.PushTri(curOuter, curInner, prevInner);
 
     prevInner = curInner;
     prevOuter = curOuter;

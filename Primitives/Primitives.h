@@ -174,10 +174,33 @@ public:
   
   enum TriangleSide { INSIDE, OUTSIDE };
 
-  void SetTriangleSide(TriangleSide side) { m_TriangleSide = side; }
-  void SetTrianglePosition(double pos) { m_TrianglePosition = pos; }
-  void SetTriangleWidth(double width) { m_TriangleWidth = width; }
-  void SetTriangleOffset(double offset) { m_TriangleOffset = offset; }
+  void SetTriangleSide(TriangleSide side) {
+    if (m_TriangleSide != side) {
+      m_RecomputeGeometry = true;
+    }
+    m_TriangleSide = side;
+  }
+
+  void SetTrianglePosition(double pos) {
+    if (m_TrianglePosition != pos) {
+      m_RecomputeGeometry = true;
+    }
+    m_TrianglePosition = pos;
+  }
+
+  void SetTriangleWidth(double width) {
+    if (m_TriangleWidth != width) {
+      m_RecomputeGeometry = true;
+    }
+    m_TriangleWidth = width;
+  }
+
+  void SetTriangleOffset(double offset) {
+    if (m_TriangleOffset != offset) {
+      m_RecomputeGeometry = true;
+    }
+    m_TriangleOffset = offset;
+  }
 
 protected:
 
