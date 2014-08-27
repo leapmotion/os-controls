@@ -6,6 +6,7 @@
 namespace leap  {
 
 class VirtualScreenWin :
+  public VirtualScreen
 {
   public:
     VirtualScreenWin();
