@@ -26,7 +26,6 @@ MediaView::MediaView(const Vector3& center, float offset) :
 }
 
 MediaView::~MediaView() {
-  RemoveFromParent();
 }
 
 void MediaView::AutoInit() {

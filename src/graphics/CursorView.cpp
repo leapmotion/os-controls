@@ -19,6 +19,9 @@ m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
   m_disk.SetRadius(radius);
 }
 
+CursorView::~CursorView() {
+}
+
 void CursorView::Move(float x, float y) {
   Translation().x() = x;
   Translation().y() = y;
@@ -30,10 +33,6 @@ void CursorView::SetSize(float radius) {
 
 void CursorView::InitChildren() {
   //TODO
-}
-
-CursorView::~CursorView() {
-  RemoveFromParent();
 }
 
 void CursorView::AutoInit() {

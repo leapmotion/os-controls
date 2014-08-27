@@ -19,7 +19,6 @@ public:
 
   Autowired<AudioVolumeInterface> m_audioVolumeInterface;
   Autowired<MediaInterface> m_mediaInterface;
-  Autowired<MediaView> m_mediaView;
 
   //Implementation of MeidaViewEventListener
   void OnUserPlayPause() override;
