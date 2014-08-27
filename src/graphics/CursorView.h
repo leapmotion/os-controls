@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderEngineNode.h"
+#include "RenderEngine.h"
 #include "SceneGraphNode.h"
 
 #include "Primitives.h"
@@ -46,5 +46,5 @@ private:
   
   Disk m_disk;
   
-  Autowired<RenderEngineNode> m_rootNode;
+  Autowired<RootRenderEngineNode> m_rootNode;
 };

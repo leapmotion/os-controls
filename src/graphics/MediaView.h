@@ -1,6 +1,6 @@
 #pragma once
 #include "graphics/Wedges.h"
-#include "graphics/RenderEngineNode.h"
+#include "graphics/RenderEngine.h"
 #include "graphics/VolumeControl.h"
 #include "interaction/MediaViewController.h"
 #include "interaction/HandRollRecognizer.h"
@@ -120,7 +120,7 @@ private:
   std::array<std::shared_ptr<Wedge>, 4> m_wedges;
   std::shared_ptr<VolumeControl> m_volumeControl;
   
-  Autowired<RenderEngineNode> m_rootNode;
+  Autowired<RootRenderEngineNode> m_rootNode;
   
   AutoRequired<MediaViewController> m_mediaViewController;
 };

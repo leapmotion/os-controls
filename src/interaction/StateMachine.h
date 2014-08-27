@@ -38,11 +38,9 @@ public:
 private:
   // Our current state
   OSCState m_state;
-  
-  AutoConstruct<MediaView> m_mediaView;
-  AutoConstruct<CursorView> m_cursorView;
 
-  Autowired<RenderEngineNode> m_rootNode;
+  AutoConstruct<CursorView> m_cursorView;
+  AutoConstruct<MediaView> m_mediaView;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.

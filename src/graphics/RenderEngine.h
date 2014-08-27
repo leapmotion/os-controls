@@ -13,6 +13,8 @@
 
 class GLShader;
 
+class RootRenderEngineNode : public RenderEngineNode {};
+
 //Tracks & dispatches update & render calls to a SceneGraph. Intended for use
 //with RenderEngineNodes, but will also support PrimitiveBase children.  Eventually
 //destined for the components repo, and when that happens we should unify the type
@@ -35,7 +37,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  AutoRequired<RenderEngineNode> m_rootNode;
+  AutoRequired<RootRenderEngineNode> m_rootNode;
 
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
