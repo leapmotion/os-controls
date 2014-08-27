@@ -3,6 +3,12 @@ set(interaction_SOURCES
   GestureTriggerManifest.h
   CoordinateUtility.cpp
   CoordinateUtility.h
+  ExposeView.h
+  ExposeView.cpp
+  ExposeViewAccessManager.h
+  ExposeViewAccessManager.cpp
+  ExposeViewProxy.h
+  ExposeViewProxy.cpp
   FrameFragmenter.h
   FrameFragmenter.cpp
   HandEventListener.h

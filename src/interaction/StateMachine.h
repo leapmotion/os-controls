@@ -12,6 +12,8 @@ namespace Leap {
   class Hand;
 }
 
+class ExposeViewProxy;
+
 /// <summary>
 /// The central state machine concept
 /// </summary>
@@ -41,6 +43,7 @@ private:
 
   AutoConstruct<CursorView> m_cursorView;
   AutoConstruct<MediaView> m_mediaView;
+  AutoRequired<ExposeViewProxy> m_evp;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
