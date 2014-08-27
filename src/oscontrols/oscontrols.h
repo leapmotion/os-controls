@@ -15,6 +15,8 @@ class AudioVolumeInterface;
 class LeapInput;
 class MediaInterface;
 class RenderEngine;
+class ExposeView;
+class ExposeViewAccessManager;
 
 namespace sf {
   class Event;
@@ -36,6 +38,9 @@ private:
   std::condition_variable m_stateCondition;
 
   sf::ContextSettings m_contextSettings;
+  
+  //Create Global Expose View and Access Manager
+  AutoRequired<ExposeViewAccessManager> m_exposeView;
 
   //////////////////////////////////////////////////////
   ///// DONT CHANGE THE ORDER OF THIS SECTION //////////

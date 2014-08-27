@@ -3,6 +3,8 @@ set(graphics_SOURCES
   CursorView.cpp
   ExposeControl.h
   ExposeControl.cpp
+  ExposeView.h
+  ExposeView.cpp
   MediaView.h
   MediaView.cpp
   RadialButton.h

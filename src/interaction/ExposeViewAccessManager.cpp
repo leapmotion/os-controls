@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ExposeViewAccessManager.h"
-#include "ExposeView.h"
+#include "graphics/ExposeView.h"
 
 std::shared_ptr<ExposeView> ExposeViewAccessManager::Lock(void) {
   if(!m_weakLock.expired())
