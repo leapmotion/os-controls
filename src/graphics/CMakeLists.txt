@@ -5,6 +5,8 @@ set(graphics_SOURCES
   ExposeControl.cpp
   ExposeView.h
   ExposeView.cpp
+  ExposeViewWindow.h
+  ExposeViewWindow.cpp
   MediaView.h
   MediaView.cpp
   RadialButton.h
