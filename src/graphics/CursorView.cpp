@@ -7,7 +7,8 @@
 #include <iostream>
 
 CursorView::CursorView(float radius, const Color& color) :
-m_state(State::INACTIVE)
+m_state(State::INACTIVE),
+m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
 {
   Translation() = Vector3(400, 400, -1);
   
