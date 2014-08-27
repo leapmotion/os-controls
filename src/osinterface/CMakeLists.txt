@@ -9,9 +9,13 @@ set(osinterface_SOURCES
   VolumeLevelChecker.cpp
   OSWindow.h
   OSWindow.cpp
-  OSWindowNode.h
+  OSWindowEvent.h
+  OSWindowEvent.cpp
+  OSWindowMonitor.h
+  OSWindowMonitor.cpp
   OSWindowManagerInterface.h
   OSWindowManagerInterface.cpp
+  OSWindowNode.h
 )
 
 add_windows_sources(

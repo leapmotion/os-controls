@@ -11,6 +11,7 @@ struct OSPoint {
 /// A platform-independent representation of a single window
 /// </summary>
 class OSWindow:
+  public std::enable_shared_from_this<OSWindow>,
   public OSWindowNode
 {
 public:
