@@ -8,6 +8,8 @@ public:
   ExposeViewAccessManager(void);
 
 private:
+  AutoCreateContext ctxt;
+  AutoRequired<ExposeView> m_exposeView;
   std::weak_ptr<ExposeView> m_weakLock;
 
 public:

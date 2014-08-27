@@ -2,11 +2,22 @@
 #include "ExposeViewAccessManager.h"
 #include "graphics/ExposeView.h"
 
+ExposeViewAccessManager::ExposeViewAccessManager(void):
+  m_exposeView(ctxt)
+{
+}
+
 std::shared_ptr<ExposeView> ExposeViewAccessManager::Lock(void) {
   if(!m_weakLock.expired())
     return nullptr;
 
-  auto retVal = std::make_shared<ExposeView>();
+  std::shared_ptr<ExposeView> exposeView = m_exposeView;
+  auto retVal = std::shared_ptr<ExposeView>(
+    m_exposeView.get(),
+    [exposeView] (ExposeView* pView) {
+      pView->CloseView();
+    }
+  );
   m_weakLock = retVal;
   return retVal;
 }
