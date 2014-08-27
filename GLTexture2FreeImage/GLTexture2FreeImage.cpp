@@ -75,15 +75,18 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
   // there is no data loss (e.g. loading float image data into 16-bit component representations).
   switch (image_type) {
     case FIT_BITMAP:
-      // We only support 24 and 32 bpp for now.  Perhaps monochrome bitmaps would be useful.
-      if (bpp == 24) {
+      // We only support 8, 24 and 32 bpp for now.  Perhaps monochrome bitmaps would be useful.
+      if (bpp == 8) {
+        pixel_data_format = GL_LUMINANCE;
+        internal_format = GL_RGB;
+      } else if (bpp == 24) {
         pixel_data_format = GL_RGB;
         internal_format = GL_RGB8;
       } else if (bpp == 32) {
         pixel_data_format = GL_RGBA;
         internal_format = GL_RGBA8;
       } else {
-        throw std::runtime_error("unsupported bits-per-pixel; only 24 and 32 bpp are supported");
+        throw std::runtime_error("unsupported bits-per-pixel; only 8, 24 and 32 bpp are supported");
       }
       pixel_data_type = GL_UNSIGNED_BYTE;
       break;
