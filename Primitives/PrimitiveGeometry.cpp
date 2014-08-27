@@ -28,7 +28,7 @@ void PrimitiveGeometry::UploadDataToBuffers(ClearOption clear_option) {
     auto mapped_vertex = vertex_index_map.find(vertex);
     // If the current vertex is not in the vbo map already, add it.
     if (mapped_vertex == vertex_index_map.end()) {
-      unsigned int new_index = vertex_index_map.size();
+      unsigned int new_index = static_cast<unsigned int>(vertex_index_map.size());
       indices.push_back(new_index);
       unique_vertices.push_back(vertex);
       vertex_index_map[vertex] = new_index;

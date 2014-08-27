@@ -156,7 +156,7 @@ void SVGPrimitive::RecomputeChildren() {
 
             poly.Init(static_cast<long>(numPoints));
             for (size_t i = 0; i < numPoints; i++) {
-              poly[i] = points[i];
+              poly[static_cast<int>(i)] = points[i];
             }
             // We are assuming that ONLY the last path is not a hole
             if (path->next) {

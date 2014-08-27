@@ -325,6 +325,7 @@ add_sublibrary(
         TextFileLoader.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         ResourceManager
+        SDLController
         TextAndBinaryFile
     BRIEF_DOC_STRING
         "ResourceManager-managed loading of text and binary files."
@@ -488,6 +489,14 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX") # /WX is to treat warnings as errors.
+endif()
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+    option(MSVC_USE_MT "Build using static runtime instead of dynamic" OFF)
+    if (MSVC_USE_MT)
+      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MT")
+      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    endif()
 endif()
 
 # Special rules to handle use of the libc++ library on Mac with Clang.
