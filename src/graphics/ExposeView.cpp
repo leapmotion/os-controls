@@ -14,7 +14,6 @@ ExposeView::~ExposeView() {
 }
 
 void ExposeView::AutoInit() {
-  std::cout << "Add ExposeView to the render tree." << std::endl;
   auto self = shared_from_this();
   m_rootNode->AddChild(self);
 }
