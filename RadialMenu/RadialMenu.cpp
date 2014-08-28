@@ -127,7 +127,6 @@ RadialMenu::UpdateResult RadialMenu::UpdateItemsFromCursor(const Vector3& cursor
   const int numItems = static_cast<int>(m_Items.size());
   const int& idx = hitResult.hitIdx;
   const double& ratio = hitResult.hitRatio;
-  double curActivation = 0;
 
   for (int i=0; i<numItems; i++) {
     std::shared_ptr<RadialMenuItem>& item = m_Items[i];
