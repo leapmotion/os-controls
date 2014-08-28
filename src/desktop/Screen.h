@@ -8,6 +8,8 @@
 #include <windows.h>
 #endif
 
+class GLTexture2;
+
 namespace leap {
 
 #if __APPLE__
@@ -25,15 +27,18 @@ class Screen : public ScreenBase {
     DisplayID ID() const { return m_screenID; }
     bool IsPrimary() const { return m_isPrimary; }
 
+    std::shared_ptr<GLTexture2> GetBackgroundImage() const;
+
   private:
-    Screen(const DisplayID& screenID);
+    Screen(const DisplayID& screenID) : m_screenID(screenID), m_isPrimary(false) { Update(); }
 
     void Update();
 
     DisplayID m_screenID;
     bool m_isPrimary;
 
-    friend class VirtualScreen;
+    friend class VirtualScreenMac;
+    friend class VirtualScreenWin;
 };
 
 }

@@ -10,7 +10,6 @@
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
-#include "utility/VirtualScreen.h"
 
 int main(int argc, char **argv)
 {

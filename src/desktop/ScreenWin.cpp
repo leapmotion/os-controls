@@ -1,24 +1,12 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
 #include "Screen.h"
+#include "GLTexture2.h"
 
 namespace leap {
 
-//
-// Screen
-//
-
-Screen::Screen(const DisplayID& screenID) : m_screenID(screenID), m_isPrimary(false)
-{
-  Update();
-}
-
 void Screen::Update()
 {
-#if __APPLE__
-  m_bounds = CGDisplayBounds(m_screenID);
-  m_isPrimary = CGDisplayIsMain(m_screenID);
-#elif _WIN32
   MONITORINFOEX info;
   info.cbSize = sizeof(MONITORINFOEX);
   GetMonitorInfo(m_screenID, &info);
@@ -31,9 +19,11 @@ void Screen::Update()
                   static_cast<Float>(info.rcMonitor.right - info.rcMonitor.left),
                   static_cast<Float>(info.rcMonitor.bottom - info.rcMonitor.top));
   m_isPrimary = ((info.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY);
-#else
-  // Linux -- FIXME
-#endif
+}
+
+std::shared_ptr<GLTexture2> Screen::GetBackgroundImage() const
+{
+  return std::shared_ptr<GLTexture2>();
 }
 
 }
