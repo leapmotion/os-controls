@@ -26,7 +26,6 @@ MediaView::MediaView(const Vector3& center, float offset) :
 }
 
 MediaView::~MediaView() {
-  RemoveFromParent();
 }
 
 void MediaView::AutoInit() {
@@ -53,6 +52,8 @@ void MediaView::OpenMenu(const HandLocation& handLocation) {
   // Update our position based on wherever the heck the hand is right now
   Move(Vector3(handLocation.x, handLocation.y, 0));
   
+  m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
+  
   fadeIn();
 }
 
@@ -72,11 +73,8 @@ void MediaView::NudgeVolumeView(float dVolume) {
   m_volumeControl->NudgeVolume(dVolume);
 }
 
-void MediaView::AutoFilter(OSCState appState, const Leap::Frame& frame, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll) {
+void MediaView::AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll) {
   // State Transitions
-  
-  std::cout << "Media View State: " << static_cast<int>(m_state) << std::endl;
-  
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
     CloseMenu();

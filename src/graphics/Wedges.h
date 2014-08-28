@@ -24,7 +24,7 @@ public:
   PlayPauseWedge(float innerRadius, float width, float startAngle, float endAngle, const Vector3& offset, bool isNullWedge = false) :
   Wedge(innerRadius, width, startAngle, endAngle, offset, isNullWedge) {};
   void OnSelected() override {
-    m_mediaViewEventListener(&MediaViewEventListener::OnUserPlayPause);
+    m_mediaViewEventListener(&MediaViewEventListener::OnUserPlayPause)();
   }
 };
 
@@ -37,7 +37,7 @@ public:
   Wedge(innerRadius, width, startAngle, endAngle, offset, isNullWedge) {};
   
   void OnSelected() override {
-    m_mediaViewEventListener(&MediaViewEventListener::OnUserNextTrack);
+    m_mediaViewEventListener(&MediaViewEventListener::OnUserPrevTrack)();
   }
 };
 
@@ -50,6 +50,6 @@ public:
   Wedge(innerRadius, width, startAngle, endAngle, offset, isNullWedge) {};
   
   void OnSelected() override {
-    m_mediaViewEventListener(&MediaViewEventListener::OnUserPrevTrack);
+    m_mediaViewEventListener(&MediaViewEventListener::OnUserNextTrack)();
   }
 };

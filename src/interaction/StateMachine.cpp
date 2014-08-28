@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "StateMachine.h"
+#include "Color.h"
 
 StateMachine::StateMachine(void):
-  ContextMember("StateMachine"),
-  m_state(OSCState::BASE),
-  m_mediaView(Vector3(300, 300, 0), 5.0f)
+ContextMember("StateMachine"),
+m_state(OSCState::BASE),
+m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
+m_mediaView(Vector3(300, 300, 0), 5.0f)
 {
 }
 
@@ -21,21 +23,22 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
   // Map the hand pose to a candidate media control state
   auto desiredState = OSCState::BASE;
   switch(handPose) {
-  case HandPose::ZeroFingers:
-    desiredState = OSCState::BASE;
-    break;
-  case HandPose::OneFinger:
-    desiredState = OSCState::BASE;
-    break;
-  case HandPose::TwoFingers:
-    desiredState = OSCState::MEDIA_MENU_FOCUSED;
-    break;
-  case HandPose::ThreeFingers:
+    case HandPose::ZeroFingers:
+      desiredState = OSCState::BASE;
+      break;
+    case HandPose::OneFinger:
+      desiredState = OSCState::BASE;
+      break;
+    case HandPose::TwoFingers:
+      desiredState = OSCState::MEDIA_MENU_FOCUSED;
+      break;
+    case HandPose::ThreeFingers:
       desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
-  case HandPose::FourFingers:
-  case HandPose::FiveFingers:
-    // Trash inputs for now, not certain what to do with these
-    return;
+      break;
+    case HandPose::FourFingers:
+    case HandPose::FiveFingers:
+    default:
+      break;
   }
 
   if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
@@ -61,6 +64,12 @@ void StateMachine::OnHandVanished() {
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   if(m_state == OSCState::FINAL && !m_mediaView->IsVisible()) {
+    // Remove our controls from the scene graph
+    m_mediaView->RemoveFromParent();
+    m_cursorView->RemoveFromParent();
+    // Shutdown the context
+    m_context->SignalShutdown();
+    // Remove our own reference to the context
     m_context.reset();
     return;
   }

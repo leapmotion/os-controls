@@ -14,13 +14,9 @@ HandRollRecognizer::~HandRollRecognizer(void)
 void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, DeltaRollAmount& dra) {
   // Compute the roll amount, decide whether to floor it down to zero
   float roll = -hand.palmNormal().roll();
-  if(std::abs(roll - m_lastRoll) > 0.5f)
-    // Roll is above the threshold, set the value
-    dra.dTheta = roll - m_lastRoll;
-  else
-    // Below the threshold, zeroize
-    dra.dTheta = 0.0;
-
+  
+  dra.dTheta = roll - m_lastRoll;
+  
   // Need to keep track of what the last roll was, now
   m_lastRoll = roll;
 

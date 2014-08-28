@@ -6,6 +6,7 @@ LeapInput::LeapInput(void):
   ContextMember("LeapInput")
 {
   m_controller->enableGesture(Leap::Gesture::TYPE_CIRCLE);
+  m_controller->setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
   m_controller->addListener(*this);
 }
 

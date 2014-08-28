@@ -24,3 +24,5 @@ build/
 **/*.xcodeproj
 src/oscontrols/default-vert.glsl
 src/oscontrols/default-frag.glsl
+src/oscontrols/material-frag.glsl
+src/oscontrols/matrix-transformed-vert.glsl

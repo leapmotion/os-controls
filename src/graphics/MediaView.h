@@ -1,6 +1,6 @@
 #pragma once
 #include "graphics/Wedges.h"
-#include "graphics/RenderEngineNode.h"
+#include "graphics/RenderEngine.h"
 #include "graphics/VolumeControl.h"
 #include "interaction/MediaViewController.h"
 #include "interaction/HandRollRecognizer.h"
@@ -31,7 +31,6 @@ public:
   
   //Set the translation portion of our node's tranform.
   void Move(const Vector3& coords);
-  
 
   void OpenMenu(const HandLocation& handLocation);
   void CloseMenu();
@@ -42,7 +41,7 @@ public:
   void NudgeVolumeView(float dVolume);
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const Leap::Frame& frame, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll);
+  void AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll);
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -52,7 +51,7 @@ private:
   void setGoalOpacity(float goalOpacity);
   
   //Wrappers on some fading in and out logic.
-  void fadeIn(){ m_opacity.Set(1.0f); }
+  void fadeIn() { m_opacity.Set(1.0f); }
   void fadeOut() { m_opacity.Set(0.0f); }
   
   //Send direction about max opacity and goal opacity to the individual wedges.
@@ -121,7 +120,7 @@ private:
   std::array<std::shared_ptr<Wedge>, 4> m_wedges;
   std::shared_ptr<VolumeControl> m_volumeControl;
   
-  Autowired<RenderEngineNode> m_rootNode;
+  Autowired<RootRenderEngineNode> m_rootNode;
   
   AutoRequired<MediaViewController> m_mediaViewController;
 };

@@ -5,6 +5,7 @@
 #include "uievents/OSCDomain.h"
 #include "uievents/Updatable.h"
 #include "graphics/MediaView.h"
+#include "graphics/CursorView.h"
 #include "interaction/HandEventListener.h"
 
 namespace Leap {
@@ -37,10 +38,9 @@ public:
 private:
   // Our current state
   OSCState m_state;
-  
-  AutoConstruct<MediaView> m_mediaView;
 
-  Autowired<RenderEngineNode> m_rootNode;
+  AutoConstruct<CursorView> m_cursorView;
+  AutoConstruct<MediaView> m_mediaView;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
