@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "graphics/ExposeView.h"
 #include "ExposeViewProxy.h"
 #include "ExposeViewAccessManager.h"
 
@@ -32,9 +33,9 @@ void ExposeViewProxy::AutoFilter(OSCState appState, const HandLocation& handLoca
       m_exposeView = m_exposeViewAccessManager->Lock();
       
       if( m_exposeView != nullptr) {
+        m_exposeView->StartView();
         m_state = State::ACTIVE;
       }
-    
       break;
     case State::ACTIVE:
       //If we need to release the view, tell the view to shut down then drop the reference.
@@ -58,6 +59,12 @@ void ExposeViewProxy::AutoFilter(OSCState appState, const HandLocation& handLoca
     case State::AWAITING_LOCK:
       break;
     case State::ACTIVE:
+      applyUserInput(handLocation);
       break;
   }
 }
+
+void ExposeViewProxy::applyUserInput(const HandLocation& handLocation) {
+  
+}
+

@@ -1,5 +1,6 @@
 #pragma once
 #include "utility/VirtualScreen.h"
+#include "interaction/ExposeViewAccessManager.h" //Tried to do this as a forward declaration but no joy - DanielP.
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -15,8 +16,6 @@ class AudioVolumeInterface;
 class LeapInput;
 class MediaInterface;
 class RenderEngine;
-class ExposeView;
-class ExposeViewAccessManager;
 
 namespace sf {
   class Event;
@@ -39,7 +38,7 @@ private:
 
   sf::ContextSettings m_contextSettings;
   
-  //Create Global Expose View and Access Manager
+  //Create Global Expose View Access Manager
   AutoRequired<ExposeViewAccessManager> m_exposeView;
 
   //////////////////////////////////////////////////////

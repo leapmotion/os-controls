@@ -14,11 +14,14 @@ public:
   void AutoFilter(OSCState appState, const HandLocation& handLocation);
 
 private:
+  
   enum class State {
     INACTIVE,
     AWAITING_LOCK,
     ACTIVE,
   };
+  
+  void applyUserInput(const HandLocation& handLocation);
   
   State m_state;
   
