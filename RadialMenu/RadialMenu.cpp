@@ -122,24 +122,27 @@ void RadialMenu::SetNumItems(int num) {
   updateItemLayout();
 }
 
-void RadialMenu::UpdateItemsFromCursor(const Vector3& cursor, float deltaTime) {
-  double hitRatio = 0;
-  const int hitEntry = checkCollision(cursor.head<2>(), hitRatio);
+RadialMenu::UpdateResult RadialMenu::UpdateItemsFromCursor(const Vector3& cursor, float deltaTime) {
+  const HitResult hitResult = ItemFromPoint(cursor.head<2>());
   const int numItems = static_cast<int>(m_Items.size());
+  const int& idx = hitResult.hitIdx;
+  const double& ratio = hitResult.hitRatio;
+  double curActivation = 0;
 
   for (int i=0; i<numItems; i++) {
     std::shared_ptr<RadialMenuItem>& item = m_Items[i];
-    if (i != hitEntry) {
+    if (i != idx) {
       item->SetActivation(0.0);
     } else {
-      item->SetActivation(hitRatio > 1.0 ? 1.0 : hitRatio);
+      item->SetActivation(ratio > 1.0 ? 1.0 : ratio);
     }
-    item->UpdateActivation(deltaTime);
   }
+  return UpdateResult(idx, idx >= 0 ? m_Items[idx]->CurrentActivation() : 0.0);
 }
 
-int RadialMenu::checkCollision(const Vector2& pos, double& ratio) const {
+RadialMenu::HitResult RadialMenu::ItemFromPoint(const Vector2& pos) const {
   int hit = -1;
+  double ratio = 0;
   const int numItems = static_cast<int>(m_Items.size());
   for (int i=0; i<numItems; i++) {
     if (m_Items[i]->Hit(pos, ratio)) {
@@ -148,7 +151,7 @@ int RadialMenu::checkCollision(const Vector2& pos, double& ratio) const {
     }
   }
 
-  return hit;
+  return HitResult(hit, ratio);
 }
 
 void RadialMenu::updateItemLayout() {

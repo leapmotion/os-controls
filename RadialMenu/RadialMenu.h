@@ -26,6 +26,7 @@ public:
   double CurrentRadius() const;
 
   void UpdateActivation(float deltaTime) { m_Activation.Update(deltaTime); }
+  double CurrentActivation() const { return m_Activation.Value(); }
 
 protected:
   Color calculateColor() const;
@@ -46,15 +47,26 @@ protected:
 
 class RadialMenu : public RadialItem  {
 public:
+  struct UpdateResult {
+    UpdateResult(int _updateIdx, double _curActivation) : updateIdx(_updateIdx), curActivation(_curActivation) { }
+    int updateIdx;
+    double curActivation;
+  };
+
+  struct HitResult {
+    HitResult(int _hitIdx, double _hitRatio) : hitIdx(_hitIdx), hitRatio(_hitRatio) { }
+    int hitIdx;
+    double hitRatio;
+  };
+
   RadialMenu();
   void SetNumItems(int num);
   const std::shared_ptr<RadialMenuItem>& GetItem(int i) const { return m_Items[i]; }
   std::shared_ptr<RadialMenuItem>& GetItem(int i) { return m_Items[i]; }
-  void UpdateItemsFromCursor(const Vector3& cursor, float deltaTime);
-
+  UpdateResult UpdateItemsFromCursor(const Vector3& cursor, float deltaTime);
+  HitResult ItemFromPoint(const Vector2& pos) const;
   virtual void Draw(RenderState& renderState) const override;
 protected:
-  int checkCollision(const Vector2& pos, double& ratio) const;
   void updateItemLayout();
 
   std::vector<std::shared_ptr<RadialMenuItem>> m_Items;
