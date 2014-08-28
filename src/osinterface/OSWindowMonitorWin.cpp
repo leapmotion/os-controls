@@ -5,6 +5,10 @@
 
 OSWindowMonitorWin::OSWindowMonitorWin(void)
 {
+  // Set up a hook so we can snag window creation events:
+
+  // Enumerate all top-level windows that we know about right now:
+
 }
 
 OSWindowMonitorWin::~OSWindowMonitorWin(void)
