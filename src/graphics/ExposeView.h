@@ -15,7 +15,7 @@ public:
   ~ExposeView(void);
   void AutoInit();
   
-  void AnimationUpdate(const RenderFrame& frame);
+  void AnimationUpdate(const RenderFrame& frame) override;
   
   void CloseView();
 
