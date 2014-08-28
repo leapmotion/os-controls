@@ -3,8 +3,8 @@
 #include "RenderFrame.h"
 
 ExposeView::ExposeView() :
-m_handIsGrabbing(false),
-m_opacity(0.0f, 0.3, EasingFunctions::Linear<float>)
+  m_handIsGrabbing(false),
+  m_opacity(0.0f, 0.3, EasingFunctions::Linear<float>)
 {
   
 }
@@ -54,8 +54,8 @@ bool ExposeView::EndGrab() {
 }
 
 void ExposeView::moveWindowToTop(std::shared_ptr<RectanglePrim> window) {
-  std::vector<std::shared_ptr<RectanglePrim>>::iterator windowIttr = std::find(m_windows.begin(), m_windows.end(), window);
-  if ( windowIttr != m_windows.end() ) {
+  auto windowIttr = std::find(m_windows.begin(), m_windows.end(), window);
+  if(windowIttr != m_windows.end()) {
     m_windows.erase(windowIttr);
     m_windows.push_back(window);
   }

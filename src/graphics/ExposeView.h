@@ -5,16 +5,13 @@
 #include <Animation.h>
 #include <vector>
 
-
-class ExposeViewWindow;
-
 class ExposeViewWindow;
 
 /// <summary>
 /// Implements expose view
 /// </summary>
-class ExposeView :
-public RenderEngineNode
+class ExposeView:
+  public RenderEngineNode
 {
 public:
   ExposeView(void);
@@ -43,6 +40,7 @@ public:
   // True -> Menu Should Close, False -> Menu should stay open.
   bool EndGrab();
 
+  /// <summary>
   /// Recovers a window from the specified abstract coordinates
   /// </summary>
   std::shared_ptr<ExposeViewWindow> WindowFromPoint(double x, double y) const;
