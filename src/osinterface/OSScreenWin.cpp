@@ -12,10 +12,10 @@ void OSScreen::Update()
   info.rcMonitor.top;
   info.rcMonitor.right;
   info.rcMonitor.bottom;
-  m_bounds = OSRect(static_cast<Float>(info.rcMonitor.left),
-                    static_cast<Float>(info.rcMonitor.top),
-                    static_cast<Float>(info.rcMonitor.right - info.rcMonitor.left),
-                    static_cast<Float>(info.rcMonitor.bottom - info.rcMonitor.top));
+  m_bounds = OSRect(static_cast<float>(info.rcMonitor.left),
+                    static_cast<float>(info.rcMonitor.top),
+                    static_cast<float>(info.rcMonitor.right - info.rcMonitor.left),
+                    static_cast<float>(info.rcMonitor.bottom - info.rcMonitor.top));
   m_isPrimary = ((info.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY);
 }
 
