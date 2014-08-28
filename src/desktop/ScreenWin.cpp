@@ -1,6 +1,7 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
 #include "Screen.h"
+#include "GLTexture2.h"
 
 namespace leap {
 
@@ -20,8 +21,9 @@ void Screen::Update()
   m_isPrimary = ((info.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY);
 }
 
-void Screen::GetBackgroundImage() const
+std::shared_ptr<GLTexture2> Screen::GetBackgroundImage() const
 {
+  return std::shared_ptr<GLTexture2>();
 }
 
 }

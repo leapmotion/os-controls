@@ -1,6 +1,7 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
 #include "Screen.h"
+#include "GLTexture2.h"
 
 #include <AppKit/NSScreen.h>
 #include <AppKit/NSGraphicsContext.h>
@@ -8,6 +9,7 @@
 #include <AppKit/NSWorkspace.h>
 #include <Foundation/NSKeyValueCoding.h>
 #include <Foundation/NSValue.h>
+#include <OpenGL/OpenGL.h>
 
 namespace leap {
 
@@ -17,8 +19,15 @@ void Screen::Update()
   m_isPrimary = CGDisplayIsMain(m_screenID);
 }
 
-void Screen::GetBackgroundImage() const
+std::shared_ptr<GLTexture2> Screen::GetBackgroundImage() const
 {
+  std::shared_ptr<GLTexture2> texture;
+
+  // There must be a current OpenGL context in order to obtain a texture
+  if (CGLGetCurrentContext() == nullptr) {
+    return texture;
+  }
+
   @autoreleasepool {
     NSScreen* screen = nil;
     for (NSScreen* item in [NSScreen screens]) {
@@ -29,24 +38,24 @@ void Screen::GetBackgroundImage() const
       }
     }
     if (!screen) {
-      return;
+      return texture;
     }
     const size_t width = static_cast<size_t>(Width());
     const size_t height = static_cast<size_t>(Height());
     const size_t bytesPerRow = width*4;
     const size_t totalBytes = bytesPerRow*height;
 
-    uint8_t* dstBytes = new uint8_t[totalBytes];
-    if (!dstBytes) {
-      return;
+    std::unique_ptr<uint8_t[]> dstBytes(new uint8_t[totalBytes]);
+    if (!dstBytes.get()) {
+      return texture;
     }
-    ::memset(dstBytes, 0, totalBytes);
+    ::memset(dstBytes.get(), 0, totalBytes);
 
     NSImage* nsImage = [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
     if (nsImage) {
       CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
       CGContextRef cgContextRef =
-        CGBitmapContextCreate(dstBytes, width, height, 8, bytesPerRow, rgb, kCGImageAlphaPremultipliedLast);
+        CGBitmapContextCreate(dstBytes.get(), width, height, 8, bytesPerRow, rgb, kCGImageAlphaPremultipliedLast);
       NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort:cgContextRef flipped:NO];
       [NSGraphicsContext saveGraphicsState];
       [NSGraphicsContext setCurrentContext:gc];
@@ -64,9 +73,20 @@ void Screen::GetBackgroundImage() const
       [NSGraphicsContext restoreGraphicsState];
       CGContextRelease(cgContextRef);
       CGColorSpaceRelease(rgb);
+      [nsImage release];
+
+      GLTexture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
+      params.SetTarget(GL_TEXTURE_2D);
+      params.SetInternalFormat(GL_RGBA8);
+      params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
+      texture = std::make_shared<GLTexture2>(params, pixelData);
     }
-    delete [] dstBytes;
   }
+  return texture;
 }
 
 }

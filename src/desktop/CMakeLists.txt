@@ -19,9 +19,14 @@ add_mac_sources(
   VirtualScreenMac.mm
 )
 
+ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
+
 add_library(desktop ${osinterface_SOURCES})
 target_link_libraries(desktop utility)
 target_include_directories(desktop PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
+
+target_link_components(desktop GLTexture2)
+
 if(APPLE)
   find_library(FOUNDATION_FRAMEWORK Foundation)
   find_library(APPKIT_FRAMEWORK AppKit)

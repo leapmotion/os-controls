@@ -8,6 +8,8 @@
 #include <windows.h>
 #endif
 
+class GLTexture2;
+
 namespace leap {
 
 #if __APPLE__
@@ -25,7 +27,7 @@ class Screen : public ScreenBase {
     DisplayID ID() const { return m_screenID; }
     bool IsPrimary() const { return m_isPrimary; }
 
-    void GetBackgroundImage() const;
+    std::shared_ptr<GLTexture2> GetBackgroundImage() const;
 
   private:
     Screen(const DisplayID& screenID) : m_screenID(screenID), m_isPrimary(false) { Update(); }
