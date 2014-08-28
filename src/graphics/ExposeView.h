@@ -8,6 +8,8 @@
 
 class ExposeViewWindow;
 
+class ExposeViewWindow;
+
 /// <summary>
 /// Implements expose view
 /// </summary>
@@ -25,12 +27,6 @@ public:
   void StartView();
   void CloseView();
 
-  /// <summary>
-  /// Return a shared pointer to a window under the current point in the expose view
-  /// If no window is under the point, return nullptr.
-  /// </summary>
-  std::shared_ptr<ExposeViewWindow> WindowFromPoint(uint32_t x, uint32_t y) const;
-  
   // Given the cursor position, layout the windows properly.
   // This is impacted by startGrab and endGrab
   void UpdateLayout(uint32_t cursorX, uint32_t cursorY);
@@ -46,6 +42,10 @@ public:
   // Returns whether or not the grab end should close the menu.
   // True -> Menu Should Close, False -> Menu should stay open.
   bool EndGrab();
+
+  /// Recovers a window from the specified abstract coordinates
+  /// </summary>
+  std::shared_ptr<ExposeViewWindow> WindowFromPoint(double x, double y) const;
   
 private:
   // Find the given window in the window list and move
