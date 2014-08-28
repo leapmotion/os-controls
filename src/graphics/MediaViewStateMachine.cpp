@@ -2,6 +2,7 @@
 #include "uievents/oscDomain.h"
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
+#include "uievents/osControlConfigs.h"
 
 const static float PI = 3.14159265f;
 
@@ -56,6 +57,12 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       float distance = m_mediaView->GetDistanceFromCenter(handLocation);
       m_mediaView->UpdateWedges(activeWedge, distance);
       m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
+      
+      if(distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS) {
+        activeWedge->OnSelected();
+        m_mediaView->CloseMenu();
+        m_state = State::SELECTION_MADE;
+      }
       break;
     }
     case State::SELECTION_MADE:
@@ -71,9 +78,3 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
 float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
   return deltaHandRoll / (3 * PI / 2.0);
 }
-
-//After Selection
-/*
- activeWedge->OnSelected();
- m_state = State::SELECTION_MADE;
-*/
