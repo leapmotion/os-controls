@@ -14,6 +14,12 @@ add_windows_sources(
   WindowCreatingTestFixtureWin.cpp
 )
 
+add_mac_sources(
+  osinterfacetest_SRCS
+  WindowCreatingTestFixtureMac.h
+  WindowCreatingTestFixtureMac.cpp
+)
+
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" osinterfacetest_SRCS)
 add_executable(osinterfacetest ${osinterfacetest_SRCS})
 target_link_libraries(osinterfacetest osinterface AutoTesting)
