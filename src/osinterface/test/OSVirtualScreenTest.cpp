@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "VirtualScreen.h"
+#include "OSVirtualScreen.h"
 
-class VirtualScreenTest:
+class OSVirtualScreenTest:
   public testing::Test
 {};
 
-TEST_F(VirtualScreenTest, VerifyPrimaryScreen) {
-  AutoDesired<leap::VirtualScreen> vs;
+TEST_F(OSVirtualScreenTest, VerifyPrimaryScreen) {
+  AutoDesired<OSVirtualScreen> vs;
   ASSERT_NE(nullptr, vs.get());
 
   auto primaryScreen = vs->PrimaryScreen();

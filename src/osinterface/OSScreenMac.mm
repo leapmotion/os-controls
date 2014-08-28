@@ -1,6 +1,6 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
-#include "Screen.h"
+#include "OSScreen.h"
 #include "GLTexture2.h"
 
 #include <AppKit/NSScreen.h>
@@ -11,15 +11,13 @@
 #include <Foundation/NSValue.h>
 #include <OpenGL/OpenGL.h>
 
-namespace leap {
-
-void Screen::Update()
+void OSScreen::Update()
 {
   m_bounds = CGDisplayBounds(m_screenID);
   m_isPrimary = CGDisplayIsMain(m_screenID);
 }
 
-std::shared_ptr<GLTexture2> Screen::GetBackgroundImage() const
+std::shared_ptr<GLTexture2> OSScreen::GetBackgroundImage() const
 {
   std::shared_ptr<GLTexture2> texture;
 
@@ -87,6 +85,4 @@ std::shared_ptr<GLTexture2> Screen::GetBackgroundImage() const
     }
   }
   return texture;
-}
-
 }

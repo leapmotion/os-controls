@@ -1,22 +1,18 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #pragma once
 
-#include "VirtualScreen.h"
+#include "OSVirtualScreen.h"
 
-namespace leap  {
-
-class VirtualScreenMac :
-  public VirtualScreen
+class OSVirtualScreenMac :
+  public OSVirtualScreen
 {
   public:
-    VirtualScreenMac();
-    virtual ~VirtualScreenMac();
+    OSVirtualScreenMac();
+    virtual ~OSVirtualScreenMac();
 
   protected:
-    virtual std::vector<Screen> GetScreens() const override;
+    virtual std::vector<OSScreen> GetScreens() const override;
 
   private:
     static void ConfigurationChangeCallback(CGDirectDisplayID display, CGDisplayChangeSummaryFlags flags, void *that);
 };
-
-}

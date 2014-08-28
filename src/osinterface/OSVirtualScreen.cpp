@@ -1,22 +1,20 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
-#include "VirtualScreen.h"
-
-namespace leap {
+#include "OSVirtualScreen.h"
 
 //
-// VirtualScreen
+// OSVirtualScreen
 //
 
-VirtualScreen::VirtualScreen() : ContextMember("VirtualScreen")
+OSVirtualScreen::OSVirtualScreen() : ContextMember("OSVirtualScreen")
 {
 }
 
-VirtualScreen::~VirtualScreen()
+OSVirtualScreen::~OSVirtualScreen()
 {
 }
 
-Screen VirtualScreen::PrimaryScreen() const
+OSScreen OSVirtualScreen::PrimaryScreen() const
 {
   std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -34,7 +32,7 @@ Screen VirtualScreen::PrimaryScreen() const
   return m_screens[0];
 }
 
-Screen VirtualScreen::ClosestScreen(const Point& position) const
+OSScreen OSVirtualScreen::ClosestScreen(const OSPoint& position) const
 {
   std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -42,17 +40,17 @@ Screen VirtualScreen::ClosestScreen(const Point& position) const
 
   if (numDisplays > 1) {
     for (uint32_t i = 0; i < numDisplays; i++) {
-      if (RectContainsPoint(m_screens[i].Bounds(), position)) {
+      if (OSRectContainsPoint(m_screens[i].Bounds(), position)) {
         return m_screens[i];
       }
     }
     int bestIndex = 0;
-    Float bestSquaredDistance = 0;
+    float bestSquaredDistance = 0;
     for (uint32_t i = 0; i < numDisplays; i++) {
-      Point clipped = m_screens[i].ClipPosition(position);
-      const Float dx = (clipped.x - position.x);
-      const Float dy = (clipped.y - position.y);
-      Float squaredDistance = dx*dx + dy*dy;
+      OSPoint clipped = m_screens[i].ClipPosition(position);
+      const float dx = (clipped.x - position.x);
+      const float dy = (clipped.y - position.y);
+      float squaredDistance = dx*dx + dy*dy;
       if (i == 0 || squaredDistance < bestSquaredDistance) {
         bestIndex = i;
         bestSquaredDistance = squaredDistance;
@@ -66,33 +64,31 @@ Screen VirtualScreen::ClosestScreen(const Point& position) const
   return m_screens[0];
 }
 
-void VirtualScreen::Update()
+void OSVirtualScreen::Update()
 {
   auto screens = GetScreens();
   std::unique_lock<std::mutex> lock(m_mutex);
   m_screens = screens;
   m_bounds = ComputeBounds(m_screens);
   lock.unlock();
-  AutoFired<VirtualScreenListener> vsl;
-  vsl(&VirtualScreenListener::OnChange)();
+  AutoFired<OSVirtualScreenListener> vsl;
+  vsl(&OSVirtualScreenListener::OnChange)();
 }
 
-Rect VirtualScreen::ComputeBounds(const std::vector<Screen>& screens)
+OSRect OSVirtualScreen::ComputeBounds(const std::vector<OSScreen>& screens)
 {
   size_t numScreens = screens.size();
 
   if (numScreens == 1) {
     return screens[0].Bounds();
   } else if (numScreens > 1) {
-    Rect bounds = screens[0].Bounds();
+    OSRect bounds = screens[0].Bounds();
 
     for (size_t i = 1; i < numScreens; i++) {
-      bounds = RectUnion(bounds, screens[i].Bounds());
+      bounds = OSRectUnion(bounds, screens[i].Bounds());
     }
     return bounds;
   } else {
-    return RectZero;
+    return OSRectZero;
   }
-}
-
 }

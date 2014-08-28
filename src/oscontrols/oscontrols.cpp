@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     osCtxt->Initiate();
 
     CurrentContextPusher pshr(osCtxt);
-    AutoRequired<leap::VirtualScreen> virtualScreen;
+    AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
     AutoRequired<FrameFragmenter> fragmenter;
     control->Main();

@@ -2,7 +2,6 @@ set(utility_SOURCES
   Config.h
   Config.cpp
   ExtendedStateMachine.h
-  Geometry.h
   NativeWindow.h
   PlatformInitializer.h
 )

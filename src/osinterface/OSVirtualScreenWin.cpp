@@ -1,32 +1,30 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
-#include "VirtualScreenWin.h"
+#include "OSVirtualScreenWin.h"
 
-namespace leap {
-
-VirtualScreen* VirtualScreen::New(void)
+OSVirtualScreen* OSVirtualScreen::New(void)
 {
-  return new VirtualScreenWin;
+  return new OSVirtualScreenWin;
 }
+
 //
-// VirtualScreenHelperClass
+// OSVirtualScreenHelperClass
 //
 
-
-class VirtualScreenHelperClass {
+class OSVirtualScreenHelperClass {
   public:
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static ATOM GetAtom() { static VirtualScreenHelperClass s_instance; return s_instance.m_atom; }
+    static ATOM GetAtom() { static OSVirtualScreenHelperClass s_instance; return s_instance.m_atom; }
 
   private:
-    VirtualScreenHelperClass();
-    ~VirtualScreenHelperClass();
+    OSVirtualScreenHelperClass();
+    ~OSVirtualScreenHelperClass();
 
     WNDCLASSW m_wndClass;
     ATOM m_atom;
 };
 
-VirtualScreenHelperClass::VirtualScreenHelperClass()
+OSVirtualScreenHelperClass::OSVirtualScreenHelperClass()
 {
   m_wndClass.style = CS_NOCLOSE;
   m_wndClass.lpfnWndProc = WndProc;
@@ -41,49 +39,49 @@ VirtualScreenHelperClass::VirtualScreenHelperClass()
   m_atom = RegisterClassW(&m_wndClass);
 }
 
-VirtualScreenHelperClass::~VirtualScreenHelperClass()
+OSVirtualScreenHelperClass::~OSVirtualScreenHelperClass()
 {
   UnregisterClassW(L"Leap::Desktop", nullptr);
 }
 
-LRESULT CALLBACK VirtualScreenHelperClass::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK OSVirtualScreenHelperClass::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   LONG_PTR val = GetWindowLongPtr(hwnd, GWLP_USERDATA);
   if (val) {
-    return reinterpret_cast<VirtualScreenWin*>(val)->WndProc(uMsg, wParam, lParam);
+    return reinterpret_cast<OSVirtualScreenWin*>(val)->WndProc(uMsg, wParam, lParam);
   }
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 //
-// VirtualScreenWin
+// OSVirtualScreenWin
 //
 
-VirtualScreenWin::VirtualScreenWin()
+OSVirtualScreenWin::OSVirtualScreenWin()
 {
   m_hWnd = ::CreateWindowExW(WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT,
-                             MAKEINTRESOURCEW(VirtualScreenHelperClass::GetAtom()),
+                             MAKEINTRESOURCEW(OSVirtualScreenHelperClass::GetAtom()),
                              L"", WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, nullptr, nullptr, nullptr, this);
   ::SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
   ::ShowWindow(m_hWnd, SW_HIDE);
   Update();
 }
 
-VirtualScreenWin::~VirtualScreenWin()
+OSVirtualScreenWin::~OSVirtualScreenWin()
 {
   if (m_hWnd) {
     ::DestroyWindow(m_hWnd);
   }
 }
 
-std::vector<Screen> VirtualScreenWin::GetScreens() const
+std::vector<OSScreen> OSVirtualScreenWin::GetScreens() const
 {
-  std::vector<Screen> screens;
+  std::vector<OSScreen> screens;
   EnumDisplayMonitors(0, 0, EnumerateDisplays, reinterpret_cast<LPARAM>(&screens));
   return screens;
 }
 
-LRESULT VirtualScreenWin::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT OSVirtualScreenWin::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   if (uMsg == WM_DISPLAYCHANGE) {
     Update();
@@ -91,11 +89,9 @@ LRESULT VirtualScreenWin::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
   return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 }
 
-BOOL CALLBACK VirtualScreenWin::EnumerateDisplays(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
+BOOL CALLBACK OSVirtualScreenWin::EnumerateDisplays(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
 {
-  std::vector<Screen>& screens = *reinterpret_cast<std::vector<Screen>*>(dwData);
-  screens.push_back(Screen(hMonitor));
+  std::vector<OSScreen>& screens = *reinterpret_cast<std::vector<OSScreen>*>(dwData);
+  screens.push_back(OSScreen(hMonitor));
   return true;
-}
-
 }

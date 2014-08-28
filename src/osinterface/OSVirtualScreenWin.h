@@ -1,27 +1,23 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #pragma once
 
-#include "VirtualScreen.h"
+#include "OSVirtualScreen.h"
 
-namespace leap  {
-
-class VirtualScreenWin :
-  public VirtualScreen
+class OSVirtualScreenWin :
+  public OSVirtualScreen
 {
   public:
-    VirtualScreenWin();
-    virtual ~VirtualScreenWin();
+    OSVirtualScreenWin();
+    virtual ~OSVirtualScreenWin();
 
   protected:
-    virtual std::vector<Screen> GetScreens() const override;
+    virtual std::vector<OSScreen> GetScreens() const override;
 
   private:
-    friend class VirtualScreenHelperClass;
+    friend class OSVirtualScreenHelperClass;
 
     LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
     static BOOL CALLBACK EnumerateDisplays(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
 
     HWND m_hWnd;
 };
-
-}
