@@ -4,6 +4,7 @@
 #include "Primitives.h"
 #include <Animation.h>
 #include <vector>
+#include <tuple>
 
 
 class ExposeViewWindow;
@@ -51,6 +52,10 @@ private:
   // Find the given window in the window list and move
   // to the end of the vector such that it will render on top.
   void moveWindowToTop(std::shared_ptr<RectanglePrim> window);
+  
+  // Convert a radian angle and a pixel distance to a point.
+  // Returns a tuple x,y
+  std::tuple<double, double> radialCoordsToPoint();
 
   
   Autowired<RootRenderEngineNode> m_rootNode; //Root node in the render tree
@@ -61,8 +66,5 @@ private:
   
   //Each of the window images.
   std::vector<std::shared_ptr<RectanglePrim>> m_windows;
-  
-  //Background Overlay Rectangle
-  RectanglePrim m_backgroundRect;
 };
 

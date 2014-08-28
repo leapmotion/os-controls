@@ -10,12 +10,16 @@ m_opacity(0.0f, 0.3, EasingFunctions::Linear<float>)
 }
 
 ExposeView::~ExposeView() {
+  
 }
 
 void ExposeView::AutoInit() {
   std::cout << "Add ExposeView to the render tree." << std::endl;
-  auto self = shared_from_this();
-  m_rootNode->AddChild(self);
+  
+  m_rootNode.NotifyWhenAutowired([this]{
+    auto self = shared_from_this();
+    m_rootNode->AddChild(self);
+  });
 }
 
 void ExposeView::StartView() {
@@ -31,7 +35,6 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
-  m_backgroundRect.Draw(frame.renderState);
   
   for(auto window : m_windows) {
     //QUESTION: Do I need to lock the window here? 
@@ -40,6 +43,10 @@ void ExposeView::Render(const RenderFrame& frame) const {
 }
 
 void ExposeView::UpdateLayout(uint32_t cursorX, uint32_t cursorY) {
+  
+}
+
+std::tuple<double, double> radialCoordsToPoint(double angle, double distance) {
   
 }
 
