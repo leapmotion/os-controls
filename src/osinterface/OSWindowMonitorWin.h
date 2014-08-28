@@ -21,6 +21,6 @@ private:
 
 public:
   // OSWindowMonitor overrides:
-  void Enumerate(std::function<void(OSWindow&)>& callback) const override;
+  void Enumerate(const std::function<void(OSWindow&)>& callback) const override;
 };
 

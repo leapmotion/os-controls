@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "WindowCreatingTestFixture.h"
+#include "OSWindow.h"
+#include "OSWindowMonitor.h"
 
 class OSWindowInterfaceTest:
   public testing::Test
@@ -11,8 +13,11 @@ TEST_F(OSWindowInterfaceTest, CanEnumerateTopLevelWindows) {
   const auto testWindowProps = wctf->CreateTestWindow();
 
   // Now see if we can enumerate to this window as one of the top-level windows:
-  AutoRequired<OSWindowManagerInterface> oswmi;
-  auto windows = oswmi->EnumerateTopLevel();
+  AutoRequired<OSWindowMonitor> oswmi;
+  std::vector<std::shared_ptr<OSWindow>> windows;
+  oswmi->Enumerate([&windows] (OSWindow& os) {
+    windows.push_back(os.shared_from_this());
+  });
 
   // At the minimum, we should find one top-level window
   ASSERT_FALSE(windows.empty()) << "Child enumeration failed to return a single window";
