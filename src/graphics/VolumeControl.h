@@ -20,7 +20,7 @@ public:
 
   void SetOpacity(float opacity);
 
- EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
   std::shared_ptr<PartialDisk> m_partialDisk;
   std::shared_ptr<PartialDisk> m_activePartialDisk;

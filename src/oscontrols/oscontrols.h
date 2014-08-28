@@ -1,5 +1,5 @@
 #pragma once
-#include "utility/VirtualScreen.h"
+#include "osinterface/OSVirtualScreen.h"
 #include "interaction/ExposeViewAccessManager.h" //Tried to do this as a forward declaration but no joy - DanielP.
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
@@ -26,7 +26,7 @@ int oscontrols_main(int argc, char **argv);
 
 class OsControl :
   public CoreRunnable,
-  public leap::VirtualScreenListener,
+  public OSVirtualScreenListener,
   public ExceptionFilter
 {
 public:
@@ -44,7 +44,7 @@ private:
   //////////////////////////////////////////////////////
   ///// DONT CHANGE THE ORDER OF THIS SECTION //////////
   //This might need to be changed to be a manifest?
-  Autowired<leap::VirtualScreen> m_virtualScreen;
+  Autowired<OSVirtualScreen> m_virtualScreen;
 
   // Must be before m_mw;
   AutoRequired<RenderEngine> m_render;
@@ -75,7 +75,7 @@ private:
   /// </summary>
   void HandleEvent(const sf::Event& ev) const;
 
-  // VirtualScreenListener overrides:
+  // OSVirtualScreenListener overrides:
   void OnChange(void) override { ++m_desktopChanged; }
 
 public:
