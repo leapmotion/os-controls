@@ -28,6 +28,7 @@ void ExposeView::CloseView() {
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
+  UpdateLayout(frame.deltaT);
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
@@ -39,8 +40,8 @@ void ExposeView::Render(const RenderFrame& frame) const {
   }
 }
 
-void ExposeView::UpdateLayout(uint32_t cursorX, uint32_t cursorY) {
-  
+void ExposeView::UpdateLayout(std::chrono::duration<double> timeout) {
+  // TODO:  Given the current state of this object, update its layout:
 }
 
 void ExposeView::StartGrab() {

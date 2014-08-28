@@ -28,10 +28,10 @@ private:
   std::weak_ptr<ExposeViewWindowActivation> m_activationWeak;
   std::weak_ptr<MovableWindow> m_movableWindowWeak;
 
+public:
   // Activation overrides:
   void SetActivation(float activation) override;
 
-public:
   /// <summary>
   /// Allows the caller to set the activation level
   /// </summary>
