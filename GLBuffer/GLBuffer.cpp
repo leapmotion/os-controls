@@ -21,6 +21,11 @@ void GLBuffer::Allocate(const void* data, int count, GLenum pattern) {
   CheckError("Allocate");
 }
 
+void GLBuffer::Write(const void* data, int count) {
+  glBufferSubData(m_BufferType, 0, count, data);
+  CheckError("Allocate");
+}
+
 void GLBuffer::Release() {
   glBindBuffer(m_BufferType, 0);
   CheckError("Release");

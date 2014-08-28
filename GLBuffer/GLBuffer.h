@@ -11,6 +11,7 @@ public:
   void Create(GLenum type);
   void Bind();
   void Allocate(const void* data, int count, GLenum pattern);
+  void Write(const void* data, int count);
   void Release();
   int Size() const;
   void* Map(GLuint access);
