@@ -1,44 +1,30 @@
 #pragma once
 #include "ExposeView.h"
+#include "utility/lockable_property.h"
 
-/// <summary>
-/// Accessor interface used to set the activation level
-// </summary>
-class ExposeViewWindowActivation {
-public:
-  virtual void SetActivation(float activation) = 0;
-};
-
-class MovableWindow {
-public:
-  virtual void SetPosition(float x, float y) = 0;
-};
+class OSWindow;
 
 class ExposeViewWindow:
-  ExposeViewWindowActivation,
-  MovableWindow
+  public RenderEngineNode
 {
 public:
-  ExposeViewWindow(void);
+  ExposeViewWindow(OSWindow& osWindow);
   ~ExposeViewWindow(void);
 
-private:
-  float m_activation;
+  // Current activation level, some number in the range [0...1]
+  lockable_property<float> m_activation;
 
-  std::weak_ptr<ExposeViewWindowActivation> m_activationWeak;
-  std::weak_ptr<MovableWindow> m_movableWindowWeak;
+  // Flag, set if the view can be automatically laid out
+  lockable_property<bool> m_useLayout;
+
+  // The underlying OS window
+  const std::shared_ptr<OSWindow> m_osWindow;
+
+private:
+  // Texture for this window
+  RectanglePrim m_texture;
 
 public:
-  // Activation overrides:
-  void SetActivation(float activation) override;
-
-  /// <summary>
-  /// Allows the caller to set the activation level
-  /// </summary>
-  std::shared_ptr<ExposeViewWindowActivation> LockActivation(void);
-
-  /// <summary>
-  /// Causes the layout engine to stop attempting to update the layout of this window
-  /// </summary>
-  std::shared_ptr<MovableWindow> SuspendAutomaticLayout(void);
+  // RenderEngineNode overrides
+  void Render(const RenderFrame& frame) const;
 };

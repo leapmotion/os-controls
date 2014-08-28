@@ -6,6 +6,7 @@
 #include <vector>
 
 class ExposeViewWindow;
+class OSWindow;
 
 /// <summary>
 /// Implements expose view
@@ -21,16 +22,24 @@ public:
 private:
   // Find the given window in the window list and move
   // to the end of the vector such that it will render on top.
-  void moveWindowToTop(std::shared_ptr<RectanglePrim> window);
+  void moveWindowToTop(ExposeViewWindow& window);
 
-  Autowired<RootRenderEngineNode> m_rootNode; //Root node in the render tree
-  bool m_handIsGrabbing; //Flag to know if the hand is currently grabbing
+  //Root node in the render tree
+  Autowired<RootRenderEngineNode> m_rootNode;
+
+  //Flag to know if the hand is currently grabbing
+  bool m_handIsGrabbing;
+
+  // Opacity value for the entire view
   Animated<float> m_opacity;
   
   // All windows currently known to this view:
   std::vector<std::shared_ptr<ExposeViewWindow>> m_windows;
+
+  // Rendering order:
+  std::list<ExposeViewWindow*> m_renderList;
   
-  //Background Overlay Rectangle
+  // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
 
 private:
@@ -43,6 +52,11 @@ public:
   // RenderEngineNode overrides:
   void AnimationUpdate(const RenderFrame& frame) override;
   void Render(const RenderFrame& frame) const override;
+
+  /// <summary>
+  /// Creates a new ExposeViewWindow for the specified OS window
+  /// </summary>
+  std::shared_ptr<ExposeViewWindow> NewExposeWindow(OSWindow& osWindow);
 
   /// <summary>
   /// </summary>

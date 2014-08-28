@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "ExposeView.h"
+#include "ExposeViewWindow.h"
 #include "RenderFrame.h"
 
 ExposeView::ExposeView() :
   m_handIsGrabbing(false),
-  m_opacity(0.0f, 0.3, EasingFunctions::Linear<float>)
+  m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>)
 {
   
 }
@@ -18,14 +19,6 @@ void ExposeView::AutoInit() {
   m_rootNode->AddChild(self);
 }
 
-void ExposeView::StartView() {
-  m_opacity.Set(1.0f, 0.3);
-}
-
-void ExposeView::CloseView() {
-  m_opacity.Set(0.0f, 0.2f);
-}
-
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
   UpdateLayout(frame.deltaT);
@@ -33,15 +26,26 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 
 void ExposeView::Render(const RenderFrame& frame) const {
   m_backgroundRect.Draw(frame.renderState);
-  
-  for(auto window : m_windows) {
-    //QUESTION: Do I need to lock the window here? 
-    window->Draw(frame.renderState);
-  }
+  for(const auto& renderable : m_renderList)
+    renderable->Render(frame);
 }
 
 void ExposeView::UpdateLayout(std::chrono::duration<double> timeout) {
-  // TODO:  Given the current state of this object, update its layout:
+  // TODO:  Given the current state of this object, update its layout
+}
+
+std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
+  auto retVal = std::make_shared<ExposeViewWindow>(osWindow);
+  m_windows.push_back(retVal);
+  return retVal;
+}
+
+void ExposeView::StartView() {
+  m_opacity.Set(1.0f, 0.3);
+}
+
+void ExposeView::CloseView() {
+  m_opacity.Set(0.0f, 0.2f);
 }
 
 void ExposeView::StartGrab() {
@@ -54,10 +58,10 @@ bool ExposeView::EndGrab() {
   return retVal;
 }
 
-void ExposeView::moveWindowToTop(std::shared_ptr<RectanglePrim> window) {
-  auto windowIttr = std::find(m_windows.begin(), m_windows.end(), window);
-  if(windowIttr != m_windows.end()) {
-    m_windows.erase(windowIttr);
-    m_windows.push_back(window);
-  }
+void ExposeView::moveWindowToTop(ExposeViewWindow& window) {
+  std::rotate(
+    m_renderList.begin(),
+    std::find(m_renderList.begin(), m_renderList.end(), &window),
+    m_renderList.end()
+  );
 }
