@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "WindowCreatingTestFixture.h"
-#include "OSWindowManagerInterface.h"
 
 class OSWindowInterfaceTest:
   public testing::Test

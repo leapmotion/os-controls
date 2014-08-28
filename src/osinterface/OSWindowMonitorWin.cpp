@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "OSWindowMonitorWin.h"
 #include "OSWindow.h"
+#include "OSWindowEvent.h"
 
 OSWindowMonitorWin::OSWindowMonitorWin(void)
 {

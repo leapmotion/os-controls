@@ -18,8 +18,6 @@ set(osinterface_SOURCES
   OSWindowEvent.cpp
   OSWindowMonitor.h
   OSWindowMonitor.cpp
-  OSWindowManagerInterface.h
-  OSWindowManagerInterface.cpp
   OSWindowNode.h
 )
 
@@ -34,8 +32,8 @@ add_windows_sources(
   OSVirtualScreenWin.cpp
   OSWindowWin.h
   OSWindowWin.cpp
-  OSWindowManagerInterfaceWin.h
-  OSWindowManagerInterfaceWin.cpp
+  OSWindowMonitorWin.h
+  OSWindowMonitorWin.cpp
 )
 
 add_mac_sources(
