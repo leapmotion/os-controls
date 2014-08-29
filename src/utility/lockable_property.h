@@ -92,8 +92,8 @@ struct lockable_property:
     {}
 
     // Operator overloads:
-    T& operator*(void) const { return prop.val; }
-    T* operator->(void) const { return &prop.val; }
+    T& operator*(void) const { return static_cast<lockable_property<T>*>(prop)->val; }
+    T* operator->(void) const { return &static_cast<lockable_property<T>*>(prop)->val; }
   };
 
 private:
