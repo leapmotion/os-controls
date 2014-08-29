@@ -1,6 +1,6 @@
 #pragma once
+#include "expose/ExposeView.h"
 #include "uievents/OSCDomain.h"
-#include "graphics/ExposeView.h"
 #include "HandLocationRecognizer.h"
 
 class ExposeViewAccessManager;

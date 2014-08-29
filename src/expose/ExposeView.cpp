@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ExposeView.h"
 #include "ExposeViewWindow.h"
-#include "RenderFrame.h"
+#include "graphics/RenderFrame.h"
 
 ExposeView::ExposeView() :
   m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>)

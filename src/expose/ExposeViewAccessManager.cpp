@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ExposeViewAccessManager.h"
-#include "graphics/ExposeView.h"
+#include "ExposeView.h"
 
 ExposeViewAccessManager::ExposeViewAccessManager(void):
   m_exposeView(ctxt)

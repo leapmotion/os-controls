@@ -1,7 +1,7 @@
 #pragma once
-#include "RenderEngine.h"
-#include "RenderEngineNode.h"
 #include "Primitives.h"
+#include "graphics/RenderEngine.h"
+#include "graphics/RenderEngineNode.h"
 #include <Animation.h>
 #include <vector>
 #include <tuple>
