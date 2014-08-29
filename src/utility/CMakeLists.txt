@@ -21,3 +21,4 @@ add_mac_sources(utility_SOURCES
 add_library(utility ${utility_SOURCES})
 target_link_libraries(utility Autowiring)
 target_include_directories(utility PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
+add_subdirectory(test)
