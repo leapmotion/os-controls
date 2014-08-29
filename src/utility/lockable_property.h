@@ -57,7 +57,7 @@ public:
   /// <returns>
   /// True if this property has been locked against modifications
   /// </returns>
-  bool is_locked(void) {
+  bool is_locked(void) const {
     return locked == State::Locked;
   }
 
@@ -67,7 +67,11 @@ public:
   lock_type lock(void) {
     return lock_type(*this);
   }
+
+  // Operator overloads:
+  operator bool(void) const { return is_locked(); }
 };
+
 /// <summary>
 /// Represents a property that maybe locked against modification, but still permitted read access
 /// </summary>
