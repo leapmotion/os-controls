@@ -754,10 +754,24 @@ add_sublibrary(
         gtest/gtest_main.cc
     COMPILE_DEFINITIONS
         GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
-    COMPILE_OPTIONS
-        "-fvisibility=default"
     BRIEF_DOC_STRING
         "Provides an easy way to include and link the Google Test framework."
+)
+
+add_sublibrary(
+    GLTestFramework
+    SOURCE_PATH
+        Test/GLTestFramework
+    HEADERS
+        GLTestFramework.h
+    SOURCES
+        GLTestFramework.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLController
+        GTest
+        SDLController
+    BRIEF_DOC_STRING
+        "Provides an easy way to create GL-based tests."
 )
 
 # This effectively resets ADDED_SUBLIBRARIES and UNADDED_SUBLIBRARIES.  It is intentionally
@@ -788,10 +802,22 @@ add_sublibrary(
         GLShaderTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLShaderLoader
-        GTest
-        SDLController # For creating the GL context
+        GLTestFramework
     BRIEF_DOC_STRING
         "Unit tests for the GLShader component."
+)
+
+add_sublibrary(
+    GLTexture2Test
+    SOURCE_PATH
+        GLTexture2/Test
+    SOURCES
+        GLTexture2Test.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLTexture2
+        GLTestFramework
+    BRIEF_DOC_STRING
+        "Unit tests for the GLTexture2 component."
 )
 
 set(_tests ${ADDED_SUBLIBRARIES})

@@ -126,14 +126,13 @@ void SDLController::InitWindow() {
     }
   }
 
-  Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
   if (m_Params.transparentWindow) {
     // Transparent window only works properly when the window is borderless
-    windowFlags |= SDL_WINDOW_BORDERLESS;
+    m_Params.windowFlags |= SDL_WINDOW_BORDERLESS;
   }
 
   // Create a window.
-  m_SDL_Window = SDL_CreateWindow(m_Params.windowTitle.c_str(), m_Params.windowPosX, m_Params.windowPosY, m_Params.windowWidth, m_Params.windowHeight, windowFlags);
+  m_SDL_Window = SDL_CreateWindow(m_Params.windowTitle.c_str(), m_Params.windowPosX, m_Params.windowPosY, m_Params.windowWidth, m_Params.windowHeight, m_Params.windowFlags);
 
   if (m_SDL_Window == nullptr) {
     CleanUpInitializedResources();

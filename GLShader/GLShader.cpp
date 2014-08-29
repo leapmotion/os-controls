@@ -17,9 +17,10 @@ GLShader::VarInfo::VarInfo (const std::string &name, GLint location, GLint size,
   if (m_name.empty()) {
     throw std::invalid_argument("shader variable must have nonempty name");
   }
-  if (m_location < 0) {
-    throw std::invalid_argument("shader variable must have nonnegative location (index in variable list)");
-  }
+  // I've commented this out because sometimes I get gl_ModelViewProjectionMatrixTranspose showing up at location -1.
+//   if (m_location < 0) {
+//     throw std::invalid_argument("shader variable \"" + name + "\" must have nonnegative location (index in variable list)");
+//   }
   if (m_size <= 0) {
     throw std::invalid_argument("shader variable must have positive size");
   }

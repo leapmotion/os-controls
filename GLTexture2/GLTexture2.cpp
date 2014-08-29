@@ -21,16 +21,10 @@ void ThrowOnGLError (const std::string &while_doing) {
 // GLTexture2Params
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GLTexture2Params::GLTexture2Params (
-  GLsizei width,
-  GLsizei height,
-  GLenum pixel_data_format,
-  GLenum pixel_data_type)
+GLTexture2Params::GLTexture2Params (GLsizei width, GLsizei height)
   :
   m_target(DEFAULT_TARGET),
-  m_internal_format(DEFAULT_INTERNAL_FORMAT),
-  m_pixel_data_format(pixel_data_format),
-  m_pixel_data_type(pixel_data_type)
+  m_internal_format(DEFAULT_INTERNAL_FORMAT)
 { 
   m_size[0] = width;
   m_size[1] = height;
@@ -66,12 +60,12 @@ void GLTexture2Params::SetTexParameteri (GLenum pname, GLint value) {
 }
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// GLTexture2
+// GLTexture2PixelData
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: somehow make this less version-specific (?), or come up with a version-agnostic way
 // to determine the size of each pixel from given pixel data format and type.
-size_t ComponentsInPixelFormat (GLenum format) {
+size_t GLTexture2PixelData::ComponentsInFormat (GLenum format) {
   // Allowable OpenGL 2.1 values: GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, GL_LUMINANCE_ALPHA
   // Allowable OpenGL 3.3 values: GL_RED, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL
   // Overlap between 2.1 and 3.3: GL_RED, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA
@@ -100,19 +94,54 @@ size_t ComponentsInPixelFormat (GLenum format) {
   }
 }
 
-GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, size_t pixel_data_byte_count)
+size_t GLTexture2PixelData::BytesInType (GLenum type) {
+  // Allowable OpenGL 2.1 values: GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV, GL_BITMAP, 
+  // Allowable OpenGL 3.3 values: GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV.
+  // Overlap between 2.1 and 3.3: all but GL_BITMAP, which only occurs in OpenGL 2.1.  This one will not be supported for now.
+  switch (type) {
+    case GL_UNSIGNED_BYTE:
+    case GL_BYTE:
+    case GL_UNSIGNED_BYTE_3_3_2:
+    case GL_UNSIGNED_BYTE_2_3_3_REV:      return 1;
+      
+    case GL_UNSIGNED_SHORT:
+    case GL_SHORT:
+    case GL_UNSIGNED_SHORT_5_6_5:
+    case GL_UNSIGNED_SHORT_5_6_5_REV:
+    case GL_UNSIGNED_SHORT_4_4_4_4:
+    case GL_UNSIGNED_SHORT_4_4_4_4_REV:
+    case GL_UNSIGNED_SHORT_5_5_5_1:
+    case GL_UNSIGNED_SHORT_1_5_5_5_REV:   return 2;
+      
+    case GL_UNSIGNED_INT:
+    case GL_INT:
+    case GL_FLOAT:
+    case GL_UNSIGNED_INT_8_8_8_8:
+    case GL_UNSIGNED_INT_8_8_8_8_REV:
+    case GL_UNSIGNED_INT_10_10_10_2:
+    case GL_UNSIGNED_INT_2_10_10_10_REV:  return 4;
+      
+    default: throw std::invalid_argument("invalid pixel type; must be one of GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV.");
+  }
+}
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+// GLTexture2
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+
+GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
   :
   m_params(params)
 {
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
-    throw std::invalid_argument("GLTexture2Params must specify positive width and height");
+    throw std::invalid_argument("GLTexture2Params must specify positive width and height"); // TODO: should this requirement be removed?
   }
-  if (m_params.PixelDataFormat() == GL_INVALID_ENUM || m_params.PixelDataType() == GL_INVALID_ENUM) {
-    throw std::invalid_argument("GLTexture2Params must specify valid GLenum values for pixel data format and type");
+  if (!pixel_data.IsEmpty() && (pixel_data.Format() == GL_INVALID_ENUM || pixel_data.Type() == GL_INVALID_ENUM)) {
+    throw std::invalid_argument("GLTexture2PixelData must be empty or specify valid GLenum values for pixel data format and type");
   }
   // Check that the supplied data is the correct size.
-  if (pixel_data_byte_count != ComponentsInPixelFormat(m_params.PixelDataFormat())*m_params.Width()*m_params.Height()) {
+  if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() != GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*m_params.Width()*m_params.Height()) {
     throw std::invalid_argument("the number of components in pixel_data did not correspond to width*height");
   }
   glGenTextures(1, &m_texture_name);
@@ -143,16 +172,16 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const void *pixel_data, 
                m_params.Width(),
                m_params.Height(),
                0,                               // border (must be 0)
-               m_params.PixelDataFormat(),
-               m_params.PixelDataType(),
-               pixel_data);
+               pixel_data.Format(),
+               pixel_data.Type(),
+               pixel_data.RawData());
   ThrowOnGLError("in glTexImage2D");
 
   // Retrieve and store the actual internal format that this GL implementation used for this texture.
   GLint actual_internal_format;
   glGetTexLevelParameteriv(m_params.Target(), 0, GL_TEXTURE_INTERNAL_FORMAT, &actual_internal_format);
   ThrowOnGLError("in glGetTexParameteriv");
-  m_params.SetInternalFormat(actual_internal_format);  
+  m_params.SetInternalFormat(actual_internal_format);
 
   // Unbind the texture to minimize the possibility that other GL calls may modify this texture.
   glBindTexture(m_params.Target(), 0);
