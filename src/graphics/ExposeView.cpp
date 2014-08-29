@@ -31,8 +31,13 @@ void ExposeView::Render(const RenderFrame& frame) const {
     renderable->Render(frame);
 }
 
-void ExposeView::UpdateLayout(std::chrono::duration<double> timeout) {
-  // TODO:  Given the current state of this object, update its layout
+void ExposeView::UpdateLayout(std::chrono::duration<double> dt) {
+  for(std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if(window->m_layoutLocked)
+      continue;
+
+    // TODO:  Update the position of the current window
+  }
 }
 
 std::tuple<double, double> radialCoordsToPoint(double angle, double distance) {
