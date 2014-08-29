@@ -5,6 +5,7 @@ RadialMenuItem::RadialMenuItem() {
   m_Goal = std::shared_ptr<PartialDiskWithTriangle>(new PartialDiskWithTriangle());
   m_Activation.SetGoal(0.0);
   m_Activation.SetSmoothStrength(0.35f);
+  m_Activation.SetInitialValue(0.0);
 
   AddChild(m_Wedge);
   AddChild(m_Goal);
@@ -135,6 +136,7 @@ RadialMenu::UpdateResult RadialMenu::UpdateItemsFromCursor(const Vector3& cursor
     } else {
       item->SetActivation(ratio > 1.0 ? 1.0 : ratio);
     }
+    item->UpdateActivation(deltaTime);
   }
   return UpdateResult(idx, idx >= 0 ? m_Items[idx]->CurrentActivation() : 0.0);
 }
