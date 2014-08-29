@@ -36,6 +36,7 @@ void ExposeView::UpdateLayout(std::chrono::duration<double> timeout) {
 }
 
 std::tuple<double, double> radialCoordsToPoint(double angle, double distance) {
+  return std::make_tuple(0.0, 0.0);
 }
 
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
