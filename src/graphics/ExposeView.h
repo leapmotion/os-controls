@@ -4,6 +4,7 @@
 #include "Primitives.h"
 #include <Animation.h>
 #include <vector>
+#include <tuple>
 
 class ExposeViewWindow;
 class OSWindow;
@@ -44,6 +45,11 @@ private:
   /// Evolves the layout by one step
   /// </summary>
   void UpdateLayout(std::chrono::duration<double> timeout);
+  
+  // Convert a radian angle and a pixel distance to a point.
+  // Returns a tuple x,y
+  std::tuple<double, double> radialCoordsToPoint();
+
 
 public:
   // RenderEngineNode overrides:

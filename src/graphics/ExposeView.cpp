@@ -10,11 +10,15 @@ ExposeView::ExposeView() :
 }
 
 ExposeView::~ExposeView() {
+  
 }
 
 void ExposeView::AutoInit() {
-  auto self = shared_from_this();
-  m_rootNode->AddChild(self);
+  
+  m_rootNode.NotifyWhenAutowired([this]{
+    auto self = shared_from_this();
+    m_rootNode->AddChild(self);
+  });
 }
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
@@ -23,13 +27,15 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
-  m_backgroundRect.Draw(frame.renderState);
   for(const auto& renderable : m_renderList)
     renderable->Render(frame);
 }
 
 void ExposeView::UpdateLayout(std::chrono::duration<double> timeout) {
   // TODO:  Given the current state of this object, update its layout
+}
+
+std::tuple<double, double> radialCoordsToPoint(double angle, double distance) {
 }
 
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {

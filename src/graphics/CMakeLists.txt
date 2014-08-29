@@ -7,6 +7,8 @@ set(graphics_SOURCES
   ExposeViewWindow.cpp
   MediaView.h
   MediaView.cpp
+  MediaViewStateMachine.h
+  MediaViewStateMachine.cpp
   RadialButton.h
   RadialButton.cpp
   Renderable.h
