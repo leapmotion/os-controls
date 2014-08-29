@@ -15,7 +15,7 @@ public:
   lockable_property<float> m_activation;
 
   // Flag, set if the view can be automatically laid out
-  lockable_property<bool> m_useLayout;
+  lockable_property<void> m_useLayout;
 
   // The underlying OS window
   const std::shared_ptr<OSWindow> m_osWindow;

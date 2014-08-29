@@ -27,9 +27,6 @@ private:
   //Root node in the render tree
   Autowired<RootRenderEngineNode> m_rootNode;
 
-  //Flag to know if the hand is currently grabbing
-  bool m_handIsGrabbing;
-
   // Opacity value for the entire view
   Animated<float> m_opacity;
   
@@ -62,18 +59,6 @@ public:
   /// </summary>
   void StartView();
   void CloseView();
-
-  // Should be called when the proxy hand begins a grab.
-  // Handles the actual view response to the grab.
-  // Sets state flags that impact the behavior of UpdateLayout
-  void StartGrab();
-
-  // Should be called when the proxy hand ends a grab.
-  // Handles the actual view response to the grab release.
-  // Sets state flags that impact the behavior of UpdateLayout
-  // Returns whether or not the grab end should close the menu.
-  // True -> Menu Should Close, False -> Menu should stay open.
-  bool EndGrab();
 
   /// <summary>
   /// Recovers a window from the specified abstract coordinates

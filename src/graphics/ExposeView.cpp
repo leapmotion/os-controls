@@ -4,7 +4,6 @@
 #include "RenderFrame.h"
 
 ExposeView::ExposeView() :
-  m_handIsGrabbing(false),
   m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>)
 {
   
@@ -45,16 +44,6 @@ void ExposeView::StartView() {
 
 void ExposeView::CloseView() {
   m_opacity.Set(0.0f, 0.2f);
-}
-
-void ExposeView::StartGrab() {
-  m_handIsGrabbing = true;
-}
-
-bool ExposeView::EndGrab() {
-  bool retVal = false;
-  m_handIsGrabbing = false;
-  return retVal;
 }
 
 void ExposeView::moveWindowToTop(ExposeViewWindow& window) {
