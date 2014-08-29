@@ -32,6 +32,10 @@ void LeapListener::onConnect(const Leap::Controller& controller) {
   std::unique_lock<std::mutex> lock(m_mutex);
   // TODO: turn this into something configurable
   controller.setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+  controller.enableGesture(Leap::Gesture::TYPE_SCREEN_TAP);
+  controller.enableGesture(Leap::Gesture::TYPE_KEY_TAP);
+  controller.enableGesture(Leap::Gesture::TYPE_CIRCLE);
+  controller.enableGesture(Leap::Gesture::TYPE_SWIPE);
   m_isConnected = true;
 }
 

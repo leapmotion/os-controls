@@ -1,4 +1,5 @@
 #include "SFMLController.h"
+#include <SFML/Window/Event.hpp>
 
 #if _WIN32
 #include <Windows.h>
@@ -49,6 +50,12 @@ void SFMLController::Shutdown () {
 
 void SFMLController::BeginRender () const {
   // Do whatever needs to be done before rendering a frame.
+  sf::Event event;
+  while (m_Window.pollEvent(event)) {
+    if (event.type == sf::Event::Closed) {
+      m_Window.close();
+    }
+  }
 }
 
 void SFMLController::EndRender () const {
