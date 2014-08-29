@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
     AutoRequired<MakesRenderWindowFullScreen>();
-    AutoConstruct<sf::RenderWindow> m_mw(
+    AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(
         (int) virtualScreen->PrimaryScreen().Width(),
         (int) virtualScreen->PrimaryScreen().Height()
@@ -44,6 +44,10 @@ int main(int argc, char **argv)
       "Leap Os Control", sf::Style::None,
       *contextSettings
     );
+
+    // Run as fast as possible:
+    mw->setFramerateLimit(0);
+    mw->setVerticalSyncEnabled(true);
 
     // Handoff to the main loop:
     control->Main();
@@ -56,26 +60,18 @@ int main(int argc, char **argv)
   return 0;
 }
 
-OsControl::OsControl(void) :
-  m_bShouldStop(false),
-  m_bRunning(false)
+OsControl::OsControl(void)
 {
 }
 
 OsControl::~OsControl(void) {}
 
 void OsControl::Main(void) {
-  auto clearOutstanding = MakeAtExit([this] {
-    std::lock_guard<std::mutex> lk(m_lock);
-    m_outstanding.reset();
-    m_stateCondition.notify_all();
-  });
-
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
   auto then = std::chrono::steady_clock::now();
-  while(!ShouldStop()) {
+  for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle all events:
     for(sf::Event evt; m_mw->pollEvent(evt);)
       HandleEvent(evt);
@@ -107,15 +103,3 @@ void OsControl::Filter(void) {
   }
 }
 
-bool OsControl::Start(std::shared_ptr<Object> outstanding) {
-  std::lock_guard<std::mutex> lk(m_lock);
-  if (m_bShouldStop)
-    return true;
-  m_outstanding = outstanding;
-  return true;
-}
-
-void OsControl::Wait(void) {
-  std::unique_lock<std::mutex> lk(m_lock);
-  m_stateCondition.wait(lk, [this] { return m_outstanding.get() == nullptr; });
-}
