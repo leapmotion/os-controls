@@ -4,18 +4,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-MakesRenderWindowFullScreen::MakesRenderWindowFullScreen(void) :
-  m_desktopChanged{1}
-{
-  m_mw.NotifyWhenAutowired([this] {
-    m_mw->setFramerateLimit(0);
-    m_mw->setVerticalSyncEnabled(true);
-  });
-}
-
-MakesRenderWindowFullScreen::~MakesRenderWindowFullScreen(void)
-{
-}
+MakesRenderWindowFullScreen::MakesRenderWindowFullScreen(void) {}
+MakesRenderWindowFullScreen::~MakesRenderWindowFullScreen(void) {}
 
 void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   if(!m_mw || !m_virtualScreen || !m_contextSettings)
@@ -40,13 +30,4 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   NativeWindow::MakeAlwaysOnTop(handle);
   NativeWindow::AllowInput(handle, false);
   m_mw->setVisible(true);
-}
-
-void MakesRenderWindowFullScreen::Tick(std::chrono::duration<double> deltaT) {
-  if(!m_desktopChanged)
-    return;
-
-  // Our chance to position and possibly recreate the window if the desktop has changed
-  --m_desktopChanged;
-  AdjustDesktopWindow();
 }
