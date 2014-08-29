@@ -9,3 +9,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
 }
 
 ExposeViewWindow::~ExposeViewWindow(void) {}
+
+void ExposeViewWindow::Render(const RenderFrame& frame) const {
+
+}
