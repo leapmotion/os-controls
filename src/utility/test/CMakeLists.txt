@@ -1,5 +1,6 @@
 set(utilitytest_SRCS
   utilitytest.cpp
+  LockablePropertyTest.cpp
 )
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" utilitytest_SRCS)
