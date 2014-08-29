@@ -2,10 +2,13 @@
 #include "oscontrols.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
+#include "expose/ExposeViewAccessManager.h"
 #include "interaction/FrameFragmenter.h"
 #include "osinterface/AudioVolumeInterface.h"
 #include "osinterface/LeapInput.h"
+#include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/MediaInterface.h"
+#include "osinterface/OSVirtualScreen.h"
 #include "osinterface/VolumeLevelChecker.h"
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
@@ -22,9 +25,27 @@ int main(int argc, char **argv)
     osCtxt->Initiate();
 
     CurrentContextPusher pshr(osCtxt);
+    AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
     AutoRequired<FrameFragmenter> fragmenter;
+    AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
+    AutoRequired<ExposeViewAccessManager> exposeView;
+    AutoRequired<VolumeLevelChecker> volumeChecker;
+    AutoDesired<AudioVolumeInterface>();
+    AutoRequired<MediaInterface>();
+    AutoRequired<LeapInput>();
+    AutoRequired<MakesRenderWindowFullScreen>();
+    AutoConstruct<sf::RenderWindow> m_mw(
+      sf::VideoMode(
+        (int) virtualScreen->PrimaryScreen().Width(),
+        (int) virtualScreen->PrimaryScreen().Height()
+      ),
+      "Leap Os Control", sf::Style::None,
+      *contextSettings
+    );
+
+    // Handoff to the main loop:
     control->Main();
   }
   catch (std::exception& e) {
@@ -36,42 +57,12 @@ int main(int argc, char **argv)
 }
 
 OsControl::OsControl(void) :
-  m_contextSettings(0, 0, 16),
-  m_mw(sf::VideoMode((int)m_virtualScreen->PrimaryScreen().Width(),
-                     (int)m_virtualScreen->PrimaryScreen().Height()),
-                     "Leap Os Control", sf::Style::None,
-                     m_contextSettings),
   m_bShouldStop(false),
-  m_bRunning(false),
-  m_desktopChanged{1} // Also perform an adjust in the main loop
+  m_bRunning(false)
 {
-  AutoRequired<VolumeLevelChecker>();
-  AdjustDesktopWindow();
 }
 
 OsControl::~OsControl(void) {}
-
-void OsControl::AdjustDesktopWindow(void) {
-  m_mw->setVisible(false);
-  const sf::Vector2i olPosition = m_mw->getPosition();
-  const sf::Vector2u oldSize = m_mw->getSize();
-
-  const auto bounds = m_virtualScreen->PrimaryScreen().Bounds();
-  const sf::Vector2i newPosition = { static_cast<int32_t>(bounds.origin.x),
-                                     static_cast<int32_t>(bounds.origin.y) };
-  const sf::Vector2u newSize = { static_cast<uint32_t>(bounds.size.width),
-                                 static_cast<uint32_t>(bounds.size.height) };
-
-  if (oldSize != newSize) {
-    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Os Control", sf::Style::None, m_contextSettings);
-  }
-  m_mw->setPosition(newPosition);
-  const auto handle = m_mw->getSystemHandle();
-  NativeWindow::MakeTransparent(handle);
-  NativeWindow::MakeAlwaysOnTop(handle);
-  NativeWindow::AllowInput(handle, false);
-  m_mw->setVisible(true);
-}
 
 void OsControl::Main(void) {
   auto clearOutstanding = MakeAtExit([this] {
@@ -80,20 +71,11 @@ void OsControl::Main(void) {
     m_stateCondition.notify_all();
   });
 
-  auto then = std::chrono::steady_clock::now();
-
-  m_mw->setFramerateLimit(0);
-  m_mw->setVerticalSyncEnabled(true);
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
-  while (!ShouldStop()) {
-    // Our chance to position and possibly recreate the window if the desktop has changed
-    if (m_desktopChanged) {
-      --m_desktopChanged; // Do one at a time
-      AdjustDesktopWindow();
-    }
-
+  auto then = std::chrono::steady_clock::now();
+  while(!ShouldStop()) {
     // Handle all events:
     for(sf::Event evt; m_mw->pollEvent(evt);)
       HandleEvent(evt);

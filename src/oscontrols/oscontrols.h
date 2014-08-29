@@ -1,5 +1,4 @@
 #pragma once
-#include "osinterface/OSVirtualScreen.h"
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -26,7 +25,6 @@ int oscontrols_main(int argc, char **argv);
 
 class OsControl :
   public CoreRunnable,
-  public OSVirtualScreenListener,
   public ExceptionFilter
 {
 public:
@@ -37,23 +35,7 @@ private:
   std::mutex m_lock;
   std::condition_variable m_stateCondition;
 
-  sf::ContextSettings m_contextSettings;
-  
-  //Create Global Expose View Access Manager
-  AutoRequired<ExposeViewAccessManager> m_exposeView;
-
-  //////////////////////////////////////////////////////
-  ///// DONT CHANGE THE ORDER OF THIS SECTION //////////
-  //This might need to be changed to be a manifest?
-  Autowired<OSVirtualScreen> m_virtualScreen;
-
-  // Must be before m_mw;
-  AutoRequired<RenderEngine> m_render;
-  
-  //SFML Stuff
-  // This must happen after virtualscreen but before anything
-  // attempts to access the primaryWindow()
-  AutoConstruct<sf::RenderWindow> m_mw;
+  Autowired<sf::RenderWindow> m_mw;
 
   /////////////////////////////////////////////////////
   
@@ -66,18 +48,10 @@ private:
   bool m_bRunning;
   std::shared_ptr<Object> m_outstanding;
 
-  // Indicates the number of desktop changes needed to be performed
-  std::atomic<int> m_desktopChanged;
-
-  void AdjustDesktopWindow(void);
-
   /// <summary>
   /// Handles window & keyboard events from the primary event dispatch loop
   /// </summary>
   void HandleEvent(const sf::Event& ev) const;
-
-  // OSVirtualScreenListener overrides:
-  void OnChange(void) override { ++m_desktopChanged; }
 
 public:
   void Main(void);

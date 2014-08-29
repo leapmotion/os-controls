@@ -4,6 +4,8 @@ set(osinterface_SOURCES
   LeapInput.h
   LeapInput.cpp
   LeapInputListener.h
+  MakesRenderWindowFullScreen.h
+  MakesRenderWindowFullScreen.cpp
   MediaInterface.h
   MediaInterface.cpp
   VolumeLevelChecker.h
