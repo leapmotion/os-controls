@@ -1,6 +1,5 @@
 #pragma once
 #include "osinterface/OSVirtualScreen.h"
-#include "expose/ExposeViewAccessManager.h" //Tried to do this as a forward declaration but no joy - DanielP.
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -13,6 +12,7 @@ struct OsControlRender {
 };
 
 class AudioVolumeInterface;
+class ExposeViewAccessManager;
 class LeapInput;
 class MediaInterface;
 class RenderEngine;
@@ -31,6 +31,7 @@ class OsControl :
 {
 public:
   OsControl(void);
+  ~OsControl(void);
 
 private:
   std::mutex m_lock;

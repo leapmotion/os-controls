@@ -31,24 +31,25 @@ RenderEngine::~RenderEngine()
 {
 }
 
-void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT){
+void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // Active the window for OpenGL rendering
-  target->setActive();
+  m_rw->setActive();
+
   // Clear window
-  target->clear(sf::Color::Transparent);
+  m_rw->clear(sf::Color::Transparent);
 
   //Set the mode
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  const auto windowSize = target->getSize();
+  const auto windowSize = m_rw->getSize();
   m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 1, -100);
   m_renderState.GetModelView().Clear();
 
   m_shader->Bind();
 
   // Have objects rendering into the specified window with the supplied change in time
-  RenderFrame frame = { target, m_renderState, deltaT };
+  RenderFrame frame = {m_rw, m_renderState, deltaT};
 
   //Call AnimationUpdate Depth First (pre-visitation order)
   auto &zList = m_renderList;
@@ -95,7 +96,6 @@ void RenderEngine::Render(const std::shared_ptr<sf::RenderWindow> &target, const
   m_shader->Unbind();
 
   // Update the window
-  target->display();
-
-  target->setActive(false);
+  m_rw->display();
+  m_rw->setActive(false);
 }

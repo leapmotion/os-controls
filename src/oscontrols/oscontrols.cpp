@@ -49,6 +49,8 @@ OsControl::OsControl(void) :
   AdjustDesktopWindow();
 }
 
+OsControl::~OsControl(void) {}
+
 void OsControl::AdjustDesktopWindow(void) {
   m_mw->setVisible(false);
   const sf::Vector2i olPosition = m_mw->getPosition();
@@ -92,19 +94,14 @@ void OsControl::Main(void) {
       AdjustDesktopWindow();
     }
 
+    // Handle all events:
     for(sf::Event evt; m_mw->pollEvent(evt);)
       HandleEvent(evt);
 
-    // Determine how long it has been since we were last here
+    // Broadcast update event to all interested parties:
     auto now = std::chrono::steady_clock::now();
-    std::chrono::duration<double> timeDelta = now - then;
+    upd(&Updatable::Tick)(now - then);
     then = now;
-
-    // Broadcast update event:
-    upd(&Updatable::Tick)(timeDelta);
-
-    // Call the actual render behavior:
-    m_render->Render(m_mw, timeDelta);
   }
 }
 
