@@ -5,6 +5,7 @@
 #include <Animation.h>
 #include <vector>
 #include <tuple>
+#include "Leap.h"
 
 
 class ExposeViewWindow;
@@ -31,6 +32,8 @@ public:
   // Given the cursor position, layout the windows properly.
   // This is impacted by startGrab and endGrab
   void UpdateLayout(uint32_t cursorX, uint32_t cursorY);
+  
+  void UpdateLayout_TEMP(Leap::Hand hand);
   
   // Should be called when the proxy hand begins a grab.
   // Handles the actual view response to the grab.
