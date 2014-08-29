@@ -21,6 +21,7 @@ class RootRenderEngineNode : public RenderEngineNode {};
 //hierarchy and remove the need for dynamic casts by either making SceneGraphNode
 //Renderable and Updatable, or by making PrimitiveBase a RenderEngineNode.
 class RenderEngine :
+  public Updatable,
   public sf::GlResource
 {
 public:
@@ -32,11 +33,12 @@ public:
     m_rootNode->AddChild(node);
   }
 
-  void Render(const std::shared_ptr<sf::RenderWindow> &target, const std::chrono::duration<double> deltaT);
+  void Tick(std::chrono::duration<double> deltaT) override;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+  Autowired<sf::RenderWindow> m_rw;
   AutoRequired<RootRenderEngineNode> m_rootNode;
 
   RenderState m_renderState;

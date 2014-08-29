@@ -28,7 +28,7 @@ std::shared_ptr<CoreContext> FrameFragmenter::CreateMenuContext(const Leap::Hand
   return ctxt;
 }
 
-void FrameFragmenter::AutoFilter(const Leap::Frame& frame) {
+void FrameFragmenter::OnLeapFrame(const Leap::Frame& frame) {
   // Hold on to our contexts, and then feed them back into m_contexts as we encounter them
   std::unordered_map<int, std::shared_ptr<CoreContext>> contexts;
   std::swap(contexts, m_contexts);

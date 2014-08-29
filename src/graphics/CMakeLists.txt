@@ -1,10 +1,10 @@
 set(graphics_SOURCES
   CursorView.h
   CursorView.cpp
-  ExposeControl.h
-  ExposeControl.cpp
   MediaView.h
   MediaView.cpp
+  MediaViewStateMachine.h
+  MediaViewStateMachine.cpp
   RadialButton.h
   RadialButton.cpp
   Renderable.h

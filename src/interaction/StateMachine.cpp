@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "StateMachine.h"
 #include "Color.h"
+#include "ExposeViewProxy.h"
 
 StateMachine::StateMachine(void):
-ContextMember("StateMachine"),
-m_state(OSCState::BASE),
-m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
-m_mediaView(Vector3(300, 300, 0), 5.0f)
+  ContextMember("StateMachine"),
+  m_state(OSCState::BASE),
+  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
+  m_mediaView(Vector3(300, 300, 0), 5.0f)
 {
 }
 
@@ -36,6 +37,8 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
       break;
     case HandPose::FourFingers:
+      desiredState = OSCState::EXPOSE_FOCUSED;
+      break;
     case HandPose::FiveFingers:
     default:
       break;
@@ -53,6 +56,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     // unconditionally!
     m_state = desiredState;
 
+  std::cout << "App State: " << static_cast<int>(m_state) << std::endl;
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
   state = m_state;
 }

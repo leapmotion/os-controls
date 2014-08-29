@@ -7,10 +7,13 @@
 #include "graphics/MediaView.h"
 #include "graphics/CursorView.h"
 #include "interaction/HandEventListener.h"
+#include "graphics/MediaViewStateMachine.h"
 
 namespace Leap {
   class Hand;
 }
+
+class ExposeViewProxy;
 
 /// <summary>
 /// The central state machine concept
@@ -41,6 +44,8 @@ private:
 
   AutoConstruct<CursorView> m_cursorView;
   AutoConstruct<MediaView> m_mediaView;
+  AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine; // Created after the MediaView for dependency reasons
+  AutoRequired<ExposeViewProxy> m_evp;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
