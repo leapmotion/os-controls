@@ -2,24 +2,25 @@
 #include "WindowScroller.h"
 
 IWindowScroller::IWindowScroller(void):
-  scrollX(0),
-  scrollY(0),
-  remainingMomentumX(0.0),
-  remainingMomentumY(0.0)
+  m_virtualPosition(OSPointZero),
+  m_remainingMomentumX(0.0f),
+  m_remainingMomentumY(0.0f),
+  m_scrollPartialPixel(OSPointZero),
+  m_scrollPartialLine(OSPointZero),
+  m_pixelsPerLine(OSPointMake(1.0f, 1.0f))
 {}
 
 IWindowScroller::~IWindowScroller(void) {}
 
-void IWindowScroller::ScrollBy(uint32_t virtualX, uint32_t virtualY, double unitsX, double unitsY) {
-  scrollX = virtualX;
-  scrollY = virtualY;
-  DoScrollBy(virtualX, virtualY, unitsX, unitsY);
+void IWindowScroller::ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) {
+  m_virtualPosition = virtualPosition;
+  DoScrollBy(deltaX, deltaY, false);
 }
 
 void IWindowScroller::CancelScroll(void) {
   // Fix the scroll momentum at zero
-  remainingMomentumX = 0.0;
-  remainingMomentumY = 0.0;
+  m_remainingMomentumX = 0.0f;
+  m_remainingMomentumY = 0.0f;
 
   // We don't care to retain the weak pointer anymore
   m_curScrollOp.reset();
@@ -43,8 +44,8 @@ std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {
 void IWindowScroller::OnPerformMomentumScroll(std::chrono::high_resolution_clock::time_point then) {
   // Do not continue performing a momentum scroll if another op is outstanding
   if(!m_curScrollOp.expired()) {
-    remainingMomentumX = 0.0;
-    remainingMomentumY = 0.0;
+    m_remainingMomentumX = 0.0f;
+    m_remainingMomentumY = 0.0f;
     return;
   }
 
@@ -53,16 +54,16 @@ void IWindowScroller::OnPerformMomentumScroll(std::chrono::high_resolution_clock
 
   // Find out how much time has passed, and compute a scroll amount
   auto dt = then - now;
-  DoScrollBy(scrollX, scrollY, remainingMomentumX * dt.count(), remainingMomentumY * dt.count());
+  DoScrollBy(m_remainingMomentumX * dt.count(), m_remainingMomentumY * dt.count(), true);
 
   // Apply drag by an exponential curve
-  remainingMomentumX *= 0.75;
-  remainingMomentumY *= 0.75;
+  m_remainingMomentumX *= 0.75f;
+  m_remainingMomentumY *= 0.75f;
 
   // Is the momentum still large enough that we want to continue?
-  if(remainingMomentumX < 0.1 && remainingMomentumY < 0.1) {
-    remainingMomentumX = 0.0;
-    remainingMomentumY = 0.0;
+  if(m_remainingMomentumX < 0.1f && m_remainingMomentumY < 0.1f) {
+    m_remainingMomentumX = 0.0f;
+    m_remainingMomentumY = 0.0f;
     m_wse(&WindowScrollerEvents::OnScrollStopped)();
   }
   else

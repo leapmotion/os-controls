@@ -12,13 +12,13 @@ public:
   
   static MockWindowScroller* New(void) { return new MockWindowScroller; }
 
-  void DoScrollBy(uint32_t virtualX, uint32_t virtualY, double unitsX, double unitsY) override {
-    scrollRequestsX.push_back(unitsX);
-    scrollRequestsY.push_back(unitsY);
+  void DoScrollBy(float deltaX, float deltaY, bool isMomentum) override {
+    scrollRequestsX.push_back(deltaX);
+    scrollRequestsY.push_back(deltaY);
   }
 
-  std::vector<double> scrollRequestsX;
-  std::vector<double> scrollRequestsY;
+  std::vector<float> scrollRequestsX;
+  std::vector<float> scrollRequestsY;
 };
 
 class WaitsForScrollTermination:
@@ -47,7 +47,7 @@ class WindowScrollerTest:
 TEST_F(WindowScrollerTest, ValidateExclusivity) {
   AutoRequired<MockWindowScroller> mock;
   auto lock = mock->BeginScroll();
-  lock->ScrollBy(0, 0, 0, 50);
+  lock->ScrollBy(OSPointZero, 0, 50);
 
   // Verify the scroll request got through and contains the right value
   ASSERT_FALSE(mock->scrollRequestsY.empty() || mock->scrollRequestsX.empty()) << "Scroll request was not properly forwarded";
@@ -61,7 +61,32 @@ TEST_F(WindowScrollerTest, MomentumBehavior) {
   {
     auto lock = mock->BeginScroll();
     for(size_t i = 100; i--;)
-      lock->ScrollBy(0, 0, 20, 20);
+      lock->ScrollBy(OSPointZero, 20, 20);
+  }
+
+  // Now verify that we get a few scroll operations happening after our primary scroll operations:
+  std::unique_lock<std::mutex> lk(wfst->m_lock);
+  ASSERT_TRUE(
+    wfst->cv.wait_for(
+      lk,
+      std::chrono::seconds(3),
+      [&] { return wfst->called; }
+    )
+  ) << "Scroll operation took too long to wrap up after a momentum scroll was started";
+}
+
+TEST_F(WindowScrollerTest, RealWindowScroll) {
+  AutoCreateContext ctxt;
+  CurrentContextPusher pshr(ctxt);
+  AutoRequired<IWindowScroller> real;
+  AutoRequired<WaitsForScrollTermination> wfst;
+  ctxt->Initiate();
+
+  // Scroll a bunch:
+  {
+    auto lock = real->BeginScroll();
+    for(size_t i = 100; i--;)
+      lock->ScrollBy(OSPointMake(1400, 400), 0, 20);
   }
 
   // Now verify that we get a few scroll operations happening after our primary scroll operations:

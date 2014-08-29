@@ -1,5 +1,7 @@
 #pragma once
 
+#include "OSGeometry.h"
+
 class IScrollOperation {
 public:
   virtual ~IScrollOperation(void) {}
@@ -7,7 +9,7 @@ public:
   /// <summary>
   /// Causes a scroll by the specified amount
   /// </summary>
-  virtual void ScrollBy(uint32_t virtualX, uint32_t virtualY, double unitsX, double unitsY) = 0;
+  virtual void ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) = 0;
 
   /// <summary>
   /// Prevents the scroll operation from attempting to generate momentum when it completes

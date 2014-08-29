@@ -27,21 +27,27 @@ protected:
   std::weak_ptr<IScrollOperation> m_curScrollOp;
 
   // The point where the most recent scroll operation took place
-  uint32_t scrollX;
-  uint32_t scrollY;
+  OSPoint m_virtualPosition;
 
   // Total current momentum caused by recently received scroll operations.  This momentum is in
   // scroll units per second, and will be reduced by the drag amount.
-  double remainingMomentumX;
-  double remainingMomentumY;
+  float m_remainingMomentumX;
+  float m_remainingMomentumY;
+
+  // Some of the underlying interfaces do not support floating point scrolling,
+  // thus we will keep track of residual scrolling for both pixels and lines.
+  OSPoint m_scrollPartialPixel;
+  OSPoint m_scrollPartialLine;
+  // The pixels-to-line ratio. Actual values will be platform specific.
+  OSPoint m_pixelsPerLine;
 
   /// <summary>
   /// Performs the actual scroll operation requested by the user
   /// </summary>
-  virtual void DoScrollBy(uint32_t virtualX, uint32_t virtualY, double unitsX, double unitsY) = 0;
+  virtual void DoScrollBy(float deltaX, float deltaY, bool isMomentum) = 0;
 
   // IScrollOperation overrides:
-  void ScrollBy(uint32_t virtualX, uint32_t virtualY, double unitsX, double unitsY) override final;
+  void ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) override final;
   void CancelScroll(void) final;
 
   // Delay operation
