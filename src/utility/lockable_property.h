@@ -10,6 +10,10 @@ struct lockable_property;
 template<>
 struct lockable_property<void>
 {
+  lockable_property(void) :
+    locked(State::Unlocked)
+  {}
+
   /// <summary>
   /// The lock type proper, which must be held in order to access the underlying property
   /// </summary>
@@ -23,13 +27,19 @@ struct lockable_property<void>
       prop(&prop)
     {
       // Try to set the lock property, otherwise give up
-      State locked = State::Locked;
-      if(!prop.locked.compare_exchange_strong(locked, State::Unlocked))
+      State locked = State::Unlocked;
+      if(!prop.locked.compare_exchange_strong(locked, State::Locked))
         // Failed to lock, give up
         this->prop = nullptr;
     }
 
-  private:
+    ~lock_type(void) {
+      // Relinquish lock
+      if(prop)
+        prop->locked = State::Unlocked;
+    }
+
+  protected:
     lockable_property* prop;
 
   public:
@@ -88,12 +98,12 @@ struct lockable_property:
   public:
     lock_type(void) {}
     lock_type(lockable_property& prop) :
-      lockable_property<void>(prop)
+      lockable_property<void>::lock_type(prop)
     {}
 
     // Operator overloads:
-    T& operator*(void) const { return static_cast<lockable_property<T>*>(prop)->val; }
-    T* operator->(void) const { return &static_cast<lockable_property<T>*>(prop)->val; }
+    std::atomic<T>& operator*(void) const { return static_cast<lockable_property*>(prop)->val; }
+    std::atomic<T>* operator->(void) const { return &static_cast<lockable_property*>(prop)->val; }
   };
 
 private:
