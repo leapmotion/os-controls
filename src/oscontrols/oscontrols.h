@@ -5,10 +5,6 @@
 #include <atomic>
 
 struct OsControlContext {};
-struct OsControlRender {
-  std::shared_ptr<sf::RenderWindow> renderWindow;
-  std::chrono::duration<double> timeDelta;
-};
 
 class AudioVolumeInterface;
 class ExposeViewAccessManager;
