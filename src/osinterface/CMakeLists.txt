@@ -40,6 +40,8 @@ add_windows_sources(
   OSWindowWin.cpp
   OSWindowMonitorWin.h
   OSWindowMonitorWin.cpp
+  WindowScrollerWin.h
+  WindowScrollerWin.cpp
 )
 
 add_mac_sources(
@@ -55,6 +57,8 @@ add_mac_sources(
   #  OSWindowMac.mm
   OSWindowMonitorMac.h
   OSWindowMonitorMac.mm
+  WindowScrollerMac.h
+  WindowScrollerMac.cpp
 )
 
 add_library(osinterface ${osinterface_SOURCES})
