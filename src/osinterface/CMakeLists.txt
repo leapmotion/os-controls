@@ -45,6 +45,10 @@ add_mac_sources(
   OSScreenMac.mm
   OSVirtualScreenMac.h
   OSVirtualScreenMac.mm
+  #  OSWindowMac.h
+  #  OSWindowMac.mm
+  OSWindowMonitorMac.h
+  OSWindowMonitorMac.mm
 )
 
 add_library(osinterface ${osinterface_SOURCES})

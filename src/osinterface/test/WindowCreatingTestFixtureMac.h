@@ -5,6 +5,11 @@ class WindowCreatingTestFixtureMac:
   public WindowCreatingTestFixture
 {
 public:
-    // WindowCreatingTestFixture overrides:
+  ~WindowCreatingTestFixtureMac(void);
+
+  // WindowCreatingTestFixture overrides:
   TestWindowProperties CreateTestWindow(void) override;
+
+private:
+  std::vector<pid_t> m_createdProcesses;
 };

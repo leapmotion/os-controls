@@ -7,7 +7,7 @@ class WindowCreatingTestFixtureWin:
 public:
   ~WindowCreatingTestFixtureWin(void);
 
-    // WindowCreatingTestFixture overrides:
+  // WindowCreatingTestFixture overrides:
   TestWindowProperties CreateTestWindow(void) override;
 
 private:
