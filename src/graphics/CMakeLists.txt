@@ -3,6 +3,8 @@ set(graphics_SOURCES
   CursorView.cpp
   ExposeView.h
   ExposeView.cpp
+  ExposeViewAccessManager.h
+  ExposeViewAccessManager.cpp
   ExposeViewWindow.h
   ExposeViewWindow.cpp
   MediaView.h
