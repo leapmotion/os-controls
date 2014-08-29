@@ -58,6 +58,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       m_mediaView->UpdateWedges(activeWedge, distance);
       m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
       if(distance > configs::MEDIA_MENU_ACTIVATION_RADIUS) {
+        //Selection Made Transition
         m_mediaView->CloseMenu();
         activeWedge->OnSelected();
         m_state = State::SELECTION_MADE;
