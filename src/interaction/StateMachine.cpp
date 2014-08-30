@@ -54,8 +54,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     // if this isn't the desired behavior, then change it by assigning the current state
     // unconditionally!
     m_state = desiredState;
-
-  std::cout << "App State: " << static_cast<int>(m_state) << std::endl;
+  
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
   state = m_state;
 }
