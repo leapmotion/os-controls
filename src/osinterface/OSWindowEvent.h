@@ -1,8 +1,11 @@
 #pragma once
+
 class OSWindowEvent
 {
 public:
-  OSWindowEvent();
-  ~OSWindowEvent();
+  virtual ~OSWindowEvent(void) {}
+
+  virtual void OnCreate(const OSWindow& window) {}
+  virtual void OnDestroy(const OSWindow& window) {}
 };
 

@@ -18,7 +18,6 @@ set(osinterface_SOURCES
   OSWindow.h
   OSWindow.cpp
   OSWindowEvent.h
-  OSWindowEvent.cpp
   OSWindowMonitor.h
   OSWindowMonitor.cpp
   OSWindowNode.h
