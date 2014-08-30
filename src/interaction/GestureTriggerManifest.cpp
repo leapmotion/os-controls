@@ -4,6 +4,7 @@
 #include "HandLocationRecognizer.h"
 #include "HandPoseRecognizer.h"
 #include "HandRollRecognizer.h"
+#include "FrameDeltaTimeRecognizer.h"
 #include "StateMachine.h"
 
 GestureTriggerManifest::GestureTriggerManifest()
@@ -13,5 +14,6 @@ GestureTriggerManifest::GestureTriggerManifest()
   AutoRequired<HandLocationRecognizer>();
   AutoRequired<HandPoseRecognizer>();
   AutoRequired<HandRollRecognizer>();
+  AutoRequired<FrameDeltaTimeRecognizer>();
   AutoRequired<StateMachine>();
 }

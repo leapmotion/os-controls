@@ -2,7 +2,7 @@
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/SystemMultimediaEventListener.h"
 
-class MediaView;
+//class MediaView;
 class AudioVolumeInterface;
 class MediaInterface;
 

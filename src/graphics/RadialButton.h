@@ -6,7 +6,6 @@
 
 #include "Resource.h"
 #include "GLShader.h"
-#include "GraphicsConfigs.h"
 
 #include <string>
 

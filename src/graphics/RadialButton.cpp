@@ -15,7 +15,7 @@ m_maxOpacity(1.0)
 {
   Translation() = offset;
 
-  m_color = config::MEDIA_BASE_COLOR;
+  m_color = Color(255.0f,255.0f,255.0f,1.0f);
   m_alpha = m_isNullWedge ? 0.0f : 1.0f;
   
   m_partialDisk.Material().SetAmbientLightingProportion(0.9f);

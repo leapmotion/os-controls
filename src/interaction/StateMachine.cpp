@@ -6,8 +6,7 @@
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
-  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
-  m_mediaView(Vector3(300, 300, 0), 5.0f)
+  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
 {
 }
 
@@ -67,9 +66,9 @@ void StateMachine::OnHandVanished() {
 
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
-  if(m_state == OSCState::FINAL && !m_mediaView->IsVisible()) {
+  if(m_state == OSCState::FINAL /*&& !m_mediaView->IsVisible()*/) {
     // Remove our controls from the scene graph
-    m_mediaView->RemoveFromParent();
+    //m_mediaView->RemoveFromParent();
     m_cursorView->RemoveFromParent();
     // Shutdown the context
     m_context->SignalShutdown();

@@ -27,7 +27,7 @@ MediaView::MediaView(const Vector3& center, float offset) :
 MediaView::~MediaView() {
 }
 
-void MediaView::AutoInit() {
+/*void MediaView::AutoInit() {
   auto self = shared_from_this();
   m_rootNode->AddChild(self);
   
@@ -36,7 +36,7 @@ void MediaView::AutoInit() {
   }
   
   AddChild(m_volumeControl);
-}
+}*/
 
 void MediaView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());

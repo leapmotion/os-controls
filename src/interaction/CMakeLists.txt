@@ -7,6 +7,8 @@ set(interaction_SOURCES
   ExposeViewAccessManager.cpp
   ExposeViewProxy.h
   ExposeViewProxy.cpp
+  FrameDeltaTimeRecognizer.h
+  FrameDeltaTimeRecognizer.cpp
   FrameFragmenter.h
   FrameFragmenter.cpp
   HandEventListener.h

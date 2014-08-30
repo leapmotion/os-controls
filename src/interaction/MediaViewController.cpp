@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "MediaViewController.h"
-#include "graphics/MediaView.h"
+//#include "graphics/MediaView.h"
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/AudioVolumeInterface.h"
@@ -31,14 +31,14 @@ void MediaViewController::OnUserPrevTrack() {
 }
 
 void MediaViewController::OnInitializeVolume() {
-  if(m_audioVolumeInterface) {
+  /*if(m_audioVolumeInterface) {
     AutowiredFast<MediaView> mediaView;
     if (mediaView) {
       float systemVolume = m_audioVolumeInterface->GetVolume();
       m_volume = systemVolume;
       mediaView->SetVolumeView(systemVolume);
     }
-  }
+  }*/
 }
 
 void MediaViewController::OnUserChangedVolume(float dVolume) {
@@ -49,9 +49,9 @@ void MediaViewController::OnUserChangedVolume(float dVolume) {
 }
 
 void MediaViewController::OnVolumeChanged(float oldVolume, float newVolume) {
-  AutowiredFast<MediaView> mediaView;
+  /*AutowiredFast<MediaView> mediaView;
   if (mediaView) {
     m_volume = newVolume;
     mediaView->SetVolumeView(newVolume);
-  }
+  }*/
 }

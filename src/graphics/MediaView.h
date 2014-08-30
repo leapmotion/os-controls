@@ -24,7 +24,7 @@ public:
   MediaView(const Vector3& center, float offset);
   ~MediaView();
   
-  void AutoInit();
+  //void AutoInit();
 
   //Non-User-Input driven animation and rendering update (eg. fade-in and fade-out)
   void AnimationUpdate(const RenderFrame& frame) override;
@@ -62,8 +62,6 @@ private:
   //TODO: Get rid of magic number (which is the number of wedges)
   std::array<std::shared_ptr<Wedge>, 4> m_wedges;
   std::shared_ptr<VolumeControl> m_volumeControl;
-  
-  Autowired<RootRenderEngineNode> m_rootNode;
   
   
 };
