@@ -4,6 +4,7 @@ RadialSlider::RadialSlider() {
   m_MinValue = 0.0;
   m_MaxValue = 1.0;
   m_Value = 0.0;
+  m_Callback = nullptr;
 
   m_Track = std::shared_ptr<PartialDisk>(new PartialDisk());
   m_Fill = std::shared_ptr<PartialDisk>(new PartialDisk());
@@ -81,7 +82,7 @@ double RadialSlider::calculateValueRatio() const {
 
 double RadialSlider::calculateValueAngle() const {
   const double ratio = calculateValueRatio();
-  return ratio * (m_EndAngle - m_StartAngle) + m_StartAngle;
+  return (1.0 - ratio) * (m_EndAngle - m_StartAngle) + m_StartAngle;
 }
 
 Vector3 RadialSlider::calculateHandlePosition() const {

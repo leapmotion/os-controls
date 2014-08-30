@@ -6,6 +6,11 @@
 #include "Animation.h"
 #include "RadialItem.h"
 
+class RadialMenuItemEvent {
+public:
+  virtual void OnActivated() { }
+};
+
 class RadialMenuItem : public RadialItem  {
 public:
 
@@ -28,6 +33,9 @@ public:
   void UpdateActivation(float deltaTime) { m_Activation.Update(deltaTime); }
   double CurrentActivation() const { return m_Activation.Value(); }
 
+  void SetCallback(RadialMenuItemEvent* callback) { m_Callback = callback; }
+  void CheckFireCallback();
+
 protected:
   Color calculateColor() const;
 
@@ -40,6 +48,9 @@ protected:
   double m_IconScale;
   Vector3 m_IconOffset;
   std::shared_ptr<SVGPrimitive> m_Icon;
+
+  RadialMenuItemEvent* m_Callback;
+  bool m_Cooldown;
 
   mutable std::shared_ptr<PartialDiskWithTriangle> m_Wedge;
   mutable std::shared_ptr<PartialDiskWithTriangle> m_Goal;
