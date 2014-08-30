@@ -486,6 +486,24 @@ add_sublibrary(
         "Provides abstract radial view classes."
 )
 
+add_sublibrary(
+    HandCursor
+    HEADERS
+        HandCursor.h
+    SOURCES
+        HandCursor.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
+        Animation
+        EigenTypes
+        GLCompatibility
+        GLMaterial
+        LeapListener
+        Primitives
+    BRIEF_DOC_STRING
+        "Simple hand cursor representation."
+)
+
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
 ###################################################################################################
