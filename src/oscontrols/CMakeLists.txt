@@ -6,6 +6,10 @@ set(oscontrols_SOURCES
 set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/shaders/material-frag.glsl
   ${CMAKE_SOURCE_DIR}/src/shaders/matrix-transformed-vert.glsl
+  ${CMAKE_SOURCE_DIR}/src/svgs/next-track-icon-extended-01.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/play_pause-icon-extended-01.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/prev-track-icon-extended-01.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/volume-icon-01.svg
 )
 
 
@@ -32,7 +36,7 @@ elseif(APPLE)
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/oscontrols/oscontrols.plist.in)
 endif()
 
-foreach(_resource ${oscontrols_RESOURCES}) 
+foreach(_resource ${oscontrols_RESOURCES})
   if(WIN32)
     add_custom_command(TARGET oscontrols POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:oscontrols>\"

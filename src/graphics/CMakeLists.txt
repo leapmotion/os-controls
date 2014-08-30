@@ -19,7 +19,6 @@ set(graphics_SOURCES
   VolumeControl.h
   VolumeControl.cpp
   Wedges.h
-  GraphicsConfigs.h
 )
 
 

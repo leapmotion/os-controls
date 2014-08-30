@@ -6,6 +6,14 @@
 #include "RenderState.h"
 #include "RenderFrame.h"
 
+#include "GLShader.h"
+#include "GLShaderLoader.h"
+#include "GLTexture2.h"
+#include "GLTexture2Loader.h"
+#include "TextFile.h"
+#include "Resource.h"
+#include <memory>
+
 const static float PI = 3.14159265f;
 
 const double startAngle = 3 * M_PI/4.0;
@@ -36,7 +44,24 @@ m_state(State::INACTIVE) {
     item->SetActivatedColor(handleOutlineColor);
   }
   
-  //TODO: Setup the SVGs for the menu
+  Resource<TextFile> nextIconFile("next-track-icon-extended-01.svg");
+  Resource<TextFile> playPauseIconFile("play_pause-icon-extended-01.svg");
+  Resource<TextFile> prevIconFile("prev-track-icon-extended-01.svg");
+  Resource<TextFile> volumeIconFile("volume-icon-01.svg");
+  
+  std::shared_ptr<SVGPrimitive> nextIcon(new SVGPrimitive());
+  std::shared_ptr<SVGPrimitive> playPauseIcon(new SVGPrimitive());
+  std::shared_ptr<SVGPrimitive> prevIcon(new SVGPrimitive());
+  std::shared_ptr<SVGPrimitive> volumeIcon(new SVGPrimitive());
+  
+  nextIcon->Set(nextIconFile->Contents());
+  playPauseIcon->Set(playPauseIconFile->Contents());
+  prevIcon->Set(prevIconFile->Contents());
+  volumeIcon->Set(volumeIconFile->Contents());
+  
+  m_radialMenu.GetItem(0)->SetIcon(nextIcon);
+  m_radialMenu.GetItem(1)->SetIcon(playPauseIcon);
+  m_radialMenu.GetItem(2)->SetIcon(prevIcon);
 }
 
 void MediaViewStateMachine::AutoInit() {
