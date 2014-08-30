@@ -6,13 +6,20 @@
 #include "osinterface/LeapInput.h"
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/OSVirtualScreen.h"
+#include "utility/PlatformInitializer.h"
 #include <SFML/Window/Event.hpp>
 
 int main(int argc, const char* argv[]) {
+  // Initialize our OS-specific dependencies
+  PlatformInitializer init;
+  // Begin processing
+  AutoCurrentContext()->Initiate();
   // Make our stuff and start processing:
+  AutoRequired<RenderEngine> renderEngine;
+  AutoRequired<OSVirtualScreen> virtualScreen;
   AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
   AutoRequired<LeapInput> leapInput;
-  AutoRequired<OSVirtualScreen> virtualScreen;
+  AutoRequired<MakesRenderWindowFullScreen>();
   AutoConstruct<sf::RenderWindow> mw(
     sf::VideoMode(
       (int) virtualScreen->PrimaryScreen().Width(),
@@ -21,17 +28,12 @@ int main(int argc, const char* argv[]) {
     "Expose Mode Test Harness", sf::Style::None,
     *contextSettings
   );
-  AutoRequired<MakesRenderWindowFullScreen>();
-  AutoRequired<RenderEngine> renderEngine;
 
   // Create ExposeView after everything else is set up
   AutoRequired<ExposeView> view;
 
   // Need to make a state machine
   AutoRequired<TestStateMachine> tss;
-
-  // Begin processing
-  AutoGlobalContext()->Initiate();
 
   // Primary dispatch loop:
   mw->setFramerateLimit(0);

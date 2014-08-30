@@ -7,10 +7,6 @@
 MakesRenderWindowFullScreen::MakesRenderWindowFullScreen(void) :
   m_desktopChanged{1}
 {
-  m_mw.NotifyWhenAutowired([this] {
-    m_mw->setFramerateLimit(0);
-    m_mw->setVerticalSyncEnabled(true);
-  });
 }
 
 MakesRenderWindowFullScreen::~MakesRenderWindowFullScreen(void)
