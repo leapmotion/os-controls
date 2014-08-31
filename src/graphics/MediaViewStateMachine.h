@@ -64,8 +64,6 @@ private:
   
   State m_state;
   
-  //Autowired<MediaView> m_mediaView;
-  
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
   

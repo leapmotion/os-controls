@@ -4,7 +4,6 @@
 #include "HandPoseRecognizer.h"
 #include "uievents/OSCDomain.h"
 #include "uievents/Updatable.h"
-//#include "graphics/MediaView.h"
 #include "graphics/CursorView.h"
 #include "interaction/HandEventListener.h"
 #include "interaction/MediaViewController.h"
@@ -44,7 +43,6 @@ private:
   OSCState m_state;
 
   AutoConstruct<CursorView> m_cursorView;
-  //AutoConstruct<MediaView> m_mediaView;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine; // Created after the MediaView for dependency reasons
   AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewProxy> m_evp;

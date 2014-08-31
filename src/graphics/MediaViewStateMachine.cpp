@@ -83,7 +83,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
-    //m_mediaView->CloseMenu();
     return;
   }
   
@@ -91,7 +90,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
   {
     case State::INACTIVE:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
-        //m_mediaView->OpenMenu(handLocation);
         m_volumeSlider.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
