@@ -9,8 +9,6 @@ set(graphics_SOURCES
   ExposeViewWindow.cpp
   MediaViewStateMachine.h
   MediaViewStateMachine.cpp
-  RadialButton.h
-  RadialButton.cpp
   Renderable.h
   RenderEngine.h
   RenderEngine.cpp

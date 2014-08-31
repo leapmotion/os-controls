@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "MediaViewController.h"
-//#include "graphics/MediaView.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/AudioVolumeInterface.h"
 #include "graphics/MediaViewStateMachine.h"
