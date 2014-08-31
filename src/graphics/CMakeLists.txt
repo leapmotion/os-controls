@@ -14,9 +14,6 @@ set(graphics_SOURCES
   RenderEngine.cpp
   RenderEngineNode.h
   RenderFrame.h
-  VolumeControl.h
-  VolumeControl.cpp
-  Wedges.h
 )
 
 
