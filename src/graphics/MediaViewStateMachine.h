@@ -23,7 +23,6 @@ public:
   //All user and state machine driven changes to the view are dealt with from here.
   void AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime);
   
-  void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
   void SetViewVolume(float volume);
   

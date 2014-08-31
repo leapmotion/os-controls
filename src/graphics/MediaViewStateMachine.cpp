@@ -24,9 +24,6 @@ const Color fillColor(0.4f, 0.8f, 0.4f, 0.7f);
 const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
 const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
-//const double volumeRadius = 8.625;
-//const double volumeThickness = 0.75;
-
 MediaViewStateMachine::MediaViewStateMachine() :
 m_state(State::INACTIVE) {
   
@@ -37,6 +34,7 @@ m_state(State::INACTIVE) {
   m_radialMenu.SetRadius(120.0);
   m_radialMenu.SetThickness(70.0);
   for (int i=0; i<numItems; i++) {
+    //TODO: Break these out into a config to avoid so many magic numbers
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu.GetItem(i);
     item->SetRadius(120.0);
     item->SetThickness(80.0);
@@ -102,12 +100,10 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-        //m_mediaView->CloseMenu();
         m_state = State::INACTIVE;
       }
       break;
     case State::SELECTION_MADE:
-      //m_mediaView->CloseMenu();
       m_state = State::FADE_OUT;
       break;
     case State::FADE_OUT:
@@ -142,16 +138,11 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       }
       
       // VOLUME UPDATE
-      
       m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
-      //m_volumeSlider.SetFillColor(handleColor);
-      //m_volumeSlider.SetHandleOutlineColor(handleColor);
       
       break;
     }
     case State::SELECTION_MADE:
-      //something
-      break;
     case State::FINAL:
     default:
       break;
@@ -176,10 +167,6 @@ void MediaViewStateMachine::SetViewVolume(float volume) {
   m_volumeSlider.SetValue(volume);
 }
 
-void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
-  
-}
-
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
   if(m_state == State::ACTIVE) {
     PrimitiveBase::DrawSceneGraph(m_radialMenu, renderFrame.renderState);
@@ -187,6 +174,7 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
   }
 }
 
+//TODO: Filter this data in the recognizer to smooth things out.
 float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
   return deltaHandRoll / (3 * PI / 2.0);
 }
