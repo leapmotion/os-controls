@@ -9,6 +9,7 @@
 #include "RenderEngine.h"
 #include "RenderEngineNode.h"
 #include <RadialMenu.h>
+#include <RadialSlider.h>
 
 class MediaViewStateMachine :
 public RenderEngineNode
@@ -60,6 +61,7 @@ private:
   };
   
   RadialMenu m_radialMenu;
+  RadialSlider m_volumeSlider;
   
   State m_state;
   

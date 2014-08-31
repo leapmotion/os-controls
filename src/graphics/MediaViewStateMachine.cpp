@@ -29,6 +29,8 @@ const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
 m_state(State::INACTIVE) {
+  
+  //Radial Menu Initialization
   m_radialMenu.SetStartAngle(startAngle);
   m_radialMenu.SetEndAngle(endAngle);
   m_radialMenu.SetNumItems(numItems);
@@ -59,9 +61,19 @@ m_state(State::INACTIVE) {
   prevIcon->Set(prevIconFile->Contents());
   volumeIcon->Set(volumeIconFile->Contents());
   
-  m_radialMenu.GetItem(0)->SetIcon(nextIcon);
+  m_radialMenu.GetItem(0)->SetIcon(prevIcon);
   m_radialMenu.GetItem(1)->SetIcon(playPauseIcon);
-  m_radialMenu.GetItem(2)->SetIcon(prevIcon);
+  m_radialMenu.GetItem(2)->SetIcon(nextIcon);
+  
+  //Volume Slider Initilization
+  m_volumeSlider.SetRadius(60.0);
+  m_volumeSlider.SetThickness(10.0);
+  m_volumeSlider.SetStartAngle(startAngle);
+  m_volumeSlider.SetEndAngle(endAngle);
+  m_volumeSlider.SetFillColor(fillColor);
+  m_volumeSlider.SetHandleColor(handleColor);
+  m_volumeSlider.SetHandleOutlineColor(handleOutlineColor);
+  m_volumeSlider.Material().SetDiffuseLightColor(bgColor);
 }
 
 void MediaViewStateMachine::AutoInit() {
@@ -82,6 +94,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
     case State::INACTIVE:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
         //m_mediaView->OpenMenu(handLocation);
+        m_volumeSlider.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
         m_state = State::ACTIVE;
@@ -158,6 +171,7 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
   if(m_state == State::ACTIVE) {
     PrimitiveBase::DrawSceneGraph(m_radialMenu, renderFrame.renderState);
+    PrimitiveBase::DrawSceneGraph(m_volumeSlider, renderFrame.renderState);
   }
 }
 
