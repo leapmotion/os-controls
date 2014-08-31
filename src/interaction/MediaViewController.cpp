@@ -31,14 +31,14 @@ void MediaViewController::OnUserPrevTrack() {
 }
 
 void MediaViewController::OnInitializeVolume() {
-  /*if(m_audioVolumeInterface) {
-    AutowiredFast<MediaView> mediaView;
-    if (mediaView) {
+  if(m_audioVolumeInterface) {
+    AutowiredFast<MediaViewStateMachine> mediaViewStateMachine;
+    if (mediaViewStateMachine) {
       float systemVolume = m_audioVolumeInterface->GetVolume();
       m_volume = systemVolume;
-      mediaView->SetVolumeView(systemVolume);
+      mediaViewStateMachine->SetViewVolume(systemVolume);
     }
-  }*/
+  }
 }
 
 void MediaViewController::OnUserChangedVolume(float dVolume) {
@@ -49,9 +49,9 @@ void MediaViewController::OnUserChangedVolume(float dVolume) {
 }
 
 void MediaViewController::OnVolumeChanged(float oldVolume, float newVolume) {
-  /*AutowiredFast<MediaView> mediaView;
-  if (mediaView) {
+  AutowiredFast<MediaViewStateMachine> mediaViewStateMachine;
+  if (mediaViewStateMachine) {
     m_volume = newVolume;
-    mediaView->SetVolumeView(newVolume);
-  }*/
+    mediaViewStateMachine->SetViewVolume(newVolume);
+  }
 }

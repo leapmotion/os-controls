@@ -127,18 +127,26 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       break;
     case State::ACTIVE:
     {
+      // MENU UPDATE
+      
       // The menu always thinks it's at (0,0) so we need to offset the cursor
       // coordinates by the location of the menu to give the proper space.
       const Vector2 menuOffset = m_radialMenu.Translation().head<2>();
       
       Vector3 leapPosition(handLocation.x - menuOffset.x(), handLocation.y - menuOffset.y(), 0);
       RadialMenu::UpdateResult updateResult = m_radialMenu.UpdateItemsFromCursor(leapPosition, frameTime.deltaTime);
-      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
       if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
         //Selection Made Transition
         resolveSelection(updateResult.updateIdx);
         m_state = State::SELECTION_MADE;
       }
+      
+      // VOLUME UPDATE
+      
+      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
+      //m_volumeSlider.SetFillColor(handleColor);
+      //m_volumeSlider.SetHandleOutlineColor(handleColor);
+      
       break;
     }
     case State::SELECTION_MADE:
@@ -164,8 +172,12 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
   }
 }
 
-void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
+void MediaViewStateMachine::SetViewVolume(float volume) {
+  m_volumeSlider.SetValue(volume);
+}
 
+void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
+  
 }
 
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {

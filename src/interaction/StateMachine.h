@@ -7,6 +7,7 @@
 //#include "graphics/MediaView.h"
 #include "graphics/CursorView.h"
 #include "interaction/HandEventListener.h"
+#include "interaction/MediaViewController.h"
 #include "graphics/MediaViewStateMachine.h"
 
 namespace Leap {
@@ -44,6 +45,7 @@ private:
 
   AutoConstruct<CursorView> m_cursorView;
   //AutoConstruct<MediaView> m_mediaView;
+  AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine; // Created after the MediaView for dependency reasons
   AutoRequired<ExposeViewProxy> m_evp;
   

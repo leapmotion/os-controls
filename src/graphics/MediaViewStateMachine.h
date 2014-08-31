@@ -25,7 +25,7 @@ public:
   
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
-  
+  void SetViewVolume(float volume);
   
 private:
   void resolveSelection(int selectedID);
@@ -70,7 +70,7 @@ private:
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
   
-  AutoRequired<MediaViewController> m_mediaViewController;
+  Autowired<MediaViewController> m_mediaViewController;
   //std::shared_ptr<Wedge> m_lastActiveWedge;
   Autowired<RootRenderEngineNode> m_rootNode;
   RectanglePrim prim;
