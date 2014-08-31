@@ -1,6 +1,6 @@
 #pragma once
 #include "utility/VirtualScreen.h"
-#include "interaction/ExposeViewAccessManager.h" //Tried to do this as a forward declaration but no joy - DanielP.
+#include "interaction/ExposeViewAccessManager.h" //Tried to do this as a forward declaration but no joy - DanielP
 #include <autowiring/autowiring.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>

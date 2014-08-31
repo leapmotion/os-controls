@@ -5,18 +5,18 @@
 #include "interaction/MediaViewController.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
-#include "autowiring/Autowiring.h"
 #include "RenderEngine.h"
 #include "RenderEngineNode.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
+#include <autowiring/Autowiring.h>
 
 class MediaViewStateMachine :
 public RenderEngineNode
 {
 public:
   MediaViewStateMachine();
-  virtual ~MediaViewStateMachine() {};
+  virtual ~MediaViewStateMachine() {}
   
   void AutoInit();
   
@@ -70,8 +70,6 @@ private:
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
   
-  Autowired<MediaViewController> m_mediaViewController;
-  //std::shared_ptr<Wedge> m_lastActiveWedge;
   Autowired<RootRenderEngineNode> m_rootNode;
   RectanglePrim prim;
 };

@@ -45,8 +45,8 @@ private:
 
   AutoConstruct<CursorView> m_cursorView;
   //AutoConstruct<MediaView> m_mediaView;
-  AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine; // Created after the MediaView for dependency reasons
+  AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewProxy> m_evp;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives

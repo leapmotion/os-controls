@@ -5,6 +5,7 @@
 //class MediaView;
 class AudioVolumeInterface;
 class MediaInterface;
+class MediaViewStateMachine;
 
 /// <summary>
 /// Handles callbacks from the MediaView, and updates the view with information from the system
@@ -35,5 +36,6 @@ private:
   // is stored with discrete steps on some systems, so we can't
   // rely on that as a model for incremental updating.
   float m_volume;
+  Autowired<MediaViewStateMachine> m_mediaViewStateMachine;
 };
 
