@@ -162,6 +162,7 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
 }
 
 void MediaViewStateMachine::SetViewVolume(float volume) {
+  volume = 1 - volume;
   m_volumeSlider.SetValue(volume);
 }
 
