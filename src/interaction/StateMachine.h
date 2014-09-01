@@ -43,7 +43,7 @@ private:
   OSCState m_state;
 
   AutoConstruct<CursorView> m_cursorView;
-  AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine; // Created after the MediaView for dependency reasons
+  AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewProxy> m_evp;
   

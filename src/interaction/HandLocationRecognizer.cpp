@@ -25,8 +25,6 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
   
   offset *= config::OFFSET_DISTANCE;
   
-  std::cout << offset.x() << ", " << offset.y() << std::endl;
-  
   screenLocation += ProjectVector(2, offset);
   
   screenLocation.y() *= -1;
