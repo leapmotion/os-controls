@@ -64,11 +64,16 @@ public:
   ~WindowScrollerMac();
 
 protected:
-  void DoScrollBy(const OSPoint& deltaPixel, const OSPoint& deltaLine, bool isMomentum) override;
+  void DoScrollBy(float deltaX, float deltaY, bool isMomentum) override;
 
 private:
   CGEventRef CreateEvent(IOHIDEventType type) const;
   IOHIDDigitizerEventMask PhaseToEventMask(IOHIDEventPhaseBits phase) const;
+
+  // Hold on to partial pixels that haven't yet been sent in an event
+  OSPoint m_scrollPartialPixel;
+  // Hold on to partial lines that haven't yet been sent in an event
+  OSPoint m_scrollPartialLine;
 
   IOHIDEventPhaseBits m_phase;
   IOHIDEventMomentumPhase m_momentumPhase;

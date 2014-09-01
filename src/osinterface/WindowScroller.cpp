@@ -3,10 +3,8 @@
 
 IWindowScroller::IWindowScroller(void):
   m_virtualPosition(OSPointZero),
+  m_ppmm(110.0f/25.4f), // Determine this dynamically -- FIXME
   m_remainingMomentum(OSPointZero),
-  m_scrollPartialPixel(OSPointZero),
-  m_scrollPartialLine(OSPointZero),
-  m_pixelsPerLine(OSPointMake(1.0f, 1.0f)),
   m_velocitiesCount(0),
   m_velocitiesIndex(0),
   m_lastScrollTimePoint(std::chrono::steady_clock::now())
@@ -14,32 +12,6 @@ IWindowScroller::IWindowScroller(void):
 
 IWindowScroller::~IWindowScroller(void)
 {}
-
-void IWindowScroller::AdjustScrollBy(float deltaX, float deltaY, bool isMomentum) {
-  const float ppi = 120.0f; // Pixels per inch (base this on the DPI of the monitors -- FIXME)
-  const float ppmm = ppi/25.4f; // Convert pixels per inch to pixels per millimeter
-  OSPoint deltaPixel = OSPointMake(deltaX*ppmm, deltaY*ppmm); // Convert to pixels
-  OSPoint deltaLine  = OSPointMake(deltaPixel.x/m_pixelsPerLine.x, deltaPixel.y/m_pixelsPerLine.y); // Convert to lines
-
-  // Adjust partial pixels
-  m_scrollPartialPixel.x += deltaPixel.x;
-  m_scrollPartialPixel.y += deltaPixel.y;
-  deltaPixel.x = round(m_scrollPartialPixel.x);
-  deltaPixel.y = round(m_scrollPartialPixel.y);
-  m_scrollPartialPixel.x -= deltaPixel.x;
-  m_scrollPartialPixel.y -= deltaPixel.y;
-
-  // Adjust partial lines
-  m_scrollPartialLine.x += deltaLine.x;
-  m_scrollPartialLine.y += deltaLine.y;
-  deltaLine.x = floor(m_scrollPartialLine.x);
-  deltaLine.y = floor(m_scrollPartialLine.y);
-  m_scrollPartialLine.x -= deltaLine.x;
-  m_scrollPartialLine.y -= deltaLine.y;
-
-  // Perform the actual scrolling
-  DoScrollBy(deltaPixel, deltaLine, isMomentum);
-}
 
 void IWindowScroller::ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) {
   std::lock_guard<std::mutex> lk(GetLock());
@@ -57,7 +29,7 @@ void IWindowScroller::ScrollBy(const OSPoint& virtualPosition, float deltaX, flo
     }
     m_lastScrollTimePoint = now;
   }
-  AdjustScrollBy(deltaX, deltaY, false);
+  DoScrollBy(deltaX, deltaY, false);
 }
 
 void IWindowScroller::CancelScroll(void) {
@@ -113,7 +85,7 @@ void IWindowScroller::OnPerformMomentumScroll() {
   if (absMy < 0.00001f && absMx < 0.00001f) {
     // Is the momentum still large enough that we want to continue?
     m_remainingMomentum = OSPointZero;
-    DoScrollBy(OSPointZero, OSPointZero, true);
+    DoScrollBy(0.0f, 0.0f, true);
     m_wse(&WindowScrollerEvents::OnScrollStopped)();
     return;
   }
@@ -125,7 +97,7 @@ void IWindowScroller::OnPerformMomentumScroll() {
     m_lastScrollTimePoint = now;
     const auto deltaX = m_remainingMomentum.x*dt;
     const auto deltaY = m_remainingMomentum.y*dt;
-    AdjustScrollBy(deltaX, deltaY, true);
+    DoScrollBy(deltaX, deltaY, true);
 
     // Apply drag by an exponential curve
     if (absMy < 0.0001f && absMx < 0.0001f) {

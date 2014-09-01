@@ -12,18 +12,37 @@ IWindowScroller* IWindowScroller::New(void) {
 }
 
 WindowScrollerMac::WindowScrollerMac() :
+  m_scrollPartialPixel(OSPointZero),
+  m_scrollPartialLine(OSPointZero),
   m_phase(kIOHIDEventPhaseUndefined),
   m_momentumPhase(kIOHIDEventMomentumPhaseUndefined)
 {
-  m_pixelsPerLine.x = 10;
-  m_pixelsPerLine.y = 10;
 }
 
 WindowScrollerMac::~WindowScrollerMac() {
-  DoScrollBy(OSPointZero, OSPointZero, true); // Abruptly cancel any existing scroll
+  DoScrollBy(0.0f, 0.0f, true); // Abruptly cancel any existing scroll
 }
 
-void WindowScrollerMac::DoScrollBy(const OSPoint& deltaPixel, const OSPoint& deltaLine, bool isMomentum) {
+void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) {
+  OSPoint deltaPixel = OSPointMake(deltaX*m_ppmm, deltaY*m_ppmm); // Convert to pixels
+  OSPoint deltaLine  = OSPointMake(deltaPixel.x/10.0f, deltaPixel.y/10.f); // Convert to lines
+
+  // Adjust partial pixels
+  m_scrollPartialPixel.x += deltaPixel.x;
+  m_scrollPartialPixel.y += deltaPixel.y;
+  deltaPixel.x = round(m_scrollPartialPixel.x);
+  deltaPixel.y = round(m_scrollPartialPixel.y);
+  m_scrollPartialPixel.x -= deltaPixel.x;
+  m_scrollPartialPixel.y -= deltaPixel.y;
+
+  // Adjust partial lines
+  m_scrollPartialLine.x += deltaLine.x;
+  m_scrollPartialLine.y += deltaLine.y;
+  deltaLine.x = floor(m_scrollPartialLine.x);
+  deltaLine.y = floor(m_scrollPartialLine.y);
+  m_scrollPartialLine.x -= deltaLine.x;
+  m_scrollPartialLine.y -= deltaLine.y;
+
   CGEventRef event;
 
   if (isMomentum) {
@@ -49,7 +68,6 @@ void WindowScrollerMac::DoScrollBy(const OSPoint& deltaPixel, const OSPoint& del
     // We are now ready to send Scroll Gesture events
     m_phase = kIOHIDEventPhaseBegan;
   }
-
   const int ilx = static_cast<int>(deltaLine.x);
   const int ily = static_cast<int>(deltaLine.y);
 
