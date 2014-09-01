@@ -33,8 +33,6 @@ public:
   // This is impacted by startGrab and endGrab
   void UpdateLayout(uint32_t cursorX, uint32_t cursorY);
   
-  void UpdateLayout_TEMP(Leap::Hand hand);
-  
   // Should be called when the proxy hand begins a grab.
   // Handles the actual view response to the grab.
   // Sets state flags that impact the behavior of UpdateLayout

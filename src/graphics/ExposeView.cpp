@@ -39,13 +39,6 @@ void ExposeView::UpdateLayout(uint32_t cursorX, uint32_t cursorY) {
   std::cout << "ExposeView update layout." << std::endl;
 }
 
-// INPUT LOGIC HERE
-// This will only be called when the hand is in the frame
-// with 4 fingers open.
-void ExposeView::UpdateLayout_TEMP(Leap::Hand hand) {
-  
-}
-
 // THIS IS ON A TICK
 // This will be called as soon as the view is created, which
 // Should be a short time after application start.
