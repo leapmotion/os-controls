@@ -3,12 +3,22 @@
 #include "OSWindow.h"
 #include "OSWindowEvent.h"
 
+HHOOK hhook;
+
 OSWindowMonitorWin::OSWindowMonitorWin(void)
 {
   // Set up a hook so we can snag window creation events:
+  SetWindowsHookEx(
+    WH_SHELL,
+    [] (int code, WPARAM wParam, LPARAM lParam) -> LPARAM {
+      return CallNextHookEx(hhook, code, wParam, lParam);
+    },
+    nullptr,
+    0
+  );
 
   // Enumerate all top-level windows that we know about right now:
-
+  ;
 }
 
 OSWindowMonitorWin::~OSWindowMonitorWin(void)
