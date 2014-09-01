@@ -15,10 +15,10 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const HandPinch& han
     return;
   }
   
-  if(handPinch.isPinching) {
+  /*if(handPinch.isPinching) {
     handPose = HandPose::ZeroFingers;
     return;
-  }
+  }*/
   
   Vector3 handDirection = hand.direction().toVector3<Vector3>();
   
