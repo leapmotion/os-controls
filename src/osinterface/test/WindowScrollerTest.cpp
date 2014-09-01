@@ -12,9 +12,9 @@ public:
   
   static MockWindowScroller* New(void) { return new MockWindowScroller; }
 
-  void DoScrollBy(float deltaX, float deltaY, bool isMomentum) override {
-    scrollRequestsX.push_back(deltaX);
-    scrollRequestsY.push_back(deltaY);
+  void DoScrollBy(const OSPoint& deltaPixel, const OSPoint& deltaLine, bool isMomentum) override {
+    scrollRequestsX.push_back(deltaPixel.x);
+    scrollRequestsY.push_back(deltaPixel.y);
   }
 
   std::vector<float> scrollRequestsX;

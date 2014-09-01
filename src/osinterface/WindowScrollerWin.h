@@ -5,5 +5,5 @@ class WindowScrollerWin:
   public IWindowScroller
 {
 protected:
-  void DoScrollBy(float deltaX, float deltaY, bool isMomentum) override;
+  void DoScrollBy(const OSPoint& deltaPixel, const OSPoint& deltaLine, bool isMomentum) override;
 };

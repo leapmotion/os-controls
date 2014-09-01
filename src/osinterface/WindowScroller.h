@@ -19,35 +19,41 @@ public:
   virtual ~IWindowScroller(void);
   static IWindowScroller* New(void);
 
-protected:
+private:
   // Events that we raise when interesting things happen
   AutoFired<WindowScrollerEvents> m_wse;
 
   // The current scroll operation, if one exists.
   std::weak_ptr<IScrollOperation> m_curScrollOp;
 
+protected:
   // The point where the most recent scroll operation took place
   OSPoint m_virtualPosition;
 
-  // Total current momentum caused by recently received scroll operations.  This momentum is in
-  // scroll units per second, and will be reduced by the drag amount.
-  OSPoint m_remainingMomentum;
-
-  // Some of the underlying interfaces do not support floating point scrolling,
-  // thus we will keep track of residual scrolling for both pixels and lines.
-  OSPoint m_scrollPartialPixel;
-  OSPoint m_scrollPartialLine;
   // The pixels-to-line ratio. Actual values will be platform specific.
   OSPoint m_pixelsPerLine;
 
   /// <summary>
   /// Performs the actual scroll operation requested by the user
   /// </summary>
-  virtual void DoScrollBy(float deltaX, float deltaY, bool isMomentum) = 0;
+  virtual void DoScrollBy(const OSPoint& deltaPixel, const OSPoint& deltaLine, bool isMomentum) = 0;
 
   // IScrollOperation overrides:
   void ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) override final;
   void CancelScroll(void) final;
+
+private:
+  // Some of the underlying interfaces do not support floating point scrolling,
+  // thus we will keep track of residual scrolling for both pixels and lines.
+  OSPoint m_scrollPartialPixel;
+  OSPoint m_scrollPartialLine;
+
+  // Total current momentum caused by recently received scroll operations.  This momentum is in
+  // scroll units per second, and will be reduced by the drag amount.
+  OSPoint m_remainingMomentum;
+
+  // Common code that adjusts the current per-pixel and per-line scrolling
+  void AdjustScrollBy(float deltaX, float deltaY, bool isMomentum);
 
   // Delay operation
   void OnPerformMomentumScroll(std::chrono::high_resolution_clock::time_point then);

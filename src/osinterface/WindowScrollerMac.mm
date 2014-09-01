@@ -19,12 +19,11 @@ WindowScrollerMac::WindowScrollerMac() :
   m_pixelsPerLine.y = 10;
 }
 
-WindowScrollerMac::~WindowScrollerMac()
-{
-  DoScrollBy(0.0f, 0.0f, true); // Abruptly cancel any existing scroll
+WindowScrollerMac::~WindowScrollerMac() {
+  DoScrollBy(OSPointZero, OSPointZero, true); // Abruptly cancel any existing scroll
 }
 
-void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) {
+void WindowScrollerMac::DoScrollBy(const OSPoint& deltaPixel, const OSPoint& deltaLine, bool isMomentum) {
   CGEventRef event;
 
   if (isMomentum) {
@@ -35,7 +34,7 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
       m_phase = kIOHIDEventPhaseEnded;
     } else if (m_momentumPhase == kIOHIDEventMomentumPhaseChanged) {
       // If we are applying momentum, and the momentum ends, let's end our momentum
-      if (std::abs(deltaX) < FLT_EPSILON && std::abs(deltaY) < FLT_EPSILON) {
+      if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.y) < FLT_EPSILON) {
         m_momentumPhase = kIOHIDEventMomentumPhaseEnded;
       }
     } else if (m_momentumPhase == kIOHIDEventMomentumPhaseUndefined) {
@@ -51,27 +50,6 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
     m_phase = kIOHIDEventPhaseBegan;
   }
 
-  const float ppi = 120.0f; // Pixels per inch (base this on the DPI of the monitors -- FIXME)
-  const float ppmm = ppi/25.4f; // Convert pixels per inch to pixels per millimeter
-  OSPoint deltaPixel = OSPointMake(deltaX*ppmm, deltaY*ppmm); // Convert to pixels
-  OSPoint deltaLine  = OSPointMake(deltaPixel.x/m_pixelsPerLine.x, deltaPixel.y/m_pixelsPerLine.y); // Convert to lines
-
-  // Adjust partial pixels
-  m_scrollPartialPixel.x += deltaPixel.x;
-  m_scrollPartialPixel.y += deltaPixel.y;
-  deltaPixel.x = round(m_scrollPartialPixel.x);
-  deltaPixel.y = round(m_scrollPartialPixel.y);
-  m_scrollPartialPixel.x -= deltaPixel.x;
-  m_scrollPartialPixel.y -= deltaPixel.y;
-
-  // Adjust partial lines
-  m_scrollPartialLine.x += deltaLine.x;
-  m_scrollPartialLine.y += deltaLine.y;
-  deltaLine.x = floor(m_scrollPartialLine.x);
-  deltaLine.y = floor(m_scrollPartialLine.y);
-  m_scrollPartialLine.x -= deltaLine.x;
-  m_scrollPartialLine.y -= deltaLine.y;
-
   SendScrollGesture(deltaPixel, deltaLine);
 
   // Change phase or momentum phase as needed
@@ -86,7 +64,7 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
     CGEventPost(kCGHIDEventTap, event);
     CFRelease(event);
     // If we don't have any momentum, there is nothing to do. Otherwise, start momentum phase
-    if (std::abs(deltaY) < FLT_EPSILON && std::abs(deltaX) < FLT_EPSILON) {
+    if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.x) < FLT_EPSILON) {
       m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
     } else {
       m_momentumPhase = kIOHIDEventMomentumPhaseBegan;
