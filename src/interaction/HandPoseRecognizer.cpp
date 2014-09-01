@@ -9,9 +9,14 @@
 #include "HandPoseRecognizer.h"
 
 
-void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) {
+void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const HandPinch& handPinch, HandPose& handPose) {
   
   if ( !hand.isValid() ) {
+    return;
+  }
+  
+  if(handPinch.isPinching) {
+    handPose = HandPose::ZeroFingers;
     return;
   }
   

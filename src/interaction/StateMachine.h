@@ -7,7 +7,10 @@
 #include "graphics/CursorView.h"
 #include "interaction/HandEventListener.h"
 #include "interaction/MediaViewController.h"
+#include "interaction/HandPinchRecognizer.h"
+#include "interaction/HandPinchRecognizer.h"
 #include "graphics/MediaViewStateMachine.h"
+
 
 namespace Leap {
   class Hand;
@@ -31,7 +34,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, OSCState& state);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, OSCState& state);
   
   void OnHandVanished();
 

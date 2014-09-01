@@ -19,6 +19,8 @@ set(interaction_SOURCES
   InteractionConfigs.h
   MediaViewController.h
   MediaViewController.cpp
+  HandPinchRecognizer.h
+  HandPinchRecognizer.cppq
   HandRollRecognizer.h
   HandRollRecognizer.cpp
   StateMachine.h

@@ -15,7 +15,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, OSCState& state) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, OSCState& state) {
   if (m_state == OSCState::FINAL) {
     return;
   }
