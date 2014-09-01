@@ -1,12 +1,6 @@
 set(graphics_SOURCES
   CursorView.h
   CursorView.cpp
-  ExposeControl.h
-  ExposeControl.cpp
-  ExposeView.h
-  ExposeView.cpp
-  ExposeViewWindow.h
-  ExposeViewWindow.cpp
   MediaViewStateMachine.h
   MediaViewStateMachine.cpp
   Renderable.h

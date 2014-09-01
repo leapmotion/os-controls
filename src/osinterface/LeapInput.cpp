@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "LeapInput.h"
+#include "LeapInputListener.h"
 #include "interaction/FrameFragmenter.h"
 
 LeapInput::LeapInput(void):
@@ -17,5 +18,5 @@ LeapInput::~LeapInput(void)
 
 void LeapInput::onFrame(const Leap::Controller& controller) {
   CurrentContextPusher pshr(this->GetContext());
-  m_fragmenter->AutoFilter(controller.frame());
+  m_listener(&LeapInputListener::OnLeapFrame)(controller.frame());
 }

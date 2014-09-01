@@ -1,4 +1,5 @@
 #pragma once
+#include "osinterface/LeapInputListener.h"
 #include <unordered_map>
 
 class CoreContext;
@@ -11,13 +12,15 @@ namespace Leap {
 /// <summary>
 /// Fragments input frames out into multiple processing contexts
 /// </summary>
-class FrameFragmenter
+class FrameFragmenter:
+  public LeapInputListener
 {
 public:
   FrameFragmenter(void);
   ~FrameFragmenter(void);
 
-  void AutoFilter(const Leap::Frame& frame);
+  // LeapInputListener overrides
+  void OnLeapFrame(const Leap::Frame& frame) override;
 
 private:
   // The processing contexts as known by the system right now

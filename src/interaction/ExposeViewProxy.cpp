@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "graphics/ExposeView.h"
 #include "ExposeViewProxy.h"
-#include "ExposeViewAccessManager.h"
+#include "expose/ExposeView.h"
+#include "expose/ExposeViewAccessManager.h"
 
 ExposeViewProxy::ExposeViewProxy(void) :
 m_state(State::INACTIVE)

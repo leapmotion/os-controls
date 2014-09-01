@@ -2,15 +2,17 @@
 #include "oscontrols.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
+#include "expose/ExposeViewAccessManager.h"
 #include "interaction/FrameFragmenter.h"
 #include "osinterface/AudioVolumeInterface.h"
 #include "osinterface/LeapInput.h"
+#include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/MediaInterface.h"
+#include "osinterface/OSVirtualScreen.h"
 #include "osinterface/VolumeLevelChecker.h"
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
-#include "utility/VirtualScreen.h"
 
 int main(int argc, char **argv)
 {
@@ -23,9 +25,31 @@ int main(int argc, char **argv)
     osCtxt->Initiate();
 
     CurrentContextPusher pshr(osCtxt);
-    AutoRequired<leap::VirtualScreen> virtualScreen;
+    AutoRequired<RenderEngine> render;
+    AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
     AutoRequired<FrameFragmenter> fragmenter;
+    AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
+    AutoRequired<ExposeViewAccessManager> exposeView;
+    AutoRequired<VolumeLevelChecker> volumeChecker;
+    AutoDesired<AudioVolumeInterface>();
+    AutoRequired<MediaInterface>();
+    AutoRequired<LeapInput>();
+    AutoRequired<MakesRenderWindowFullScreen>();
+    AutoConstruct<sf::RenderWindow> mw(
+      sf::VideoMode(
+        (int) virtualScreen->PrimaryScreen().Width(),
+        (int) virtualScreen->PrimaryScreen().Height()
+      ),
+      "Leap Os Control", sf::Style::None,
+      *contextSettings
+    );
+
+    // Run as fast as possible:
+    mw->setFramerateLimit(0);
+    mw->setVerticalSyncEnabled(true);
+
+    // Handoff to the main loop:
     control->Main();
   }
   catch (std::exception& e) {
@@ -36,76 +60,26 @@ int main(int argc, char **argv)
   return 0;
 }
 
-OsControl::OsControl(void) :
-  m_contextSettings(0, 0, 16),
-  m_mw(sf::VideoMode((int)m_virtualScreen->PrimaryScreen().Width(),
-                     (int)m_virtualScreen->PrimaryScreen().Height()),
-                     "Leap Os Control", sf::Style::None,
-                     m_contextSettings),
-  m_bShouldStop(false),
-  m_bRunning(false),
-  m_desktopChanged{1} // Also perform an adjust in the main loop
+OsControl::OsControl(void)
 {
-  AutoRequired<VolumeLevelChecker>();
-  AdjustDesktopWindow();
 }
 
-void OsControl::AdjustDesktopWindow(void) {
-  m_mw->setVisible(false);
-  const sf::Vector2i olPosition = m_mw->getPosition();
-  const sf::Vector2u oldSize = m_mw->getSize();
-
-  const auto bounds = m_virtualScreen->PrimaryScreen().Bounds();
-  const sf::Vector2i newPosition = { static_cast<int32_t>(bounds.origin.x),
-                                     static_cast<int32_t>(bounds.origin.y) };
-  const sf::Vector2u newSize = { static_cast<uint32_t>(bounds.size.width),
-                                 static_cast<uint32_t>(bounds.size.height) };
-
-  if (oldSize != newSize) {
-    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Os Control", sf::Style::None, m_contextSettings);
-  }
-  m_mw->setPosition(newPosition);
-  const auto handle = m_mw->getSystemHandle();
-  NativeWindow::MakeTransparent(handle);
-  NativeWindow::MakeAlwaysOnTop(handle);
-  NativeWindow::AllowInput(handle, false);
-  m_mw->setVisible(true);
-}
+OsControl::~OsControl(void) {}
 
 void OsControl::Main(void) {
-  auto clearOutstanding = MakeAtExit([this] {
-    std::lock_guard<std::mutex> lk(m_lock);
-    m_outstanding.reset();
-    m_stateCondition.notify_all();
-  });
-
-  auto then = std::chrono::steady_clock::now();
-
-  m_mw->setFramerateLimit(0);
-  m_mw->setVerticalSyncEnabled(true);
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
-  while (!ShouldStop()) {
-    // Our chance to position and possibly recreate the window if the desktop has changed
-    if (m_desktopChanged) {
-      --m_desktopChanged; // Do one at a time
-      AdjustDesktopWindow();
-    }
-
+  auto then = std::chrono::steady_clock::now();
+  for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
+    // Handle all events:
     for(sf::Event evt; m_mw->pollEvent(evt);)
       HandleEvent(evt);
 
-    // Determine how long it has been since we were last here
+    // Broadcast update event to all interested parties:
     auto now = std::chrono::steady_clock::now();
-    std::chrono::duration<double> timeDelta = now - then;
+    upd(&Updatable::Tick)(now - then);
     then = now;
-
-    // Broadcast update event:
-    upd(&Updatable::Tick)(timeDelta);
-
-    // Call the actual render behavior:
-    m_render->Render(m_mw, timeDelta);
   }
 }
 
@@ -129,15 +103,3 @@ void OsControl::Filter(void) {
   }
 }
 
-bool OsControl::Start(std::shared_ptr<Object> outstanding) {
-  std::lock_guard<std::mutex> lk(m_lock);
-  if (m_bShouldStop)
-    return true;
-  m_outstanding = outstanding;
-  return true;
-}
-
-void OsControl::Wait(void) {
-  std::unique_lock<std::mutex> lk(m_lock);
-  m_stateCondition.wait(lk, [this] { return m_outstanding.get() == nullptr; });
-}

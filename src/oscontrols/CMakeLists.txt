@@ -23,7 +23,7 @@ elseif(APPLE)
 endif()
 
 add_executable(oscontrols ${oscontrols_EXEFLAGS} ${oscontrols_SOURCES})
-target_link_libraries(oscontrols Autowiring utility interaction graphics osinterface)
+target_link_libraries(oscontrols Autowiring utility interaction graphics osinterface expose)
 target_include_directories(oscontrols PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 target_package(oscontrols Leap REQUIRED)

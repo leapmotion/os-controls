@@ -138,6 +138,11 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       // VOLUME UPDATE
       m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
       
+      if(distance >= configs::MEDIA_MENU_ACTIVATION_RADIUS) {
+        activeWedge->OnSelected();
+        m_mediaView->CloseMenu();
+        m_state = State::SELECTION_MADE;
+      }
       break;
     }
     case State::SELECTION_MADE:

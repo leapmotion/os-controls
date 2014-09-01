@@ -3,8 +3,6 @@ set(interaction_SOURCES
   GestureTriggerManifest.h
   CoordinateUtility.cpp
   CoordinateUtility.h
-  ExposeViewAccessManager.h
-  ExposeViewAccessManager.cpp
   ExposeViewProxy.h
   ExposeViewProxy.cpp
   FrameDeltaTimeRecognizer.h

@@ -3,6 +3,7 @@
 #include <Leap.h>
 
 class FrameFragmenter;
+class LeapInputListener;
 
 /// <summary>
 /// Packet source which interfaces with the leap API
@@ -18,8 +19,9 @@ public:
 private:
   AutoRequired<Leap::Controller> m_controller;
 
-  // We're going to need this because we pass control directly to the frame fragmenter
-  Autowired<FrameFragmenter> m_fragmenter;
+  // Event raised when a leap frame comes in
+  AutoFired<LeapInputListener> m_listener;
 
+  // Leap::Listener overrides:
   void onFrame(const Leap::Controller& controller) override;
 };
