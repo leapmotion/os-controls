@@ -75,6 +75,8 @@ TEST_F(WindowScrollerTest, MomentumBehavior) {
   ) << "Scroll operation took too long to wrap up after a momentum scroll was started";
 }
 
+#include <thread>
+
 TEST_F(WindowScrollerTest, RealWindowScroll) {
   AutoCreateContext ctxt;
   CurrentContextPusher pshr(ctxt);
@@ -85,8 +87,10 @@ TEST_F(WindowScrollerTest, RealWindowScroll) {
   // Scroll a bunch:
   {
     auto lock = real->BeginScroll();
-    for(size_t i = 100; i--;)
-      lock->ScrollBy(OSPointMake(1400, 400), 0, 20);
+    for(size_t i = 20; i--;) {
+      lock->ScrollBy(OSPointMake(1400, 400), 0, 60);
+      std::this_thread::sleep_for(std::chrono::milliseconds(17));
+    }
   }
 
   // Now verify that we get a few scroll operations happening after our primary scroll operations:

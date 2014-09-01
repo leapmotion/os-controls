@@ -5,6 +5,8 @@
 #include <AppKit/NSEvent.h>
 #include <Foundation/NSProcessInfo.h>
 
+#include <thread>
+
 IWindowScroller* IWindowScroller::New(void) {
   return new WindowScrollerMac;
 }
@@ -28,19 +30,9 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
   if (isMomentum) {
     // If we were scrolling and just now switched to momentum scrolling, end our gesture
     if (m_phase == kIOHIDEventPhaseBegan || m_phase == kIOHIDEventPhaseChanged) {
-      // On last (non-momentum) scroll, send a "Gesture Ended" event
+      // Since we don't know when the last non-momentum scroll is coming,
+      // interpret the first momentum scroll as the last non-momentum scroll.
       m_phase = kIOHIDEventPhaseEnded;
-      event = CreateEvent(kIOHIDEventTypeGestureEnded);
-      CGEventSetIntegerValueField(event, 115, kIOHIDEventTypeScroll); // 115: ended gesture subtype
-      CGEventSetIntegerValueField(event, 123, kIOHIDGestureMotionNone);
-      CGEventPost(kCGHIDEventTap, event);
-      CFRelease(event);
-      m_phase = kIOHIDEventPhaseUndefined;
-      // If we don't have any momentum when we finish scrolling, do not attempt any momentum
-      if (std::abs(deltaX) < FLT_EPSILON && std::abs(deltaY) < FLT_EPSILON) {
-        return;
-      }
-      m_momentumPhase = kIOHIDEventMomentumPhaseBegan;
     } else if (m_momentumPhase == kIOHIDEventMomentumPhaseChanged) {
       // If we are applying momentum, and the momentum ends, let's end our momentum
       if (std::abs(deltaX) < FLT_EPSILON && std::abs(deltaY) < FLT_EPSILON) {
@@ -61,32 +53,62 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
 
   const float ppi = 120.0f; // Pixels per inch (base this on the DPI of the monitors -- FIXME)
   const float ppmm = ppi/25.4f; // Convert pixels per inch to pixels per millimeter
-  float px = deltaX*ppmm, py = deltaY*ppmm; // Convert to pixels
-  float lx = px/m_pixelsPerLine.x, ly = py/m_pixelsPerLine.y; // Convert to lines
+  OSPoint deltaPixel = OSPointMake(deltaX*ppmm, deltaY*ppmm); // Convert to pixels
+  OSPoint deltaLine  = OSPointMake(deltaPixel.x/m_pixelsPerLine.x, deltaPixel.y/m_pixelsPerLine.y); // Convert to lines
 
   // Adjust partial pixels
-  m_scrollPartialPixel.x += px;
-  m_scrollPartialPixel.y += py;
-  px = round(m_scrollPartialPixel.x);
-  py = round(m_scrollPartialPixel.y);
-  m_scrollPartialPixel.x -= px;
-  m_scrollPartialPixel.y -= py;
+  m_scrollPartialPixel.x += deltaPixel.x;
+  m_scrollPartialPixel.y += deltaPixel.y;
+  deltaPixel.x = round(m_scrollPartialPixel.x);
+  deltaPixel.y = round(m_scrollPartialPixel.y);
+  m_scrollPartialPixel.x -= deltaPixel.x;
+  m_scrollPartialPixel.y -= deltaPixel.y;
 
   // Adjust partial lines
-  m_scrollPartialLine.x += lx;
-  m_scrollPartialLine.y += ly;
-  lx = floor(m_scrollPartialLine.x);
-  ly = floor(m_scrollPartialLine.y);
-  m_scrollPartialLine.x -= lx;
-  m_scrollPartialLine.y -= ly;
+  m_scrollPartialLine.x += deltaLine.x;
+  m_scrollPartialLine.y += deltaLine.y;
+  deltaLine.x = floor(m_scrollPartialLine.x);
+  deltaLine.y = floor(m_scrollPartialLine.y);
+  m_scrollPartialLine.x -= deltaLine.x;
+  m_scrollPartialLine.y -= deltaLine.y;
 
-  const int ilx = static_cast<int>(lx);
-  const int ily = static_cast<int>(ly);
+  SendScrollGesture(deltaPixel, deltaLine);
+
+  // Change phase or momentum phase as needed
+  if (m_phase == kIOHIDEventPhaseBegan) {
+    m_phase = kIOHIDEventPhaseChanged;
+  } else if (m_phase == kIOHIDEventPhaseEnded) {
+    m_phase = kIOHIDEventPhaseUndefined;
+    // Delay between sending last scroll event and end gesture event -- FIXME
+    std::this_thread::sleep_for(std::chrono::milliseconds(8));
+    event = CreateEvent(kIOHIDEventTypeGestureEnded);
+    CGEventSetIntegerValueField(event, 115, kIOHIDEventTypeScroll); // 115: ended gesture subtype
+    CGEventPost(kCGHIDEventTap, event);
+    CFRelease(event);
+    // If we don't have any momentum, there is nothing to do. Otherwise, start momentum phase
+    if (std::abs(deltaY) < FLT_EPSILON && std::abs(deltaX) < FLT_EPSILON) {
+      m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
+    } else {
+      m_momentumPhase = kIOHIDEventMomentumPhaseBegan;
+    }
+  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseBegan) {
+    m_momentumPhase = kIOHIDEventMomentumPhaseChanged;
+  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseEnded) {
+    m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
+  }
+}
+
+void WindowScrollerMac::SendScrollGesture(const OSPoint& deltaPixel, const OSPoint& deltaLine) const
+{
+  CGEventRef event;
+
+  const int ilx = static_cast<int>(deltaLine.x);
+  const int ily = static_cast<int>(deltaLine.y);
 
   // Scroll Gesture Event (only when gesturing)
   event = CreateEvent(kIOHIDEventTypeScroll);
-  CGEventSetDoubleValueField(event, 113, px);
-  CGEventSetDoubleValueField(event, 119, py);
+  CGEventSetDoubleValueField(event, 113, deltaPixel.x);
+  CGEventSetDoubleValueField(event, 119, deltaPixel.y);
   CGEventSetIntegerValueField(event, 123, 0x80000000); // Swipe direction
   CGEventSetIntegerValueField(event, 132, m_phase);
   CGEventSetIntegerValueField(event, 135, 1); // Unsure what this does
@@ -103,23 +125,14 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
     CGEventSetIntegerValueField(event, kCGScrollWheelEventDeltaAxis2, ilx);
     CGEventSetIntegerValueField(event, kCGScrollWheelEventFixedPtDeltaAxis2, ilx*65536);
   }
-  CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis1, py);
-  CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis2, px);
+  CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis1, deltaPixel.y);
+  CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis2, deltaPixel.x);
 
   CGEventSetIntegerValueField(event, 99, m_phase); // phase
   CGEventSetIntegerValueField(event, 123, m_momentumPhase); // momentum phase
   CGEventSetIntegerValueField(event, 137, 1); // Unsure what this does
   CGEventPost(kCGHIDEventTap, event);
   CFRelease(event);
-
-  // Change phase or momentum phase as needed
-  if (m_phase == kIOHIDEventPhaseBegan) {
-    m_phase = kIOHIDEventPhaseChanged;
-  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseBegan) {
-    m_momentumPhase = kIOHIDEventMomentumPhaseChanged;
-  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseEnded) {
-    m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
-  }
 }
 
 CGEventRef WindowScrollerMac::CreateEvent(IOHIDEventType type) const

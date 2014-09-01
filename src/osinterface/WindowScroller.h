@@ -31,8 +31,7 @@ protected:
 
   // Total current momentum caused by recently received scroll operations.  This momentum is in
   // scroll units per second, and will be reduced by the drag amount.
-  float m_remainingMomentumX;
-  float m_remainingMomentumY;
+  OSPoint m_remainingMomentum;
 
   // Some of the underlying interfaces do not support floating point scrolling,
   // thus we will keep track of residual scrolling for both pixels and lines.

@@ -18,25 +18,6 @@ enum {
 typedef uint32_t IOHIDEventType;
 
 enum {
-  kIOHIDGestureMotionNone,
-  kIOHIDGestureMotionHorizontalX,
-  kIOHIDGestureMotionVerticalY,
-  kIOHIDGestureMotionScale,
-  kIOHIDGestureMotionRotate,
-  kIOHIDGestureMotionTap,
-  kIOHIDGestureMotionDoubleTap,
-  kIOHIDGestureMotionFromLeftEdge,
-  kIOHIDGestureMotionOffLeftEdge,
-  kIOHIDGestureMotionFromRightEdge,
-  kIOHIDGestureMotionOffRightEdge,
-  kIOHIDGestureMotionFromTopEdge,
-  kIOHIDGestureMotionOffTopEdge,
-  kIOHIDGestureMotionFromBottomEdge,
-  kIOHIDGestureMotionOffBottomEdge,
-};
-typedef uint16_t IOHIDGestureMotion;
-
-enum {
   kIOHIDDigitizerEventRange      = 0x00000001,
   kIOHIDDigitizerEventTouch      = 0x00000002,
   kIOHIDDigitizerEventPosition   = 0x00000004,
@@ -88,6 +69,7 @@ protected:
 private:
   CGEventRef CreateEvent(IOHIDEventType type) const;
   IOHIDDigitizerEventMask PhaseToEventMask(IOHIDEventPhaseBits phase) const;
+  void SendScrollGesture(const OSPoint& deltaPixel, const OSPoint& deltaLine) const;
 
   IOHIDEventPhaseBits m_phase;
   IOHIDEventMomentumPhase m_momentumPhase;
