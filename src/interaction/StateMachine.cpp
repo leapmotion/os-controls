@@ -6,6 +6,7 @@
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
+  m_scrollState(ScrollState::DECAYING),
   m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
 {
 }
@@ -15,7 +16,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, OSCState& state) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState) {
   if (m_state == OSCState::FINAL) {
     return;
   }
@@ -43,7 +44,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       break;
   }
 
-  if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
+  //if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
     // If we want to go to the base state, then transition there.  Just do it, don't think
     // about it, do it.  Views in the this context all have their own states and know where
     // they are, they'll be able to tell that we're in the Base state and that they should
@@ -53,10 +54,28 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     // going through the ground case will actually not cause a menu change to happen, and
     // if this isn't the desired behavior, then change it by assigning the current state
     // unconditionally!
-    m_state = desiredState;
+  m_state = desiredState;
   
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
   state = m_state;
+  
+  scrollState = m_scrollState; //in case we don't change state
+  
+  switch ( m_scrollState ) {
+    case ScrollState::ACTIVE:
+      if ( !handPinch.isPinching ) {
+        scrollState = ScrollState::DECAYING;
+      }
+      break;
+    case ScrollState::DECAYING:
+      if ( handPinch.isPinching ) {
+        scrollState = ScrollState::ACTIVE;
+        m_lastScrollStart = handLocation.screenPosition();
+      }
+      break;
+  }
+  
+  m_scrollState = scrollState;
 }
 
 void StateMachine::OnHandVanished() {
@@ -65,15 +84,27 @@ void StateMachine::OnHandVanished() {
 
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
-  if(m_state == OSCState::FINAL) {
-    // Remove our controls from the scene graph
-    m_mediaViewStateMachine->RemoveFromParent();
-    m_cursorView->RemoveFromParent();
-    // Shutdown the context
-    m_context->SignalShutdown();
-    // Remove our own reference to the context
-    m_context.reset();
-    return;
+  switch ( m_state ) {
+    case OSCState::FINAL:
+      // Remove our controls from the scene graph
+      m_mediaViewStateMachine->RemoveFromParent();
+      m_cursorView->RemoveFromParent();
+      // Shutdown the context
+      m_context->SignalShutdown();
+      // Remove our own reference to the context
+      m_context.reset();
+      return;
+      break;
+  }
+  
+  switch ( m_scrollState ) {
+    case ScrollState::ACTIVE:
+      std::cout << "Last Scroll: "<< m_lastScrollStart.x() << ", " << m_lastScrollStart.y() << std::endl;
+      break;
+    case ScrollState::DECAYING:
+      break;
+    default:
+      break;
   }
 }
 

@@ -34,7 +34,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, OSCState& state);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState);
   
   void OnHandVanished();
 
@@ -44,6 +44,9 @@ public:
 private:
   // Our current state
   OSCState m_state;
+  
+  ScrollState m_scrollState;
+  Vector2 m_lastScrollStart;
 
   AutoConstruct<CursorView> m_cursorView;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
