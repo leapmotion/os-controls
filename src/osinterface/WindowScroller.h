@@ -49,14 +49,23 @@ private:
   OSPoint m_scrollPartialLine;
 
   // Total current momentum caused by recently received scroll operations.  This momentum is in
-  // scroll units per second, and will be reduced by the drag amount.
+  // scroll units per microsecond, and will be reduced by the drag amount.
   OSPoint m_remainingMomentum;
+
+  // Velocity circular buffer
+  enum { MAX_VELOCITY_ENTRIES = 5 };
+  OSPoint m_velocities[MAX_VELOCITY_ENTRIES];
+  size_t m_velocitiesCount;
+  size_t m_velocitiesIndex;
+
+  // Timepoint of last non-momentum scroll
+  std::chrono::steady_clock::time_point m_lastScrollTimePoint;
 
   // Common code that adjusts the current per-pixel and per-line scrolling
   void AdjustScrollBy(float deltaX, float deltaY, bool isMomentum);
 
-  // Delay operation
-  void OnPerformMomentumScroll(std::chrono::high_resolution_clock::time_point then);
+  // Periodically apply momentum scroll after normal scrolling has completed
+  void OnPerformMomentumScroll();
 
 public:
   /// <summary>

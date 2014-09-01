@@ -87,9 +87,9 @@ TEST_F(WindowScrollerTest, RealWindowScroll) {
   // Scroll a bunch:
   {
     auto lock = real->BeginScroll();
-    for(size_t i = 20; i--;) {
-      lock->ScrollBy(OSPointMake(1400, 400), 0, 60);
-      std::this_thread::sleep_for(std::chrono::milliseconds(17));
+    for(size_t i = 30; i--;) {
+      lock->ScrollBy(OSPointMake(1400, 400), 0, -20);
+      std::this_thread::sleep_for(std::chrono::microseconds(16667));
     }
   }
 

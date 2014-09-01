@@ -69,7 +69,6 @@ protected:
 private:
   CGEventRef CreateEvent(IOHIDEventType type) const;
   IOHIDDigitizerEventMask PhaseToEventMask(IOHIDEventPhaseBits phase) const;
-  void SendScrollGesture(const OSPoint& deltaPixel, const OSPoint& deltaLine) const;
 
   IOHIDEventPhaseBits m_phase;
   IOHIDEventMomentumPhase m_momentumPhase;

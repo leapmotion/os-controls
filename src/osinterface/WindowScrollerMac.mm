@@ -50,36 +50,6 @@ void WindowScrollerMac::DoScrollBy(const OSPoint& deltaPixel, const OSPoint& del
     m_phase = kIOHIDEventPhaseBegan;
   }
 
-  SendScrollGesture(deltaPixel, deltaLine);
-
-  // Change phase or momentum phase as needed
-  if (m_phase == kIOHIDEventPhaseBegan) {
-    m_phase = kIOHIDEventPhaseChanged;
-  } else if (m_phase == kIOHIDEventPhaseEnded) {
-    m_phase = kIOHIDEventPhaseUndefined;
-    // Delay between sending last scroll event and end gesture event -- FIXME
-    std::this_thread::sleep_for(std::chrono::milliseconds(8));
-    event = CreateEvent(kIOHIDEventTypeGestureEnded);
-    CGEventSetIntegerValueField(event, 115, kIOHIDEventTypeScroll); // 115: ended gesture subtype
-    CGEventPost(kCGHIDEventTap, event);
-    CFRelease(event);
-    // If we don't have any momentum, there is nothing to do. Otherwise, start momentum phase
-    if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.x) < FLT_EPSILON) {
-      m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
-    } else {
-      m_momentumPhase = kIOHIDEventMomentumPhaseBegan;
-    }
-  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseBegan) {
-    m_momentumPhase = kIOHIDEventMomentumPhaseChanged;
-  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseEnded) {
-    m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
-  }
-}
-
-void WindowScrollerMac::SendScrollGesture(const OSPoint& deltaPixel, const OSPoint& deltaLine) const
-{
-  CGEventRef event;
-
   const int ilx = static_cast<int>(deltaLine.x);
   const int ily = static_cast<int>(deltaLine.y);
 
@@ -111,6 +81,29 @@ void WindowScrollerMac::SendScrollGesture(const OSPoint& deltaPixel, const OSPoi
   CGEventSetIntegerValueField(event, 137, 1); // Unsure what this does
   CGEventPost(kCGHIDEventTap, event);
   CFRelease(event);
+
+  // Change phase or momentum phase as needed
+  if (m_phase == kIOHIDEventPhaseBegan) {
+    m_phase = kIOHIDEventPhaseChanged;
+  } else if (m_phase == kIOHIDEventPhaseEnded) {
+    m_phase = kIOHIDEventPhaseUndefined;
+    // Delay between sending last scroll event and end gesture event, otherwise it isn't always detected -- FIXME
+    std::this_thread::sleep_for(std::chrono::milliseconds(8));
+    event = CreateEvent(kIOHIDEventTypeGestureEnded);
+    CGEventSetIntegerValueField(event, 115, kIOHIDEventTypeScroll); // 115: ended gesture subtype
+    CGEventPost(kCGHIDEventTap, event);
+    CFRelease(event);
+    // If we don't have any momentum, there is nothing to do. Otherwise, start momentum phase
+    if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.x) < FLT_EPSILON) {
+      m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
+    } else {
+      m_momentumPhase = kIOHIDEventMomentumPhaseBegan;
+    }
+  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseBegan) {
+    m_momentumPhase = kIOHIDEventMomentumPhaseChanged;
+  } else if (m_momentumPhase == kIOHIDEventMomentumPhaseEnded) {
+    m_momentumPhase = kIOHIDEventMomentumPhaseUndefined;
+  }
 }
 
 CGEventRef WindowScrollerMac::CreateEvent(IOHIDEventType type) const
