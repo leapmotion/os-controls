@@ -15,11 +15,9 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
   
   screenLocation = m_coordinateUtility->LeapToScreen(hand.palmPosition());
 
-  if ( handPose == HandPose::OneFinger || handPose == HandPose::TwoFingers ) {
-    for( auto finger : hand.fingers() ) {
-      if ( finger.type() == Leap::Finger::TYPE_INDEX) {
-        offset = finger.direction().toVector3<Vector3>();
-      }
+  for( auto finger : hand.fingers() ) {
+    if ( finger.type() == Leap::Finger::TYPE_INDEX) {
+      offset = finger.direction().toVector3<Vector3>();
     }
   }
   

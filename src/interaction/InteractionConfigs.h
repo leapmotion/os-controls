@@ -16,5 +16,5 @@ namespace config {
   const float MIN_DOT_FOR_POINTING = 0.3f;
   const float MAX_DOT_FOR_CURLED = 0.1f;
   const float FINGER_OFFSET_DISTANCE = 3.0f;
-  const float OFFSET_DISTANCE = 150;
+  const float OFFSET_DISTANCE = 100;
 }
