@@ -18,10 +18,14 @@ private:
   AutoFired<OSWindowEvent> m_oswe;
 
   // Current collection of known top-level windows
-  std::unordered_map<HWND, std::shared_ptr<OSWindowWin>> m_knownWindows;
+  typedef std::unordered_map<HWND, std::shared_ptr<OSWindowWin>> t_knownWindows;
+  t_knownWindows m_knownWindows;
 
 public:
   // OSWindowMonitor overrides:
   void Enumerate(const std::function<void(OSWindow&)>& callback) const override;
+
+  // Updatable overrides:
+  void Tick(std::chrono::duration<double> deltaT) override;
 };
 

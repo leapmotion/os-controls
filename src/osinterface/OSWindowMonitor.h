@@ -1,4 +1,5 @@
 #pragma once
+#include "uievents/Updatable.h"
 #include <functional>
 
 class OSWindow;
@@ -7,7 +8,8 @@ class OSWindow;
 /// Top-level monitor type used to monitor the OS for window events
 /// </summary>
 class OSWindowMonitor:
-  public ContextMember
+  public ContextMember,
+  public Updatable
 {
 public:
   OSWindowMonitor(void);
