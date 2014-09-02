@@ -2,19 +2,25 @@
 #include "WindowCreatingTestFixture.h"
 #include "OSWindow.h"
 #include "OSWindowMonitor.h"
+#include <thread>
 
 class OSWindowInterfaceTest:
   public testing::Test
-{};
+{
+public:
+  OSWindowInterfaceTest(void) {
+    AutoCurrentContext()->Initiate();
+  }
+};
 
 TEST_F(OSWindowInterfaceTest, CanEnumerateTopLevelWindows) {
+  AutoRequired<OSWindowMonitor> oswmi;
   AutoRequired<WindowCreatingTestFixture> wctf;
   const auto testWindowProps = wctf->CreateTestWindow();
 
   // Now see if we can enumerate to this window as one of the top-level windows:
-  AutoRequired<OSWindowMonitor> oswmi;
   std::vector<std::shared_ptr<OSWindow>> windows;
-  oswmi->Enumerate([&windows] (OSWindow& os) {
+  oswmi->Enumerate([&windows](OSWindow& os) {
     windows.push_back(os.shared_from_this());
   });
 

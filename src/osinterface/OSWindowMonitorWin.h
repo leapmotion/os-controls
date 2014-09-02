@@ -2,6 +2,7 @@
 #include "OSWindowMonitor.h"
 
 class OSWindowEvent;
+class OSWindowWin;
 
 class OSWindowMonitorWin:
   public OSWindowMonitor
@@ -17,7 +18,7 @@ private:
   AutoFired<OSWindowEvent> m_oswe;
 
   // Current collection of known top-level windows
-  std::unordered_map<HWND, std::shared_ptr<OSWindow>> m_knownWindows;
+  std::unordered_map<HWND, std::shared_ptr<OSWindowWin>> m_knownWindows;
 
 public:
   // OSWindowMonitor overrides:

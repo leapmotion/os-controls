@@ -1,24 +1,19 @@
 #include "stdafx.h"
 #include "OSWindowMonitorWin.h"
-#include "OSWindow.h"
+#include "OSWindowWin.h"
 #include "OSWindowEvent.h"
-
-HHOOK hhook;
 
 OSWindowMonitorWin::OSWindowMonitorWin(void)
 {
-  // Set up a hook so we can snag window creation events:
-  SetWindowsHookEx(
-    WH_SHELL,
-    [] (int code, WPARAM wParam, LPARAM lParam) -> LPARAM {
-      return CallNextHookEx(hhook, code, wParam, lParam);
-    },
-    nullptr,
-    0
-  );
-
   // Enumerate all top-level windows that we know about right now:
-  ;
+  std::lock_guard<std::mutex> lk(m_lock);
+  EnumWindows(
+    [] (HWND hwnd, LPARAM lParam) -> BOOL {
+      ((OSWindowMonitorWin*) lParam)->m_knownWindows[hwnd] = std::make_shared<OSWindowWin>(hwnd);
+      return true;
+    },
+    (LPARAM) this
+  );
 }
 
 OSWindowMonitorWin::~OSWindowMonitorWin(void)
