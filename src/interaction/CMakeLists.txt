@@ -35,4 +35,4 @@ target_package(interaction SFML 2.1 REQUIRED)
 target_package(interaction Eigen 3.2.1 REQUIRED)
 target_package(interaction Leap REQUIRED)
 
-target_link_components(interaction EigenTypes Animation Primitives SceneGraph Resource GLShader GLShaderLoader)
+target_link_components(interaction EigenTypes Animation Primitives SceneGraph Resource GLShader GLShaderLoader RadialMenu)
