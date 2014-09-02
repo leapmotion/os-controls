@@ -6,7 +6,7 @@ IWindowScroller* IWindowScroller::New(void) {
 }
 
 WindowScrollerWin::WindowScrollerWin() :
-  m_scrollPartialLine(OSPointZero),
+  m_scrollPartialLine(OSPointZero)
 {
   // Set pixels per line to the number of lines per scroll wheel notch
   UINT param = 0;

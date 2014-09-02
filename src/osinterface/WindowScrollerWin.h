@@ -4,6 +4,9 @@
 class WindowScrollerWin:
   public IWindowScroller
 {
+public:
+  WindowScrollerWin();
+  ~WindowScrollerWin();
 protected:
   void DoScrollBy(float deltaX, float deltaY, bool isMomentum) override;
 
