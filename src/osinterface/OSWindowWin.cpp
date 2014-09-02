@@ -24,7 +24,7 @@ uint32_t OSWindowWin::GetOwnerPid(void) {
   return pid;
 }
 
-void OSWindowWin::GetWindowBits(void* pBuf, size_t ncb) {
+void OSWindowWin::GetWindowTexture(GLTexture2& texture) {
 
 }
 
