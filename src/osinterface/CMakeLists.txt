@@ -66,7 +66,7 @@ target_package(osinterface SFML 2.1 REQUIRED)
 target_package(osinterface Leap REQUIRED)
 target_include_directories(osinterface PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
-target_link_components(osinterface GLTexture2)
+target_link_components(osinterface GLTexture2 Animation)
 
 if(APPLE)
   find_library(FOUNDATION_FRAMEWORK Foundation)
