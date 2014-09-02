@@ -5,6 +5,8 @@ set(interaction_SOURCES
   CoordinateUtility.h
   ExposeViewProxy.h
   ExposeViewProxy.cpp
+  ExposeViewController.h
+  ExposeViewController.cpp
   FrameFragmenter.h
   FrameFragmenter.cpp
   HandEventListener.h
