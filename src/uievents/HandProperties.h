@@ -8,6 +8,8 @@
 struct HandLocation {
   float x;
   float y;
+  float dX;
+  float dY;
 
   Vector2 screenPosition() const {
     return Vector2(x, y);

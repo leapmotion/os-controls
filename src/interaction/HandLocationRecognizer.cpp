@@ -4,7 +4,9 @@
 #include "CoordinateUtility.h"
 #include "InteractionConfigs.h"
 
-HandLocationRecognizer::HandLocationRecognizer(void) {}
+HandLocationRecognizer::HandLocationRecognizer(void) :
+isInitialized(false)
+{}
 HandLocationRecognizer::~HandLocationRecognizer(void) {}
 
 void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& handPose, HandLocation& handLocation) {
@@ -28,4 +30,15 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
   screenLocation.y() *= -1;
   handLocation.x = screenLocation.x();
   handLocation.y = screenLocation.y();
+  
+  if ( isInitialized ) {
+    handLocation.dX = handLocation.x - lastPosition.x();
+    handLocation.dY = handLocation.y - lastPosition.y();
+  } else {
+    handLocation.dX = 0;
+    handLocation.dY = 0;
+  }
+  
+  lastPosition = handLocation.screenPosition();
+  isInitialized = true;
 }

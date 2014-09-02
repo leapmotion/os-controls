@@ -16,4 +16,6 @@ public:
 
 private:
   AutoRequired<CoordinateUtility> m_coordinateUtility;
+  bool isInitialized;
+  Vector2 lastPosition;
 };

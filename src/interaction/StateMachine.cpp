@@ -7,6 +7,8 @@ StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
   m_scrollState(ScrollState::DECAYING),
+  m_scrollOperation(nullptr),
+  m_handDelta(0,0),
   m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
 {
 }
@@ -64,17 +66,22 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
       if ( !handPinch.isPinching ) {
+        m_scrollOperation.reset();
         scrollState = ScrollState::DECAYING;
       }
       break;
     case ScrollState::DECAYING:
       if ( handPinch.isPinching ) {
-        scrollState = ScrollState::ACTIVE;
         m_lastScrollStart = handLocation.screenPosition();
+        m_scrollOperation = m_windowScroller->BeginScroll();
+        if(m_scrollOperation){
+          scrollState = ScrollState::ACTIVE;
+        }
       }
       break;
   }
   
+  m_handDelta =  Vector2(handLocation.dX, handLocation.dY);
   m_scrollState = scrollState;
 }
 
@@ -100,6 +107,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
       std::cout << "Last Scroll: "<< m_lastScrollStart.x() << ", " << m_lastScrollStart.y() << std::endl;
+      m_scrollOperation->ScrollBy(OSPointMake(m_lastScrollStart.x(), m_lastScrollStart.y()), m_handDelta.x(), m_handDelta.y());
       break;
     case ScrollState::DECAYING:
       break;
