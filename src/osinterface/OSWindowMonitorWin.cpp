@@ -9,7 +9,20 @@ OSWindowMonitorWin::OSWindowMonitorWin(void)
   std::lock_guard<std::mutex> lk(m_lock);
   EnumWindows(
     [] (HWND hwnd, LPARAM lParam) -> BOOL {
-      ((OSWindowMonitorWin*) lParam)->m_knownWindows[hwnd] = std::make_shared<OSWindowWin>(hwnd);
+      // Start at the root owner
+      HWND hwndWalk = GetAncestor(hwnd, GA_ROOTOWNER);
+
+      // See if we are the last active visible popup
+      for(HWND hwndTry = nullptr;;) {
+        hwndTry = GetLastActivePopup(hwndWalk);
+        if(hwndTry == hwndWalk || IsWindowVisible(hwndTry))
+          break;
+        hwndWalk = hwndTry;
+      }
+
+      if(hwndWalk == hwnd)
+        // Add this window in, it would appear in the alt-tab list:
+        ((OSWindowMonitorWin*) lParam)->m_knownWindows[hwnd] = std::make_shared<OSWindowWin>(hwnd);
       return true;
     },
     (LPARAM) this
