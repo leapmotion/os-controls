@@ -2,7 +2,7 @@
 #include "OSWindowNode.h"
 #include <cstdint>
 
-class GLTexture2;
+class ImagePrimitive;
 
 struct OSPoint {
   uint32_t x;
@@ -32,9 +32,9 @@ public:
   virtual uint64_t GetWindowID(void) const = 0;
 
   /// <summary>
-  /// Copies the image corresponding to a window into a buffer
+  /// Copies an image corresponding to a window into the specified image primitive
   /// </summary>
-  virtual void GetWindowTexture(GLTexture2& texture) = 0;
+  virtual void GetWindowTexture(ImagePrimitive& img) = 0;
 
   /// <returns>
   /// True if this window has focus
