@@ -14,6 +14,8 @@ public:
 
   void AutoFilter(const Leap::Hand& hand, const HandPose& handPose, HandLocation& handLocation);
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 private:
   AutoRequired<CoordinateUtility> m_coordinateUtility;
   bool isInitialized;
