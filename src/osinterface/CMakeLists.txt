@@ -21,6 +21,9 @@ set(osinterface_SOURCES
   OSWindowMonitor.h
   OSWindowMonitor.cpp
   OSWindowNode.h
+  ScrollOperation.h
+  WindowScroller.h
+  WindowScroller.cpp
 )
 
 add_windows_sources(
@@ -36,6 +39,8 @@ add_windows_sources(
   OSWindowWin.cpp
   OSWindowMonitorWin.h
   OSWindowMonitorWin.cpp
+  WindowScrollerWin.h
+  WindowScrollerWin.cpp
 )
 
 add_mac_sources(
@@ -51,6 +56,8 @@ add_mac_sources(
   #  OSWindowMac.mm
   OSWindowMonitorMac.h
   OSWindowMonitorMac.mm
+  WindowScrollerMac.h
+  WindowScrollerMac.mm
 )
 
 add_library(osinterface ${osinterface_SOURCES})
