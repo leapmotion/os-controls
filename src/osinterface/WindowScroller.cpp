@@ -1,14 +1,19 @@
 #include "stdafx.h"
 #include "WindowScroller.h"
 
+static const float MICROSECONDS_TO_SECONDS = 1E-6;
+
 IWindowScroller::IWindowScroller(void):
   m_virtualPosition(OSPointZero),
   m_ppmm(110.0f/25.4f), // Determine this dynamically -- FIXME
   m_remainingMomentum(OSPointZero),
-  m_velocitiesCount(0),
-  m_velocitiesIndex(0),
   m_lastScrollTimePoint(std::chrono::steady_clock::now())
-{}
+{
+  m_VelocityX.SetInitialValue(0.0f);
+  m_VelocityY.SetInitialValue(0.0f);
+  m_VelocityX.SetSmoothStrength(0.5f);
+  m_VelocityY.SetSmoothStrength(0.5f);
+}
 
 IWindowScroller::~IWindowScroller(void)
 {}
@@ -20,13 +25,13 @@ void IWindowScroller::ScrollBy(const OSPoint& virtualPosition, float deltaX, flo
   const auto now = std::chrono::steady_clock::now();
   const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(now - m_lastScrollTimePoint).count();
   if (dt > 0) { // Just to prevent a potential divide by zero. Should never happen in practice.
-    OSPoint velocity(OSPointMake(deltaX/dt, deltaY/dt)); // Store as scroll units per microsecond
+    const float seconds = dt * MICROSECONDS_TO_SECONDS;
 
-    m_velocitiesIndex = ++m_velocitiesIndex % MAX_VELOCITY_ENTRIES;
-    m_velocities[m_velocitiesIndex] = velocity;
-    if (m_velocitiesCount < MAX_VELOCITY_ENTRIES) {
-      m_velocitiesCount++;
-    }
+    m_VelocityX.SetGoal(deltaX/seconds);
+    m_VelocityY.SetGoal(deltaY/seconds);
+
+    m_VelocityX.Update(seconds);
+    m_VelocityY.Update(seconds);
     m_lastScrollTimePoint = now;
   }
   DoScrollBy(deltaX, deltaY, false);
@@ -48,25 +53,8 @@ std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {
   auto retVal = std::shared_ptr<IScrollOperation>(
     static_cast<IScrollOperation*>(this),
     [this] (IScrollOperation*) {
-      OSPoint momentum(OSPointZero);
-      for (size_t i = m_velocitiesIndex; i < m_velocitiesCount; i++) {
-        const auto& velocity = m_velocities[i % MAX_VELOCITY_ENTRIES];
-        const auto absVx = std::abs(velocity.x);
-        const auto absVy = std::abs(velocity.y);
-        if (absVy > absVx) {
-          if (absVy > std::abs(momentum.y)) {
-            momentum.x = velocity.x;
-            momentum.y = velocity.y;
-          }
-        } else {
-          if (absVx > std::abs(momentum.x)) {
-            momentum.x = velocity.x;
-            momentum.y = velocity.y;
-          }
-        }
-      }
-      m_remainingMomentum.x = momentum.x;
-      m_remainingMomentum.y = momentum.y;
+      m_remainingMomentum.x = MICROSECONDS_TO_SECONDS * m_VelocityX.Value();
+      m_remainingMomentum.y = MICROSECONDS_TO_SECONDS * m_VelocityY.Value();
       *this += std::chrono::microseconds(16667), [this] { OnPerformMomentumScroll(); };
     }
   );

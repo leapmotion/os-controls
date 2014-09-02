@@ -1,6 +1,7 @@
 #pragma once
 #include "ScrollOperation.h"
 #include <autowiring/CoreThread.h>
+#include "Animation.h"
 
 class WindowScrollerEvents {
 public:
@@ -47,11 +48,8 @@ private:
   // scroll units per microsecond, and will be reduced by the drag amount.
   OSPoint m_remainingMomentum;
 
-  // Velocity circular buffer
-  enum { MAX_VELOCITY_ENTRIES = 5 };
-  OSPoint m_velocities[MAX_VELOCITY_ENTRIES];
-  size_t m_velocitiesCount;
-  size_t m_velocitiesIndex;
+  Smoothed<float> m_VelocityX;
+  Smoothed<float> m_VelocityY;
 
   // Time-point of last scroll
   std::chrono::steady_clock::time_point m_lastScrollTimePoint;
