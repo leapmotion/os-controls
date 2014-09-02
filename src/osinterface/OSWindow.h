@@ -2,11 +2,16 @@
 #include "OSWindowNode.h"
 #include <cstdint>
 
-class GLTexture2;
+class ImagePrimitive;
 
 struct OSPoint {
   uint32_t x;
   uint32_t y;
+};
+
+struct OSSize {
+  uint32_t cx;
+  uint32_t cy;
 };
 
 /// <summary>
@@ -27,9 +32,9 @@ public:
   virtual uint64_t GetWindowID(void) const = 0;
 
   /// <summary>
-  /// Copies the image corresponding to a window into a buffer
+  /// Copies an image corresponding to a window into the specified image primitive
   /// </summary>
-  virtual void GetWindowTexture(GLTexture2& texture) = 0;
+  virtual void GetWindowTexture(ImagePrimitive& img) = 0;
 
   /// <returns>
   /// True if this window has focus
@@ -54,6 +59,11 @@ public:
   /// The location of the top-left corner of the window
   /// </returns>
   virtual OSPoint GetPosition(void) = 0;
+
+  /// <returns>
+  /// The real size of this window
+  /// </retunrs>
+  virtual OSSize GetSize(void) = 0;
 
   /// <summary>
   /// Prevents the specified window from being rendered on-screen

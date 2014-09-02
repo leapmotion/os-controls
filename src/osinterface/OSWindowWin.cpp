@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "OSWindowWin.h"
+#include <Primitives.h>
 
 OSWindowWin::OSWindowWin(HWND hwnd):
   hwnd(hwnd)
@@ -24,8 +25,8 @@ uint32_t OSWindowWin::GetOwnerPid(void) {
   return pid;
 }
 
-void OSWindowWin::GetWindowTexture(GLTexture2& texture) {
-
+void OSWindowWin::GetWindowTexture(ImagePrimitive& texture) {
+  return OSWindow::GetWindowTexture(texture);
 }
 
 bool OSWindowWin::GetFocus(void) {
@@ -69,6 +70,16 @@ OSPoint OSWindowWin::GetPosition(void) {
   OSPoint retVal;
   retVal.x = rect.left;
   retVal.y = rect.top;
+  return retVal;
+}
+
+OSSize OSWindowWin::GetSize(void) {
+  RECT rect;
+  GetWindowRect(hwnd, &rect);
+
+  OSSize retVal;
+  retVal.cx = rect.right - rect.left;
+  retVal.cy = rect.bottom - rect.top;
   return retVal;
 }
 

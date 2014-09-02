@@ -1,21 +1,13 @@
 set(graphics_SOURCES
   CursorView.h
   CursorView.cpp
-  MediaView.h
-  MediaView.cpp
   MediaViewStateMachine.h
   MediaViewStateMachine.cpp
-  RadialButton.h
-  RadialButton.cpp
   Renderable.h
   RenderEngine.h
   RenderEngine.cpp
   RenderEngineNode.h
   RenderFrame.h
-  VolumeControl.h
-  VolumeControl.cpp
-  Wedges.h
-  GraphicsConfigs.h
 )
 
 
@@ -29,4 +21,4 @@ target_include_directories(graphics PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowirin
 target_package(graphics SFML 2.1 REQUIRED)
 target_package(graphics Leap REQUIRED)
 
-target_link_components(graphics Animation Primitives SceneGraph Resource GLShader GLShaderLoader)
+target_link_components(graphics Animation Primitives SceneGraph Resource GLShader GLShaderLoader RadialMenu)

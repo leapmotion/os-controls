@@ -13,7 +13,7 @@ ExposeViewProxy::~ExposeViewProxy(void) {
   
 }
 
-void ExposeViewProxy::AutoFilter(OSCState appState, const HandLocation& handLocation) {
+void ExposeViewProxy::AutoFilter(OSCState appState, const Leap::Hand& hand, const HandLocation& handLocation) {
   //State Transitions
   switch (m_state) {
     case State::INACTIVE:
@@ -59,7 +59,8 @@ void ExposeViewProxy::AutoFilter(OSCState appState, const HandLocation& handLoca
     case State::AWAITING_LOCK:
       break;
     case State::ACTIVE:
-      applyUserInput(handLocation);
+      
+      //applyUserInput(handLocation);
       break;
   }
 }

@@ -14,7 +14,7 @@ float normalizeFloat(float val, float min, float max) {
   return (val - min) / (max - min);
 }
 
-Vector3 normalizeVec3(Vector3 vec, Vector3 min, Vector3 max) {
+Vector3 normalizeVec3(const Vector3& vec, const Vector3& min, const Vector3& max) {
   Vector3 retVal;
   retVal.x() = normalizeFloat(vec.x(), min.x(), max.x());
   retVal.y() = normalizeFloat(vec.y(), min.y(), max.y());
@@ -32,7 +32,7 @@ Vector3 CoordinateUtility::LeapToScreenNormal(Leap::Vector leapCoords) {
   return normalizeVec3(eigenLeapCoords, config::m_leapMin, config::m_leapMax);
 }
 
-Vector2 CoordinateUtility::ScreenNormalToScreenPixels(Vector3 normalCoords) {
+Vector2 CoordinateUtility::ScreenNormalToScreenPixels(const Vector3& normalCoords) {
   if(!m_window)
     throw std::runtime_error("Could not find autowired main window,");
   
