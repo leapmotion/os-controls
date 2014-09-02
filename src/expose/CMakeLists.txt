@@ -3,6 +3,8 @@ set(expose_SOURCES
   ExposeView.cpp
   ExposeViewAccessManager.h
   ExposeViewAccessManager.cpp
+  ExposeViewController.h
+  ExposeViewController.cpp
   ExposeViewWindow.h
   ExposeViewWindow.cpp
 )
