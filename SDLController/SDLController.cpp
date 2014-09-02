@@ -54,7 +54,18 @@ void SDLController::EndRender () const {
 }
 
 std::string SDLController::BasePath () {
-  return std::string(SDL_GetBasePath());
+  static std::string basePath;
+  if (basePath.empty()) {
+    char * sdlBasePath = SDL_GetBasePath();
+    if (sdlBasePath) {
+      basePath = std::string(sdlBasePath);
+      SDL_free(sdlBasePath);
+    } else {
+      throw std::runtime_error("Could not get the SDL Base Path");
+    }
+  }
+  
+  return basePath;
 }
 
 // It's necessary to put the Apple-specific code in a separate file because
