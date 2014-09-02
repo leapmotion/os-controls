@@ -28,6 +28,14 @@ public:
 private:
 
 public:
+  /// <returns>
+  /// The path to the application that will be launched by the test fixture
+  /// </returns>
+  virtual const wchar_t* GetApplicationPath(void) const = 0;
+
+  /// <summary>
+  /// Creates a test window known to exist somewhere on the screen
+  /// </summary>
   virtual TestWindowProperties CreateTestWindow(void) = 0;
 };
 
