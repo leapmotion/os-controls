@@ -9,7 +9,6 @@
 #include "GLShader.h"
 #include "GLShaderLoader.h"
 #include "GLTexture2.h"
-#include "GLTexture2Loader.h"
 #include "TextFile.h"
 #include "Resource.h"
 #include <memory>
