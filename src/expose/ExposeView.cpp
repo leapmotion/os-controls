@@ -21,11 +21,6 @@ void ExposeView::AutoInit() {
   m_rootNode.NotifyWhenAutowired([this]{
     auto self = shared_from_this();
     m_rootNode->AddChild(self);
-    // Add a box as our child
-    auto box = std::shared_ptr<SVGPrimitive>(
-      new SVGPrimitive(R"svg(<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect x="10" y="10" height="100" width="100" style="stroke:#ff0000; fill: #0000ff"/></svg>)svg")
-    );
-    self->AddChild(box);
   });
 }
 
@@ -39,6 +34,7 @@ void ExposeView::Render(const RenderFrame& frame) const {
     renderable->Render(frame);
 }
 
+
 void ExposeView::UpdateLayout(std::chrono::duration<double> dt) {
   for(std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
@@ -48,14 +44,19 @@ void ExposeView::UpdateLayout(std::chrono::duration<double> dt) {
   }
 }
 
-std::tuple<double, double> radialCoordsToPoint(double angle, double distance) {
+
+std::tuple<double, double> ExposeView::radialCoordsToPoint(double angle, double distance) {
   return std::make_tuple(0.0, 0.0);
 }
 
-std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
+std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(const OSWindow& osWindow) {
   auto retVal = std::make_shared<ExposeViewWindow>(osWindow);
   m_windows.push_back(retVal);
   return retVal;
+}
+
+void ExposeView::RemoveExposeWindow(std::shared_ptr<ExposeViewWindow>) {
+  //TODO: Add remove code
 }
 
 void ExposeView::StartView() {

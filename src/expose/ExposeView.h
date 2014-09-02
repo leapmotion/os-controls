@@ -1,5 +1,6 @@
 #pragma once
 #include "Primitives.h"
+#include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderEngineNode.h"
 #include <Animation.h>
@@ -48,7 +49,7 @@ private:
   
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y
-  std::tuple<double, double> radialCoordsToPoint();
+  std::tuple<double, double> radialCoordsToPoint(double angle, double distance);
 
 public:
   // RenderEngineNode overrides:
@@ -58,7 +59,8 @@ public:
   /// <summary>
   /// Creates a new ExposeViewWindow for the specified OS window
   /// </summary>
-  std::shared_ptr<ExposeViewWindow> NewExposeWindow(OSWindow& osWindow);
+  std::shared_ptr<ExposeViewWindow> NewExposeWindow(const OSWindow& osWindow);
+  void RemoveExposeWindow(std::shared_ptr<ExposeViewWindow>);
 
   /// <summary>
   /// </summary>

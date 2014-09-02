@@ -5,6 +5,7 @@ set(expose_SOURCES
   ExposeViewAccessManager.cpp
   ExposeViewController.h
   ExposeViewController.cpp
+  ExposeViewEvents.h
   ExposeViewWindow.h
   ExposeViewWindow.cpp
 )
