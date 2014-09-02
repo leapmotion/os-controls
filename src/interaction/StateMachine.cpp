@@ -15,6 +15,7 @@ StateMachine::StateMachine(void):
 
 StateMachine::~StateMachine(void)
 {
+  m_scrollOperation.reset();
 }
 
 // Transition Checking Loop
@@ -101,6 +102,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       // Remove our own reference to the context
       m_context.reset();
       return;
+    default:
       break;
   }
   
