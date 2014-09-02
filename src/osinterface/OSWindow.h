@@ -9,6 +9,11 @@ struct OSPoint {
   uint32_t y;
 };
 
+struct OSSize {
+  uint32_t cx;
+  uint32_t cy;
+};
+
 /// <summary>
 /// A platform-independent representation of a single window
 /// </summary>
@@ -54,6 +59,11 @@ public:
   /// The location of the top-left corner of the window
   /// </returns>
   virtual OSPoint GetPosition(void) = 0;
+
+  /// <returns>
+  /// The real size of this window
+  /// </retunrs>
+  virtual OSSize GetSize(void) = 0;
 
   /// <summary>
   /// Prevents the specified window from being rendered on-screen
