@@ -15,6 +15,8 @@ ExposeView::~ExposeView() {
 }
 
 void ExposeView::AutoInit() {
+  if(true)
+    return;
   
   m_rootNode.NotifyWhenAutowired([this]{
     auto self = shared_from_this();
