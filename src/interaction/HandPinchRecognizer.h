@@ -1,6 +1,8 @@
 #pragma once
 #include "Leap.h"
 
+enum class HandPose;
+
 struct HandPinch {
   bool isPinching;
   float pinchStrength;
@@ -11,7 +13,7 @@ public:
   HandPinchRecognizer();
   virtual~HandPinchRecognizer(){};
   
-  void AutoFilter(const Leap::Hand& hand, HandPinch& handPinch);
+  void AutoFilter(const Leap::Hand& hand, const HandPose& handPose, HandPinch& handPinch);
 private:
   bool wasPinching;
 };

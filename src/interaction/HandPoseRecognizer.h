@@ -19,7 +19,7 @@ enum class HandPose {
 
 class HandPoseRecognizer {
 public:
-  void AutoFilter(const Leap::Hand& frame, const HandPinch& handPinch, HandPose& handPose);
+  void AutoFilter(const Leap::Hand& frame, HandPose& handPose);
 private:
   bool isPointing(Leap::Hand hand, int nFingers) const;
 };

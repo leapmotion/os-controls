@@ -9,7 +9,7 @@
 #include "HandPoseRecognizer.h"
 
 
-void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const HandPinch& handPinch, HandPose& handPose) {
+void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) {
   
   if ( !hand.isValid() ) {
     return;
