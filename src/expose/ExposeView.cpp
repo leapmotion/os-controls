@@ -20,7 +20,9 @@ void ExposeView::AutoInit() {
     auto self = shared_from_this();
     m_rootNode->AddChild(self);
     // Add a box as our child
-    auto box = std::make_shared<SVGPrimitive>(R"svg(<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect x="10" y="10" height="100" width="100" style="stroke:#ff0000; fill: #0000ff"/></svg>)svg");
+    auto box = std::shared_ptr<SVGPrimitive>(
+      new SVGPrimitive(R"svg(<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect x="10" y="10" height="100" width="100" style="stroke:#ff0000; fill: #0000ff"/></svg>)svg")
+    );
     self->AddChild(box);
   });
 }
