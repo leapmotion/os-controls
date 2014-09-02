@@ -53,19 +53,19 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
 
   //Call AnimationUpdate Depth First (pre-visitation order)
   auto &zList = m_renderList;
-  m_rootNode->DepthFirstTraverse([&zList, &frame](RenderEngineNode::BaseSceneNode_t& node){
+  m_rootNode->DepthFirstTraverse(
+    [&zList, &frame](RenderEngineNode::BaseSceneNode_t& node){
+      auto& mv = frame.renderState.GetModelView();
+      mv.Push();
+      mv.Translate(node.Translation());
+      mv.Multiply(Matrix3x3(node.LinearTransformation()));
 
-    auto& mv = frame.renderState.GetModelView();
-    mv.Push();
-    mv.Translate(node.Translation());
-    mv.Multiply(Matrix3x3(node.LinearTransformation()));
+      Renderable* renderable = dynamic_cast<Renderable*>(&node);
+      if (renderable)
+        renderable->AnimationUpdate(frame);
 
-    Renderable* renderable = dynamic_cast<Renderable*>(&node);
-    if (renderable)
-      renderable->AnimationUpdate(frame);
-
-    zList.push_back(std::make_pair(&node, mv.Matrix()));
-  },
+      zList.push_back(std::make_pair(&node, mv.Matrix()));
+    },
     [&frame](RenderEngineNode::BaseSceneNode_t& node) {
       frame.renderState.GetModelView().Pop();
     }
