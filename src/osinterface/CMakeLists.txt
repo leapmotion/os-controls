@@ -10,6 +10,7 @@ set(osinterface_SOURCES
   MediaInterface.cpp
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
+  OSApp.h
   OSGeometry.h
   OSScreen.h
   OSScreenBase.h
