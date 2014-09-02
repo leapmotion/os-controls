@@ -24,6 +24,7 @@ public:
   void SetFocus(void) override;
   std::wstring GetTitle(void) override;
   OSPoint GetPosition(void) override;
+  OSSize GetSize(void) override;
   void Cloak(void) override;
   void Uncloak(void) override;
 };
