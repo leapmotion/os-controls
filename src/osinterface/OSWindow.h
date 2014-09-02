@@ -2,6 +2,8 @@
 #include "OSWindowNode.h"
 #include <cstdint>
 
+class GLTexture2;
+
 struct OSPoint {
   uint32_t x;
   uint32_t y;
@@ -27,7 +29,7 @@ public:
   /// <summary>
   /// Copies the image corresponding to a window into a buffer
   /// </summary>
-  virtual void GetWindowBits(void* pBuf, size_t ncb) = 0;
+  virtual void GetWindowTexture(GLTexture2& texture) = 0;
 
   /// <returns>
   /// True if this window has focus
