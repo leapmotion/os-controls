@@ -6,8 +6,10 @@ class OSWindowMac:
   public OSWindow
 {
 public:
-  OSWindowMac(void);
+  OSWindowMac(CGWindowID windowID);
   ~OSWindowMac(void);
+
+  const CGWindowID windowID;
 
   // OSWindowNode overrides:
   bool IsValid(void) override;
@@ -16,7 +18,7 @@ public:
   std::vector<std::shared_ptr<OSWindowNode>> EnumerateChildren(void) override;
 
   // OSWindow overrides;
-  uint64_t GetWindowID(void) const override;
+  uint64_t GetWindowID(void) const override { return (uint64_t) windowID; }
   void GetWindowTexture(ImagePrimitive& texture) override;
   bool GetFocus(void) override;
   void SetFocus(void) override;
@@ -27,4 +29,3 @@ public:
   void Uncloak(void) override;
   bool IsVisible(void) const override;
 };
-
