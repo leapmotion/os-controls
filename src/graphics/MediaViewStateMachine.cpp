@@ -127,7 +127,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       const Vector2 menuOffset = m_radialMenu.Translation().head<2>();
       
       Vector3 leapPosition(handLocation.x - menuOffset.x(), handLocation.y - menuOffset.y(), 0);
-      RadialMenu::UpdateResult updateResult = m_radialMenu.UpdateItemsFromCursor(leapPosition, frameTime.deltaTime);
+      RadialMenu::UpdateResult updateResult = m_radialMenu.UpdateItemsFromCursor(leapPosition, static_cast<float>(1E-6 * frameTime.deltaTime));
       if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
         //Selection Made Transition
         resolveSelection(updateResult.updateIdx);
