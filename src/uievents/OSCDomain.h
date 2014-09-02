@@ -21,6 +21,11 @@ enum class OSCState {
   FINAL
 };
 
+enum class ScrollState {
+  ACTIVE,
+  DECAYING
+};
+
 /// <summary>
 /// The set of possible inputs to the OS controls state machine
 /// </summary>

@@ -6,6 +6,7 @@ set(osinterfacetest_SRCS
   OSWindowInterfaceTest.cpp
   WindowCreatingTestFixture.h
   WindowCreatingTestFixture.cpp
+  WindowScrollerTest.cpp
 )
 
 add_windows_sources(
