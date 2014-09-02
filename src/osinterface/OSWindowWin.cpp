@@ -14,6 +14,10 @@ bool OSWindowWin::IsValid(void) {
   return !!IsWindow(hwnd);
 }
 
+std::shared_ptr<OSApp> OSWindowWin::GetOwnerApp(void) {
+  return nullptr;
+}
+
 uint32_t OSWindowWin::GetOwnerPid(void) {
   DWORD pid;
   GetWindowThreadProcessId(hwnd, &pid);
