@@ -11,15 +11,15 @@ ExposeViewController::~ExposeViewController() {
   
 }
 
-void ExposeViewController::OnCreate(const OSWindow& window) {
-  std::shared_ptr<const OSWindow> windowPtr = window.shared_from_this();
+void ExposeViewController::OnCreate(OSWindow& window) {
+  std::shared_ptr<OSWindow> windowPtr = window.shared_from_this();
   std::shared_ptr<ExposeViewWindow> newWindow = m_exposeView->NewExposeWindow(window);
   m_windows[windowPtr] = newWindow;
 }
 
-void ExposeViewController::OnDestroy(const OSWindow& window) {
+void ExposeViewController::OnDestroy(OSWindow& window) {
   std::shared_ptr<ExposeViewWindow> viewWindow;
-  std::shared_ptr<const OSWindow> windowPtr = window.shared_from_this();
+  std::shared_ptr<OSWindow> windowPtr = window.shared_from_this();
   try {
     viewWindow = m_windows.at(windowPtr);
     m_exposeView->RemoveExposeWindow(viewWindow);
@@ -30,7 +30,7 @@ void ExposeViewController::OnDestroy(const OSWindow& window) {
   }
 }
 
-void ExposeViewController::onSelectionMade(std::shared_ptr<const OSWindow> window) {
+void ExposeViewController::onSelectionMade(std::shared_ptr<OSWindow> window) {
   //Confirm this is a window we know about...just in case the view has an old winodw.
   try {
     m_windows.at(window);
@@ -39,10 +39,10 @@ void ExposeViewController::onSelectionMade(std::shared_ptr<const OSWindow> windo
     //Not a window we know about
     return;
   }
-  /*
-  if( !window->GetFocus() ) {
-    
-  }*/
+  
+  if ( !window->GetFocus() ) {
+    window->SetFocus();
+  }
 }
 
 bool ExposeViewController::windowExists(uint64_t uniqueId) {

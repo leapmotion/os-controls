@@ -26,7 +26,7 @@ void ExposeView::AutoInit() {
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
-  UpdateLayout(frame.deltaT);
+  updateLayout(frame.deltaT);
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
@@ -35,7 +35,7 @@ void ExposeView::Render(const RenderFrame& frame) const {
 }
 
 
-void ExposeView::UpdateLayout(std::chrono::duration<double> dt) {
+void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   for(std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
       continue;
@@ -44,12 +44,17 @@ void ExposeView::UpdateLayout(std::chrono::duration<double> dt) {
   }
 }
 
+void ExposeView::focusWindow(ExposeViewWindow window) {
+  std::shared_ptr<OSWindow> osWindowPtr = window.m_osWindow;
+  m_exposeViewEvents(&ExposeViewEvents::onSelectionMade)(osWindowPtr);
+}
+
 
 std::tuple<double, double> ExposeView::radialCoordsToPoint(double angle, double distance) {
   return std::make_tuple(0.0, 0.0);
 }
 
-std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(const OSWindow& osWindow) {
+std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
   auto retVal = std::make_shared<ExposeViewWindow>(osWindow);
   m_windows.push_back(retVal);
   return retVal;

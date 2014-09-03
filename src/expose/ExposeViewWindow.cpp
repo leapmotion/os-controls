@@ -2,7 +2,7 @@
 #include "ExposeViewWindow.h"
 #include "osinterface/OSWindow.h"
 
-ExposeViewWindow::ExposeViewWindow(const OSWindow& osWindow):
+ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this())
 {
 

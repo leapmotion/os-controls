@@ -1,6 +1,7 @@
 #pragma once
 #include "Primitives.h"
 #include "ExposeViewWindow.h"
+#include "ExposeViewEvents.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderEngineNode.h"
 #include <Animation.h>
@@ -28,6 +29,9 @@ private:
 
   //Root node in the render tree
   Autowired<RootRenderEngineNode> m_rootNode;
+  
+  //Events to send to controller
+  AutoFired<ExposeViewEvents> m_exposeViewEvents;
 
   // Opacity value for the entire view
   Animated<float> m_opacity;
@@ -45,7 +49,10 @@ private:
   /// <summary>
   /// Evolves the layout by one step
   /// </summary>
-  void UpdateLayout(std::chrono::duration<double> dt);
+  void updateLayout(std::chrono::duration<double> dt);
+  
+  // Send commend to contorller to focus the given window.
+  void focusWindow(ExposeViewWindow windowToFocus);
   
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y
@@ -59,7 +66,7 @@ public:
   /// <summary>
   /// Creates a new ExposeViewWindow for the specified OS window
   /// </summary>
-  std::shared_ptr<ExposeViewWindow> NewExposeWindow(const OSWindow& osWindow);
+  std::shared_ptr<ExposeViewWindow> NewExposeWindow(OSWindow& osWindow);
   void RemoveExposeWindow(std::shared_ptr<ExposeViewWindow>);
 
   /// <summary>

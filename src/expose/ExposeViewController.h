@@ -14,14 +14,14 @@ public:
   ExposeViewController();
   virtual~ExposeViewController();
   
-  void OnCreate(const OSWindow& window) override;
-  void OnDestroy(const OSWindow& window) override;
+  void OnCreate(OSWindow& window) override;
+  void OnDestroy(OSWindow& window) override;
   
-  void onSelectionMade(std::shared_ptr<const OSWindow> window) override;
+  void onSelectionMade(std::shared_ptr<OSWindow> window) override;
   
 private:
   bool windowExists(uint64_t uniqueId);
   
-  std::map<std::shared_ptr<const OSWindow>, std::shared_ptr<ExposeViewWindow>> m_windows;
+  std::map<std::shared_ptr<OSWindow>, std::shared_ptr<ExposeViewWindow>> m_windows;
   AutoRequired<ExposeView> m_exposeView;
 };
