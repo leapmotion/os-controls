@@ -89,3 +89,7 @@ void OSWindowWin::Cloak(void) {
 
 void OSWindowWin::Uncloak(void) {
 }
+
+bool OSWindowWin::IsVisible(void) const {
+  return !!::IsWindowVisible(hwnd);
+}
