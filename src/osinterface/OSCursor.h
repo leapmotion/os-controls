@@ -1,5 +1,5 @@
 #pragma once
-#include "OSPoint.h"
+#include "OSGeometry.h"
 
 class OSCursor:
   public ContextMember

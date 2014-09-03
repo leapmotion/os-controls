@@ -1,14 +1,9 @@
 #pragma once
-#include "OSPoint.h"
+#include "OSGeometry.h"
 #include "OSWindowNode.h"
 #include <cstdint>
 
 class ImagePrimitive;
-
-struct OSSize {
-  uint32_t cx;
-  uint32_t cy;
-};
 
 /// <summary>
 /// A platform-independent representation of a single window

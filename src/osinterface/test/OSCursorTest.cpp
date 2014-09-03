@@ -18,9 +18,13 @@ TEST_F(OSCursorTest, SetGet) {
   osCursor->SetCursorPos(originalPos);
 
   // Now verify that our attempt to assign the position went as planned:
-  ASSERT_EQ(desiredPos, measuredPos) << "Cursor position was not updated as expected";
+  const char* msg = "Cursor position was not updated as expected";
+  ASSERT_FLOAT_EQ(desiredPos.x, measuredPos.x) << msg;
+  ASSERT_FLOAT_EQ(desiredPos.y, measuredPos.y) << msg;
 
   // Also verify that the cursor went back to the place it was in before the test started
   auto finalPos = osCursor->GetCursorPos();
-  ASSERT_EQ(originalPos, finalPos) << "Cursor did not return to the pre-test location";
+  const char* msg2 = "Cursor did not return to the pre-test location";
+  ASSERT_FLOAT_EQ(originalPos.x, finalPos.x) << msg2;
+  ASSERT_FLOAT_EQ(originalPos.y, finalPos.y) << msg2;
 }

@@ -16,14 +16,16 @@ void OSWindow::GetWindowTexture(ImagePrimitive& img) {
   auto sz = GetSize();
 
   // Create a sample space where we will keep our image:
-  std::vector<uint32_t> sampleSpace(sz.cx * sz.cy);
+  size_t cx = (size_t) ceil(sz.width);
+  size_t cy = (size_t) ceil(sz.height);
+  std::vector<uint32_t> sampleSpace(cx * cy);
 
   // Fill with solid bands:
   uint32_t colors[] = {0xFFFF00FF, 0xFFFF0000, 0xFF0000FF, 0xFF00FF00};
-  for(size_t i = sz.cy; i--;) {
+  for(size_t i = cy; i--;) {
     std::fill(
-      &sampleSpace[i * sz.cx],
-      &sampleSpace[(i + 1) * sz.cx],
+      &sampleSpace[i * cx],
+      &sampleSpace[(i + 1) * cx],
       colors[(i / 3) % 4]
     );
   }
@@ -32,11 +34,11 @@ void OSWindow::GetWindowTexture(ImagePrimitive& img) {
   auto tex = img.Texture();
   GLTexture2Params params = tex->Params();
   if(
-    sz.cx != params.Width() ||
-    sz.cy != params.Width()
+    cx != params.Width() ||
+    cy != params.Width()
   ) {
-    params.SetWidth(sz.cx);
-    params.SetHeight(sz.cy);
+    params.SetWidth(cx);
+    params.SetHeight(cy);
     tex = std::shared_ptr<GLTexture2>(new GLTexture2(params));
     img.SetTexture(tex);
   }

@@ -68,8 +68,8 @@ OSPoint OSWindowWin::GetPosition(void) {
   GetWindowRect(hwnd, &rect);
 
   OSPoint retVal;
-  retVal.x = rect.left;
-  retVal.y = rect.top;
+  retVal.x = (float) rect.left;
+  retVal.y = (float) rect.top;
   return retVal;
 }
 
@@ -78,8 +78,8 @@ OSSize OSWindowWin::GetSize(void) {
   GetWindowRect(hwnd, &rect);
 
   OSSize retVal;
-  retVal.cx = rect.right - rect.left;
-  retVal.cy = rect.bottom - rect.top;
+  retVal.width = (float) (rect.right - rect.left);
+  retVal.width = (float) (rect.bottom - rect.top);
   return retVal;
 }
 

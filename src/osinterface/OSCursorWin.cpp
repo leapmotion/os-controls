@@ -8,9 +8,9 @@ OSCursor* OSCursor::New(void) {
 OSPoint OSCursorWin::GetCursorPos(void) const {
   POINT retVal;
   ::GetCursorPos(&retVal);
-  return OSPoint{retVal.x, retVal.y};
+  return OSPoint{(float) retVal.x, (float) retVal.y};
 }
 
 void OSCursorWin::SetCursorPos(OSPoint point) const {
-  ::SetCursorPos(point.x, point.y);
+  ::SetCursorPos((int)point.x, (int)point.y);
 }
