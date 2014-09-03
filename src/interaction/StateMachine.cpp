@@ -20,7 +20,8 @@ StateMachine::~StateMachine(void)
 
 // Transition Checking Loop
 void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState) {
-  if (m_state == OSCState::FINAL) {
+  std::lock_guard<std::mutex> lk(m_lock);
+  if(m_state == OSCState::FINAL) {
     return;
   }
   
@@ -92,6 +93,8 @@ void StateMachine::OnHandVanished() {
 
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
+  std::lock_guard<std::mutex> lk(m_lock);
+
   switch ( m_state ) {
     case OSCState::FINAL:
       // Remove our controls from the scene graph
