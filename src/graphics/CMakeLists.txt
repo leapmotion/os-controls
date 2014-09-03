@@ -8,6 +8,8 @@ set(graphics_SOURCES
   RenderEngine.cpp
   RenderEngineNode.h
   RenderFrame.h
+  VolumeKnob.cpp
+  VolumeKnob.h
 )
 
 

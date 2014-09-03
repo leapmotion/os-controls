@@ -66,6 +66,8 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     // going through the ground case will actually not cause a menu change to happen, and
     // if this isn't the desired behavior, then change it by assigning the current state
     // unconditionally!
+    //
+    // Ok, removed it!
   m_state = desiredState;
   
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
