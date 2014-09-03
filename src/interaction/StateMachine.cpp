@@ -73,7 +73,9 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       break;
     case ScrollState::DECAYING:
       if ( handPinch.isPinching ) {
-        m_lastScrollStart = handLocation.screenPosition();
+        auto screenPosition = handLocation.screenPosition();
+        m_lastScrollStart.x = static_cast<float>(screenPosition.x());
+        m_lastScrollStart.y = static_cast<float>(screenPosition.y());
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
           scrollState = ScrollState::ACTIVE;
@@ -108,7 +110,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
-      m_scrollOperation->ScrollBy(OSPointMake(m_lastScrollStart.x(), m_lastScrollStart.y()), 0.0f, m_handDelta.y());
+      m_scrollOperation->ScrollBy(m_lastScrollStart, 0.0f, m_handDelta.y());
       break;
     case ScrollState::DECAYING:
       break;
