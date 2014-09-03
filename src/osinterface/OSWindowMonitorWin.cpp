@@ -30,6 +30,12 @@ void OSWindowMonitorWin::Tick(std::chrono::duration<double> deltaT) {
     [] (HWND hwnd, LPARAM lParam) -> BOOL {
       // See if we are the last active visible popup
       HWND hwndWalk = GetAncestor(hwnd, GA_ROOTOWNER);
+
+      // Do not try to enumerate anything we own
+      DWORD pid = 0;
+      GetWindowThreadProcessId(hwnd, &pid);
+      if(pid == GetCurrentProcessId())
+        return true;
       
       for(HWND hwndTry = hwndWalk; hwndTry; ) {
         // Advance to the next spot:
