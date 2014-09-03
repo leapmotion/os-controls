@@ -2,6 +2,7 @@
 #include <memory>
 
 class ExposeView;
+class ExposeViewController;
 
 class ExposeViewAccessManager {
 public:
@@ -9,7 +10,12 @@ public:
 
 private:
   AutoCreateContext ctxt;
+
+  // All of the stuff required for an expose view:
   AutoRequired<ExposeView> m_exposeView;
+  AutoRequired<ExposeViewController> m_exposeViewController;
+
+  // Pointer to the view proper, unexpired as long as someone holds the return value of Lock
   std::weak_ptr<ExposeView> m_weakLock;
 
 public:

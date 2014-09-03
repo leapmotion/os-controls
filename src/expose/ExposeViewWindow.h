@@ -1,5 +1,6 @@
 #pragma once
 #include "ExposeView.h"
+#include "graphics/RenderEngineNode.h"
 #include "utility/lockable_property.h"
 
 class OSWindow;
@@ -23,9 +24,17 @@ public:
 
 private:
   // Texture for this window
-  RectanglePrim m_texture;
+  ImagePrimitive m_texture;
 
 public:
+  /// <summary>
+  /// Causes this window to attempt to update its texture from the underlying OSWindow
+  /// </summary>
+  /// <remarks>
+  /// Because this method makes OpenGL calls, it can only be safely called from the OpeNGL thread
+  /// </remarks>
+  void UpdateTexture(void);
+
   // RenderEngineNode overrides
   void Render(const RenderFrame& frame) const;
 };
