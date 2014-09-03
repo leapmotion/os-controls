@@ -20,7 +20,7 @@ TestWindowProperties WindowCreatingTestFixtureWin::CreateTestWindow(void) {
   startupinfo.cb = sizeof(startupinfo);
 
   PROCESS_INFORMATION procinfo = {};
-  if(!CreateProcessW(L"C:\\Windows\\system32\\calc.exe", nullptr, nullptr, nullptr, false, 0, nullptr, nullptr, &startupinfo, &procinfo))
+  if(!CreateProcessW(GetApplicationPath(), nullptr, nullptr, nullptr, false, 0, nullptr, nullptr, &startupinfo, &procinfo))
     throw std::runtime_error("Failed to create test process");
 
   retVal.pid = procinfo.dwProcessId;

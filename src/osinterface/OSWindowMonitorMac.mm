@@ -2,12 +2,10 @@
 #include "OSWindowMonitorMac.h"
 #include "OSWindow.h"
 #include "OSWindowEvent.h"
+#include "OSWindowMac.h"
 
 OSWindowMonitorMac::OSWindowMonitorMac(void)
 {
-  // Set up a hook so we can snag window creation events:
-
-  // Enumerate all top-level windows that we know about right now:
 }
 
 OSWindowMonitorMac::~OSWindowMonitorMac(void)
@@ -16,6 +14,9 @@ OSWindowMonitorMac::~OSWindowMonitorMac(void)
 
 OSWindowMonitor* OSWindowMonitor::New(void) {
   return new OSWindowMonitorMac;
+}
+
+void OSWindowMonitorMac::Tick(std::chrono::duration<double> deltaT) {
 }
 
 void OSWindowMonitorMac::Enumerate(const std::function<void(OSWindow&)>& callback) const {

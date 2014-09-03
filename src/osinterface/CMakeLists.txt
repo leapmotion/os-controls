@@ -59,8 +59,8 @@ add_mac_sources(
   OSScreenMac.mm
   OSVirtualScreenMac.h
   OSVirtualScreenMac.mm
-  #  OSWindowMac.h
-  #  OSWindowMac.mm
+  OSWindowMac.h
+  OSWindowMac.mm
   OSWindowMonitorMac.h
   OSWindowMonitorMac.mm
   WindowScrollerMac.h

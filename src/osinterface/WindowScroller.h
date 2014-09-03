@@ -57,7 +57,7 @@ private:
   // Periodically apply momentum scroll after normal scrolling has completed
   void OnPerformMomentumScroll();
 
-  const float MICROSECONDS_TO_SECONDS = 1E-6;
+  const float MICROSECONDS_TO_SECONDS = 1E-6f;
 
 public:
   /// <summary>
