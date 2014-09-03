@@ -74,7 +74,9 @@ public:
   void SetNumItems(int num);
   const std::shared_ptr<RadialMenuItem>& GetItem(int i) const { return m_Items[i]; }
   std::shared_ptr<RadialMenuItem>& GetItem(int i) { return m_Items[i]; }
-  UpdateResult UpdateItemsFromCursor(const Vector3& cursor, float deltaTime);
+  UpdateResult InteractWithCursor(const Vector3& cursor);
+  void InteractWithoutCursor();
+  void UpdateItemActivation(float deltaTime);
   HitResult ItemFromPoint(const Vector2& pos) const;
   virtual void Draw(RenderState& renderState) const override;
 protected:
