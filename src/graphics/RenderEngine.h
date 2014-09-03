@@ -28,10 +28,15 @@ public:
   RenderEngine();
   ~RenderEngine();
 
-  template<typename T>
-  void AddSceneNode(std::shared_ptr<T> &node){
-    m_rootNode->AddChild(node);
-  }
+  /// <summary>
+  /// Adds the specified node to the bottom of the render heirarchy
+  /// </summary>
+  void AddSceneNode(std::shared_ptr<Renderable> &node);
+
+  /// <summary>
+  /// Moves the specified renderable entity to the front of the render stack
+  /// </summary>
+  void BringToFront(Renderable* renderable);
 
   void Tick(std::chrono::duration<double> deltaT) override;
 
@@ -39,12 +44,13 @@ public:
 
 private:
   Autowired<sf::RenderWindow> m_rw;
-  AutoRequired<RootRenderEngineNode> m_rootNode;
 
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
 
-  typedef std::pair<RenderEngineNode::BaseSceneNode_t*, Matrix4x4> RenderListElement_t;
-  mutable Eigen::vector<RenderListElement_t> m_renderList;
+  // Z-order list of elements to be rendered
+  typedef std::list<std::shared_ptr<Renderable>> t_renderList;
+  t_renderList m_renderList;
+  std::unordered_map<Renderable*, t_renderList::iterator> m_renderables;
 };
 

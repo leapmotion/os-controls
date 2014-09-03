@@ -16,12 +16,15 @@ ExposeView::~ExposeView() {
 }
 
 void ExposeView::AutoInit() {
-  if(true)
-    return;
-  
   m_rootNode.NotifyWhenAutowired([this]{
     auto self = shared_from_this();
     m_rootNode->AddChild(self);
+
+    // Add a box as our child
+    auto box = std::shared_ptr<SVGPrimitive>(
+      new SVGPrimitive(R"svg(<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect x="10" y="10" height="100" width="100" style="stroke:#ff0000; fill: #0000ff"/></svg>)svg")
+    );
+    self->AddChild(box);
   });
 }
 
@@ -31,15 +34,15 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
-  for(const auto& renderable : m_renderList)
-    renderable->Render(frame);
+  /*for(const auto& renderable : m_renderList)
+    renderable->Render(frame);*/
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   // Handle anything pended to the render thread:
   DispatchAllEvents();
   
-  for(std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+  for(const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
       continue;
 
@@ -61,8 +64,8 @@ std::tuple<double, double> ExposeView::radialCoordsToPoint(double angle, double 
 
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
   auto retVal = std::shared_ptr<ExposeViewWindow>(new ExposeViewWindow(osWindow));
-  m_windows.push_back(retVal);
-  m_renderList.push_back(retVal.get());
+  m_windows.insert(retVal);
+  AddChild(retVal);
 
   // Update the window texture in the main render loop:
   *this += [retVal] {
@@ -72,7 +75,8 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
 }
 
 void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
-  //TODO: Removal code
+  m_windows.erase(wnd);
+  RemoveChild(wnd);
 }
 
 void ExposeView::StartView() {
@@ -84,9 +88,9 @@ void ExposeView::CloseView() {
 }
 
 void ExposeView::moveWindowToTop(ExposeViewWindow& window) {
-  std::rotate(
+  /*std::rotate(
     m_renderList.begin(),
     std::find(m_renderList.begin(), m_renderList.end(), &window),
     m_renderList.end()
-  );
+  );*/
 }

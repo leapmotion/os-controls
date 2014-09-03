@@ -31,6 +31,17 @@ RenderEngine::~RenderEngine()
 {
 }
 
+void RenderEngine::BringToFront(Renderable* renderable) {
+  auto q = m_renderables.find(renderable);
+  if(q == m_renderables.end())
+    // Not in the collection, ignore
+    return;
+
+  // Move this entry to the front of the list:
+  auto i = q->second;
+  m_renderList.splice(m_renderList.begin(), m_renderList, i, std::next(i));
+}
+
 void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // Active the window for OpenGL rendering
   m_rw->setActive();
@@ -51,43 +62,19 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // Have objects rendering into the specified window with the supplied change in time
   RenderFrame frame = {m_rw, m_renderState, deltaT};
 
-  //Call AnimationUpdate Depth First (pre-visitation order)
-  m_rootNode->DepthFirstTraverse(
-    [this, &frame](RenderEngineNode::BaseSceneNode_t& node){
-      auto& mv = frame.renderState.GetModelView();
-      mv.Push();
-      mv.Translate(node.Translation());
-      mv.Multiply(Matrix3x3(node.LinearTransformation()));
+  // AnimationUpdate all attached nodes
+  for(const auto& renderable : m_renderList)
+    renderable->AnimationUpdate(frame);
+  
+  // Perform render operation in a second pass:
+  for(auto& renderable : m_renderList) {
+    auto& mv = frame.renderState.GetModelView();
+    mv.Push();
+    auto translation = renderable->Translation();
 
-      Renderable* renderable = dynamic_cast<Renderable*>(&node);
-      if (renderable)
-        renderable->AnimationUpdate(frame);
-
-      m_renderList.push_back(std::make_pair(&node, mv.Matrix()));
-    },
-    [&frame](RenderEngineNode::BaseSceneNode_t& node) {
-      frame.renderState.GetModelView().Pop();
-    }
-  );
-    
-  //Greatest Z-Values (furthest away) should be rendered first
-  std::stable_sort(m_renderList.begin(), m_renderList.end(),
-    [](const RenderListElement_t& a, const RenderListElement_t& b){ return a.first->Translation().z() > b.first->Translation().z(); }
-  );
-
-  for(auto &element : m_renderList) {
-    frame.renderState.GetModelView().Push();
-    frame.renderState.GetModelView().Multiply(element.second);
-
-    Renderable* renderable = dynamic_cast<Renderable*>(element.first);
-    if (renderable)
-      renderable->Render(frame);
-    else{
-      PrimitiveBase* primitive = dynamic_cast<PrimitiveBase*>(element.first);
-      if (primitive)
-        primitive->Draw(frame.renderState);
-    }
-    frame.renderState.GetModelView().Pop();
+    mv.Translate(Vector3{translation.x, translation.y, 0.0});
+    renderable->Render(frame);
+    mv.Pop();
   }
 
   m_renderList.clear(); //Todo: temporal coherency - scan the list to look for changes instead of clearing/rebuilding?
