@@ -21,10 +21,9 @@ void IWindowScroller::ScrollBy(const OSPoint& virtualPosition, float deltaX, flo
   m_virtualPosition = virtualPosition;
 
   const auto now = std::chrono::steady_clock::now();
-  const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(now - m_lastScrollTimePoint).count();
-  if (dt > 0) { // Just to prevent a potential divide by zero. Should never happen in practice.
-    const float seconds = dt * MICROSECONDS_TO_SECONDS;
-
+  const std::chrono::duration<double> dt = now - m_lastScrollTimePoint;
+  const float seconds = (float)dt.count();
+  if (seconds > 0) { // Just to prevent a potential divide by zero. Should never happen in practice.
     m_VelocityX.SetGoal(deltaX/seconds);
     m_VelocityY.SetGoal(deltaY/seconds);
 
@@ -62,8 +61,8 @@ std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {
     static_cast<IScrollOperation*>(this),
     [this] (IScrollOperation*) {
       std::lock_guard<std::mutex> lk(GetLock());
-      m_remainingMomentum.x = MICROSECONDS_TO_SECONDS * m_VelocityX.Value();
-      m_remainingMomentum.y = MICROSECONDS_TO_SECONDS * m_VelocityY.Value();
+      m_remainingMomentum.x = m_VelocityX.Value();
+      m_remainingMomentum.y = m_VelocityY.Value();
       m_VelocityX.SetInitialValue(0.0f);
       m_VelocityY.SetInitialValue(0.0f);
       *this += std::chrono::microseconds(16667), [this] { OnPerformMomentumScroll(); };
@@ -82,8 +81,9 @@ void IWindowScroller::OnPerformMomentumScroll() {
   }
   const auto absMx = std::abs(m_remainingMomentum.x);
   const auto absMy = std::abs(m_remainingMomentum.y);
-  if (absMy < 0.00001f && absMx < 0.00001f) {
-    // Is the momentum still large enough that we want to continue?
+
+  // Is the momentum still large enough that we want to continue?
+  if (absMy < 1e-9f && absMx < 1e-9f) {
     m_remainingMomentum = OSPointZero;
     DoScrollBy(0.0f, 0.0f, true);
     m_wse(&WindowScrollerEvents::OnScrollStopped)();
@@ -91,23 +91,29 @@ void IWindowScroller::OnPerformMomentumScroll() {
   }
 
   const auto now = std::chrono::steady_clock::now();
-  const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(now - m_lastScrollTimePoint).count();
-  if (dt > 0) { // Just to prevent a potential divide by zero. Should never happen in practice.
-    m_lastScrollTimePoint = now;
-    const auto deltaX = m_remainingMomentum.x*dt;
-    const auto deltaY = m_remainingMomentum.y*dt;
-    DoScrollBy(deltaX, deltaY, true);
+  const std::chrono::duration<double> dt = now - m_lastScrollTimePoint;
 
-    // Apply drag by an exponential curve
-    if (absMy < 0.0001f && absMx < 0.0001f) {
-      m_remainingMomentum.x *= 0.94f;
-      m_remainingMomentum.y *= 0.94f;
-    } else {
-      m_remainingMomentum.x *= 0.97f;
-      m_remainingMomentum.y *= 0.97f;
-    }
-  }
+  // Queue up the next scroll:
   *this += std::chrono::microseconds(16667), [this] { OnPerformMomentumScroll(); };
+  m_lastScrollTimePoint = now;
+
+  const float seconds = (float)dt.count();
+  if (seconds <= 0.0f)
+    // Just to prevent a potential divide by zero. Should never happen in practice.
+    return;
+
+  const auto deltaX = m_remainingMomentum.x*seconds;
+  const auto deltaY = m_remainingMomentum.y*seconds;
+  DoScrollBy(deltaX, deltaY, true);
+
+  // Apply drag by an exponential curve
+  if (absMy < 0.0001f && absMx < 0.0001f) {
+    m_remainingMomentum.x *= 0.94f;
+    m_remainingMomentum.y *= 0.94f;
+  } else {
+    m_remainingMomentum.x *= 0.97f;
+    m_remainingMomentum.y *= 0.97f;
+  }
 }
 
 void IWindowScroller::StopMomentumScrolling(void) {
