@@ -35,15 +35,7 @@ void IWindowScroller::ScrollBy(const OSPoint& virtualPosition, float deltaX, flo
 }
 
 void IWindowScroller::CancelScroll(void) {
-  std::lock_guard<std::mutex> lk(GetLock());
-  if (std::abs(m_remainingMomentum.y) >= FLT_EPSILON || std::abs(m_remainingMomentum.x) >= FLT_EPSILON) {
-    m_remainingMomentum = OSPointZero;
-    DoScrollBy(0.0f, 0.0f, true);
-  }
-  m_wse(&WindowScrollerEvents::OnScrollStopped)();
-
-  // We don't care to retain the weak pointer anymore
-  m_curScrollOp.reset();
+  StopMomentumScrolling();
 }
 
 std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {
@@ -51,11 +43,7 @@ std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {
   if (!m_curScrollOp.expired()) {
     return nullptr;
   }
-  if (std::abs(m_remainingMomentum.y) >= FLT_EPSILON || std::abs(m_remainingMomentum.x) >= FLT_EPSILON) {
-    m_remainingMomentum = OSPointZero;
-    DoScrollBy(0.0f, 0.0f, true);
-    m_wse(&WindowScrollerEvents::OnScrollStopped)();
-  }
+  ResetScrollingUnsafe();
 
   auto retVal = std::shared_ptr<IScrollOperation>(
     static_cast<IScrollOperation*>(this),
@@ -84,9 +72,7 @@ void IWindowScroller::OnPerformMomentumScroll() {
 
   // Is the momentum still large enough that we want to continue?
   if (absMy < 1e-9f && absMx < 1e-9f) {
-    m_remainingMomentum = OSPointZero;
-    DoScrollBy(0.0f, 0.0f, true);
-    m_wse(&WindowScrollerEvents::OnScrollStopped)();
+    ResetScrollingUnsafe();
     return;
   }
 
@@ -117,6 +103,16 @@ void IWindowScroller::OnPerformMomentumScroll() {
 }
 
 void IWindowScroller::StopMomentumScrolling(void) {
-  std::lock_guard<std::mutex>(GetLock()),
-  m_curScrollOp.reset();
+  std::lock_guard<std::mutex> lk(GetLock());
+  ResetScrollingUnsafe();
+}
+
+void IWindowScroller::ResetScrollingUnsafe() {
+  if (!m_curScrollOp.expired() ||
+      std::abs(m_remainingMomentum.y) >= FLT_EPSILON || std::abs(m_remainingMomentum.x) >= FLT_EPSILON) {
+    m_curScrollOp.reset();
+    m_remainingMomentum = OSPointZero;
+    DoScrollBy(0.0f, 0.0f, true);
+    m_wse(&WindowScrollerEvents::OnScrollStopped)();
+  }
 }

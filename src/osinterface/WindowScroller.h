@@ -57,6 +57,9 @@ private:
   // Periodically apply momentum scroll after normal scrolling has completed
   void OnPerformMomentumScroll();
 
+  // Reset scrolling, regardless of whether or not we are applying momentum
+  void ResetScrollingUnsafe();
+
 public:
   /// <summary>
   /// Begins a scrolling operation, and provides the caller with a pointer to the operation presently underway
