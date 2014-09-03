@@ -153,9 +153,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
       norm = std::min(1.0f, std::max(0.0f, norm));
       float velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
-      std::cout << "time: " << frameTime.deltaTime << std::endl;
-      std::cout << "norm: " << norm << std::endl;
-      std::cout << " vel: " << velocity << std::endl;
       m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
       break;
     }

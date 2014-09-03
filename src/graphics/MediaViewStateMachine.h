@@ -21,7 +21,7 @@ public:
   void AutoInit();
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime);
+  void AutoFilter(OSCState appState,const HandPose& handPose, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime);
   
   void Render(const RenderFrame& renderFrame) const override;
   void SetViewVolume(float volume);

@@ -15,33 +15,34 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
     return;
   }
   
-  /*if(handPinch.isPinching) {
-    handPose = HandPose::ZeroFingers;
-    return;
-  }*/
-  
-  Vector3 handDirection = hand.direction().toVector3<Vector3>();
+  bool isClawCurling = true; //initial value
+  bool isClawDistance = areTipsClawed(hand);
   
   int handCode = 0;
   int i = 0;
   
   for( auto finger : hand.fingers() ) {
-    Vector3 fingerDirection = finger.direction().toVector3<Vector3>();
-    float dot = handDirection.dot(fingerDirection); // How similar is the direciton of the hand and finger.
     
-    //TODO: Fix pinkey finger extended and thumb extended.
-    if (finger.type() == Leap::Finger::TYPE_THUMB) {
-      if (dot < config::MAX_DOT_FOR_THUMB_POINTING) {
-        handCode += (1 << (4-i));
-      }
+    if ( isExtended(finger, lastExtended[i])) {
+      handCode += (1 << (4-i));
+      lastExtended[i] = true;
     }
     else {
-      if ( dot > config::MIN_DOT_FOR_POINTING ) {
-        handCode += (1 << (4-i));
-      }
+      lastExtended[i] = false;
     }
-
+    
+    if ( static_cast<int>(finger.type()) <= 2 ) {
+      if ( !isClawCurled(finger) ) { isClawCurling = false; }
+    }
+  
     i++;
+  }
+  
+  std::cout << "curling: " << isClawCurling << std::endl;
+  std::cout << "distance: " << isClawDistance << std::endl;
+  if ( isClawCurling && isClawDistance ) {
+    //handPose = HandPose::Clawed;
+    return;
   }
   
   switch (handCode) {
@@ -56,6 +57,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       handPose = HandPose::TwoFingers;
       break;
     case 28: //11100
+      handPose = HandPose::Clawed;
     case 14: //01110
       handPose = HandPose::ThreeFingers;
       break;
@@ -67,6 +69,85 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       handPose = HandPose::FiveFingers;
       break;
     default:
+      handPose = HandPose::ZeroFingers;
       break;
   }
+}
+
+//This could be cleaned up a lot to use some loops.
+bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const {
+  bool retVal = false;
+  
+  Leap::Bone metacarpal = finger.bone(Leap::Bone::TYPE_METACARPAL);
+  Leap::Bone proximal = finger.bone(Leap::Bone::TYPE_PROXIMAL);
+  Leap::Bone intermediate = finger.bone(Leap::Bone::TYPE_INTERMEDIATE);
+  Leap::Bone distal = finger.bone(Leap::Bone::TYPE_DISTAL);
+  
+  float mToPDot = 1.0f;
+  
+  if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
+    mToPDot = metacarpal.direction().toVector3<Vector3>().dot(proximal.direction().toVector3<Vector3>());
+  }
+  float pToIDot = proximal.direction().toVector3<Vector3>().dot(intermediate.direction().toVector3<Vector3>());
+  float iToDDot = intermediate.direction().toVector3<Vector3>().dot(distal.direction().toVector3<Vector3>());
+  
+  if ( !wasExtended ) {
+    if(mToPDot >= config::MIN_DOT_FOR_START_POINTING && pToIDot >= config::MIN_DOT_FOR_START_POINTING && iToDDot >= config::MIN_DOT_FOR_START_POINTING) {
+      retVal = true;
+    }
+  }
+  else {
+    if(mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING &&pToIDot >= config::MAX_DOT_FOR_CONTINUE_POINTING && iToDDot >= config::MAX_DOT_FOR_CONTINUE_POINTING ) {
+      retVal = true;
+    }
+  }
+
+  return retVal;
+}
+
+bool HandPoseRecognizer::isClawCurled(Leap::Finger finger) const {
+  bool retVal = false;
+  Leap::Bone metacarpal = finger.bone(Leap::Bone::TYPE_METACARPAL);
+  Leap::Bone proximal = finger.bone(Leap::Bone::TYPE_PROXIMAL);
+  Leap::Bone intermediate = finger.bone(Leap::Bone::TYPE_INTERMEDIATE);
+  Leap::Bone distal = finger.bone(Leap::Bone::TYPE_DISTAL);
+  
+  float mToPDot = config::MAX_DOT_FOR_CONTINUE_POINTING;
+  if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
+    mToPDot = metacarpal.direction().toVector3<Vector3>().dot(proximal.direction().toVector3<Vector3>());
+  }
+  float pToIDot = proximal.direction().toVector3<Vector3>().dot(intermediate.direction().toVector3<Vector3>());
+  float iToDDot = intermediate.direction().toVector3<Vector3>().dot(distal.direction().toVector3<Vector3>());
+  
+  if (mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING &&
+      pToIDot <= config::MAX_DOT_FOR_CLAW &&
+      pToIDot >= config::MIN_DOT_FOR_CLAW &&
+      iToDDot <= config::MAX_DOT_FOR_CLAW &&
+      iToDDot >= config::MIN_DOT_FOR_CLAW) {
+    retVal = true;
+  }
+  return retVal;
+}
+
+bool HandPoseRecognizer::areTipsClawed(Leap::Hand hand) const{
+  bool retVal = true;
+  
+  std::vector<Leap::Finger> clawFingers;
+  
+  for ( auto finger : hand.fingers() ) {
+    if (finger.type() == Leap::Finger::TYPE_THUMB ||
+        finger.type() == Leap::Finger::TYPE_INDEX ||
+        finger.type() == Leap::Finger::TYPE_MIDDLE) {
+      clawFingers.push_back(finger);
+    }
+  }
+  
+  for (int i=1; i < clawFingers.size(); i++) {
+    double distance = (clawFingers[i].tipPosition().toVector3<Vector3>() - clawFingers[i-1].tipPosition().toVector3<Vector3>()).norm();
+    if ( distance <= config::MIN_DISTANCE_FOR_CLAW ) {
+      retVal = false;
+    }
+  }
+  
+  return retVal;
 }

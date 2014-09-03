@@ -14,12 +14,16 @@ enum class HandPose {
   TwoFingers,
   ThreeFingers,
   FourFingers,
-  FiveFingers
+  FiveFingers,
+  Clawed
 };
 
 class HandPoseRecognizer {
 public:
   void AutoFilter(const Leap::Hand& frame, HandPose& handPose);
 private:
-  bool isPointing(Leap::Hand hand, int nFingers) const;
+  bool isExtended(Leap::Finger finger, bool wasExtended = false) const;
+  bool isClawCurled(Leap::Finger finger) const;
+  bool areTipsClawed(Leap::Hand hand) const;
+  bool lastExtended [5] = {};
 };
