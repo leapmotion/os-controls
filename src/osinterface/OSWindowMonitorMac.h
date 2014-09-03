@@ -12,6 +12,9 @@ public:
   OSWindowMonitorMac(void);
   ~OSWindowMonitorMac(void);
 
+  // Updatable overrides
+  void Tick(std::chrono::duration<double> deltaT) override;
+
 private:
   mutable std::mutex m_lock;
 
