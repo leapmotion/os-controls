@@ -68,4 +68,9 @@ public:
   /// the caller should not attempt to start a scroll operation.
   /// </remarks>
   std::shared_ptr<IScrollOperation> BeginScroll(void);
+
+  /// <summary>
+  /// If a momentum operation is underway, prevents it from continuing, otherwise has no effect
+  /// </summary>
+  void StopMomentumScrolling(void);
 };
