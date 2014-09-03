@@ -52,9 +52,8 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   RenderFrame frame = {m_rw, m_renderState, deltaT};
 
   //Call AnimationUpdate Depth First (pre-visitation order)
-  auto &zList = m_renderList;
   m_rootNode->DepthFirstTraverse(
-    [&zList, &frame](RenderEngineNode::BaseSceneNode_t& node){
+    [this, &frame](RenderEngineNode::BaseSceneNode_t& node){
       auto& mv = frame.renderState.GetModelView();
       mv.Push();
       mv.Translate(node.Translation());
@@ -64,7 +63,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
       if (renderable)
         renderable->AnimationUpdate(frame);
 
-      zList.push_back(std::make_pair(&node, mv.Matrix()));
+      m_renderList.push_back(std::make_pair(&node, mv.Matrix()));
     },
     [&frame](RenderEngineNode::BaseSceneNode_t& node) {
       frame.renderState.GetModelView().Pop();
@@ -72,11 +71,11 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   );
     
   //Greatest Z-Values (furthest away) should be rendered first
-  std::stable_sort(zList.begin(), zList.end(), 
+  std::stable_sort(m_renderList.begin(), m_renderList.end(),
     [](const RenderListElement_t& a, const RenderListElement_t& b){ return a.first->Translation().z() > b.first->Translation().z(); }
   );
 
-  for (auto &element : zList) {
+  for(auto &element : m_renderList) {
     frame.renderState.GetModelView().Push();
     frame.renderState.GetModelView().Multiply(element.second);
 
