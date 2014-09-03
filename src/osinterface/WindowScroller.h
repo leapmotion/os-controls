@@ -41,7 +41,7 @@ protected:
 
   // IScrollOperation overrides:
   void ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) override final;
-  void CancelScroll(void) final;
+  void CancelScroll(void) override final;
 
 private:
   // Total current momentum caused by recently received scroll operations.  This momentum is in
@@ -57,7 +57,8 @@ private:
   // Periodically apply momentum scroll after normal scrolling has completed
   void OnPerformMomentumScroll();
 
-  const float MICROSECONDS_TO_SECONDS = 1E-6f;
+  // Reset scrolling, regardless of whether or not we are applying momentum
+  void ResetScrollingUnsafe();
 
 public:
   /// <summary>
