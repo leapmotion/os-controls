@@ -19,3 +19,5 @@ target_package(expose SFML 2.1 REQUIRED)
 target_package(expose Leap REQUIRED)
 
 target_link_components(expose Animation Primitives SceneGraph Resource GLShader GLShaderLoader)
+
+add_subdirectory(testharness)

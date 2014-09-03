@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 
+class GLTexture2;
+class OSWindow;
+
 class OSApp
 {
 public:
@@ -11,14 +14,12 @@ public:
   virtual std::wstring GetAppExe(void) = 0;
 
   /// <summary>
-  ///
+  /// Loads a texture containing the application icon
   /// </summary>
-  virtual void CopyAppIcon(void* pMem, size_t nBytesMax) = 0;
+  virtual void GetAppTexture(GLTexture2& tex) = 0;
 
   /// <summary>
-  /// Enumerates the set of windows owned by this application
+  /// Compares this instance to another instance
   /// </summary>
-  std::vector<std::shared_ptr<OSWindow>> EnumerateVisibleTopLevelWindows(void) override;
-
   virtual bool operator==(const OSApp& rhs) const = 0;
 };

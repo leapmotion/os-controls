@@ -19,11 +19,12 @@ public:
 
   // OSWindow overrides;
   uint64_t GetWindowID(void) const override { return (uint64_t) hwnd; }
-  void GetWindowBits(void* pBuf, size_t ncb) override;
+  void GetWindowTexture(ImagePrimitive& texture) override;
   bool GetFocus(void) override;
   void SetFocus(void) override;
   std::wstring GetTitle(void) override;
   OSPoint GetPosition(void) override;
+  OSSize GetSize(void) override;
   void Cloak(void) override;
   void Uncloak(void) override;
 };

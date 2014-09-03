@@ -10,7 +10,10 @@ set(osinterface_SOURCES
   MediaInterface.cpp
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
+  OSApp.h
   OSGeometry.h
+  OSCursor.h
+  OSCursor.cpp
   OSScreen.h
   OSScreenBase.h
   OSVirtualScreen.h
@@ -18,10 +21,12 @@ set(osinterface_SOURCES
   OSWindow.h
   OSWindow.cpp
   OSWindowEvent.h
-  OSWindowEvent.cpp
   OSWindowMonitor.h
   OSWindowMonitor.cpp
   OSWindowNode.h
+  ScrollOperation.h
+  WindowScroller.h
+  WindowScroller.cpp
 )
 
 add_windows_sources(
@@ -30,13 +35,17 @@ add_windows_sources(
   AudioVolumeInterfaceWin.cpp
   MediaInterfaceWin.h
   MediaInterfaceWin.cpp
+  OSCursorWin.h
+  OSCursorWin.cpp
   OSScreenWin.cpp
-  OSVirtualScreenWin.h
-  OSVirtualScreenWin.cpp
   OSWindowWin.h
   OSWindowWin.cpp
   OSWindowMonitorWin.h
   OSWindowMonitorWin.cpp
+  OSVirtualScreenWin.h
+  OSVirtualScreenWin.cpp
+  WindowScrollerWin.h
+  WindowScrollerWin.cpp
 )
 
 add_mac_sources(
@@ -45,6 +54,8 @@ add_mac_sources(
   AudioVolumeInterfaceMac.cpp
   MediaInterfaceMac.h
   MediaInterfaceMac.mm
+  OSCursorMac.h
+  OSCursorMac.cpp
   OSScreenMac.mm
   OSVirtualScreenMac.h
   OSVirtualScreenMac.mm
@@ -52,6 +63,8 @@ add_mac_sources(
   #  OSWindowMac.mm
   OSWindowMonitorMac.h
   OSWindowMonitorMac.mm
+  WindowScrollerMac.h
+  WindowScrollerMac.mm
 )
 
 add_library(osinterface ${osinterface_SOURCES})
@@ -60,7 +73,7 @@ target_package(osinterface SFML 2.1 REQUIRED)
 target_package(osinterface Leap REQUIRED)
 target_include_directories(osinterface PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
-target_link_components(osinterface GLTexture2)
+target_link_components(osinterface Primitives Animation)
 
 if(APPLE)
   find_library(FOUNDATION_FRAMEWORK Foundation)

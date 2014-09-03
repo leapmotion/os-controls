@@ -31,3 +31,4 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   NativeWindow::AllowInput(handle, false);
   m_mw->setVisible(true);
 }
+

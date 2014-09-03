@@ -11,7 +11,7 @@ public:
   ExposeViewProxy();
   ~ExposeViewProxy();
 
-  void AutoFilter(OSCState appState, const HandLocation& handLocation);
+  void AutoFilter(OSCState appState, const Leap::Hand& hand , const HandLocation& handLocation);
 
 private:
   
