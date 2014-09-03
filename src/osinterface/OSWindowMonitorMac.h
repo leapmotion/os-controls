@@ -3,6 +3,7 @@
 #include <AppKit/NSWindow.h>
 
 class OSWindowEvent;
+class OSWindowMac;
 
 class OSWindowMonitorMac:
   public OSWindowMonitor
@@ -11,6 +12,9 @@ public:
   OSWindowMonitorMac(void);
   ~OSWindowMonitorMac(void);
 
+  // Updatable overrides
+  void Tick(std::chrono::duration<double> deltaT) override;
+
 private:
   mutable std::mutex m_lock;
 
@@ -18,7 +22,7 @@ private:
   AutoFired<OSWindowEvent> m_oswe;
 
   // Current collection of known top-level windows
-  std::unordered_map<CGWindowID, std::shared_ptr<OSWindow>> m_knownWindows;
+  std::unordered_map<CGWindowID, std::shared_ptr<OSWindowMac>> m_knownWindows;
 
 public:
   // OSWindowMonitor overrides:
