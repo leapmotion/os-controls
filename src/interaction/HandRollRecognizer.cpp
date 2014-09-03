@@ -32,4 +32,6 @@ void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   }
   
   dra.dTheta = m_deltaRoll.Value();
+  
+  dra.absoluteRoll = roll;
 }

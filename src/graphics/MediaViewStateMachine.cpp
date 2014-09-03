@@ -92,6 +92,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
         m_volumeSlider.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
+        m_startRoll = dHandRoll.absoluteRoll;
+        m_hasRoll = true;
         m_state = State::ACTIVE;
       }
       break;
@@ -135,7 +137,26 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       }
       
       // VOLUME UPDATE
-      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
+      //m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
+      const float DEADZONE = 0.4;
+      const float MAX = 1.0;
+      const float MAX_VELOCTY = 0.7;
+      
+      if( !m_hasRoll ) {
+        m_startRoll = dHandRoll.absoluteRoll;
+        m_hasRoll = true;
+        return;
+      }
+      
+      float offset = dHandRoll.absoluteRoll - m_startRoll;
+      int sign = offset < 0 ? -1 : 1;
+      float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
+      norm = std::min(1.0f, std::max(0.0f, norm));
+      float velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
+      std::cout << "time: " << frameTime.deltaTime << std::endl;
+      std::cout << "norm: " << norm << std::endl;
+      std::cout << " vel: " << velocity << std::endl;
+      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
       break;
     }
     case State::SELECTION_MADE:

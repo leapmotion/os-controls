@@ -9,6 +9,7 @@
 struct DeltaRollAmount {
   // The amount of the roll, in radians
   float dTheta;
+  float absoluteRoll;
 };
 
 /// <summary>

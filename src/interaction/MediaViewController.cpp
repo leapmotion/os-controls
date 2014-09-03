@@ -42,6 +42,12 @@ void MediaViewController::OnInitializeVolume() {
 }
 
 void MediaViewController::OnUserChangedVolume(float dVolume) {
+  if ( m_audioVolumeInterface ) {
+    m_volume += dVolume;
+    m_volume = std::min(1.0f, std::max(0.0f, m_volume));
+    m_audioVolumeInterface->SetVolume(m_volume);
+  }
+  /*
   std::cout << "before: " << dVolume << std::endl;
   int sign = dVolume < 0 ? -1 : 1;
   dVolume = (powf(fabs(dVolume) + 1, 2.0f) - 1) * sign;
@@ -51,6 +57,7 @@ void MediaViewController::OnUserChangedVolume(float dVolume) {
     m_volume = std::min(1.0f, std::max(0.0f, m_volume));
     m_audioVolumeInterface->SetVolume(m_volume);
   }
+  */
 }
 
 void MediaViewController::OnVolumeChanged(float oldVolume, float newVolume) {
