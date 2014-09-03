@@ -17,6 +17,7 @@ StateMachine::StateMachine(void):
 StateMachine::~StateMachine(void)
 {
   m_scrollOperation.reset();
+  m_windowScroller->StopMomentumScrolling();
 }
 
 // Transition Checking Loop
