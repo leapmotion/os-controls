@@ -71,7 +71,7 @@ void IWindowScroller::OnPerformMomentumScroll() {
   const auto absMy = std::abs(m_remainingMomentum.y);
 
   // Is the momentum still large enough that we want to continue?
-  if (absMy < 1e-9f && absMx < 1e-9f) {
+  if (absMy < 5.0f && absMx < 5.0f) {
     ResetScrollingUnsafe();
     return;
   }
@@ -93,9 +93,9 @@ void IWindowScroller::OnPerformMomentumScroll() {
   DoScrollBy(deltaX, deltaY, true);
 
   // Apply drag by an exponential curve
-  if (absMy < 0.0001f && absMx < 0.0001f) {
-    m_remainingMomentum.x *= 0.94f;
-    m_remainingMomentum.y *= 0.94f;
+  if (absMy < 60.0f && absMx < 60.0f) {
+    m_remainingMomentum.x *= 0.92f;
+    m_remainingMomentum.y *= 0.92f;
   } else {
     m_remainingMomentum.x *= 0.97f;
     m_remainingMomentum.y *= 0.97f;
