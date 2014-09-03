@@ -2,6 +2,7 @@
 #include "StateMachine.h"
 #include "Color.h"
 #include "ExposeViewProxy.h"
+#include "osinterface/OSCursor.h"
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
@@ -76,6 +77,11 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
         auto screenPosition = handLocation.screenPosition();
         m_lastScrollStart.x = static_cast<float>(screenPosition.x());
         m_lastScrollStart.y = static_cast<float>(screenPosition.y());
+        m_windowScroller->StopMomentumScrolling();
+        AutowiredFast<OSCursor> cursor;
+        if (cursor) {
+          cursor->SetCursorPos(m_lastScrollStart);
+        }
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
           scrollState = ScrollState::ACTIVE;

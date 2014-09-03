@@ -2,8 +2,11 @@
 #pragma once
 
 #include "OSScreen.h"
+#include "OSCursor.h"
 #include <vector>
 #include <mutex>
+
+class OSCursor;
 
 class OSVirtualScreenListener {
   public:
@@ -42,4 +45,6 @@ class OSVirtualScreen :
 
     mutable std::mutex m_mutex;
     std::vector<OSScreen> m_screens;
+
+    AutoRequired<OSCursor> m_cursor;
 };
