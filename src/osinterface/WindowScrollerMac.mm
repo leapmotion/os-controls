@@ -52,7 +52,8 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
       // Since we don't know when the last non-momentum scroll is coming,
       // interpret the first momentum scroll as the last non-momentum scroll.
       m_phase = kIOHIDEventPhaseEnded;
-    } else if (m_momentumPhase == kIOHIDEventMomentumPhaseChanged) {
+    } else if (m_momentumPhase == kIOHIDEventMomentumPhaseChanged ||
+               m_momentumPhase == kIOHIDEventMomentumPhaseBegan) {
       // If we are applying momentum, and the momentum ends, let's end our momentum
       if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.x) < FLT_EPSILON) {
         m_momentumPhase = kIOHIDEventMomentumPhaseEnded;

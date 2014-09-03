@@ -41,6 +41,11 @@ protected:
   void CancelScroll(void) override final;
 
 private:
+  // Use our own mutex (instead of GetLock()) to prevent possible deadlock
+  std::mutex m_mutex;
+  // Each scroll sequence has its own unique ID
+  uint32_t m_scrollId;
+
   // Total current momentum caused by recently received scroll operations.  This momentum is in
   // scroll units per microsecond, and will be reduced by the drag amount.
   OSPoint m_remainingMomentum;
@@ -52,7 +57,7 @@ private:
   std::chrono::steady_clock::time_point m_lastScrollTimePoint;
 
   // Periodically apply momentum scroll after normal scrolling has completed
-  void OnPerformMomentumScroll();
+  void OnPerformMomentumScroll(uint32_t scrollId);
 
   // Reset scrolling, regardless of whether or not we are applying momentum
   void ResetScrollingUnsafe();

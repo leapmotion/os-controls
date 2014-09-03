@@ -3,6 +3,7 @@
 
 IWindowScroller::IWindowScroller(void):
   m_ppmm(110.0f/25.4f), // Determine this dynamically -- FIXME
+  m_scrollId(0),
   m_remainingMomentum(OSPointZero),
   m_lastScrollTimePoint(std::chrono::steady_clock::now())
 {
@@ -16,7 +17,7 @@ IWindowScroller::~IWindowScroller(void)
 {}
 
 void IWindowScroller::ScrollBy(float deltaX, float deltaY) {
-  std::lock_guard<std::mutex> lk(GetLock());
+  std::lock_guard<std::mutex> lk(m_mutex);
 
   const auto now = std::chrono::steady_clock::now();
   const std::chrono::duration<double> dt = now - m_lastScrollTimePoint;
@@ -37,30 +38,34 @@ void IWindowScroller::CancelScroll(void) {
 }
 
 std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {
-  std::lock_guard<std::mutex> lk(GetLock());
+  std::lock_guard<std::mutex> lk(m_mutex);
   if (!m_curScrollOp.expired()) {
     return nullptr;
   }
   ResetScrollingUnsafe();
+  uint32_t scrollId = m_scrollId;
 
   auto retVal = std::shared_ptr<IScrollOperation>(
     static_cast<IScrollOperation*>(this),
-    [this] (IScrollOperation*) {
-      std::lock_guard<std::mutex> lk(GetLock());
+    [this, scrollId] (IScrollOperation*) {
+      std::lock_guard<std::mutex> lk(m_mutex);
       m_remainingMomentum.x = m_VelocityX.Value();
       m_remainingMomentum.y = m_VelocityY.Value();
       m_VelocityX.SetInitialValue(0.0f);
       m_VelocityY.SetInitialValue(0.0f);
-      *this += std::chrono::microseconds(16667), [this] { OnPerformMomentumScroll(); };
+      *this += std::chrono::microseconds(16667), [this, scrollId] { OnPerformMomentumScroll(scrollId); };
     }
   );
   m_curScrollOp = retVal;
   return retVal;
 }
 
-void IWindowScroller::OnPerformMomentumScroll() {
-  std::lock_guard<std::mutex> lk(GetLock());
-
+void IWindowScroller::OnPerformMomentumScroll(uint32_t scrollId) {
+  std::lock_guard<std::mutex> lk(m_mutex);
+  // Ignore any old scroll messages
+  if (scrollId != m_scrollId) {
+    return;
+  }
   // Do not continue performing a momentum scroll if another op is outstanding
   if (!m_curScrollOp.expired()) {
     return;
@@ -78,7 +83,7 @@ void IWindowScroller::OnPerformMomentumScroll() {
   const std::chrono::duration<double> dt = now - m_lastScrollTimePoint;
 
   // Queue up the next scroll:
-  *this += std::chrono::microseconds(16667), [this] { OnPerformMomentumScroll(); };
+  *this += std::chrono::microseconds(16667), [this, scrollId] { OnPerformMomentumScroll(scrollId); };
   m_lastScrollTimePoint = now;
 
   const float seconds = (float)dt.count();
@@ -101,7 +106,7 @@ void IWindowScroller::OnPerformMomentumScroll() {
 }
 
 void IWindowScroller::StopMomentumScrolling(void) {
-  std::lock_guard<std::mutex> lk(GetLock());
+  std::lock_guard<std::mutex> lk(m_mutex);
   ResetScrollingUnsafe();
 }
 
@@ -113,4 +118,5 @@ void IWindowScroller::ResetScrollingUnsafe() {
     DoScrollBy(0.0f, 0.0f, true);
     m_wse(&WindowScrollerEvents::OnScrollStopped)();
   }
+  ++m_scrollId;
 }
