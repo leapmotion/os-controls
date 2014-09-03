@@ -16,7 +16,21 @@ public:
   OSWindow(void);
   virtual ~OSWindow(void);
 
+protected:
+  int m_zOrder;
+
 public:
+  /// <summary>
+  /// Returns the z-order for this window with respect to other topmost windows
+  /// </summary>
+  /// <remarks>
+  /// The return value of this function can change as window stacking order evolves.  A
+  /// value of 0 is reserved for the topmost window.  Values less than zero indicate windows
+  /// that are further in the background.  There is no guarantee that z-order values are
+  /// continuous.  Positive values are defined to be invalid.
+  /// </remarks>
+  int GetZOrder(void) const { return m_zOrder; }
+
   /// <returns>
   /// A unique identifier for this window
   /// </returns>

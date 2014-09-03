@@ -11,6 +11,11 @@ public:
 
   const HWND hwnd;
 
+  // PMPL routines:
+  void SetZOrder(int zOrder) {
+    m_zOrder = zOrder;
+  }
+
   // OSWindowNode overrides:
   bool IsValid(void) override;
   uint32_t GetOwnerPid(void) override;

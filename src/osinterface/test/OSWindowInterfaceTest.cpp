@@ -37,7 +37,7 @@ public:
         return retVal;
 
       // Tick and cycle:
-      oswmi->Tick(std::chrono::duration<double>(0.0));
+      oswmi->Tick(std::chrono::seconds(1));
       std::this_thread::sleep_for(*q);
     }
     return retVal;
@@ -71,6 +71,14 @@ TEST_F(OSWindowInterfaceTest, WindowFromPoint) {
   // about to check
   auto osw = wnds[0];
   osw->SetFocus();
+
+  // Scan again to see what happened when we set the window focus:
+  oswmi->Tick(std::chrono::seconds(1));
+
+  // This window should be frontmost because we just created it
+  int zorder = osw->GetZOrder();
+  ASSERT_GE(0, zorder) << "A window's z-order was not properly calculated.";
+  ASSERT_EQ(0, zorder) << "Window which should have been the frontmost application was not reported as the frontmost";
 
   // Get the coordinates of this window, see if we can window-from-point the same thing:
   auto pt = osw->GetPosition();
