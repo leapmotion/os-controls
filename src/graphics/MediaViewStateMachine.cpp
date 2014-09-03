@@ -17,7 +17,7 @@ const static float PI = 3.14159265f;
 
 const double startAngle = 3 * M_PI/4.0;
 const double endAngle = startAngle + 6 * (M_PI/4.0);
-const double numItems = 3;
+const size_t numItems = 3;
 const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
 const Color fillColor(0.4f, 0.8f, 0.4f, 0.7f);
 const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
@@ -92,6 +92,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
         m_volumeSlider.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
+        m_startRoll = dHandRoll.absoluteRoll;
+        m_hasRoll = true;
         m_state = State::ACTIVE;
       }
       break;
@@ -135,7 +137,26 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       }
       
       // VOLUME UPDATE
-      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
+      //m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
+      const float DEADZONE = 0.4f;
+      const float MAX = 1.0f;
+      const float MAX_VELOCTY = 0.7f;
+      
+      if( !m_hasRoll ) {
+        m_startRoll = dHandRoll.absoluteRoll;
+        m_hasRoll = true;
+        return;
+      }
+      
+      float offset = dHandRoll.absoluteRoll - m_startRoll;
+      int sign = offset < 0 ? -1 : 1;
+      float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
+      norm = std::min(1.0f, std::max(0.0f, norm));
+      float velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
+      std::cout << "time: " << frameTime.deltaTime << std::endl;
+      std::cout << "norm: " << norm << std::endl;
+      std::cout << " vel: " << velocity << std::endl;
+      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
       break;
     }
     case State::SELECTION_MADE:
