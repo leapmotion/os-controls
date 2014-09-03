@@ -41,7 +41,7 @@ protected:
 
   // IScrollOperation overrides:
   void ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) override final;
-  void CancelScroll(void) final;
+  void CancelScroll(void) override final;
 
 private:
   // Total current momentum caused by recently received scroll operations.  This momentum is in
