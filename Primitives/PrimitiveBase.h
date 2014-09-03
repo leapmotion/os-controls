@@ -28,6 +28,11 @@ public:
   const GLMaterial &Material () const { return m_material; }
   GLMaterial &Material () { return m_material; }
 
+  void SetOpacity(float opacity) { m_opacity = opacity; }
+  float Opacity() const { return m_opacity; }
+  void SetOverrideOpacity(bool doOverride) { m_overrideOpacity = doOverride; }
+  bool OverrideOpacity() const { return m_overrideOpacity; }
+
   // This method should be overridden in each subclass to draw the particular geometry that it represents.
   virtual void Draw(RenderState &render_state) const = 0;
 
@@ -36,4 +41,6 @@ public:
 protected:
   Resource<GLShader> m_shader;
   GLMaterial m_material;
+  float m_opacity;
+  bool m_overrideOpacity;
 };
