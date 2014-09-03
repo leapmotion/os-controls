@@ -131,7 +131,6 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
 CGEventRef WindowScrollerMac::CreateEvent(IOHIDEventType type) const
 {
   CGEventRef event = CGEventCreate(0);
-  CGEventSetLocation(event, m_virtualPosition);
   CGEventTimestamp time = [[NSProcessInfo processInfo] systemUptime]*1000000000;
   CGEventSetTimestamp(event, time);
   CGEventSetFlags(event, 0x100);

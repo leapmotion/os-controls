@@ -28,9 +28,6 @@ private:
   std::weak_ptr<IScrollOperation> m_curScrollOp;
 
 protected:
-  // The point where the most recent scroll operation took place
-  OSPoint m_virtualPosition;
-
   // Pixels-per-millimeter of monitor
   const float m_ppmm;
 
@@ -40,7 +37,7 @@ protected:
   virtual void DoScrollBy(float deltaX, float deltaY, bool isMomentum) = 0;
 
   // IScrollOperation overrides:
-  void ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) override final;
+  void ScrollBy(float deltaX, float deltaY) override final;
   void CancelScroll(void) override final;
 
 private:

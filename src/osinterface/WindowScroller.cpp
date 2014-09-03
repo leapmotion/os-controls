@@ -2,7 +2,6 @@
 #include "WindowScroller.h"
 
 IWindowScroller::IWindowScroller(void):
-  m_virtualPosition(OSPointZero),
   m_ppmm(110.0f/25.4f), // Determine this dynamically -- FIXME
   m_remainingMomentum(OSPointZero),
   m_lastScrollTimePoint(std::chrono::steady_clock::now())
@@ -16,9 +15,8 @@ IWindowScroller::IWindowScroller(void):
 IWindowScroller::~IWindowScroller(void)
 {}
 
-void IWindowScroller::ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) {
+void IWindowScroller::ScrollBy(float deltaX, float deltaY) {
   std::lock_guard<std::mutex> lk(GetLock());
-  m_virtualPosition = virtualPosition;
 
   const auto now = std::chrono::steady_clock::now();
   const std::chrono::duration<double> dt = now - m_lastScrollTimePoint;
