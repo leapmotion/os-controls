@@ -36,6 +36,9 @@ void ExposeView::Render(const RenderFrame& frame) const {
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
+  // Handle anything pended to the render thread:
+  DispatchAllEvents();
+  
   for(std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
       continue;
@@ -57,8 +60,14 @@ std::tuple<double, double> ExposeView::radialCoordsToPoint(double angle, double 
 }
 
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
-  auto retVal = std::make_shared<ExposeViewWindow>(osWindow);
+  auto retVal = std::shared_ptr<ExposeViewWindow>(new ExposeViewWindow(osWindow));
   m_windows.push_back(retVal);
+  m_renderList.push_back(retVal.get());
+
+  // Update the window texture in the main render loop:
+  *this += [retVal] {
+    retVal->UpdateTexture();
+  };
   return retVal;
 }
 

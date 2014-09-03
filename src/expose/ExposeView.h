@@ -3,6 +3,7 @@
 #include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderEngineNode.h"
+#include <autowiring/DispatchQueue.h>
 #include <Animation.h>
 #include <vector>
 #include <tuple>
@@ -15,6 +16,7 @@ class OSWindow;
 /// Implements expose view
 /// </summary>
 class ExposeView:
+  DispatchQueue,
   public RenderEngineNode
 {
 public:
@@ -41,7 +43,7 @@ private:
 
   // Rendering order:
   std::list<ExposeViewWindow*> m_renderList;
-  
+
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
 
