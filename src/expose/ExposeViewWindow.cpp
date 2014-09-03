@@ -5,17 +5,15 @@
 
 ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this()),
-  m_texture(nullptr)
-{
-
-}
+  m_texture(new ImagePrimitive)
+{}
 
 ExposeViewWindow::~ExposeViewWindow(void) {}
 
 void ExposeViewWindow::UpdateTexture(void) {
-  m_osWindow->GetWindowTexture(m_texture);
+  m_osWindow->GetWindowTexture(*m_texture);
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
-  m_texture.Draw(frame.renderState);
+  m_texture->Draw(frame.renderState);
 }

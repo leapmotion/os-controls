@@ -39,10 +39,7 @@ private:
   Animated<float> m_opacity;
   
   // All windows currently known to this view:
-  std::vector<std::shared_ptr<ExposeViewWindow>> m_windows;
-
-  // Rendering order:
-  std::list<ExposeViewWindow*> m_renderList;
+  std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_windows;
 
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;

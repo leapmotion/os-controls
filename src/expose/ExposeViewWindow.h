@@ -24,7 +24,7 @@ public:
 
 private:
   // Texture for this window
-  ImagePrimitive m_texture;
+  std::unique_ptr<ImagePrimitive> m_texture;
 
 public:
   /// <summary>
