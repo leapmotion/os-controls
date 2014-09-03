@@ -25,7 +25,11 @@ const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
 m_state(State::INACTIVE) {
-  
+  m_CurrentTime = 0.0;
+  m_LastStateChangeTime = 0.0;
+  m_FadeTime = 0.25;
+  m_selectedItem = -1;
+
   //Radial Menu Initialization
   m_radialMenu.SetStartAngle(startAngle);
   m_radialMenu.SetEndAngle(endAngle);
@@ -83,6 +87,8 @@ void MediaViewStateMachine::AutoInit() {
 }
 
 void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime) {
+  m_CurrentTime += 1E-6 * frameTime.deltaTime;
+
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
@@ -99,30 +105,36 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
         m_startRoll = dHandRoll.absoluteRoll;
         m_hasRoll = true;
         m_state = State::ACTIVE;
+        m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
         m_state = State::INACTIVE;
+        m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::SELECTION_MADE:
       m_state = State::FADE_OUT;
+      m_LastStateChangeTime = m_CurrentTime;
       break;
     case State::FADE_OUT:
-      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+      if (appState != OSCState::MEDIA_MENU_FOCUSED) {
         m_state = State::INACTIVE;
+        m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::FINAL:
     default:
       break;
   }
-  
+
   // State Loops
   switch (m_state) {
     case State::INACTIVE:
       // Wedge transparency is updated in AnimationUpdate loops
+      m_radialMenu.InteractWithoutCursor();
+      m_selectedItem = -1;
       break;
     case State::ACTIVE:
     {
@@ -133,11 +145,13 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       const Vector2 menuOffset = m_radialMenu.Translation().head<2>();
       
       Vector3 leapPosition(handLocation.x - menuOffset.x(), handLocation.y - menuOffset.y(), 0);
-      RadialMenu::UpdateResult updateResult = m_radialMenu.UpdateItemsFromCursor(leapPosition, static_cast<float>(1E-6 * frameTime.deltaTime));
+      RadialMenu::UpdateResult updateResult = m_radialMenu.InteractWithCursor(leapPosition);
+      m_selectedItem = updateResult.updateIdx;
       if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
         //Selection Made Transition
         resolveSelection(updateResult.updateIdx);
         m_state = State::SELECTION_MADE;
+        m_LastStateChangeTime = m_CurrentTime;
       }
       
       // VOLUME UPDATE
@@ -168,6 +182,10 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
     default:
       break;
   }
+  for (int i=0; i<numItems; i++) {
+    m_radialMenu.GetItem(i)->SetOverrideOpacity(i == m_selectedItem);
+  }
+  m_radialMenu.UpdateItemActivation(static_cast<float>(1E-6 * frameTime.deltaTime));
 }
 
 void MediaViewStateMachine::resolveSelection(int selectedID) {
@@ -189,8 +207,29 @@ void MediaViewStateMachine::SetViewVolume(float volume) {
   m_volumeSlider.SetValue(volume);
 }
 
+void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
+  float opacity = 0.0f;
+  if (m_state == State::ACTIVE) {
+    // fade in
+    opacity = SmootherStep(std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
+  } else if (m_state == State::FADE_OUT || m_state == State::SELECTION_MADE || m_state == State::INACTIVE) {
+    // fade out
+    opacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
+    if (m_selectedItem >= 0) {
+      const float itemOpacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - 2*m_FadeTime - m_LastStateChangeTime)/m_FadeTime)));
+      m_radialMenu.GetItem(m_selectedItem)->SetOpacity(itemOpacity);
+    } else {
+      for (int i=0; i<numItems; i++) {
+        m_radialMenu.GetItem(i)->SetOpacity(1.0f);
+      }
+    }
+  }
+  m_radialMenu.SetOpacity(opacity);
+  m_volumeSlider.SetOpacity(opacity);
+}
+
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
-  if(m_state == State::ACTIVE) {
+  if (m_state == State::ACTIVE || m_state == State::SELECTION_MADE || m_state == State::FADE_OUT) {
     PrimitiveBase::DrawSceneGraph(m_radialMenu, renderFrame.renderState);
     PrimitiveBase::DrawSceneGraph(m_volumeSlider, renderFrame.renderState);
   }
