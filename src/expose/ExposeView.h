@@ -1,7 +1,6 @@
 #pragma once
 #include "Primitives.h"
 #include "ExposeViewWindow.h"
-#include "ExposeViewEvents.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderEngineNode.h"
 #include <Animation.h>
@@ -9,6 +8,7 @@
 #include <tuple>
 
 class ExposeViewWindow;
+class ExposeViewEvents;
 class OSWindow;
 
 /// <summary>

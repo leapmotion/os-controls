@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ExposeView.h"
 #include "ExposeViewWindow.h"
+#include "ExposeViewEvents.h"
 #include "graphics/RenderFrame.h"
 #include "SVGPrimitive.h"
 

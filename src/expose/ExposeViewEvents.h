@@ -3,7 +3,7 @@
 
 class ExposeViewEvents {
 public:
-  virtual~ExposeViewEvents() {};
+  virtual~ExposeViewEvents(void);
   
-  virtual void onSelectionMade(std::shared_ptr<OSWindow>);
+  virtual void onSelectionMade(std::shared_ptr<OSWindow>) {};
 };
