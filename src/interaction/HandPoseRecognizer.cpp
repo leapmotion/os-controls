@@ -38,13 +38,9 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
     i++;
   }
   
-  std::cout << "curling: " << isClawCurling << std::endl;
-  std::cout << "distance: " << isClawDistance << std::endl;
-  if ( isClawCurling && isClawDistance ) {
-    //handPose = HandPose::Clawed;
-    return;
-  }
-  
+  std::cout << "Sphere: " << hand.sphereRadius() << std::endl;
+  std::cout << "Grip:   " << hand.grabStrength() << std::endl;
+
   switch (handCode) {
     case 0:  //00000
       handPose = HandPose::ZeroFingers;
@@ -57,7 +53,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       handPose = HandPose::TwoFingers;
       break;
     case 28: //11100
-      handPose = HandPose::Clawed;
     case 14: //01110
       handPose = HandPose::ThreeFingers;
       break;
@@ -72,6 +67,14 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       handPose = HandPose::ZeroFingers;
       break;
   }
+  
+  //TODO: add some curve detection to fingers to make
+  //      this differentiated from a simple 3 finger or 4 finger pose.
+  if (static_cast<int>(handPose) == 3) {
+    handPose = HandPose::Clawed;
+  }
+  
+  std::cout << "Hand Pose: " << static_cast<int>(handPose) << std::endl;
 }
 
 //This could be cleaned up a lot to use some loops.

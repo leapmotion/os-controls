@@ -15,13 +15,15 @@ namespace config {
   const float MIN_PINCH_FOR_PINCHING = 0.74f;
   const float MAX_PINCH_FOR_NOT_PINCHING = 0.69f;
 //  const float MAX_DOT_FOR_THUMB_POINTING = 0.1f;
-  const float MIN_DOT_FOR_START_POINTING = 0.9f;
-  const float MAX_DOT_FOR_CONTINUE_POINTING = 0.8f;
-  const float MAX_DOT_FOR_CURLED = 0.1f;
+  const float MIN_DOT_FOR_START_POINTING = 0.8f;
+  const float MAX_DOT_FOR_CONTINUE_POINTING = 0.7f;
+  const float MAX_DOT_FOR_START_CURLED = 0.4f;
+  const float MAX_DOT_FOR_CONTINUE_CURLED = 0.5f;
   const float MIN_DOT_FOR_CLAW = 0.5;
   const float MAX_DOT_FOR_CLAW = 0.95;
   const float MIN_DISTANCE_FOR_CLAW = 15.0f;
   const float FINGER_OFFSET_DISTANCE = 3.0f;
   const float OFFSET_DISTANCE = 100;
   const float ROLL_SENSITIVITY = 1.2f; // don't drop below 1.0
+  const float MAX_PINCH_FOR_MENUS = 0.5f;
 }

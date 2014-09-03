@@ -2,6 +2,7 @@
 #include "StateMachine.h"
 #include "Color.h"
 #include "ExposeViewProxy.h"
+#include "InteractionConfigs.h"
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
@@ -31,7 +32,12 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       desiredState = OSCState::BASE;
       break;
     case HandPose::OneFinger:
-      desiredState = OSCState::MEDIA_MENU_FOCUSED;
+      if ( handPinch.pinchStrength <= config::MAX_PINCH_FOR_MENUS ) {
+        desiredState = OSCState::MEDIA_MENU_FOCUSED;
+      }
+      else {
+        std::cout << "pinch blocked" << std::endl;
+      }
       break;
     case HandPose::TwoFingers:
       desiredState = OSCState::BASE;
@@ -41,6 +47,9 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       break;
     case HandPose::FourFingers:
       desiredState = OSCState::EXPOSE_FOCUSED;
+      break;
+    case HandPose::Clawed:
+      desiredState = OSCState::MEDIA_MENU_FOCUSED;
       break;
     case HandPose::FiveFingers:
     default:
@@ -72,7 +81,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       }
       break;
     case ScrollState::DECAYING:
-      if ( handPinch.isPinching ) {
+      if ( handPinch.isPinching && handPose != HandPose::Clawed ) {
         m_lastScrollStart = handLocation.screenPosition();
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
