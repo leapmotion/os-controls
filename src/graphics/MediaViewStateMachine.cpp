@@ -17,7 +17,7 @@ const static float PI = 3.14159265f;
 
 const double startAngle = 3 * M_PI/4.0;
 const double endAngle = startAngle + 6 * (M_PI/4.0);
-const size_t numItems = 3;
+const int numItems = 3;
 const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
 const Color fillColor(0.4f, 0.8f, 0.4f, 0.7f);
 const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
@@ -38,6 +38,8 @@ m_state(State::INACTIVE) {
     item->SetRadius(120.0);
     item->SetThickness(80.0);
     item->SetActivatedRadius(200.0);
+    item->Material().SetAmbientLightColor(bgColor);
+    item->Material().SetAmbientLightingProportion(1.0f);
     item->Material().SetDiffuseLightColor(bgColor);
     item->SetHoverColor(fillColor);
     item->SetActivatedColor(handleOutlineColor);
@@ -71,6 +73,8 @@ m_state(State::INACTIVE) {
   m_volumeSlider.SetHandleColor(handleColor);
   m_volumeSlider.SetHandleOutlineColor(handleOutlineColor);
   m_volumeSlider.Material().SetDiffuseLightColor(bgColor);
+  m_volumeSlider.Material().SetAmbientLightColor(bgColor);
+  m_volumeSlider.Material().SetAmbientLightingProportion(1.0f);
 }
 
 void MediaViewStateMachine::AutoInit() {
@@ -194,5 +198,5 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
 
 //TODO: Filter this data in the recognizer to smooth things out.
 float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
-  return deltaHandRoll / (3 * PI / 2.0);
+  return deltaHandRoll / static_cast<float>(3 * PI / 2.0);
 }
