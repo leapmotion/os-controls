@@ -100,11 +100,11 @@ void IWindowScroller::OnPerformMomentumScroll() {
 
     // Apply drag by an exponential curve
     if (absMy < 0.0001f && absMx < 0.0001f) {
-      m_remainingMomentum.x *= 0.94;
-      m_remainingMomentum.y *= 0.94;
+      m_remainingMomentum.x *= 0.94f;
+      m_remainingMomentum.y *= 0.94f;
     } else {
-      m_remainingMomentum.x *= 0.97;
-      m_remainingMomentum.y *= 0.97;
+      m_remainingMomentum.x *= 0.97f;
+      m_remainingMomentum.y *= 0.97f;
     }
   }
   *this += std::chrono::microseconds(16667), [this] { OnPerformMomentumScroll(); };
