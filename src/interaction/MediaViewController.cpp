@@ -41,6 +41,7 @@ void MediaViewController::OnInitializeVolume() {
 }
 
 void MediaViewController::OnUserChangedVolume(float dVolume) {
+  dVolume *= 1.7f;
   if(m_audioVolumeInterface) {
     m_volume += dVolume;
     m_audioVolumeInterface->SetVolume(m_volume);
