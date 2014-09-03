@@ -1,36 +1,41 @@
 #include "stdafx.h"
 #include "WindowCreatingTestFixture.h"
+#include "OSApp.h"
 #include "OSWindow.h"
 #include "OSWindowMonitor.h"
+#include <thread>
 
 class OSWindowInterfaceTest:
   public testing::Test
-{};
+{
+public:
+  OSWindowInterfaceTest(void) {
+    AutoCurrentContext()->Initiate();
+  }
+};
 
-TEST_F(OSWindowInterfaceTest, CanEnumerateTopLevelWindows) {
+TEST_F(OSWindowInterfaceTest, SimpleTopLevelEnumerateo) {
   AutoRequired<WindowCreatingTestFixture> wctf;
-  const auto testWindowProps = wctf->CreateTestWindow();
-
-  // Now see if we can enumerate to this window as one of the top-level windows:
   AutoRequired<OSWindowMonitor> oswmi;
-  std::vector<std::shared_ptr<OSWindow>> windows;
-  oswmi->Enumerate([&windows] (OSWindow& os) {
-    windows.push_back(os.shared_from_this());
-  });
+  const auto testWindowProps = wctf->CreateTestWindow();
+  bool found = false;
+  auto finderLambda = [&found, &testWindowProps](OSWindow& os) {
+    found |= os.GetOwnerPid() == testWindowProps.pid;
+  };
 
-  // At the minimum, we should find one top-level window
-  ASSERT_FALSE(windows.empty()) << "Child enumeration failed to return a single window";
+  // Verify that we can't find the window at this point
+  oswmi->Enumerate(finderLambda);
+  ASSERT_FALSE(found) << "Enumerated a window before it should have been discoverable";
 
-  // Now try to find our window:
-  auto q = std::find_if(
-      windows.begin(),
-      windows.end(),
-      [&testWindowProps] (const std::shared_ptr<OSWindowNode>& node) {
-        return node->GetOwnerPid() == testWindowProps.pid;
-      }
-    );
-  ASSERT_NE(windows.end(), q) << "Failed to find the test window in the enumeration of top-level windows";
+  // Try a few times to find the window with increasing delays:
+  for(auto& delayTime : sc_delayTimes) {
+    oswmi->Enumerate(finderLambda);
+    if(found)
+      break;
 
-  // Validate names are what we expect to find:
-  std::shared_ptr<OSWindowNode> foundTestWindow = *q;
+    // Tick and cycle:
+    oswmi->Tick(std::chrono::duration<double>(0.0));
+    std::this_thread::sleep_for(delayTime);
+  }
+  ASSERT_TRUE(found) << "Failed to find a created window";
 }
