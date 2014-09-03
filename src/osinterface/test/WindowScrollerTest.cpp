@@ -9,7 +9,7 @@ public:
   {
     AutoCurrentContext()->Initiate();
   }
-  
+
   static MockWindowScroller* New(void) { return new MockWindowScroller; }
 
   void DoScrollBy(float deltaX, float deltaY, bool isMomentum) override {
@@ -47,7 +47,7 @@ class WindowScrollerTest:
 TEST_F(WindowScrollerTest, ValidateExclusivity) {
   AutoRequired<MockWindowScroller> mock;
   auto lock = mock->BeginScroll();
-  lock->ScrollBy(OSPointZero, 0, 50);
+  lock->ScrollBy(0, 50);
 
   // Verify the scroll request got through and contains the right value
   ASSERT_FALSE(mock->scrollRequestsY.empty() || mock->scrollRequestsX.empty()) << "Scroll request was not properly forwarded";
@@ -61,7 +61,7 @@ TEST_F(WindowScrollerTest, MomentumBehavior) {
   {
     auto lock = mock->BeginScroll();
     for(size_t i = 100; i--;)
-      lock->ScrollBy(OSPointZero, 20, 20);
+      lock->ScrollBy(20, 20);
   }
 
   // Now verify that we get a few scroll operations happening after our primary scroll operations:
@@ -88,7 +88,7 @@ TEST_F(WindowScrollerTest, RealWindowScroll) {
   {
     auto lock = real->BeginScroll();
     for(size_t i = 30; i--;) {
-      lock->ScrollBy(OSPointMake(1400, 400), 0, -20);
+      lock->ScrollBy(0, -20);
       std::this_thread::sleep_for(std::chrono::microseconds(16667));
     }
   }

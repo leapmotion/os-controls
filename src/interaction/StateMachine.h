@@ -50,7 +50,6 @@ private:
   OSCState m_state;
   
   ScrollState m_scrollState;
-  Vector2 m_lastScrollStart;
   Vector2 m_handDelta; 
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
