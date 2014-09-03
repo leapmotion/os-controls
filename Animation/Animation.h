@@ -151,3 +151,9 @@ private:
   float m_TargetFramerate;
   float m_SmoothStrength;
 };
+
+template <class T>
+static inline T SmootherStep(const T& x) {
+  // x is blending parameter between 0 and 1
+  return x*x*x*(x*(x*6 - 15) + 10);
+}
