@@ -8,8 +8,9 @@
 class ExposeView;
 
 class ExposeViewController :
-public OSWindowEvent,
-public ExposeViewEvents{
+  public OSWindowEvent,
+  public ExposeViewEvents
+{
 public:
   ExposeViewController();
   virtual~ExposeViewController();
@@ -17,11 +18,11 @@ public:
   void OnCreate(OSWindow& window) override;
   void OnDestroy(OSWindow& window) override;
   
-  void onSelectionMade(std::shared_ptr<OSWindow> window) override;
+  void onWindowSelected(ExposeViewWindow& wnd) override;
   
 private:
-  bool windowExists(uint64_t uniqueId);
-  
-  std::map<std::shared_ptr<OSWindow>, std::shared_ptr<ExposeViewWindow>> m_windows;
   AutoRequired<ExposeView> m_exposeView;
+
+  // Dictionary used to detect changes to OS state
+  std::unordered_map<std::shared_ptr<OSWindow>, std::shared_ptr<ExposeViewWindow>> m_windows;
 };

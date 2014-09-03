@@ -13,39 +13,21 @@ ExposeViewController::~ExposeViewController() {
 
 void ExposeViewController::OnCreate(OSWindow& window) {
   std::shared_ptr<OSWindow> windowPtr = window.shared_from_this();
-  std::shared_ptr<ExposeViewWindow> newWindow = m_exposeView->NewExposeWindow(window);
-  m_windows[windowPtr] = newWindow;
+  m_windows[windowPtr] = m_exposeView->NewExposeWindow(window);
 }
 
 void ExposeViewController::OnDestroy(OSWindow& window) {
-  std::shared_ptr<ExposeViewWindow> viewWindow;
-  std::shared_ptr<OSWindow> windowPtr = window.shared_from_this();
-  try {
-    viewWindow = m_windows.at(windowPtr);
-    m_exposeView->RemoveExposeWindow(viewWindow);
-  }
-  catch(std::out_of_range) {
-    //Window not availible. Nothing to be done.
+  auto q = m_windows.find(window.shared_from_this());
+  if(q == m_windows.end())
+    // Short-circuit, we can't find this window in our map
     return;
-  }
+
+  // Tell ExposeView that the window is gone, and that shutdown operations on this window should
+  // take place.
+  m_exposeView->RemoveExposeWindow(q->second);
 }
 
-void ExposeViewController::onSelectionMade(std::shared_ptr<OSWindow> window) {
-  //Confirm this is a window we know about...just in case the view has an old winodw.
-  try {
-    m_windows.at(window);
-  }
-  catch(std::out_of_range) {
-    //Not a window we know about
-    return;
-  }
-  
-  if ( !window->GetFocus() ) {
-    window->SetFocus();
-  }
-}
-
-bool ExposeViewController::windowExists(uint64_t uniqueId) {
-  bool retVal = false;
-  return retVal;
+void ExposeViewController::onWindowSelected(ExposeViewWindow& wnd) {
+  // Our response will be to examine the osWindow and use it to make a "Focus" event take place
+  wnd.m_osWindow->SetFocus();
 }

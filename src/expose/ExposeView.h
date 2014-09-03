@@ -51,8 +51,8 @@ private:
   /// </summary>
   void updateLayout(std::chrono::duration<double> dt);
   
-  // Send commend to contorller to focus the given window.
-  void focusWindow(ExposeViewWindow windowToFocus);
+  // Send commend to controller to focus the given window.
+  void focusWindow(ExposeViewWindow& windowToFocus);
   
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y
@@ -67,7 +67,19 @@ public:
   /// Creates a new ExposeViewWindow for the specified OS window
   /// </summary>
   std::shared_ptr<ExposeViewWindow> NewExposeWindow(OSWindow& osWindow);
-  void RemoveExposeWindow(std::shared_ptr<ExposeViewWindow>);
+
+  /// <summary>
+  /// Removes the specified expose view window from the maintained set
+  /// </summary>
+  /// <remarks>
+  /// This method does not guarantee that the specified ExposeViewWindow is immediately removed.
+  /// Actual removal will take place at some point later, depending on what the user is doing and
+  /// how long it's going to take any shutdown animations to run.
+  ///
+  /// Upon return of this call, the specified ExposeViewWindow will not be enumerable from the
+  /// ExposeView proper.
+  /// </remarks>
+  void RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd);
 
   /// <summary>
   /// </summary>

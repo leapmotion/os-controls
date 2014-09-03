@@ -35,7 +35,6 @@ void ExposeView::Render(const RenderFrame& frame) const {
     renderable->Render(frame);
 }
 
-
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   for(std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
@@ -45,9 +44,11 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   }
 }
 
-void ExposeView::focusWindow(ExposeViewWindow window) {
-  std::shared_ptr<OSWindow> osWindowPtr = window.m_osWindow;
-  m_exposeViewEvents(&ExposeViewEvents::onSelectionMade)(osWindowPtr);
+void ExposeView::focusWindow(ExposeViewWindow& window) {
+  // TODO:  Perform the requested action:
+
+  // Operation complete, raise the event:
+  m_exposeViewEvents(&ExposeViewEvents::onWindowSelected)(window);
 }
 
 
@@ -61,8 +62,8 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
   return retVal;
 }
 
-void ExposeView::RemoveExposeWindow(std::shared_ptr<ExposeViewWindow>) {
-  //TODO: Add remove code
+void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
+  //TODO: Removal code
 }
 
 void ExposeView::StartView() {
