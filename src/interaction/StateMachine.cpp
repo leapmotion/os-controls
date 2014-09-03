@@ -31,10 +31,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       desiredState = OSCState::BASE;
       break;
     case HandPose::OneFinger:
-      desiredState = OSCState::BASE;
+      desiredState = OSCState::MEDIA_MENU_FOCUSED;
       break;
     case HandPose::TwoFingers:
-      desiredState = OSCState::MEDIA_MENU_FOCUSED;
+      desiredState = OSCState::BASE;
       break;
     case HandPose::ThreeFingers:
       desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
