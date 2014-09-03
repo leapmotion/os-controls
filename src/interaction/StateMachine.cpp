@@ -108,7 +108,6 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
-      std::cout << "Last Scroll: "<< m_lastScrollStart.x() << ", " << m_lastScrollStart.y() << std::endl;
       m_scrollOperation->ScrollBy(OSPointMake(m_lastScrollStart.x(), m_lastScrollStart.y()), 0.0f, m_handDelta.y());
       break;
     case ScrollState::DECAYING:

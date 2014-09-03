@@ -6,6 +6,7 @@
 #include <Foundation/NSProcessInfo.h>
 
 #include <thread>
+#include <cassert>
 
 IWindowScroller* IWindowScroller::New(void) {
   return new WindowScrollerMac;
@@ -53,13 +54,15 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
       m_phase = kIOHIDEventPhaseEnded;
     } else if (m_momentumPhase == kIOHIDEventMomentumPhaseChanged) {
       // If we are applying momentum, and the momentum ends, let's end our momentum
-      if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.y) < FLT_EPSILON) {
+      if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.x) < FLT_EPSILON) {
         m_momentumPhase = kIOHIDEventMomentumPhaseEnded;
       }
     } else if (m_momentumPhase == kIOHIDEventMomentumPhaseUndefined) {
       return;
     }
   } else if (m_phase == kIOHIDEventPhaseUndefined) {
+    // We should never be in the middle of performing momentum when being asked to begin a new scroll
+    assert(m_momentumPhase == kIOHIDEventMomentumPhaseUndefined);
     // On first scroll, send a "Gesture Began" event
     event = CreateEvent(kIOHIDEventTypeGestureBegan);
     CGEventSetIntegerValueField(event, 115, kIOHIDEventTypeScroll); // 115: begin gesture subtype
@@ -70,16 +73,6 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
   }
   const int ilx = static_cast<int>(deltaLine.x);
   const int ily = static_cast<int>(deltaLine.y);
-
-  // Scroll Gesture Event (only when gesturing)
-  event = CreateEvent(kIOHIDEventTypeScroll);
-  CGEventSetDoubleValueField(event, 113, deltaPixel.x);
-  CGEventSetDoubleValueField(event, 119, deltaPixel.y);
-  CGEventSetIntegerValueField(event, 123, 0x80000000); // Swipe direction
-  CGEventSetIntegerValueField(event, 132, m_phase);
-  CGEventSetIntegerValueField(event, 135, 1); // Unsure what this does
-  CGEventPost(kCGHIDEventTap, event);
-  CFRelease(event);
 
   // Scroll Wheel Event
   event = CGEventCreateScrollWheelEvent(0, kCGScrollEventUnitPixel, 2, 0, 0);
@@ -93,12 +86,23 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
   }
   CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis1, deltaPixel.y);
   CGEventSetIntegerValueField(event, kCGScrollWheelEventPointDeltaAxis2, deltaPixel.x);
-
   CGEventSetIntegerValueField(event, 99, m_phase); // phase
   CGEventSetIntegerValueField(event, 123, m_momentumPhase); // momentum phase
   CGEventSetIntegerValueField(event, 137, 1); // Unsure what this does
   CGEventPost(kCGHIDEventTap, event);
   CFRelease(event);
+
+  if (m_phase != kIOHIDEventPhaseUndefined) {
+    // Scroll Gesture Event (only when gesturing)
+    event = CreateEvent(kIOHIDEventTypeScroll);
+    CGEventSetDoubleValueField(event, 113, deltaPixel.x);
+    CGEventSetDoubleValueField(event, 119, deltaPixel.y);
+    CGEventSetIntegerValueField(event, 123, 0x80000000); // Swipe direction
+    CGEventSetIntegerValueField(event, 132, m_phase);
+    CGEventSetIntegerValueField(event, 135, 1); // Unsure what this does
+    CGEventPost(kCGHIDEventTap, event);
+    CFRelease(event);
+  }
 
   // Change phase or momentum phase as needed
   if (m_phase == kIOHIDEventPhaseBegan) {
