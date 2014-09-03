@@ -79,7 +79,7 @@ OSSize OSWindowWin::GetSize(void) {
 
   OSSize retVal;
   retVal.width = (float) (rect.right - rect.left);
-  retVal.width = (float) (rect.bottom - rect.top);
+  retVal.height = (float) (rect.bottom - rect.top);
   return retVal;
 }
 
