@@ -7,6 +7,7 @@
 #include "uievents/OSCDomain.h"
 #include "RenderEngine.h"
 #include "RenderEngineNode.h"
+#include "VolumeKnob.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
@@ -61,6 +62,7 @@ private:
   
   RadialMenu m_radialMenu;
   RadialSlider m_volumeSlider;
+  std::shared_ptr<VolumeKnob> m_volumeKnob;
   
   bool m_hasRoll;
   float m_startRoll;

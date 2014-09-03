@@ -71,11 +71,15 @@ m_state(State::INACTIVE) {
   m_volumeSlider.SetHandleColor(handleColor);
   m_volumeSlider.SetHandleOutlineColor(handleOutlineColor);
   m_volumeSlider.Material().SetDiffuseLightColor(bgColor);
+  
+  //Volume Knob Initialization
+  m_volumeKnob = RenderEngineNode::Create<VolumeKnob>();
 }
 
 void MediaViewStateMachine::AutoInit() {
   auto self = shared_from_this();
   m_rootNode->AddChild(self);
+  AddChild(m_volumeKnob);
 }
 
 void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime) {
@@ -91,22 +95,27 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
         m_volumeSlider.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
+        m_volumeKnob->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
         m_startRoll = dHandRoll.absoluteRoll;
         m_hasRoll = true;
+        m_volumeKnob->SetOpacity(0.5f);
         m_state = State::ACTIVE;
       }
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_volumeKnob->SetOpacity(0.0f);
         m_state = State::INACTIVE;
       }
       break;
     case State::SELECTION_MADE:
+      m_volumeKnob->SetOpacity(0.0f);
       m_state = State::FADE_OUT;
       break;
     case State::FADE_OUT:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_volumeKnob->SetOpacity(0.0f);
         m_state = State::INACTIVE;
       }
       break;
@@ -150,7 +159,10 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       
       float offset = dHandRoll.absoluteRoll - m_startRoll;
       int sign = offset < 0 ? -1 : 1;
+      float visualNorm = fabs(offset) / MAX;
       float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
+      visualNorm = std::min(1.0f, std::max(0.0f, visualNorm));
+      m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(visualNorm * (M_PI/2.0) * sign, Vector3::UnitZ()).toRotationMatrix();
       norm = std::min(1.0f, std::max(0.0f, norm));
       float velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
       m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
