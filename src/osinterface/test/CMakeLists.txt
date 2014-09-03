@@ -2,8 +2,9 @@ set(osinterfacetest_SRCS
   osinterfacetest.cpp
   AudioVolumeInterfaceTest.cpp
   MediaInterfaceTest.cpp
-  OSVirtualScreenTest.cpp
+  OSCursorTest.cpp
   OSWindowInterfaceTest.cpp
+  OSVirtualScreenTest.cpp
   WindowCreatingTestFixture.h
   WindowCreatingTestFixture.cpp
   WindowScrollerTest.cpp

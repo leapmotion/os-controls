@@ -1,13 +1,9 @@
 #pragma once
+#include "OSPoint.h"
 #include "OSWindowNode.h"
 #include <cstdint>
 
 class ImagePrimitive;
-
-struct OSPoint {
-  uint32_t x;
-  uint32_t y;
-};
 
 struct OSSize {
   uint32_t cx;

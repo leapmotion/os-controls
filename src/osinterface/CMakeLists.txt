@@ -12,6 +12,8 @@ set(osinterface_SOURCES
   VolumeLevelChecker.cpp
   OSApp.h
   OSGeometry.h
+  OSCursor.h
+  OSCursor.cpp
   OSScreen.h
   OSScreenBase.h
   OSVirtualScreen.h
@@ -33,13 +35,15 @@ add_windows_sources(
   AudioVolumeInterfaceWin.cpp
   MediaInterfaceWin.h
   MediaInterfaceWin.cpp
+  OSCursorWin.h
+  OSCursorWin.cpp
   OSScreenWin.cpp
-  OSVirtualScreenWin.h
-  OSVirtualScreenWin.cpp
   OSWindowWin.h
   OSWindowWin.cpp
   OSWindowMonitorWin.h
   OSWindowMonitorWin.cpp
+  OSVirtualScreenWin.h
+  OSVirtualScreenWin.cpp
   WindowScrollerWin.h
   WindowScrollerWin.cpp
 )
@@ -50,6 +54,8 @@ add_mac_sources(
   AudioVolumeInterfaceMac.cpp
   MediaInterfaceMac.h
   MediaInterfaceMac.mm
+  OSCursorMac.h
+  OSCursorMac.cpp
   OSScreenMac.mm
   OSVirtualScreenMac.h
   OSVirtualScreenMac.mm
