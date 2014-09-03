@@ -44,6 +44,8 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+  std::mutex m_lock;
+
   // Our current state
   OSCState m_state;
   
