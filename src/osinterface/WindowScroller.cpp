@@ -109,3 +109,8 @@ void IWindowScroller::OnPerformMomentumScroll() {
   }
   *this += std::chrono::microseconds(16667), [this] { OnPerformMomentumScroll(); };
 }
+
+void IWindowScroller::StopMomentumScrolling(void) {
+  std::lock_guard<std::mutex>(GetLock()),
+  m_curScrollOp.reset();
+}
