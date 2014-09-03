@@ -1,19 +1,19 @@
 #pragma once
-#include "osinterface/OSWindow.h"
-#include "osinterface/OSWindowEvent.h"
 #include "ExposeViewWindow.h"
 #include "ExposeViewEvents.h"
+#include "osinterface/OSWindowEvent.h"
 #include <map>
 
 class ExposeView;
+class OSWindow;
 
-class ExposeViewController :
+class ExposeViewController:
   public OSWindowEvent,
   public ExposeViewEvents
 {
 public:
   ExposeViewController();
-  virtual~ExposeViewController();
+  virtual ~ExposeViewController();
   
   void OnCreate(OSWindow& window) override;
   void OnDestroy(OSWindow& window) override;

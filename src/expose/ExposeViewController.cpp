@@ -1,18 +1,16 @@
 #include "stdafx.h"
 #include "ExposeViewController.h"
 #include "ExposeView.h"
+#include "osinterface/OSWindow.h"
 
-
-ExposeViewController::ExposeViewController() {
-  
-}
-
-ExposeViewController::~ExposeViewController() {
-  
-}
+ExposeViewController::ExposeViewController() {}
+ExposeViewController::~ExposeViewController() {}
 
 void ExposeViewController::OnCreate(OSWindow& window) {
   std::shared_ptr<OSWindow> windowPtr = window.shared_from_this();
+  if(m_windows.count(windowPtr))
+    // Already have this entry, no reason to hit this again
+    return;
   m_windows[windowPtr] = m_exposeView->NewExposeWindow(window);
 }
 
