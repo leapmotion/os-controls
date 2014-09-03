@@ -6,7 +6,7 @@ HandRollRecognizer::HandRollRecognizer(void):
   m_lastRoll(0.0)
 {
   m_deltaRoll.SetInitialValue(0.0f);
-  m_deltaRoll.SetSmoothStrength(0.9f);
+  m_deltaRoll.SetSmoothStrength(0.99f);
 }
 
 HandRollRecognizer::~HandRollRecognizer(void)
