@@ -8,6 +8,7 @@ public:
   ~WindowCreatingTestFixtureMac(void);
 
   // WindowCreatingTestFixture overrides:
+  const wchar_t* GetApplicationPath(void) const { return L"/Applications/TextEdit.app"; }
   TestWindowProperties CreateTestWindow(void) override;
 
 private:
