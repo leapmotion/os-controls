@@ -53,6 +53,10 @@ TEST_F(OSWindowInterfaceTest, SimpleTopLevelEnumerator) {
 
   wnds = RetryFindWindow(testWindowProps.pid, sc_delayTimes);
   ASSERT_FALSE(wnds.empty()) << "Failed to find a created window";
+
+  // Make sure that all of these windows are visible--they shouldn't show up if they are invisible
+  for(auto wnd : wnds)
+    ASSERT_TRUE(wnd->IsVisible()) << "Enumerator returned an invisible window";
 }
 
 TEST_F(OSWindowInterfaceTest, WindowFromPoint) {

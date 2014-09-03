@@ -42,6 +42,10 @@ void OSWindowMonitorWin::Tick(std::chrono::duration<double> deltaT) {
   std::unordered_set<HWND> hwnds;
   EnumWindows(
     [] (HWND hwnd, LPARAM lParam) -> BOOL {
+      // Short-circuit if this window can't be seen
+      if(!IsWindowVisible(hwnd))
+        return true;
+
       // See if we are the last active visible popup
       HWND hwndWalk = GetAncestor(hwnd, GA_ROOTOWNER);
       
