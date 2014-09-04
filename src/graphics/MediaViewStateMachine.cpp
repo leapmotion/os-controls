@@ -24,6 +24,7 @@ const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
 const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
+m_lastHandPose(HandPose::ZeroFingers),
 m_state(State::INACTIVE) {
   
   //Radial Menu Initialization
@@ -89,6 +90,28 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
     return;
   }
   
+  //Hand Pose Transitions
+  switch (m_lastHandPose) {
+    case HandPose::OneFinger:
+      if( handPose == HandPose::Clawed)
+      {
+        m_startRoll = clawRotation.absoluteRotation;
+        //Update the menu to keep it at unity
+        m_radialMenu.UpdateItemsFromCursor(m_radialMenu.Translation(), static_cast<float>(1E-6 * frameTime.deltaTime));
+      }
+      break;
+    case HandPose::Clawed:
+      if ( handPose == HandPose::OneFinger)
+      {
+        //Update volume visual to 'unity' and update starting rotation
+        m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(0.0, Vector3::UnitZ()).toRotationMatrix();
+      }
+    default:
+      break;
+  }
+  
+  m_lastHandPose = handPose;
+  
   switch( m_state )
   {
     case State::INACTIVE:
@@ -96,7 +119,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
         m_volumeSlider.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_volumeKnob->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
-        m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
+        m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_startRoll = clawRotation.absoluteRotation;
         m_hasRoll = true;
         m_volumeKnob->SetOpacity(0.5f);
@@ -147,17 +170,10 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
           m_state = State::SELECTION_MADE;
         }
         
-        //Update volume visual to unity and update "startRoll"
-        m_startRoll = clawRotation.absoluteRotation;
-        m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(0.0, Vector3::UnitZ()).toRotationMatrix();
+
       }
       else {
         // VOLUME UPDATE
-        
-        //Update the menu to keep it at unity
-        RadialMenu::UpdateResult updateResult = m_radialMenu.UpdateItemsFromCursor(m_radialMenu.Translation(), static_cast<float>(1E-6 * frameTime.deltaTime));
-        
-        //m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
         const float DEADZONE = 0.4f;
         const float MAX = M_PI / 2.0;
         const float MAX_VELOCTY = 0.7f;
@@ -168,8 +184,13 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
           return;
         }
         
-        float offset = clawRotation.absoluteRotation - m_startRoll;
+        float absRot = clawRotation.absoluteRotation;
+        float offset = absRot - m_startRoll;
         int sign = offset < 0 ? -1 : 1;
+        offset = fabs(offset) > M_PI ? (2*M_PI - fabs(offset))*sign : fabs(offset);
+        offset *= sign;
+        std::cout << "offset: " << offset << std::endl;
+        sign = offset < 0 ? -1 : 1;
         float visualNorm = fabs(offset) / MAX;
         float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
         visualNorm = std::min(1.0f, std::max(0.0f, visualNorm));

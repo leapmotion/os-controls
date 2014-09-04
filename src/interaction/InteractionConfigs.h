@@ -16,7 +16,7 @@ namespace config {
   const float MAX_PINCH_FOR_NOT_PINCHING = 0.69f;
 //  const float MAX_DOT_FOR_THUMB_POINTING = 0.1f;
   const float MIN_DOT_FOR_START_POINTING = 0.8f;
-  const float MAX_DOT_FOR_CONTINUE_POINTING = 0.7f;
+  const float MAX_DOT_FOR_CONTINUE_POINTING = 0.6f;
   const float MAX_DOT_FOR_START_CURLED = 0.4f;
   const float MAX_DOT_FOR_CONTINUE_CURLED = 0.5f;
   const float MIN_DOT_FOR_CLAW = 0.5;

@@ -67,6 +67,7 @@ private:
   
   bool m_hasRoll;
   float m_startRoll;
+  HandPose m_lastHandPose;
   
   State m_state;
   
