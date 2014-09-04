@@ -10,6 +10,7 @@
 
 #include "uievents/OSCDomain.h"
 #include "interaction/HandLocationRecognizer.h"
+#include "interaction/HandPoseRecognizer.h"
 
 #include <string>
 #include <Animation.h>
@@ -28,7 +29,7 @@ public:
   
   void InitChildren() override;
   
-  void AutoFilter(OSCState appState, const HandLocation& handLocation);
+  void AutoFilter(OSCState appState, const HandPose& handPose, const HandLocation& handLocation);
   
   void AnimationUpdate(const RenderFrame& frame);
   

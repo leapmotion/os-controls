@@ -10,7 +10,6 @@ wasPinching(false)
 void HandPinchRecognizer::AutoFilter(const Leap::Hand &hand, HandPinch &handPinch) {
   
   handPinch.pinchStrength = getCustomPinchStrength(hand);
-  std::cout << "pinch strength: " << handPinch.pinchStrength << std::endl;
   handPinch.isPinching = wasPinching;
   if ( !wasPinching ) {
     if ( hand.pinchStrength() > config::MIN_PINCH_FOR_PINCHING ) {

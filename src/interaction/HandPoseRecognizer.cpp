@@ -37,9 +37,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
   
     i++;
   }
-  
-  std::cout << "Sphere: " << hand.sphereRadius() << std::endl;
-  std::cout << "Grip:   " << hand.grabStrength() << std::endl;
 
   switch (handCode) {
     case 0:  //00000
@@ -73,8 +70,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
   if (static_cast<int>(handPose) == 3) {
     handPose = HandPose::Clawed;
   }
-  
-  std::cout << "Hand Pose: " << static_cast<int>(handPose) << std::endl;
 }
 
 //This could be cleaned up a lot to use some loops.
