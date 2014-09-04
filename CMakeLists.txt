@@ -820,6 +820,19 @@ add_sublibrary(
         "Unit tests for the GLTexture2 component."
 )
 
+add_sublibrary(
+    SceneGraphTest
+    SOURCE_PATH
+        SceneGraph/Test
+    SOURCES
+        SceneGraphNodePropertiesTest.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GTest
+        SceneGraph
+    BRIEF_DOC_STRING
+        "Unit tests for the GLTexture2 component."
+)
+
 set(_tests ${ADDED_SUBLIBRARIES})
 
 # In order for gtest to "see" the unit tests, the sources apparently have to be linked
