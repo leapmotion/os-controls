@@ -3,6 +3,7 @@
 #include "Color.h"
 #include "ExposeViewProxy.h"
 #include "osinterface/OSCursor.h"
+#include "osinterface/OSWindow.h"
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
@@ -84,6 +85,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
           cursor->SetCursorPos(point);
           // Make the application at the point become active
           // FIXME
+          OSWindow* windowToFocus = m_winodwMonitor->WindowFromPoint(point);
+          if ( windowToFocus != nullptr ) {
+            windowToFocus->SetFocus();
+          }
         }
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
