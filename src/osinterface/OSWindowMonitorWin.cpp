@@ -37,11 +37,20 @@ void OSWindowMonitorWin::Enumerate(const std::function<void(OSWindow&)>& callbac
     callback(*knownWindow.second);
 }
 
+struct enum_cblock {
+  std::unordered_map<HWND, int> hwnds;
+  int index;
+};
+
 void OSWindowMonitorWin::Scan() {
+  enum_cblock block;
+  block.index = 0;
+
   // Enumerate all top-level windows that we know about right now:
-  std::unordered_set<HWND> hwnds;
   EnumWindows(
     [] (HWND hwnd, LPARAM lParam) -> BOOL {
+      auto& block = *(enum_cblock*) lParam;
+
       // Short-circuit if this window can't be seen
       if(!IsWindowVisible(hwnd))
         return true;
@@ -64,19 +73,25 @@ void OSWindowMonitorWin::Scan() {
 
       if(hwndWalk == hwnd)
         // Add this window in, it would appear in the alt-tab list:
-        ((std::unordered_set<HWND>*) lParam)->insert(hwnd);
+        block.hwnds[hwnd] = block.index--;
       return true;
     },
-    (LPARAM) &hwnds
+    (LPARAM) &block
   );
 
   // Figure out which windows are gone:
   std::unordered_map<HWND, std::shared_ptr<OSWindowWin>> pending;
   {
     std::lock_guard<std::mutex> lk(m_lock);
-    for(auto knownWindow : m_knownWindows)
-      if(!hwnds.count(knownWindow.first))
+    for(auto knownWindow : m_knownWindows) {
+      auto q = block.hwnds.find(knownWindow.first);
+      if(q == block.hwnds.end())
+        // Window was gone the last time we enumerated, give up
         pending.insert(knownWindow);
+      else
+        // Found this window, update its z-order
+        knownWindow.second->SetZOrder(q->second);
+    }
 
     for(auto q : pending)
       m_knownWindows.erase(q.first);
@@ -88,9 +103,12 @@ void OSWindowMonitorWin::Scan() {
   pending.clear();
 
   // Create any windows which have been added:
-  for(HWND hwnd : hwnds)
-    if(!m_knownWindows.count(hwnd))
-      pending[hwnd] = std::make_shared<OSWindowWin>(hwnd);
+  for(auto q : block.hwnds)
+    if(!m_knownWindows.count(q.first)) {
+      auto wnd = std::make_shared<OSWindowWin>(q.first);
+      wnd->SetZOrder(q.second);
+      pending[q.first] = wnd;
+    }
 
   // Add to the collection:
   std::lock_guard<std::mutex>(m_lock),

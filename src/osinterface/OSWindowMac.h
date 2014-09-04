@@ -11,6 +11,11 @@ public:
 
   const CGWindowID windowID;
 
+  // PMPL routines:
+  void SetZOrder(int zOrder) {
+    m_zOrder = zOrder;
+  }
+
   // OSWindow overrides:
   bool IsValid(void) override;
   uint32_t GetOwnerPid(void) override;

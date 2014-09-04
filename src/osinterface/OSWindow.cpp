@@ -3,7 +3,8 @@
 #include <Primitives.h>
 #include <GLTexture2.h>
 
-OSWindow::OSWindow(void)
+OSWindow::OSWindow(void):
+  m_zOrder(1)
 {
 }
 
