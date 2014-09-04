@@ -3,6 +3,7 @@
 #include "OSApp.h"
 #include "OSWindow.h"
 #include "OSWindowMonitor.h"
+#include "utility/NativeWindow.h"
 #include <thread>
 
 class OSWindowInterfaceTest:
@@ -86,7 +87,25 @@ TEST_F(OSWindowInterfaceTest, WindowFromPoint) {
   // Adjust by one pixel right and down, so we're in the expected region of the window proper
   pt.x += 1.0f;
   pt.y += 1.0f;
-  auto foundWindow = oswmi->WindowFromPoint(pt);
-  ASSERT_TRUE(foundWindow != nullptr) << "Failed to find a top-level window at the expected offset";
-  ASSERT_EQ(osw, foundWindow) << "Window-from-point reported an unexpected window at the specified point";
+}
+
+TEST_F(OSWindowInterfaceTest, WindowRaiser) {
+  // Create the test window:
+  const auto testWindowProps = wctf->CreateTestWindow();
+
+  AutoRequired<OSWindowMonitor> oswmi;
+  auto wnds = RetryFindWindow(testWindowProps.pid, sc_delayTimes);
+  ASSERT_FALSE(wnds.empty());
+  auto osw = wnds[0];
+
+  // Use a point hit to bring the window to the foreground:
+  auto pos = osw->GetPosition();
+  NativeWindow::RaiseWindowAtPosition(pos.x, pos.y);
+
+  // Scan again to see what happened when we set the window focus:
+  oswmi->Tick(std::chrono::seconds(1));
+  wnds = RetryFindWindow(testWindowProps.pid, sc_delayTimes);
+  osw = wnds[0];
+  int zorder = osw->GetZOrder();
+  ASSERT_EQ(0, zorder) << "Raising a window from a point did not correctly make it the topmost in the z-order";
 }

@@ -3,6 +3,8 @@
 #include "Color.h"
 #include "ExposeViewProxy.h"
 #include "osinterface/OSCursor.h"
+#include "osinterface/OSWindow.h"
+#include "utility/NativeWindow.h"
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
@@ -83,7 +85,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
           // Set the current cursor position
           cursor->SetCursorPos(point);
           // Make the application at the point become active
-          // FIXME
+          NativeWindow::RaiseWindowAtPosition(point.x, point.y);
         }
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
@@ -129,4 +131,3 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       break;
   }
 }
-
