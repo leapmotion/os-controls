@@ -1,22 +1,42 @@
 #pragma once
 #include "OSGeometry.h"
-#include "OSWindowNode.h"
 #include <cstdint>
+#include <memory>
 
 class ImagePrimitive;
+class OSApp;
+class OSWindowNode;
 
 /// <summary>
 /// A platform-independent representation of a single window
 /// </summary>
 class OSWindow:
-  public std::enable_shared_from_this<OSWindow>,
-  public OSWindowNode
+  public std::enable_shared_from_this<OSWindow>
 {
 public:
   OSWindow(void);
   virtual ~OSWindow(void);
 
 public:
+  /// <returns>True if this window is still valid</returns>
+  /// <remarks>
+  /// A window handle can become invalid for many reasons.  The most likely cause, generally,
+  /// is that the window itself has closed while enumeration is underway.  Representations of
+  /// invalid handles should generally be destroyed as quickly as possible, as no operations
+  /// on an invalid handle can be valid.
+  /// </remarks>
+  virtual bool IsValid(void) = 0;
+
+  /// <returns>
+  /// The PID of the owning application
+  /// </returns>
+  virtual uint32_t GetOwnerPid(void) = 0;
+
+  /// <returns>
+  /// The application named by
+  /// </returns>
+  virtual std::shared_ptr<OSApp> GetOwnerApp(void) = 0;
+
   /// <returns>
   /// A unique identifier for this window
   /// </returns>
