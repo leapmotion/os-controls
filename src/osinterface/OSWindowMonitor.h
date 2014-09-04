@@ -18,6 +18,15 @@ public:
 
   static OSWindowMonitor* New(void);
 
+protected:
+  /// <summary>
+  /// Routine to scan and update the window list
+  /// </summary>
+  /// </remarks>
+  /// Called periodically from within the Tick() method
+  /// </remarks>
+  virtual void Scan(void) = 0;
+
 public:
   /// <summary>
   /// Returns a window from the specified virtual desktop coordinate
@@ -32,5 +41,7 @@ public:
   /// Enumeration routine, used to list all windows presently known to the monitor
   /// </summary>
   virtual void Enumerate(const std::function<void(OSWindow&)>& callback) const = 0;
-};
 
+  // Updatable overrides:
+  void Tick(std::chrono::duration<double> deltaT) override;
+};

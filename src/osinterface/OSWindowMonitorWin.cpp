@@ -37,7 +37,7 @@ void OSWindowMonitorWin::Enumerate(const std::function<void(OSWindow&)>& callbac
     callback(*knownWindow.second);
 }
 
-void OSWindowMonitorWin::Tick(std::chrono::duration<double> deltaT) {
+void OSWindowMonitorWin::Scan() {
   // Enumerate all top-level windows that we know about right now:
   std::unordered_set<HWND> hwnds;
   EnumWindows(

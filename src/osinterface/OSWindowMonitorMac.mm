@@ -3,6 +3,7 @@
 #include "OSWindowMac.h"
 #include "OSWindowEvent.h"
 
+#include <AppKit/NSWindow.h>
 #include <cfloat>
 
 OSWindowMonitorMac::OSWindowMonitorMac(void)
@@ -29,7 +30,7 @@ void OSWindowMonitorMac::Enumerate(const std::function<void(OSWindow&)>& callbac
     callback(*knownWindow.second);
 }
 
-void OSWindowMonitorMac::Tick(std::chrono::duration<double> deltaT) {
+void OSWindowMonitorMac::Scan() {
   static pid_t s_pid = getpid();
   std::unordered_set<CGWindowID> windows;
   @autoreleasepool {
