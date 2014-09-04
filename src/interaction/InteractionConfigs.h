@@ -19,4 +19,5 @@ namespace config {
   const float MAX_DOT_FOR_CURLED = 0.1f;
   const float FINGER_OFFSET_DISTANCE = 3.0f;
   const float OFFSET_DISTANCE = 100;
+  const float ROLL_SENSITIVITY = 1.2f; // don't drop below 1.0
 }

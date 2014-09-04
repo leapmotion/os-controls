@@ -28,9 +28,6 @@ private:
   std::weak_ptr<IScrollOperation> m_curScrollOp;
 
 protected:
-  // The point where the most recent scroll operation took place
-  OSPoint m_virtualPosition;
-
   // Pixels-per-millimeter of monitor
   const float m_ppmm;
 
@@ -40,10 +37,15 @@ protected:
   virtual void DoScrollBy(float deltaX, float deltaY, bool isMomentum) = 0;
 
   // IScrollOperation overrides:
-  void ScrollBy(const OSPoint& virtualPosition, float deltaX, float deltaY) override final;
-  void CancelScroll(void) final;
+  void ScrollBy(float deltaX, float deltaY) override final;
+  void CancelScroll(void) override final;
 
 private:
+  // Use our own mutex (instead of GetLock()) to prevent possible deadlock
+  std::mutex m_mutex;
+  // Each scroll sequence has its own unique ID
+  uint32_t m_scrollId;
+
   // Total current momentum caused by recently received scroll operations.  This momentum is in
   // scroll units per microsecond, and will be reduced by the drag amount.
   OSPoint m_remainingMomentum;
@@ -55,9 +57,10 @@ private:
   std::chrono::steady_clock::time_point m_lastScrollTimePoint;
 
   // Periodically apply momentum scroll after normal scrolling has completed
-  void OnPerformMomentumScroll();
+  void OnPerformMomentumScroll(uint32_t scrollId);
 
-  const float MICROSECONDS_TO_SECONDS = 1E-6f;
+  // Reset scrolling, regardless of whether or not we are applying momentum
+  void ResetScrollingUnsafe();
 
 public:
   /// <summary>

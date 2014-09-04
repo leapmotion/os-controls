@@ -62,6 +62,9 @@ private:
   RadialMenu m_radialMenu;
   RadialSlider m_volumeSlider;
   
+  bool m_hasRoll;
+  float m_startRoll;
+  
   State m_state;
   
   // Events fired by this MediaView

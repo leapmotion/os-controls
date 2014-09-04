@@ -44,11 +44,12 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+  std::mutex m_lock;
+
   // Our current state
   OSCState m_state;
   
   ScrollState m_scrollState;
-  Vector2 m_lastScrollStart;
   Vector2 m_handDelta; 
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
