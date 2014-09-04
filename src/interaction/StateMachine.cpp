@@ -19,7 +19,6 @@ StateMachine::StateMachine(void):
 StateMachine::~StateMachine(void)
 {
   m_scrollOperation.reset();
-  m_windowScroller->StopMomentumScrolling();
 }
 
 // Transition Checking Loop
@@ -100,7 +99,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
 }
 
 void StateMachine::OnHandVanished() {
+  std::lock_guard<std::mutex> lk(m_lock);
   m_state = OSCState::FINAL;
+  m_scrollState = ScrollState::DECAYING;
+  m_scrollOperation.reset();
 }
 
 // Distpatch Loop

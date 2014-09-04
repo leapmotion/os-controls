@@ -5,6 +5,8 @@ set(utility_SOURCES
   lockable_property.h
   NativeWindow.h
   PlatformInitializer.h
+  SamplePrimitives.h
+  SamplePrimitives.cpp
 )
 
 add_windows_sources(utility_SOURCES 
@@ -22,4 +24,5 @@ add_mac_sources(utility_SOURCES
 add_library(utility ${utility_SOURCES})
 target_link_libraries(utility Autowiring)
 target_include_directories(utility PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
+target_link_components(utility Primitives)
 add_subdirectory(test)
