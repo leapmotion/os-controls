@@ -4,6 +4,7 @@ set(graphics_SOURCES
   MediaViewStateMachine.h
   MediaViewStateMachine.cpp
   Renderable.h
+  Renderable.cpp
   RenderEngine.h
   RenderEngine.cpp
   RenderEngineNode.h

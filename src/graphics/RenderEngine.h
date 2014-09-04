@@ -22,6 +22,7 @@ class RootRenderEngineNode : public RenderEngineNode {};
 //Renderable and Updatable, or by making PrimitiveBase a RenderEngineNode.
 class RenderEngine :
   public Updatable,
+  public Renderable::ZOrderList,
   public sf::GlResource
 {
 public:
@@ -33,11 +34,6 @@ public:
   /// </summary>
   void AddSceneNode(std::shared_ptr<Renderable> &node);
 
-  /// <summary>
-  /// Moves the specified renderable entity to the front of the render stack
-  /// </summary>
-  void BringToFront(Renderable* renderable);
-
   void Tick(std::chrono::duration<double> deltaT) override;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -47,10 +43,5 @@ private:
 
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
-
-  // Z-order list of elements to be rendered
-  typedef std::list<std::shared_ptr<Renderable>> t_renderList;
-  t_renderList m_renderList;
-  std::unordered_map<Renderable*, t_renderList::iterator> m_renderables;
 };
 

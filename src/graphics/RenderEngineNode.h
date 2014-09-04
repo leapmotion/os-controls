@@ -1,15 +1,15 @@
 #pragma once
-
 #include "Renderable.h"
 #include "SceneGraphNode.h"
 #include "uievents/Updatable.h"
 
 class RenderEngineNode :
-  public SceneGraphNode<double, 3>,
   public Renderable
 {
 public:
-  typedef SceneGraphNode<double, 3> BaseSceneNode_t;
+  RenderEngineNode(void) :
+    m_x{0, 0}
+  {}
 
   template<typename T, typename... _Args>
   static std::shared_ptr<T> Create(_Args&&... args) {
@@ -23,12 +23,14 @@ public:
     std::shared_ptr<SceneGraphNode<double, 3>> sceneNode = std::dynamic_pointer_cast<SceneGraphNode<double, 3>>(node);
     SceneGraphNode<double,3>::AddChild(sceneNode);
   }
-  
-  //call AddChild for child members here!
-  //This is required because to add something to a scene graph, it must have a shared_ptr that
-  //owns it, which is impossible in a constructor.
-  virtual void InitChildren() {};
 
   virtual void AnimationUpdate(const RenderFrame& frame) override {};
   virtual void Render(const RenderFrame& frame) const override {};
+
+protected:
+  OSVector2 m_x;
+
+public:
+  OSVector2& Translation(void) { return m_x; }
+  OSVector2 Translation(void) const { return m_x; }
 };

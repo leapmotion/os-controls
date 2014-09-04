@@ -31,17 +31,6 @@ RenderEngine::~RenderEngine()
 {
 }
 
-void RenderEngine::BringToFront(Renderable* renderable) {
-  auto q = m_renderables.find(renderable);
-  if(q == m_renderables.end())
-    // Not in the collection, ignore
-    return;
-
-  // Move this entry to the front of the list:
-  auto i = q->second;
-  m_renderList.splice(m_renderList.begin(), m_renderList, i, std::next(i));
-}
-
 void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // Active the window for OpenGL rendering
   m_rw->setActive();
@@ -63,11 +52,11 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   RenderFrame frame = {m_rw, m_renderState, deltaT};
 
   // AnimationUpdate all attached nodes
-  for(const auto& renderable : m_renderList)
+  for(const auto& renderable : *this)
     renderable->AnimationUpdate(frame);
   
   // Perform render operation in a second pass:
-  for(auto& renderable : m_renderList) {
+  for(auto& renderable : *this) {
     auto& mv = frame.renderState.GetModelView();
     mv.Push();
     auto translation = renderable->Translation();
@@ -77,8 +66,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
     mv.Pop();
   }
 
-  m_renderList.clear(); //Todo: temporal coherency - scan the list to look for changes instead of clearing/rebuilding?
-
+  // General cleanup
   m_shader->Unbind();
 
   // Update the window

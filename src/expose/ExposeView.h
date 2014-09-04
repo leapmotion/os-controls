@@ -16,8 +16,9 @@ class OSWindow;
 /// Implements expose view
 /// </summary>
 class ExposeView:
-  DispatchQueue,
-  public RenderEngineNode
+  public std::enable_shared_from_this<ExposeView>,
+  public RenderEngineNode,
+  DispatchQueue
 {
 public:
   ExposeView(void);

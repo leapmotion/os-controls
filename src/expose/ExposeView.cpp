@@ -34,8 +34,8 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
-  /*for(const auto& renderable : m_renderList)
-    renderable->Render(frame);*/
+  for(const auto& renderable : m_windows)
+    renderable->Render(frame);
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
@@ -76,7 +76,6 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
 
 void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   m_windows.erase(wnd);
-  RemoveChild(wnd);
 }
 
 void ExposeView::StartView() {
