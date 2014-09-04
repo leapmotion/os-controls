@@ -59,3 +59,7 @@ void OSWindowMac::Cloak(void) {
 
 void OSWindowMac::Uncloak(void) {
 }
+
+bool OSWindowMac::IsVisible(void) const {
+  return true;
+}

@@ -1,4 +1,5 @@
 #pragma once
+#include "OSGeometry.h"
 #include "uievents/Updatable.h"
 #include <functional>
 
@@ -18,6 +19,15 @@ public:
   static OSWindowMonitor* New(void);
 
 public:
+  /// <summary>
+  /// Returns a window from the specified virtual desktop coordinate
+  /// </summary>
+  /// <remarks>
+  /// The returned window is a top-level desktop window which can receive focus.  If
+  /// no window is below the specified point, this method may return nullptr.
+  /// </remarks>
+  virtual OSWindow* WindowFromPoint(const OSPoint& pt) const = 0;
+
   /// <summary>
   /// Enumeration routine, used to list all windows presently known to the monitor
   /// </summary>

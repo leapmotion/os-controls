@@ -25,5 +25,6 @@ public:
   OSSize GetSize(void) override;
   void Cloak(void) override;
   void Uncloak(void) override;
+  bool IsVisible(void) const override;
 };
 

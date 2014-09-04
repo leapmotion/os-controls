@@ -17,6 +17,20 @@ OSWindowMonitor* OSWindowMonitor::New(void) {
   return new OSWindowMonitorWin;
 }
 
+OSWindow* OSWindowMonitorWin::WindowFromPoint(const OSPoint& pt) const {
+  // See what's under the specified point:
+  HWND hwnd = ::WindowFromPoint(POINT{(int) pt.x, (int) pt.y});
+  if(!hwnd)
+    return nullptr;
+
+  // Try to find the window in our table of top-level windows:
+  std::lock_guard<std::mutex> lk(m_lock);
+  auto wnd = m_knownWindows.find(hwnd);
+  if(wnd == m_knownWindows.end())
+    return nullptr;
+  return wnd->second.get();
+}
+
 void OSWindowMonitorWin::Enumerate(const std::function<void(OSWindow&)>& callback) const {
   std::lock_guard<std::mutex> lk(m_lock);
   for(auto& knownWindow : m_knownWindows)
@@ -28,6 +42,10 @@ void OSWindowMonitorWin::Tick(std::chrono::duration<double> deltaT) {
   std::unordered_set<HWND> hwnds;
   EnumWindows(
     [] (HWND hwnd, LPARAM lParam) -> BOOL {
+      // Short-circuit if this window can't be seen
+      if(!IsWindowVisible(hwnd))
+        return true;
+
       // See if we are the last active visible popup
       HWND hwndWalk = GetAncestor(hwnd, GA_ROOTOWNER);
       

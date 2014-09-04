@@ -66,6 +66,14 @@ public:
   /// </summary>
   virtual void Uncloak(void) = 0;
 
+  /// <returns>
+  /// True if this window is visible, false otherwise
+  /// </returns>
+  /// <remarks>
+  /// A prior call to Cloak can make this window invisible.
+  /// </remarks>
+  virtual bool IsVisible(void) const = 0;
+
   bool operator==(const OSWindow& rhs) const {
     return GetWindowID() == rhs.GetWindowID();
   }
