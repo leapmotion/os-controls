@@ -1,5 +1,6 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #pragma once
+#include "AutowiringConfig.h"
 #include "AnySharedPointer.h"
 #include <vector>
 
@@ -10,12 +11,12 @@ struct SatCounter;
 /// </remarks>
 struct DecorationDisposition
 {
-#if !AUTOWIRING_UNSAFE_HASHTABLE
+#if AUTOWIRING_USE_LIBCXX
   DecorationDisposition(DecorationDisposition&&) = delete;
   void operator=(DecorationDisposition&&) = delete;
   DecorationDisposition(const DecorationDisposition& source) = delete;
   void operator=(const DecorationDisposition& source) = delete;
-#else //!AUTOWIRING_UNSAFE_HASHTABLE
+#else
   // The methods below are needed for c++98 builds
   DecorationDisposition(DecorationDisposition&& source) :
     m_decoration(source.m_decoration),
@@ -49,10 +50,11 @@ struct DecorationDisposition
     isCheckedOut = source.isCheckedOut;
     wasCheckedOut = source.wasCheckedOut;
   }
-#endif //!AUTOWIRING_UNSAFE_HASHTABLE
+#endif //AUTOWIRING_USE_LIBCXX
 
   DecorationDisposition(void) :
     m_pImmediate(nullptr),
+    m_type(nullptr),
     m_publisher(nullptr),
     satisfied(false),
     isCheckedOut(false),
@@ -65,6 +67,9 @@ struct DecorationDisposition
 
   // A pointer to the immediate decorations, if one is specified, or else nullptr
   const void* m_pImmediate;
+
+  // The type of the decoration.
+  const std::type_info* m_type;
 
   // Provider for this decoration, where it can be statically inferred.  Note that a provider for
   // this decoration may exist even if this value is null, in the event that dynamic decoration is
@@ -88,6 +93,7 @@ struct DecorationDisposition
   void Reset(void) {
     m_decoration->reset();
     m_pImmediate = nullptr;
+    m_type = nullptr;
     satisfied = false;
     isCheckedOut = false;
     wasCheckedOut = false;
