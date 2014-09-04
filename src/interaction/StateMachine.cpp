@@ -89,6 +89,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
           scrollState = ScrollState::ACTIVE;
+          m_momentumComplete = false; // as long as false, we won't shut down context
         }
       }
       break;
@@ -112,6 +113,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       m_mediaViewStateMachine->RemoveFromParent();
       m_cursorView->RemoveFromParent();
       if ( m_momentumComplete ) { // Don't shut down unless momentum is done.
+        std::cout << "shutdown context" << std::endl;
         // Shutdown the context
         m_context->SignalShutdown();
         // Remove our own reference to the context
@@ -124,7 +126,6 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
-      m_momentumComplete = false; // as long as false, we won't shut down context
       m_scrollOperation->ScrollBy(0.0f, m_handDelta.y());
       break;
     case ScrollState::DECAYING:
