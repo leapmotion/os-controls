@@ -9,6 +9,7 @@
 #include "interaction/MediaViewController.h"
 #include "interaction/HandPinchRecognizer.h"
 #include "interaction/HandPinchRecognizer.h"
+#include "interaction/ScrollRecognizer.h"
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
 
@@ -34,7 +35,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
   
   void OnHandVanished();
 
@@ -63,4 +64,6 @@ private:
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
   AutoCurrentContext m_context;
+
+  bool m_first;
 };

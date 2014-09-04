@@ -12,7 +12,8 @@ StateMachine::StateMachine(void):
   m_scrollState(ScrollState::DECAYING),
   m_scrollOperation(nullptr),
   m_handDelta(0,0),
-  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
+  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
+  m_first(true)
 {
 }
 
@@ -22,7 +23,14 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
+  if (m_first) {
+
+    m_scrollOperation = m_windowScroller->BeginScroll();
+    m_first= false;
+  }
+
+
   std::lock_guard<std::mutex> lk(m_lock);
   if(m_state == OSCState::FINAL) {
     return;
@@ -68,6 +76,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
   
   scrollState = m_scrollState; //in case we don't change state
   
+#if 0
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
       if ( !handPinch.isPinching ) {
@@ -93,8 +102,13 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       }
       break;
   }
+#endif
   
+#if 0
   m_handDelta =  Vector2(handLocation.dX, handLocation.dY);
+#else
+  m_handDelta = -scroll.m_deltaScrollMM.head<2>();
+#endif
   m_scrollState = scrollState;
 }
 
@@ -123,6 +137,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       break;
   }
   
+#if 0
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
       m_scrollOperation->ScrollBy(0.0f, m_handDelta.y());
@@ -132,4 +147,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     default:
       break;
   }
+#else
+  m_scrollOperation->ScrollBy(0.0f, m_handDelta.y());
+#endif
 }
