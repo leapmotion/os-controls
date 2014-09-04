@@ -84,8 +84,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
           // Set the current cursor position
           cursor->SetCursorPos(point);
           // Make the application at the point become active
-          // FIXME
-          OSWindow* windowToFocus = m_winodwMonitor->WindowFromPoint(point);
+          OSWindow* windowToFocus = m_windowMonitor->WindowFromPoint(point);
           if ( windowToFocus != nullptr ) {
             windowToFocus->SetFocus();
           }
