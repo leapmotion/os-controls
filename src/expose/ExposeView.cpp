@@ -4,15 +4,14 @@
 #include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
-#include "SVGPrimitive.h"
+#include "utility/SamplePrimitives.h"
+#include <SVGPrimitive.h>
 
 ExposeView::ExposeView() :
   m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>)
 {
   // Add a box as our child
-  m_box = std::shared_ptr<SVGPrimitive>(
-    new SVGPrimitive(R"svg(<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect x="10" y="10" height="100" width="100" style="stroke:#ff0000; fill: #0000ff"/></svg>)svg")
-  );
+  m_box = MakeBoxPrimitive();
 }
 
 ExposeView::~ExposeView() {
