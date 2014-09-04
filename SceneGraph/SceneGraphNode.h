@@ -208,9 +208,6 @@ public:
 
   // TODO: special local to global and global to local transforms.
 
-  // Necessary because a member variable is a statically-sized Eigen type.
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 private:
 
   //Silly function call wrapper that allows you to also pass nullptr as a function if you want.
