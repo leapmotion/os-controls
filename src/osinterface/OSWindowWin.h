@@ -11,12 +11,10 @@ public:
 
   const HWND hwnd;
 
-  // OSWindowNode overrides:
+  // OSWindow overrides:
   bool IsValid(void) override;
   uint32_t GetOwnerPid(void) override;
   std::shared_ptr<OSApp> GetOwnerApp(void) override;
-
-  // OSWindow overrides;
   uint64_t GetWindowID(void) const override { return (uint64_t) hwnd; }
   void GetWindowTexture(ImagePrimitive& texture) override;
   bool GetFocus(void) override;
