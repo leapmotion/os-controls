@@ -20,7 +20,7 @@ namespace config {
   const float MAX_DOT_FOR_START_CURLED = 0.4f;
   const float MAX_DOT_FOR_CONTINUE_CURLED = 0.5f;
   const float MIN_DOT_FOR_CLAW = 0.5;
-  const float MAX_DOT_FOR_CLAW = 0.95;
+  const float MAX_DOT_FOR_CLAW = 0.95f;
   const float MIN_DISTANCE_FOR_CLAW = 15.0f;
   const float FINGER_OFFSET_DISTANCE = 3.0f;
   const float OFFSET_DISTANCE = 100;
