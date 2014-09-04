@@ -58,6 +58,11 @@ void OSWindowMonitorWin::Scan() {
       // See if we are the last active visible popup
       HWND hwndWalk = GetAncestor(hwnd, GA_ROOTOWNER);
 
+      LONG style = GetWindowLong(hwndWalk, GWL_EXSTYLE);
+      if(style & WS_EX_TOOLWINDOW)
+        // No toolbar windows, they are not allowed to appear in the topmost window list by definition
+        return true;
+      
       // Do not try to enumerate anything we own
       DWORD pid = 0;
       GetWindowThreadProcessId(hwnd, &pid);
