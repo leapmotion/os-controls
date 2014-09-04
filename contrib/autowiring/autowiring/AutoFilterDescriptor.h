@@ -58,7 +58,7 @@ struct subscriber_traits {
   typedef const T& ret_type;
   static const eSubscriberInputType subscriberType = inTypeRequired;
 
-  const T& operator()(AutoPacket& packet, const std::type_info& source) const {
+  ret_type operator()(AutoPacket& packet, const std::type_info& source) const {
     return packet.Get<T>(source);
   }
 };
@@ -72,7 +72,7 @@ struct subscriber_traits<T&> {
   typedef AutoCheckout<T> ret_type;
   static const eSubscriberInputType subscriberType = outTypeRef;
 
-  AutoCheckout<T> operator()(AutoPacket& packet, const std::type_info& source) const {
+  ret_type operator()(AutoPacket& packet, const std::type_info& source) const {
     // Inputs by reference are automatically and unconditionally ready:
     AutoCheckout<T> rv = packet.Checkout<T>(source);
     rv.Ready();
@@ -98,7 +98,7 @@ struct subscriber_traits<optional_ptr<T>> {
   static const eSubscriberInputType subscriberType = inTypeOptional;
 
   // Optional pointer overload, tries to satisfy but doesn't throw if there's a miss
-  optional_ptr<T> operator()(AutoPacket& packet, const std::type_info& source) const {
+  ret_type operator()(AutoPacket& packet, const std::type_info& source) const {
     const typename std::decay<T>::type* out;
     if(packet.Get(out, source))
       return out;
@@ -115,21 +115,45 @@ struct subscriber_traits<auto_out<T, auto_ready>> {
   typedef auto_out<T, auto_ready> ret_type;
   static const eSubscriberInputType subscriberType = auto_ready ? outTypeRef : outTypeRefAutoReady;
 
-  auto_out<T, auto_ready> operator()(AutoPacket& packet, const std::type_info& source) const {
+  ret_type operator()(AutoPacket& packet, const std::type_info& source) const {
     return auto_out<T, auto_ready>(packet.Checkout<T>(source));
   }
 };
 
 /// <summary>
-/// Dependent type enabling argument
+/// AutoPacket& is satisfied immediately when AutoPacket is initialized
 /// </summary>
 template<>
 struct subscriber_traits<AutoPacket&> {
-  typedef AutoPacket type;
+private:
+  /// Sigil to distinguish AutoPacket&
+  class first_call_sigil {};
+
+public:
+  typedef first_call_sigil type;
   typedef AutoPacket& ret_type;
   static const eSubscriberInputType subscriberType = inTypeRequired;
 
-  AutoPacket& operator()(AutoPacket& packet, const std::type_info&) const {
+  ret_type operator()(AutoPacket& packet, const std::type_info&) const {
+    return packet;
+  }
+};
+
+/// <summary>
+/// const AutoPacket& is not satisfied until AutoPacket is finalized
+/// </summary>
+template<>
+struct subscriber_traits<const AutoPacket&> {
+private:
+  /// Sigil to distinguish const AutoPacket&
+  class final_call_sigil {};
+
+public:
+  typedef final_call_sigil type;
+  typedef const AutoPacket& ret_type;
+  static const eSubscriberInputType subscriberType = inTypeRequired;
+
+  ret_type operator()(AutoPacket& packet, const std::type_info&) const {
     return packet;
   }
 };
@@ -139,8 +163,8 @@ struct subscriber_traits<AutoPacket&> {
 /// </summary>
 template<class Arg>
 struct sourced_checkout {
-  typename subscriber_traits<Arg>::ret_type operator()(AutoPacket& packet, const DataFill& satisfaction) const {
-    DataFill::const_iterator source_find = satisfaction.find(typeid(typename subscriber_traits<Arg>::type));
+  typename subscriber_traits<Arg>::ret_type operator()(AutoPacket& packet, const autowiring::DataFill& satisfaction) const {
+    autowiring::DataFill::const_iterator source_find = satisfaction.find(typeid(typename subscriber_traits<Arg>::type));
     if (source_find != satisfaction.end()) {
       return subscriber_traits<Arg>()(packet, *source_find->second);
     }
@@ -165,7 +189,7 @@ struct CallExtractor<void (T::*)(Args...)>:
   /// Binder struct, lets us refer to an instance of Call by type
   /// </summary>
   template<void(T::*memFn)(Args...)>
-  static void Call(void* pObj, AutoPacket& autoPacket, const DataFill& satisfaction) {
+  static void Call(void* pObj, AutoPacket& autoPacket, const autowiring::DataFill& satisfaction) {
     // Handoff
     (((T*) pObj)->*memFn)(
       sourced_checkout<Args>()(autoPacket, satisfaction)...
@@ -184,14 +208,14 @@ struct CallExtractor<Deferred (T::*)(Args...)>:
   static const size_t N = sizeof...(Args);
 
   template<Deferred(T::*memFn)(Args...)>
-  static void Call(void* pObj, AutoPacket& autoPacket, const DataFill& satisfaction) {
+  static void Call(void* pObj, AutoPacket& autoPacket, const autowiring::DataFill& satisfaction) {
     // Obtain a shared pointer of the AutoPacket in order to ensure the packet
     // stays resident when we pend this lambda to the destination object's
     // dispatch queue.
     auto pAutoPacket = autoPacket.shared_from_this();
 
     // Pend the call to this object's dispatch queue:
-    // WARNING: The DataFill information will be referenced,
+    // WARNING: The autowiring::DataFill information will be referenced,
     // since it should be from a SatCounter associated to autoPacket,
     // and will therefore have the same lifecycle as the AutoPacket.
     *(T*) pObj += [pObj, pAutoPacket, &satisfaction] {
@@ -249,7 +273,7 @@ struct AutoFilterDescriptorInput {
 /// </summary>
 struct AutoFilterDescriptorStub {
   // The type of the call centralizer
-  typedef void(*t_call)(void*, AutoPacket&, const DataFill&);
+  typedef void(*t_call)(void*, AutoPacket&, const autowiring::DataFill&);
 
   AutoFilterDescriptorStub(void) :
     m_pType(nullptr),
@@ -295,7 +319,7 @@ struct AutoFilterDescriptorStub {
 
     for(auto pArg = m_pArgs; *pArg; pArg++) {
       // DEFAULT: All data is broadcast
-      DataFlow& data = m_dataMap[*pArg->ti];
+      autowiring::DataFlow& data = m_dataMap[*pArg->ti];
       data.output = AutoFilterDescriptorInput::isOutput(pArg->subscriberType);
       data.broadcast = true;
       switch(pArg->subscriberType) {
@@ -319,7 +343,7 @@ protected:
   // NOTE: This is a reference to a static generated list,
   // therefor it MUST be const and MUST be shallow-copied.
   const AutoFilterDescriptorInput* m_pArgs;
-  typedef std::unordered_map<std::type_index, DataFlow> FlowMap;
+  typedef std::unordered_map<std::type_index, autowiring::DataFlow> FlowMap;
   FlowMap m_dataMap;
 
   // Set if this is a deferred subscriber.  Deferred subscribers cannot receive immediate-style
@@ -372,12 +396,12 @@ public:
   /// Copies the data flow information for the argument type to the flow argument.
   /// </summary>
   /// <returns>true when the argument type is found</returns>
-  DataFlow GetDataFlow(const std::type_info* argType) const {
+  autowiring::DataFlow GetDataFlow(const std::type_info* argType) const {
     FlowMap::const_iterator data = m_dataMap.find(*argType);
     if (data != m_dataMap.end()) {
       return data->second;
     }
-    return DataFlow(); //DEFAULT: No flow
+    return autowiring::DataFlow(); //DEFAULT: No flow
   }
 
   /// <returns>A call lambda wrapping the associated subscriber</returns>
@@ -400,7 +424,7 @@ public:
     FlowMap::iterator flowFind = m_dataMap.find(*dataType);
     if (flowFind == m_dataMap.end())
       return;
-    DataFlow& flow = flowFind->second;
+    autowiring::DataFlow& flow = flowFind->second;
     flow.broadcast = enable;
   }
 
@@ -419,7 +443,7 @@ public:
     FlowMap::iterator flowFind = m_dataMap.find(*dataType);
     if (flowFind == m_dataMap.end())
       return;
-    DataFlow& flow = flowFind->second;
+    autowiring::DataFlow& flow = flowFind->second;
     if (enable)
       flow.halfpipes.insert(*nodeType);
     else
