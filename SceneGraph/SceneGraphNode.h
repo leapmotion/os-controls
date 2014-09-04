@@ -56,12 +56,26 @@
 // For example, this allows the affine coordinate transformation between two nodes' local
 // coordinate systems to be computed.
 //
+// Invertible property application operations:
+// - Affine transformation: operation is transform (matrix) multiplication and the inverse
+//   operation is multiplication of inverse of transform (matrix).
+// - Name: operation is concatenation with '/' separators and the inverse operation
+//   is application with the local name ".." (just as in ordinary file systems).
+//
 // Traversal of a scene graph could be done via the iterator pattern.  A well-defined
 // traversal order gives a linear order on the nodes.  An iterator would point to the
 // "current" node and that node's global properties.  The iteration procedure would
 // perform the stack operations necessary to compute and provide each node's global
 // property values.  Probably for now all we care about is doing depth-first traversal,
 // though other orders could be implemented relatively easily as an orthogonal feature.
+//
+// Another feature that is required by our use cases is a "property application mode" which
+// would allow different types of property application.  Let $ indicate the application
+// operation.  The current modes are:
+// - APPLY:
+//   child's global property = parent's global property $ child's local property
+// - REPLACE:
+//   child's global property = child's local property
 
 // see http://en.wikipedia.org/wiki/Scene_graph
 template <typename Scalar, unsigned int DIM>
