@@ -10,7 +10,8 @@ StateMachine::StateMachine(void):
   m_scrollState(ScrollState::DECAYING),
   m_scrollOperation(nullptr),
   m_handDelta(0,0),
-  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
+  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
+  m_momentumComplete(true)
 {
 }
 
@@ -110,17 +111,20 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       // Remove our controls from the scene graph
       m_mediaViewStateMachine->RemoveFromParent();
       m_cursorView->RemoveFromParent();
-      // Shutdown the context
-      m_context->SignalShutdown();
-      // Remove our own reference to the context
-      m_context.reset();
-      return;
+      if ( m_momentumComplete ) { // Don't shut down unless momentum is done.
+        // Shutdown the context
+        m_context->SignalShutdown();
+        // Remove our own reference to the context
+        m_context.reset();
+        return;
+      }
     default:
       break;
   }
   
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
+      m_momentumComplete = false; // as long as false, we won't shut down context
       m_scrollOperation->ScrollBy(0.0f, m_handDelta.y());
       break;
     case ScrollState::DECAYING:
@@ -130,3 +134,6 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   }
 }
 
+void StateMachine::OnScrollStopped(void) {
+  m_momentumComplete = true;
+}
