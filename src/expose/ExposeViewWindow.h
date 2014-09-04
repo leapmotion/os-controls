@@ -1,12 +1,11 @@
 #pragma once
 #include "ExposeView.h"
-#include "graphics/RenderEngineNode.h"
 #include "utility/lockable_property.h"
 
 class OSWindow;
+struct RenderFrame;
 
-class ExposeViewWindow:
-  public RenderEngineNode
+class ExposeViewWindow
 {
 public:
   ExposeViewWindow(OSWindow& osWindow);

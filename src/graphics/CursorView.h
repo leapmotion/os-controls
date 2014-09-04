@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderEngine.h"
+#include "Renderable.h"
 #include "SceneGraphNode.h"
 
 #include "Primitives.h"
@@ -14,8 +14,11 @@
 #include <string>
 #include <Animation.h>
 
+class RenderEngine;
+
 class CursorView :
-public RenderEngineNode
+  public std::enable_shared_from_this<CursorView>,
+  public Renderable
 {
 public:
   CursorView(float radius, const Color& color);
@@ -23,7 +26,6 @@ public:
   
   void AutoInit();
   
-  void Move(float x, float y);
   void SetSize(float radius);
   
   void AutoFilter(OSCState appState, const HandLocation& handLocation);
@@ -44,5 +46,5 @@ private:
   
   Disk m_disk;
   
-  Autowired<RootRenderEngineNode> m_rootNode;
+  Autowired<RenderEngine> m_renderEngine;
 };

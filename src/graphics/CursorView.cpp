@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "CursorView.h"
 #include "GLShaderLoader.h"
+#include "RenderEngine.h"
 #include "RenderFrame.h"
 #include "RenderState.h"
 
 #include <iostream>
 
 CursorView::CursorView(float radius, const Color& color) :
+  Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
   m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
 {
-  Translation() = OSVector2(400, 400);
-  
   m_disk.Material().SetDiffuseLightColor(color);
   m_disk.Material().SetAmbientLightColor(color);
   m_disk.Material().SetAmbientLightingProportion(0.9f);
@@ -22,18 +22,12 @@ CursorView::CursorView(float radius, const Color& color) :
 CursorView::~CursorView() {
 }
 
-void CursorView::Move(float x, float y) {
-  Translation().x = x;
-  Translation().y = y;
-}
-
 void CursorView::SetSize(float radius) {
   m_disk.SetRadius(radius);
 }
 
 void CursorView::AutoInit() {
-  auto self = shared_from_this();
-  m_rootNode->AddChild(self);
+  m_renderEngine->Add(shared_from_this());
 }
 
 void CursorView::AutoFilter(OSCState appState, const HandLocation& handLocation) {
@@ -56,7 +50,7 @@ void CursorView::AutoFilter(OSCState appState, const HandLocation& handLocation)
   //State Loops
   switch(m_state) {
     case State::ACTIVE:
-      Move(handLocation.x, handLocation.y);
+      position = OSVector2{handLocation.x, handLocation.y};
       break;
     case State::INACTIVE:
     default:

@@ -59,9 +59,8 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   for(auto& renderable : *this) {
     auto& mv = frame.renderState.GetModelView();
     mv.Push();
-    auto translation = renderable->Translation();
-
-    mv.Translate(Vector3{translation.x, translation.y, 0.0});
+    
+    mv.Translate(Vector3{renderable->position.x, renderable->position.y, 0.0});
     renderable->Render(frame);
     mv.Pop();
   }

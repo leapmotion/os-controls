@@ -3,13 +3,17 @@
 #include "TestStateMachine.h"
 #include "ExposeView.h"
 #include "ExposeViewController.h"
-#include "uievents/Updatable.h"
+#include "graphics/RenderEngine.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindowMonitor.h"
+#include "uievents/Updatable.h"
 #include "utility/PlatformInitializer.h"
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/WindowStyle.hpp>
 
 int main(int argc, const char* argv[]) {
   // Initialize our OS-specific dependencies

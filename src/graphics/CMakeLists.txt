@@ -7,7 +7,6 @@ set(graphics_SOURCES
   Renderable.cpp
   RenderEngine.h
   RenderEngine.cpp
-  RenderEngineNode.h
   RenderFrame.h
 )
 

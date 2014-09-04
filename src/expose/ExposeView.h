@@ -1,8 +1,7 @@
 #pragma once
 #include "Primitives.h"
 #include "ExposeViewWindow.h"
-#include "graphics/RenderEngine.h"
-#include "graphics/RenderEngineNode.h"
+#include "graphics/Renderable.h"
 #include <autowiring/DispatchQueue.h>
 #include <Animation.h>
 #include <vector>
@@ -11,13 +10,15 @@
 class ExposeViewWindow;
 class ExposeViewEvents;
 class OSWindow;
+class RenderEngine;
+class SVGPrimitive;
 
 /// <summary>
 /// Implements expose view
 /// </summary>
 class ExposeView:
   public std::enable_shared_from_this<ExposeView>,
-  public RenderEngineNode,
+  public Renderable,
   DispatchQueue
 {
 public:
@@ -31,7 +32,7 @@ private:
   void moveWindowToTop(ExposeViewWindow& window);
 
   //Root node in the render tree
-  Autowired<RootRenderEngineNode> m_rootNode;
+  Autowired<RenderEngine> m_rootNode;
   
   //Events to send to controller
   AutoFired<ExposeViewEvents> m_exposeViewEvents;
@@ -44,6 +45,9 @@ private:
 
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
+
+  // Render box
+  std::shared_ptr<SVGPrimitive> m_box;
 
 private:
   /// <summary>

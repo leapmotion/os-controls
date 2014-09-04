@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderEngineNode.h"
+#include "Renderable.h"
 #include "uievents/Updatable.h"
 
 //Components
@@ -12,8 +12,6 @@
 #include <vector>
 
 class GLShader;
-
-class RootRenderEngineNode : public RenderEngineNode {};
 
 //Tracks & dispatches update & render calls to a SceneGraph. Intended for use
 //with RenderEngineNodes, but will also support PrimitiveBase children.  Eventually

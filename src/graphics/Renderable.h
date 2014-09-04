@@ -11,6 +11,16 @@ class Renderable
 public:
   typedef std::list<std::shared_ptr<Renderable>> t_renderList;
 
+  Renderable(void) :
+    m_pContainingList(nullptr),
+    position{0.0f, 0.0f}
+  {}
+
+  Renderable(OSVector2 position) :
+    m_pContainingList(nullptr),
+    position{position}
+  {}
+
   /// <summary>
   /// Counterpart collection for the Renderable, maintains a z-ordering for renderables
   /// </summary>
@@ -23,8 +33,11 @@ public:
   /// result.  This object is not internally synchronized.
   /// </remarks>
   struct ZOrderList:
-    t_renderList
+    private t_renderList
   {
+    const_iterator begin(void) const { return t_renderList::begin(); }
+    const_iterator end(void) const { return t_renderList::end(); }
+
     /// <summary>
     /// Inserts this item at the bottom of the z-order
     /// </summary>
@@ -37,14 +50,25 @@ public:
   };
 
 private:
+  // The collection of which this renderable is a member
+  t_renderList* m_pContainingList;
+
   // Position in the z-order list of this renderable:
-  t_renderList::iterator m_pos;
+  t_renderList::const_iterator m_pos;
 
 public:
-  /// <returns>
+  /// <summary>
   /// The position of this renderable entity
-  /// </reutrns>
-  virtual OSVector2 Translation(void) const = 0;
+  /// </summary>
+  OSVector2 position;
+
+  /// <summary>
+  /// Removes this renderable from any attached z-order list
+  /// </summary>
+  /// <remarks>
+  /// This method is idempotent.  This method is not thread safe.
+  /// </remarks>
+  void RemoveFromParent(void);
 
   /// <summary>
   /// Invoked before any calls to Render to give animation entities opportunity to update their state
