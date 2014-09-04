@@ -73,7 +73,7 @@ public:
   /// <summary>
   /// Invoked before any calls to Render to give animation entities opportunity to update their state
   /// </summary>
-  virtual void AnimationUpdate(const RenderFrame& frame) = 0;
+  virtual void AnimationUpdate(const RenderFrame& frame) {}
 
   /// <summary>
   /// Invoked to perform actual drawing operations on this renderable
