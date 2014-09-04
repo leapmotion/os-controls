@@ -54,11 +54,6 @@ bool OSWindowMac::GetFocus(void) {
 void OSWindowMac::SetFocus(void) {
 }
 
-std::vector<std::shared_ptr<OSWindowNode>> OSWindowMac::EnumerateChildren(void) {
-  std::vector<std::shared_ptr<OSWindowNode>> retVal;
-  return retVal;
-}
-
 std::wstring OSWindowMac::GetTitle(void) {
   std::wstring retVal;
   return retVal;

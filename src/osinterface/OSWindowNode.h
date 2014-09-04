@@ -28,9 +28,4 @@ public:
   /// The application named by
   /// </returns>
   virtual std::shared_ptr<OSApp> GetOwnerApp(void) = 0;
-
-  /// <summary>
-  /// Enumerates all children of this window
-  /// </summary>
-  virtual std::vector<std::shared_ptr<OSWindowNode>> EnumerateChildren(void) = 0;
 };
