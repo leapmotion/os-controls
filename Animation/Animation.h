@@ -152,6 +152,10 @@ private:
   float m_SmoothStrength;
 };
 
+// This is a polynomial interpolation function for smoothly transitioning between two values.
+// The input parameter is between 0 and 1, and the return is also between 0 and 1.
+// The function has zero 1st- and 2nd-order derivatives at both ends.
+// See http://en.wikipedia.org/wiki/Smoothstep
 template <class T>
 static inline T SmootherStep(const T& x) {
   // x is blending parameter between 0 and 1
