@@ -11,7 +11,6 @@
 #include "interaction/HandPinchRecognizer.h"
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
-#include "osinterface/OSWindowMonitor.h"
 
 namespace Leap {
   class Hand;
@@ -60,7 +59,6 @@ private:
   AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewProxy> m_evp;
   AutoRequired<IWindowScroller> m_windowScroller;
-  AutoRequired<OSWindowMonitor> m_windowMonitor;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
