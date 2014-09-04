@@ -1,53 +1,35 @@
+// Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
 #include "AutoNetServerImpl.hpp"
 #include "at_exit.h"
 #include "autowiring.h"
+#include "demangle.h"
 #include "EventRegistry.h"
 #include "TypeRegistry.h"
 #include <iostream>
 #include FUTURE_HEADER
-
-//
-// Demangle type names on mac and linux.
-// Just returns type_info.name() on windows
-//
-#if __GNUG__
-#include <cxxabi.h>
-static std::string demangle(const std::type_info& ti) {
-  int status;
-  std::unique_ptr<char, void(*)(void*)> res{
-    abi::__cxa_demangle(ti.name(), nullptr, nullptr, &status),
-    std::free
-  };
-  return std::string(status == 0 ? res.get() : ti.name());
-}
-#else
-static std::string demangle(const std::type_info& ti) {
-  return std::string(ti.name());
-}
-#endif
 
 using std::placeholders::_1;
 using std::placeholders::_2;
 using json11::Json;
 
 AutoNetServerImpl::AutoNetServerImpl(void) :
-  m_Server(std::make_shared<server>()),
   m_Port(8000)
 {
   // Configure websocketpp
-  m_Server->init_asio();
-  m_Server->set_access_channels(websocketpp::log::alevel::none);
+  m_Server.init_asio();
+  m_Server.set_access_channels(websocketpp::log::alevel::none);
+  m_Server.set_error_channels(websocketpp::log::elevel::warn);
 
   // Register handlers
-  m_Server->set_open_handler(std::bind(&AutoNetServerImpl::OnOpen, this, ::_1));
-  m_Server->set_close_handler(std::bind(&AutoNetServerImpl::OnClose, this, ::_1));
-  m_Server->set_message_handler(std::bind(&AutoNetServerImpl::OnMessage, this, ::_1, ::_2));
+  m_Server.set_open_handler(std::bind(&AutoNetServerImpl::OnOpen, this, ::_1));
+  m_Server.set_close_handler(std::bind(&AutoNetServerImpl::OnClose, this, ::_1));
+  m_Server.set_message_handler(std::bind(&AutoNetServerImpl::OnMessage, this, ::_1, ::_2));
 
   // Generate list of all types from type registry
   for(auto type = g_pFirstTypeEntry; type; type = type->pFlink)
     if(type->CanInject())
-      m_AllTypes[demangle(type->ti)] = [type]{ type->Inject(); };
+      m_AllTypes[autowiring::demangle(type->ti)] = [type]{ type->Inject(); };
 
   // Generate list of all events from event registry
   for(auto event = g_pFirstEventEntry; event; event = event->pFlink)
@@ -65,20 +47,26 @@ AutoNetServer* NewAutoNetServerImpl(void) {
 // CoreThread overrides
 void AutoNetServerImpl::Run(void){
   std::cout << "Starting Autonet server..." << std::endl;
-
-  m_Server->listen(m_Port);
-  m_Server->start_accept();
+  
+  m_Server.listen(m_Port);
+  m_Server.start_accept();
+  
+  // blocks until the server finishes
   auto websocket = std::async(std::launch::async, [this]{
-    m_Server->run();
+    m_Server.run();
   });
-
 
   PollThreadUtilization(std::chrono::milliseconds(1000));
   CoreThread::Run();
 }
 
 void AutoNetServerImpl::OnStop(void) {
-  m_Server->stop();
+  if (m_Server.is_listening())
+    m_Server.stop_listening();
+  
+  for (auto& conn : m_Subscribers) {
+    m_Server.close(conn, websocketpp::close::status::normal, "closed");
+  }
 }
 
 // Server Handler functions
@@ -89,7 +77,6 @@ void AutoNetServerImpl::OnOpen(websocketpp::connection_hdl hdl) {
 }
 void AutoNetServerImpl::OnClose(websocketpp::connection_hdl hdl) {
   *this += [this, hdl] {
-    SendMessage(hdl, "closed");
     this->m_Subscribers.erase(hdl);
   };
 }
@@ -139,7 +126,7 @@ void AutoNetServerImpl::NewContext(CoreContext& newCtxt){
 
   *this += [this, ctxt] {
     Json::object context{
-        {"name", demangle(ctxt->GetSigilType())}
+        {"name", autowiring::demangle(ctxt->GetSigilType())}
     };
 
     if(ctxt->GetParentContext()){
@@ -166,12 +153,12 @@ void AutoNetServerImpl::NewObject(CoreContext& ctxt, const AnySharedPointer& obj
     std::shared_ptr<Object> objectPtr(*object);
 
     // Add object data
-    objData["name"] = demangle(typeid(*objectPtr));
+    objData["name"] = autowiring::demangle(typeid(*objectPtr));
     {
       Json::array slots;
       for(auto slot = object->GetSlotInformation().pHead; slot; slot = slot->pFlink) {
         slots.push_back(Json::object{
-            {"name", demangle(slot->type)},
+            {"name", autowiring::demangle(slot->type)},
             {"autoRequired", slot->autoRequired},
             {"offset", int(slot->slotOffset)}
         });
@@ -206,7 +193,7 @@ void AutoNetServerImpl::NewObject(CoreContext& ctxt, const AnySharedPointer& obj
       Json::array listenerTypes;
       for(const auto& event : m_EventTypes) {
         if(event->IsSameAs(objectPtr.get()))
-          listenerTypes.push_back(demangle(event->Type()));
+          listenerTypes.push_back(autowiring::demangle(event->Type()));
       }
 
       if(!listenerTypes.empty())
@@ -222,7 +209,7 @@ void AutoNetServerImpl::NewObject(CoreContext& ctxt, const AnySharedPointer& obj
     if(bolt) {
       Json::array sigils;
       for(auto cur = bolt->GetContextSigils(); *cur; cur++){
-        sigils.push_back(demangle(**cur));
+        sigils.push_back(autowiring::demangle(**cur));
       }
       types["bolt"] = sigils;
     }
@@ -233,7 +220,7 @@ void AutoNetServerImpl::NewObject(CoreContext& ctxt, const AnySharedPointer& obj
 
 void AutoNetServerImpl::EventFired(CoreContext& context, const std::type_info& info){
   int contextID = ResolveContextID(&context);
-  std::string name = demangle(info);
+  std::string name = autowiring::demangle(info);
 
   *this += [this, contextID, name] {
     BroadcastMessage("eventFired", contextID, Json::object{{"name", name}});
@@ -329,7 +316,7 @@ void AutoNetServerImpl::PollThreadUtilization(std::chrono::milliseconds period){
 
       // Broadcast current thread utilization
       int contextID = ResolveContextID(thread->GetContext().get());
-      std::string name = demangle(typeid(*thread.get()));
+      std::string name = autowiring::demangle(typeid(*thread.get()));
 
       std::chrono::duration<double> periodDbl = period;
       double kmPercent = 100.0 * (deltaRuntimeKM.count() / periodDbl.count());

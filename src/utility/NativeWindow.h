@@ -20,4 +20,5 @@ namespace NativeWindow
   void MakeTransparent(const Handle& window);
   void MakeAlwaysOnTop(const Handle& window);
   void AllowInput(const Handle& window, bool allowInput);
+  void RaiseWindowAtPosition(float x, float y);
 }
