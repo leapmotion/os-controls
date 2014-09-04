@@ -21,6 +21,8 @@ set(interaction_SOURCES
   HandPinchRecognizer.cpp
   HandRollRecognizer.h
   HandRollRecognizer.cpp
+  ScrollRecognizer.h
+  ScrollRecognizer.cpp
   StateMachine.h
   StateMachine.cpp
   StateMachineContext.h
