@@ -10,15 +10,13 @@ StateMachine::StateMachine(void):
   m_scrollState(ScrollState::DECAYING),
   m_scrollOperation(nullptr),
   m_handDelta(0,0),
-  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
-  m_momentumComplete(true)
+  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
 {
 }
 
 StateMachine::~StateMachine(void)
 {
   m_scrollOperation.reset();
-  m_windowScroller->StopMomentumScrolling();
 }
 
 // Transition Checking Loop
@@ -89,7 +87,6 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
           scrollState = ScrollState::ACTIVE;
-          m_momentumComplete = false; // as long as false, we won't shut down context
         }
       }
       break;
@@ -100,7 +97,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
 }
 
 void StateMachine::OnHandVanished() {
+  std::lock_guard<std::mutex> lk(m_lock);
   m_state = OSCState::FINAL;
+  m_scrollState = ScrollState::DECAYING;
+  m_scrollOperation.reset();
 }
 
 // Distpatch Loop
@@ -112,14 +112,11 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       // Remove our controls from the scene graph
       m_mediaViewStateMachine->RemoveFromParent();
       m_cursorView->RemoveFromParent();
-      if ( m_momentumComplete ) { // Don't shut down unless momentum is done.
-        std::cout << "shutdown context" << std::endl;
-        // Shutdown the context
-        m_context->SignalShutdown();
-        // Remove our own reference to the context
-        m_context.reset();
-        return;
-      }
+      // Shutdown the context
+      m_context->SignalShutdown();
+      // Remove our own reference to the context
+      m_context.reset();
+      return;
     default:
       break;
   }
@@ -133,8 +130,4 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     default:
       break;
   }
-}
-
-void StateMachine::OnScrollStopped(void) {
-  m_momentumComplete = true;
 }
