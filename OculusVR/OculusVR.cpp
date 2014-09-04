@@ -51,6 +51,7 @@ bool OculusVR::Init() {
     Shutdown();
     return false;
   }
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   ovrFovPort eyeFov[2] = { m_HMD->DefaultEyeFov[0], m_HMD->DefaultEyeFov[1] };
 
@@ -130,6 +131,7 @@ void OculusVR::BeginFrame() {
 
 void OculusVR::EndFrame() {
   ovrHmd_EndFrame(m_HMD, m_EyeRenderPose, &m_EyeTexture[0].Texture);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OculusVR::DismissHealthWarning() {
