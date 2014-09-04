@@ -35,7 +35,7 @@ bool OSWindowWin::GetFocus(void) {
 }
 
 void OSWindowWin::SetFocus(void) {
-  ::SetFocus(hwnd);
+  ::SetForegroundWindow(hwnd);
 }
 
 std::vector<std::shared_ptr<OSWindowNode>> OSWindowWin::EnumerateChildren(void) {
