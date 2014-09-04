@@ -20,10 +20,12 @@ enum class HandPose {
 
 class HandPoseRecognizer {
 public:
+  HandPoseRecognizer(void);
+
   void AutoFilter(const Leap::Hand& frame, HandPose& handPose);
 private:
   bool isExtended(Leap::Finger finger, bool wasExtended = false) const;
   bool isClawCurled(Leap::Finger finger) const;
   bool areTipsClawed(Leap::Hand hand) const;
-  bool lastExtended [5] = {};
+  bool lastExtended [5];
 };

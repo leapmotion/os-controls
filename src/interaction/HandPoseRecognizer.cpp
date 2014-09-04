@@ -8,6 +8,10 @@
 #include "HandPoseRecognizer.h"
 #include "utility/CircleFitter.h"
 
+HandPoseRecognizer::HandPoseRecognizer(void) {
+  memset(lastExtended, 0, sizeof(lastExtended));
+}
+
 
 void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) {
   
