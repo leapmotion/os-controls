@@ -3,6 +3,7 @@
 #include "Color.h"
 #include "ExposeViewProxy.h"
 #include "InteractionConfigs.h"
+#include "osinterface/OSCursor.h"
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
@@ -17,11 +18,13 @@ StateMachine::StateMachine(void):
 StateMachine::~StateMachine(void)
 {
   m_scrollOperation.reset();
+  m_windowScroller->StopMomentumScrolling();
 }
 
 // Transition Checking Loop
 void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState) {
-  if (m_state == OSCState::FINAL) {
+  std::lock_guard<std::mutex> lk(m_lock);
+  if(m_state == OSCState::FINAL) {
     return;
   }
   
@@ -84,7 +87,16 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       break;
     case ScrollState::DECAYING:
       if ( handPinch.isPinching && handPose != HandPose::Clawed ) {
-        m_lastScrollStart = handLocation.screenPosition();
+        AutowiredFast<OSCursor> cursor;
+        if (cursor) {
+          auto screenPosition = handLocation.screenPosition();
+          OSPoint point{static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y())};
+          // Set the current cursor position
+          cursor->SetCursorPos(point);
+          // Make the application at the point become active
+          // FIXME
+        }
+        
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
           scrollState = ScrollState::ACTIVE;
@@ -103,6 +115,8 @@ void StateMachine::OnHandVanished() {
 
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
+  std::lock_guard<std::mutex> lk(m_lock);
+
   switch ( m_state ) {
     case OSCState::FINAL:
       // Remove our controls from the scene graph
@@ -119,7 +133,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
-      m_scrollOperation->ScrollBy(OSPointMake(m_lastScrollStart.x(), m_lastScrollStart.y()), 0.0f, m_handDelta.y());
+      m_scrollOperation->ScrollBy(0.0f, m_handDelta.y());
       break;
     case ScrollState::DECAYING:
       break;

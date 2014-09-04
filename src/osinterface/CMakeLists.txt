@@ -23,7 +23,6 @@ set(osinterface_SOURCES
   OSWindowEvent.h
   OSWindowMonitor.h
   OSWindowMonitor.cpp
-  OSWindowNode.h
   ScrollOperation.h
   WindowScroller.h
   WindowScroller.cpp

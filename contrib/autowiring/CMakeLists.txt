@@ -6,7 +6,7 @@ include(CTest)
 # the cmake_minimum_required to version 3.0
 set(autowiring_VERSION_MAJOR 0)
 set(autowiring_VERSION_MINOR 1)
-set(autowiring_VERSION_PATCH 0)
+set(autowiring_VERSION_PATCH 1)
 
 # Determine whether Autowiring has been embedded in another project
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
@@ -29,11 +29,6 @@ else()
   if(NOT USE_LIBCXX)
     message("Parent project has set USE_LIBCXX = OFF -> Build Autowiring using c++98")
   endif()
-endif()
-
-# Macro for deprecated functionality needed to comply with c++98 std implementations
-if(NOT USE_LIBCXX)
-  add_definitions(-DAUTOWIRING_UNSAFE_HASHTABLE)
 endif()
 
 if(USE_LIBCXX)
@@ -119,14 +114,15 @@ endif()
 # CMake configurations
 configure_file(autowiring-config.cmake.in autowiring-config.cmake @ONLY)
 configure_file(autowiring-configVersion.cmake.in autowiring-configVersion.cmake @ONLY)
+configure_file(autowiring-config.h.in ${PROJECT_SOURCE_DIR}/autowiring/AutowiringConfig.h @ONLY)
 
 # Only attempt to do anything with cpack if we're being built stand-alone
 if(NOT AUTOWIRING_IS_EMBEDDED)
   # Install autowiring-config.cmake and autowiring-configVersion.cmake
   install (FILES
-    "${CMAKE_BINARY_DIR}/contrib/autowiring/autowiring-config.cmake"
-    "${CMAKE_BINARY_DIR}/contrib/autowiring/autowiring-configVersion.cmake"
-    DESTINATION "${CMAKE_SOURCE_DIR}/cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/autowiring-config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/autowiring-configVersion.cmake"
+    DESTINATION "cmake"
     COMPONENT autowiring
   )
 
@@ -144,8 +140,8 @@ if(NOT AUTOWIRING_IS_EMBEDDED)
   # leave those alone.
   SET(CPACK_WIX_TEMPLATE autowiring.wxs)
 
-  # Packaging stuff, if an installer is being made insteadINCLUDE(InstallRequiredSystemLibraries)
-  SET(CPACK_GENERATOR "WIX")
+  # Packaging stuff, if an installer is being made instead
+  INCLUDE(InstallRequiredSystemLibraries)
   SET(CPACK_PACKAGE_VENDOR "Leap Motion")
   SET(CPACK_PACKAGE_CONTACT "cmercenary@gmail.com")
   SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")

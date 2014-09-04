@@ -6,17 +6,21 @@ class OSWindowMac:
   public OSWindow
 {
 public:
-  OSWindowMac(void);
+  OSWindowMac(CGWindowID windowID);
   ~OSWindowMac(void);
 
-  // OSWindowNode overrides:
+  const CGWindowID windowID;
+
+  // PMPL routines:
+  void SetZOrder(int zOrder) {
+    m_zOrder = zOrder;
+  }
+
+  // OSWindow overrides:
   bool IsValid(void) override;
   uint32_t GetOwnerPid(void) override;
   std::shared_ptr<OSApp> GetOwnerApp(void) override;
-  std::vector<std::shared_ptr<OSWindowNode>> EnumerateChildren(void) override;
-
-  // OSWindow overrides;
-  uint64_t GetWindowID(void) const override;
+  uint64_t GetWindowID(void) const override { return (uint64_t) windowID; }
   void GetWindowTexture(ImagePrimitive& texture) override;
   bool GetFocus(void) override;
   void SetFocus(void) override;
@@ -25,5 +29,5 @@ public:
   OSSize GetSize(void) override;
   void Cloak(void) override;
   void Uncloak(void) override;
+  bool IsVisible(void) const override;
 };
-

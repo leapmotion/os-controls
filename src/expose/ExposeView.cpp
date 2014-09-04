@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ExposeView.h"
 #include "ExposeViewWindow.h"
+#include "ExposeViewEvents.h"
 #include "graphics/RenderFrame.h"
 #include "SVGPrimitive.h"
 
@@ -21,17 +22,12 @@ void ExposeView::AutoInit() {
   m_rootNode.NotifyWhenAutowired([this]{
     auto self = shared_from_this();
     m_rootNode->AddChild(self);
-    // Add a box as our child
-    auto box = std::shared_ptr<SVGPrimitive>(
-      new SVGPrimitive(R"svg(<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect x="10" y="10" height="100" width="100" style="stroke:#ff0000; fill: #0000ff"/></svg>)svg")
-    );
-    self->AddChild(box);
   });
 }
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
-  UpdateLayout(frame.deltaT);
+  updateLayout(frame.deltaT);
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
@@ -39,7 +35,10 @@ void ExposeView::Render(const RenderFrame& frame) const {
     renderable->Render(frame);
 }
 
-void ExposeView::UpdateLayout(std::chrono::duration<double> dt) {
+void ExposeView::updateLayout(std::chrono::duration<double> dt) {
+  // Handle anything pended to the render thread:
+  DispatchAllEvents();
+  
   for(std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
       continue;
@@ -48,14 +47,32 @@ void ExposeView::UpdateLayout(std::chrono::duration<double> dt) {
   }
 }
 
-std::tuple<double, double> radialCoordsToPoint(double angle, double distance) {
+void ExposeView::focusWindow(ExposeViewWindow& window) {
+  // TODO:  Perform the requested action:
+
+  // Operation complete, raise the event:
+  m_exposeViewEvents(&ExposeViewEvents::onWindowSelected)(window);
+}
+
+
+std::tuple<double, double> ExposeView::radialCoordsToPoint(double angle, double distance) {
   return std::make_tuple(0.0, 0.0);
 }
 
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
-  auto retVal = std::make_shared<ExposeViewWindow>(osWindow);
+  auto retVal = std::shared_ptr<ExposeViewWindow>(new ExposeViewWindow(osWindow));
   m_windows.push_back(retVal);
+  m_renderList.push_back(retVal.get());
+
+  // Update the window texture in the main render loop:
+  *this += [retVal] {
+    retVal->UpdateTexture();
+  };
   return retVal;
+}
+
+void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
+  //TODO: Removal code
 }
 
 void ExposeView::StartView() {

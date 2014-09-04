@@ -35,25 +35,7 @@ bool OSWindowWin::GetFocus(void) {
 }
 
 void OSWindowWin::SetFocus(void) {
-  ::SetFocus(hwnd);
-}
-
-std::vector<std::shared_ptr<OSWindowNode>> OSWindowWin::EnumerateChildren(void) {
-  std::vector<std::shared_ptr<OSWindowNode>> retVal;
-  EnumChildWindows(
-    hwnd,
-    [](HWND hwnd, LPARAM lParam) -> BOOL {
-      auto& vec = *(std::vector<std::shared_ptr<OSWindowNode>>*)lParam;
-      vec.push_back(
-        std::static_pointer_cast<OSWindowNode>(
-          std::make_shared<OSWindowWin>(hwnd)
-        )
-      );
-      return true;
-    },
-    (LPARAM) &retVal
-  );
-  return retVal;
+  ::SetForegroundWindow(hwnd);
 }
 
 std::wstring OSWindowWin::GetTitle(void) {
@@ -79,7 +61,7 @@ OSSize OSWindowWin::GetSize(void) {
 
   OSSize retVal;
   retVal.width = (float) (rect.right - rect.left);
-  retVal.width = (float) (rect.bottom - rect.top);
+  retVal.height = (float) (rect.bottom - rect.top);
   return retVal;
 }
 
@@ -88,4 +70,8 @@ void OSWindowWin::Cloak(void) {
 }
 
 void OSWindowWin::Uncloak(void) {
+}
+
+bool OSWindowWin::IsVisible(void) const {
+  return !!::IsWindowVisible(hwnd);
 }
