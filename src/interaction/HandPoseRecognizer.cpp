@@ -4,9 +4,9 @@
 //
 //  Created by Daniel Plemmons on 8/18/14.
 //
-//
 #include "InteractionConfigs.h"
 #include "HandPoseRecognizer.h"
+#include "utility/CircleFitter.h"
 
 
 void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) {
@@ -31,8 +31,8 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       lastExtended[i] = false;
     }
     
-    if ( static_cast<int>(finger.type()) <= 2 ) {
-      if ( !isClawCurled(finger) ) { isClawCurling = false; }
+    if ( !isClawCurled(finger)) {
+      isClawCurling = false;
     }
   
     i++;
@@ -104,7 +104,7 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
 }
 
 bool HandPoseRecognizer::isClawCurled(Leap::Finger finger) const {
-  bool retVal = false;
+  /*bool retVal = false;
   Leap::Bone metacarpal = finger.bone(Leap::Bone::TYPE_METACARPAL);
   Leap::Bone proximal = finger.bone(Leap::Bone::TYPE_PROXIMAL);
   Leap::Bone intermediate = finger.bone(Leap::Bone::TYPE_INTERMEDIATE);
@@ -124,6 +124,28 @@ bool HandPoseRecognizer::isClawCurled(Leap::Finger finger) const {
       iToDDot >= config::MIN_DOT_FOR_CLAW) {
     retVal = true;
   }
+  return retVal;*/
+  
+  bool retVal = false;
+  
+  CircleFitter<3> fitter;
+  
+  for(int i=0; i < 4; i++ ) {
+    Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(i));
+    Vector3 position = bone.nextJoint().toVector3<Vector3>();
+    fitter.AddPoint(position);
+    //std::cout << i << ": " << position.transpose() << std::endl;
+  }
+  
+  double error = fitter.Fit();
+  error = std::sqrt(error);
+  double radius = fitter.Radius();
+  
+  if ( finger.type() == Leap::Finger::TYPE_INDEX ) {
+    std::cout << "error : " << error << std::endl;
+    std::cout << "radius: " << radius << std::endl << std::endl;
+  }
+  
   return retVal;
 }
 

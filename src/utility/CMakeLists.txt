@@ -5,6 +5,7 @@ set(utility_SOURCES
   lockable_property.h
   NativeWindow.h
   PlatformInitializer.h
+  CircleFitter.h
 )
 
 add_windows_sources(utility_SOURCES 

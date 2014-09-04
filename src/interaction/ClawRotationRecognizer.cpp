@@ -36,8 +36,6 @@ void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime&
   float angle = atan2(diff.y(), diff.x());
   angle = fmod(angle, 2*M_PI);
   angle = 2*M_PI - angle;
-  //if ( hand.isLeft() ) { angle = (360 - angle); }
-  std::cout << "angle: " << angle << std::endl;
   clawRotation.deltaTime = frameTime.deltaTime;
   m_deltaRot.SetGoal(angle - m_lastRot);
   

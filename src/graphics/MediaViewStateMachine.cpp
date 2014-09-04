@@ -188,7 +188,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
         float offset = absRot - m_startRoll;
         int sign = offset < 0 ? -1 : 1;
         offset = fabs(offset) > M_PI ? (2*M_PI - fabs(offset)) : offset;
-        std::cout << "offset: " << offset << std::endl;
         sign = offset < 0 ? -1 : 1;
         float visualNorm = fabs(offset) / MAX;
         float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
