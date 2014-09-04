@@ -26,9 +26,17 @@ void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime&
     return;
   }
   
-  Vector2 diff = ProjectVector(2, middle.tipPosition().toVector3<Vector3>()) - ProjectVector(2, thumb.tipPosition().toVector3<Vector3>());
-  float angle = atan2(diff.y(), diff.x()) * -1;
+  Vector2 diff;
+  if (hand.isRight()) {
+    diff = ProjectVector(2, middle.tipPosition().toVector3<Vector3>()) - ProjectVector(2, thumb.tipPosition().toVector3<Vector3>());
+  }
+  else {
+    diff = ProjectVector(2, thumb.tipPosition().toVector3<Vector3>()) - ProjectVector(2, middle.tipPosition().toVector3<Vector3>());
+  }
+  float angle = atan2(diff.y(), diff.x());
   angle = fmod(angle, 2*M_PI);
+  angle = 2*M_PI - angle;
+  //if ( hand.isLeft() ) { angle = (360 - angle); }
   std::cout << "angle: " << angle << std::endl;
   clawRotation.deltaTime = frameTime.deltaTime;
   m_deltaRot.SetGoal(angle - m_lastRot);
