@@ -12,11 +12,58 @@
 // - Parent/child transform hierarchy (in progress)
 // - Local/global coordinate system conversion (in progress)
 
-// see http://en.wikipedia.org/wiki/Scene_graph
-// TODO: write a design for a generalized property propagation scheme in which
-//       each property would be defined partially by an "application" operation
-//       which defines how the properties propagate from parent to child.
+// Design for parent-to-child property propagation
+// -----------------------------------------------
+// A scene graph node will have a set of properties.  Let P denote a set of properties,
+// and let SGN<P> denote the scene graph node type having properties P.  Every node in 
+// a scene graph tree must have the same set of properties (i.e. the node type in a scene
+// graph must be uniform).
+//
+// A property must have a well-defined "identity" and "application operation".  Properties
+// will be applied in a stack in order to accumulate values to define the "global" property
+// values for each node.
+//
+// For each property p in P, a node N will store its "local" property value.  This can be
+// thought of as a "delta" from the parent node's "global" property value.  The root node
+// has no parent, so its parent's global property values are defined by convention to be
+// the identity.  The "global" property value of a node is defined to be the node's local
+// property value applied to the global property value of its parent.  This concludes a
+// full, inductive definition of the local and global property values of nodes.
+//
+// Properties that we care about:
+// - Affine transformations (positioning and transforming the child relative to the parent,
+//   in the parent's coordinates).  The identity is the identity transform and application
+//   operation is transform multiplication.
+// - Alpha mask (propagating transparency to all children of a partially transparent object).
+//   The identity for alpha mask is 1.0 and the application operation is multiplication.
+// - Name -- the identity is the empty string and application operation is concatenation with
+//   a '/' or perhaps '.' character.
+//
+// Example:
+//   Scene graph         Local name       Global name        Local alpha      Global alpha
+//       A                   "A"             "/A"                1.0              1.0
+//        \
+//         B                 "B"             "/A/B"              0.8              0.8
+//        /  
+//       C                   "C"             "/A/B/C"            0.7              0.56
+//
+// The property "delta" from a node N's ancestor A to itself can be defined to be the application
+// to the identity of the local properties of each node in the line of ancestry, starting
+// with A and ending with N (inclusive).
+//
+// Additionally, some of the property application operations may be invertible, in which case
+// the deltas can be inverted.  The application operation allows any deltas to be composed.
+// For example, this allows the affine coordinate transformation between two nodes' local
+// coordinate systems to be computed.
+//
+// Traversal of a scene graph could be done via the iterator pattern.  A well-defined
+// traversal order gives a linear order on the nodes.  An iterator would point to the
+// "current" node and that node's global properties.  The iteration procedure would
+// perform the stack operations necessary to compute and provide each node's global
+// property values.  Probably for now all we care about is doing depth-first traversal,
+// though other orders could be implemented relatively easily as an orthogonal feature.
 
+// see http://en.wikipedia.org/wiki/Scene_graph
 template <typename Scalar, unsigned int DIM>
 class SceneGraphNode : public std::enable_shared_from_this<SceneGraphNode<Scalar,DIM>> {
 public:
