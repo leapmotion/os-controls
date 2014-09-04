@@ -9,8 +9,10 @@
 #include "SatCounter.h"
 #include <list>
 
+using namespace autowiring;
+
 // This must appear in .cpp in order to avoid compilation failure due to:
-// "Arithmetic on a point to an incomplete type 'SatCounter'"
+// "Arithmetic on a pointer to an incomplete type 'SatCounter'"
 AutoPacket::~AutoPacket() {}
 
 AutoPacket::AutoPacket(AutoPacketFactory& factory, const std::shared_ptr<Object>& outstanding):
@@ -326,8 +328,8 @@ void AutoPacket::Initialize(void) {
   for (SatCounter* call : callCounters)
     call->CallAutoFilter(*this);
 
-  // Initial satisfaction of the AutoPacket:
-  UpdateSatisfaction(typeid(AutoPacket));
+  // First-call indicated by argumument type AutoPacket&:
+  UpdateSatisfaction(typeid(subscriber_traits<AutoPacket&>::type));
 }
 
 void AutoPacket::Finalize(void) {
@@ -344,6 +346,17 @@ void AutoPacket::Finalize(void) {
   }
   for (SatCounter* call : callQueue)
     call->CallAutoFilter(*this);
+
+  // No further type satisfaction is allowed
+  // IMPORTANT: This prevents last-call decorations using auto_out,
+  // but does not effect const AutoPacket&, which requires no Checkout.
+  for (auto& decoration : m_decorations) {
+    decoration.second.satisfied = true;
+    decoration.second.wasCheckedOut = true;
+  }
+
+  // Last-call indicated by argumument type const AutoPacket&:
+  UpdateSatisfaction(typeid(subscriber_traits<const AutoPacket&>::type));
 
   // Remove all recipients & clean up the decorations list
   // ASSERT: This reverses the order of accumulation,
