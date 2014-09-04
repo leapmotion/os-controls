@@ -1,6 +1,5 @@
 #pragma once
 #include "Primitives.h"
-#include "ExposeViewWindow.h"
 #include "graphics/Renderable.h"
 #include <autowiring/DispatchQueue.h>
 #include <Animation.h>
@@ -27,10 +26,6 @@ public:
   void AutoInit();
   
 private:
-  // Find the given window in the window list and move
-  // to the end of the vector such that it will render on top.
-  void moveWindowToTop(ExposeViewWindow& window);
-
   //Root node in the render tree
   Autowired<RenderEngine> m_rootNode;
   
@@ -42,6 +37,9 @@ private:
   
   // All windows currently known to this view:
   std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_windows;
+
+  // Windows represented in order:
+  Renderable::ZOrderList m_zorder;
 
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ExposeView.h"
-#include "ExposeViewWindow.h"
 #include "ExposeViewEvents.h"
+#include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
 #include "SVGPrimitive.h"
@@ -28,10 +28,14 @@ void ExposeView::AutoInit() {
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
   updateLayout(frame.deltaT);
+
+  for(const auto& renderable : m_zorder)
+    renderable->AnimationUpdate(frame);
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
-  for(const auto& renderable : m_windows)
+  m_box->Draw(frame.renderState);
+  for(const auto& renderable : m_zorder)
     renderable->Render(frame);
 }
 
@@ -44,6 +48,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
       continue;
 
     // TODO:  Update the position of the current window
+    
   }
 }
 
@@ -62,6 +67,7 @@ std::tuple<double, double> ExposeView::radialCoordsToPoint(double angle, double 
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
   auto retVal = std::shared_ptr<ExposeViewWindow>(new ExposeViewWindow(osWindow));
   m_windows.insert(retVal);
+  m_zorder.Add(retVal);
 
   // Update the window texture in the main render loop:
   *this += [retVal] {
@@ -80,12 +86,4 @@ void ExposeView::StartView() {
 
 void ExposeView::CloseView() {
   m_opacity.Set(0.0f, 0.2f);
-}
-
-void ExposeView::moveWindowToTop(ExposeViewWindow& window) {
-  /*std::rotate(
-    m_renderList.begin(),
-    std::find(m_renderList.begin(), m_renderList.end(), &window),
-    m_renderList.end()
-  );*/
 }

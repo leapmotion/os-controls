@@ -1,11 +1,13 @@
 #pragma once
 #include "ExposeView.h"
+#include "graphics/Renderable.h"
 #include "utility/lockable_property.h"
 
 class OSWindow;
 struct RenderFrame;
 
-class ExposeViewWindow
+class ExposeViewWindow:
+  public Renderable
 {
 public:
   ExposeViewWindow(OSWindow& osWindow);
@@ -35,5 +37,5 @@ public:
   void UpdateTexture(void);
 
   // RenderEngineNode overrides
-  void Render(const RenderFrame& frame) const;
+  void Render(const RenderFrame& frame) const override;
 };
