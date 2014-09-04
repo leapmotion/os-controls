@@ -26,8 +26,6 @@ public:
   void Move(float x, float y);
   void SetSize(float radius);
   
-  void InitChildren() override;
-  
   void AutoFilter(OSCState appState, const HandLocation& handLocation);
   
   void AnimationUpdate(const RenderFrame& frame);

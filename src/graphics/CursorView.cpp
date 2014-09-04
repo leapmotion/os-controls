@@ -7,10 +7,10 @@
 #include <iostream>
 
 CursorView::CursorView(float radius, const Color& color) :
-m_state(State::INACTIVE),
-m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
+  m_state(State::INACTIVE),
+  m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
 {
-  Translation() = Vector3(400, 400, -1);
+  Translation() = OSVector2(400, 400);
   
   m_disk.Material().SetDiffuseLightColor(color);
   m_disk.Material().SetAmbientLightColor(color);
@@ -23,16 +23,12 @@ CursorView::~CursorView() {
 }
 
 void CursorView::Move(float x, float y) {
-  Translation().x() = x;
-  Translation().y() = y;
+  Translation().x = x;
+  Translation().y = y;
 }
 
 void CursorView::SetSize(float radius) {
   m_disk.SetRadius(radius);
-}
-
-void CursorView::InitChildren() {
-  //TODO
 }
 
 void CursorView::AutoInit() {
