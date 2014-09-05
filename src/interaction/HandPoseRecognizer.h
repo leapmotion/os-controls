@@ -30,14 +30,14 @@ private:
   const float persist_clawCurl_max = 1.5f;
   const float activate_distance = 10.0f;
   const float persist_distance = 1.0f;
-  const float activate_palmDown = -0.92f;
+  const float activate_palmDown = -0.95f;
   const float persist_palmDown = -1.0f;
-  const float activate_fingersForward = 70.0f;
+  const float activate_fingersForward = 60.0f;
   const float persist_fingersForward = 50.0f;
   
   bool isExtended(Leap::Finger finger, bool wasExtended = false) const;
-  bool isClawCurled(Leap::Finger finger) const;
-  bool areTipsSeparated(Leap::Hand hand) const;
+  bool isClawCurled(Leap::Finger finger, float curlMin, float curlMax) const;
+  bool areTipsSeparated(Leap::Hand hand, float thresholdDistance) const;
   bool lastExtended [5];
   float averageFingerBend(Leap::Finger finger) const;
   bool isDown(Leap::Finger finger) const;

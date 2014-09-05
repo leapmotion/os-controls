@@ -1,9 +1,3 @@
-//
-//  HandPointingDecorator.cpp
-//  oscontrols
-//
-//  Created by Daniel Plemmons on 8/18/14.
-//
 #include "InteractionConfigs.h"
 #include "HandPoseRecognizer.h"
 #include "utility/CircleFitter.h"
@@ -20,16 +14,20 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
     return;
   }
   
-  bool isClawCurling = true; //initial value
-  bool isClawDistance = areTipsSeparated(hand);
+  //Initialize Claw Check Flags
+  bool isClawCurling = true;
+  bool isClawDistance = false;
   bool isPalmPointingDown = false;
   bool fingersOut = true;
   
-  int handCode = 0;
-  int i = 0;
+  int handCode = 0; // for extention based pose recognition.
   
+  int i = 0; // index tracker for for loop.
+  
+  //Checks against each finger
   for( auto finger : hand.fingers() ) {
     
+    // Check if fingers are extended
     if ( isExtended(finger, lastExtended[i])) {
       handCode += (1 << (4-i));
       lastExtended[i] = true;
@@ -38,55 +36,58 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       lastExtended[i] = false;
     }
     
-    if (finger.type() == Leap::Finger::TYPE_THUMB ||
-        finger.type() == Leap::Finger::TYPE_INDEX ||
-        finger.type() == Leap::Finger::TYPE_MIDDLE) {
-      if ( !isClawCurled(finger)) {
-        isClawCurling = false;
-      }
-    }
-    
-    if (finger.type() == Leap::Finger::TYPE_INDEX ||
-        finger.type() == Leap::Finger::TYPE_MIDDLE) {
+    // Per finger checks for claw pose
+    if ( finger.type() == Leap::Finger::TYPE_INDEX ||
+         finger.type() == Leap::Finger::TYPE_MIDDLE ) {
+      
       Vector3 palmPos = hand.palmPosition().toVector3<Vector3>();
       Vector3 tipPos = finger.tipPosition().toVector3<Vector3>();
       Vector3 diff = tipPos - palmPos;
       float zDist = fabs(diff.z());
+    
       switch ( m_lastPose ) {
         case HandPose::Clawed:
           if ( zDist < persist_fingersForward ) {
             fingersOut = false;
           }
+          
+          isClawCurling = isClawCurled(finger, persist_clawCurl_min, persist_clawCurl_max);
           break;
           
         default:
           if ( zDist < activate_fingersForward ) {
             fingersOut = false;
           }
+          
+          isClawCurling = isClawCurled(finger, activate_clawCurl_min, activate_clawCurl_max);
           break;
       }
+      
     }
-    
-    
+
     i++;
   }
   
-  isClawDistance = areTipsSeparated(hand);
-  
+  // Whole hand checks for claw pose
   float palmY = hand.palmNormal().toVector3<Vector3>().y();
   switch ( m_lastPose ) {
     case HandPose::Clawed:
       if ( palmY < persist_palmDown ) {
         isPalmPointingDown = true;
       }
+      
+      isClawDistance = areTipsSeparated(hand, persist_distance);
       break;
     default:
       if ( palmY <= activate_palmDown ) {
         isPalmPointingDown = true;
       }
+      
+      isClawDistance = areTipsSeparated(hand, activate_distance);
       break;
   }
   
+  // Finger-Extension based pose resolution
   switch (handCode) {
     case 0:  //00000
       handPose = HandPose::ZeroFingers;
@@ -114,14 +115,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       break;
   }
   
-  std::cout << "fingersOut: " << fingersOut << std::endl;
-  std::cout << "isClawCurling: " << isClawCurling << std::endl;
-  std::cout << "isClawDistance: " << isClawDistance << std::endl;
-  std::cout << "fingersOut: " << fingersOut << std::endl;
-  std::cout << "NOT isPalmPointingDown: " << !isPalmPointingDown << std::endl;
-  
-  //TODO: add some curve detection to fingers to make
-  //      this differentiated from a simple 3 finger or 4 finger pose.
+  // Claw-Factor based pose resolution
   if (handPose != HandPose::OneFinger &&
       isClawCurling &&
       isClawDistance &&
@@ -130,6 +124,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
     handPose = HandPose::Clawed;
   }
   
+  //Store the previous hand pose.
   m_lastPose = handPose;
 }
 
@@ -164,33 +159,18 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
   return retVal;
 }
 
-bool HandPoseRecognizer::isClawCurled(Leap::Finger finger) const {
+bool HandPoseRecognizer::isClawCurled(Leap::Finger finger, float curlMin, float curlMax) const {
   bool retVal = false;
   float averageBend = averageFingerBend(finger);
-  std::cout << static_cast<int>(finger.type()) << " bend: " << averageBend << std::endl;
-  if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
-    switch ( m_lastPose ) {
-      case HandPose::Clawed:
-        if ( averageBend > persist_clawCurl_min &&
-            averageBend < persist_clawCurl_max ) {
-          retVal = true;
-        }
-        break;
-      default:
-        if ( averageBend > activate_clawCurl_min &&
-             averageBend < activate_clawCurl_max ) {
-          retVal = true;
-        }
-        break;
-    }
-  }
-  else {
+  
+  if ( averageBend > curlMin && averageBend < curlMax ) {
     retVal = true;
   }
+  
   return retVal;
 }
 
-bool HandPoseRecognizer::areTipsSeparated(Leap::Hand hand) const{
+bool HandPoseRecognizer::areTipsSeparated(Leap::Hand hand, float thresholdDistance) const{
   bool retVal = true;
   
   std::vector<Leap::Finger> clawFingers;
@@ -205,17 +185,8 @@ bool HandPoseRecognizer::areTipsSeparated(Leap::Hand hand) const{
   
   for (int i=1; i < clawFingers.size(); i++) {
     double distance = (clawFingers[i].tipPosition().toVector3<Vector3>() - clawFingers[i-1].tipPosition().toVector3<Vector3>()).norm();
-    switch ( m_lastPose ) {
-      case HandPose::Clawed:
-        if ( distance <=  persist_distance) {
-          retVal = false;
-        }
-        break;
-      default:
-        if ( distance <=  activate_distance) {
-          retVal = false;
-        }
-        break;
+    if ( distance <  thresholdDistance) {
+      retVal = false;
     }
   }
   
@@ -229,10 +200,6 @@ float HandPoseRecognizer::averageFingerBend(Leap::Finger finger) const {
   float average = 0.0f;
   
   int startBone = 3;
-  
-  if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
-    startBone = 3;
-  }
   
   for(int i=startBone; i<4; i++) {
     //Angle from scalar product
