@@ -43,10 +43,6 @@ uint32_t OSWindowMac::GetOwnerPid(void) {
   return 0;
 }
 
-void OSWindowMac::GetWindowTexture(ImagePrimitive& texture) {
-  return OSWindow::GetWindowTexture(texture);
-}
-
 bool OSWindowMac::GetFocus(void) {
   return false;
 }

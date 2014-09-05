@@ -11,7 +11,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
 ExposeViewWindow::~ExposeViewWindow(void) {}
 
 void ExposeViewWindow::UpdateTexture(void) {
-  m_osWindow->GetWindowTexture(*m_texture);
+  m_texture = m_osWindow->GetWindowTexture(m_texture);
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {

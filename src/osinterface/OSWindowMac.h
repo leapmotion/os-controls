@@ -21,7 +21,6 @@ public:
   uint32_t GetOwnerPid(void) override;
   std::shared_ptr<OSApp> GetOwnerApp(void) override;
   uint64_t GetWindowID(void) const override { return (uint64_t) windowID; }
-  void GetWindowTexture(ImagePrimitive& texture) override;
   bool GetFocus(void) override;
   void SetFocus(void) override;
   std::wstring GetTitle(void) override;
