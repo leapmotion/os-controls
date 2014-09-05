@@ -52,7 +52,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       Vector3 tipPos = finger.tipPosition().toVector3<Vector3>();
       Vector3 diff = tipPos - palmPos;
       float zDist = fabs(diff.z());
-      std::cout << static_cast<int>(finger.type()) << " zDist: " << zDist << std::endl;
       switch ( m_lastPose ) {
         case HandPose::Clawed:
           if ( zDist < persist_fingersForward ) {
@@ -168,6 +167,7 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
 bool HandPoseRecognizer::isClawCurled(Leap::Finger finger) const {
   bool retVal = false;
   float averageBend = averageFingerBend(finger);
+  std::cout << static_cast<int>(finger.type()) << " bend: " << averageBend << std::endl;
   if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
     switch ( m_lastPose ) {
       case HandPose::Clawed:
@@ -228,7 +228,7 @@ float HandPoseRecognizer::averageFingerBend(Leap::Finger finger) const {
   float sum = 0.0f;
   float average = 0.0f;
   
-  int startBone = 2;
+  int startBone = 3;
   
   if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
     startBone = 3;

@@ -25,15 +25,15 @@ public:
   void AutoFilter(const Leap::Hand& frame, HandPose& handPose);
 private:
   const float activate_clawCurl_min = 0.25f;
-  const float activate_clawCurl_max = 2.0f;
+  const float activate_clawCurl_max = 1.0f;
   const float persist_clawCurl_min = 0.06f;
-  const float persist_clawCurl_max = 2.5f;
+  const float persist_clawCurl_max = 1.5f;
   const float activate_distance = 10.0f;
   const float persist_distance = 1.0f;
-  const float activate_palmDown = -0.9f;
+  const float activate_palmDown = -0.92f;
   const float persist_palmDown = -1.0f;
-  const float activate_fingersForward = 50.0f;
-  const float persist_fingersForward = 40.0f;
+  const float activate_fingersForward = 70.0f;
+  const float persist_fingersForward = 50.0f;
   
   bool isExtended(Leap::Finger finger, bool wasExtended = false) const;
   bool isClawCurled(Leap::Finger finger) const;
