@@ -48,6 +48,7 @@ void OSWindow::GetWindowTexture(ImagePrimitive& img) {
     params.SetHeight(cy);
     tex = std::shared_ptr<GLTexture2>(new GLTexture2(params));
     img.SetTexture(tex);
+    img.SetScaleBasedOnTextureSize();
   }
 
   // Subimage:
