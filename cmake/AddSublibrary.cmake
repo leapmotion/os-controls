@@ -64,6 +64,8 @@ endfunction()
 #   * HEADERS [header1 [header2 [...]]] -- The list of headers for the sublibrary.  Each of these
 #     should be specified using a relative path, based at the sublibrary's subdirectory.
 #   * SOURCES [source1 [source2 [...]]] -- Analogous to HEADERS, but for source files.
+#   * RESOURCES [resource1 [resource2 [...]]] -- Additional non-compiled files which will be
+#     copied from the source path into the ${PROJECT_BINARY_DIR}/resources/ directory upon build.
 #   * COMPILE_DEFINITIONS [def1 [def2 [...]]] -- Specifies which C preprocessor definitions to
 #     pass to the compiler.  Each argument should be in the form
 #       VAR
@@ -106,8 +108,10 @@ endfunction()
 # - INTERFACE_SOURCE_PATH                         -- As described above.
 # - INTERFACE_HEADERS                             -- As described above.
 # - INTERFACE_SOURCES                             -- As described above.
-# - INTERFACE_PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the sublibrary name as a path prefix.
-# - INTERFACE_PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the sublibrary name as a path prefix.
+# - INTERFACE_RESOURCES                           -- As described above.
+# - INTERFACE_PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the source path as a path prefix.
+# - INTERFACE_PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the source path as a path prefix.
+# - INTERFACE_PATH_PREFIXED_RESOURCES             -- The same as RESOURCES, but with the source path as a path prefix.
 # - INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES    -- As described above.
 # - INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
 # - INTERFACE_BRIEF_DOC_STRING                    -- As described above.
@@ -132,6 +136,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     set(_multi_value_args
         HEADERS
         SOURCES
+        RESOURCES
         COMPILE_DEFINITIONS
         # COMPILE_FEATURES      # target_compile_features is not working for me.
         COMPILE_OPTIONS
@@ -224,6 +229,11 @@ function(add_sublibrary SUBLIBRARY_NAME)
     foreach(_source ${_arg_SOURCES})
         list(APPEND _path_prefixed_sources ${_sublibrary_source_path}/${_source})
     endforeach()
+    # Determine the relative paths of all the resources.
+    set(_path_prefixed_resources "")
+    foreach(_resource ${_arg_RESOURCES})
+        list(APPEND _path_prefixed_resources ${_sublibrary_source_path}/${_resource})
+    endforeach()
 
     # TODO: Consider using `add_library(target OBJECT ...)` to make a library target
     # which doesn't compile down to an archived library, but otherwise behaves as one.
@@ -292,6 +302,15 @@ function(add_sublibrary SUBLIBRARY_NAME)
         target_link_libraries(${_sublibrary_target_name} ${_target_scope} ${_lib_target_name})
     endforeach()
 
+    # Define post-build rules for copying resources.
+    foreach(_resource ${_arg_RESOURCES})
+        add_custom_command(
+            TARGET ${_sublibrary_target_name}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}/${_resource}" "${PROJECT_BINARY_DIR}/resources/${_resource}"
+        )
+    endforeach()
+    
     # Store several of the parameter values as target properties
     set_target_properties(
         ${_sublibrary_target_name}
@@ -299,8 +318,10 @@ function(add_sublibrary SUBLIBRARY_NAME)
             INTERFACE_SOURCE_PATH "${_sublibrary_source_path}"
             INTERFACE_HEADERS "${_arg_HEADERS}"
             INTERFACE_SOURCES "${_arg_SOURCES}"
+            INTERFACE_RESOURCES "${_arg_RESOURCES}"
             INTERFACE_PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
             INTERFACE_PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
+            INTERFACE_PATH_PREFIXED_RESOURCES "${_path_prefixed_resources}"
             INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES "${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES}"
             INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
             INTERFACE_BRIEF_DOC_STRING "${_arg_BRIEF_DOC_STRING}"

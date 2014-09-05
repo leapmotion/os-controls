@@ -16,8 +16,14 @@ public:
   Color(const Vector3& c) {
     m_data << static_cast<float>(c.x()), static_cast<float>(c.y()), static_cast<float>(c.z()), 1.0f;
   }
+  Color(const Vector3f& c) {
+    m_data << c, 1.0f;
+  }
   Color(const Vector4& c) {
     m_data << static_cast<float>(c.x()), static_cast<float>(c.y()), static_cast<float>(c.z()), static_cast<float>(c.w());
+  }
+  Color(const Vector4f& c) {
+    m_data = c;
   }
   Color(const Color& other, float blend) {
     m_data << other.R(), other.G(), other.B(), blend*other.A();
@@ -59,7 +65,7 @@ public:
   static const Color& Teal() { static Color c(0.0f, 1.0f, 1.0f, 1.0f); return c; }
   static const Color& Transparent() { static Color c(0.0f, 0.0f, 0.0f, 0.0f); return c; }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
+
   Vector4f m_data;
 };

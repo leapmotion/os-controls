@@ -7,8 +7,9 @@
 #endif
 
 #include <cassert>
-#include <iostream> // TEMP
 #include <stdexcept>
+
+#include "gl_glext_glu.h"
 
 SDLController::SDLController ()
   :
@@ -16,8 +17,6 @@ SDLController::SDLController ()
   m_SDL_Renderer(nullptr),
   m_SDL_GLContext(nullptr)
 {
-  // TEMP
-  std::cerr << "SDLController::BasePath() = \"" << BasePath() << "\"\n";
 #if _WIN32
   m_HWND = nullptr;
 #endif
@@ -38,24 +37,12 @@ void SDLController::Initialize(const SDLControllerParams& params) {
   InitWindow();
   ConfigureRenderer();
   InitGLContext();
+  InitGlew();
   ConfigureTransparentWindow();
 }
 
 void SDLController::Shutdown () {
-  // TODO: shutdown anything else necessary, video, and SDL (in reverse order as init)
-  if (m_SDL_GLContext != nullptr) {
-    SDL_GL_DeleteContext(m_SDL_GLContext);
-    m_SDL_GLContext = nullptr;
-  }
-  if (m_SDL_Renderer != nullptr) {
-    SDL_DestroyRenderer(m_SDL_Renderer);
-    m_SDL_Renderer = nullptr;
-  }
-  if (m_SDL_Window != nullptr) {
-    SDL_DestroyWindow(m_SDL_Window);
-    m_SDL_Window = nullptr;
-  }
-  SDL_Quit();
+  CleanUpInitializedResources();
 }
 
 void SDLController::BeginRender () const {
@@ -67,7 +54,18 @@ void SDLController::EndRender () const {
 }
 
 std::string SDLController::BasePath () {
-  return std::string(SDL_GetBasePath());
+  static std::string basePath;
+  if (basePath.empty()) {
+    char * sdlBasePath = SDL_GetBasePath();
+    if (sdlBasePath) {
+      basePath = std::string(sdlBasePath);
+      SDL_free(sdlBasePath);
+    } else {
+      throw std::runtime_error("Could not get the SDL Base Path");
+    }
+  }
+  
+  return basePath;
 }
 
 void SDLController::ToggleFullscreen() {
@@ -145,17 +143,16 @@ void SDLController::InitWindow() {
     }
   }
 
-  Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
   if (m_Params.transparentWindow) {
     // Transparent window only works properly when the window is borderless
-    windowFlags |= SDL_WINDOW_BORDERLESS;
+    m_Params.windowFlags |= SDL_WINDOW_BORDERLESS;
   }
 
   // Create a window.
-  m_SDL_Window = SDL_CreateWindow(m_Params.windowTitle.c_str(), m_Params.windowPosX, m_Params.windowPosY, m_Params.windowWidth, m_Params.windowHeight, windowFlags);
+  m_SDL_Window = SDL_CreateWindow(m_Params.windowTitle.c_str(), m_Params.windowPosX, m_Params.windowPosY, m_Params.windowWidth, m_Params.windowHeight, m_Params.windowFlags);
 
   if (m_SDL_Window == nullptr) {
-    SDL_Quit();
+    CleanUpInitializedResources();
     throw std::runtime_error(SDL_GetError());
   }
 }
@@ -169,9 +166,7 @@ void SDLController::ConfigureRenderer() {
 
   m_SDL_Renderer = SDL_CreateRenderer(m_SDL_Window, -1, rendererFlags);
   if (m_SDL_Renderer == nullptr) {
-    SDL_DestroyWindow(m_SDL_Window);
-    m_SDL_Window = nullptr;
-    SDL_Quit();
+    CleanUpInitializedResources();
     throw std::runtime_error(SDL_GetError());
   }
 }
@@ -180,12 +175,15 @@ void SDLController::InitGLContext() {
   // Create a GL context.
   m_SDL_GLContext = SDL_GL_CreateContext(m_SDL_Window);
   if (m_SDL_GLContext == nullptr) {
-    SDL_DestroyRenderer(m_SDL_Renderer);
-    m_SDL_Renderer = nullptr;
-    SDL_DestroyWindow(m_SDL_Window);
-    m_SDL_Window = nullptr;
-    SDL_Quit();
+    CleanUpInitializedResources();
     throw std::runtime_error(SDL_GetError());
+  }
+}
+
+void SDLController::InitGlew() {
+  if (glewInit() != GLEW_OK) {
+    CleanUpInitializedResources();
+    throw std::runtime_error("Glew initialization failed");
   }
 }
 
@@ -195,6 +193,7 @@ void SDLController::ConfigureTransparentWindow() {
 
   // Retrieve the window info.
   if (!SDL_GetWindowWMInfo(m_SDL_Window, &sys_wm_info)) {
+    CleanUpInitializedResources();
     throw std::runtime_error("Error retrieving window WM info");
   }
 
@@ -219,7 +218,25 @@ void SDLController::ConfigureTransparentWindow() {
     break;
 #endif 
   default:
+    CleanUpInitializedResources();
     throw std::runtime_error("Error identifying WM subsystem");
     break;
   }
+}
+
+void SDLController::CleanUpInitializedResources() {
+  // TODO: shutdown anything else necessary, video, and SDL (in reverse order as init)
+  if (m_SDL_GLContext != nullptr) {
+    SDL_GL_DeleteContext(m_SDL_GLContext);
+    m_SDL_GLContext = nullptr;
+  }
+  if (m_SDL_Renderer != nullptr) {
+    SDL_DestroyRenderer(m_SDL_Renderer);
+    m_SDL_Renderer = nullptr;
+  }
+  if (m_SDL_Window != nullptr) {
+    SDL_DestroyWindow(m_SDL_Window);
+    m_SDL_Window = nullptr;
+  }
+  SDL_Quit();
 }

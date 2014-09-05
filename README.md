@@ -39,6 +39,9 @@ also the CMakeLists.txt include directories.  Each component can even have its o
   components.
 - Write a cmake function which looks at the set of components and generates a dot graph of their
   dependency graph -- for components and for [system] libraries.
+- Add a "static std::string ResourceTypeName ()" method to ResourceLoader<T> which returns a
+  std::string containing the name of T (e.g. ResourceLoader<GLShader>::ResourceTypeName() would
+  return "GLShader").  This will be useful in ResourceManager messages.
 
 #### 2014.08.15 - Proposal/Overview for Shader-based SVG rendering (Bezier-curve-only)
 
@@ -118,4 +121,40 @@ Relevant technologies/links:
 - https://github.com/memononen/nanosvg - Conversion of SVG to cubic Bezier curves
 - http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html - Lovely resource on GPU-based Bezier curve rendering
 - https://code.google.com/p/poly2tri/ - Triangulation of polygon (related but unnecessary)
+
+#### Design notes for primitives/GL refactor
+
+GLShader now implements a dictionary for uniforms and attributes (name -> (location, type, size)).
+GLShaderMatrices provides an interface for setting the expected matrix uniforms for shaders.
+Material is now an interface for setting the parameters of a particular material fragment shader.
+
+GLVertexBuffer
+- Should somehow take a compile-time-specified list of vertex attributes and define
+  a "vertex" structure which will contain data for rendering each vertex in a VBO.
+- Should present a strongly-typed interface for adding these attributes to an intermediate
+  representation of the vertex attributes before it's uploaded to GL.
+- Should present a way to upload the intermediate vertex data to GL, and optionally
+  clear the intermediate data.
+- Should present a way to modify the intermediate vertex data.
+- Should present a way to request to modify the uploaded data.
+- Should have methods for indicating to GL that this VBO should be enabled (see PrimitiveGeometry::Draw),
+  and that it should be disabled.
+
+GLMesh<DIM>
+- These are particular instances of GLVertexBuffer implemented for the following vertex attribs:
+  * Position
+  * Normal
+  * Texture Coordinate
+  * Color
+  * Others?
+  These should be dimension-specific
+- This should probably present a few high-level methods for:
+  * Defining a mesh
+    ~ Specifying how the vertices are drawn (e.g. GL_TRIANGLES, GL_TRIANGLE_FAN, etc)
+    ~ Uploading to GL
+  * Modifying a mesh that has already been loaded
+  * Drawing a mesh
+  * Assigning UV coordinates
+  * Generating particular geometric primitives (e.g. spheres, cylinders, etc)
+  * Specifying which other attributes should be on a vertex.
 

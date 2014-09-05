@@ -1,5 +1,6 @@
 #include "FrameBufferObject.h"
 
+#include "GLError.h"
 #include "GLTexture2.h"
 #include "RenderBuffer.h"
 
@@ -24,7 +25,9 @@ void FrameBufferObject::Blit(FrameBufferObject* source, FrameBufferObject* targe
   glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, source->Id());
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, target->Id());
   
-  glBlitFramebuffer(0, 0, source->Width(), source->Height(), 0, 0, target->Width(), target->Height(), buffers, GL_NEAREST);
+  glBlitFramebuffer(0, 0, source->Width(), source->Height(),
+                    0, 0, target->Width(), target->Height(), buffers, filter);
+  GLWarnUponError("in glBlitFramebuffer");
   
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -108,6 +111,8 @@ FrameBufferObject::FrameBufferObject(int width, int height, const Format& format
   // TODO: make util function
   GLint maxSamples;
   glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
+  GLWarnUponError("in glGetIntegerv");
+  
   if (format.samples > maxSamples) {
     m_Samples = maxSamples;
   } else if (format.samples <= 0) {
@@ -118,6 +123,8 @@ FrameBufferObject::FrameBufferObject(int width, int height, const Format& format
   
   // Framebuffer
   glGenFramebuffers(1, &m_FramebufferId);
+  GLWarnUponError("in glGenFramebuffers");
+  
   Bind();
 
   if (!initColor() || !checkStatus() || !initDepth() || !checkStatus()) {
@@ -137,12 +144,13 @@ bool FrameBufferObject::checkStatus()
 bool FrameBufferObject::initColor()
 {
   if (m_Samples == 0) {
-    GLTexture2Params params(m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE);
+    GLTexture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalColor);
-    m_ColorTexture = new GLTexture2(params, nullptr, m_Width * m_Height * 4);
+    m_ColorTexture = new GLTexture2(params);
     
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
+    GLWarnUponError("in glFramebufferTextureEXT");
   } else { // multisampling
     RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalColor;
@@ -153,6 +161,7 @@ bool FrameBufferObject::initColor()
     } else {
       // Attachment textures to FBO
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, m_ColorRenderBuffer->Id());
+      GLWarnUponError("in glFrameBufferRenderbufferEXT");
     }
   }
   
@@ -166,12 +175,13 @@ bool FrameBufferObject::initDepth()
   }
   
   if (m_Samples == 0) {
-    GLTexture2Params params(m_Width, m_Height, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE);
+    GLTexture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalDepth);
-    m_DepthTexture = new GLTexture2(params, nullptr, m_Width * m_Height);
+    m_DepthTexture = new GLTexture2(params);
 
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_DepthTexture->Id(), 0);
+    GLWarnUponError("in glFramebufferTexture2DEXT");
   } else { // multisampling
     RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalDepth;
@@ -182,6 +192,7 @@ bool FrameBufferObject::initDepth()
     } else {
       // Attachment textures to FBO
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_DepthRenderBuffer->Id());
+      GLWarnUponError("in glFramebufferRenderbufferEXT");
     }
   }
   

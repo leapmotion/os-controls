@@ -119,6 +119,11 @@ public:
   // setters to control animation
   void SetGoal(const T& goal) { m_Goal = goal; }
   void SetSmoothStrength(float smooth) { m_SmoothStrength = smooth; }
+  void SetInitialValue(const T& value) {
+    for (int i=0; i<NUM_ITERATIONS; i++) {
+      m_Values[i] = value;
+    }
+  }
 
   // main update function, must be called every frame
   void Update(float deltaTime) {

@@ -9,12 +9,12 @@
 #include <cfloat>
 #include <cassert>
 
-struct Bezier {
-  Eigen::Vector2f b[4];
-};
-
 class Curve {
   public:
+    struct Bezier {
+      Eigen::Vector2f b[4];
+    };
+
     Curve(float tolerance = 1.0f);
     ~Curve();
 
@@ -86,6 +86,8 @@ SVGPrimitive::SVGPrimitive(const std::string& svg) :
   m_Image(nullptr),
   m_RecomputeGeometry(false)
 {
+  m_Origin << 0.0, 0.0;
+  m_Size << 0.0, 0.0;
   if (!svg.empty()) {
     Set(svg);
   }
@@ -114,6 +116,25 @@ void SVGPrimitive::Set(const std::string& svg)
   std::string svgCopy{svg}; // Make a copy so that nanosvg can modify its contents (horrors)
   m_Image = nsvgParse(const_cast<char*>(svgCopy.c_str()), "px", 96.0f);
   if (m_Image) {
+    float bounds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    bool isFirst = true;
+
+    for (NSVGshape* shape = m_Image->shapes; shape != NULL; shape = shape->next) {
+      if (isFirst) {
+        isFirst = false;
+        bounds[0] = shape->bounds[0];
+        bounds[1] = shape->bounds[1];
+        bounds[2] = shape->bounds[2];
+        bounds[3] = shape->bounds[3];
+      } else {
+        if (shape->bounds[0] < bounds[0]) { bounds[0] = shape->bounds[0]; }
+        if (shape->bounds[1] < bounds[1]) { bounds[1] = shape->bounds[1]; }
+        if (shape->bounds[2] > bounds[2]) { bounds[2] = shape->bounds[2]; }
+        if (shape->bounds[3] > bounds[3]) { bounds[3] = shape->bounds[3]; }
+      }
+    }
+    m_Origin << static_cast<MATH_TYPE>(bounds[0]), static_cast<MATH_TYPE>(bounds[1]);
+    m_Size << static_cast<MATH_TYPE>(bounds[2] - bounds[0]), static_cast<MATH_TYPE>(bounds[3] - bounds[1]);
     m_RecomputeGeometry = true;
   }
 }
@@ -141,7 +162,7 @@ void SVGPrimitive::RecomputeChildren() {
         Curve curve(0.5f);
         for (int i = 0; i < path->npts-1; i += 3) {
           const float* p = &path->pts[i*2];
-          Bezier bezier;
+          Curve::Bezier bezier;
           bezier.b[0] << p[0], p[1];
           bezier.b[1] << p[2], p[3];
           bezier.b[2] << p[4], p[5];
@@ -156,7 +177,7 @@ void SVGPrimitive::RecomputeChildren() {
 
             poly.Init(static_cast<long>(numPoints));
             for (size_t i = 0; i < numPoints; i++) {
-              poly[i] = points[i];
+              poly[static_cast<int>(i)] = points[i];
             }
             // We are assuming that ONLY the last path is not a hole
             if (path->next) {
@@ -174,23 +195,21 @@ void SVGPrimitive::RecomputeChildren() {
           auto genericShape = std::shared_ptr<GenericShape>(new GenericShape(isClosed ? GL_LINE_LOOP : GL_LINE_STRIP));
           auto& geometry = genericShape->Geometry();
 
-          geometry.CleanUpBuffers();
-          genericShape->SetAmbientFactor(1.0f);
-
           // We don't yet handle stroke widths. For now, simulate a stroke width less than 1 by adjusting the alpha
           const float simulatedStrokeWidth = strokeWidth >= 1.0f ? 1.0f : strokeWidth;
           const float alpha = static_cast<float>((strokeColor >> 24) & 0xFF)/255.0f;
           const float blue  = static_cast<float>((strokeColor >> 16) & 0xFF)/255.0f;
           const float green = static_cast<float>((strokeColor >>  8) & 0xFF)/255.0f;
           const float red   = static_cast<float>( strokeColor        & 0xFF)/255.0f;
-          genericShape->SetDiffuseColor(Color(red, green, blue, alpha*opacity*simulatedStrokeWidth));
-          stdvectorV3f& vertices = geometry.Vertices();
-          stdvectorV3f& normals = geometry.Normals();
+          const Color color(red, green, blue, alpha*opacity*simulatedStrokeWidth);
+          genericShape->Material().SetDiffuseLightColor(color);
+          genericShape->Material().SetAmbientLightColor(color);
+          genericShape->Material().SetAmbientLightingProportion(1.0f);
+          std::vector<PrimitiveGeometry::Vertex>& vertices = geometry.Vertices();
           const auto& points = curve.Points();
           for (const auto& pt : points) {
-            Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
-            vertices.push_back(point);
-            normals.push_back(Vector3f::UnitZ());
+            const Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
+            vertices.push_back(PrimitiveGeometry::Vertex(point, Vector3f::UnitZ()));
           }
           geometry.UploadDataToBuffers();
           // Gather the strokes; they will be applied after the fill
@@ -208,22 +227,22 @@ void SVGPrimitive::RecomputeChildren() {
         auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
         auto& geometry = genericShape->Geometry();
 
-        geometry.CleanUpBuffers();
-        genericShape->SetAmbientFactor(1.0f);
         const float alpha = static_cast<float>((fillColor >> 24) & 0xFF)/255.0f;
         const float blue  = static_cast<float>((fillColor >> 16) & 0xFF)/255.0f;
         const float green = static_cast<float>((fillColor >>  8) & 0xFF)/255.0f;
         const float red   = static_cast<float>( fillColor        & 0xFF)/255.0f;
-        genericShape->SetDiffuseColor(Color(red, green, blue, alpha*opacity));
-        stdvectorV3f& vertices = geometry.Vertices();
-        stdvectorV3f& normals = geometry.Normals();
+        const Color color(red, green, blue, alpha*opacity);
+        genericShape->Material().SetDiffuseLightColor(color);
+        genericShape->Material().SetAmbientLightColor(color);
+        genericShape->Material().SetAmbientLightingProportion(1.0f);
         for (auto& triangle : triangles) {
           assert(triangle.GetNumPoints() == 3);
-          for (int i = 0; i < 3; i++) {
-            Vector3f point(static_cast<float>(triangle[i].x), static_cast<float>(triangle[i].y), 0.0f);
-            vertices.push_back(point);
-            normals.push_back(Vector3f::UnitZ());
-          }
+          const Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
+          const Vector3f point2(static_cast<float>(triangle[1].x), static_cast<float>(triangle[1].y), 0.0f);
+          const Vector3f point3(static_cast<float>(triangle[2].x), static_cast<float>(triangle[2].y), 0.0f);
+          geometry.PushTri(PrimitiveGeometry::Vertex(point1, Vector3f::UnitZ()), 
+                           PrimitiveGeometry::Vertex(point2, Vector3f::UnitZ()), 
+                           PrimitiveGeometry::Vertex(point3, Vector3f::UnitZ()));
         }
         geometry.UploadDataToBuffers();
         AddChild(genericShape);

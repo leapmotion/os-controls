@@ -40,7 +40,7 @@ public:
   // the transformation acts simply as
   //   A*X'
   // and produces the same 3x1 column matrix value as the expression L*X + T.
-  typedef Eigen::Transform<Scalar,DIM,Eigen::AffineCompact> Transform;
+  typedef Eigen::Transform<Scalar,DIM,Eigen::AffineCompact,Eigen::DontAlign> Transform;
   SceneGraphNode() { m_transform.setIdentity(); }
   typedef std::vector<std::shared_ptr<SceneGraphNode>,
     Eigen::aligned_allocator<std::shared_ptr<SceneGraphNode>>
@@ -77,14 +77,21 @@ public:
       child->m_parent.reset(); // Unable to obtain weak pointer (parent most likely isn't a shared pointer)
     }
   }
-// Disable the ability to remove a child from parent until it is needed
-//  virtual void RemoveFromParent() {
-//    std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
-//    if (parent) {
-//      parent->m_children.erase(shared_from_this());
-//      m_parent.reset();
-//    }
-//  }
+  virtual void RemoveChild(std::shared_ptr<SceneGraphNode> child) {
+    auto found = std::find(std::begin(m_children), std::end(m_children), child);
+    if (found != std::end(m_children)) {
+      m_children.erase(found);
+    }
+  }
+  virtual void RemoveFromParent() {
+    std::shared_ptr<SceneGraphNode> parent = m_parent.lock();
+    if (parent) {
+      try {
+        parent->RemoveChild(shared_from_this());
+      } catch (const std::bad_weak_ptr&) {}
+      m_parent.reset();
+    }
+  }
 
   // Traverse this tree, depth-first, calling preTraversal (if not nullptr) 
   // on this node, then calling this function recursively on the child nodes, then 
@@ -200,9 +207,6 @@ public:
   }
 
   // TODO: special local to global and global to local transforms.
-
-  // Necessary because a member variable is a statically-sized Eigen type.
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
 

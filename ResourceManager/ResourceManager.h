@@ -21,6 +21,13 @@ struct ResourceLoader {
   static const bool exists = false;
 };
 
+//A type trait defining the path to the general resource type - specialize on void for the global root.
+//defaults to "" for all resource types.
+template <typename T>
+struct ResourcePathTrait {
+  static const char* path() { return ""; }
+};
+
 /// @brief Custom exception class specifically for Resource<T> and ResourceManager<T>.
 /// @details This is the base class for all type-specific resource-loading exceptions,
 /// and can be used to catch all resource-loading exceptions.
@@ -44,6 +51,8 @@ template <typename T>
 class ResourceManager {
 public:
 
+  const static size_t MAX_EXPECTED_PATH_LENGTH = 512;
+
   /// @brief This is the type of the named resource storage.
   typedef std::map<std::string,std::shared_ptr<T>> ResourceMap;
 
@@ -66,8 +75,15 @@ public:
     std::cout << "the resource was not already loaded -- loading it.\n";
     static_assert(ResourceLoader<T>::exists, "ResourceLoader<T> not defined -- template-specialize it to define");
     std::shared_ptr<T> resource;
-    resource = ResourceLoader<T>::LoadResource(name, *this);
-    std::cout << "ResourceManager::Get(\"" << name << "\"); loaded successfully.\n";
+
+    std::string fullName;
+    fullName.reserve(MAX_EXPECTED_PATH_LENGTH);
+    fullName += ResourcePathTrait<void>::path();
+    fullName += ResourcePathTrait<T>::path();
+    fullName += name;
+
+    resource = ResourceLoader<T>::LoadResource( fullName, *this);
+    std::cout << "ResourceManager::Get(\"" << name << "\"); loaded successfully from \"" << fullName << "\".\n";
     AddResource(name, resource);
     return resource;
   }
@@ -85,6 +101,5 @@ public:
   }
 
 private:
-
   ResourceMap m_resources; ///< The map of name-indexed loaded resources.
 };

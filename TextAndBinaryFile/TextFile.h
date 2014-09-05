@@ -21,12 +21,12 @@ public:
   }
   void Load (const std::string &path) {
     if (path.empty()) {
-      throw std::invalid_argument("must specify a nonempty path to load");
+      throw std::invalid_argument("TextFile: must specify a nonempty path to load");
     }
 
     std::ifstream in(path);             // Attempt to open the file
     if (!in.is_open()) {                // Throw exception if that didn't work.
-      throw std::domain_error("error encountered while attempting to open file \"" + path + "\"");
+      throw std::domain_error("TextFile: error encountered while attempting to open file \"" + path + "\"");
     }
 
     in.seekg(0, std::ios_base::end);    // Determine the size of the file.
