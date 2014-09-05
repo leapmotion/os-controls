@@ -13,7 +13,7 @@ OSWindow::~OSWindow(void)
 {
 }
 
-std::shared_ptr<ImagePrimitive> OSWindow::GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img) {
+std::shared_ptr<ImagePrimitive> OSWindow::GetWindowTexture(std::shared_ptr<ImagePrimitive> img) {
   auto sz = GetSize();
   return MakePatternedTexture((size_t) sz.width, (size_t) sz.height);
 }
