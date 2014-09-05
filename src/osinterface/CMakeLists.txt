@@ -24,6 +24,8 @@ set(osinterface_SOURCES
   OSWindowMonitor.h
   OSWindowMonitor.cpp
   ScrollOperation.h
+  WindowRenderer.h
+  WindowRenderer.cpp
   WindowScroller.h
   WindowScroller.cpp
 )
@@ -43,6 +45,8 @@ add_windows_sources(
   OSWindowMonitorWin.cpp
   OSVirtualScreenWin.h
   OSVirtualScreenWin.cpp
+  WindowRendererWin.h
+  WindowRendererWin.cpp
   WindowScrollerWin.h
   WindowScrollerWin.cpp
 )

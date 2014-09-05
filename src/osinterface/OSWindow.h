@@ -23,6 +23,9 @@ public:
 protected:
   int m_zOrder;
 
+  // If this window has been rendered, the system backing store for the window's texture
+  std::vector<unsigned char> m_sysTexture;
+
 public:
   /// <summary>
   /// Returns the z-order for this window with respect to other topmost windows

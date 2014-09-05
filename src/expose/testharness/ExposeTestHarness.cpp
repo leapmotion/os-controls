@@ -8,6 +8,7 @@
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindowMonitor.h"
+#include "osinterface/WindowRenderer.h"
 #include "uievents/Updatable.h"
 #include "utility/PlatformInitializer.h"
 #include <SFML/Window/Event.hpp>
@@ -25,6 +26,7 @@ int main(int argc, const char* argv[]) {
   // Make our stuff and start processing:
   AutoRequired<RenderEngine> renderEngine;
   AutoRequired<OSVirtualScreen> virtualScreen;
+  AutoRequired<WindowRenderer>();
   AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
   AutoRequired<LeapInput> leapInput;
   AutoRequired<MakesRenderWindowFullScreen>();
