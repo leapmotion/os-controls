@@ -33,9 +33,9 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
-  m_box->Draw(frame.renderState);
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
+  m_box->DrawSceneGraph(*m_box, frame.renderState);
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {

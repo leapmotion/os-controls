@@ -15,5 +15,5 @@ void ExposeViewWindow::UpdateTexture(void) {
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
-  m_texture->Draw(frame.renderState);
+  m_texture->DrawSceneGraph(*m_texture, frame.renderState);
 }
