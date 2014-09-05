@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "OSWindowWin.h"
+#include "WindowRendererWin.h"
 #include <Primitives.h>
 
 OSWindowWin::OSWindowWin(HWND hwnd):
@@ -26,7 +27,12 @@ uint32_t OSWindowWin::GetOwnerPid(void) {
 }
 
 std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<ImagePrimitive> img)  {
-  return OSWindow::GetWindowTexture(img);
+  Autowired<WindowRendererWin> wr;
+  if(!wr)
+    throw std::runtime_error("Cannot capture a window representation without a window renderer");
+
+  wr->Render(*this, m_sysTexture);
+  return img;
 }
 
 bool OSWindowWin::GetFocus(void) {
