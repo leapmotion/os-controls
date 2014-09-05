@@ -9,11 +9,8 @@ public:
   PlatformInitializer(void);
   ~PlatformInitializer(void);
 
-  const char* BaseAppPath() const;
-
 private:
   const HRESULT m_hr;
-  TCHAR m_appPath[MAX_PATH];
 
 public:
   operator HRESULT() const { return m_hr; }

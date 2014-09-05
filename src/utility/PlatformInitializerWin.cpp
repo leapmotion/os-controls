@@ -35,8 +35,3 @@ PlatformInitializer::~PlatformInitializer(void)
   if(SUCCEEDED(m_hr))
     CoUninitialize();
 }
-
-
-const char* PlatformInitializer::BaseAppPath() const {
-  return m_appPath;
-}
