@@ -2,7 +2,6 @@
 #include "WindowScroller.h"
 
 IWindowScroller::IWindowScroller(void):
-  m_ppmm(96.0f/25.4f),
   m_scrollId(0),
   m_remainingMomentum(OSPointZero),
   m_lastScrollTimePoint(std::chrono::steady_clock::now())
@@ -35,11 +34,6 @@ void IWindowScroller::ScrollBy(float deltaX, float deltaY) {
 
 void IWindowScroller::CancelScroll(void) {
   StopMomentumScrolling();
-}
-
-void IWindowScroller::SetPixelsPerInch(float ppi) {
-  std::lock_guard<std::mutex> lk(m_mutex);
-  m_ppmm = ppi/25.4f;
 }
 
 std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {

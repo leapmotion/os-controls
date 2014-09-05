@@ -10,6 +10,7 @@
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
+  m_ppi(96.0f),
   m_state(OSCState::BASE),
   m_scrollState(ScrollState::DECAYING),
   m_scrollOperation(nullptr),
@@ -109,7 +110,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
           OSScreen screen = virtualScreen->ClosestScreen(point);
           ppi = screen.PixelsPerInch();
         }
-        m_windowScroller->SetPixelsPerInch(ppi);
+        m_ppi = ppi;
 
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
@@ -152,7 +153,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
-      m_scrollOperation->ScrollBy(0.0f, m_handDelta.y() * SCROLL_SENSITIVITY);
+      m_scrollOperation->ScrollBy(0.0f, m_handDelta.y() * SCROLL_SENSITIVITY * m_ppi);
       break;
     case ScrollState::DECAYING:
       break;
