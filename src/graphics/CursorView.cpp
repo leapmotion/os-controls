@@ -30,17 +30,19 @@ void CursorView::AutoInit() {
   m_renderEngine->Add(shared_from_this());
 }
 
-void CursorView::AutoFilter(OSCState appState, const HandLocation& handLocation) {
+void CursorView::AutoFilter(OSCState appState, const HandPose& handPose, const HandLocation& handLocation) {
   //State Transitions
   switch(m_state) {
     case State::INACTIVE:
-      if(appState != OSCState::FINAL) {
+      if(appState != OSCState::FINAL &&
+         handPose != HandPose::Clawed) {
         m_state = State::ACTIVE;
         m_opacity.Set(1.0f);
       }
       break;
     case State::ACTIVE:
-      if(appState == OSCState::FINAL) {
+      if(appState == OSCState::FINAL ||
+         handPose == HandPose::Clawed) {
         m_state = State::INACTIVE;
         m_opacity.Set(0.0f);
       }

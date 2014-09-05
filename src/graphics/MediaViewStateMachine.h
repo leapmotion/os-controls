@@ -1,11 +1,13 @@
 #pragma once
 #include "graphics/Renderable.h"
 #include "interaction/HandLocationRecognizer.h"
-#include "interaction/HandRollRecognizer.h"
 #include "interaction/FrameDeltaTimeRecognizer.h"
+#include "interaction/HandPoseRecognizer.h"
+#include "interaction/HandRollRecognizer.h"
 #include "interaction/MediaViewController.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
+#include "VolumeKnob.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
@@ -23,7 +25,7 @@ public:
   void AutoInit();
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime);
+  void AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime);
   
   void AnimationUpdate(const RenderFrame& frame) override {}
   void Render(const RenderFrame& renderFrame) const override;
@@ -64,9 +66,11 @@ private:
   
   RadialMenu m_radialMenu;
   RadialSlider m_volumeSlider;
+  AutoRequired<VolumeKnob> m_volumeKnob;
   
   bool m_hasRoll;
   float m_startRoll;
+  HandPose m_lastHandPose;
   
   State m_state;
   
