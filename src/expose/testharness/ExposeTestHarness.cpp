@@ -38,8 +38,11 @@ int main(int argc, const char* argv[]) {
   );
 
   // Create all of our expose stuff after everything else is set up
-  AutoRequired<ExposeView>();
+  AutoRequired<ExposeView> view;
   AutoRequired<ExposeViewController>();
+
+  // We always want the view to be 100% visible
+  view->StartView();
 
   // We will also need to monitor the state of all screen windows:
   AutoRequired<OSWindowMonitor>();

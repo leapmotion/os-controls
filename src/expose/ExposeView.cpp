@@ -24,6 +24,11 @@ void ExposeView::AutoInit() {
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   m_opacity.Update(frame.deltaT.count());
+
+  // Do nothing else if we're invisible
+  if(!IsVisible())
+    return;
+
   updateLayout(frame.deltaT);
 
   for(const auto& renderable : m_zorder)
@@ -31,6 +36,9 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
+  if(!IsVisible())
+    return;
+
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
 }

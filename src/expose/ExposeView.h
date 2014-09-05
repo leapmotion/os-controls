@@ -62,6 +62,12 @@ public:
   void AnimationUpdate(const RenderFrame& frame) override;
   void Render(const RenderFrame& frame) const override;
 
+
+  /// <returns>
+  /// True if the ExposeView is presently visible to the user
+  /// </returns>
+  bool IsVisible(void) const { return 0.001f < m_opacity.Current(); }
+
   /// <summary>
   /// Creates a new ExposeViewWindow for the specified OS window
   /// </summary>
