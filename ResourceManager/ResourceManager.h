@@ -21,6 +21,13 @@ struct ResourceLoader {
   static const bool exists = false;
 };
 
+//A type trait defining the path to the general resource type - specialize on void for the global root.
+//defaults to "" for all resource types.
+template <typename T>
+struct ResourcePathTrait {
+  static std::string path() { return ""; }
+};
+
 /// @brief Custom exception class specifically for Resource<T> and ResourceManager<T>.
 /// @details This is the base class for all type-specific resource-loading exceptions,
 /// and can be used to catch all resource-loading exceptions.
@@ -66,7 +73,7 @@ public:
     std::cout << "the resource was not already loaded -- loading it.\n";
     static_assert(ResourceLoader<T>::exists, "ResourceLoader<T> not defined -- template-specialize it to define");
     std::shared_ptr<T> resource;
-    resource = ResourceLoader<T>::LoadResource(name, *this);
+    resource = ResourceLoader<T>::LoadResource(ResourcePathTrait<void>::path() + ResourcePathTrait<T>::path() + name, *this);
     std::cout << "ResourceManager::Get(\"" << name << "\"); loaded successfully.\n";
     AddResource(name, resource);
     return resource;

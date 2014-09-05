@@ -325,7 +325,6 @@ add_sublibrary(
         TextFileLoader.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         ResourceManager
-        SDLController
         TextAndBinaryFile
     BRIEF_DOC_STRING
         "ResourceManager-managed loading of text and binary files."
@@ -366,7 +365,6 @@ add_sublibrary(
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTexture2FreeImage
         ResourceManager
-        SDLController
     BRIEF_DOC_STRING
         "Provides ResourceManager-managed loading of GLTexture2 objects using FreeImage."
 )
