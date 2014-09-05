@@ -116,8 +116,10 @@ void OSWindowMonitorWin::Scan() {
     }
 
   // Add to the collection:
-  std::lock_guard<std::mutex>(m_lock),
-  m_knownWindows.insert(pending.begin(), pending.end());
+  {
+    std::lock_guard<std::mutex> lk(m_lock);
+    m_knownWindows.insert(pending.begin(), pending.end());
+  }
 
   // Creation notifications now
   for(auto q : pending)
