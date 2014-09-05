@@ -25,7 +25,7 @@ uint32_t OSWindowWin::GetOwnerPid(void) {
   return pid;
 }
 
-std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img)  {
+std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<ImagePrimitive> img)  {
   return OSWindow::GetWindowTexture(img);
 }
 

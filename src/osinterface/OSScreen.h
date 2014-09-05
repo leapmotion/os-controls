@@ -8,7 +8,7 @@
 #include <windows.h>
 #endif
 
-class GLTexture2;
+class ImagePrimitive;
 
 #if __APPLE__
 using OSDisplayID = CGDirectDisplayID;
@@ -25,7 +25,7 @@ class OSScreen : public OSScreenBase {
     OSDisplayID ID() const { return m_screenID; }
     bool IsPrimary() const { return m_isPrimary; }
 
-    std::shared_ptr<GLTexture2> GetBackgroundImage() const;
+    std::shared_ptr<ImagePrimitive> GetBackgroundTexture(std::shared_ptr<ImagePrimitive> img) const;
 
   private:
     OSScreen(const OSDisplayID& screenID) : m_screenID(screenID), m_isPrimary(false) { Update(); }

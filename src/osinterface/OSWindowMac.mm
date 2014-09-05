@@ -36,7 +36,7 @@ std::shared_ptr<OSApp> OSWindowMac::GetOwnerApp(void) {
   return nullptr;
 }
 
-std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img)  {
+std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<ImagePrimitive> img)  {
   return OSWindow::GetWindowTexture(img);
 }
 
