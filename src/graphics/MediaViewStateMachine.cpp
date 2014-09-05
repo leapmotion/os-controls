@@ -38,7 +38,7 @@ m_state(State::INACTIVE) {
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu.GetItem(i);
     item->SetRadius(120.0);
     item->SetThickness(80.0);
-    item->SetActivatedRadius(200.0);
+    item->SetActivatedRadius(160.0);
     item->Material().SetDiffuseLightColor(bgColor);
     item->SetHoverColor(fillColor);
     item->SetActivatedColor(handleOutlineColor);

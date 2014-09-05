@@ -62,12 +62,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
     isPalmPointingAtScreen = true;
   }
   
-  std::cout << "palmZ: " << palmZ << std::endl;
-  std::cout << "isScreen: " << isPalmPointingAtScreen << std::endl;
-  std::cout << "isDistance: " << isClawDistance << std::endl;
-  std::cout << "fingersUp:  " << areFingersUp << std::endl;
-  std::cout << "isCurved:   " << isClawCurling << std::endl << std::endl;
-  
   switch (handCode) {
     case 0:  //00000
       handPose = HandPose::ZeroFingers;
@@ -139,7 +133,6 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
 bool HandPoseRecognizer::isNotDown(Leap::Finger finger) const {
   bool retVal = false;
   float yComponent = finger.bone(static_cast<Leap::Bone::Type>(1)).direction().toVector3<Vector3>().y();
-  std::cout << static_cast<int>(finger.type()) << "yComponent: " << yComponent << std::endl;
   if ( yComponent < 0.0 ) {
     retVal = true;
   }
@@ -209,8 +202,6 @@ float HandPoseRecognizer::averageFingerBend(Leap::Finger finger) const {
     count++;
   }
   average = count > 0 ? sum / count : 0.0f;
-  
-  std::cout << static_cast<int>(finger.type()) << " average bend: " << average << std::endl;
 
   retVal = average;
   return retVal;
