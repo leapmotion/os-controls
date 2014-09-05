@@ -10,8 +10,6 @@
 ExposeView::ExposeView() :
   m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>)
 {
-  // Add a box as our child
-  m_box = MakeBoxPrimitive();
 }
 
 ExposeView::~ExposeView() {
@@ -35,7 +33,6 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 void ExposeView::Render(const RenderFrame& frame) const {
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
-  m_box->DrawSceneGraph(*m_box, frame.renderState);
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {

@@ -44,9 +44,6 @@ private:
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
 
-  // Render box
-  std::shared_ptr<SVGPrimitive> m_box;
-
 private:
   /// <summary>
   /// Evolves the layout by one step
