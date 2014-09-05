@@ -20,11 +20,6 @@ OSWindowMonitor* OSWindowMonitor::New(void) {
   return new OSWindowMonitorMac;
 }
 
-OSWindow* OSWindowMonitorMac::WindowFromPoint(const OSPoint& pt) const {
-
-  return nullptr;
-}
-
 void OSWindowMonitorMac::Enumerate(const std::function<void(OSWindow&)>& callback) const {
   std::lock_guard<std::mutex> lk(m_lock);
   for(const auto& knownWindow : m_knownWindows)
