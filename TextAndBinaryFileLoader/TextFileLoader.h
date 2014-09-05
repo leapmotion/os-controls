@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ResourceManager.h"
-#include "SDLController.h"
 #include "TextFile.h"
 
 // Template specialization of ResourceLoader<TextFile> which defines how to load such a resource.

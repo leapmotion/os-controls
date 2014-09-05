@@ -2,7 +2,6 @@
 
 #include "GLTexture2.h"
 #include "GLTexture2FreeImage.h"
-#include "SDLController.h"
 
 #include <cassert>
 
