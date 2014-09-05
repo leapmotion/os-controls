@@ -2,6 +2,7 @@
 #include "StateMachine.h"
 #include "Color.h"
 #include "ExposeViewProxy.h"
+#include "InteractionConfigs.h"
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSWindow.h"
 #include "utility/NativeWindow.h"
@@ -35,7 +36,12 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       desiredState = OSCState::BASE;
       break;
     case HandPose::OneFinger:
-      desiredState = OSCState::MEDIA_MENU_FOCUSED;
+      if ( handPinch.pinchStrength <= config::MAX_PINCH_FOR_MENUS ) {
+        desiredState = OSCState::MEDIA_MENU_FOCUSED;
+      }
+      else {
+        std::cout << "pinch blocked" << std::endl;
+      }
       break;
     case HandPose::TwoFingers:
       desiredState = OSCState::BASE;
@@ -45,6 +51,9 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       break;
     case HandPose::FourFingers:
       desiredState = OSCState::EXPOSE_FOCUSED;
+      break;
+    case HandPose::Clawed:
+      desiredState = OSCState::MEDIA_MENU_FOCUSED;
       break;
     case HandPose::FiveFingers:
     default:
@@ -61,6 +70,8 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
     // going through the ground case will actually not cause a menu change to happen, and
     // if this isn't the desired behavior, then change it by assigning the current state
     // unconditionally!
+    //
+    // Ok, removed it!
   m_state = desiredState;
   
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
@@ -76,7 +87,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       }
       break;
     case ScrollState::DECAYING:
-      if ( handPinch.isPinching ) {
+      if ( handPinch.isPinching && handPose != HandPose::Clawed ) {
         AutowiredFast<OSCursor> cursor;
         if (cursor) {
           auto screenPosition = handLocation.screenPosition();
@@ -86,6 +97,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
           // Make the application at the point become active
           NativeWindow::RaiseWindowAtPosition(point.x, point.y);
         }
+        
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
           scrollState = ScrollState::ACTIVE;
