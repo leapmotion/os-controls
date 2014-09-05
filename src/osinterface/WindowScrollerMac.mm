@@ -25,7 +25,7 @@ WindowScrollerMac::~WindowScrollerMac() {
 }
 
 void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) {
-  OSPoint deltaPixel = OSPointMake(deltaX*m_ppmm, deltaY*m_ppmm); // Convert to pixels
+  OSPoint deltaPixel = OSPointMake(deltaX, deltaY);
   OSPoint deltaLine  = OSPointMake(deltaPixel.x/10.0f, deltaPixel.y/10.f); // Convert to lines
 
   // Adjust partial pixels

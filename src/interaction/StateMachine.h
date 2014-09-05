@@ -50,7 +50,11 @@ private:
   OSCState m_state;
   
   ScrollState m_scrollState;
-  Vector2 m_handDelta; 
+  Vector2 m_handDelta; //in millimeters
+  const float SCROLL_SENSITIVITY = 1.3f;
+
+  // DPI for use with the current scroll operation
+  float m_ppi;
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 

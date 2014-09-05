@@ -21,7 +21,7 @@ WindowScrollerWin::~WindowScrollerWin() {
 }
 
 void WindowScrollerWin::DoScrollBy(float deltaX, float deltaY, bool isMomentum) {
-  const OSPoint deltaPixel = OSPointMake(deltaX*m_ppmm, deltaY*m_ppmm); // Convert to pixels
+  const OSPoint deltaPixel = OSPointMake(deltaX, deltaY);
   OSPoint deltaLine  = OSPointMake(deltaPixel.x/m_pixelsPerLine.x, deltaPixel.y/m_pixelsPerLine.y); // Convert to lines
 
   // Adjust partial lines
