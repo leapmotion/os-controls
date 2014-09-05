@@ -90,6 +90,7 @@ endif()
 
 if(MSVC)
   set_property(TARGET osinterface APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+  target_link_libraries(osinterface D3D11 Dcomp)
 endif()
 
 add_subdirectory(test)
