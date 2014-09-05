@@ -6,14 +6,15 @@
 #include "osinterface/OSWindow.h"
 #include "utility/NativeWindow.h"
 
+#define USE_HAND_SCROLL 1
+
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
   m_scrollState(ScrollState::DECAYING),
   m_scrollOperation(nullptr),
   m_handDelta(0,0),
-  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f)),
-  m_first(true)
+  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
 {
 }
 
@@ -24,13 +25,6 @@ StateMachine::~StateMachine(void)
 
 // Transition Checking Loop
 void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
-  if (m_first) {
-
-    m_scrollOperation = m_windowScroller->BeginScroll();
-    m_first= false;
-  }
-
-
   std::lock_guard<std::mutex> lk(m_lock);
   if(m_state == OSCState::FINAL) {
     return;
@@ -75,39 +69,68 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose&
   state = m_state;
   
   scrollState = m_scrollState; //in case we don't change state
-  
-#if 0
-  switch ( m_scrollState ) {
-    case ScrollState::ACTIVE:
-      if ( !handPinch.isPinching ) {
-        m_scrollOperation.reset();
-        scrollState = ScrollState::DECAYING;
+
+#if USE_HAND_SCROLL
+  const double deltaScrollMultiplier = 0.15;
+  const double deltaScrollThreshold = 0.15;
+  const Vector2 deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
+  switch (m_scrollState) {
+  case ScrollState::ACTIVE:
+    if (deltaScroll.squaredNorm() < deltaScrollThreshold) {
+      m_scrollOperation.reset();
+      scrollState = ScrollState::DECAYING;
+    }
+    break;
+  case ScrollState::DECAYING:
+    if (deltaScroll.squaredNorm() > deltaScrollThreshold) {
+      AutowiredFast<OSCursor> cursor;
+      if (cursor) {
+        auto screenPosition = handLocation.screenPosition();
+        OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
+        // Set the current cursor position
+        cursor->SetCursorPos(point);
+        // Make the application at the point become active
+        NativeWindow::RaiseWindowAtPosition(point.x, point.y);
       }
-      break;
-    case ScrollState::DECAYING:
-      if ( handPinch.isPinching ) {
-        AutowiredFast<OSCursor> cursor;
-        if (cursor) {
-          auto screenPosition = handLocation.screenPosition();
-          OSPoint point{static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y())};
-          // Set the current cursor position
-          cursor->SetCursorPos(point);
-          // Make the application at the point become active
-          NativeWindow::RaiseWindowAtPosition(point.x, point.y);
-        }
-        m_scrollOperation = m_windowScroller->BeginScroll();
-        if(m_scrollOperation){
-          scrollState = ScrollState::ACTIVE;
-        }
+      m_scrollOperation = m_windowScroller->BeginScroll();
+      if (m_scrollOperation){
+        scrollState = ScrollState::ACTIVE;
       }
-      break;
+    }
+    break;
+  }
+#else
+  switch (m_scrollState) {
+  case ScrollState::ACTIVE:
+    if (!handPinch.isPinching) {
+      m_scrollOperation.reset();
+      scrollState = ScrollState::DECAYING;
+    }
+    break;
+  case ScrollState::DECAYING:
+    if (handPinch.isPinching) {
+      AutowiredFast<OSCursor> cursor;
+      if (cursor) {
+        auto screenPosition = handLocation.screenPosition();
+        OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
+        // Set the current cursor position
+        cursor->SetCursorPos(point);
+        // Make the application at the point become active
+        NativeWindow::RaiseWindowAtPosition(point.x, point.y);
+      }
+      m_scrollOperation = m_windowScroller->BeginScroll();
+      if (m_scrollOperation){
+        scrollState = ScrollState::ACTIVE;
+      }
+    }
+    break;
   }
 #endif
   
-#if 0
-  m_handDelta =  Vector2(handLocation.dX, handLocation.dY);
+#if USE_HAND_SCROLL
+  m_handDelta = deltaScroll;
 #else
-  m_handDelta = -scroll.m_deltaScrollMM.head<2>();
+  m_handDelta =  Vector2(handLocation.dX, handLocation.dY);
 #endif
   m_scrollState = scrollState;
 }
@@ -137,7 +160,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       break;
   }
   
-#if 0
+#if 1
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
       m_scrollOperation->ScrollBy(0.0f, m_handDelta.y());

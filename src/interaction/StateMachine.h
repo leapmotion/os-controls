@@ -64,6 +64,4 @@ private:
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
   AutoCurrentContext m_context;
-
-  bool m_first;
 };
