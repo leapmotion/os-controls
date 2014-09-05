@@ -30,6 +30,9 @@ PlatformInitializer::PlatformInitializer(void)
       }
     }
   }
+
+  m_path = getcwd(NULL, 0);
+
   //
   // The isOpaque method in the SFOpenGLView class of SFML always returns YES
   // (as it just uses the default implementation of NSOpenGLView). This
@@ -44,4 +47,9 @@ PlatformInitializer::PlatformInitializer(void)
 
 PlatformInitializer::~PlatformInitializer(void)
 {
+  free(m_path);
+}
+
+const char* PlatformInitializer::BaseAppPath() const {
+  return m_path;
 }

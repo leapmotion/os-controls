@@ -14,10 +14,13 @@
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
+#include "utility/ResourceManagerInitializer.h"
 
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
+  ResourceManagerInitializer resInit(init.BaseAppPath());
+
   AutoCurrentContext ctxt;
   ctxt->Initiate();
 
