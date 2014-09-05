@@ -24,7 +24,9 @@ public:
 /// of a particular, templated type.
 /// @details The CreateInstance and DestroyInstance methods can be used to explicitly
 /// create or destroy the singleton.  SafeRef will create the singleton if it doesn't
-/// already exist.
+/// already exist. This is essentially used as a really shitty single-context version
+/// of autowiring at this point, and should be replaced with it.
+
 template <typename T>
 class Singleton {
 public:
