@@ -13,8 +13,6 @@ public:
   const Projection& GetProjection() const { return m_Projection; }
   Projection& GetProjection() { return m_Projection; }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 private:
 
   // modelview and projection

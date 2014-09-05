@@ -40,7 +40,7 @@ public:
   // the transformation acts simply as
   //   A*X'
   // and produces the same 3x1 column matrix value as the expression L*X + T.
-  typedef Eigen::Transform<Scalar,DIM,Eigen::AffineCompact> Transform;
+  typedef Eigen::Transform<Scalar,DIM,Eigen::AffineCompact,Eigen::DontAlign> Transform;
   SceneGraphNode() { m_transform.setIdentity(); }
   typedef std::vector<std::shared_ptr<SceneGraphNode>,
     Eigen::aligned_allocator<std::shared_ptr<SceneGraphNode>>
@@ -207,9 +207,6 @@ public:
   }
 
   // TODO: special local to global and global to local transforms.
-
-  // Necessary because a member variable is a statically-sized Eigen type.
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
 
