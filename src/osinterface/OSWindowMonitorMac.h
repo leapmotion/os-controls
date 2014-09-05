@@ -30,6 +30,5 @@ protected:
 
 public:
   // OSWindowMonitor overrides:
-  OSWindow* WindowFromPoint(const OSPoint& pt) const override;
   void Enumerate(const std::function<void(OSWindow&)>& callback) const override;
 };
