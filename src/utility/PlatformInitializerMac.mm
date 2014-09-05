@@ -31,7 +31,7 @@ PlatformInitializer::PlatformInitializer(void)
     }
   }
 
-  m_path = getcwd(NULL, 0);
+  m_path = getcwd(nullptr, 0);
 
   //
   // The isOpaque method in the SFOpenGLView class of SFML always returns YES
