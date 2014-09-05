@@ -13,8 +13,8 @@ std::shared_ptr<FbxScene> ResourceLoader<FbxScene>::LoadResource (const std::str
   });
   
   std::string error;
-  
-  std::string fullName = calling_manager.basePath + name;
+  std::string fullName = calling_manager.GetBasePath() + name;
+
   // Try initializing the file and importing the scene.  Using the default FbxIOSettings for now
   if (importer->Initialize(name.c_str())) {
     if (!importer->Import(scene.get())) {
