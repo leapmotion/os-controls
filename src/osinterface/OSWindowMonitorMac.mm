@@ -9,7 +9,7 @@
 OSWindowMonitorMac::OSWindowMonitorMac(void)
 {
   // Trigger initial enumeration
-  Tick(std::chrono::duration<double>(0.0));
+  Scan();
 }
 
 OSWindowMonitorMac::~OSWindowMonitorMac(void)
