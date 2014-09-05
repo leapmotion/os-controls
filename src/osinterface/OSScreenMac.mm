@@ -47,7 +47,8 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     }
     ::memset(dstBytes.get(), 0, totalBytes);
 
-    NSImage* nsImage = [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
+    NSImage* nsImage =
+        [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
     if (!nsImage) {
       return std::shared_ptr<ImagePrimitive>();
     }
