@@ -12,10 +12,26 @@
 #include <Foundation/NSValue.h>
 #include <OpenGL/OpenGL.h>
 
+#include <cmath>
+
 void OSScreen::Update()
 {
-  m_bounds = CGDisplayBounds(m_screenID);
   m_isPrimary = CGDisplayIsMain(m_screenID);
+  m_bounds = CGDisplayBounds(m_screenID);
+  const CGSize screenSizeInMM = CGDisplayScreenSize(m_screenID);
+  const float widthInches = screenSizeInMM.width/25.4f;
+  const float heightInches = screenSizeInMM.height/25.4f;
+  const float diagonalInches = std::sqrt(widthInches*widthInches + heightInches*heightInches);
+  if (std::abs(diagonalInches) < FLT_EPSILON) {
+    return;
+  }
+  const float diagonalPixels = std::sqrt(m_bounds.size.width*m_bounds.size.width +
+                                         m_bounds.size.height*m_bounds.size.height);
+  const float pixelsPerInch = diagonalPixels/diagonalInches;
+  if (pixelsPerInch < FLT_EPSILON) {
+    return;
+  }
+  m_pixelsPerInch = pixelsPerInch;
 }
 
 std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<ImagePrimitive> img) const
