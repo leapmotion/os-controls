@@ -59,7 +59,11 @@ public:
   /// <summary>
   /// Copies an image corresponding to a window into the specified image primitive
   /// </summary>
-  virtual void GetWindowTexture(ImagePrimitive& img) = 0;
+  /// <param name="img">The prior texture, or nullptr if this is the first invocation</param>
+  /// <returns>
+  /// Either an updated version of the passed texture, or a new texture.
+  /// </returns>
+  virtual std::shared_ptr<ImagePrimitive> GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img) = 0;
 
   /// <returns>
   /// True if this window has focus

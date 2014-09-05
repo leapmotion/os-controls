@@ -114,8 +114,10 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       // Remove our controls from the scene graph
       m_mediaViewStateMachine->RemoveFromParent();
       m_cursorView->RemoveFromParent();
+
       // Shutdown the context
       m_context->SignalShutdown();
+      
       // Remove our own reference to the context
       m_context.reset();
       return;

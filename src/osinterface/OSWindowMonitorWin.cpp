@@ -49,6 +49,12 @@ void OSWindowMonitorWin::Scan() {
         // No toolbar windows, they are not allowed to appear in the topmost window list by definition
         return true;
       
+      // Do not try to enumerate anything we own
+      DWORD pid = 0;
+      GetWindowThreadProcessId(hwnd, &pid);
+      if(pid == GetCurrentProcessId())
+        return true;
+      
       for(HWND hwndTry = hwndWalk; hwndTry; ) {
         // Advance to the next spot:
         std::tie(hwndTry, hwndWalk) = std::make_tuple(GetLastActivePopup(hwndWalk), hwndTry);

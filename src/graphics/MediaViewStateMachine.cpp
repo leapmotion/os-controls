@@ -3,6 +3,7 @@
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/osControlConfigs.h"
+#include "RenderEngine.h"
 #include "RenderState.h"
 #include "RenderFrame.h"
 
@@ -74,8 +75,7 @@ m_state(State::INACTIVE) {
 }
 
 void MediaViewStateMachine::AutoInit() {
-  auto self = shared_from_this();
-  m_rootNode->AddChild(self);
+  m_rootNode->Add(shared_from_this());
 }
 
 void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime) {
@@ -194,5 +194,5 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
 
 //TODO: Filter this data in the recognizer to smooth things out.
 float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
-  return deltaHandRoll / (3 * PI / 2.0);
+  return (float) (deltaHandRoll / (3 * PI / 2.0));
 }
