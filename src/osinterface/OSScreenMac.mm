@@ -23,12 +23,14 @@ void OSScreen::Update()
   const float heightInches = screenSizeInMM.height/25.4f;
   const float diagonalInches = std::sqrt(widthInches*widthInches + heightInches*heightInches);
   if (std::abs(diagonalInches) < FLT_EPSILON) {
+    m_pixelsPerInch = 96.0f;
     return;
   }
   const float diagonalPixels = std::sqrt(m_bounds.size.width*m_bounds.size.width +
                                          m_bounds.size.height*m_bounds.size.height);
   const float pixelsPerInch = diagonalPixels/diagonalInches;
   if (pixelsPerInch < FLT_EPSILON) {
+    m_pixelsPerInch = 96.0f;
     return;
   }
   m_pixelsPerInch = pixelsPerInch;
