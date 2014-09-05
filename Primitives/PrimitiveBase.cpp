@@ -7,42 +7,27 @@
 
 PrimitiveBase::PrimitiveBase()
   :
-  m_shader("material"),
-  m_opacity(1.0f),
-  m_overrideOpacity(false)
+  m_shader("material")
 {
   GLMaterial::CheckShaderForUniforms(*m_shader);
 }
 
 void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &render_state) {
-  // This actually performs the traversal with the specified functions.
-  rootNode.DepthFirstTraverse(
-    [&render_state](const Parent_SceneGraphNode &node) {
-      assert(dynamic_cast<const PrimitiveBase *>(&node) != nullptr && "unexpected non-PrimitiveBase nodes in scene graph");
+  // TODO: the existing model view matrix can be inputted as the initial state of global_properties
+  // in the call to DepthFirstTraverse.
+  rootNode.DepthFirstTraverse<PrimitiveBase>([&render_state](const PrimitiveBase &node, const Properties &global_properties) {
+    // Set the model view (TODO: change this to not be in the RenderState, since it's tracked by DepthFirstTraverse)
+    ModelView& modelView = render_state.GetModelView();
+    modelView.Push();
+    modelView.Multiply(global_properties.AffineTransform().AsFullMatrix());
 
-      ModelView& modelView = render_state.GetModelView();
-      modelView.Push();
-      modelView.Translate(node.Translation());
-      modelView.Multiply(Matrix3x3(node.LinearTransformation()));
+    render_state.SetAlphaMask(global_properties.AlphaMask());
 
-      // Draw this node -- this is a virtual call to PrimitiveBase::Draw.
-      const PrimitiveBase &primitive_base_node = static_cast<const PrimitiveBase &>(node);
+    // TODO: upload matrix uniforms here instead of in each Primitive subclass Draw method.
+    //       upload material uniforms here instead of in each Primitive subclass Draw method.
 
-      OpacityState& opacityState = render_state.GetOpacityState();
-      opacityState.Push();
-      if (primitive_base_node.OverrideOpacity()) {
-        opacityState.Opacity() = primitive_base_node.Opacity();
-      } else {
-        opacityState.Multiply(primitive_base_node.Opacity());
-      }
+    node.Draw(render_state);
 
-      primitive_base_node.Draw(render_state);
-    }
-  , 
-    [&render_state](const Parent_SceneGraphNode &node) {
-      // Restore the stack after this node and all its children are drawn.
-      render_state.GetModelView().Pop();
-      render_state.GetOpacityState().Pop();
-    }
-  );
+    modelView.Pop();
+  });
 }
