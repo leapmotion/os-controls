@@ -65,13 +65,12 @@ void ScrollRecognizer::UpdateScrollVelocity() {
   // make speeding up have less lag than slowing down
   static const float SPEED_UP_SMOOTH = 0.4f;
   static const float SLOW_DOWN_SMOOTH = 0.7f;
-  static const float DECAY_MULTIPLIER = 0.6f;
 
   const Vector3 prevScrollVelocity = m_scrollVelocity.Value();
 
   const float curSmooth = m_curScrollVelocity.squaredNorm() > prevScrollVelocity.squaredNorm() ? SPEED_UP_SMOOTH : SLOW_DOWN_SMOOTH;
   m_scrollVelocity.SetSmoothStrength(curSmooth);
-  m_scrollVelocity.SetGoal(m_curScrollVelocity + DECAY_MULTIPLIER*prevScrollVelocity);
+  m_scrollVelocity.SetGoal(m_curScrollVelocity);
   m_scrollVelocity.Update(m_deltaTimeSeconds);
 }
 
