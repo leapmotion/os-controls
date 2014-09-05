@@ -1,17 +1,18 @@
 #include <gtest/gtest.h>
-#include "SceneGraphNodeProperties.h"
+#include "SceneGraphNodeProperty.h"
+#include "SceneGraphNodeValues.h"
 
 class SceneGraphNodePropertiesTest : public testing::Test { };
 
 template <typename Scalar, int DIM>
-void TestTransformProperty () {
-  typedef TransformProperty<Scalar,DIM> TProp;
+void TestAffineTransformProperty () {
+  typedef NodeProperty<AffineTransformValue<Scalar,DIM>> TProp;
   typedef typename TProp::ValueType ValueType;
 
   ValueType id;
   id.setIdentity();
 
-  // The Value() value of a default-constructed TransformProperty should be the identity transformation.
+  // The Value() value of a default-constructed AffineTransformValue should be the identity transformation.
   {
     TProp prop;
     EXPECT_EQ(true, prop.IsValid());
@@ -24,7 +25,7 @@ void TestTransformProperty () {
     TProp prop1;
     TProp prop2;
     TProp prop3(prop1);
-    prop3.Apply(prop2);
+    prop3.Apply(prop2, Operate::ON_RIGHT);
     EXPECT_EQ(true, prop3.IsValid());
     EXPECT_EQ(Scalar(0), (id.affine() - prop3.Value().affine()).squaredNorm());
   }
@@ -37,7 +38,7 @@ void TestTransformProperty () {
     prop2.Value().scale(Scalar(3));
 
     TProp prop3(prop1);
-    prop3.Apply(prop2);
+    prop3.Apply(prop2, Operate::ON_RIGHT);
 
     ValueType id_times_6;
     id_times_6.setIdentity();
@@ -68,7 +69,7 @@ void TestTransformProperty () {
     prop2.SetApplyType(ApplyType::REPLACE);
 
     TProp prop3(prop1);
-    prop3.Apply(prop2);
+    prop3.Apply(prop2, Operate::ON_RIGHT);
 
     EXPECT_EQ(true, prop3.IsValid());
     EXPECT_EQ(ApplyType::REPLACE, prop3.ApplyType());
@@ -86,18 +87,18 @@ void TestTransformProperty () {
   }
 }
 
-TEST_F(SceneGraphNodePropertiesTest, TransformProperty) {
-  TestTransformProperty<float,2>();
-  TestTransformProperty<float,3>();
-  TestTransformProperty<double,2>();
-  TestTransformProperty<double,3>();
+TEST_F(SceneGraphNodePropertiesTest, Property_AffineTransform) {
+  TestAffineTransformProperty<float,2>();
+  TestAffineTransformProperty<float,3>();
+  TestAffineTransformProperty<double,2>();
+  TestAffineTransformProperty<double,3>();
 }
 
 template <typename Scalar>
 void TestAlphaMaskProperty () {
-  typedef AlphaMaskProperty<Scalar> AlphaMask;
+  typedef NodeProperty<AlphaMaskValue<Scalar>> AlphaMask;
 
-  // The Value() value of a default-constructed AlphaMaskProperty should be the identity transformation.
+  // The Value() value of a default-constructed AlphaMaskValue should be the identity transformation.
   {
     AlphaMask prop;
     EXPECT_EQ(true, prop.IsValid());
@@ -110,7 +111,7 @@ void TestAlphaMaskProperty () {
     AlphaMask prop1;
     AlphaMask prop2;
     AlphaMask prop3(prop1);
-    prop3.Apply(prop2);
+    prop3.Apply(prop2, Operate::ON_RIGHT);
     EXPECT_EQ(true, prop3.IsValid());
     EXPECT_EQ(Scalar(1), prop3.Value());
   }
@@ -123,7 +124,7 @@ void TestAlphaMaskProperty () {
     prop2.Value() = Scalar(0.5);
 
     AlphaMask prop3(prop1);
-    prop3.Apply(prop2);
+    prop3.Apply(prop2, Operate::ON_RIGHT);
 
     EXPECT_EQ(true, prop3.IsValid());
     EXPECT_EQ(Scalar(0.375), prop3.Value());
@@ -145,7 +146,7 @@ void TestAlphaMaskProperty () {
     prop2.SetApplyType(ApplyType::REPLACE);
 
     AlphaMask prop3(prop1);
-    prop3.Apply(prop2);
+    prop3.Apply(prop2, Operate::ON_RIGHT);
 
     EXPECT_EQ(true, prop3.IsValid());
     EXPECT_EQ(ApplyType::REPLACE, prop3.ApplyType());
@@ -163,50 +164,50 @@ void TestAlphaMaskProperty () {
   }
 }
 
-TEST_F(SceneGraphNodePropertiesTest, AlphaMaskProperty) {
+TEST_F(SceneGraphNodePropertiesTest, Property_AlphaMask) {
   TestAlphaMaskProperty<float>();
   TestAlphaMaskProperty<double>();
 }
 
-template <typename TransformScalar, int TRANSFORM_DIM, typename AlphaMaskScalar>
+template <typename AffineTransformScalar, int AFFINE_TRANSFORM_DIM, typename AlphaMaskScalar>
 void TestSceneGraphNodeProperties () {
-  typedef SceneGraphNodeProperties<TransformScalar,TRANSFORM_DIM,AlphaMaskScalar> Properties;
+  typedef ParticularSceneGraphNodeProperties<AffineTransformScalar,AFFINE_TRANSFORM_DIM,AlphaMaskScalar> Properties;
 
   // Testing composition
   {
     Properties p1;
-    p1.Transform().Value().scale(TransformScalar(2));
-    p1.AlphaMask().Value() = AlphaMaskScalar(0.5);
+    p1.AffineTransform().scale(AffineTransformScalar(2));
+    p1.AlphaMask() = AlphaMaskScalar(0.5);
 
     Properties p2;
-    p2.Transform().Value().scale(TransformScalar(3));
-    p2.AlphaMask().Value() = AlphaMaskScalar(0.75);
+    p2.AffineTransform().scale(AffineTransformScalar(3));
+    p2.AlphaMask() = AlphaMaskScalar(0.75);
 
-    typename Properties::TransformProperty_::ValueType id_times_6;
+    typename Properties::AffineTransformValue_ id_times_6;
     id_times_6.setIdentity();
-    id_times_6.scale(TransformScalar(6));
+    id_times_6.scale(AffineTransformScalar(6));
 
     Properties p3(p1);
-    p3.Apply(p2);
-    EXPECT_EQ(TransformScalar(0), (p3.Transform().Value().affine() - id_times_6.affine()).squaredNorm());
-    EXPECT_EQ(AlphaMaskScalar(0.375), p3.AlphaMask().Value());
+    p3.Apply(p2, Operate::ON_RIGHT);
+    EXPECT_EQ(AffineTransformScalar(0), (p3.AffineTransform().affine() - id_times_6.affine()).squaredNorm());
+    EXPECT_EQ(AlphaMaskScalar(0.375), p3.AlphaMask());
   }
 
   // Testing inversion
   {
     Properties p;
-    p.Transform().Value().scale(TransformScalar(2));
-    p.AlphaMask().Value() = AlphaMaskScalar(0.5);
+    p.AffineTransform().scale(AffineTransformScalar(2));
+    p.AlphaMask() = AlphaMaskScalar(0.5);
     p.Invert();
 
-    typename Properties::TransformProperty_::ValueType id_times_one_half;
+    typename Properties::AffineTransformValue_ id_times_one_half;
     id_times_one_half.setIdentity();
-    id_times_one_half.scale(TransformScalar(1)/TransformScalar(2));
+    id_times_one_half.scale(AffineTransformScalar(1)/AffineTransformScalar(2));
 
-    EXPECT_EQ(true, p.Transform().IsValid());
-    EXPECT_EQ(TransformScalar(0), (id_times_one_half.affine() - p.Transform().Value().affine()).squaredNorm());
+    EXPECT_EQ(true, p.AffineTransformProperty().IsValid());
+    EXPECT_EQ(AffineTransformScalar(0), (id_times_one_half.affine() - p.AffineTransform().affine()).squaredNorm());
 
-    EXPECT_EQ(false, p.AlphaMask().IsValid());
+    EXPECT_EQ(false, p.AlphaMaskProperty().IsValid());
   }
 }
 

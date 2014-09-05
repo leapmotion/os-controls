@@ -375,6 +375,9 @@ add_sublibrary(
     SceneGraph
     HEADERS
         SceneGraphNode.h
+        SceneGraphNodeProperties.h
+        SceneGraphNodeProperty.h
+        SceneGraphNodeValues.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         EigenTypes
@@ -826,6 +829,7 @@ add_sublibrary(
         SceneGraph/Test
     SOURCES
         SceneGraphNodePropertiesTest.cpp
+        SceneGraphNodeTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GTest
         SceneGraph
