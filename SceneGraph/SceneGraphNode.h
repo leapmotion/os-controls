@@ -132,7 +132,7 @@ public:
                            const Properties &parent_global_properties = Properties()) const {
     // Using the parent's global properties, compute this node's global properties.
     Properties global_properties(parent_global_properties);
-    global_properties.Apply(LocalProperties());
+    global_properties.Apply(LocalProperties(), Operate::ON_RIGHT);
     assert(dynamic_cast<const DerivedNode *>(this) != nullptr && "this node isn't actually of the requested DerivedNode type");
     // Call the callback on this node.
     callback(*static_cast<const DerivedNode *>(this), global_properties);
@@ -149,7 +149,7 @@ public:
                            const Properties &parent_global_properties = Properties()) {
     // Using the parent's global properties, compute this node's global properties.
     Properties global_properties(parent_global_properties);
-    global_properties.Apply(LocalProperties());
+    global_properties.Apply(LocalProperties(), Operate::ON_RIGHT);
     assert(dynamic_cast<DerivedNode *>(this) != nullptr && "this node isn't actually of the requested DerivedNode type");
     // Call the callback on this node.
     callback(*static_cast<DerivedNode *>(this), global_properties);
