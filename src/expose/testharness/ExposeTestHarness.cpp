@@ -9,14 +9,12 @@
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindowMonitor.h"
 #include "utility/PlatformInitializer.h"
-#include "utility/ResourceManagerInitializer.h"
 
 #include <SFML/Window/Event.hpp>
 
 int main(int argc, const char* argv[]) {
   // Initialize our OS-specific dependencies
   PlatformInitializer init;
-  ResourceManagerInitializer resourceInit(init.BaseAppPath());
   
   // Begin processing
   AutoCurrentContext()->Initiate();

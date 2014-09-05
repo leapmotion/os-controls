@@ -5,8 +5,6 @@ set(utility_SOURCES
   lockable_property.h
   NativeWindow.h
   PlatformInitializer.h
-  ResourceManagerInitializer.h
-  ResourceManagerInitializer.cpp
   SamplePrimitives.h
   SamplePrimitives.cpp
 )
