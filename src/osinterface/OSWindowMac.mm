@@ -36,6 +36,10 @@ std::shared_ptr<OSApp> OSWindowMac::GetOwnerApp(void) {
   return nullptr;
 }
 
+std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img)  {
+  return OSWindow::GetWindowTexture(img);
+}
+
 uint32_t OSWindowMac::GetOwnerPid(void) {
   return static_cast<uint32_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
 }

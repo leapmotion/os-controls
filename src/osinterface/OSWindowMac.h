@@ -16,6 +16,7 @@ public:
   uint32_t GetOwnerPid(void) override;
   std::shared_ptr<OSApp> GetOwnerApp(void) override;
   uint64_t GetWindowID(void) const override { return (uint64_t) m_windowID; }
+  std::shared_ptr<ImagePrimitive> GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img) override;
   bool GetFocus(void) override;
   void SetFocus(void) override;
   std::wstring GetTitle(void) override;
@@ -41,3 +42,5 @@ private:
 
   friend class OSWindowMonitorMac;
 };
+
+static_assert(!std::is_abstract<OSWindowMac>::value, "OSWindowMac is meant to be a concrete type");
