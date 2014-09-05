@@ -8,7 +8,8 @@
 #include "HandPoseRecognizer.h"
 #include "utility/CircleFitter.h"
 
-HandPoseRecognizer::HandPoseRecognizer(void) {
+HandPoseRecognizer::HandPoseRecognizer(void) :
+m_lastPose(HandPose::ZeroFingers) {
   memset(lastExtended, 0, sizeof(lastExtended));
 }
 
@@ -20,7 +21,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
   }
   
   bool isClawCurling = true; //initial value
-  bool isClawDistance = areTipsClawed(hand);
+  bool isClawDistance = areTipsSeparated(hand);
   bool isPalmPointingDown = false;
   bool fingersOut = true;
   
@@ -50,25 +51,41 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       Vector3 palmPos = hand.palmPosition().toVector3<Vector3>();
       Vector3 tipPos = finger.tipPosition().toVector3<Vector3>();
       Vector3 diff = tipPos - palmPos;
-      float zDist = diff.z();
-      
-      if ( zDist > 50.0f ) {
-        fingersOut = false;
-      }
-      
+      float zDist = fabs(diff.z());
       std::cout << static_cast<int>(finger.type()) << " zDist: " << zDist << std::endl;
+      switch ( m_lastPose ) {
+        case HandPose::Clawed:
+          if ( zDist < persist_fingersForward ) {
+            fingersOut = false;
+          }
+          break;
+          
+        default:
+          if ( zDist < activate_fingersForward ) {
+            fingersOut = false;
+          }
+          break;
+      }
     }
     
     
     i++;
   }
   
-  isClawDistance = areTipsClawed(hand);
+  isClawDistance = areTipsSeparated(hand);
   
   float palmY = hand.palmNormal().toVector3<Vector3>().y();
-  std::cout << "PalmY: " << palmY << std::endl;
-  if ( palmY <= -0.95f ) {
-    isPalmPointingDown = true;
+  switch ( m_lastPose ) {
+    case HandPose::Clawed:
+      if ( palmY < persist_palmDown ) {
+        isPalmPointingDown = true;
+      }
+      break;
+    default:
+      if ( palmY <= activate_palmDown ) {
+        isPalmPointingDown = true;
+      }
+      break;
   }
   
   switch (handCode) {
@@ -113,6 +130,8 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       !isPalmPointingDown) {
     handPose = HandPose::Clawed;
   }
+  
+  m_lastPose = handPose;
 }
 
 //This could be cleaned up a lot to use some loops.
@@ -150,20 +169,28 @@ bool HandPoseRecognizer::isClawCurled(Leap::Finger finger) const {
   bool retVal = false;
   float averageBend = averageFingerBend(finger);
   if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
-    if ( averageBend > 0.25f &&
-         averageBend < 2.0f ) {
-      retVal = true;
+    switch ( m_lastPose ) {
+      case HandPose::Clawed:
+        if ( averageBend > persist_clawCurl_min &&
+            averageBend < persist_clawCurl_max ) {
+          retVal = true;
+        }
+        break;
+      default:
+        if ( averageBend > activate_clawCurl_min &&
+             averageBend < activate_clawCurl_max ) {
+          retVal = true;
+        }
+        break;
     }
   }
   else {
-    if ( averageBend < 1.0 ) {
-      retVal = true;
-    }
+    retVal = true;
   }
   return retVal;
 }
 
-bool HandPoseRecognizer::areTipsClawed(Leap::Hand hand) const{
+bool HandPoseRecognizer::areTipsSeparated(Leap::Hand hand) const{
   bool retVal = true;
   
   std::vector<Leap::Finger> clawFingers;
@@ -178,8 +205,17 @@ bool HandPoseRecognizer::areTipsClawed(Leap::Hand hand) const{
   
   for (int i=1; i < clawFingers.size(); i++) {
     double distance = (clawFingers[i].tipPosition().toVector3<Vector3>() - clawFingers[i-1].tipPosition().toVector3<Vector3>()).norm();
-    if ( distance <= config::MIN_DISTANCE_FOR_CLAW ) {
-      retVal = false;
+    switch ( m_lastPose ) {
+      case HandPose::Clawed:
+        if ( distance <=  persist_distance) {
+          retVal = false;
+        }
+        break;
+      default:
+        if ( distance <=  activate_distance) {
+          retVal = false;
+        }
+        break;
     }
   }
   
