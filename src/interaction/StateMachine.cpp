@@ -4,6 +4,8 @@
 #include "ExposeViewProxy.h"
 #include "InteractionConfigs.h"
 #include "osinterface/OSCursor.h"
+#include "osinterface/OSWindow.h"
+#include "utility/NativeWindow.h"
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
@@ -18,7 +20,6 @@ StateMachine::StateMachine(void):
 StateMachine::~StateMachine(void)
 {
   m_scrollOperation.reset();
-  m_windowScroller->StopMomentumScrolling();
 }
 
 // Transition Checking Loop
@@ -94,7 +95,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
           // Set the current cursor position
           cursor->SetCursorPos(point);
           // Make the application at the point become active
-          // FIXME
+          NativeWindow::RaiseWindowAtPosition(point.x, point.y);
         }
         
         m_scrollOperation = m_windowScroller->BeginScroll();
@@ -110,7 +111,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
 }
 
 void StateMachine::OnHandVanished() {
+  std::lock_guard<std::mutex> lk(m_lock);
   m_state = OSCState::FINAL;
+  m_scrollState = ScrollState::DECAYING;
+  m_scrollOperation.reset();
 }
 
 // Distpatch Loop
@@ -122,8 +126,10 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       // Remove our controls from the scene graph
       m_mediaViewStateMachine->RemoveFromParent();
       m_cursorView->RemoveFromParent();
+
       // Shutdown the context
       m_context->SignalShutdown();
+      
       // Remove our own reference to the context
       m_context.reset();
       return;
@@ -141,4 +147,3 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       break;
   }
 }
-

@@ -1,4 +1,5 @@
 #pragma once
+#include "graphics/Renderable.h"
 #include "interaction/HandLocationRecognizer.h"
 #include "interaction/FrameDeltaTimeRecognizer.h"
 #include "interaction/HandPoseRecognizer.h"
@@ -6,15 +7,16 @@
 #include "interaction/MediaViewController.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
-#include "RenderEngine.h"
-#include "RenderEngineNode.h"
 #include "VolumeKnob.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
 
+class RenderEngine;
+
 class MediaViewStateMachine :
-public RenderEngineNode
+  public std::enable_shared_from_this<MediaViewStateMachine>,
+  public Renderable
 {
 public:
   MediaViewStateMachine();
@@ -25,6 +27,7 @@ public:
   //All user and state machine driven changes to the view are dealt with from here.
   void AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime);
   
+  void AnimationUpdate(const RenderFrame& frame) override {}
   void Render(const RenderFrame& renderFrame) const override;
   void SetViewVolume(float volume);
   
@@ -63,7 +66,7 @@ private:
   
   RadialMenu m_radialMenu;
   RadialSlider m_volumeSlider;
-  std::shared_ptr<VolumeKnob> m_volumeKnob;
+  AutoRequired<VolumeKnob> m_volumeKnob;
   
   bool m_hasRoll;
   float m_startRoll;
@@ -74,6 +77,6 @@ private:
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
   
-  Autowired<RootRenderEngineNode> m_rootNode;
+  Autowired<RenderEngine> m_rootNode;
   RectanglePrim prim;
 };

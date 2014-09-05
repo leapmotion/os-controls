@@ -6,7 +6,7 @@
 OSWindowMonitorWin::OSWindowMonitorWin(void)
 {
   // Trigger initial enumeration
-  Tick(std::chrono::duration<double>(0.0));
+  Scan();
 }
 
 OSWindowMonitorWin::~OSWindowMonitorWin(void)
@@ -15,20 +15,6 @@ OSWindowMonitorWin::~OSWindowMonitorWin(void)
 
 OSWindowMonitor* OSWindowMonitor::New(void) {
   return new OSWindowMonitorWin;
-}
-
-OSWindow* OSWindowMonitorWin::WindowFromPoint(const OSPoint& pt) const {
-  // See what's under the specified point:
-  HWND hwnd = ::WindowFromPoint(POINT{(int) pt.x, (int) pt.y});
-  if(!hwnd)
-    return nullptr;
-
-  // Try to find the window in our table of top-level windows:
-  std::lock_guard<std::mutex> lk(m_lock);
-  auto wnd = m_knownWindows.find(hwnd);
-  if(wnd == m_knownWindows.end())
-    return nullptr;
-  return wnd->second.get();
 }
 
 void OSWindowMonitorWin::Enumerate(const std::function<void(OSWindow&)>& callback) const {
@@ -61,6 +47,12 @@ void OSWindowMonitorWin::Scan() {
       LONG style = GetWindowLong(hwndWalk, GWL_EXSTYLE);
       if(style & WS_EX_TOOLWINDOW)
         // No toolbar windows, they are not allowed to appear in the topmost window list by definition
+        return true;
+      
+      // Do not try to enumerate anything we own
+      DWORD pid = 0;
+      GetWindowThreadProcessId(hwnd, &pid);
+      if(pid == GetCurrentProcessId())
         return true;
       
       for(HWND hwndTry = hwndWalk; hwndTry; ) {
@@ -116,8 +108,10 @@ void OSWindowMonitorWin::Scan() {
     }
 
   // Add to the collection:
-  std::lock_guard<std::mutex>(m_lock),
-  m_knownWindows.insert(pending.begin(), pending.end());
+  {
+    std::lock_guard<std::mutex> lk(m_lock);
+    m_knownWindows.insert(pending.begin(), pending.end());
+  }
 
   // Creation notifications now
   for(auto q : pending)

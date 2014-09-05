@@ -84,4 +84,8 @@ if(APPLE)
   target_link_libraries(osinterface ${CORE_AUDIO_FRAMEWORK} ${APPKIT_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
 endif()
 
+if(MSVC)
+  set_property(TARGET osinterface APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+endif()
+
 add_subdirectory(test)

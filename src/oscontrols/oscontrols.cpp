@@ -10,6 +10,7 @@
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/OSVirtualScreen.h"
+#include "osinterface/WindowScroller.h"
 #include "osinterface/VolumeLevelChecker.h"
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
@@ -33,6 +34,7 @@ int main(int argc, char **argv)
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
+    AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
     AutoRequired<MakesRenderWindowFullScreen>();

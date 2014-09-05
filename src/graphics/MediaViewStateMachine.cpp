@@ -3,6 +3,7 @@
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/osControlConfigs.h"
+#include "RenderEngine.h"
 #include "RenderState.h"
 #include "RenderFrame.h"
 
@@ -72,15 +73,10 @@ m_state(State::INACTIVE) {
   m_volumeSlider.SetHandleColor(handleColor);
   m_volumeSlider.SetHandleOutlineColor(handleOutlineColor);
   m_volumeSlider.Material().SetDiffuseLightColor(bgColor);
-  
-  //Volume Knob Initialization
-  m_volumeKnob = RenderEngineNode::Create<VolumeKnob>();
 }
 
 void MediaViewStateMachine::AutoInit() {
-  auto self = shared_from_this();
-  m_rootNode->AddChild(self);
-  AddChild(m_volumeKnob);
+  m_rootNode->Add(shared_from_this());
 }
 
 void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime) {
@@ -245,10 +241,11 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
   if(m_state == State::ACTIVE) {
     PrimitiveBase::DrawSceneGraph(m_radialMenu, renderFrame.renderState);
     PrimitiveBase::DrawSceneGraph(m_volumeSlider, renderFrame.renderState);
+    PrimitiveBase::DrawSceneGraph(*m_volumeKnob, renderFrame.renderState);
   }
 }
 
 //TODO: Filter this data in the recognizer to smooth things out.
 float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
-  return deltaHandRoll / (3 * PI / 2.0);
+  return (float) (deltaHandRoll / (3 * PI / 2.0));
 }

@@ -9,7 +9,7 @@
 OSWindowMonitorMac::OSWindowMonitorMac(void)
 {
   // Trigger initial enumeration
-  Tick(std::chrono::duration<double>(0.0));
+  Scan();
 }
 
 OSWindowMonitorMac::~OSWindowMonitorMac(void)
@@ -20,10 +20,6 @@ OSWindowMonitor* OSWindowMonitor::New(void) {
   return new OSWindowMonitorMac;
 }
 
-OSWindow* OSWindowMonitorMac::WindowFromPoint(const OSPoint& pt) const {
-  return nullptr;
-}
-
 void OSWindowMonitorMac::Enumerate(const std::function<void(OSWindow&)>& callback) const {
   std::lock_guard<std::mutex> lk(m_lock);
   for(const auto& knownWindow : m_knownWindows)
@@ -31,71 +27,72 @@ void OSWindowMonitorMac::Enumerate(const std::function<void(OSWindow&)>& callbac
 }
 
 void OSWindowMonitorMac::Scan() {
-  static pid_t s_pid = getpid();
-  std::unordered_set<CGWindowID> windows;
+  static int s_pid = static_cast<int>(getpid());
+  const uint32_t mark = ++m_mark;
+  int zOrder = 0;
+  std::unique_lock<std::mutex> lk(m_lock);
+  size_t previousCount = m_knownWindows.size();
+  lk.unlock();
+
   @autoreleasepool {
-    CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly |
-                                                       kCGWindowListExcludeDesktopElements, kCGNullWindowID);
-    NSArray* windowArray = CFBridgingRelease(windowList);
+    NSArray* windowArray =
+        (id)CFBridgingRelease(CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly |
+                                                         kCGWindowListExcludeDesktopElements, kCGNullWindowID));
+    // Loop through the windows
     for (NSDictionary* entry in windowArray) {
-      const int sharingState = [[entry objectForKey:(id)kCGWindowSharingState] intValue];
-      if (sharingState == kCGWindowSharingNone) {
-        continue;
-      }
-      const int windowLayer = [[entry objectForKey:(id)kCGWindowLayer] intValue];
-      if (windowLayer != 0) {
-        continue;
-      }
-      const float windowAlpha = [[entry objectForKey:(id)kCGWindowAlpha] floatValue];
-      if (windowAlpha < FLT_EPSILON) {
-        continue;
-      }
-      NSString *applicationName = [entry objectForKey:(id)kCGWindowOwnerName];
-      if (!applicationName) {
-        continue;
-      }
-      const pid_t pid = static_cast<pid_t>([[entry objectForKey:(id)kCGWindowOwnerPID] intValue]);
-      if (pid == s_pid) {
+      // Do additional filtering of windows
+      if ([[entry objectForKey:(id)kCGWindowLayer] intValue] != 0 ||
+          [[entry objectForKey:(id)kCGWindowAlpha] floatValue] < FLT_EPSILON ||
+           [entry objectForKey:(id)kCGWindowOwnerName] == nil ||
+          [[entry objectForKey:(id)kCGWindowOwnerPID] intValue] == s_pid ||
+          [[entry objectForKey:(id)kCGWindowSharingState] intValue] == kCGWindowSharingNone) {
         continue;
       }
       const CGWindowID windowID = [[entry objectForKey:(id)kCGWindowNumber] unsignedIntValue];
-      windows.insert(windowID);
-    }
-  }
-
-  // Figure out which windows are gone:
-  std::unordered_map<CGWindowID, std::shared_ptr<OSWindowMac>> pending;
-  {
-    std::lock_guard<std::mutex> lk(m_lock);
-    for(auto knownWindow : m_knownWindows) {
-      if(windows.find(knownWindow.first) == windows.end()) {
-        pending.insert(knownWindow);
+      if (windowID == 0) {
+        continue;
+      }
+      lk.lock();
+      // See if we already know about this window.
+      auto found = m_knownWindows.find(windowID);
+      if (found == m_knownWindows.end()) {
+        auto window = std::make_shared<OSWindowMac>(entry);
+        window->SetMark(mark);
+        window->SetZOrder(zOrder--);
+        m_knownWindows[windowID] = window;
+        lk.unlock();
+        // Fire notifications off while outside of the lock:
+        m_oswe(&OSWindowEvent::OnCreate)(*window);
+      } else {
+        auto& window = found->second;
+        window->UpdateInfo(entry);
+        window->SetMark(mark);
+        window->SetZOrder(zOrder--);
+        --previousCount; // Saw this window last time, decrement the count
+        lk.unlock();
       }
     }
-    for(auto q : pending) {
-      m_knownWindows.erase(q.first);
-    }
+  }
+  // If we can account for all of the previously seen windows, there is no need to check for destroyed windows.
+  if (previousCount == 0) {
+    return;
   }
 
+  // Sweep through the known windows to find those that are not marked as expected
+  std::vector<std::shared_ptr<OSWindowMac>> pending;
+  lk.lock();
+  for (auto knownWindow = m_knownWindows.begin(); knownWindow != m_knownWindows.end(); ) {
+    auto& window = knownWindow->second;
+    if (window->Mark() != mark) {
+      pending.push_back(window);
+      knownWindow = m_knownWindows.erase(knownWindow);
+    } else {
+      ++knownWindow;
+    }
+  }
+  lk.unlock();
   // Fire notifications off while outside of the lock:
-  for(auto q : pending) {
-    m_oswe(&OSWindowEvent::OnDestroy)(*q.second);
-  }
-  pending.clear();
-
-  // Create any windows which have been added:
-  for(CGWindowID windowID : windows) {
-    if(!m_knownWindows.count(windowID)) {
-      pending[windowID] = std::make_shared<OSWindowMac>(windowID);
-    }
-  }
-
-  // Add to the collection:
-  std::lock_guard<std::mutex>(m_lock),
-  m_knownWindows.insert(pending.begin(), pending.end());
-
-  // Creation notifications now
-  for(auto q : pending) {
-    m_oswe(&OSWindowEvent::OnCreate)(*q.second);
+  for (auto& window : pending) {
+    m_oswe(&OSWindowEvent::OnDestroy)(*window);
   }
 }

@@ -1,11 +1,12 @@
 #pragma once
 
-#include "RenderEngineNode.h"
 #include "Animation.h"
+#include "uiEvents/Updatable.h"
 #include <Primitives.h>
 
 class VolumeKnob :
-public RenderEngineNode {
+public Updatable,
+public PrimitiveBase {
 public:
   VolumeKnob();
   ~VolumeKnob();
@@ -16,7 +17,7 @@ private:
   Smoothed<float> m_opacity;
   
 public:
-  void AnimationUpdate(const RenderFrame& renderFrame) override;
-  void Render(const RenderFrame& renderFrame) const override;
+  void Tick(std::chrono::duration<double> deltaT) override;
+  void Draw(RenderState &render_state) const override;
   void SetOpacity(float opacity);
 };

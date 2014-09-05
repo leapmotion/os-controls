@@ -1,8 +1,6 @@
 #pragma once
 #include "Primitives.h"
-#include "ExposeViewWindow.h"
-#include "graphics/RenderEngine.h"
-#include "graphics/RenderEngineNode.h"
+#include "graphics/Renderable.h"
 #include <autowiring/DispatchQueue.h>
 #include <Animation.h>
 #include <vector>
@@ -11,13 +9,16 @@
 class ExposeViewWindow;
 class ExposeViewEvents;
 class OSWindow;
+class RenderEngine;
+class SVGPrimitive;
 
 /// <summary>
 /// Implements expose view
 /// </summary>
 class ExposeView:
-  DispatchQueue,
-  public RenderEngineNode
+  public std::enable_shared_from_this<ExposeView>,
+  public Renderable,
+  DispatchQueue
 {
 public:
   ExposeView(void);
@@ -25,12 +26,8 @@ public:
   void AutoInit();
   
 private:
-  // Find the given window in the window list and move
-  // to the end of the vector such that it will render on top.
-  void moveWindowToTop(ExposeViewWindow& window);
-
   //Root node in the render tree
-  Autowired<RootRenderEngineNode> m_rootNode;
+  Autowired<RenderEngine> m_rootNode;
   
   //Events to send to controller
   AutoFired<ExposeViewEvents> m_exposeViewEvents;
@@ -39,10 +36,10 @@ private:
   Animated<float> m_opacity;
   
   // All windows currently known to this view:
-  std::vector<std::shared_ptr<ExposeViewWindow>> m_windows;
+  std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_windows;
 
-  // Rendering order:
-  std::list<ExposeViewWindow*> m_renderList;
+  // Windows represented in order:
+  Renderable::ZOrderList m_zorder;
 
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
@@ -64,6 +61,12 @@ public:
   // RenderEngineNode overrides:
   void AnimationUpdate(const RenderFrame& frame) override;
   void Render(const RenderFrame& frame) const override;
+
+
+  /// <returns>
+  /// True if the ExposeView is presently visible to the user
+  /// </returns>
+  bool IsVisible(void) const { return 0.001f < m_opacity.Current(); }
 
   /// <summary>
   /// Creates a new ExposeViewWindow for the specified OS window
