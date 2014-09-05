@@ -29,5 +29,6 @@ private:
   bool areTipsClawed(Leap::Hand hand) const;
   bool lastExtended [5];
   float averageFingerBend(Leap::Finger finger) const;
-  bool isNotDown(Leap::Finger finger) const;
+  bool isDown(Leap::Finger finger) const;
+  float projectAlongPalmNormal(Vector3 point, Leap::Hand hand) const;
 };

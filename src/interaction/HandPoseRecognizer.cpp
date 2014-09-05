@@ -21,8 +21,8 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
   
   bool isClawCurling = true; //initial value
   bool isClawDistance = areTipsClawed(hand);
-  bool isPalmPointingAtScreen = false;
-  bool areFingersUp = true;
+  bool isPalmPointingDown = false;
+  bool fingersOut = true;
   
   int handCode = 0;
   int i = 0;
@@ -47,19 +47,28 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
     
     if (finger.type() == Leap::Finger::TYPE_INDEX ||
         finger.type() == Leap::Finger::TYPE_MIDDLE) {
-      if ( !finger.isExtended() ) {
-        areFingersUp = false;
+      Vector3 palmPos = hand.palmPosition().toVector3<Vector3>();
+      Vector3 tipPos = finger.tipPosition().toVector3<Vector3>();
+      Vector3 diff = tipPos - palmPos;
+      float zDist = diff.z();
+      
+      if ( zDist > 50.0f ) {
+        fingersOut = false;
       }
+      
+      std::cout << static_cast<int>(finger.type()) << " zDist: " << zDist << std::endl;
     }
+    
     
     i++;
   }
   
   isClawDistance = areTipsClawed(hand);
   
-  float palmZ = hand.palmNormal().toVector3<Vector3>().z();
-  if ( palmZ < -0.05f ) {
-    isPalmPointingAtScreen = true;
+  float palmY = hand.palmNormal().toVector3<Vector3>().y();
+  std::cout << "PalmY: " << palmY << std::endl;
+  if ( palmY <= -0.95f ) {
+    isPalmPointingDown = true;
   }
   
   switch (handCode) {
@@ -89,12 +98,19 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       break;
   }
   
+  std::cout << "fingersOut: " << fingersOut << std::endl;
+  std::cout << "isClawCurling: " << isClawCurling << std::endl;
+  std::cout << "isClawDistance: " << isClawDistance << std::endl;
+  std::cout << "fingersOut: " << fingersOut << std::endl;
+  std::cout << "NOT isPalmPointingDown: " << !isPalmPointingDown << std::endl;
+  
   //TODO: add some curve detection to fingers to make
   //      this differentiated from a simple 3 finger or 4 finger pose.
-  if (isClawCurling &&
+  if (handPose != HandPose::OneFinger &&
+      isClawCurling &&
       isClawDistance &&
-      isPalmPointingAtScreen &&
-      areFingersUp) {
+      fingersOut &&
+      !isPalmPointingDown) {
     handPose = HandPose::Clawed;
   }
 }
@@ -127,16 +143,6 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
     }
   }
 
-  return retVal;
-}
-
-bool HandPoseRecognizer::isNotDown(Leap::Finger finger) const {
-  bool retVal = false;
-  float yComponent = finger.bone(static_cast<Leap::Bone::Type>(1)).direction().toVector3<Vector3>().y();
-  if ( yComponent < 0.0 ) {
-    retVal = true;
-  }
-  
   return retVal;
 }
 
@@ -205,4 +211,9 @@ float HandPoseRecognizer::averageFingerBend(Leap::Finger finger) const {
 
   retVal = average;
   return retVal;
+}
+
+float HandPoseRecognizer::projectAlongPalmNormal(Vector3 point, Leap::Hand hand) const {
+  Vector3 diff = point - hand.palmPosition().toVector3<Vector3>();
+  return static_cast<float>(diff.dot( hand.palmNormal().toVector3<Vector3>() ));
 }

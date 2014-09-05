@@ -6,6 +6,8 @@ set(utility_SOURCES
   NativeWindow.h
   PlatformInitializer.h
   CircleFitter.h
+  Hysteresis.h
+  Hysteresis.cpp
 )
 
 add_windows_sources(utility_SOURCES 
