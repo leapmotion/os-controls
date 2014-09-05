@@ -1,7 +1,6 @@
 #pragma once
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/SystemMultimediaEventListener.h"
-#include "EigenTypes.h"
 
 //class MediaView;
 class AudioVolumeInterface;

@@ -18,6 +18,5 @@ GestureTriggerManifest::GestureTriggerManifest()
   AutoRequired<HandRollRecognizer>();
   AutoRequired<FrameDeltaTimeRecognizer>();
   AutoRequired<HandPinchRecognizer>();
-  AutoRequired<ClawRotationRecognizer>();
   AutoRequired<StateMachine>();
 }
