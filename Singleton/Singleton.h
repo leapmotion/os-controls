@@ -31,13 +31,13 @@ public:
 
   /// @brief Explicitly create the T singleton if it doesn't already exist.
   /// @details Allocates the singleton on the heap via new.
-  /// @todo Make a variadic parameter version of this so that the singleton can be
-  /// constructed with whatever parameters are desired.
-  static void CreateInstance () {
-    if (s_inst == nullptr) {
-      s_inst = new T();
+  template<typename... Arguments>
+  static void CreateInstance(Arguments... params) {
+    if (s_inst == nullptr){
+      s_inst = new T(params...);
     }
   }
+
   /// @brief Explicitly destroy the T singleton if it exists.
   /// @details Deallocates the singleton via delete.
   static void DestroyInstance () {
@@ -55,7 +55,6 @@ public:
   /// @brief Returns a reference to the T singleton.  Will throw SingletonExceptionOfType<T> if the
   /// singleton doesn't exist (i.e. if Exists returns false).
   static T &FastRef () {
-    assert(s_inst != nullptr);
     if (s_inst == nullptr) {
       throw SingletonExceptionOfType<T>("can't return reference to singleton that hasn't been created yet");
     }
