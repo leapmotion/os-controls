@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "OSScreen.h"
 #include "GLTexture2.h"
+#include "utility/SamplePrimitives.h"
 
 void OSScreen::Update()
 {
@@ -19,7 +20,8 @@ void OSScreen::Update()
   m_isPrimary = ((info.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY);
 }
 
-std::shared_ptr<GLTexture2> OSScreen::GetBackgroundImage() const
+std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<ImagePrimitive> img) const
 {
-  return std::shared_ptr<GLTexture2>();
+  auto sz = Size();
+  return MakePatternedTexture((size_t) sz.width, (size_t) sz.height);
 }
