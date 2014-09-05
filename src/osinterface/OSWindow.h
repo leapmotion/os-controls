@@ -1,5 +1,6 @@
 #pragma once
 #include "OSGeometry.h"
+#include "utility/NativeWindow.h"
 #include <cstdint>
 #include <memory>
 
@@ -14,8 +15,10 @@ class OSWindow:
   public std::enable_shared_from_this<OSWindow>
 {
 public:
-  OSWindow(void);
+  OSWindow(NativeWindow::Handle hwnd);
   virtual ~OSWindow(void);
+
+  const NativeWindow::Handle hwnd;
 
 protected:
   int m_zOrder;

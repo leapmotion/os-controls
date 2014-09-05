@@ -3,7 +3,7 @@
 #include <Primitives.h>
 
 OSWindowWin::OSWindowWin(HWND hwnd):
-  hwnd(hwnd)
+  OSWindow(hwnd)
 {
 }
 

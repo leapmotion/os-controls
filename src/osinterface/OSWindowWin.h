@@ -9,8 +9,6 @@ public:
   OSWindowWin(HWND hwnd);
   ~OSWindowWin(void);
 
-  const HWND hwnd;
-
   // PMPL routines:
   void SetZOrder(int zOrder) {
     m_zOrder = zOrder;

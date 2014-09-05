@@ -4,7 +4,8 @@
 #include <Primitives.h>
 #include <GLTexture2.h>
 
-OSWindow::OSWindow(void):
+OSWindow::OSWindow(NativeWindow::Handle hwnd) :
+  hwnd(hwnd),
   m_zOrder(1)
 {
 }
