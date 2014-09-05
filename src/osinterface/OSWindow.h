@@ -69,7 +69,7 @@ public:
   /// <returns>
   /// Either an updated version of the passed texture, or a new texture.
   /// </returns>
-  virtual std::shared_ptr<ImagePrimitive> GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img) = 0;
+  virtual std::shared_ptr<ImagePrimitive> GetWindowTexture(std::shared_ptr<ImagePrimitive> img) = 0;
 
   /// <returns>
   /// True if this window has focus

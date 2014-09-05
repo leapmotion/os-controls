@@ -15,7 +15,7 @@ OSWindow::~OSWindow(void)
 {
 }
 
-std::shared_ptr<ImagePrimitive> OSWindow::GetWindowTexture(const std::shared_ptr<ImagePrimitive>& img) {
+std::shared_ptr<ImagePrimitive> OSWindow::GetWindowTexture(std::shared_ptr<ImagePrimitive> img) {
   AutowiredFast<WindowRenderer> wr;
   if(!wr)
     throw std::runtime_error("Cannot capture a window representation without a window renderer");
