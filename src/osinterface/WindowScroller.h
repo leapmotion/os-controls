@@ -29,7 +29,7 @@ private:
 
 protected:
   // Pixels-per-millimeter of monitor
-  const float m_ppmm;
+  float m_ppmm;
 
   /// <summary>
   /// Performs the actual scroll operation requested by the user
@@ -63,6 +63,11 @@ private:
   void ResetScrollingUnsafe();
 
 public:
+  /// <summary>
+  /// Set pixels-per-inch to use when scrolling
+  /// </summary>
+  void SetPixelsPerInch(float ppi);
+
   /// <summary>
   /// Begins a scrolling operation, and provides the caller with a pointer to the operation presently underway
   /// </summary>

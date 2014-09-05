@@ -3,6 +3,7 @@
 #include "Color.h"
 #include "ExposeViewProxy.h"
 #include "osinterface/OSCursor.h"
+#include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindow.h"
 #include "utility/NativeWindow.h"
 
@@ -67,7 +68,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
   state = m_state;
   
   scrollState = m_scrollState; //in case we don't change state
-  
+
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
       if ( !handPinch.isPinching ) {
@@ -77,15 +78,27 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose 
       break;
     case ScrollState::DECAYING:
       if ( handPinch.isPinching ) {
+        auto screenPosition = handLocation.screenPosition();
+        OSPoint point{static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y())};
+
+        // Move cursor
         AutowiredFast<OSCursor> cursor;
         if (cursor) {
-          auto screenPosition = handLocation.screenPosition();
-          OSPoint point{static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y())};
           // Set the current cursor position
           cursor->SetCursorPos(point);
           // Make the application at the point become active
           NativeWindow::RaiseWindowAtPosition(point.x, point.y);
         }
+
+        // Update the pixels-per-inch for scrolling on this screen
+        float ppi = 96.0f;
+        AutowiredFast<OSVirtualScreen> virtualScreen;
+        if (virtualScreen) {
+          OSScreen screen = virtualScreen->ClosestScreen(point);
+          ppi = screen.PixelsPerInch();
+        }
+        m_windowScroller->SetPixelsPerInch(ppi);
+
         m_scrollOperation = m_windowScroller->BeginScroll();
         if(m_scrollOperation){
           scrollState = ScrollState::ACTIVE;
