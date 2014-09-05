@@ -83,7 +83,7 @@ void MediaViewStateMachine::AutoInit() {
   AddChild(m_volumeKnob);
 }
 
-void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const ClawRotation& clawRotation, const FrameTime& frameTime) {
+void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime) {
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
@@ -171,32 +171,46 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount&
 
       }
       else {
-        //Update the menu to keep it at unity and allow for closing animations
+        // Update the menu to keep it at unity and allow for closing animations
         m_radialMenu.UpdateItemsFromCursor(m_radialMenu.Translation(), static_cast<float>(1E-6 * frameTime.deltaTime));
         
         // VOLUME UPDATE
+        float absRot = 0; // absolute rotation of the hand
+        float offset = 0; // offset between menu start and current rotation
+        int sign = 1;
+        float visualNorm = 0;
+        float norm = 0;
+        float velocity = 0;
+      
         const float DEADZONE = 0.3f;
         const float MAX = M_PI / 4.0;
         const float MAX_VELOCTY = 0.4f;
         
         if( !m_hasRoll ) {
-          //m_startRoll = clawRotation.absoluteRotation;
           m_startRoll = dra.absoluteRoll;
           m_hasRoll = true;
           return;
         }
         
-        float absRot = dra.absoluteRoll;
-        float offset = absRot - m_startRoll;
-        int sign = offset < 0 ? -1 : 1;
+        absRot = dra.absoluteRoll;
+        offset = absRot - m_startRoll;
+        
+        // Make sure offset represents the smallest representation of the offset angle.
         offset = fabs(offset) > M_PI ? (2*M_PI - fabs(offset)) : offset;
-        sign = offset < 0 ? -1 : 1;
-        float visualNorm = fabs(offset) / MAX;
-        float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
-        visualNorm = std::min(1.0f, std::max(0.0f, visualNorm));
+
+        sign = offset < 0 ? -1 : 1; // Store the direction of the offset before we normalize it.
+        visualNorm = fabs(offset) / MAX; // The normalization for the visual feedback doens't use the deadzone.
+        visualNorm = std::min(1.0f, std::max(0.0f, visualNorm)); //Clamp the visual output
+        norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE); // The normalization for the input has a deadzone.
+        norm = std::min(1.0f, std::max(0.0f, norm)); //Clamp the normalized input
+        
+        // Rotate the volume knob in the view based on the user's normalized input.
         m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(visualNorm * (M_PI/2.0) * sign, Vector3::UnitZ()).toRotationMatrix();
-        norm = std::min(1.0f, std::max(0.0f, norm));
-        float velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
+        
+        // Calcuate velocity from the normalized input value.
+        velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
+        
+        // Send the velocity to the controller to update the system volume.
         m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
       }
       break;
