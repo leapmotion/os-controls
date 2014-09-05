@@ -50,7 +50,8 @@ private:
   OSCState m_state;
   
   ScrollState m_scrollState;
-  Vector2 m_handDelta; 
+  Vector2 m_handDelta; //in millimeters
+  const float SCROLL_SENSITIVITY = 1.3f;
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 
