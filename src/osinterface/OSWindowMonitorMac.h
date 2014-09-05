@@ -1,6 +1,8 @@
 #pragma once
 #include "OSWindowMonitor.h"
 
+#include <atomic>
+
 class OSWindowEvent;
 class OSWindowMac;
 
@@ -20,6 +22,7 @@ private:
   // Current collection of known top-level windows
   typedef std::unordered_map<CGWindowID, std::shared_ptr<OSWindowMac>> t_knownWindows;
   t_knownWindows m_knownWindows;
+  std::atomic<uint32_t> m_mark;
 
 protected:
   // OSWindowMonitor overrides:
@@ -27,6 +30,5 @@ protected:
 
 public:
   // OSWindowMonitor overrides:
-  OSWindow* WindowFromPoint(const OSPoint& pt) const override;
   void Enumerate(const std::function<void(OSWindow&)>& callback) const override;
 };

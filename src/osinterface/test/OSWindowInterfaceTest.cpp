@@ -60,7 +60,7 @@ TEST_F(OSWindowInterfaceTest, SimpleTopLevelEnumerator) {
     ASSERT_TRUE(wnd->IsVisible()) << "Enumerator returned an invisible window";
 }
 
-TEST_F(OSWindowInterfaceTest, WindowFromPoint) {
+TEST_F(OSWindowInterfaceTest, ValidateWindowSetFocus) {
   // Create a window and verify we can find it:
   const auto testWindowProps = wctf->CreateTestWindow();
 
@@ -80,13 +80,6 @@ TEST_F(OSWindowInterfaceTest, WindowFromPoint) {
   int zorder = osw->GetZOrder();
   ASSERT_GE(0, zorder) << "A window's z-order was not properly calculated.";
   ASSERT_EQ(0, zorder) << "Window which should have been the frontmost application was not reported as the frontmost";
-
-  // Get the coordinates of this window, see if we can window-from-point the same thing:
-  auto pt = osw->GetPosition();
-
-  // Adjust by one pixel right and down, so we're in the expected region of the window proper
-  pt.x += 1.0f;
-  pt.y += 1.0f;
 }
 
 TEST_F(OSWindowInterfaceTest, WindowRaiser) {
