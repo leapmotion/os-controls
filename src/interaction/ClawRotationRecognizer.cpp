@@ -5,6 +5,8 @@
 ClawRotationRecognizer::ClawRotationRecognizer()
 {
   m_lastRot.SetInitialValue(0.0);
+  m_deltaRot.SetSmoothStrength(0.99f);
+  m_lastRot.SetSmoothStrength(0.99f);
 }
 
 ClawRotationRecognizer::~ClawRotationRecognizer() {
@@ -33,9 +35,9 @@ void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime&
   else {
     diff = ProjectVector(2, thumb.tipPosition().toVector3<Vector3>()) - ProjectVector(2, middle.tipPosition().toVector3<Vector3>());
   }
-  float angle = atan2(diff.y(), diff.x());
+  float angle = atan2(diff.x(), diff.y());
   angle = fmod(angle, 2*M_PI);
-  angle = 2*M_PI - angle;
+  //angle = 2*M_PI - angle;
   clawRotation.deltaTime = frameTime.deltaTime;
   m_deltaRot.SetGoal(angle - m_lastRot);
   
@@ -53,5 +55,5 @@ void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime&
   }
   
   clawRotation.deltaRotation = m_deltaRot.Value();
-  clawRotation.absoluteRotation = angle;
+  clawRotation.absoluteRotation = m_lastRot;
 }

@@ -83,7 +83,7 @@ void MediaViewStateMachine::AutoInit() {
   AddChild(m_volumeKnob);
 }
 
-void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& handLocation, const HandPose& handPose, const ClawRotation& clawRotation, const FrameTime& frameTime) {
+void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const ClawRotation& clawRotation, const FrameTime& frameTime) {
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
@@ -95,9 +95,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
     case HandPose::OneFinger:
       if( handPose == HandPose::Clawed)
       {
-        m_startRoll = clawRotation.absoluteRotation;
-        //Update the menu to keep it at unity
-        m_radialMenu.UpdateItemsFromCursor(m_radialMenu.Translation(), static_cast<float>(1E-6 * frameTime.deltaTime));
+        m_startRoll = dra.absoluteRoll;
       }
       break;
     case HandPose::Clawed:
@@ -120,7 +118,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_volumeKnob->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
-        m_startRoll = clawRotation.absoluteRotation;
+        m_startRoll = dra.absoluteRoll;
         m_hasRoll = true;
         m_volumeKnob->SetOpacity(0.5f);
         m_state = State::ACTIVE;
@@ -173,18 +171,22 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
 
       }
       else {
+        //Update the menu to keep it at unity and allow for closing animations
+        m_radialMenu.UpdateItemsFromCursor(m_radialMenu.Translation(), static_cast<float>(1E-6 * frameTime.deltaTime));
+        
         // VOLUME UPDATE
-        const float DEADZONE = 0.4f;
-        const float MAX = M_PI / 2.0;
-        const float MAX_VELOCTY = 0.7f;
+        const float DEADZONE = 0.3f;
+        const float MAX = M_PI / 4.0;
+        const float MAX_VELOCTY = 0.4f;
         
         if( !m_hasRoll ) {
-          m_startRoll = clawRotation.absoluteRotation;
+          //m_startRoll = clawRotation.absoluteRotation;
+          m_startRoll = dra.absoluteRoll;
           m_hasRoll = true;
           return;
         }
         
-        float absRot = clawRotation.absoluteRotation;
+        float absRot = dra.absoluteRoll;
         float offset = absRot - m_startRoll;
         int sign = offset < 0 ? -1 : 1;
         offset = fabs(offset) > M_PI ? (2*M_PI - fabs(offset)) : offset;

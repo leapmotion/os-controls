@@ -21,7 +21,7 @@ namespace config {
   const float MAX_DOT_FOR_CONTINUE_CURLED = 0.5f;
   const float MIN_DOT_FOR_CLAW = 0.5;
   const float MAX_DOT_FOR_CLAW = 0.95f;
-  const float MIN_DISTANCE_FOR_CLAW = 15.0f;
+  const float MIN_DISTANCE_FOR_CLAW = 20.0f;
   const float FINGER_OFFSET_DISTANCE = 3.0f;
   const float OFFSET_DISTANCE = 100;
   const float ROLL_SENSITIVITY = 1.2f; // don't drop below 1.0

@@ -24,8 +24,12 @@ public:
 
   void AutoFilter(const Leap::Hand& frame, HandPose& handPose);
 private:
+  const int clawWindow = 10;
+  
   bool isExtended(Leap::Finger finger, bool wasExtended = false) const;
   bool isClawCurled(Leap::Finger finger) const;
   bool areTipsClawed(Leap::Hand hand) const;
   bool lastExtended [5];
+  float averageFingerBend(Leap::Finger finger) const;
+  bool isNotDown(Leap::Finger finger) const;
 };

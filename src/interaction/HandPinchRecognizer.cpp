@@ -26,8 +26,8 @@ void HandPinchRecognizer::AutoFilter(const Leap::Hand &hand, HandPinch &handPinc
 }
 
 float HandPinchRecognizer::getCustomPinchStrength(const Leap::Hand& hand) const {
-  const float MAX_DISTANCE = 50.0f;
-  const float MIN_DISTANCE = 10.0f;
+  const float MAX_DISTANCE = 20.0f;
+  const float MIN_DISTANCE = 5.0f;
   float retVal = 0.0f;
   Leap::Finger index = Leap::Finger::invalid();
   Leap::Finger thumb = Leap::Finger::invalid();
