@@ -138,6 +138,7 @@ private:
 class ImagePrimitive : public RectanglePrim {
 public:
   
+  ImagePrimitive(void);
   ImagePrimitive(const std::shared_ptr<GLTexture2> &texture);
   virtual ~ImagePrimitive() { }
   

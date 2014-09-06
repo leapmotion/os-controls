@@ -47,8 +47,6 @@ public:
   // transformations (e.g. scaling based on a sphere's 'radius' member).
   virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const { }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 protected:
 
   // This method should be overridden in each subclass to draw the particular geometry that it represents.

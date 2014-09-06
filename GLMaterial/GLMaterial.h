@@ -45,7 +45,6 @@ public:
   void UploadUniforms (const GLShader &shader, float alpha_mask, BindFlags bind_flags) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
 private:
 
   Vector3f m_light_position;

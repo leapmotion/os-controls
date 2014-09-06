@@ -15,8 +15,6 @@ public:
   const Vector2& Origin() const { return m_Origin; }
   const Vector2& Size() const { return m_Size; }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 protected:
 
   virtual void DrawContents(RenderState& renderState) const override;
