@@ -28,12 +28,12 @@ void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &r
       // Draw this node -- this is a virtual call to PrimitiveBase::Draw.
       const PrimitiveBase &primitive_base_node = static_cast<const PrimitiveBase &>(node);
 
-      OpacityState& opacityState = render_state.GetOpacityState();
-      opacityState.Push();
+      OpacityStack& opacityStack = render_state.GetOpacityStack();
+      opacityStack.Push();
       if (primitive_base_node.OverrideOpacity()) {
-        opacityState.Opacity() = primitive_base_node.Opacity();
+        opacityStack.Opacity() = primitive_base_node.Opacity();
       } else {
-        opacityState.Multiply(primitive_base_node.Opacity());
+        opacityStack.Multiply(primitive_base_node.Opacity());
       }
 
       primitive_base_node.Draw(render_state);
@@ -42,7 +42,7 @@ void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &r
     [&render_state](const Parent_SceneGraphNode &node) {
       // Restore the stack after this node and all its children are drawn.
       render_state.GetModelView().Pop();
-      render_state.GetOpacityState().Pop();
+      render_state.GetOpacityStack().Pop();
     }
   );
 }

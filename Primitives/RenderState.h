@@ -84,8 +84,8 @@ public:
   ModelView& GetModelView() { return m_ModelView; }
   const Projection& GetProjection() const { return m_Projection; }
   Projection& GetProjection() { return m_Projection; }
-  const OpacityStack& GetOpacityState() const { return m_OpacityStack; }
-  OpacityStack& GetOpacityState() { return m_OpacityStack; }
+  const OpacityStack& GetOpacityStack() const { return m_OpacityStack; }
+  OpacityStack& GetOpacityStack() { return m_OpacityStack; }
 
 private:
 
