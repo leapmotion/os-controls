@@ -1,7 +1,10 @@
 #include "InteractionConfigs.h"
 #include "ScrollRecognizer.h"
 
-ScrollRecognizer::ScrollRecognizer() {
+ScrollRecognizer::ScrollRecognizer():
+  m_prevTimestamp(0),
+  m_deltaTimeSeconds{std::chrono::milliseconds(10)}
+{
   m_horizontalMovementRatio.SetSmoothStrength(0.75f);
   m_horizontalMovementRatio.SetInitialValue(1.0f);
 
@@ -14,8 +17,6 @@ ScrollRecognizer::ScrollRecognizer() {
   m_handDirection = -Vector3::UnitZ();
   m_handNormal = -Vector3::UnitY();
 
-  m_prevTimestamp = 0;
-  m_deltaTimeSeconds = 0.01f;
 }
 
 void ScrollRecognizer::AutoFilter(const Leap::Hand& hand, Scroll& scroll) {
@@ -26,15 +27,14 @@ void ScrollRecognizer::AutoFilter(const Leap::Hand& hand, Scroll& scroll) {
 
   AccumulateScrollFromFingers();
   UpdateScrollVelocity();
-  scroll.m_deltaScrollMM = m_scrollVelocity.Value() * m_deltaTimeSeconds;
+  scroll.m_deltaScrollMM = m_scrollVelocity.Value() * m_deltaTimeSeconds.count();
 }
 
 void ScrollRecognizer::ExtractFrameData() {
   // calculate delta time
-  static const float MICROSECONDS_TO_SECONDS = 1E-6;
   const Leap::Frame curFrame = m_hand.frame();
-  const int64_t curTimestamp = curFrame.timestamp();
-  m_deltaTimeSeconds = static_cast<float>(MICROSECONDS_TO_SECONDS * (curTimestamp - m_prevTimestamp));
+  const std::chrono::microseconds curTimestamp{curFrame.timestamp()};
+  m_deltaTimeSeconds = curTimestamp - m_prevTimestamp;
   m_prevTimestamp = curTimestamp;
 
   // retrieve hand data
@@ -47,7 +47,7 @@ void ScrollRecognizer::UpdateHorizontalMovementRatio() {
   const Vector3 normVelocity = m_handVelocity.normalized();
   const float ratio = static_cast<float>(normVelocity.x()*normVelocity.x() + normVelocity.y()*normVelocity.y());
   m_horizontalMovementRatio.SetGoal(ratio);
-  m_horizontalMovementRatio.Update(m_deltaTimeSeconds);
+  m_horizontalMovementRatio.Update(m_deltaTimeSeconds.count());
 }
 
 float ScrollRecognizer::ComputeWarmupMultiplier() const {
@@ -71,7 +71,7 @@ void ScrollRecognizer::UpdateScrollVelocity() {
   const float curSmooth = m_curScrollVelocity.squaredNorm() > prevScrollVelocity.squaredNorm() ? SPEED_UP_SMOOTH : SLOW_DOWN_SMOOTH;
   m_scrollVelocity.SetSmoothStrength(curSmooth);
   m_scrollVelocity.SetGoal(m_curScrollVelocity);
-  m_scrollVelocity.Update(m_deltaTimeSeconds);
+  m_scrollVelocity.Update(m_deltaTimeSeconds.count());
 }
 
 void ScrollRecognizer::AccumulateScrollFromFingers() {
@@ -79,10 +79,7 @@ void ScrollRecognizer::AccumulateScrollFromFingers() {
 
   const Vector3 roundedVelocity = ComputeRoundedHandVelocity();
 
-  const Leap::FingerList fingers = m_hand.fingers();
-
-  for (int i=0; i<fingers.count(); i++) {
-    const Leap::Finger finger = fingers[i];
+  for(const Leap::Finger& finger : m_hand.fingers()) {
     if (!finger.isExtended()) {
       // ignore fingers that are tucked in
       continue;
