@@ -26,8 +26,6 @@ public:
 
   bool Hit(const Vector2& pos, double& ratio) const;
 
-  virtual void Draw(RenderState& renderState) const override;
-
   double CurrentRadius() const;
 
   void UpdateActivation(float deltaTime) { m_Activation.Update(deltaTime); }
@@ -37,6 +35,7 @@ public:
   void CheckFireCallback();
 
 protected:
+  virtual void DrawContents(RenderState& renderState) const override;
   Color calculateColor() const;
 
   Smoothed<double> m_Activation;
@@ -78,8 +77,8 @@ public:
   void InteractWithoutCursor();
   void UpdateItemActivation(float deltaTime);
   HitResult ItemFromPoint(const Vector2& pos) const;
-  virtual void Draw(RenderState& renderState) const override;
 protected:
+  virtual void DrawContents(RenderState& renderState) const override;
   void updateItemLayout();
 
   std::vector<std::shared_ptr<RadialMenuItem>> m_Items;

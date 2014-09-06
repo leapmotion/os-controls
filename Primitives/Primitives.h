@@ -15,7 +15,9 @@ public:
   // Make sure to call UploadDataToBuffers on the geometry object before drawing.
   PrimitiveGeometry &Geometry () { return m_geometry; }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
 
@@ -32,11 +34,11 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-  virtual void Draw(RenderState& renderState) const override;
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
 protected:
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
 
@@ -55,11 +57,11 @@ public:
   double Height() const { return m_Height; }
   void SetHeight(double height) { m_Height = height; }
 
-  virtual void Draw(RenderState& renderState) const override;
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
 protected:
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
 
@@ -76,11 +78,11 @@ public:
   const Vector3& Size() const { return m_Size; }
   void SetSize(const Vector3& size) { m_Size = size; }
 
-  virtual void Draw(RenderState& renderState) const override;
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
 protected:
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
 
@@ -96,11 +98,11 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-  virtual void Draw(RenderState& renderState) const override;
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
 protected:
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
 
@@ -119,11 +121,11 @@ public:
   const std::shared_ptr<GLTexture2> &Texture () const { return m_texture; }
   void SetTexture (const std::shared_ptr<GLTexture2> &texture) { m_texture = texture; }
 
-  virtual void Draw(RenderState& renderState) const override;
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
 protected:
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
 
@@ -180,7 +182,9 @@ public:
     m_EndAngle = endAngleRadians;
   }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void DrawContents(RenderState& renderState) const override;
 
 protected:
 

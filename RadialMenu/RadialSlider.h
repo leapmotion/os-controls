@@ -32,9 +32,9 @@ public:
 
   void SetCallback(RadialSliderEvent* callback) { m_Callback = callback; }
 
-  virtual void Draw(RenderState& renderState) const override;
-
 protected:
+  virtual void DrawContents(RenderState& renderState) const override;
+
   double calculateValueRatio() const;
   double calculateValueAngle() const;
   Vector3 calculateHandlePosition() const;

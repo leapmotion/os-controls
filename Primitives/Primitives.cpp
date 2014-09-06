@@ -2,57 +2,61 @@
 
 #include "GLTexture2.h"
 
-void GenericShape::Draw(RenderState& renderState) const {
+void GenericShape::DrawContents(RenderState& renderState) const {
   m_geometry.Draw(Shader(), m_drawMode);
 }
 
 Sphere::Sphere() : m_Radius(1) { }
 
-void Sphere::Draw(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(30);
-  geom.Draw(Shader(), GL_TRIANGLES);
-}
-
 void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
   model_view.Scale(Vector3::Constant(m_Radius));
 }
 
-Cylinder::Cylinder() : m_Radius(1), m_Height(1) { }
-
-void Cylinder::Draw(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(50, 1);
+void Sphere::DrawContents(RenderState& renderState) const {
+  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(30);
   geom.Draw(Shader(), GL_TRIANGLES);
 }
+
+Cylinder::Cylinder() : m_Radius(1), m_Height(1) { }
 
 void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
   model_view.Scale(Vector3(m_Radius, m_Height, m_Radius));
 }
 
-Box::Box() : m_Size(Vector3::Constant(1.0)) { }
-
-void Box::Draw(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitBox();
+void Cylinder::DrawContents(RenderState& renderState) const {
+  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(50, 1);
   geom.Draw(Shader(), GL_TRIANGLES);
 }
+
+Box::Box() : m_Size(Vector3::Constant(1.0)) { }
 
 void Box::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
   model_view.Scale(m_Size);
 }
 
-Disk::Disk() : m_Radius(1) { }
-
-void Disk::Draw(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitDisk(75);
+void Box::DrawContents(RenderState& renderState) const {
+  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitBox();
   geom.Draw(Shader(), GL_TRIANGLES);
 }
+
+Disk::Disk() : m_Radius(1) { }
 
 void Disk::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
   model_view.Scale(Vector3::Constant(m_Radius));
 }
 
+void Disk::DrawContents(RenderState& renderState) const {
+  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitDisk(75);
+  geom.Draw(Shader(), GL_TRIANGLES);
+}
+
 RectanglePrim::RectanglePrim() : m_Size(1, 1) { }
 
-void RectanglePrim::Draw(RenderState& renderState) const {
+void RectanglePrim::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+  model_view.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
+}
+
+void RectanglePrim::DrawContents(RenderState& renderState) const {
   bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
   if (useTexture) {
     glEnable(GL_TEXTURE_2D);
@@ -64,10 +68,6 @@ void RectanglePrim::Draw(RenderState& renderState) const {
     glDisable(GL_TEXTURE_2D);
     m_texture->Unbind();
   }
-}
-
-void RectanglePrim::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
-  model_view.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
 }
 
 ImagePrimitive::ImagePrimitive(const std::shared_ptr<GLTexture2> &texture) {
@@ -86,7 +86,7 @@ void ImagePrimitive::SetScaleBasedOnTextureSize () {
 
 PartialDisk::PartialDisk() : m_RecomputeGeometry(true), m_InnerRadius(0.5), m_OuterRadius(1), m_StartAngle(0), m_EndAngle(2*M_PI) { }
 
-void PartialDisk::Draw(RenderState& renderState) const {
+void PartialDisk::DrawContents(RenderState& renderState) const {
   if (m_InnerRadius >= m_OuterRadius || m_StartAngle >= m_EndAngle) {
     // don't proceed if the shape is empty
     return;

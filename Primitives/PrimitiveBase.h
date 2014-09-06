@@ -41,15 +41,19 @@ public:
   Transform::ConstLinearPart LinearTransformation () const { return LocalProperties().AffineTransform().linear(); }
   Transform::LinearPart LinearTransformation () { return LocalProperties().AffineTransform().linear(); }
 
-  // This method should be overridden in each subclass to draw the particular geometry that it represents.
-  virtual void Draw(RenderState &render_state) const = 0;
+  void Draw(RenderState &render_state, const Properties &global_properties) const;
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
-protected:
-
+  // This method should be overridden in any subclass that needs to do secondary
+  // transformations (e.g. scaling based on a sphere's 'radius' member).
   virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const { }
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+protected:
+
+  // This method should be overridden in each subclass to draw the particular geometry that it represents.
+  virtual void DrawContents(RenderState &render_state) const = 0;
+  
 private:
 
   Resource<GLShader> m_shader;
