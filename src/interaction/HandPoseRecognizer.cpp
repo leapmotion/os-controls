@@ -98,8 +98,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
       }
     }
     else {
-      if ( finger.isExtended() ) {
-        std::cout << "RINGANDPINKEY" << std::endl;
+      if ( finger.isExtended() ) {  
         areRingAndPinkeyExtended = true;
       }
     }
@@ -109,8 +108,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   }
   
   averageVelocity = velocitySum / 5.0f;
-  
-  std::cout << "averageVelocity: " << averageVelocity << std::endl;
   
   // Whole hand checks for claw pose
   float palmY = hand.palmNormal().toVector3<Vector3>().y();

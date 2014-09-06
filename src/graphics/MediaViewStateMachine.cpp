@@ -71,7 +71,7 @@ m_state(State::INACTIVE) {
   m_radialMenu.GetItem(2)->SetIcon(nextIcon);
   
   //Volume Slider Initilization
-  m_volumeSlider.SetRadius(60.0);
+  m_volumeSlider.SetRadius(70.0);
   m_volumeSlider.SetThickness(10.0);
   m_volumeSlider.SetStartAngle(startAngle);
   m_volumeSlider.SetEndAngle(endAngle);
@@ -126,7 +126,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount&
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_startRoll = dra.absoluteRoll;
         m_hasRoll = true;
-        m_volumeKnob->SetOpacity(0.5f);
+        m_volumeKnob->SetOpacity(0.75f);
         m_state = State::ACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
@@ -280,9 +280,14 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
 
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
   if (m_state == State::ACTIVE || m_state == State::SELECTION_MADE || m_state == State::FADE_OUT) {
-    PrimitiveBase::DrawSceneGraph(m_radialMenu, renderFrame.renderState);
-    PrimitiveBase::DrawSceneGraph(m_volumeSlider, renderFrame.renderState);
-    PrimitiveBase::DrawSceneGraph(*m_volumeKnob, renderFrame.renderState);
+    if ( m_lastHandPose == HandPose::OneFinger )
+    {
+      PrimitiveBase::DrawSceneGraph(m_radialMenu, renderFrame.renderState);
+    }
+    else {
+      PrimitiveBase::DrawSceneGraph(m_volumeSlider, renderFrame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_volumeKnob, renderFrame.renderState);
+    }
   }
 }
 
