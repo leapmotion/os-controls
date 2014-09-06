@@ -33,7 +33,7 @@ private:
 
   float m_PalmOutlineRadius;
   float m_PalmOutlineThickness;
-  float m_PalmFillRadius;
+  //float m_PalmFillRadius;
 
   std::shared_ptr<PartialDisk> m_PalmOutline;
   std::shared_ptr<Disk> m_PalmCenter;

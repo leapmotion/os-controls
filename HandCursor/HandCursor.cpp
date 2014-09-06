@@ -31,8 +31,8 @@ void HandCursor::Update(const Leap::Hand& hand) {
   static const double LOC_Z = -1000;
 
   const Leap::Vector handPos = transformCoordinates(hand.palmPosition());
-  const Leap::Matrix handBasis = hand.basis();
-  const Leap::Matrix handBasisInv = handBasis.rigidInverse();
+  //const Leap::Matrix handBasis = hand.basis();
+  //const Leap::Matrix handBasisInv = handBasis.rigidInverse();
 
   const float grabStrength = hand.grabStrength();
   const float pinchStrength = hand.pinchStrength();
@@ -50,7 +50,7 @@ void HandCursor::Update(const Leap::Hand& hand) {
 #else
     const Leap::Vector transformedFingerPos = relativeFingerPos;
 #endif
-    const float closedFingerRadius = m_PalmOutlineRadius + m_PalmOutlineThickness/2.0f + fingerRadius;
+    //const float closedFingerRadius = m_PalmOutlineRadius + m_PalmOutlineThickness/2.0f + fingerRadius;
 #if 0
     const Leap::Vector closedFingerPos = closedFingerRadius * calculateClosedFingerPosition(i);
 #else
