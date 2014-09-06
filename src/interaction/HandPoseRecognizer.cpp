@@ -22,7 +22,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   bool isPalmPointingDown = false;
   bool fingersOut = true;
   bool pinchIsSteady = true;
-  bool fingerTipsSteady = true;
+  //bool fingerTipsSteady = true;
   bool isPoseCorrect = false;
   
   bool isThumExtended = false;
@@ -176,12 +176,25 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
       break;
   }
   
+  
+  //CLAW POSE DEBUG SET
+  /*
+  std::cout << "isIndexExtended: " << isIndexExtended << std::endl;
+  std::cout << "isMiddleExtended: " << isIndexExtended << std::endl;
+  std::cout << "isThumExtended: " << isIndexExtended << std::endl;
+  std::cout << "areRingAndPinkeyExtended: " << isIndexExtended << std::endl;
+  std::cout << "isPoseCorrect: " << isPoseCorrect << std::endl;
+  std::cout << "isClawCurling: " << isClawCurling << std::endl;
+  std::cout << "isClawDistance: " << isClawDistance << std::endl;
+  std::cout << "fingersOut: " << fingersOut << std::endl;
+  std::cout << std::endl;
+   */
+  
   // Claw-Factor based pose resolution
   if (isPoseCorrect &&
       isClawCurling &&
       isClawDistance &&
-      fingersOut &&
-      !isPalmPointingDown) {
+      fingersOut) {
     handPose = HandPose::Clawed;
   }
   

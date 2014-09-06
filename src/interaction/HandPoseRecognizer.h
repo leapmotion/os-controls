@@ -30,7 +30,7 @@ private:
   const float persist_clawCurl_max = 1.5f;
   const float activate_distance = 10.0f;
   const float persist_distance = 0.0f;
-  const float activate_palmDown = -0.95f;
+  const float activate_palmDown = -1.0f;
   const float persist_palmDown = -1.0f;
   const float activate_fingersForward = 60.0f;
   const float persist_fingersForward = 50.0f;
