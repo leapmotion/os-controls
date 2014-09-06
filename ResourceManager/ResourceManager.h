@@ -43,9 +43,28 @@ public:
 template <typename T>
 class ResourceManager {
 public:
-
   /// @brief This is the type of the named resource storage.
   typedef std::map<std::string,std::shared_ptr<T>> ResourceMap;
+
+  ResourceManager(const std::string &basePath = "") { SetBasePath(basePath); }
+  
+  void SetBasePath(const std::string &basePath) {
+    m_basePath = basePath;
+    if (basePath.empty())
+      return;
+
+    const auto lastChar = m_basePath[m_basePath.size() - 1];
+    if ( lastChar != '/' && lastChar != '\\'){
+#if _WIN32
+      m_basePath += '\\'; 
+#else
+      m_basePath += '/';
+#endif
+    }
+  }
+
+  //Returns the utf-8 encoded base path.
+  const std::string& GetBasePath() const { return m_basePath; }
 
   /// @brief The map of loaded, named resources.
   /// @details Could be used during a cleanup step to check if there are still allocated
@@ -66,6 +85,7 @@ public:
     std::cout << "the resource was not already loaded -- loading it.\n";
     static_assert(ResourceLoader<T>::exists, "ResourceLoader<T> not defined -- template-specialize it to define");
     std::shared_ptr<T> resource;
+
     resource = ResourceLoader<T>::LoadResource(name, *this);
     std::cout << "ResourceManager::Get(\"" << name << "\"); loaded successfully.\n";
     AddResource(name, resource);
@@ -85,6 +105,6 @@ public:
   }
 
 private:
-
+  std::string m_basePath = "";
   ResourceMap m_resources; ///< The map of name-indexed loaded resources.
 };
