@@ -38,3 +38,10 @@ void NativeWindow::AllowInput(const Handle& window, bool allowInput) {
   const LONG style = allowInput ? (prevStyle & ~modStyle) : (prevStyle | modStyle);
   ::SetWindowLongA(window, GWL_EXSTYLE, style);
 }
+
+void NativeWindow::RaiseWindowAtPosition(float x, float y) {
+  HWND hwnd = ::WindowFromPoint(POINT{(int) x, (int) y});
+  if(!hwnd)
+    return;
+  ::SetForegroundWindow(hwnd);
+}

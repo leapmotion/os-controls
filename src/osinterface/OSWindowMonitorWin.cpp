@@ -6,7 +6,7 @@
 OSWindowMonitorWin::OSWindowMonitorWin(void)
 {
   // Trigger initial enumeration
-  Tick(std::chrono::duration<double>(0.0));
+  Scan();
 }
 
 OSWindowMonitorWin::~OSWindowMonitorWin(void)
@@ -23,13 +23,37 @@ void OSWindowMonitorWin::Enumerate(const std::function<void(OSWindow&)>& callbac
     callback(*knownWindow.second);
 }
 
-void OSWindowMonitorWin::Tick(std::chrono::duration<double> deltaT) {
+struct enum_cblock {
+  std::unordered_map<HWND, int> hwnds;
+  int index;
+};
+
+void OSWindowMonitorWin::Scan() {
+  enum_cblock block;
+  block.index = 0;
+
   // Enumerate all top-level windows that we know about right now:
-  std::unordered_set<HWND> hwnds;
   EnumWindows(
     [] (HWND hwnd, LPARAM lParam) -> BOOL {
+      auto& block = *(enum_cblock*) lParam;
+
+      // Short-circuit if this window can't be seen
+      if(!IsWindowVisible(hwnd))
+        return true;
+
       // See if we are the last active visible popup
       HWND hwndWalk = GetAncestor(hwnd, GA_ROOTOWNER);
+
+      LONG style = GetWindowLong(hwndWalk, GWL_EXSTYLE);
+      if(style & WS_EX_TOOLWINDOW)
+        // No toolbar windows, they are not allowed to appear in the topmost window list by definition
+        return true;
+      
+      // Do not try to enumerate anything we own
+      DWORD pid = 0;
+      GetWindowThreadProcessId(hwnd, &pid);
+      if(pid == GetCurrentProcessId())
+        return true;
       
       for(HWND hwndTry = hwndWalk; hwndTry; ) {
         // Advance to the next spot:
@@ -46,19 +70,25 @@ void OSWindowMonitorWin::Tick(std::chrono::duration<double> deltaT) {
 
       if(hwndWalk == hwnd)
         // Add this window in, it would appear in the alt-tab list:
-        ((std::unordered_set<HWND>*) lParam)->insert(hwnd);
+        block.hwnds[hwnd] = block.index--;
       return true;
     },
-    (LPARAM) &hwnds
+    (LPARAM) &block
   );
 
   // Figure out which windows are gone:
   std::unordered_map<HWND, std::shared_ptr<OSWindowWin>> pending;
   {
     std::lock_guard<std::mutex> lk(m_lock);
-    for(auto knownWindow : m_knownWindows)
-      if(!hwnds.count(knownWindow.first))
+    for(auto knownWindow : m_knownWindows) {
+      auto q = block.hwnds.find(knownWindow.first);
+      if(q == block.hwnds.end())
+        // Window was gone the last time we enumerated, give up
         pending.insert(knownWindow);
+      else
+        // Found this window, update its z-order
+        knownWindow.second->SetZOrder(q->second);
+    }
 
     for(auto q : pending)
       m_knownWindows.erase(q.first);
@@ -70,13 +100,18 @@ void OSWindowMonitorWin::Tick(std::chrono::duration<double> deltaT) {
   pending.clear();
 
   // Create any windows which have been added:
-  for(HWND hwnd : hwnds)
-    if(!m_knownWindows.count(hwnd))
-      pending[hwnd] = std::make_shared<OSWindowWin>(hwnd);
+  for(auto q : block.hwnds)
+    if(!m_knownWindows.count(q.first)) {
+      auto wnd = std::make_shared<OSWindowWin>(q.first);
+      wnd->SetZOrder(q.second);
+      pending[q.first] = wnd;
+    }
 
   // Add to the collection:
-  std::lock_guard<std::mutex>(m_lock),
-  m_knownWindows.insert(pending.begin(), pending.end());
+  {
+    std::lock_guard<std::mutex> lk(m_lock);
+    m_knownWindows.insert(pending.begin(), pending.end());
+  }
 
   // Creation notifications now
   for(auto q : pending)

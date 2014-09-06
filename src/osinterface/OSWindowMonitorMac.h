@@ -1,6 +1,7 @@
 #pragma once
 #include "OSWindowMonitor.h"
-#include <AppKit/NSWindow.h>
+
+#include <atomic>
 
 class OSWindowEvent;
 class OSWindowMac;
@@ -12,9 +13,6 @@ public:
   OSWindowMonitorMac(void);
   ~OSWindowMonitorMac(void);
 
-  // Updatable overrides
-  void Tick(std::chrono::duration<double> deltaT) override;
-
 private:
   mutable std::mutex m_lock;
 
@@ -22,10 +20,15 @@ private:
   AutoFired<OSWindowEvent> m_oswe;
 
   // Current collection of known top-level windows
-  std::unordered_map<CGWindowID, std::shared_ptr<OSWindowMac>> m_knownWindows;
+  typedef std::unordered_map<CGWindowID, std::shared_ptr<OSWindowMac>> t_knownWindows;
+  t_knownWindows m_knownWindows;
+  std::atomic<uint32_t> m_mark;
+
+protected:
+  // OSWindowMonitor overrides:
+  void Scan() override;
 
 public:
   // OSWindowMonitor overrides:
   void Enumerate(const std::function<void(OSWindow&)>& callback) const override;
 };
-

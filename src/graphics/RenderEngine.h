@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderEngineNode.h"
+#include "Renderable.h"
 #include "uievents/Updatable.h"
 
 //Components
@@ -13,8 +13,6 @@
 
 class GLShader;
 
-class RootRenderEngineNode : public RenderEngineNode {};
-
 //Tracks & dispatches update & render calls to a SceneGraph. Intended for use
 //with RenderEngineNodes, but will also support PrimitiveBase children.  Eventually
 //destined for the components repo, and when that happens we should unify the type
@@ -22,16 +20,17 @@ class RootRenderEngineNode : public RenderEngineNode {};
 //Renderable and Updatable, or by making PrimitiveBase a RenderEngineNode.
 class RenderEngine :
   public Updatable,
+  public Renderable::ZOrderList,
   public sf::GlResource
 {
 public:
   RenderEngine();
   ~RenderEngine();
 
-  template<typename T>
-  void AddSceneNode(std::shared_ptr<T> &node){
-    m_rootNode->AddChild(node);
-  }
+  /// <summary>
+  /// Adds the specified node to the bottom of the render heirarchy
+  /// </summary>
+  void AddSceneNode(std::shared_ptr<Renderable> &node);
 
   void Tick(std::chrono::duration<double> deltaT) override;
 
@@ -39,12 +38,8 @@ public:
 
 private:
   Autowired<sf::RenderWindow> m_rw;
-  AutoRequired<RootRenderEngineNode> m_rootNode;
 
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
-
-  typedef std::pair<RenderEngineNode::BaseSceneNode_t*, Matrix4x4> RenderListElement_t;
-  mutable Eigen::vector<RenderListElement_t> m_renderList;
 };
 

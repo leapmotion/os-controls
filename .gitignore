@@ -22,7 +22,5 @@ DartConfiguration.tcl
 build/
 **/CMakeScripts
 **/*.xcodeproj
-src/oscontrols/default-vert.glsl
-src/oscontrols/default-frag.glsl
-src/oscontrols/material-frag.glsl
-src/oscontrols/matrix-transformed-vert.glsl
+src/oscontrols/*.glsl
+src/oscontrols/*.svg

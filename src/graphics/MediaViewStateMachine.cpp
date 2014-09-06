@@ -3,6 +3,7 @@
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/osControlConfigs.h"
+#include "RenderEngine.h"
 #include "RenderState.h"
 #include "RenderFrame.h"
 
@@ -24,6 +25,7 @@ const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
 const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
+m_lastHandPose(HandPose::ZeroFingers),
 m_state(State::INACTIVE) {
   m_CurrentTime = 0.0;
   m_LastStateChangeTime = 0.0;
@@ -41,7 +43,7 @@ m_state(State::INACTIVE) {
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu.GetItem(i);
     item->SetRadius(120.0);
     item->SetThickness(80.0);
-    item->SetActivatedRadius(200.0);
+    item->SetActivatedRadius(160.0);
     item->Material().SetAmbientLightColor(bgColor);
     item->Material().SetAmbientLightingProportion(1.0f);
     item->Material().SetDiffuseLightColor(bgColor);
@@ -82,11 +84,10 @@ m_state(State::INACTIVE) {
 }
 
 void MediaViewStateMachine::AutoInit() {
-  auto self = shared_from_this();
-  m_rootNode->AddChild(self);
+  m_rootNode->Add(shared_from_this());
 }
 
-void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime) {
+void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime) {
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
 
   // State Transitions
@@ -95,31 +96,56 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
     return;
   }
   
+  //Hand Pose Transitions
+  switch (m_lastHandPose) {
+    case HandPose::OneFinger:
+      if( handPose == HandPose::Clawed)
+      {
+        m_startRoll = dra.absoluteRoll;
+      }
+      break;
+    case HandPose::Clawed:
+      if ( handPose == HandPose::OneFinger)
+      {
+        //Update volume visual to 'unity' and update starting rotation
+        m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(0.0, Vector3::UnitZ()).toRotationMatrix();
+      }
+    default:
+      break;
+  }
+  
+  m_lastHandPose = handPose;
+  
   switch( m_state )
   {
     case State::INACTIVE:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
         m_volumeSlider.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_radialMenu.Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
-        m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume);
-        m_startRoll = dHandRoll.absoluteRoll;
+        m_volumeKnob->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
+        m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
+        m_startRoll = dra.absoluteRoll;
         m_hasRoll = true;
+        m_volumeKnob->SetOpacity(0.5f);
         m_state = State::ACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_volumeKnob->SetOpacity(0.0f);
         m_state = State::INACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::SELECTION_MADE:
+      m_volumeKnob->SetOpacity(0.0f);
       m_state = State::FADE_OUT;
       m_LastStateChangeTime = m_CurrentTime;
       break;
     case State::FADE_OUT:
-      if (appState != OSCState::MEDIA_MENU_FOCUSED) {
+      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_volumeKnob->SetOpacity(0.0f);
         m_state = State::INACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
@@ -138,43 +164,67 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandLocation& ha
       break;
     case State::ACTIVE:
     {
-      // MENU UPDATE
-      
-      // The menu always thinks it's at (0,0) so we need to offset the cursor
-      // coordinates by the location of the menu to give the proper space.
-      const Vector2 menuOffset = m_radialMenu.Translation().head<2>();
-      
-      Vector3 leapPosition(handLocation.x - menuOffset.x(), handLocation.y - menuOffset.y(), 0);
-      RadialMenu::UpdateResult updateResult = m_radialMenu.InteractWithCursor(leapPosition);
-      m_selectedItem = updateResult.updateIdx;
-      if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
-        //Selection Made Transition
-        resolveSelection(updateResult.updateIdx);
-        m_state = State::SELECTION_MADE;
-        m_LastStateChangeTime = m_CurrentTime;
+
+      if( handPose != HandPose::Clawed ) {
+        // MENU UPDATE
+        
+        // The menu always thinks it's at (0,0) so we need to offset the cursor
+        // coordinates by the location of the menu to give the proper space.
+        const Vector2 menuOffset = m_radialMenu.Translation().head<2>();
+        
+        Vector3 leapPosition(handLocation.x - menuOffset.x(), handLocation.y - menuOffset.y(), 0);
+        RadialMenu::UpdateResult updateResult = m_radialMenu.InteractWithCursor(leapPosition);
+        m_selectedItem = updateResult.updateIdx;
+        if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
+          //Selection Made Transition
+          resolveSelection(updateResult.updateIdx);
+          m_state = State::SELECTION_MADE;
+          m_LastStateChangeTime = m_CurrentTime;
+        }
       }
+      else {
+        // Update the menu to keep it at unity and allow for closing animations
+        m_radialMenu.InteractWithCursor(m_radialMenu.Translation());
+        
+        // VOLUME UPDATE
+        float absRot = 0; // absolute rotation of the hand
+        float offset = 0; // offset between menu start and current rotation
+        int sign = 1;
+        float visualNorm = 0;
+        float norm = 0;
+        float velocity = 0;
       
-      // VOLUME UPDATE
-      //m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(dHandRoll.dTheta));
-      const float DEADZONE = 0.4f;
-      const float MAX = 1.0f;
-      const float MAX_VELOCTY = 0.7f;
-      
-      if( !m_hasRoll ) {
-        m_startRoll = dHandRoll.absoluteRoll;
-        m_hasRoll = true;
-        return;
+        const float DEADZONE = 0.3f;
+        const float MAX = static_cast<float>(M_PI / 4.0);
+        const float MAX_VELOCTY = 0.4f;
+        
+        if( !m_hasRoll ) {
+          m_startRoll = dra.absoluteRoll;
+          m_hasRoll = true;
+          return;
+        }
+        
+        absRot = dra.absoluteRoll;
+        offset = absRot - m_startRoll;
+        
+        // Make sure offset represents the smallest representation of the offset angle.
+        offset = fabs(offset) > M_PI ? static_cast<float>(2*M_PI - fabs(offset)) : offset;
+
+        sign = offset < 0 ? -1 : 1; // Store the direction of the offset before we normalize it.
+        visualNorm = fabs(offset) / MAX; // The normalization for the visual feedback doens't use the deadzone.
+        visualNorm = std::min(1.0f, std::max(0.0f, visualNorm)); //Clamp the visual output
+        norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE); // The normalization for the input has a deadzone.
+        norm = std::min(1.0f, std::max(0.0f, norm)); //Clamp the normalized input
+        
+        // Rotate the volume knob in the view based on the user's normalized input.
+        m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(visualNorm * (M_PI/2.0) * sign, Vector3::UnitZ()).toRotationMatrix();
+        
+        // Calcuate velocity from the normalized input value.
+        velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
+        
+        // Send the velocity to the controller to update the system volume.
+        m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
       }
-      
-      float offset = dHandRoll.absoluteRoll - m_startRoll;
-      int sign = offset < 0 ? -1 : 1;
-      float norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE);
-      norm = std::min(1.0f, std::max(0.0f, norm));
-      float velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
-      std::cout << "time: " << frameTime.deltaTime << std::endl;
-      std::cout << "norm: " << norm << std::endl;
-      std::cout << " vel: " << velocity << std::endl;
-      m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
       break;
     }
     case State::SELECTION_MADE:
@@ -232,6 +282,7 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
   if (m_state == State::ACTIVE || m_state == State::SELECTION_MADE || m_state == State::FADE_OUT) {
     PrimitiveBase::DrawSceneGraph(m_radialMenu, renderFrame.renderState);
     PrimitiveBase::DrawSceneGraph(m_volumeSlider, renderFrame.renderState);
+    PrimitiveBase::DrawSceneGraph(*m_volumeKnob, renderFrame.renderState);
   }
 }
 

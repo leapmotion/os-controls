@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "oscontrols.h"
+#include <autowiring/AutoNetServer.h>
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "expose/ExposeViewAccessManager.h"
@@ -9,6 +10,7 @@
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/OSVirtualScreen.h"
+#include "osinterface/WindowScroller.h"
 #include "osinterface/VolumeLevelChecker.h"
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
@@ -17,13 +19,13 @@
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
+
   AutoCurrentContext ctxt;
   ctxt->Initiate();
-
+  //AutoRequired<AutoNetServer> autonet(ctxt);
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
     osCtxt->Initiate();
-
     CurrentContextPusher pshr(osCtxt);
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
@@ -33,6 +35,7 @@ int main(int argc, char **argv)
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
+    AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
     AutoRequired<MakesRenderWindowFullScreen>();

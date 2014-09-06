@@ -30,6 +30,7 @@ PlatformInitializer::PlatformInitializer(void)
       }
     }
   }
+
   //
   // The isOpaque method in the SFOpenGLView class of SFML always returns YES
   // (as it just uses the default implementation of NSOpenGLView). This
@@ -44,4 +45,6 @@ PlatformInitializer::PlatformInitializer(void)
 
 PlatformInitializer::~PlatformInitializer(void)
 {
+
 }
+

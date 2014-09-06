@@ -23,7 +23,6 @@ set(osinterface_SOURCES
   OSWindowEvent.h
   OSWindowMonitor.h
   OSWindowMonitor.cpp
-  OSWindowNode.h
   ScrollOperation.h
   WindowScroller.h
   WindowScroller.cpp
@@ -83,6 +82,10 @@ if(APPLE)
   mark_as_advanced(APPKIT_FRAMEWORK)
   mark_as_advanced(CORE_AUDIO_FRAMEWORK)
   target_link_libraries(osinterface ${CORE_AUDIO_FRAMEWORK} ${APPKIT_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+endif()
+
+if(MSVC)
+  set_property(TARGET osinterface APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
 endif()
 
 add_subdirectory(test)

@@ -3,11 +3,11 @@ add_googletest(benchmark)
 
 set(Autowiring_SRCS
   at_exit.h
+  auto_out.h
   AnySharedPointer.h
   AutoAnchor.h
   AutoCheckout.h
-  NewAutoFilter.h
-  NewAutoFilter.cpp
+  AutoRestarter.h
   AutoFuture.h
   AutoFuture.cpp
   CoreJob.h
@@ -21,11 +21,13 @@ set(Autowiring_SRCS
   AutoPacketProfiler.h
   AutoPacketProfiler.cpp
   AutoSelfUpdate.h
+  AutoTimeStamp.h
   Autowired.h
   Autowired.cpp
   AutowirableSlot.h
   AutowirableSlot.cpp
   AutowiringEvents.h
+  autowiring.h
   autowiring_error.h
   BasicThread.h
   BasicThread.cpp
@@ -51,11 +53,15 @@ set(Autowiring_SRCS
   CreationRules.h
   CurrentContextPusher.cpp
   CurrentContextPusher.h
+  DataFlow.h
   DeclareAutoFilter.h
+  DeclareElseFilter.h
   Decompose.h
   DecorationDisposition.h
   Deserialize.h
   Deferred.h
+  DefaultAutoNetServer.cpp
+  demangle.h
   DispatchQueue.h
   DispatchQueue.cpp
   DispatchThunk.h
@@ -78,10 +84,11 @@ set(Autowiring_SRCS
   has_autofilter.h
   has_simple_constructor.h
   has_static_new.h
+  hash_tuple.h
   index_tuple.h
   is_any.h
   is_shared_ptr.h
-  is_auto_filter.h
+  is_autofilter.h
   InterlockedExchange.h
   InvokeRelay.h
   atomic_object.h
@@ -94,6 +101,8 @@ set(Autowiring_SRCS
   SatCounter.h
   MicroAutoFilter.h
   MicroBolt.h
+  NewAutoFilter.h
+  NewAutoFilter.cpp
   SharedPointerSlot.h
   SlotInformation.h
   SlotInformation.cpp
@@ -178,14 +187,14 @@ if(Threads_FOUND)
 endif()
 
 if(NOT AUTOWIRING_IS_EMBEDDED)
-  install(TARGETS Autowiring DESTINATION ${CMAKE_BINARY_DIR}/lib COMPONENT autowiring CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
+  install(TARGETS Autowiring DESTINATION lib COMPONENT autowiring CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
 
   foreach (src ${Autowiring_SRCS})
     string(REGEX MATCH ".*\\.h" hfile ${src})
     if(hfile)
       install(
         FILES ${hfile}
-        DESTINATION "${CMAKE_SOURCE_DIR}/include/Autowiring"
+        DESTINATION "include/Autowiring"
         COMPONENT autowiring
       )
     endif()

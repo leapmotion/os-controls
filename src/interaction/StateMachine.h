@@ -50,8 +50,11 @@ private:
   OSCState m_state;
   
   ScrollState m_scrollState;
-  Vector2 m_lastScrollStart;
-  Vector2 m_handDelta; 
+  Vector2 m_handDelta; //in millimeters
+  const float SCROLL_SENSITIVITY = 1.3f;
+
+  // Pixels-per-millimeter for use with the current scroll operation
+  float m_ppmm;
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 
@@ -59,10 +62,9 @@ private:
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewProxy> m_evp;
-  AutoRequired<IWindowScroller> m_windowScroller;
+  Autowired<IWindowScroller> m_windowScroller;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
   AutoCurrentContext m_context;
 };
-

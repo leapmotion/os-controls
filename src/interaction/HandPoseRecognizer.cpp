@@ -1,12 +1,11 @@
-//
-//  HandPointingDecorator.cpp
-//  oscontrols
-//
-//  Created by Daniel Plemmons on 8/18/14.
-//
-//
 #include "InteractionConfigs.h"
 #include "HandPoseRecognizer.h"
+#include "utility/CircleFitter.h"
+
+HandPoseRecognizer::HandPoseRecognizer(void) :
+m_lastPose(HandPose::ZeroFingers) {
+  memset(lastExtended, 0, sizeof(lastExtended));
+}
 
 
 void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) {
@@ -15,35 +14,80 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
     return;
   }
   
-  /*if(handPinch.isPinching) {
-    handPose = HandPose::ZeroFingers;
-    return;
-  }*/
+  //Initialize Claw Check Flags
+  bool isClawCurling = true;
+  bool isClawDistance = false;
+  bool isPalmPointingDown = false;
+  bool fingersOut = true;
   
-  Vector3 handDirection = hand.direction().toVector3<Vector3>();
+  int handCode = 0; // for extention based pose recognition.
   
-  int handCode = 0;
-  int i = 0;
+  int i = 0; // index tracker for for loop.
   
+  //Checks against each finger
   for( auto finger : hand.fingers() ) {
-    Vector3 fingerDirection = finger.direction().toVector3<Vector3>();
-    float dot = handDirection.dot(fingerDirection); // How similar is the direciton of the hand and finger.
     
-    //TODO: Fix pinkey finger extended and thumb extended.
-    if (finger.type() == Leap::Finger::TYPE_THUMB) {
-      if (dot < config::MAX_DOT_FOR_THUMB_POINTING) {
-        handCode += (1 << (4-i));
-      }
+    // Check if fingers are extended
+    if ( isExtended(finger, lastExtended[i])) {
+      handCode += (1 << (4-i));
+      lastExtended[i] = true;
     }
     else {
-      if ( dot > config::MIN_DOT_FOR_POINTING ) {
-        handCode += (1 << (4-i));
+      lastExtended[i] = false;
+    }
+    
+    // Per finger checks for claw pose
+    if ( finger.type() == Leap::Finger::TYPE_INDEX ||
+         finger.type() == Leap::Finger::TYPE_MIDDLE ) {
+      
+      Vector3 palmPos = hand.palmPosition().toVector3<Vector3>();
+      Vector3 tipPos = finger.tipPosition().toVector3<Vector3>();
+      Vector3 diff = tipPos - palmPos;
+      float zDist = fabs(diff.z());
+    
+      switch ( m_lastPose ) {
+        case HandPose::Clawed:
+          if ( zDist < persist_fingersForward ) {
+            fingersOut = false;
+          }
+          
+          isClawCurling = isClawCurled(finger, persist_clawCurl_min, persist_clawCurl_max);
+          break;
+          
+        default:
+          if ( zDist < activate_fingersForward ) {
+            fingersOut = false;
+          }
+          
+          isClawCurling = isClawCurled(finger, activate_clawCurl_min, activate_clawCurl_max);
+          break;
       }
+      
     }
 
     i++;
   }
   
+  // Whole hand checks for claw pose
+  float palmY = hand.palmNormal().toVector3<Vector3>().y();
+  switch ( m_lastPose ) {
+    case HandPose::Clawed:
+      if ( palmY < persist_palmDown ) {
+        isPalmPointingDown = true;
+      }
+      
+      isClawDistance = areTipsSeparated(hand, persist_distance);
+      break;
+    default:
+      if ( palmY <= activate_palmDown ) {
+        isPalmPointingDown = true;
+      }
+      
+      isClawDistance = areTipsSeparated(hand, activate_distance);
+      break;
+  }
+  
+  // Finger-Extension based pose resolution
   switch (handCode) {
     case 0:  //00000
       handPose = HandPose::ZeroFingers;
@@ -67,6 +111,112 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       handPose = HandPose::FiveFingers;
       break;
     default:
+      handPose = HandPose::ZeroFingers;
       break;
   }
+  
+  // Claw-Factor based pose resolution
+  if (handPose != HandPose::OneFinger &&
+      isClawCurling &&
+      isClawDistance &&
+      fingersOut &&
+      !isPalmPointingDown) {
+    handPose = HandPose::Clawed;
+  }
+  
+  //Store the previous hand pose.
+  m_lastPose = handPose;
+}
+
+//This could be cleaned up a lot to use some loops.
+bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const {
+  bool retVal = false;
+  
+  Leap::Bone metacarpal = finger.bone(Leap::Bone::TYPE_METACARPAL);
+  Leap::Bone proximal = finger.bone(Leap::Bone::TYPE_PROXIMAL);
+  Leap::Bone intermediate = finger.bone(Leap::Bone::TYPE_INTERMEDIATE);
+  Leap::Bone distal = finger.bone(Leap::Bone::TYPE_DISTAL);
+  
+  float mToPDot = 1.0f;
+  
+  if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
+    mToPDot = metacarpal.direction().toVector3<Vector3>().dot(proximal.direction().toVector3<Vector3>());
+  }
+  float pToIDot = proximal.direction().toVector3<Vector3>().dot(intermediate.direction().toVector3<Vector3>());
+  float iToDDot = intermediate.direction().toVector3<Vector3>().dot(distal.direction().toVector3<Vector3>());
+  
+  if ( !wasExtended ) {
+    if(mToPDot >= config::MIN_DOT_FOR_START_POINTING && pToIDot >= config::MIN_DOT_FOR_START_POINTING && iToDDot >= config::MIN_DOT_FOR_START_POINTING) {
+      retVal = true;
+    }
+  }
+  else {
+    if(mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING &&pToIDot >= config::MAX_DOT_FOR_CONTINUE_POINTING && iToDDot >= config::MAX_DOT_FOR_CONTINUE_POINTING ) {
+      retVal = true;
+    }
+  }
+
+  return retVal;
+}
+
+bool HandPoseRecognizer::isClawCurled(Leap::Finger finger, float curlMin, float curlMax) const {
+  bool retVal = false;
+  float averageBend = averageFingerBend(finger);
+  
+  if ( averageBend > curlMin && averageBend < curlMax ) {
+    retVal = true;
+  }
+  
+  return retVal;
+}
+
+bool HandPoseRecognizer::areTipsSeparated(Leap::Hand hand, float thresholdDistance) const{
+  bool retVal = true;
+  
+  std::vector<Leap::Finger> clawFingers;
+  
+  for ( auto finger : hand.fingers() ) {
+    if (finger.type() == Leap::Finger::TYPE_THUMB ||
+        finger.type() == Leap::Finger::TYPE_INDEX ||
+        finger.type() == Leap::Finger::TYPE_MIDDLE) {
+      clawFingers.push_back(finger);
+    }
+  }
+  
+  for (int i=1; i < clawFingers.size(); i++) {
+    double distance = (clawFingers[i].tipPosition().toVector3<Vector3>() - clawFingers[i-1].tipPosition().toVector3<Vector3>()).norm();
+    if ( distance <  thresholdDistance) {
+      retVal = false;
+    }
+  }
+  
+  return retVal;
+}
+
+float HandPoseRecognizer::averageFingerBend(Leap::Finger finger) const {
+  float retVal = 0.0f;
+  int count = 0;
+  float sum = 0.0f;
+  float average = 0.0f;
+  
+  int startBone = 3;
+  
+  for(int i=startBone; i<4; i++) {
+    //Angle from scalar product
+    Vector3 v1 = finger.bone(static_cast<Leap::Bone::Type>(i-1)).direction().toVector3<Vector3>();
+    Vector3 v2 = finger.bone(static_cast<Leap::Bone::Type>(i)).direction().toVector3<Vector3>();
+    double dot = v1.dot(v2);
+    double theta = std::acos(dot);
+    sum += static_cast<float>(theta);
+    count++;
+  }
+  average = count > 0 ? sum / count : 0.0f;
+
+  retVal = average;
+  return retVal;
+}
+
+float HandPoseRecognizer::projectAlongPalmNormal(Vector3 point, Leap::Hand hand) const {
+  Vector3 diff = point - hand.palmPosition().toVector3<Vector3>();
+  return static_cast<float>(diff.dot( hand.palmNormal().toVector3<Vector3>() ));
 }

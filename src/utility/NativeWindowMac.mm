@@ -55,3 +55,19 @@ void NativeWindow::AllowInput(const Handle& handle, bool allowInput) {
   [window setAcceptsMouseMovedEvents:allowInput];
   [window setIgnoresMouseEvents:!allowInput];
 }
+
+void NativeWindow::RaiseWindowAtPosition(float x, float y) {
+  NSPoint point{x, y};
+  @autoreleasepool {
+    const CGWindowID windowID = (CGWindowID) [NSWindow windowNumberAtPoint:point belowWindowWithWindowNumber:0];
+    if (!windowID) {
+      return;
+    }
+    const NSArray* windowArray =
+      (id)CFBridgingRelease(CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, windowID));
+    if ([windowArray count] <= 0) {
+      return;
+    }
+    // FIXME
+  }
+}

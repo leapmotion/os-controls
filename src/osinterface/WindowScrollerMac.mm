@@ -25,7 +25,7 @@ WindowScrollerMac::~WindowScrollerMac() {
 }
 
 void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) {
-  OSPoint deltaPixel = OSPointMake(deltaX*m_ppmm, deltaY*m_ppmm); // Convert to pixels
+  OSPoint deltaPixel = OSPointMake(deltaX, deltaY);
   OSPoint deltaLine  = OSPointMake(deltaPixel.x/10.0f, deltaPixel.y/10.f); // Convert to lines
 
   // Adjust partial pixels
@@ -52,7 +52,8 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
       // Since we don't know when the last non-momentum scroll is coming,
       // interpret the first momentum scroll as the last non-momentum scroll.
       m_phase = kIOHIDEventPhaseEnded;
-    } else if (m_momentumPhase == kIOHIDEventMomentumPhaseChanged) {
+    } else if (m_momentumPhase == kIOHIDEventMomentumPhaseChanged ||
+               m_momentumPhase == kIOHIDEventMomentumPhaseBegan) {
       // If we are applying momentum, and the momentum ends, let's end our momentum
       if (std::abs(deltaPixel.y) < FLT_EPSILON && std::abs(deltaPixel.x) < FLT_EPSILON) {
         m_momentumPhase = kIOHIDEventMomentumPhaseEnded;
@@ -131,7 +132,6 @@ void WindowScrollerMac::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
 CGEventRef WindowScrollerMac::CreateEvent(IOHIDEventType type) const
 {
   CGEventRef event = CGEventCreate(0);
-  CGEventSetLocation(event, m_virtualPosition);
   CGEventTimestamp time = [[NSProcessInfo processInfo] systemUptime]*1000000000;
   CGEventSetTimestamp(event, time);
   CGEventSetFlags(event, 0x100);

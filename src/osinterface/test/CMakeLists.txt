@@ -28,5 +28,9 @@ target_link_libraries(osinterfacetest osinterface AutoTesting)
 target_include_directories(osinterfacetest PUBLIC ..)
 target_include_directories(osinterfacetest PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
+if(WIN32)
+  set_property(TARGET osinterfacetest APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+endif()
+
 # This is a unit test, let CMake know this
 add_test(NAME osinterfacetest COMMAND $<TARGET_FILE:osinterfacetest>)

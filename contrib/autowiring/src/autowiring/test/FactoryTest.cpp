@@ -37,7 +37,7 @@ public:
 
 static_assert(has_simple_constructor<ClassWithStaticNew>::value, "Class with default-argument constructor was not correctly detected as such ");
 static_assert(has_static_new<ClassWithStaticNew>::value, "Class with static allocator was not correctly detected as having one");
-static_assert(!has_static_new<Object>::value, "Static new detected on a class that does not have a static new");
+static_assert(!has_static_new<Object>::value, "Static New detected on a class that does not have a static New");
 
 TEST_F(FactoryTest, VerifyFactoryCall) {
   // Try to create the static new type:
@@ -132,4 +132,26 @@ public:
 TEST_F(FactoryTest, CompatibleFactoryNewCall) {
   auto aliased = AutoCreateContext()->Construct<HasAliasedConstructorType>(22);
   ASSERT_EQ(22, aliased->m_value) << "Failed to pass a compatible value to an aliasing constructor type";
+}
+
+class FactoryNewAbstractBase:
+  public ContextMember
+{
+public:
+  static FactoryNewAbstractBase* New(void);
+};
+
+class FactoryNewConcreteType:
+  public FactoryNewAbstractBase
+{};
+
+FactoryNewAbstractBase* FactoryNewAbstractBase::New(void) {
+  return new FactoryNewConcreteType;
+}
+
+TEST_F(FactoryTest, VerifyCanAutowireActualType) {
+  AutoRequired<FactoryNewAbstractBase> myBase;
+  Autowired<FactoryNewConcreteType> concrete;
+
+  ASSERT_TRUE(concrete.IsAutowired()) << "Failed to find the concrete derived type in a factory new construction in a case where it is known to exist";
 }
