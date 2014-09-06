@@ -43,7 +43,7 @@ private:
   };
   
   State m_state;
-  Animated<float> m_opacity;
+  Animated<float> m_alphaMask;
   
   Disk m_disk;
   

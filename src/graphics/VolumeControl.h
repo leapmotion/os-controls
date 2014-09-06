@@ -18,14 +18,14 @@ public:
   void SetVolume(float volume);
   void NudgeVolume(float dVolume);
 
-  void SetOpacity(float opacity);
+  void SetAlphaMask(float alphaMask);
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
   std::shared_ptr<PartialDisk> m_partialDisk;
   std::shared_ptr<PartialDisk> m_activePartialDisk;
   
-  float m_maxOpacity;
+  float m_maxAlphaMask;
   
   float volumeFromAngle(float angle);
   float angleFromVolume(float volume);

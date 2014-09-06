@@ -272,8 +272,8 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
     // fade out
     alphaMask = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
     if (m_selectedItem >= 0) {
-      const float itemOpacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - 2*m_FadeTime - m_LastStateChangeTime)/m_FadeTime)));
-      m_radialMenu.GetItem(m_selectedItem)->LocalProperties().AlphaMask() = itemOpacity;
+      const float itemAlphaMask = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - 2*m_FadeTime - m_LastStateChangeTime)/m_FadeTime)));
+      m_radialMenu.GetItem(m_selectedItem)->LocalProperties().AlphaMask() = itemAlphaMask;
     } else {
       for (int i=0; i<numItems; i++) {
         m_radialMenu.GetItem(i)->LocalProperties().AlphaMask() = 1.0f;
