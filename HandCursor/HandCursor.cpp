@@ -16,6 +16,8 @@ HandCursor::HandCursor() {
   m_FillColorClosed = Color(0.505f, 0.831f, 0.114f, 0.5f); // 129 212 29
   m_FillColorOpen = m_FillColorClosed;
   m_FillColorOpen.A() = 0.5f;
+  
+  Translation().z() = 0;
 }
 
 void HandCursor::InitChildren() {
@@ -28,8 +30,6 @@ void HandCursor::InitChildren() {
 }
 
 void HandCursor::Update(const Leap::Hand& hand) {
-  static const double LOC_Z = -1000;
-
   const Leap::Vector handPos = transformCoordinates(hand.palmPosition());
   //const Leap::Matrix handBasis = hand.basis();
   //const Leap::Matrix handBasisInv = handBasis.rigidInverse();
@@ -82,8 +82,9 @@ void HandCursor::Update(const Leap::Hand& hand) {
   m_PalmOutlineRadius = 35.0f;
   m_PalmOutlineThickness = 2.0f;
 
-  Translation() = handPos.toVector3<Vector3>();
-  Translation().z() = LOC_Z;
+  const auto handVec = handPos.toVector3<Vector3>();
+  Translation().x() = handVec.x();
+  Translation().y() = handVec.y();
 
   //LinearTransformation() = Eigen::AngleAxis<double>(M_PI/2.0, Vector3::UnitX()).toRotationMatrix();
 
