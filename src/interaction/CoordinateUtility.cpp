@@ -16,9 +16,9 @@ float normalizeFloat(float val, float min, float max) {
 
 Vector3 normalizeVec3(const Vector3& vec, const Vector3& min, const Vector3& max) {
   Vector3 retVal;
-  retVal.x() = normalizeFloat(vec.x(), min.x(), max.x());
-  retVal.y() = normalizeFloat(vec.y(), min.y(), max.y());
-  retVal.z() = normalizeFloat(vec.z(), min.z(), max.z());
+  retVal.x() = normalizeFloat((float)vec.x(), (float)min.x(), (float)max.x());
+  retVal.y() = normalizeFloat((float)vec.y(), (float)min.y(), (float)max.y());
+  retVal.z() = normalizeFloat((float)vec.z(), (float)min.z(), (float)max.z());
   return retVal;
 }
 

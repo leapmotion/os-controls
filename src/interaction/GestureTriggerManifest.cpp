@@ -4,6 +4,7 @@
 #include "HandLocationRecognizer.h"
 #include "HandPoseRecognizer.h"
 #include "HandRollRecognizer.h"
+#include "ClawRotationRecognizer.h"
 #include "FrameDeltaTimeRecognizer.h"
 #include "HandPinchRecognizer.h"
 #include "ScrollRecognizer.h"

@@ -13,7 +13,10 @@ public:
   HandPinchRecognizer();
   virtual~HandPinchRecognizer(){};
   
-  void AutoFilter(const Leap::Hand& hand, const HandPose& handPose, HandPinch& handPinch);
+  void AutoFilter(const Leap::Hand& hand, HandPinch& handPinch);
 private:
+  
+  float getCustomPinchStrength(const Leap::Hand& hand) const;
+  
   bool wasPinching;
 };

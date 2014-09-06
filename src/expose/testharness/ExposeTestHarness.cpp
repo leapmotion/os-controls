@@ -3,13 +3,18 @@
 #include "TestStateMachine.h"
 #include "ExposeView.h"
 #include "ExposeViewController.h"
-#include "uievents/Updatable.h"
+#include "graphics/RenderEngine.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindowMonitor.h"
+#include "uievents/Updatable.h"
 #include "utility/PlatformInitializer.h"
+
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/WindowStyle.hpp>
 
 int main(int argc, const char* argv[]) {
   // Initialize our OS-specific dependencies
@@ -34,8 +39,11 @@ int main(int argc, const char* argv[]) {
   );
 
   // Create all of our expose stuff after everything else is set up
-  AutoRequired<ExposeView>();
+  AutoRequired<ExposeView> view;
   AutoRequired<ExposeViewController>();
+
+  // We always want the view to be 100% visible
+  view->StartView();
 
   // We will also need to monitor the state of all screen windows:
   AutoRequired<OSWindowMonitor>();

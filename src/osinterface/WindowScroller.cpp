@@ -2,7 +2,6 @@
 #include "WindowScroller.h"
 
 IWindowScroller::IWindowScroller(void):
-  m_ppmm(110.0f/25.4f), // Determine this dynamically -- FIXME
   m_scrollId(0),
   m_remainingMomentum(OSPointZero),
   m_lastScrollTimePoint(std::chrono::steady_clock::now())

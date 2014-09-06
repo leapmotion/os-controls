@@ -9,6 +9,8 @@ public:
   /// <summary>
   /// Causes a scroll by the specified amount
   /// </summary>
+  /// <param name="deltaX">The X scroll amount, in pixels</param>
+  /// <param name="deltaY">The Y scroll amount, in pixels</param>
   virtual void ScrollBy(float deltaX, float deltaY) = 0;
 
   /// <summary>
