@@ -26,8 +26,8 @@ public:
   
   //All user and state machine driven changes to the view are dealt with from here.
   void AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime);
-  
-  void AnimationUpdate(const RenderFrame& frame) override {}
+
+  void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
   void SetViewVolume(float volume);
   
@@ -79,4 +79,9 @@ private:
   
   Autowired<RenderEngine> m_rootNode;
   RectanglePrim prim;
+
+  int m_selectedItem;
+  double m_FadeTime;
+  double m_CurrentTime;
+  double m_LastStateChangeTime;
 };
