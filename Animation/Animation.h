@@ -10,7 +10,7 @@
 namespace EasingFunctions{
   template<typename T>
   void Linear(T& current, const T& start, const T& goal, double percent) {
-    current = start + (goal-start)*percent;
+    current = static_cast<T>(start + (goal-start)*percent);
   }
 
   template<typename T>
