@@ -2,6 +2,7 @@
 #include "RenderState.h"
 
 #include "GLShader.h"
+#include "GLShaderBindingScopeGuard.h"
 #include "GLShaderLoader.h"
 #include <stack>
 
@@ -17,17 +18,19 @@ void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &r
   // in the call to DepthFirstTraverse.
   rootNode.DepthFirstTraverse<PrimitiveBase>([&render_state](const PrimitiveBase &node, const Properties &global_properties) {
     // Set the model view (TODO: change this to not be in the RenderState, since it's tracked by DepthFirstTraverse)
-    ModelView& modelView = render_state.GetModelView();
-    modelView.Push();
-    modelView.Multiply(global_properties.AffineTransform().AsFullMatrix());
+    ModelView& model_view = render_state.GetModelView();
+    // TODO: make a ScopeGuard for model view matrix.
+    model_view.Push();
+    model_view.Multiply(global_properties.AffineTransform().AsFullMatrix());
+    node.MakeAdditionalModelViewTransformations(model_view);
 
-    render_state.SetAlphaMask(global_properties.AlphaMask());
-
-    // TODO: upload matrix uniforms here instead of in each Primitive subclass Draw method.
-    //       upload material uniforms here instead of in each Primitive subclass Draw method.
+    GLShaderBindingScopeGuard bso(node.Shader(), BindFlags::BIND_AND_UNBIND); // binds node.Shader() now, unbinds upon end of scope.
+    
+    GLShaderMatrices::UploadUniforms(node.Shader(), model_view.Matrix(), render_state.GetProjection().Matrix(), BindFlags::NONE);
+    node.Material().UploadUniforms(node.Shader(), global_properties.AlphaMask(), BindFlags::NONE);
 
     node.Draw(render_state);
 
-    modelView.Pop();
+    model_view.Pop(); // TODO: once the ScopeGuard for the model view matrix is created, this goes away.
   });
 }

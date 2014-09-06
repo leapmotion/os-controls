@@ -34,6 +34,10 @@ public:
 
   virtual void Draw(RenderState& renderState) const override;
 
+protected:
+
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+
 private:
 
   double m_Radius;
@@ -53,6 +57,10 @@ public:
 
   virtual void Draw(RenderState& renderState) const override;
 
+protected:
+
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+
 private:
 
   double m_Radius;
@@ -70,6 +78,10 @@ public:
 
   virtual void Draw(RenderState& renderState) const override;
 
+protected:
+
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+
 private:
 
   Vector3 m_Size;
@@ -85,6 +97,10 @@ public:
   void SetRadius(double radius) { m_Radius = radius; }
 
   virtual void Draw(RenderState& renderState) const override;
+
+protected:
+
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
 private:
 
@@ -104,6 +120,10 @@ public:
   void SetTexture (const std::shared_ptr<GLTexture2> &texture) { m_texture = texture; }
 
   virtual void Draw(RenderState& renderState) const override;
+
+protected:
+
+  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
 private:
 
@@ -220,5 +240,4 @@ protected:
   double m_TrianglePosition;
   double m_TriangleWidth;
   double m_TriangleOffset;
-
 };

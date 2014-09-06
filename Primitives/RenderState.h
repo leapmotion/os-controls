@@ -14,8 +14,8 @@ public:
   const Projection& GetProjection() const { return m_Projection; }
   Projection& GetProjection() { return m_Projection; }
 
-  float AlphaMask() const { return m_alpha_mask; }
-  void SetAlphaMask(float alpha_mask) { m_alpha_mask = std::min(std::max(alpha_mask, 0.0f), 1.0f); }
+  // float AlphaMask() const { return m_alpha_mask; }
+  // void SetAlphaMask(float alpha_mask) { m_alpha_mask = std::min(std::max(alpha_mask, 0.0f), 1.0f); }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -25,5 +25,5 @@ private:
   ModelView m_ModelView;
   Projection m_Projection;
 
-  float m_alpha_mask;
+  // float m_alpha_mask;
 };
