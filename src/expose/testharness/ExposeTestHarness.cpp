@@ -10,6 +10,7 @@
 #include "osinterface/OSWindowMonitor.h"
 #include "uievents/Updatable.h"
 #include "utility/PlatformInitializer.h"
+
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>

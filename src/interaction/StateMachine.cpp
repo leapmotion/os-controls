@@ -153,7 +153,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
-      m_scrollOperation->ScrollBy(0.0f, m_handDelta.y() * SCROLL_SENSITIVITY * m_ppi);
+      m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * SCROLL_SENSITIVITY * m_ppi);
       break;
     case ScrollState::DECAYING:
       break;

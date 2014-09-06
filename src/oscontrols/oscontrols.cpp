@@ -19,6 +19,7 @@
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
+
   AutoCurrentContext ctxt;
   ctxt->Initiate();
   //AutoRequired<AutoNetServer> autonet(ctxt);
