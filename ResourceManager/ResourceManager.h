@@ -50,6 +50,9 @@ public:
   
   void SetBasePath(const std::string &basePath) {
     m_basePath = basePath;
+    if (basePath.empty())
+      return;
+
     const auto lastChar = m_basePath[m_basePath.size() - 1];
     if ( lastChar != '/' && lastChar != '\\'){
 #if _WIN32
@@ -102,6 +105,6 @@ public:
   }
 
 private:
-  std::string m_basePath;
+  std::string m_basePath = "";
   ResourceMap m_resources; ///< The map of name-indexed loaded resources.
 };
