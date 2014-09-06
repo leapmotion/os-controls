@@ -37,7 +37,7 @@ inline void GLThrowUponError(const std::string& during) {
 inline void GLWarnUponError(const std::string& during, std::ostream *out = &std::cerr) {
   GLenum error_code = glGetError();
   if (error_code != GL_NO_ERROR && out) {
-    *out << GLErrorMessage(error_code, during);
+    *out << GLErrorMessage(error_code, during) << std::endl;;
   }
 }
 

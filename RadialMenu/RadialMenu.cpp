@@ -36,7 +36,7 @@ bool RadialMenuItem::Hit(const Vector2& pos, double& ratio) const {
   const Vector2 radial = toRadialCoordinates(pos);
   const double itemRadius = CurrentRadius();
   const double minRadius = itemRadius - m_Thickness / 2.0;
-  const double maxRadius = itemRadius + m_Thickness / 2.0;
+  const double maxRadius = std::numeric_limits<double>::max();//itemRadius + m_Thickness / 2.0;
   const double radius = radial[0];
   const double angle = radial[1];
   
@@ -140,7 +140,7 @@ void RadialMenu::SetNumItems(int num) {
   updateItemLayout();
 }
 
-RadialMenu::UpdateResult RadialMenu::UpdateItemsFromCursor(const Vector3& cursor, float deltaTime) {
+RadialMenu::UpdateResult RadialMenu::InteractWithCursor(const Vector3& cursor) {
   const HitResult hitResult = ItemFromPoint(cursor.head<2>());
   const int numItems = static_cast<int>(m_Items.size());
   const int& idx = hitResult.hitIdx;
@@ -153,10 +153,26 @@ RadialMenu::UpdateResult RadialMenu::UpdateItemsFromCursor(const Vector3& cursor
     } else {
       item->SetActivation(ratio > 1.0 ? 1.0 : ratio);
     }
+  }
+  return UpdateResult(idx, idx >= 0 ? m_Items[idx]->CurrentActivation() : 0.0);
+}
+
+void RadialMenu::InteractWithoutCursor() {
+  const int numItems = static_cast<int>(m_Items.size());
+
+  for (int i=0; i<numItems; i++) {
+    std::shared_ptr<RadialMenuItem>& item = m_Items[i];
+    item->SetActivation(0.0);
+  }
+}
+
+void RadialMenu::UpdateItemActivation(float deltaTime) {
+  const int numItems = static_cast<int>(m_Items.size());
+  for (int i=0; i<numItems; i++) {
+    std::shared_ptr<RadialMenuItem>& item = m_Items[i];
     item->UpdateActivation(deltaTime);
     item->CheckFireCallback();
   }
-  return UpdateResult(idx, idx >= 0 ? m_Items[idx]->CurrentActivation() : 0.0);
 }
 
 RadialMenu::HitResult RadialMenu::ItemFromPoint(const Vector2& pos) const {

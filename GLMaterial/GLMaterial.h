@@ -41,10 +41,9 @@ public:
   void SetUseTexture (bool b) { m_use_texture = b; }
   void SetTexture (GLint texture_unit_index) { m_texture_unit_index = texture_unit_index; }
 
-  void UploadUniforms (const GLShader &shader, BindFlags bind_flags) const;
-  
+  void UploadUniforms (const GLShader &shader, float opacityMultiplier, BindFlags bind_flags) const;
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
 private:
 
   Vector3f m_light_position;

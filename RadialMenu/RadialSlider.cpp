@@ -49,8 +49,8 @@ void RadialSlider::Draw(RenderState& renderState) const {
   m_Fill->Material().SetDiffuseLightColor(m_FillColor);
   m_Fill->Material().SetAmbientLightColor(m_FillColor);
   m_Fill->Material().SetAmbientLightingProportion(1.0f);
-  m_Fill->SetStartAngle(calculateValueAngle());
-  m_Fill->SetEndAngle(m_EndAngle);
+  m_Fill->SetStartAngle(m_StartAngle);
+  m_Fill->SetEndAngle(calculateValueAngle());
   m_Fill->SetInnerRadius(innerRad);
   m_Fill->SetOuterRadius(outerRad);
   m_Fill->Translation() = 0.1*Vector3::UnitZ();

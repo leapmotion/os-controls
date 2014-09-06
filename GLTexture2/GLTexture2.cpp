@@ -131,7 +131,9 @@ size_t GLTexture2PixelData::BytesInType (GLenum type) {
 
 GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
   :
-  m_params(params)
+  m_params(params),
+  format(pixel_data.Format()),
+  type(pixel_data.Type())
 {
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
@@ -172,7 +174,7 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
                m_params.Width(),
                m_params.Height(),
                0,                               // border (must be 0)
-               pixel_data.Format(),
+               format,
                pixel_data.Type(),
                pixel_data.RawData());
   ThrowOnGLError("in glTexImage2D");
@@ -189,4 +191,25 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
 
 GLTexture2::~GLTexture2 () {
   glDeleteTextures(1, &m_texture_name);
+}
+
+void GLTexture2::UpdateTexture(const void* pMem) {
+  // Simply forward on to the subimage function:
+  glBindTexture(m_params.Target(), m_texture_name);
+  ThrowOnGLError("in glBindTexture");
+
+  glTexSubImage2D(
+    m_params.Target(),
+    0,
+    0,
+    0,
+    m_params.Width(),
+    m_params.Height(),
+    format,
+    type,
+    pMem
+  );
+  ThrowOnGLError("in glTexSubImage2D");
+ 
+  glBindTexture(m_params.Target(), 0);
 }
