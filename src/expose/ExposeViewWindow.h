@@ -1,12 +1,13 @@
 #pragma once
 #include "ExposeView.h"
-#include "graphics/RenderEngineNode.h"
+#include "graphics/Renderable.h"
 #include "utility/lockable_property.h"
 
 class OSWindow;
+struct RenderFrame;
 
 class ExposeViewWindow:
-  public RenderEngineNode
+  public Renderable
 {
 public:
   ExposeViewWindow(OSWindow& osWindow);
@@ -24,7 +25,7 @@ public:
 
 private:
   // Texture for this window
-  ImagePrimitive m_texture;
+  std::shared_ptr<ImagePrimitive> m_texture;
 
 public:
   /// <summary>
@@ -36,5 +37,5 @@ public:
   void UpdateTexture(void);
 
   // RenderEngineNode overrides
-  void Render(const RenderFrame& frame) const;
+  void Render(const RenderFrame& frame) const override;
 };

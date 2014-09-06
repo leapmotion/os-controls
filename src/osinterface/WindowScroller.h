@@ -28,9 +28,6 @@ private:
   std::weak_ptr<IScrollOperation> m_curScrollOp;
 
 protected:
-  // Pixels-per-millimeter of monitor
-  const float m_ppmm;
-
   /// <summary>
   /// Performs the actual scroll operation requested by the user
   /// </summary>
@@ -43,6 +40,7 @@ protected:
 private:
   // Use our own mutex (instead of GetLock()) to prevent possible deadlock
   std::mutex m_mutex;
+
   // Each scroll sequence has its own unique ID
   uint32_t m_scrollId;
 
@@ -63,6 +61,11 @@ private:
   void ResetScrollingUnsafe();
 
 public:
+  /// <summary>
+  /// Set pixels-per-inch to use when scrolling
+  /// </summary>
+  void SetPixelsPerInch(float ppi);
+
   /// <summary>
   /// Begins a scrolling operation, and provides the caller with a pointer to the operation presently underway
   /// </summary>

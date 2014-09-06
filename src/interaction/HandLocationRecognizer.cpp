@@ -13,7 +13,7 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
   Vector2 screenLocation;
   
   //We sometimes want to offset the palm position based on the direction the user is pointing
-  Vector3 offset(0,0,0);
+  Vector3 offset(0.0,0.0,0.0);
   
   screenLocation = m_coordinateUtility->LeapToScreen(hand.palmPosition());
 
@@ -27,18 +27,25 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
   
   screenLocation += ProjectVector(2, offset);
   
-  screenLocation.y() *= -1;
+  screenLocation.y() *= -1.0f;
   handLocation.x = screenLocation.x();
   handLocation.y = screenLocation.y();
+  handLocation.mmX = hand.palmPosition().x;
+  handLocation.mmY = hand.palmPosition().y * -1;
   
   if ( isInitialized ) {
     handLocation.dX = handLocation.x - lastPosition.x();
     handLocation.dY = handLocation.y - lastPosition.y();
+    handLocation.dmmX = handLocation.mmX - lastLeapPosition.x();
+    handLocation.dmmY = handLocation.mmY - lastLeapPosition.y();
   } else {
-    handLocation.dX = 0;
-    handLocation.dY = 0;
+    handLocation.dX = 0.0f;
+    handLocation.dY = 0.0f;
+    handLocation.dmmX = 0.0f;
+    handLocation.dmmY = 0.0f;
   }
   
+  lastLeapPosition = handLocation.leapPosition();
   lastPosition = handLocation.screenPosition();
   isInitialized = true;
 }
