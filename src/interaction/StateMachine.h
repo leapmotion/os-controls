@@ -34,7 +34,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime& frameTime, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState);
   
   void OnHandVanished();
 
@@ -52,6 +52,7 @@ private:
   ScrollState m_scrollState;
   Vector2 m_handDelta; //in millimeters
   const float SCROLL_SENSITIVITY = 1.3f;
+  float m_lastScrollReleaseTimestep;
 
   // Pixels-per-millimeter for use with the current scroll operation
   float m_ppmm;
