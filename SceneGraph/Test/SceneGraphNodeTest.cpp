@@ -7,8 +7,44 @@
 
 class SceneGraphNodeTest : public testing::Test { };
 
+// This is like ParticularSceneGraphNodeProperties, but has all values.
+template <typename AffineTransformScalar, int AFFINE_TRANSFORM_DIM, typename AlphaMaskScalar>
+class AllSceneGraphNodeProperties
+  :
+  public NodeProperties<AllSceneGraphNodeProperties<AffineTransformScalar,AFFINE_TRANSFORM_DIM,AlphaMaskScalar>,
+                        NodeProperty<AffineTransformValue<AffineTransformScalar,AFFINE_TRANSFORM_DIM>>,
+                        NodeProperty<AlphaMaskValue<AlphaMaskScalar>>,
+                        NodeProperty<NameValue>>
+{
+public:
+
+  typedef NodeProperty<AffineTransformValue<AffineTransformScalar,AFFINE_TRANSFORM_DIM>> AffineTransformProperty_;
+  typedef NodeProperty<AlphaMaskValue<AlphaMaskScalar>> AlphaMaskProperty_;
+  typedef NodeProperty<NameValue> NameProperty_;
+
+  typedef AffineTransformValue<AffineTransformScalar,AFFINE_TRANSFORM_DIM> AffineTransformValue_;
+  typedef AlphaMaskValue<AlphaMaskScalar> AlphaMaskValue_;
+  typedef NameValue NameValue_;
+
+  // Named accessors
+
+  const AffineTransformProperty_ &AffineTransformProperty () const { return this->Head(); }
+  AffineTransformProperty_ &AffineTransformProperty () { return this->Head(); }
+  const AlphaMaskProperty_ &AlphaMaskProperty () const { return this->Body().Head(); }
+  AlphaMaskProperty_ &AlphaMaskProperty () { return this->Body().Head(); }
+  const NameProperty_ &NameProperty () const { return this->Body().Body().Head(); }
+  NameProperty_ &NameProperty () { return this->Body().Body().Head(); }
+
+  const AffineTransformValue_ &AffineTransform () const { return this->Head().Value(); }
+  AffineTransformValue_ &AffineTransform () { return this->Head().Value(); }
+  const AlphaMaskValue_ &AlphaMask () const { return this->Body().Head().Value(); }
+  AlphaMaskValue_ &AlphaMask () { return this->Body().Head().Value(); }
+  const NameValue_ &Name () const { return this->Body().Body().Head().Value(); }
+  NameValue_ &Name () { return this->Body().Body().Head().Value(); }
+};
+
 TEST_F(SceneGraphNodeTest, PropertyDeltas) {
-  typedef ParticularSceneGraphNodeProperties<float,2,float> Props;
+  typedef AllSceneGraphNodeProperties<float,2,float> Props;
   typedef SceneGraphNode<Props> Node;
 
   typedef Props::AffineTransformValue_ AffineTransform;

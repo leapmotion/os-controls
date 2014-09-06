@@ -178,18 +178,17 @@ class ParticularSceneGraphNodeProperties
   :
   public NodeProperties<ParticularSceneGraphNodeProperties<AffineTransformScalar,AFFINE_TRANSFORM_DIM,AlphaMaskScalar>,
                         NodeProperty<AffineTransformValue<AffineTransformScalar,AFFINE_TRANSFORM_DIM>>,
-                        NodeProperty<AlphaMaskValue<AlphaMaskScalar>>,
-                        NodeProperty<NameValue>>
+                        NodeProperty<AlphaMaskValue<AlphaMaskScalar>>>
 {
 public:
 
   typedef NodeProperty<AffineTransformValue<AffineTransformScalar,AFFINE_TRANSFORM_DIM>> AffineTransformProperty_;
   typedef NodeProperty<AlphaMaskValue<AlphaMaskScalar>> AlphaMaskProperty_;
-  typedef NodeProperty<NameValue> NameProperty_;
+  // typedef NodeProperty<NameValue> NameProperty_;
 
   typedef AffineTransformValue<AffineTransformScalar,AFFINE_TRANSFORM_DIM> AffineTransformValue_;
   typedef AlphaMaskValue<AlphaMaskScalar> AlphaMaskValue_;
-  typedef NameValue NameValue_;
+  // typedef NameValue NameValue_;
 
   // Named accessors
 
@@ -197,13 +196,13 @@ public:
   AffineTransformProperty_ &AffineTransformProperty () { return this->Head(); }
   const AlphaMaskProperty_ &AlphaMaskProperty () const { return this->Body().Head(); }
   AlphaMaskProperty_ &AlphaMaskProperty () { return this->Body().Head(); }
-  const NameProperty_ &NameProperty () const { return this->Body().Body().Head(); }
-  NameProperty_ &NameProperty () { return this->Body().Body().Head(); }
+  // const NameProperty_ &NameProperty () const { return this->Body().Body().Head(); }
+  // NameProperty_ &NameProperty () { return this->Body().Body().Head(); }
 
   const AffineTransformValue_ &AffineTransform () const { return this->Head().Value(); }
   AffineTransformValue_ &AffineTransform () { return this->Head().Value(); }
   const AlphaMaskValue_ &AlphaMask () const { return this->Body().Head().Value(); }
   AlphaMaskValue_ &AlphaMask () { return this->Body().Head().Value(); }
-  const NameValue_ &Name () const { return this->Body().Body().Head().Value(); }
-  NameValue_ &Name () { return this->Body().Body().Head().Value(); }
+  // const NameValue_ &Name () const { return this->Body().Body().Head().Value(); }
+  // NameValue_ &Name () { return this->Body().Body().Head().Value(); }
 };
