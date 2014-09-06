@@ -13,6 +13,8 @@
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
 
+#define USE_HAND_SCROLL 1
+
 namespace Leap {
   class Hand;
 }

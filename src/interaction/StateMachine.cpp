@@ -8,8 +8,6 @@
 #include "osinterface/OSWindow.h"
 #include "utility/NativeWindow.h"
 
-#define USE_HAND_SCROLL 1
-
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
   m_ppmm(96.0f/25.4f),
@@ -84,10 +82,12 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose&
   
   scrollState = m_scrollState; //in case we don't change state
 
+  Vector2 deltaScroll;
+
 #if USE_HAND_SCROLL
   const double deltaScrollMultiplier = 0.15;
   const double deltaScrollThreshold = 0.15;
-  const Vector2 deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
+  deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
   switch (m_scrollState) {
   case ScrollState::ACTIVE:
     if (deltaScroll.squaredNorm() < deltaScrollThreshold) {
@@ -114,52 +114,50 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose&
     break;
   }
 #else
-  switch (m_scrollState) {
+  switch(m_scrollState) {
   case ScrollState::ACTIVE:
-    if (!handPinch.isPinching) {
+    if(!handPinch.isPinching) {
       m_scrollOperation.reset();
       scrollState = ScrollState::DECAYING;
     }
     break;
   case ScrollState::DECAYING:
-    if (handPinch.isPinching) {
+    if(handPinch.isPinching) {
       AutowiredFast<OSCursor> cursor;
-      if (cursor) {
+      if(cursor) {
         auto screenPosition = handLocation.screenPosition();
         OSPoint point{static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y())};
 
         // Move cursor
         AutowiredFast<OSCursor> cursor;
-        if (cursor) {
-        // Set the current cursor position
-        cursor->SetCursorPos(point);
-        // Make the application at the point become active
-        NativeWindow::RaiseWindowAtPosition(point.x, point.y);
-      }
+        if(cursor) {
+          // Set the current cursor position
+          cursor->SetCursorPos(point);
+          // Make the application at the point become active
+          NativeWindow::RaiseWindowAtPosition(point.x, point.y);
+        }
 
         // Update the pixels-per-inch for scrolling on this screen
         float ppi = 96.0f;
         AutowiredFast<OSVirtualScreen> virtualScreen;
-        if (virtualScreen) {
+        if(virtualScreen) {
           OSScreen screen = virtualScreen->ClosestScreen(point);
           ppi = screen.PixelsPerInch();
         }
-        m_ppmm = ppi/25.4f;
+        m_ppmm = ppi / 25.4f;
 
-      m_scrollOperation = m_windowScroller->BeginScroll();
-      if (m_scrollOperation){
-        scrollState = ScrollState::ACTIVE;
+        m_scrollOperation = m_windowScroller->BeginScroll();
+        if(m_scrollOperation) {
+          scrollState = ScrollState::ACTIVE;
+        }
       }
+      deltaScroll = Vector2{handLocation.dmmX, handLocation.dmmY};
+      break;
     }
-    break;
   }
 #endif
   
-#if USE_HAND_SCROLL
   m_handDelta = deltaScroll;
-#else
-  m_handDelta += Vector2(handLocation.dmmX, handLocation.dmmY);
-#endif
   m_scrollState = scrollState;
 }
 
@@ -190,7 +188,6 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       break;
   }
   
-#if 1
   switch ( m_scrollState ) {
     case ScrollState::ACTIVE:
       m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * SCROLL_SENSITIVITY * m_ppmm);
@@ -200,9 +197,6 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     default:
       break;
   }
-#else
-  m_scrollOperation->ScrollBy(0.0f, m_handDelta.y());
-#endif
 
   m_handDelta = Vector2(0, 0);
 }
