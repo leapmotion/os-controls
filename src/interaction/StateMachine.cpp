@@ -35,7 +35,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime
   
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
   
-  if ( m_lastScrollReleaseTimestep > 1500000 && m_scrollState != ScrollState::ACTIVE ) {
+  if ( m_lastScrollReleaseTimestep > 1000000 && m_scrollState != ScrollState::ACTIVE ) {
     // Map the hand pose to a candidate media control state
     auto desiredState = OSCState::BASE;
     switch(handPose) {
