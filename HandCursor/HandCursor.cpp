@@ -7,17 +7,24 @@ HandCursor::HandCursor() {
   //AddChild(m_PalmOutline);
 
   m_PalmCenter = std::shared_ptr<Disk>(new Disk());
-  AddChild(m_PalmCenter);
-
+  
   for (int i=0; i<NUM_FINGERS; i++) {
     m_Fingers[i] = std::shared_ptr<Disk>(new Disk());
-    AddChild(m_Fingers[i]);
   }
-
+  
   m_OutlineColor = Color(0.102f, 0.102f, 0.102f, 1.0f); // 26 26 26
   m_FillColorClosed = Color(0.505f, 0.831f, 0.114f, 0.5f); // 129 212 29
   m_FillColorOpen = m_FillColorClosed;
   m_FillColorOpen.A() = 0.5f;
+}
+
+void HandCursor::InitChildren() {
+  AddChild(m_PalmCenter);
+  
+  for (int i=0; i<NUM_FINGERS; i++) {
+    AddChild(m_Fingers[i]);
+  }
+
 }
 
 void HandCursor::Update(const Leap::Hand& hand) {

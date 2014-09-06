@@ -9,6 +9,7 @@ public:
   HandCursor();
 
   void Update(const Leap::Hand& hand);
+  void InitChildren();
 
   virtual void Draw(RenderState& renderState) const override;
 

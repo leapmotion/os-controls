@@ -15,6 +15,7 @@ class RadialMenuItem : public RadialItem  {
 public:
 
   RadialMenuItem();
+  void InitChildren();
   //void SetActivation(double activation) { m_Activation = activation; }
   void SetActivation(double activation) { m_Activation.SetGoal(activation); }
   void SetActivatedRadius(double radius) { m_ActivatedRadius = radius; }

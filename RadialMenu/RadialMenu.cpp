@@ -9,7 +9,9 @@ RadialMenuItem::RadialMenuItem() {
   m_Activation.SetInitialValue(0.0);
 
   m_Cooldown = false;
+}
 
+void RadialMenuItem::InitChildren() {
   AddChild(m_Wedge);
   AddChild(m_Goal);
 }
@@ -135,6 +137,7 @@ void RadialMenu::SetNumItems(int num) {
   for (int i=prevNumItems; i<num; i++) {
     m_Items[i] = std::shared_ptr<RadialMenuItem>(new RadialMenuItem);
     AddChild(m_Items[i]);
+    m_Items[i]->InitChildren();
   }
 
   updateItemLayout();
