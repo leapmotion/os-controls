@@ -54,7 +54,7 @@ private:
   
   ScrollState m_scrollState;
   Vector2 m_handDelta; //in millimeters
-  const float SCROLL_SENSITIVITY = 1.3f;
+  const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
 
   // Pixels-per-millimeter for use with the current scroll operation
   float m_ppmm;
