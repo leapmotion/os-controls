@@ -36,8 +36,6 @@ public:
   // This method should be overridden in each subclass to draw the particular geometry that it represents.
   virtual void Draw(RenderState &render_state) const = 0;
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
 protected:
   Resource<GLShader> m_shader;
   GLMaterial m_material;

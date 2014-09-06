@@ -87,8 +87,6 @@ public:
   const OpacityStack& GetOpacityState() const { return m_OpacityStack; }
   OpacityStack& GetOpacityState() { return m_OpacityStack; }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 private:
 
   // modelview and projection

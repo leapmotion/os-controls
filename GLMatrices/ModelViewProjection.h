@@ -10,8 +10,6 @@ public:
   void Perspective(double hFovRadians, double widthOverHeight, double nearClip, double farClip);
   void Orthographic(double left, double bottom, double right, double top, double nearClip, double farClip);
   Vector2 Project(const Vector3& point) const;
-  
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
   Matrix4x4 m_matrix;
 };

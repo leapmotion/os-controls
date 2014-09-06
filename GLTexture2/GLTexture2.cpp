@@ -195,8 +195,11 @@ GLTexture2::~GLTexture2 () {
 
 void GLTexture2::UpdateTexture(const void* pMem) {
   // Simply forward on to the subimage function:
+  glBindTexture(m_params.Target(), m_texture_name);
+  ThrowOnGLError("in glBindTexture");
+
   glTexSubImage2D(
-    m_texture_name,
+    m_params.Target(),
     0,
     0,
     0,
@@ -206,4 +209,7 @@ void GLTexture2::UpdateTexture(const void* pMem) {
     type,
     pMem
   );
+  ThrowOnGLError("in glTexSubImage2D");
+ 
+  glBindTexture(m_params.Target(), 0);
 }
