@@ -36,7 +36,7 @@ bool RadialMenuItem::Hit(const Vector2& pos, double& ratio) const {
   const Vector2 radial = toRadialCoordinates(pos);
   const double itemRadius = CurrentRadius();
   const double minRadius = itemRadius - m_Thickness / 2.0;
-  const double maxRadius = itemRadius + m_Thickness / 2.0;
+  const double maxRadius = std::numeric_limits<double>::max();//itemRadius + m_Thickness / 2.0;
   const double radius = radial[0];
   const double angle = radial[1];
   
