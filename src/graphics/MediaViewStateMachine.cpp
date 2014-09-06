@@ -126,26 +126,26 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount&
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_startRoll = dra.absoluteRoll;
         m_hasRoll = true;
-        m_volumeKnob->SetOpacity(0.5f);
+        m_volumeKnob->SetAlphaMaskGoal(0.5f);
         m_state = State::ACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-        m_volumeKnob->SetOpacity(0.0f);
+        m_volumeKnob->SetAlphaMaskGoal(0.0f);
         m_state = State::INACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::SELECTION_MADE:
-      m_volumeKnob->SetOpacity(0.0f);
+      m_volumeKnob->SetAlphaMaskGoal(0.0f);
       m_state = State::FADE_OUT;
       m_LastStateChangeTime = m_CurrentTime;
       break;
     case State::FADE_OUT:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-        m_volumeKnob->SetOpacity(0.0f);
+        m_volumeKnob->SetAlphaMaskGoal(0.0f);
         m_state = State::INACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
@@ -233,7 +233,13 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount&
       break;
   }
   for (int i=0; i<numItems; i++) {
-    m_radialMenu.GetItem(i)->SetOverrideOpacity(i == m_selectedItem);
+    // The apply type indicates how the composition of properties along the line of
+    // ancestry in the scene graph works.  ApplyType::OPERATE is ordinary composition
+    // (e.g. multiplication of coordinate transformations).  ApplyType::REPLACE
+    // is an override of the existing value, and is how the alpha mask is overridden
+    // for the selected item.
+    ApplyType apply_type = i == m_selectedItem ? ApplyType::REPLACE : ApplyType::OPERATE;
+    m_radialMenu.GetItem(i)->LocalProperties().AlphaMaskProperty().SetApplyType(apply_type);
   }
   m_radialMenu.UpdateItemActivation(static_cast<float>(1E-6 * frameTime.deltaTime));
 }
@@ -258,24 +264,24 @@ void MediaViewStateMachine::SetViewVolume(float volume) {
 }
 
 void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
-  float opacity = 0.0f;
+  float alphaMask = 0.0f;
   if (m_state == State::ACTIVE) {
     // fade in
-    opacity = SmootherStep(std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
+    alphaMask = SmootherStep(std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
   } else if (m_state == State::FADE_OUT || m_state == State::SELECTION_MADE || m_state == State::INACTIVE) {
     // fade out
-    opacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
+    alphaMask = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
     if (m_selectedItem >= 0) {
       const float itemOpacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - 2*m_FadeTime - m_LastStateChangeTime)/m_FadeTime)));
-      m_radialMenu.GetItem(m_selectedItem)->SetOpacity(itemOpacity);
+      m_radialMenu.GetItem(m_selectedItem)->LocalProperties().AlphaMask() = itemOpacity;
     } else {
       for (int i=0; i<numItems; i++) {
-        m_radialMenu.GetItem(i)->SetOpacity(1.0f);
+        m_radialMenu.GetItem(i)->LocalProperties().AlphaMask() = 1.0f;
       }
     }
   }
-  m_radialMenu.SetOpacity(opacity);
-  m_volumeSlider.SetOpacity(opacity);
+  m_radialMenu.LocalProperties().AlphaMask() = alphaMask;
+  m_volumeSlider.LocalProperties().AlphaMask() = alphaMask;
 }
 
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {

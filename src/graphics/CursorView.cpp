@@ -74,5 +74,5 @@ void CursorView::Render(const RenderFrame& frame) const {
     return;
   
   // draw primitives
-  m_disk.Draw(frame.renderState);
+  m_disk.Draw(frame.renderState, m_disk.LocalProperties());
 }

@@ -2,14 +2,22 @@
 #include "RenderFrame.h"
 #include "volumeKnob.h"
 
-VolumeKnob::VolumeKnob() {
-  m_opacity.SetInitialValue(0.0f);
-  
-  m_knobIndicator.SetSize(Vector2(2.0f, 80.0));
-  m_knobIndicator.Translation() = Vector3(0, 30, 0);
-  
-  m_knobBody.SetRadius(40.0f);
-  m_knobIndicator.Translation() = Vector3(0, 0, 0);
+VolumeKnob::VolumeKnob()
+  :
+  m_childrenAdded(false),
+  m_knobBody(std::make_shared<Disk>()),
+  m_knobIndicator(std::make_shared<RectanglePrim>())
+{
+  m_alphaMask.SetInitialValue(0.0f);
+
+  m_knobBody->SetRadius(40.0f);
+  m_knobBody->Translation() = Vector3(0, 0, 0);
+  m_knobBody->Material().SetAmbientLightingProportion(1.0f);
+
+  m_knobIndicator->SetSize(Vector2(2.0f, 80.0));
+  m_knobIndicator->Translation() = Vector3(0, 30, 0);
+  m_knobIndicator->Translation() = Vector3(0, 0, 0); // TODO: are you sure you mean this?
+  m_knobIndicator->Material().SetAmbientLightingProportion(1.0f);
 }
 
 VolumeKnob::~VolumeKnob() {
@@ -17,25 +25,33 @@ VolumeKnob::~VolumeKnob() {
 }
 
 void VolumeKnob::Tick(std::chrono::duration<double> deltaT) {
-  m_opacity.Update(deltaT.count());
+  AddChildrenIfNecessary();
+
+  m_alphaMask.Update(deltaT.count());
   
-  const Color knobColor(0.5f, 0.5f, 0.5f, m_opacity.Value());
-  const Color indicatiorColor(0.5f, 1.0f, 0.5f, m_opacity.Value());
+  const Color knobColor(0.5f, 0.5f, 0.5f, m_alphaMask.Value());
+  const Color indicatiorColor(0.5f, 1.0f, 0.5f, m_alphaMask.Value());
   
-  m_knobBody.Material().SetAmbientLightingProportion(1.0f);
-  m_knobBody.Material().SetDiffuseLightColor(knobColor);
-  m_knobBody.Material().SetAmbientLightColor(knobColor);
-  
-  m_knobIndicator.Material().SetAmbientLightingProportion(1.0f);
-  m_knobIndicator.Material().SetDiffuseLightColor(indicatiorColor);
-  m_knobIndicator.Material().SetAmbientLightColor(indicatiorColor);
+  // Because the material ambient lighting proportion is 1,
+  // there is no contribution from the diffuse light color.
+  m_knobBody->Material().SetAmbientLightColor(knobColor);  
+  m_knobIndicator->Material().SetAmbientLightColor(indicatiorColor);
 }
 
-void VolumeKnob::Draw(RenderState &render_state) const {
-  m_knobBody.Draw(render_state);
-  m_knobIndicator.Draw(render_state);
+void VolumeKnob::SetAlphaMaskGoal(float alphaMaskGoal) {
+  m_alphaMask.SetGoal(alphaMaskGoal);
 }
 
-void VolumeKnob::SetOpacity(float opacity) {
-  m_opacity.SetGoal(opacity);
+void VolumeKnob::DrawContents(RenderState &render_state) const {
+  // m_knobBody->Draw(render_state);
+  // m_knobIndicator->Draw(render_state);
 }
+
+void VolumeKnob::AddChildrenIfNecessary() {
+  if (!m_childrenAdded) {
+    AddChild(m_knobBody);
+    AddChild(m_knobIndicator);
+    m_childrenAdded = true;
+  }
+}
+
