@@ -36,10 +36,10 @@ public:
   const GLMaterial &Material () const { return m_material; }
   GLMaterial &Material () { return m_material; }
 
-  typename Transform::ConstTranslationPart Translation () const { return LocalProperties().AffineTransform().translation(); }
-  typename Transform::TranslationPart Translation () { return LocalProperties().AffineTransform().translation(); }
-  typename Transform::ConstLinearPart LinearTransformation () const { return LocalProperties().AffineTransform().linear(); }
-  typename Transform::LinearPart LinearTransformation () { return LocalProperties().AffineTransform().linear(); }
+  Transform::ConstTranslationPart Translation () const { return LocalProperties().AffineTransform().translation(); }
+  Transform::TranslationPart Translation () { return LocalProperties().AffineTransform().translation(); }
+  Transform::ConstLinearPart LinearTransformation () const { return LocalProperties().AffineTransform().linear(); }
+  Transform::LinearPart LinearTransformation () { return LocalProperties().AffineTransform().linear(); }
 
   // This method should be overridden in each subclass to draw the particular geometry that it represents.
   virtual void Draw(RenderState &render_state) const = 0;
