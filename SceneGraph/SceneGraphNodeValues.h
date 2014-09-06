@@ -40,8 +40,8 @@ public:
   // This returns the block matrix
   //   [ L T ]
   //   [ 0 1 ]
-  Eigen::Matrix<Scalar,DIM+1,DIM+1> AsFullMatrix () const {
-    Eigen::Matrix<Scalar,DIM+1,DIM+1> full_matrix;
+  Eigen::Matrix<Scalar,DIM+1,DIM+1,Eigen::DontAlign> AsFullMatrix () const {
+    Eigen::Matrix<Scalar,DIM+1,DIM+1,Eigen::DontAlign> full_matrix;
     full_matrix.template block<DIM,DIM+1>(0,0) = this->affine();
     full_matrix.template block<1,DIM>(DIM,0).setZero();
     full_matrix(DIM,DIM) = Scalar(1);
