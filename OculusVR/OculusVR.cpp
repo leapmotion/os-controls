@@ -16,6 +16,8 @@ void OculusVR::InitGlew() {
 }
 
 bool OculusVR::Init() {
+  glewInit();
+    
   m_Debug = false;
 
   ovr_Initialize();
@@ -49,7 +51,7 @@ bool OculusVR::Init() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderTargetSize.w, renderTargetSize.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_Texture, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,m_Texture, 0);
 
   glGenRenderbuffers(1, &m_RenderBuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffer);
@@ -101,7 +103,7 @@ bool OculusVR::Init() {
   // Internally, the above line calls glewInit(), which generates a GL_INVALID_ENUM error inside of it. We will make a
   // glGetError() call to clear out the phony error; otherwise the next gl function we call will appear to fail. Raffi, I'm 
   // not sure if your glewInit() changes in develop resolves this? If so, this might not be needed anymore.
-  glGetError();
+  //glGetError();
 
   ovrHmd_SetEnabledCaps(m_HMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
 
