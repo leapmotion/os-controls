@@ -42,7 +42,7 @@ void WindowScrollerWin::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
     INPUT input = { 0 };
     input.type = INPUT_MOUSE;
     input.mi.dwFlags = MOUSEEVENTF_WHEEL;
-    input.mi.mouseData = static_cast<DWORD>(wheelDelta.y); // Scale the step (Windows often drops values of -1 and 1)
+    input.mi.mouseData = static_cast<DWORD>(wheelDelta.y);
     SendInput(1, &input, sizeof(input));
   }
 
@@ -50,7 +50,7 @@ void WindowScrollerWin::DoScrollBy(float deltaX, float deltaY, bool isMomentum) 
     INPUT input = { 0 };
     input.type = INPUT_MOUSE;
     input.mi.dwFlags = MOUSEEVENTF_HWHEEL;
-    input.mi.mouseData = static_cast<DWORD>(-wheelDelta.x); // Scale the step (see above); Also reverse direction of scroll
+    input.mi.mouseData = static_cast<DWORD>(-wheelDelta.x);
     SendInput(1, &input, sizeof(input));
   }
 }
