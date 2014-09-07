@@ -6,6 +6,7 @@
 #include "graphics/RenderFrame.h"
 #include "utility/SamplePrimitives.h"
 #include <SVGPrimitive.h>
+#include "OSInterface/OSVirtualScreen.h"
 
 ExposeView::ExposeView() :
   m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>)
@@ -49,12 +50,38 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   // Handle anything pended to the render thread:
   DispatchAllEvents();
   
+  double angle = 0;
+  const double angleInc = 2*M_PI / static_cast<double>(m_windows.size());
+
+  Autowired<OSVirtualScreen> fullScreen;
+  auto screen = fullScreen->PrimaryScreen();
+
+  const Vector2 size(screen.Size().width, screen.Size().height);
+
+  const OSRect bounds = screen.Bounds();
+  const Vector2 origin(bounds.origin.x, bounds.origin.y);
+  const Vector2 center = origin + 0.5*size;
+
+  const double sizeDiag = size.norm();
+  const double radiusPixels = size.norm() * 0.1;
+
   for(const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
       continue;
 
-    // TODO:  Update the position of the current window
+    std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
+    const double imgWidth = img->Size().x();
+    const double imgHeight = img->Size().y();
     
+    const double scale = 0.03;
+
+    const Vector2 point = radialCoordsToPoint(angle, radiusPixels) + center;
+
+    img->Translation().setZero();
+    img->Translation().head<2>() = point;
+    img->LinearTransformation() = scale * Matrix3x3::Identity();
+
+    angle += angleInc;
   }
 }
 
@@ -66,8 +93,8 @@ void ExposeView::focusWindow(ExposeViewWindow& window) {
 }
 
 
-std::tuple<double, double> ExposeView::radialCoordsToPoint(double angle, double distance) {
-  return std::make_tuple(0.0, 0.0);
+Vector2 ExposeView::radialCoordsToPoint(double angle, double distance) {
+  return Vector2(distance * std::cos(angle), distance * std::sin(angle));
 }
 
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
