@@ -3,8 +3,8 @@
 #include "InteractionConfigs.h"
 
 HandPinchRecognizer::HandPinchRecognizer() :
-m_wasPinching(false),
-m_lastPinchStrength(0.0f)
+  m_wasPinching(false),
+  m_lastPinchStrength(0.0f)
 {
 }
 

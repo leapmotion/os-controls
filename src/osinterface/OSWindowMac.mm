@@ -87,7 +87,16 @@ bool OSWindowMac::GetFocus(void) {
 }
 
 void OSWindowMac::SetFocus(void) {
-  // FIXME
+  const pid_t pid = static_cast<pid_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
+  if (!pid) {
+    return;
+  }
+  // Bring Application to front
+  @autoreleasepool {
+    [[NSRunningApplication runningApplicationWithProcessIdentifier:pid]
+     activateWithOptions:0];
+  }
+  // Now attempt to bring the window to front -- FIXME
 }
 
 std::wstring OSWindowMac::GetTitle(void) {

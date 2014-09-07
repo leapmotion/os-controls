@@ -26,7 +26,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime& frameTime, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime& frameTime, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
 
   std::lock_guard<std::mutex> lk(m_lock);
   if(m_state == OSCState::FINAL) {
@@ -81,22 +81,56 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime
   
   scrollState = m_scrollState; //in case we don't change state
 
-  switch ( m_scrollState ) {
-    case ScrollState::ACTIVE:
-      if ( !handPinch.isPinching ) {
-        m_scrollOperation.reset();
-        m_lastScrollReleaseTimestep = 0.0f;
-        scrollState = ScrollState::DECAYING;
+  Vector2 deltaScroll;
+
+#if USE_HAND_SCROLL
+  const double deltaScrollMultiplier = 0.15;
+  const double deltaScrollThreshold = 0.15;
+  deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
+  switch (m_scrollState) {
+  case ScrollState::ACTIVE:
+    if (deltaScroll.squaredNorm() < deltaScrollThreshold) {
+      m_scrollOperation.reset();
+      scrollState = ScrollState::DECAYING;
+    }
+    break;
+  case ScrollState::DECAYING:
+    if (deltaScroll.squaredNorm() > deltaScrollThreshold) {
+      AutowiredFast<OSCursor> cursor;
+      if (cursor) {
+        auto screenPosition = handLocation.screenPosition();
+        OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
+        // Set the current cursor position
+        cursor->SetCursorPos(point);
+        // Make the application at the point become active
+        NativeWindow::RaiseWindowAtPosition(point.x, point.y);
       }
-      break;
-    case ScrollState::DECAYING:
+      m_scrollOperation = m_windowScroller->BeginScroll();
+      if (m_scrollOperation){
+        scrollState = ScrollState::ACTIVE;
+      }
+    }
+    break;
+  }
+#else
+  switch(m_scrollState) {
+  case ScrollState::ACTIVE:
+    if(!handPinch.isPinching) {
+      m_scrollOperation.reset();
+        m_lastScrollReleaseTimestep = 0.0f;
+      scrollState = ScrollState::DECAYING;
+    }
+    break;
+  case ScrollState::DECAYING:
       if ( handPinch.isPinching && m_state == OSCState::BASE ) {
+      AutowiredFast<OSCursor> cursor;
+      if(cursor) {
         auto screenPosition = handLocation.screenPosition();
         OSPoint point{static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y())};
 
         // Move cursor
         AutowiredFast<OSCursor> cursor;
-        if (cursor) {
+        if(cursor) {
           // Set the current cursor position
           cursor->SetCursorPos(point);
           // Make the application at the point become active
@@ -106,21 +140,24 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime
         // Update the pixels-per-inch for scrolling on this screen
         float ppi = 96.0f;
         AutowiredFast<OSVirtualScreen> virtualScreen;
-        if (virtualScreen) {
+        if(virtualScreen) {
           OSScreen screen = virtualScreen->ClosestScreen(point);
           ppi = screen.PixelsPerInch();
         }
-        m_ppmm = ppi/25.4f;
+        m_ppmm = ppi / 25.4f;
 
         m_scrollOperation = m_windowScroller->BeginScroll();
-        if(m_scrollOperation){
+        if(m_scrollOperation) {
           scrollState = ScrollState::ACTIVE;
         }
       }
+      deltaScroll = Vector2{handLocation.dmmX, handLocation.dmmY};
       break;
+    }
   }
+#endif
   
-  m_handDelta += Vector2(handLocation.dmmX, handLocation.dmmY);
+  m_handDelta = deltaScroll;
   m_scrollState = scrollState;
 }
 
@@ -160,6 +197,6 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     default:
       break;
   }
-  
-  m_handDelta = Vector2(0,0);
+
+  m_handDelta = Vector2(0, 0);
 }
