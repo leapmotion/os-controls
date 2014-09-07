@@ -64,8 +64,8 @@ private:
     FINAL
   };
   
-  RadialMenu m_radialMenu;
-  RadialSlider m_volumeSlider;
+  std::shared_ptr<RadialMenu>m_radialMenu;
+  std::shared_ptr<RadialSlider> m_volumeSlider;
   AutoRequired<VolumeKnob> m_volumeKnob;
   
   bool m_hasRoll;

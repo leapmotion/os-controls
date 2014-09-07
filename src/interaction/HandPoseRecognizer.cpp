@@ -85,11 +85,9 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
           if ( zDist < activate_fingersForward ) {
             fingersOut = false;
           }
-          
           isClawCurling = isClawCurled(finger, activate_clawCurl_min, activate_clawCurl_max);
           break;
       }
-      
     }
     else if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
       if ( isExtended(finger) )
@@ -102,10 +100,11 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
         areRingAndPinkeyExtended = true;
       }
     }
-    
-
+  
     i++;
   }
+  
+  std::cout << std::endl;
   
   averageVelocity = velocitySum / 5.0f;
   
@@ -214,7 +213,8 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
   float mToPDot = 1.0f;
   
   if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
-    mToPDot = metacarpal.direction().toVector3<Vector3>().dot(proximal.direction().toVector3<Vector3>());
+    return finger.isExtended();
+    //mToPDot = metacarpal.direction().toVector3<Vector3>().dot(proximal.direction().toVector3<Vector3>());
   }
   float pToIDot = proximal.direction().toVector3<Vector3>().dot(intermediate.direction().toVector3<Vector3>());
   float iToDDot = intermediate.direction().toVector3<Vector3>().dot(distal.direction().toVector3<Vector3>());
