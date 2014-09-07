@@ -4,7 +4,8 @@
 
 VolumeKnob::VolumeKnob() {
   m_opacity.SetInitialValue(0.0f);
-  
+  m_opacity.SetGoal(0.0f);
+
   m_knobBody.SetRadius(55.0f);
   m_knobBody.Translation() = Vector3(0, 0, 0);
   
