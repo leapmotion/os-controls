@@ -18,11 +18,9 @@ ExposeView::~ExposeView() {
 }
 
 void ExposeView::AutoInit() {
-/*  m_rootNode.NotifyWhenAutowired([this]{
+  m_rootNode.NotifyWhenAutowired([this]{
     m_rootNode->Add(shared_from_this());
-  });*/
-  
-  
+  });
 }
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
