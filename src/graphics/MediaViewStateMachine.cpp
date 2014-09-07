@@ -20,9 +20,9 @@ const double startAngle = 3 * M_PI/4.0;
 const double endAngle = startAngle + 6 * (M_PI/4.0);
 const int numItems = 3;
 const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
-const Color fillColor(0.4f, 0.8f, 0.4f, 0.7f);
+const Color fillColor(0.505f, 0.831f, 0.114f, 0.95f);
 const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
-const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
+const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
 m_radialMenu(new RadialMenu()),

@@ -20,7 +20,7 @@ void VolumeKnob::Tick(std::chrono::duration<double> deltaT) {
   m_opacity.Update(deltaT.count());
   
   const Color knobColor(0.5f, 0.5f, 0.5f, m_opacity.Value());
-  const Color indicatiorColor(0.5f, 1.0f, 0.5f, m_opacity.Value());
+  const Color indicatiorColor(0.505f, 0.831f, 0.114f, m_opacity.Value());
   
   m_knobBody.Material().SetAmbientLightingProportion(1.0f);
   m_knobBody.Material().SetDiffuseLightColor(knobColor);
