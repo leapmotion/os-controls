@@ -220,12 +220,12 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
   float iToDDot = intermediate.direction().toVector3<Vector3>().dot(distal.direction().toVector3<Vector3>());
   
   if ( !wasExtended ) {
-    if(mToPDot >= config::MIN_DOT_FOR_START_POINTING && pToIDot >= config::MIN_DOT_FOR_START_POINTING && iToDDot >= config::MIN_DOT_FOR_START_POINTING) {
+    if(mToPDot >= config::MIN_DOT_FOR_START_POINTING/* && pToIDot >= config::MIN_DOT_FOR_START_POINTING/* && iToDDot >= config::MIN_DOT_FOR_START_POINTING*/) {
       retVal = true;
     }
   }
   else {
-    if(mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING &&pToIDot >= config::MAX_DOT_FOR_CONTINUE_POINTING && iToDDot >= config::MAX_DOT_FOR_CONTINUE_POINTING ) {
+    if(mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING/* &&pToIDot >= config::MAX_DOT_FOR_CONTINUE_POINTING/* && iToDDot >= config::MAX_DOT_FOR_CONTINUE_POINTING*/ ) {
       retVal = true;
     }
   }
