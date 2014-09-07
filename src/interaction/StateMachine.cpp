@@ -15,8 +15,7 @@ StateMachine::StateMachine(void):
   m_scrollState(ScrollState::DECAYING),
   m_lastScrollReleaseTimestep(0.0f),
   m_handDelta(0.0,0.0),
-  m_scrollOperation(nullptr),
-  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
+  m_scrollOperation(nullptr)
 {
 }
 

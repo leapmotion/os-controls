@@ -62,7 +62,7 @@ private:
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 
-  AutoConstruct<CursorView> m_cursorView;
+  AutoRequired<CursorView> m_cursorView;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewProxy> m_evp;
