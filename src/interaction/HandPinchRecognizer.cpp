@@ -3,7 +3,7 @@
 #include "InteractionConfigs.h"
 
 HandPinchRecognizer::HandPinchRecognizer() :
-wasPinching(false)
+  wasPinching(false)
 {
 }
 

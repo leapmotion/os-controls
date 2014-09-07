@@ -14,15 +14,21 @@ set(interaction_SOURCES
   HandEventListener.h
   HandLocationRecognizer.cpp
   HandLocationRecognizer.h
+  HandPinchRecognizer.h
+  HandPinchRecognizer.cpp
   HandPoseRecognizer.cpp
   HandPoseRecognizer.h
+  HandRollRecognizer.h
+  HandRollRecognizer.cpp
   InteractionConfigs.h
   MediaViewController.h
   MediaViewController.cpp
-  HandPinchRecognizer.h
-  HandPinchRecognizer.cpp
-  HandRollRecognizer.h
-  HandRollRecognizer.cpp
+  PinchScrollRecognizer.h
+  PinchScrollRecognizer.cpp
+  ScrollRecognizer.h
+  ScrollRecognizer.cpp
+  ScrollStateMachine.h
+  ScrollStateMachine.cpp
   StateMachine.h
   StateMachine.cpp
   StateMachineContext.h

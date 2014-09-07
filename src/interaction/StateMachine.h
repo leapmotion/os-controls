@@ -9,8 +9,11 @@
 #include "interaction/MediaViewController.h"
 #include "interaction/HandPinchRecognizer.h"
 #include "interaction/HandPinchRecognizer.h"
+#include "interaction/ScrollRecognizer.h"
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
+
+#define USE_HAND_SCROLL 1
 
 namespace Leap {
   class Hand;
@@ -34,7 +37,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
   
   void OnHandVanished();
 
@@ -51,7 +54,7 @@ private:
   
   ScrollState m_scrollState;
   Vector2 m_handDelta; //in millimeters
-  const float SCROLL_SENSITIVITY = 1.3f;
+  const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
 
   // Pixels-per-millimeter for use with the current scroll operation
   float m_ppmm;
