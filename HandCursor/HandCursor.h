@@ -4,15 +4,11 @@
 #include "Primitives.h"
 #include "Color.h"
 
-struct HandBools {
-  bool extended [5] = {};
-};
-
 class HandCursor : public PrimitiveBase {
 public:
   HandCursor();
 
-  void Update(const Leap::Hand& hand, HandBools ext);
+  void Update(const Leap::Hand& hand);
   void InitChildren();
 
   virtual void Draw(RenderState& renderState) const override;
@@ -30,14 +26,13 @@ private:
   static float calculateFingerRadius(float bend);
   Color calculateFingerColor(float bend);
   Color calculatePalmColor(float closed);
-  float averageFingerBend(Leap::Finger finger) const;
+  float averageFingerBend(Leap::Finger finger, int startBone = 3, int endBone = 4) const;
   
-  void formatFinger(const Leap::Finger& finger, float distance, bool isLeft = false, bool isVisible = true);
+  void formatFinger(const Leap::Finger& finger, float distance, bool isLeft = false);
 
   Color m_OutlineColor;
   Color m_FillColorOpen;
   Color m_FillColorClosed;
-  Color m_fingerColor;
 
   float m_PalmOutlineRadius;
   float m_PalmOutlineThickness;

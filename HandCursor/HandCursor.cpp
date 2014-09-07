@@ -13,7 +13,6 @@ HandCursor::HandCursor() {
   
   m_OutlineColor = Color(0.802f, 0.802f, 0.802f, 0.75f); // 26 26 26
   m_FillColorClosed = Color(0.505f, 0.831f, 0.114f, 0.75f); // 129 212 29
-  m_fingerColor = Color(0.505f, 0.831f, 0.114f, 0.75f);
   m_FillColorOpen = m_FillColorClosed;
   m_FillColorOpen.A() = 0.5f;
   
@@ -30,7 +29,7 @@ void HandCursor::InitChildren() {
 
 }
 
-void HandCursor::Update(const Leap::Hand& hand, HandBools ext) {
+void HandCursor::Update(const Leap::Hand& hand) {
   const Leap::Vector handPos = transformCoordinates(hand.palmPosition());
 
   const float grabStrength = hand.grabStrength();
@@ -41,17 +40,28 @@ void HandCursor::Update(const Leap::Hand& hand, HandBools ext) {
   const Leap::FingerList fingers = hand.fingers();
   for (int i=0; i<NUM_FINGERS; i++) {
     const Leap::Finger finger = fingers[i];
+    Vector3 fingerPosFlat = finger.tipPosition().toVector3<Vector3>();
+    fingerPosFlat.z() = 0;
+    Vector3 palmPosFlat = hand.palmPosition().toVector3<Vector3>();
+    palmPosFlat.z() = 0;
+    float bend = averageFingerBend(finger, 1, 2);
     
-    float distance = (finger.tipPosition().toVector3<Vector3>() - hand.palmPosition().toVector3<Vector3>()).norm();
-    std::cout << i <<" format: " << ext.extended[i] << std::endl;
-    formatFinger(finger, distance, hand.isLeft(), ext.extended[i]);
-    m_Fingers[i]->SetRadius(7.0f);
+    if (finger.type() == Leap::Finger::TYPE_THUMB  ) {
+      if ( finger.isExtended() ) {
+        bend = 0.0f;
+      }
+      else {
+        bend = 1.0f;
+      }
+    }
+  
+    formatFinger(finger, bend, hand.isLeft());
   }
 
   // process palm
 
   m_PalmOutlineRadius = 35.0f;
-  m_PalmOutlineThickness = 3.0f;
+  m_PalmOutlineThickness = 1.0f;
 
   const auto handVec = handPos.toVector3<Vector3>();
   Translation().x() = handVec.x();
@@ -76,11 +86,17 @@ void HandCursor::Update(const Leap::Hand& hand, HandBools ext) {
   m_PalmOutline->SetEndAngle(2*M_PI);
 }
 
-void HandCursor::formatFinger(const Leap::Finger& finger, float distanceFromPalm, bool isLeft, bool isVisible) {
-  const float FINGER_REAL_DISTANCE_MIN = 40.0f;
-  const float FINGER_REAL_DISTANCE_MAX = 60.0f;
-  const float FINGER_DISTANCE_MIN = 30.0f;
-  const float FINGER_DISTANCE_MAX = 40.0f;
+void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLeft) {
+  const float FINGER_REAL_BEND_MIN = 0.1f;
+  const float FINGER_REAL_BEND_MAX = 0.7f;
+  const float FINGER_DISTANCE_MIN = 35.0f;
+  const float FINGER_DISTANCE_MAX = 50.0f;
+  
+  const float FINGER_MAX_SIZE = 5;
+  const float FINGER_MIN_SIZE = 2.5;
+  
+  const Color FINGER_COLOR_OUT(0.505f, 0.831f, 0.114f, 0.75f);
+  const Color FINGER_COLOR_IN(0.5f, 0.5f, 0.5f, 0.75f);
   
   const float angles [5] { M_PI/12.0f, M_PI/3.0f, M_PI/2.0f, 2*M_PI/3.0f, 5*M_PI/6.0f };
   int fingerIndex = static_cast<int>(finger.type());
@@ -91,24 +107,21 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float distanceFromPalm
   }
   Vector2 visualPosition(std::cos(angle), std::sin(angle));
   
-  //float bend = 1 - averageFingerBend(finger);
-  float distNorm = (distanceFromPalm - FINGER_REAL_DISTANCE_MIN) / (FINGER_REAL_DISTANCE_MAX - FINGER_REAL_DISTANCE_MIN);
-  float visualDist = FINGER_DISTANCE_MIN + (distNorm*(FINGER_DISTANCE_MAX - FINGER_DISTANCE_MIN));
+  float bendNorm = (bend - FINGER_REAL_BEND_MIN) / (FINGER_REAL_BEND_MAX - FINGER_REAL_BEND_MIN);
+  bendNorm = 1.0f - std::min(1.0f, std::max(0.0f, bendNorm));
+  float visualDist = FINGER_DISTANCE_MIN + (bendNorm*(FINGER_DISTANCE_MAX - FINGER_DISTANCE_MIN));
+  
+  const Vector4f blend = (bendNorm * FINGER_COLOR_OUT.Data()) + ((1.0f-bendNorm) * FINGER_COLOR_IN.Data());
+  Color blendedColor(blend);
   
   visualPosition *= visualDist;
 
   std::shared_ptr<Disk> fingerVisual = m_Fingers[fingerIndex];
   fingerVisual->Translation() = Vector3(visualPosition.x(), visualPosition.y(), fingerVisual->Translation().z());
+  fingerVisual->SetRadius( FINGER_MIN_SIZE + (bendNorm * (FINGER_MAX_SIZE - FINGER_MIN_SIZE)) );
   
-  if( !isVisible ) {
-    m_fingerColor.A() = 0;
-  }
-  else {
-    m_fingerColor.A() = 1;
-  }
-  
-  fingerVisual->Material().SetAmbientLightColor(m_fingerColor);
-  fingerVisual->Material().SetDiffuseLightColor(m_fingerColor);
+  fingerVisual->Material().SetAmbientLightColor(blendedColor);
+  fingerVisual->Material().SetDiffuseLightColor(blendedColor);
   fingerVisual->Material().SetAmbientLightingProportion(1.0f);
 }
 
@@ -167,15 +180,15 @@ Color HandCursor::calculatePalmColor(float closed) {
   return Color(m_FillColorClosed);
 }
 
-float HandCursor::averageFingerBend(Leap::Finger finger) const {
+float HandCursor::averageFingerBend(Leap::Finger finger, int startBone, int endBone) const {
   float retVal = 0.0f;
   int count = 0;
   float sum = 0.0f;
   float average = 0.0f;
+  startBone = std::max(1, startBone);
+  endBone = std::min(4, endBone);
   
-  int startBone = 3;
-  
-  for(int i=startBone; i<4; i++) {
+  for(int i=startBone; i<endBone; i++) {
     //Angle from scalar product
     Vector3 v1 = finger.bone(static_cast<Leap::Bone::Type>(i-1)).direction().toVector3<Vector3>();
     Vector3 v2 = finger.bone(static_cast<Leap::Bone::Type>(i)).direction().toVector3<Vector3>();
