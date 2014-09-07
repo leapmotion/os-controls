@@ -65,7 +65,7 @@ public:
   static const Color& Teal() { static Color c(0.0f, 1.0f, 1.0f, 1.0f); return c; }
   static const Color& Transparent() { static Color c(0.0f, 0.0f, 0.0f, 0.0f); return c; }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
+
   Vector4f m_data;
 };

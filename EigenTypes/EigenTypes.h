@@ -6,35 +6,41 @@
 #include <map>
 #include <set>
 
+// NOTE: The use of Eigen::DontAlign removes the guarantee that the statically-sized
+// Eigen matrix/vector types will be aligned to 16-byte memory boundaries and therefore
+// the corresponding matrix/vector operations aren't guaranteed to be vectorized.
+// See http://eigen.tuxfamily.org/dox/group__TopicUnalignedArrayAssert.html and
+// http://eigen.tuxfamily.org/dox/group__TopicStructHavingEigenMembers.html for more info.
+
 // geometry storage types
 typedef double MATH_TYPE;
 // matrices
-typedef Eigen::Matrix<MATH_TYPE, 1, 1> Matrix1x1;
-typedef Eigen::Matrix<MATH_TYPE, 2, 2> Matrix2x2;
-typedef Eigen::Matrix<MATH_TYPE, 2, 3> Matrix2x3;
-typedef Eigen::Matrix<MATH_TYPE, 3, 3> Matrix3x3;
-typedef Eigen::Matrix<MATH_TYPE, 3, 2> Matrix3x2;
-typedef Eigen::Matrix<MATH_TYPE, 4, 4> Matrix4x4;
+typedef Eigen::Matrix<MATH_TYPE, 1, 1, Eigen::DontAlign> Matrix1x1;
+typedef Eigen::Matrix<MATH_TYPE, 2, 2, Eigen::DontAlign> Matrix2x2;
+typedef Eigen::Matrix<MATH_TYPE, 2, 3, Eigen::DontAlign> Matrix2x3;
+typedef Eigen::Matrix<MATH_TYPE, 3, 3, Eigen::DontAlign> Matrix3x3;
+typedef Eigen::Matrix<MATH_TYPE, 3, 2, Eigen::DontAlign> Matrix3x2;
+typedef Eigen::Matrix<MATH_TYPE, 4, 4, Eigen::DontAlign> Matrix4x4;
 typedef Eigen::Matrix<MATH_TYPE, Eigen::Dynamic, Eigen::Dynamic> MatrixD;
-typedef Eigen::Matrix<float, 2, 2> Matrix2x2f;
-typedef Eigen::Matrix<float, 3, 3> Matrix3x3f;
-typedef Eigen::Matrix<float, 4, 4> Matrix4x4f;
+typedef Eigen::Matrix<float, 2, 2, Eigen::DontAlign> Matrix2x2f;
+typedef Eigen::Matrix<float, 3, 3, Eigen::DontAlign> Matrix3x3f;
+typedef Eigen::Matrix<float, 4, 4, Eigen::DontAlign> Matrix4x4f;
 
 // vectors
-typedef Eigen::Matrix<MATH_TYPE, 1, 1> Vector1;
-typedef Eigen::Matrix<MATH_TYPE, 2, 1> Vector2;
-typedef Eigen::Matrix<MATH_TYPE, 3, 1> Vector3;
-typedef Eigen::Matrix<MATH_TYPE, 4, 1> Vector4;
-typedef Eigen::Matrix<MATH_TYPE, 5, 1> Vector5;
-typedef Eigen::Matrix<MATH_TYPE, 6, 1> Vector6;
-typedef Eigen::Matrix<MATH_TYPE, 7, 1> Vector7;
-typedef Eigen::Matrix<MATH_TYPE, 8, 1> Vector8;
-typedef Eigen::Matrix<MATH_TYPE, 9, 1> Vector9;
-typedef Eigen::Matrix<MATH_TYPE, 10, 1> Vector10;
+typedef Eigen::Matrix<MATH_TYPE, 1, 1, Eigen::DontAlign> Vector1;
+typedef Eigen::Matrix<MATH_TYPE, 2, 1, Eigen::DontAlign> Vector2;
+typedef Eigen::Matrix<MATH_TYPE, 3, 1, Eigen::DontAlign> Vector3;
+typedef Eigen::Matrix<MATH_TYPE, 4, 1, Eigen::DontAlign> Vector4;
+typedef Eigen::Matrix<MATH_TYPE, 5, 1, Eigen::DontAlign> Vector5;
+typedef Eigen::Matrix<MATH_TYPE, 6, 1, Eigen::DontAlign> Vector6;
+typedef Eigen::Matrix<MATH_TYPE, 7, 1, Eigen::DontAlign> Vector7;
+typedef Eigen::Matrix<MATH_TYPE, 8, 1, Eigen::DontAlign> Vector8;
+typedef Eigen::Matrix<MATH_TYPE, 9, 1, Eigen::DontAlign> Vector9;
+typedef Eigen::Matrix<MATH_TYPE, 10, 1, Eigen::DontAlign> Vector10;
 typedef Eigen::Matrix<MATH_TYPE, Eigen::Dynamic, 1> VectorD;
-typedef Eigen::Matrix<float, 2, 1> Vector2f;
-typedef Eigen::Matrix<float, 3, 1> Vector3f;
-typedef Eigen::Matrix<float, 4, 1> Vector4f;
+typedef Eigen::Matrix<float, 2, 1, Eigen::DontAlign> Vector2f;
+typedef Eigen::Matrix<float, 3, 1, Eigen::DontAlign> Vector3f;
+typedef Eigen::Matrix<float, 4, 1, Eigen::DontAlign> Vector4f;
 
 namespace Eigen{
   // standard library containers
