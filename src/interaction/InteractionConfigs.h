@@ -10,8 +10,8 @@
 #include "EigenTypes.h"
 
 namespace config {
-  const Vector3 m_leapMin(-120.0f,300.0f,-30.0f);
-  const Vector3 m_leapMax(120.0f,600.0f,30.0f);
+  const Vector3 m_leapMin(-120.0f,340.0f,-30.0f);
+  const Vector3 m_leapMax(120.0f,550.0f,30.0f);
   const float MIN_PINCH_FOR_PINCHING = 0.90f;
   const float MAX_PINCH_FOR_NOT_PINCHING = 0.85f;
   const float MIN_DOT_FOR_START_POINTING = 0.6f;
