@@ -4,33 +4,33 @@
 #include "RenderEngine.h"
 #include "RenderFrame.h"
 #include "RenderState.h"
+#include "HandCursor.h"
 
 #include <iostream>
 
-CursorView::CursorView(float radius, const Color& color) :
+CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
-  m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
+  m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>),
+  m_handCursor(new HandCursor())
 {
-  m_disk.Material().SetDiffuseLightColor(color);
-  m_disk.Material().SetAmbientLightColor(color);
-  m_disk.Material().SetAmbientLightingProportion(0.9f);
-  
-  m_disk.SetRadius(radius);
+
 }
 
 CursorView::~CursorView() {
 }
 
 void CursorView::SetSize(float radius) {
-  m_disk.SetRadius(radius);
+  //m_disk.SetRadius(radius);
 }
 
 void CursorView::AutoInit() {
+  m_handCursor->InitChildren();
   m_renderEngine->Add(shared_from_this());
+  
 }
 
-void CursorView::AutoFilter(OSCState appState, const HandPose& handPose, const HandLocation& handLocation) {
+void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandPose& handPose, const HandLocation& handLocation) {
   //State Transitions
   switch(m_state) {
     case State::INACTIVE:
@@ -53,6 +53,7 @@ void CursorView::AutoFilter(OSCState appState, const HandPose& handPose, const H
   switch(m_state) {
     case State::ACTIVE:
       position = OSVector2{handLocation.x, handLocation.y};
+      m_handCursor->Update(hand);
       break;
     case State::INACTIVE:
     default:
@@ -62,17 +63,12 @@ void CursorView::AutoFilter(OSCState appState, const HandPose& handPose, const H
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_opacity.Update(frame.deltaT.count());
-  
-  Color color = m_disk.Material().DiffuseLightColor();
-  color.A() = m_opacity.Current();
-  m_disk.Material().SetDiffuseLightColor(color);
-  m_disk.Material().SetAmbientLightColor(color);
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
-  if (m_disk.Material().DiffuseLightColor().A() == 0.0f)
-    return;
-  
-  // draw primitives
-  m_disk.Draw(frame.renderState);
+  switch ( m_state ) {
+    case State::ACTIVE:
+      PrimitiveBase::DrawSceneGraph(*m_handCursor, frame.renderState);
+      break;
+  }
 }

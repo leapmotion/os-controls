@@ -3,15 +3,16 @@
 #include "InteractionConfigs.h"
 
 HandPinchRecognizer::HandPinchRecognizer() :
-  wasPinching(false)
+  m_wasPinching(false),
+  m_lastPinchStrength(0.0f)
 {
 }
 
-void HandPinchRecognizer::AutoFilter(const Leap::Hand &hand, HandPinch &handPinch) {
+void HandPinchRecognizer::AutoFilter(const Leap::Hand &hand, const FrameTime& frameTime, HandPinch &handPinch) {
   
-  handPinch.pinchStrength = getCustomPinchStrength(hand);
-  handPinch.isPinching = wasPinching;
-  if ( !wasPinching ) {
+  handPinch.pinchStrength = hand.grabStrength();//getCustomPinchStrength(hand);
+  handPinch.isPinching = m_wasPinching;
+  if ( !m_wasPinching ) {
     if ( hand.pinchStrength() > config::MIN_PINCH_FOR_PINCHING ) {
       handPinch.isPinching = true;
     }
@@ -21,12 +22,15 @@ void HandPinchRecognizer::AutoFilter(const Leap::Hand &hand, HandPinch &handPinc
       handPinch.isPinching = false;
     }
   }
+  
+  handPinch.pinchDeltaPerSecond = (handPinch.pinchStrength - m_lastPinchStrength) / (frameTime.deltaTime / 1000000.0);
 
-  wasPinching = handPinch.isPinching;
+  m_wasPinching = handPinch.isPinching;
+  m_lastPinchStrength = handPinch.pinchStrength;
 }
 
 float HandPinchRecognizer::getCustomPinchStrength(const Leap::Hand& hand) const {
-  const float MAX_DISTANCE = 20.0f;
+  const float MAX_DISTANCE = 120.0f;
   const float MIN_DISTANCE = 5.0f;
   float retVal = 0.0f;
   Leap::Finger index = Leap::Finger::invalid();

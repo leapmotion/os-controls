@@ -10,12 +10,12 @@
 
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
-  m_ppmm(96.0f/25.4f),
   m_state(OSCState::BASE),
+  m_ppmm(96.0f/25.4f),
   m_scrollState(ScrollState::DECAYING),
-  m_scrollOperation(nullptr),
+  m_lastScrollReleaseTimestep(0.0f),
   m_handDelta(0.0,0.0),
-  m_cursorView(15.0f, Color(1.0f, 1.0f, 1.0f, 0.0f))
+  m_scrollOperation(nullptr)
 {
 }
 
@@ -25,57 +25,55 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime& frameTime, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
 
   std::lock_guard<std::mutex> lk(m_lock);
   if(m_state == OSCState::FINAL) {
     return;
   }
   
-  // Map the hand pose to a candidate media control state
-  auto desiredState = OSCState::BASE;
-  switch(handPose) {
-    case HandPose::ZeroFingers:
-      desiredState = OSCState::BASE;
-      break;
-    case HandPose::OneFinger:
-      if ( handPinch.pinchStrength <= config::MAX_PINCH_FOR_MENUS ) {
+  m_lastScrollReleaseTimestep += frameTime.deltaTime;
+  
+  if ( m_lastScrollReleaseTimestep > 1000000 && m_scrollState != ScrollState::ACTIVE ) {
+    // Map the hand pose to a candidate media control state
+    auto desiredState = OSCState::BASE;
+    switch(handPose) {
+      case HandPose::ZeroFingers:
+        desiredState = OSCState::BASE;
+        break;
+      case HandPose::OneFinger:
         desiredState = OSCState::MEDIA_MENU_FOCUSED;
-      }
-      else {
-        std::cout << "pinch blocked" << std::endl;
-      }
-      break;
-    case HandPose::TwoFingers:
-      desiredState = OSCState::BASE;
-      break;
-    case HandPose::ThreeFingers:
-      desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
-      break;
-    case HandPose::FourFingers:
-      desiredState = OSCState::EXPOSE_FOCUSED;
-      break;
-    case HandPose::Clawed:
-      desiredState = OSCState::MEDIA_MENU_FOCUSED;
-      break;
-    case HandPose::FiveFingers:
-    default:
-      break;
-  }
+        break;
+      case HandPose::TwoFingers:
+        desiredState = OSCState::BASE;
+        break;
+      case HandPose::ThreeFingers:
+        desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+        break;
+      case HandPose::FourFingers:
+        desiredState = OSCState::EXPOSE_FOCUSED;
+        break;
+      case HandPose::Clawed:
+        desiredState = OSCState::MEDIA_MENU_FOCUSED;
+        break;
+      case HandPose::FiveFingers:
+      default:
+        break;
+    }
 
-  //if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
-    // If we want to go to the base state, then transition there.  Just do it, don't think
-    // about it, do it.  Views in the this context all have their own states and know where
-    // they are, they'll be able to tell that we're in the Base state and that they should
-    // probably take steps to hide themselves.
-    //
-    // This means that a user who quickly changes from one finger to two fingers without
-    // going through the ground case will actually not cause a menu change to happen, and
-    // if this isn't the desired behavior, then change it by assigning the current state
-    // unconditionally!
-    //
-    // Ok, removed it!
-  m_state = desiredState;
+    //if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
+      // If we want to go to the base state, then transition there.  Just do it, don't think
+      // about it, do it.  Views in the this context all have their own states and know where
+      // they are, they'll be able to tell that we're in the Base state and that they should
+      // probably take steps to hide themselves.
+      //
+      // This means that a user who quickly changes from one finger to two fingers without
+      // going through the ground case will actually not cause a menu change to happen, and
+      // if this isn't the desired behavior, then change it by assigning the current state
+      // unconditionally!
+      
+    m_state = desiredState;
+  }
   
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
   state = m_state;
@@ -118,11 +116,12 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose&
   case ScrollState::ACTIVE:
     if(!handPinch.isPinching) {
       m_scrollOperation.reset();
+        m_lastScrollReleaseTimestep = 0.0f;
       scrollState = ScrollState::DECAYING;
     }
     break;
   case ScrollState::DECAYING:
-    if(handPinch.isPinching) {
+      if ( handPinch.isPinching && m_state == OSCState::BASE ) {
       AutowiredFast<OSCursor> cursor;
       if(cursor) {
         auto screenPosition = handLocation.screenPosition();

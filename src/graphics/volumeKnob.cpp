@@ -5,11 +5,11 @@
 VolumeKnob::VolumeKnob() {
   m_opacity.SetInitialValue(0.0f);
   
-  m_knobIndicator.SetSize(Vector2(2.0f, 80.0));
-  m_knobIndicator.Translation() = Vector3(0, 30, 0);
+  m_knobBody.SetRadius(55.0f);
+  m_knobBody.Translation() = Vector3(0, 0, 0);
   
-  m_knobBody.SetRadius(40.0f);
-  m_knobIndicator.Translation() = Vector3(0, 0, 0);
+  m_knobIndicator.SetSize(Vector2(2.0f, 110.0));
+  m_knobIndicator.Translation() = Vector3(0, -5, 0);
 }
 
 VolumeKnob::~VolumeKnob() {
@@ -32,8 +32,8 @@ void VolumeKnob::Tick(std::chrono::duration<double> deltaT) {
 }
 
 void VolumeKnob::Draw(RenderState &render_state) const {
-  m_knobBody.Draw(render_state);
-  m_knobIndicator.Draw(render_state);
+  DrawSceneGraph(m_knobBody, render_state);
+  DrawSceneGraph(m_knobIndicator, render_state);
 }
 
 void VolumeKnob::SetOpacity(float opacity) {

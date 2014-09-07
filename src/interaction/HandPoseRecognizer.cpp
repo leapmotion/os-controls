@@ -5,10 +5,12 @@
 HandPoseRecognizer::HandPoseRecognizer(void) :
 m_lastPose(HandPose::ZeroFingers) {
   memset(lastExtended, 0, sizeof(lastExtended));
+  
+  lastPosition.setZero();
 }
 
 
-void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) {
+void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, const HandPinch& handPinch, HandPose& handPose) {
   
   if ( !hand.isValid() ) {
     return;
@@ -19,10 +21,21 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
   bool isClawDistance = false;
   bool isPalmPointingDown = false;
   bool fingersOut = true;
+  bool pinchIsSteady = true;
+  //bool fingerTipsSteady = true;
+  bool isPoseCorrect = false;
+  
+  bool isThumExtended = false;
+  bool isIndexExtended = false;
+  bool isMiddleExtended = true;
+  bool areRingAndPinkeyExtended = false;
   
   int handCode = 0; // for extention based pose recognition.
   
   int i = 0; // index tracker for for loop.
+  
+  float averageVelocity = 0.0f;
+  float velocitySum = 0.0f; // sum of finger tip velocities
   
   //Checks against each finger
   for( auto finger : hand.fingers() ) {
@@ -36,6 +49,11 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       lastExtended[i] = false;
     }
     
+    float positionDiffDistance = (finger.tipPosition().toVector3<Vector3>() - lastPosition.col(i)).norm();
+    float velocity = positionDiffDistance / (frameTime.deltaTime / 1000.0);
+    velocitySum += velocity;
+    lastPosition.col(i) = finger.tipPosition().toVector3<Vector3>();
+    
     // Per finger checks for claw pose
     if ( finger.type() == Leap::Finger::TYPE_INDEX ||
          finger.type() == Leap::Finger::TYPE_MIDDLE ) {
@@ -44,7 +62,16 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       Vector3 tipPos = finger.tipPosition().toVector3<Vector3>();
       Vector3 diff = tipPos - palmPos;
       float zDist = fabs(diff.z());
-    
+      
+      if ( isExtended(finger)) {
+        if ( finger.type() == Leap::Finger::TYPE_INDEX ) {
+          isIndexExtended = true;
+        }
+        else {
+          isMiddleExtended = true;
+        }
+      }
+      
       switch ( m_lastPose ) {
         case HandPose::Clawed:
           if ( zDist < persist_fingersForward ) {
@@ -58,32 +85,65 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
           if ( zDist < activate_fingersForward ) {
             fingersOut = false;
           }
-          
           isClawCurling = isClawCurled(finger, activate_clawCurl_min, activate_clawCurl_max);
           break;
       }
-      
     }
-
+    else if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
+      if ( isExtended(finger) )
+      {
+        isThumExtended = true;
+      }
+    }
+    else {
+      if ( finger.isExtended() ) {  
+        areRingAndPinkeyExtended = true;
+      }
+    }
+  
     i++;
   }
+  
+  std::cout << std::endl;
+  
+  averageVelocity = velocitySum / 5.0f;
   
   // Whole hand checks for claw pose
   float palmY = hand.palmNormal().toVector3<Vector3>().y();
   switch ( m_lastPose ) {
     case HandPose::Clawed:
+      
+      if ( (isMiddleExtended || isThumExtended) &&
+           !areRingAndPinkeyExtended) {
+        isPoseCorrect = true;
+      }
+      
       if ( palmY < persist_palmDown ) {
         isPalmPointingDown = true;
       }
       
       isClawDistance = areTipsSeparated(hand, persist_distance);
+      
+      if ( fabs(handPinch.pinchDeltaPerSecond) > persist_pinchVelocity ) { pinchIsSteady = false; }
+      //if ( averageVelocity > persist_fingerVelocity ) { fingerTipsSteady = false; }
       break;
     default:
+      
+      if ( isIndexExtended &&
+           isMiddleExtended &&
+           isThumExtended &&
+           !areRingAndPinkeyExtended) {
+        isPoseCorrect = true;
+      }
+      
       if ( palmY <= activate_palmDown ) {
         isPalmPointingDown = true;
       }
       
       isClawDistance = areTipsSeparated(hand, activate_distance);
+      
+      if ( fabs(handPinch.pinchDeltaPerSecond) > activate_pinchVelocity ) { pinchIsSteady = false; }
+      //if ( averageVelocity > activate_fingerVelocity ) { fingerTipsSteady = false; }
       break;
   }
   
@@ -115,12 +175,25 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, HandPose& handPose) 
       break;
   }
   
+  
+  //CLAW POSE DEBUG SET
+  /*
+  std::cout << "isIndexExtended: " << isIndexExtended << std::endl;
+  std::cout << "isMiddleExtended: " << isIndexExtended << std::endl;
+  std::cout << "isThumExtended: " << isIndexExtended << std::endl;
+  std::cout << "areRingAndPinkeyExtended: " << isIndexExtended << std::endl;
+  std::cout << "isPoseCorrect: " << isPoseCorrect << std::endl;
+  std::cout << "isClawCurling: " << isClawCurling << std::endl;
+  std::cout << "isClawDistance: " << isClawDistance << std::endl;
+  std::cout << "fingersOut: " << fingersOut << std::endl;
+  std::cout << std::endl;
+   */
+  
   // Claw-Factor based pose resolution
-  if (handPose != HandPose::OneFinger &&
+  if (isPoseCorrect &&
       isClawCurling &&
       isClawDistance &&
-      fingersOut &&
-      !isPalmPointingDown) {
+      fingersOut) {
     handPose = HandPose::Clawed;
   }
   
@@ -140,18 +213,19 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
   float mToPDot = 1.0f;
   
   if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
-    mToPDot = metacarpal.direction().toVector3<Vector3>().dot(proximal.direction().toVector3<Vector3>());
+    return finger.isExtended();
+    //mToPDot = metacarpal.direction().toVector3<Vector3>().dot(proximal.direction().toVector3<Vector3>());
   }
   float pToIDot = proximal.direction().toVector3<Vector3>().dot(intermediate.direction().toVector3<Vector3>());
   float iToDDot = intermediate.direction().toVector3<Vector3>().dot(distal.direction().toVector3<Vector3>());
   
   if ( !wasExtended ) {
-    if(mToPDot >= config::MIN_DOT_FOR_START_POINTING && pToIDot >= config::MIN_DOT_FOR_START_POINTING && iToDDot >= config::MIN_DOT_FOR_START_POINTING) {
+    if(mToPDot >= config::MIN_DOT_FOR_START_POINTING/* && pToIDot >= config::MIN_DOT_FOR_START_POINTING/* && iToDDot >= config::MIN_DOT_FOR_START_POINTING*/) {
       retVal = true;
     }
   }
   else {
-    if(mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING &&pToIDot >= config::MAX_DOT_FOR_CONTINUE_POINTING && iToDDot >= config::MAX_DOT_FOR_CONTINUE_POINTING ) {
+    if(mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING/* &&pToIDot >= config::MAX_DOT_FOR_CONTINUE_POINTING/* && iToDDot >= config::MAX_DOT_FOR_CONTINUE_POINTING*/ ) {
       retVal = true;
     }
   }
