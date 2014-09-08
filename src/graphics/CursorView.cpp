@@ -31,6 +31,8 @@ void CursorView::AutoInit() {
 }
 
 void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandPose& handPose, const HandLocation& handLocation) {
+  m_renderEngine->BringToFront(this);
+
   //State Transitions
   switch(m_state) {
     case State::INACTIVE:

@@ -213,7 +213,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
         window->m_selection.SetGoal(activation * window->m_activation.Value());
 
         if (activation < window->m_selection.Value()) {
-          window->m_osWindow->SetFocus();
+          focusWindow(*window);
           window->m_cooldown = true;          
         }
 
