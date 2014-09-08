@@ -25,7 +25,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime& frameTime, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
 
   std::lock_guard<std::mutex> lk(m_lock);
   if(m_state == OSCState::FINAL) {
@@ -37,7 +37,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime
   if ( m_lastScrollReleaseTimestep > 1000000 && m_scrollState != ScrollState::ACTIVE ) {
     // Map the hand pose to a candidate media control state
     auto desiredState = OSCState::BASE;
-    switch(handPose) {
+    switch(handData.handPose) {
       case HandPose::ZeroFingers:
         desiredState = OSCState::BASE;
         break;
@@ -97,7 +97,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime
     if (deltaScroll.squaredNorm() > deltaScrollThreshold) {
       AutowiredFast<OSCursor> cursor;
       if (cursor) {
-        auto screenPosition = handLocation.screenPosition();
+        auto screenPosition = handData.handLocation.screenPosition();
         OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
         // Set the current cursor position
         cursor->SetCursorPos(point);
