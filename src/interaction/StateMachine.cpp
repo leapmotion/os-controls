@@ -32,8 +32,6 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     return;
   }
   
-  std::cout << "m_state: " << static_cast<int>(m_state) << std::endl;
-  
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
   
   if( m_state == OSCState::EXPOSE_FOCUSED ) {

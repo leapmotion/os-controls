@@ -14,8 +14,6 @@ ExposeViewStateMachine::~ExposeViewStateMachine(void) {
 }
 
 void ExposeViewStateMachine::AutoFilter(OSCState appState, const HandData& handData) {
-  std::cout << "AppState: " << static_cast<int>(appState) << std::endl;
-  std::cout << "ExposeViewState: " << static_cast<int>(m_state) << std::endl;
   State desiredState = m_state;
   //State Transitions
   switch (m_state) {
