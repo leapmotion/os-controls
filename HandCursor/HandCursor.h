@@ -11,9 +11,11 @@ public:
   void Update(const Leap::Hand& hand);
   void InitChildren();
 
-  virtual void Draw(RenderState& renderState) const override;
-
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+protected:
+
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
   static const int NUM_FINGERS = 5;

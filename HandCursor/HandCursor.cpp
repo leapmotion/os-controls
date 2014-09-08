@@ -123,7 +123,7 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   fingerVisual->Material().SetAmbientLightingProportion(1.0f);
 }
 
-void HandCursor::Draw(RenderState& renderState) const {
+void HandCursor::DrawContents(RenderState& renderState) const {
   // nothing to do, our children will be drawn automatically
 }
 
