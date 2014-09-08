@@ -33,8 +33,8 @@ private:
   //Events to send to controller
   AutoFired<ExposeViewEvents> m_exposeViewEvents;
 
-  // Opacity value for the entire view
-  Animated<float> m_opacity;
+  // Alpha masking value for the entire view
+  Animated<float> m_alphaMask;
   
   // All windows currently known to this view:
   std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_windows;
@@ -104,7 +104,7 @@ public:
   /// <returns>
   /// True if the ExposeView is presently visible to the user
   /// </returns>
-  bool IsVisible(void) const { return 0.001f < m_opacity.Current(); }
+  bool IsVisible(void) const { return 0.001f < m_alphaMask.Current(); }
 
   void SetHandData(const HandData& handData) { m_handData = handData; }
 

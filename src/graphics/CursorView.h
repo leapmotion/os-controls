@@ -45,7 +45,7 @@ private:
   };
   
   State m_state;
-  Animated<float> m_opacity;
+  Animated<float> m_alphaMask;
   
   std::shared_ptr<HandCursor> m_handCursor;
   

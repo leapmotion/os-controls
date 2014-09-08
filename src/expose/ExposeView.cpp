@@ -15,7 +15,7 @@ Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.25f);
 Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.5f);
 
 ExposeView::ExposeView() :
-  m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>),
+  m_alphaMask(0.0f, 0.3f, EasingFunctions::Linear<float>),
   m_layoutRadius(500.0),
   m_selectionRadius(100),
   m_viewCenter(Vector2::Zero())
@@ -50,7 +50,7 @@ void ExposeView::AutoInit() {
 }
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
-  m_opacity.Update(frame.deltaT.count());
+  m_alphaMask.Update(frame.deltaT.count());
 
   // Do nothing else if we're invisible
   if(!IsVisible())
@@ -136,7 +136,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
     window->m_opacity.Update(dt.count());
-    img->SetOpacity(window->m_opacity.Value() * m_opacity.Current());
+    img->LocalProperties().AlphaMask() = window->m_opacity.Value() * m_alphaMask.Current();
 
     angle += angleInc;
   }
@@ -144,13 +144,13 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionOutline->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
   m_selectionOutline->SetInnerRadius(m_selectionRadius);
   m_selectionOutline->SetOuterRadius(1.005*m_selectionRadius);
-  m_selectionOutline->SetOpacity(m_opacity.Current());
+  m_selectionOutline->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
   m_selectionRegion->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
   m_selectionRegion->SetRadius(m_selectionRadius);
-  m_selectionRegion->SetOpacity(m_opacity.Current());
+  m_selectionRegion->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
-  m_backgroundRect->SetOpacity(m_opacity.Current());
+  m_backgroundRect->LocalProperties().AlphaMask() = m_alphaMask.Current();
 }
 
 void ExposeView::updateActivations(std::chrono::duration<double> dt) {
@@ -314,9 +314,9 @@ void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
-  m_opacity.Set(1.0f, 0.3);
+  m_alphaMask.Set(1.0f, 0.3);
 }
 
 void ExposeView::CloseView() {
-  m_opacity.Set(0.0f, 0.2f);
+  m_alphaMask.Set(0.0f, 0.2f);
 }

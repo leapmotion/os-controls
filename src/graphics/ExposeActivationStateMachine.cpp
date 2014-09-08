@@ -124,7 +124,13 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
       break;
   }
   for (int i=0; i<numItems; i++) {
-    m_radialMenu->GetItem(i)->SetOverrideOpacity(i == m_selectedItem);
+    // The apply type indicates how the composition of properties along the line of
+    // ancestry in the scene graph works.  ApplyType::OPERATE is ordinary composition
+    // (e.g. multiplication of coordinate transformations).  ApplyType::REPLACE
+    // is an override of the existing value, and is how the alpha mask is overridden
+    // for the selected item.
+    ApplyType apply_type = i == m_selectedItem ? ApplyType::REPLACE : ApplyType::OPERATE;
+    m_radialMenu->GetItem(i)->LocalProperties().AlphaMaskProperty().SetApplyType(apply_type);
   }
   m_radialMenu->UpdateItemActivation(static_cast<float>(1E-6 * frameTime.deltaTime));
 }
@@ -149,14 +155,14 @@ void ExposeActivationStateMachine::AnimationUpdate(const RenderFrame &renderFram
     opacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
     if (m_selectedItem >= 0) {
       const float itemOpacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - 2*m_FadeTime - m_LastStateChangeTime)/m_FadeTime)));
-      m_radialMenu->GetItem(m_selectedItem)->SetOpacity(itemOpacity);
+      m_radialMenu->GetItem(m_selectedItem)->LocalProperties().AlphaMask() = itemOpacity;
     } else {
       for (int i=0; i<numItems; i++) {
-        m_radialMenu->GetItem(i)->SetOpacity(1.0f);
+        m_radialMenu->GetItem(i)->LocalProperties().AlphaMask() = 1.0f;
       }
     }
   }
-  m_radialMenu->SetOpacity(opacity);
+  m_radialMenu->LocalProperties().AlphaMask() = opacity;
 }
 
 void ExposeActivationStateMachine::Render(const RenderFrame &renderFrame) const  {
