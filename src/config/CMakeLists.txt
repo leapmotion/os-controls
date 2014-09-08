@@ -24,8 +24,16 @@ set_property(TARGET config PROPERTY AUTORCC ON)
 set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER "QtAutoTargets")
 
 target_imported_libraries(config Qt5::Core Qt5::Widgets)
+
+#copy the platform directory required by qt5...
+if(MSVC)
+  add_custom_command(TARGET config POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory \"${Qt5_DIR}/../../../plugins/platforms\" \"$<TARGET_FILE_DIR:config>/platforms\")
+endif()
+
 target_link_libraries(config Autowiring utility)
 target_include_directories(config PUBLIC contrib/autowiring)
+
 
 target_package(config Leap REQUIRED)
 
