@@ -3,6 +3,7 @@
 #include "graphics/Renderable.h"
 #include <autowiring/DispatchQueue.h>
 #include <Animation.h>
+#include "interaction/HandDataCombiner.h"
 #include <vector>
 #include <tuple>
 
@@ -44,6 +45,9 @@ private:
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
 
+  // Hand data
+  HandData m_handData;
+
 private:
   /// <summary>
   /// Evolves the layout by one step
@@ -67,6 +71,8 @@ public:
   /// True if the ExposeView is presently visible to the user
   /// </returns>
   bool IsVisible(void) const { return 0.001f < m_opacity.Current(); }
+
+  void SetHandData(const HandData& handData) { m_handData = handData; }
 
   /// <summary>
   /// Creates a new ExposeViewWindow for the specified OS window
