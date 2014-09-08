@@ -25,7 +25,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   //bool fingerTipsSteady = true;
   bool isPoseCorrect = false;
   
-  bool isThumExtended = false;
+  bool isThumbExtended = false;
   bool isIndexExtended = false;
   bool isMiddleExtended = true;
   bool areRingAndPinkeyExtended = false;
@@ -92,7 +92,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
     else if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
       if ( isExtended(finger) )
       {
-        isThumExtended = true;
+        isThumbExtended = true;
       }
     }
     else {
@@ -111,7 +111,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   switch ( m_lastPose ) {
     case HandPose::Clawed:
       
-      if ( (isMiddleExtended || isThumExtended) &&
+      if ( (isMiddleExtended || isThumbExtended) &&
            !areRingAndPinkeyExtended) {
         isPoseCorrect = true;
       }
@@ -129,7 +129,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
       
       if ( isIndexExtended &&
            isMiddleExtended &&
-           isThumExtended &&
+           isThumbExtended &&
            !areRingAndPinkeyExtended) {
         isPoseCorrect = true;
       }
@@ -178,7 +178,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   /*
   std::cout << "isIndexExtended: " << isIndexExtended << std::endl;
   std::cout << "isMiddleExtended: " << isIndexExtended << std::endl;
-  std::cout << "isThumExtended: " << isIndexExtended << std::endl;
+  std::cout << "isThumbExtended: " << isIndexExtended << std::endl;
   std::cout << "areRingAndPinkeyExtended: " << isIndexExtended << std::endl;
   std::cout << "isPoseCorrect: " << isPoseCorrect << std::endl;
   std::cout << "isClawCurling: " << isClawCurling << std::endl;
