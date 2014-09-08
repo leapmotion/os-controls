@@ -28,4 +28,5 @@ void ExposeViewController::OnDestroy(OSWindow& window) {
 void ExposeViewController::onWindowSelected(ExposeViewWindow& wnd) {
   // Our response will be to examine the osWindow and use it to make a "Focus" event take place
   wnd.m_osWindow->SetFocus();
+  m_exposeView->CloseView();
 }
