@@ -11,7 +11,7 @@ public:
   ExposeViewStateMachine();
   ~ExposeViewStateMachine();
 
-  void AutoFilter(OSCState appState, const Leap::Hand& hand , const HandLocation& handLocation);
+  void AutoFilter(OSCState appState, const HandData& handData);
 
 private:
   

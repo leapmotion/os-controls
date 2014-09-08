@@ -13,7 +13,7 @@ ExposeViewStateMachine::~ExposeViewStateMachine(void) {
   
 }
 
-void ExposeViewStateMachine::AutoFilter(OSCState appState, const Leap::Hand& hand, const HandLocation& handLocation) {
+void ExposeViewStateMachine::AutoFilter(OSCState appState, const HandData& handData) {
   //State Transitions
   switch (m_state) {
     case State::INACTIVE:
@@ -59,8 +59,7 @@ void ExposeViewStateMachine::AutoFilter(OSCState appState, const Leap::Hand& han
     case State::AWAITING_LOCK:
       break;
     case State::ACTIVE:
-      
-      //applyUserInput(handLocation);
+      m_exposeView->SetHandData(handData);
       break;
   }
 }
