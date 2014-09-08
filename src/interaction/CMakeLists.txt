@@ -11,6 +11,8 @@ set(interaction_SOURCES
   TimeRecognizer.cpp
   FrameFragmenter.h
   FrameFragmenter.cpp
+  HandDataCombiner.h
+  HandDataCombiner.cpp
   HandEventListener.h
   HandLocationRecognizer.cpp
   HandLocationRecognizer.h
