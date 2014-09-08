@@ -37,7 +37,7 @@ void RadialSlider::SetIcon(const std::shared_ptr<SVGPrimitive>& svgIcon) {
   AddChild(m_Icon);
 }
 
-void RadialSlider::Draw(RenderState& renderState) const {
+void RadialSlider::DrawContents(RenderState& renderState) const {
   const double innerRad = m_Radius - m_Thickness/2.0;
   const double outerRad = m_Radius + m_Thickness/2.0;
 

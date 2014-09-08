@@ -51,7 +51,7 @@ bool RadialMenuItem::Hit(const Vector2& pos, double& ratio) const {
   return false;
 }
 
-void RadialMenuItem::Draw(RenderState& renderState) const {
+void RadialMenuItem::DrawContents(RenderState& renderState) const {
   const double radius = CurrentRadius();
   const double innerRadius = radius - m_Thickness/2.0;
   const double outerRadius = radius + m_Thickness/2.0;
@@ -218,6 +218,6 @@ void RadialMenu::updateItemLayout() {
   }
 }
 
-void RadialMenu::Draw(RenderState& renderState) const {
+void RadialMenu::DrawContents(RenderState& renderState) const {
   // do nothing (our children will be drawn automatically during scene graph traversal)
 }

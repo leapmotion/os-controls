@@ -373,6 +373,9 @@ add_sublibrary(
     SceneGraph
     HEADERS
         SceneGraphNode.h
+        SceneGraphNodeProperties.h
+        SceneGraphNodeProperty.h
+        SceneGraphNodeValues.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         EigenTypes
@@ -832,6 +835,20 @@ add_sublibrary(
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTexture2
         GLTestFramework
+    BRIEF_DOC_STRING
+        "Unit tests for the GLTexture2 component."
+)
+
+add_sublibrary(
+    SceneGraphTest
+    SOURCE_PATH
+        SceneGraph/Test
+    SOURCES
+        SceneGraphNodePropertiesTest.cpp
+        SceneGraphNodeTest.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GTest
+        SceneGraph
     BRIEF_DOC_STRING
         "Unit tests for the GLTexture2 component."
 )

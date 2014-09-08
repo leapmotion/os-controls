@@ -15,7 +15,9 @@ public:
   const Vector2& Origin() const { return m_Origin; }
   const Vector2& Size() const { return m_Size; }
 
-  virtual void Draw(RenderState& renderState) const override;
+protected:
+
+  virtual void DrawContents(RenderState& renderState) const override;
 
 private:
 

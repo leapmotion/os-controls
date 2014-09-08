@@ -41,7 +41,8 @@ public:
   void SetUseTexture (bool b) { m_use_texture = b; }
   void SetTexture (GLint texture_unit_index) { m_texture_unit_index = texture_unit_index; }
 
-  void UploadUniforms (const GLShader &shader, float opacityMultiplier, BindFlags bind_flags) const;
+  // Alpha mask is not technically part of the material state.
+  void UploadUniforms (const GLShader &shader, float alpha_mask, BindFlags bind_flags) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
