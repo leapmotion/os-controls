@@ -60,9 +60,6 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
       default:
         break;
     }
-    
-    //TEMP HACK!!!!!!! Makes app always in expose
-    desiredState = OSCState::EXPOSE_FOCUSED;
 
     //if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
       // If we want to go to the base state, then transition there.  Just do it, don't think
