@@ -4,7 +4,6 @@
 #include "osinterface/OSWindow.h"
 
 ExposeViewController::ExposeViewController() {}
-ExposeViewController::~ExposeViewController() {}
 
 void ExposeViewController::OnCreate(OSWindow& window) {
   std::shared_ptr<OSWindow> windowPtr = window.shared_from_this();

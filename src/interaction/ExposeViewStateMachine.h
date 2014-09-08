@@ -2,16 +2,21 @@
 #include "expose/ExposeView.h"
 #include "uievents/OSCDomain.h"
 #include "HandLocationRecognizer.h"
+#include "expose/ExposeViewWindow.h"
 
 class ExposeViewAccessManager;
 
-class ExposeViewStateMachine
+class ExposeViewStateMachine :
+  public ExposeViewEvents,
+  public ContextMember
+
 {
 public:
   ExposeViewStateMachine();
   ~ExposeViewStateMachine();
 
   void AutoFilter(OSCState appState, const HandData& handData);
+  void onWindowSelected(ExposeViewWindow& osWindow) override;
 
 private:
   
@@ -19,6 +24,7 @@ private:
     INACTIVE,
     AWAITING_LOCK,
     ACTIVE,
+    COMPLETE
   };
   
   void applyUserInput(const HandLocation& handLocation);

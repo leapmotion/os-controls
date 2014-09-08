@@ -45,7 +45,7 @@ ExposeView::~ExposeView() {
 
 void ExposeView::AutoInit() {
   m_rootNode.NotifyWhenAutowired([this]{
-    m_rootNode->Add(shared_from_this());
+    m_rootNode->Add(std::static_pointer_cast<ExposeView>(shared_from_this()));
   });
 }
 

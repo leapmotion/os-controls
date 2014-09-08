@@ -4,11 +4,11 @@
 #include <autowiring/DispatchQueue.h>
 #include <Animation.h>
 #include "interaction/HandDataCombiner.h"
+#include "expose/ExposeViewEvents.h"
 #include <vector>
 #include <tuple>
 
 class ExposeViewWindow;
-class ExposeViewEvents;
 class OSWindow;
 class RenderEngine;
 class SVGPrimitive;
@@ -17,7 +17,7 @@ class SVGPrimitive;
 /// Implements expose view
 /// </summary>
 class ExposeView:
-  public std::enable_shared_from_this<ExposeView>,
+  public ContextMember,
   public Renderable,
   DispatchQueue
 {

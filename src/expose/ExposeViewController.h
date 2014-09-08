@@ -13,7 +13,7 @@ class ExposeViewController:
 {
 public:
   ExposeViewController();
-  virtual ~ExposeViewController();
+  virtual ~ExposeViewController() {}
   
   void OnCreate(OSWindow& window) override;
   void OnDestroy(OSWindow& window) override;

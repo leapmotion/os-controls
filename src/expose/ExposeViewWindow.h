@@ -1,5 +1,5 @@
 #pragma once
-#include "ExposeView.h"
+#include "expose/ExposeView.h"
 #include "graphics/Renderable.h"
 #include "utility/lockable_property.h"
 #include "Animation.h"

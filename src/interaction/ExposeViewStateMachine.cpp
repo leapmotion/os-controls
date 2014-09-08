@@ -34,6 +34,7 @@ void ExposeViewStateMachine::AutoFilter(OSCState appState, const HandData& handD
       
       if( m_exposeView != nullptr) {
         m_exposeView->StartView();
+        m_exposeView->GetContext()->Snoop(shared_from_this());
         m_state = State::ACTIVE;
       }
       break;
@@ -44,6 +45,13 @@ void ExposeViewStateMachine::AutoFilter(OSCState appState, const HandData& handD
         m_exposeView.reset();
         m_state = State::INACTIVE;
         break;
+      }
+      break;
+    case State::COMPLETE:
+      if(appState != OSCState::EXPOSE_FOCUSED) {
+        m_exposeView->CloseView();
+        m_exposeView.reset();
+        m_state = State::INACTIVE;
       }
       break;
   }
@@ -61,10 +69,17 @@ void ExposeViewStateMachine::AutoFilter(OSCState appState, const HandData& handD
     case State::ACTIVE:
       m_exposeView->SetHandData(handData);
       break;
+    case State::COMPLETE:
+    default:
+      break;
   }
 }
 
 void ExposeViewStateMachine::applyUserInput(const HandLocation& handLocation) {
   
+}
+
+void ExposeViewStateMachine::onWindowSelected(ExposeViewWindow& osWindow)  {
+  m_state = State::COMPLETE;
 }
 
