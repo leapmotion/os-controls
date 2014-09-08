@@ -99,7 +99,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     }
     break;
   case ScrollState::DECAYING:
-    if (deltaScroll.squaredNorm() > deltaScrollThreshold) {
+      if (deltaScroll.squaredNorm() > deltaScrollThreshold && m_state == OSCState::BASE) {
       AutowiredFast<OSCursor> cursor;
       if (cursor) {
         auto screenPosition = handData.locationData.screenPosition();
@@ -126,7 +126,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     }
     break;
   case ScrollState::DECAYING:
-      if ( handPinch.isPinching && m_state == OSCState::BASE ) {
+      if ( handPinch.isPinching && state == OSCState::BASE ) {
       AutowiredFast<OSCursor> cursor;
       if(cursor) {
         auto screenPosition = handLocation.screenPosition();
