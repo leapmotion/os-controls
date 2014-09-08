@@ -1,5 +1,6 @@
 #pragma once
 #include "OSWindow.h"
+#include "utility/HandleUtilitiesWin.h"
 #include <type_traits>
 
 class OSWindowWin:
