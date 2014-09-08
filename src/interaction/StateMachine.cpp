@@ -48,10 +48,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
         desiredState = OSCState::BASE;
         break;
       case HandPose::ThreeFingers:
-        desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+        desiredState = OSCState::BASE;
         break;
       case HandPose::FourFingers:
-        desiredState = OSCState::EXPOSE_FOCUSED;
+        desiredState = OSCState::EXPOSE_ACTIVATOR_FOCUSED;
         break;
       case HandPose::Clawed:
         desiredState = OSCState::MEDIA_MENU_FOCUSED;
@@ -60,9 +60,6 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
       default:
         break;
     }
-    
-    //TEMP HACK!!!!!!! Makes app always in expose
-    desiredState = OSCState::EXPOSE_FOCUSED;
 
     //if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
       // If we want to go to the base state, then transition there.  Just do it, don't think
@@ -74,14 +71,19 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
       // going through the ground case will actually not cause a menu change to happen, and
       // if this isn't the desired behavior, then change it by assigning the current state
       // unconditionally!
-      
-    m_state = desiredState;
+    if ( m_state != OSCState::EXPOSE_FOCUSED ) {
+      m_state = desiredState;
+    }
   }
   
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
   state = m_state;
   
   scrollState = m_scrollState; //in case we don't change state
+  
+  if ( state == OSCState::EXPOSE_FOCUSED ) {
+    std::cout << "EXPOSE FOCUSED!!" << std::endl;
+  }
 
   Vector2 deltaScroll;
 
@@ -170,6 +172,14 @@ void StateMachine::OnHandVanished() {
   m_scrollOperation.reset();
 }
 
+void StateMachine::OnActivateExpose() {
+  std::lock_guard<std::mutex> lk(m_lock);
+  m_state = OSCState::EXPOSE_FOCUSED;
+  std::cout << "Expose Activated" << std::endl << std::endl;
+  m_scrollState = ScrollState::DECAYING;
+  m_scrollOperation.reset();
+}
+
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
@@ -178,6 +188,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     case OSCState::FINAL:
       // Remove our controls from the scene graph
       m_mediaViewStateMachine->RemoveFromParent();
+      m_exposeActivationStateMachine->RemoveFromParent();
       m_cursorView->RemoveFromParent();
 
       // Shutdown the context
