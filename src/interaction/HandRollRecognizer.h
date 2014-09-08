@@ -6,7 +6,7 @@
 /// <summary>
 /// Refers to a noise-filtered roll amount by the user
 /// </summary>
-struct DeltaRollAmount {
+struct HandRoll {
   // The amount of the roll, in radians
   float dTheta;
   float absoluteRoll;
@@ -21,7 +21,7 @@ public:
   HandRollRecognizer(void);
   ~HandRollRecognizer(void);
 
-  void AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, DeltaRollAmount& dra);
+  void AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, HandRoll& dra);
 
 private:
   // True if no packets have been received yet--used to guard against initialization spikes

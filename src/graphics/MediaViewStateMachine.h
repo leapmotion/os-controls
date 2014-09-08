@@ -25,7 +25,7 @@ public:
   void AutoInit();
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime);
+  void AutoFilter(OSCState appState, const HandRoll& handRoll, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime);
 
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;

@@ -90,7 +90,7 @@ void MediaViewStateMachine::AutoInit() {
   m_volumeSlider->InitChildren();
 }
 
-void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime) {
+void MediaViewStateMachine::AutoFilter(OSCState appState, const HandRoll& handRoll, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime) {
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
 
   // State Transitions
@@ -104,7 +104,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount&
     case HandPose::OneFinger:
       if( handPose == HandPose::Clawed)
       {
-        m_startRoll = dra.absoluteRoll;
+        m_startRoll = handRoll.absoluteRoll;
       }
       break;
     case HandPose::Clawed:
@@ -127,7 +127,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount&
         m_radialMenu->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_volumeKnob->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
-        m_startRoll = dra.absoluteRoll;
+        m_startRoll = handRoll.absoluteRoll;
         m_hasRoll = true;
         m_volumeKnob->SetOpacity(0.75f);
         m_state = State::ACTIVE;
@@ -202,12 +202,12 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const DeltaRollAmount&
         const float MAX_VELOCTY = 0.4f;
         
         if( !m_hasRoll ) {
-          m_startRoll = dra.absoluteRoll;
+          m_startRoll = handRoll.absoluteRoll;
           m_hasRoll = true;
           return;
         }
         
-        absRot = dra.absoluteRoll;
+        absRot = handRoll.absoluteRoll;
         offset = absRot - m_startRoll;
         
         // Make sure offset represents the smallest representation of the offset angle.
