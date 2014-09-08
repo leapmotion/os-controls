@@ -6,6 +6,7 @@ set(utility_SOURCES
   NativeWindow.h
   PlatformInitializer.h
   CircleFitter.h
+  HandleUtilitiesWin.h
   Hysteresis.h
   Hysteresis.cpp
   SamplePrimitives.h
