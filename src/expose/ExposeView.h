@@ -45,7 +45,6 @@ private:
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
 
-  std::shared_ptr<Disk> m_debugCursor;
 
   // Hand data
   HandData m_handData;

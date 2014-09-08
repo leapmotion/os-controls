@@ -12,11 +12,6 @@ ExposeView::ExposeView() :
   m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>),
   m_layoutRadius(500.0)
 {
-  m_debugCursor = std::shared_ptr<Disk>(new Disk());
-  m_debugCursor->SetRadius(20);
-  m_debugCursor->Material().SetDiffuseLightColor(Color::White());
-  m_debugCursor->Material().SetAmbientLightColor(Color::White());
-  m_debugCursor->Material().SetAmbientLightingProportion(1.0f);
 }
 
 ExposeView::~ExposeView() {
@@ -48,7 +43,6 @@ void ExposeView::Render(const RenderFrame& frame) const {
   if(!IsVisible())
     return;
 
-  PrimitiveBase::DrawSceneGraph(*m_debugCursor, frame.renderState);
 
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
@@ -125,8 +119,6 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   const float activation = std::max(m_handData.grabData.grabStrength, m_handData.pinchData.pinchStrength);
 #endif
   static Vector2 prevHandPos = handPos;
-
-  m_debugCursor->Translation() = Vector3(handPos.x(), handPos.y(), 0.0);
 
   ExposeViewWindow* closestWindow = nullptr;
   double closestDistSq = DBL_MAX;
