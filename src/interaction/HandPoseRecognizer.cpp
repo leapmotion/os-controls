@@ -104,8 +104,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
     i++;
   }
   
-  std::cout << std::endl;
-  
   averageVelocity = velocitySum / 5.0f;
   
   // Whole hand checks for claw pose
