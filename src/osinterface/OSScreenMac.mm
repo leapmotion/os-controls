@@ -12,10 +12,28 @@
 #include <Foundation/NSValue.h>
 #include <OpenGL/OpenGL.h>
 
+#include <cmath>
+
 void OSScreen::Update()
 {
-  m_bounds = CGDisplayBounds(m_screenID);
   m_isPrimary = CGDisplayIsMain(m_screenID);
+  m_bounds = CGDisplayBounds(m_screenID);
+  const CGSize screenSizeInMM = CGDisplayScreenSize(m_screenID);
+  const float widthInches = screenSizeInMM.width/25.4f;
+  const float heightInches = screenSizeInMM.height/25.4f;
+  const float diagonalInches = std::sqrt(widthInches*widthInches + heightInches*heightInches);
+  if (std::abs(diagonalInches) < FLT_EPSILON) {
+    m_pixelsPerInch = 96.0f;
+    return;
+  }
+  const float diagonalPixels = std::sqrt(m_bounds.size.width*m_bounds.size.width +
+                                         m_bounds.size.height*m_bounds.size.height);
+  const float pixelsPerInch = diagonalPixels/diagonalInches;
+  if (pixelsPerInch < FLT_EPSILON) {
+    m_pixelsPerInch = 96.0f;
+    return;
+  }
+  m_pixelsPerInch = pixelsPerInch;
 }
 
 std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<ImagePrimitive> img) const
@@ -47,7 +65,8 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     }
     ::memset(dstBytes.get(), 0, totalBytes);
 
-    NSImage* nsImage = [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
+    NSImage* nsImage =
+        [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
     if (!nsImage) {
       return std::shared_ptr<ImagePrimitive>();
     }

@@ -5,11 +5,11 @@
 
 class ExposeViewAccessManager;
 
-class ExposeViewProxy
+class ExposeViewStateMachine
 {
 public:
-  ExposeViewProxy();
-  ~ExposeViewProxy();
+  ExposeViewStateMachine();
+  ~ExposeViewStateMachine();
 
   void AutoFilter(OSCState appState, const Leap::Hand& hand , const HandLocation& handLocation);
 

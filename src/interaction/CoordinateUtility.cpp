@@ -34,7 +34,7 @@ Vector3 CoordinateUtility::LeapToScreenNormal(Leap::Vector leapCoords) {
 
 Vector2 CoordinateUtility::ScreenNormalToScreenPixels(const Vector3& normalCoords) {
   if(!m_window)
-    throw std::runtime_error("Could not find autowired main window,");
+    return Vector2(0,0); // If the screen doesn't exist yet, just say we're at (0,0). Ok to fail quiet.
   
   const sf::Vector2u screenSize = m_window->getSize();
   Vector2 retVal;

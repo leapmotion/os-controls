@@ -1,11 +1,10 @@
 #pragma once
 #include "graphics/Renderable.h"
-#include "interaction/HandLocationRecognizer.h"
-#include "interaction/HandRollRecognizer.h"
-#include "interaction/FrameDeltaTimeRecognizer.h"
 #include "interaction/MediaViewController.h"
+#include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
+#include "VolumeKnob.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
@@ -23,9 +22,9 @@ public:
   void AutoInit();
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const HandLocation& handLocation, const DeltaRollAmount& dHandRoll, const FrameTime& frameTime);
-  
-  void AnimationUpdate(const RenderFrame& frame) override {}
+  void AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime);
+
+  void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
   void SetViewVolume(float volume);
   
@@ -62,11 +61,13 @@ private:
     FINAL
   };
   
-  RadialMenu m_radialMenu;
-  RadialSlider m_volumeSlider;
+  std::shared_ptr<RadialMenu>m_radialMenu;
+  std::shared_ptr<RadialSlider> m_volumeSlider;
+  AutoRequired<VolumeKnob> m_volumeKnob;
   
   bool m_hasRoll;
   float m_startRoll;
+  HandPose m_lastHandPose;
   
   State m_state;
   
@@ -75,4 +76,9 @@ private:
   
   Autowired<RenderEngine> m_rootNode;
   RectanglePrim prim;
+
+  int m_selectedItem;
+  double m_FadeTime;
+  double m_CurrentTime;
+  double m_LastStateChangeTime;
 };

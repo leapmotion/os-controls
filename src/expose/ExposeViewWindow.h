@@ -23,6 +23,9 @@ public:
   // The underlying OS window
   const std::shared_ptr<OSWindow> m_osWindow;
 
+  std::shared_ptr<ImagePrimitive>& GetTexture() { return m_texture; }
+  const std::shared_ptr<ImagePrimitive>& GetTexture() const { return m_texture; }
+
 private:
   // Texture for this window
   std::shared_ptr<ImagePrimitive> m_texture;
