@@ -1,5 +1,5 @@
 #pragma once
-#include "HandPinchRecognizer.h"
+#include "HandActivationRecognizer.h"
 
 struct HandPinchScroll {};
 
