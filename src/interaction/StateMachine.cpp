@@ -97,7 +97,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     if (deltaScroll.squaredNorm() > deltaScrollThreshold) {
       AutowiredFast<OSCursor> cursor;
       if (cursor) {
-        auto screenPosition = handData.handLocation.screenPosition();
+        auto screenPosition = handData.locationData.screenPosition();
         OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
         // Set the current cursor position
         cursor->SetCursorPos(point);

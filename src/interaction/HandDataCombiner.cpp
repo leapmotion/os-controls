@@ -5,8 +5,9 @@ HandDataCombiner::HandDataCombiner() { }
 HandDataCombiner::~HandDataCombiner() { }
 
 void HandDataCombiner::AutoFilter(const HandLocation &handLocation, const HandTime& handTime, const HandPose &handPose, const HandRoll &handRoll, const HandPinch &handPinch, HandData &handData) {
-  handData.handLocation = handLocation;
+  handData.locationData = handLocation;
   handData.handPose = handPose;
-  handData.handRoll = handRoll;
-  handData.handPinch = handPinch;
+  handData.rollData = handRoll;
+  handData.pinchData = handPinch;
+  handData.timeVisible = handTime.timeVisible;
 }

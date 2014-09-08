@@ -7,10 +7,11 @@
 #include "TimeRecognizer.h"
 
 struct HandData {
-  HandLocation handLocation;
+  HandLocation locationData;
   HandPose handPose;
-  HandRoll handRoll;
-  HandPinch handPinch;
+  HandRoll rollData;
+  HandPinch pinchData;
+  double timeVisible;
 };
 
 class HandDataCombiner {
