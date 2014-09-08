@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "StateMachine.h"
 #include "Color.h"
-#include "ExposeViewProxy.h"
+#include "ExposeViewStateMachine.h"
 #include "InteractionConfigs.h"
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSVirtualScreen.h"

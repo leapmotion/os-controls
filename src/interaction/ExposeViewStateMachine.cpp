@@ -1,19 +1,19 @@
 #include "stdafx.h"
-#include "ExposeViewProxy.h"
+#include "ExposeViewStateMachine.h"
 #include "expose/ExposeView.h"
 #include "expose/ExposeViewAccessManager.h"
 
-ExposeViewProxy::ExposeViewProxy(void) :
+ExposeViewStateMachine::ExposeViewStateMachine(void) :
 m_state(State::INACTIVE)
 {
   m_exposeView = nullptr;
 }
 
-ExposeViewProxy::~ExposeViewProxy(void) {
+ExposeViewStateMachine::~ExposeViewStateMachine(void) {
   
 }
 
-void ExposeViewProxy::AutoFilter(OSCState appState, const Leap::Hand& hand, const HandLocation& handLocation) {
+void ExposeViewStateMachine::AutoFilter(OSCState appState, const Leap::Hand& hand, const HandLocation& handLocation) {
   //State Transitions
   switch (m_state) {
     case State::INACTIVE:
@@ -65,7 +65,7 @@ void ExposeViewProxy::AutoFilter(OSCState appState, const Leap::Hand& hand, cons
   }
 }
 
-void ExposeViewProxy::applyUserInput(const HandLocation& handLocation) {
+void ExposeViewStateMachine::applyUserInput(const HandLocation& handLocation) {
   
 }
 

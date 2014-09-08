@@ -19,7 +19,7 @@ namespace Leap {
   class Hand;
 }
 
-class ExposeViewProxy;
+class ExposeViewStateMachine;
 
 /// <summary>
 /// The central state machine concept
@@ -65,7 +65,7 @@ private:
   AutoRequired<CursorView> m_cursorView;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<MediaViewController> m_mediaViewController;
-  AutoRequired<ExposeViewProxy> m_evp;
+  AutoRequired<ExposeViewStateMachine> m_evp;
   Autowired<IWindowScroller> m_windowScroller;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
