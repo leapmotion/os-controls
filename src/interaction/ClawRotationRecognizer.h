@@ -1,7 +1,7 @@
 #pragma once
 #include "Leap.h"
 #include "HandPoseRecognizer.h"
-#include "FrameDeltaTimeRecognizer.h"
+#include "TimeRecognizer.h"
 #include "EigenTypes.h"
 #include <Animation.h>
 

@@ -7,8 +7,8 @@ set(interaction_SOURCES
   ClawRotationRecognizer.h
   ExposeViewStateMachine.h
   ExposeViewStateMachine.cpp
-  FrameDeltaTimeRecognizer.h
-  FrameDeltaTimeRecognizer.cpp
+  TimeRecognizer.h
+  TimeRecognizer.cpp
   FrameFragmenter.h
   FrameFragmenter.cpp
   HandEventListener.h

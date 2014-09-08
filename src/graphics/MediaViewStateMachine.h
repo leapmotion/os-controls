@@ -1,7 +1,7 @@
 #pragma once
 #include "graphics/Renderable.h"
 #include "interaction/HandLocationRecognizer.h"
-#include "interaction/FrameDeltaTimeRecognizer.h"
+#include "interaction/TimeRecognizer.h"
 #include "interaction/HandPoseRecognizer.h"
 #include "interaction/HandRollRecognizer.h"
 #include "interaction/MediaViewController.h"

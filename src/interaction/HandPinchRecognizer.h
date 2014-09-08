@@ -1,6 +1,6 @@
 #pragma once
 #include "Leap.h"
-#include "FrameDeltaTimeRecognizer.h"
+#include "TimeRecognizer.h"
 
 enum class HandPose;
 

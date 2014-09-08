@@ -1,5 +1,5 @@
 #pragma once
-#include "FrameDeltaTimeRecognizer.h"
+#include "TimeRecognizer.h"
 #include <Leap.h>
 #include <Animation.h>
 
