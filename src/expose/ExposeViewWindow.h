@@ -2,6 +2,7 @@
 #include "ExposeView.h"
 #include "graphics/Renderable.h"
 #include "utility/lockable_property.h"
+#include "Animation.h"
 
 class OSWindow;
 struct RenderFrame;
@@ -25,6 +26,10 @@ public:
 
   std::shared_ptr<ImagePrimitive>& GetTexture() { return m_texture; }
   const std::shared_ptr<ImagePrimitive>& GetTexture() const { return m_texture; }
+
+  // Smooth animations for opacity and position
+  Smoothed<float> m_opacity;
+  Smoothed<Vector3> m_position;
 
 private:
   // Texture for this window

@@ -51,15 +51,15 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   double angle = 0;
   const double angleInc = 2*M_PI / static_cast<double>(m_windows.size());
 
+  // calculate center of the primary screen
   Autowired<OSVirtualScreen> fullScreen;
   auto screen = fullScreen->PrimaryScreen();
-
   const Vector2 size(screen.Size().width, screen.Size().height);
-
   const OSRect bounds = screen.Bounds();
   const Vector2 origin(bounds.origin.x, bounds.origin.y);
   const Vector2 center = origin + 0.5*size;
 
+  // calculate radius of layout
   const double sizeDiag = size.norm();
   const double radiusPixels = size.norm() * 0.1;
 
@@ -71,13 +71,24 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     const double imgWidth = img->Size().x();
     const double imgHeight = img->Size().y();
     
-    const double scale = 0.03;
+    const double scale = 0.05;
 
+    // calculate position of this window in cartesian coords
     const Vector2 point = radialCoordsToPoint(angle, radiusPixels) + center;
 
-    img->Translation().setZero();
-    img->Translation().head<2>() = point;
+    // scale window down
     img->LinearTransformation() = scale * Matrix3x3::Identity();
+
+    // set window position smoothly
+    const Vector3 point3D(point.x(), point.y(), 0.0);
+    window->m_position.SetGoal(point3D);
+    window->m_position.Update(dt.count());
+    img->Translation() = window->m_position.Value();
+
+    // set window opacity smoothly
+    window->m_opacity.SetGoal(1.0f);
+    window->m_opacity.Update(dt.count());
+    img->SetOpacity(window->m_opacity.Value());
 
     angle += angleInc;
   }
@@ -104,6 +115,9 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
   *this += [retVal] {
     retVal->UpdateTexture();
   };
+
+  retVal->m_opacity.SetGoal(0.0f);
+  retVal->m_opacity.Update(0.0f);
   return retVal;
 }
 
