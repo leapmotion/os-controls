@@ -103,7 +103,7 @@ void TestAlphaMaskProperty () {
     AlphaMask prop;
     EXPECT_EQ(true, prop.IsValid());
     EXPECT_EQ(ApplyType::OPERATE, prop.ApplyType());
-    EXPECT_EQ(Scalar(1), prop.Value());
+    EXPECT_DOUBLE_EQ(Scalar(1), prop.Value());
   }
 
   // Composing identity transforms
@@ -113,7 +113,7 @@ void TestAlphaMaskProperty () {
     AlphaMask prop3(prop1);
     prop3.Apply(prop2, Operate::ON_RIGHT);
     EXPECT_EQ(true, prop3.IsValid());
-    EXPECT_EQ(Scalar(1), prop3.Value());
+    EXPECT_DOUBLE_EQ(Scalar(1), prop3.Value());
   }
 
   // Composing non-identity transforms
@@ -127,14 +127,14 @@ void TestAlphaMaskProperty () {
     prop3.Apply(prop2, Operate::ON_RIGHT);
 
     EXPECT_EQ(true, prop3.IsValid());
-    EXPECT_EQ(Scalar(0.375), prop3.Value());
+    EXPECT_DOUBLE_EQ(Scalar(0.375), prop3.Value());
   }
 
   // Inverting an alpha mask should invalidate it
   {
     AlphaMask prop;
     prop.Invert();
-    EXPECT_EQ(false, prop.IsValid());
+    EXPECT_DOUBLE_EQ(false, prop.IsValid());
   }
 
   // Testing the REPLACE apply type (the default is OPERATE)
@@ -150,7 +150,7 @@ void TestAlphaMaskProperty () {
 
     EXPECT_EQ(true, prop3.IsValid());
     EXPECT_EQ(ApplyType::REPLACE, prop3.ApplyType());
-    EXPECT_EQ(Scalar(0.75), prop3.Value());
+    EXPECT_DOUBLE_EQ(Scalar(0.75), prop3.Value());
   }
 
   // Testing that inversion of a REPLACE apply type invalidates
@@ -190,7 +190,7 @@ void TestSceneGraphNodeProperties () {
     Properties p3(p1);
     p3.Apply(p2, Operate::ON_RIGHT);
     EXPECT_EQ(AffineTransformScalar(0), (p3.AffineTransform().affine() - id_times_6.affine()).squaredNorm());
-    EXPECT_EQ(AlphaMaskScalar(0.375), p3.AlphaMask());
+    EXPECT_DOUBLE_EQ(AlphaMaskScalar(0.375), p3.AlphaMask());
   }
 
   // Testing inversion
