@@ -74,16 +74,17 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     if ( m_state != OSCState::EXPOSE_FOCUSED ) {
       m_state = desiredState;
     }
+    else {
+      if ( m_evp->IsComplete() ) {
+        m_state = OSCState::BASE;
+      }
+    }
   }
   
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
   state = m_state;
   
   scrollState = m_scrollState; //in case we don't change state
-  
-  if ( state == OSCState::EXPOSE_FOCUSED ) {
-    std::cout << "EXPOSE FOCUSED!!" << std::endl;
-  }
 
   Vector2 deltaScroll;
 

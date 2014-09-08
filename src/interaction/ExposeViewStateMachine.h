@@ -34,5 +34,8 @@ private:
   std::shared_ptr<ExposeView> m_exposeView;
   
   Autowired<ExposeViewAccessManager> m_exposeViewAccessManager;
+
+public:
+  bool IsComplete() const { return m_state == State::COMPLETE; }
 };
 
