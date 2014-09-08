@@ -11,6 +11,9 @@ protected:
   void DoScrollBy(float deltaX, float deltaY, bool isMomentum) override;
 
 private:
+  // The lines-to-clicks ratio
+  OSPoint m_linesPerClick;
+
   // The pixels-to-line ratio
   OSPoint m_pixelsPerLine;
 

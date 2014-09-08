@@ -3,6 +3,10 @@
 #include "OSScreen.h"
 #include "GLTexture2.h"
 #include "utility/SamplePrimitives.h"
+#include <ShellScalingApi.h>
+
+HMODULE hshcore = LoadLibrary("shcore");
+auto g_GetDpiForMonitor = (decltype(GetDpiForMonitor)*) GetProcAddress(hshcore, "GetDpiForMonitor");
 
 void OSScreen::Update()
 {
@@ -18,6 +22,17 @@ void OSScreen::Update()
                     static_cast<float>(info.rcMonitor.right - info.rcMonitor.left),
                     static_cast<float>(info.rcMonitor.bottom - info.rcMonitor.top));
   m_isPrimary = ((info.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY);
+
+  // Try to get the DPI for this monitor, if we can find the entrypoint:
+  if(g_GetDpiForMonitor) {
+    UINT dpiX;
+    UINT dpiY;
+    g_GetDpiForMonitor(m_screenID, MDT_RAW_DPI, &dpiX, &dpiY);
+    m_pixelsPerInch = sqrt(dpiX * dpiX + dpiY * dpiY);
+  }
+  else
+    // Default on Windows is 96/in
+    m_pixelsPerInch = 96;
 }
 
 std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<ImagePrimitive> img) const

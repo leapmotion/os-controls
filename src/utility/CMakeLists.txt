@@ -5,6 +5,9 @@ set(utility_SOURCES
   lockable_property.h
   NativeWindow.h
   PlatformInitializer.h
+  CircleFitter.h
+  Hysteresis.h
+  Hysteresis.cpp
   SamplePrimitives.h
   SamplePrimitives.cpp
 )

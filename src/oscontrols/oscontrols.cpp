@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "oscontrols.h"
+#include <autowiring/AutoNetServer.h>
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "expose/ExposeViewAccessManager.h"
@@ -18,13 +19,13 @@
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
+
   AutoCurrentContext ctxt;
   ctxt->Initiate();
-
+  //AutoRequired<AutoNetServer> autonet(ctxt);
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
     osCtxt->Initiate();
-
     CurrentContextPusher pshr(osCtxt);
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;

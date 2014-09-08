@@ -2,6 +2,7 @@
 #include "OSWindowWin.h"
 #include "WindowRendererWin.h"
 #include <Primitives.h>
+#include <GLTexture2.h>
 
 OSWindowWin::OSWindowWin(HWND hwnd):
   OSWindow(hwnd)

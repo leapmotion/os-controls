@@ -55,7 +55,7 @@ private:
   
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y
-  std::tuple<double, double> radialCoordsToPoint(double angle, double distance);
+  Vector2 radialCoordsToPoint(double angle, double distance);
 
 public:
   // RenderEngineNode overrides:

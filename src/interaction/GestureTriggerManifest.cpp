@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "GestureTriggerManifest.h"
-
 #include "HandLocationRecognizer.h"
 #include "HandPoseRecognizer.h"
 #include "HandRollRecognizer.h"
-#include "FrameDeltaTimeRecognizer.h"
+#include "ClawRotationRecognizer.h"
+#include "TimeRecognizer.h"
 #include "HandPinchRecognizer.h"
+#include "HandDataCombiner.h"
+#include "ScrollRecognizer.h"
 #include "StateMachine.h"
 
 GestureTriggerManifest::GestureTriggerManifest()
@@ -15,7 +17,9 @@ GestureTriggerManifest::GestureTriggerManifest()
   AutoRequired<HandLocationRecognizer>();
   AutoRequired<HandPoseRecognizer>();
   AutoRequired<HandRollRecognizer>();
-  AutoRequired<FrameDeltaTimeRecognizer>();
+  AutoRequired<TimeRecognizer>();
   AutoRequired<HandPinchRecognizer>();
   AutoRequired<StateMachine>();
+  AutoRequired<HandDataCombiner>();
+  AutoRequired<ScrollRecognizer>();
 }

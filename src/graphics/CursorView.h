@@ -10,6 +10,9 @@
 
 #include "uievents/OSCDomain.h"
 #include "interaction/HandLocationRecognizer.h"
+#include "interaction/HandPoseRecognizer.h"
+
+#include "HandCursor.h"
 
 #include <string>
 #include <Animation.h>
@@ -21,14 +24,14 @@ class CursorView :
   public Renderable
 {
 public:
-  CursorView(float radius, const Color& color);
+  CursorView();
   ~CursorView();
   
   void AutoInit();
   
   void SetSize(float radius);
   
-  void AutoFilter(OSCState appState, const HandLocation& handLocation);
+  void AutoFilter(const Leap::Hand& hand, OSCState appState, const HandPose& handPose, const HandLocation& handLocation);
   
   void AnimationUpdate(const RenderFrame& frame);
   
@@ -44,7 +47,7 @@ private:
   State m_state;
   Animated<float> m_opacity;
   
-  Disk m_disk;
+  std::shared_ptr<HandCursor> m_handCursor;
   
   Autowired<RenderEngine> m_renderEngine;
 };

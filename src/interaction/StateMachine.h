@@ -9,14 +9,18 @@
 #include "interaction/MediaViewController.h"
 #include "interaction/HandPinchRecognizer.h"
 #include "interaction/HandPinchRecognizer.h"
+#include "interaction/ScrollRecognizer.h"
+#include "interaction/HandDataCombiner.h"
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
+
+#define USE_HAND_SCROLL 1
 
 namespace Leap {
   class Hand;
 }
 
-class ExposeViewProxy;
+class ExposeViewStateMachine;
 
 /// <summary>
 /// The central state machine concept
@@ -34,7 +38,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandPose handPose, const HandPinch& handPinch, const HandLocation& handLocation, OSCState& state, ScrollState& scrollState);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
   
   void OnHandVanished();
 
@@ -50,14 +54,19 @@ private:
   OSCState m_state;
   
   ScrollState m_scrollState;
-  Vector2 m_handDelta; 
+  Vector2 m_handDelta; //in millimeters
+  const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
+  float m_lastScrollReleaseTimestep;
+
+  // Pixels-per-millimeter for use with the current scroll operation
+  float m_ppmm;
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 
-  AutoConstruct<CursorView> m_cursorView;
+  AutoRequired<CursorView> m_cursorView;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<MediaViewController> m_mediaViewController;
-  AutoRequired<ExposeViewProxy> m_evp;
+  AutoRequired<ExposeViewStateMachine> m_evp;
   Autowired<IWindowScroller> m_windowScroller;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
