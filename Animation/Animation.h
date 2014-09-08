@@ -123,6 +123,7 @@ public:
   // const getters
   operator T() const { return Value(); }
   const T& Value() const { return m_Values[NUM_ITERATIONS-1]; }
+  const T& Goal() const { return m_Goal; }
 
   // setters to control animation
   void SetGoal(const T& goal) { m_Goal = goal; }
