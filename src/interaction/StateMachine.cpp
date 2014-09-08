@@ -11,10 +11,10 @@
 StateMachine::StateMachine(void):
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
-  m_ppmm(96.0f/25.4f),
   m_scrollState(ScrollState::DECAYING),
-  m_lastScrollReleaseTimestep(0.0f),
   m_handDelta(0.0,0.0),
+  m_lastScrollReleaseTimestep(0.0f),
+  m_ppmm(96.0f/25.4f),
   m_scrollOperation(nullptr)
 {
 }
