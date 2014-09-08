@@ -41,6 +41,10 @@ void OSWindowMonitorWin::Scan() {
       if(!IsWindowVisible(hwnd))
         return true;
 
+      // Don't bother enumerating iconic (minimized) windows, either
+      if(IsIconic(hwnd))
+        return true;
+
       // See if we are the last active visible popup
       HWND hwndWalk = GetAncestor(hwnd, GA_ROOTOWNER);
 
