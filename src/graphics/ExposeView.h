@@ -63,7 +63,7 @@ private:
   
   bool m_handIsGrabbing; //Flag to know if the hand is currently grabbing
   
-  Animated<float> m_opacity;
+  Animated<float> m_alphaMask;
   
   //Each of the window images.
   std::vector<std::shared_ptr<RectanglePrim>> m_windows;

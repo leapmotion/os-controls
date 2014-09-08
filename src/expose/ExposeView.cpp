@@ -9,7 +9,7 @@
 #include "OSInterface/OSVirtualScreen.h"
 
 ExposeView::ExposeView() :
-  m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>)
+  m_alphaMask(0.0f, 0.3f, EasingFunctions::Linear<float>)
 {
 }
 
@@ -24,7 +24,7 @@ void ExposeView::AutoInit() {
 }
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
-  m_opacity.Update(frame.deltaT.count());
+  m_alphaMask.Update(frame.deltaT.count());
 
   // Do nothing else if we're invisible
   if(!IsVisible())
@@ -112,9 +112,9 @@ void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
-  m_opacity.Set(1.0f, 0.3);
+  m_alphaMask.Set(1.0f, 0.3);
 }
 
 void ExposeView::CloseView() {
-  m_opacity.Set(0.0f, 0.2f);
+  m_alphaMask.Set(0.0f, 0.2f);
 }

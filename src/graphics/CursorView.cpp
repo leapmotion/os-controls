@@ -11,7 +11,7 @@
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
-  m_opacity(0.0f, 0.2, EasingFunctions::QuadInOut<float>),
+  m_alphaMask(0.0f, 0.2, EasingFunctions::QuadInOut<float>),
   m_handCursor(new HandCursor())
 {
 
@@ -37,14 +37,14 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       if(appState != OSCState::FINAL &&
          handPose != HandPose::Clawed) {
         m_state = State::ACTIVE;
-        m_opacity.Set(1.0f);
+        m_alphaMask.Set(1.0f);
       }
       break;
     case State::ACTIVE:
       if(appState == OSCState::FINAL ||
          handPose == HandPose::Clawed) {
         m_state = State::INACTIVE;
-        m_opacity.Set(0.0f);
+        m_alphaMask.Set(0.0f);
       }
       break;
   }
@@ -62,7 +62,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
-  m_opacity.Update(frame.deltaT.count());
+  m_alphaMask.Update(frame.deltaT.count());
 }
 
 void CursorView::Render(const RenderFrame& frame) const {

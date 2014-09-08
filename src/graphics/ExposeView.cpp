@@ -4,7 +4,7 @@
 
 ExposeView::ExposeView() :
 m_handIsGrabbing(false),
-m_opacity(0.0f, 0.3, EasingFunctions::Linear<float>)
+m_alphaMask(0.0f, 0.3, EasingFunctions::Linear<float>)
 {
   
 }
@@ -24,14 +24,14 @@ void ExposeView::AutoInit() {
 
 //This is called when this class is given control of the app
 void ExposeView::StartView() {
-  m_opacity.Set(1.0f, 0.3);
+  m_alphaMask.Set(1.0f, 0.3);
 }
 
 // This is called when the class needs to give up contorl of the app.
 // UpdateLayout_TEMP won't be called after this,
 // but you will still get a tick in AnimationUpdate and Render.
 void ExposeView::CloseView() {
-  m_opacity.Set(0.0f, 0.2f);
+  m_alphaMask.Set(0.0f, 0.2f);
 }
 
 // Don't worry about this one
@@ -44,7 +44,7 @@ void ExposeView::UpdateLayout(uint32_t cursorX, uint32_t cursorY) {
 // Should be a short time after application start.
 // This is called whether the expose view has focus or not.
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
-  m_opacity.Update(frame.deltaT.count());
+  m_alphaMask.Update(frame.deltaT.count());
 }
 
 //THIS IS ALSO ON A TICK. RUNS AFTER ANIMATION UPDATE
