@@ -12,6 +12,8 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_opacity.SetSmoothStrength(0.9f);
   m_position.SetInitialValue(Vector3::Zero());
   m_position.SetGoal(Vector3::Zero());
+  m_scale.SetInitialValue(1.0f);
+  m_scale.SetGoal(1.0f);
 }
 
 ExposeViewWindow::~ExposeViewWindow(void) {}

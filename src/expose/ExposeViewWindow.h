@@ -30,6 +30,7 @@ public:
   // Smooth animations for opacity and position
   Smoothed<float> m_opacity;
   Smoothed<Vector3> m_position;
+  Smoothed<float> m_scale;
 
 private:
   // Texture for this window

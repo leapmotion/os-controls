@@ -60,24 +60,26 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   const Vector2 center = origin + 0.5*size;
 
   // calculate radius of layout
-  const double sizeDiag = size.norm();
-  const double radiusPixels = size.norm() * 0.1;
+  const double radiusPixels = 0.4 * std::min(size.x(), size.y());
+
+  // calculate size of each window
+  const double radiusPerWindow = 0.9 * radiusPixels * std::sin(angleInc/2.0);
 
   for(const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if(window->m_layoutLocked)
       continue;
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
-    const double imgWidth = img->Size().x();
-    const double imgHeight = img->Size().y();
-    
-    const double scale = 0.05;
+
+    // set window scale smoothly
+    const double imgRadius = 0.5 * img->Size().norm();
+    const double scale = radiusPerWindow / imgRadius;
+    window->m_scale.SetGoal(static_cast<float>(scale));
+    window->m_scale.Update(dt.count());
+    img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
 
     // calculate position of this window in cartesian coords
     const Vector2 point = radialCoordsToPoint(angle, radiusPixels) + center;
-
-    // scale window down
-    img->LinearTransformation() = scale * Matrix3x3::Identity();
 
     // set window position smoothly
     const Vector3 point3D(point.x(), point.y(), 0.0);
