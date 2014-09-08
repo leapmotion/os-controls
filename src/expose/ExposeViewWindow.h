@@ -33,6 +33,9 @@ public:
   // Smooth animations for hover and activation
   Smoothed<float> m_hover;
   Smoothed<float> m_activation;
+  Smoothed<float> m_selection;
+
+  bool m_cooldown;
 
 private:
   // Texture for this window

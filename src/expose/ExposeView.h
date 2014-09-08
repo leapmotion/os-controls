@@ -73,6 +73,11 @@ private:
 
   ForceVector m_forces;
   double m_layoutRadius;
+  double m_selectionRadius;
+  Vector2 m_viewCenter;
+
+  std::shared_ptr<Disk> m_selectionRegion;
+  std::shared_ptr<PartialDisk> m_selectionOutline;
 
   /// <summary>
   /// Evolves the layout by one step

@@ -7,11 +7,29 @@
 #include "utility/SamplePrimitives.h"
 #include <SVGPrimitive.h>
 #include "OSInterface/OSVirtualScreen.h"
+#include "OSInterface/OSWindow.h"
+
+Color selectionRegionColor(1.0f, 1.0f, 1.0f, 0.15f);
+Color selectionOutlineColor(1.0f, 1.0f, 1.0f, 0.3f);
+Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.25f);
+Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.5f);
 
 ExposeView::ExposeView() :
   m_opacity(0.0f, 0.3f, EasingFunctions::Linear<float>),
-  m_layoutRadius(500.0)
+  m_layoutRadius(500.0),
+  m_selectionRadius(100),
+  m_viewCenter(Vector2::Zero())
 {
+
+  m_selectionRegion = std::shared_ptr<Disk>(new Disk);
+  m_selectionRegion->Material().SetDiffuseLightColor(selectionRegionColor);
+  m_selectionRegion->Material().SetAmbientLightColor(selectionRegionColor);
+  m_selectionRegion->Material().SetAmbientLightingProportion(1.0f);
+
+  m_selectionOutline = std::shared_ptr<PartialDisk>(new PartialDisk);
+  m_selectionOutline->Material().SetDiffuseLightColor(selectionOutlineColor);
+  m_selectionOutline->Material().SetAmbientLightColor(selectionOutlineColor);
+  m_selectionOutline->Material().SetAmbientLightingProportion(1.0f);
 }
 
 ExposeView::~ExposeView() {
@@ -44,6 +62,9 @@ void ExposeView::Render(const RenderFrame& frame) const {
     return;
 
 
+  PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
+
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
 }
@@ -61,10 +82,11 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   const Vector2 size(screen.Size().width, screen.Size().height);
   const OSRect bounds = screen.Bounds();
   const Vector2 origin(bounds.origin.x, bounds.origin.y);
-  const Vector2 center = origin + 0.5*size;
+  m_viewCenter = origin + 0.5*size;
 
   // calculate radius of layout
   m_layoutRadius = 0.4 * std::min(size.x(), size.y());
+  m_selectionRadius = 0.5 * m_layoutRadius;
 
   // calculate size of each window
   const double radiusPerWindow = 0.9* m_layoutRadius * std::sin(angleInc/2.0);
@@ -84,7 +106,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
 
     // calculate position of this window in cartesian coords
-    const Vector2 point = radialCoordsToPoint(angle, m_layoutRadius) + center;
+    const Vector2 point = radialCoordsToPoint(angle, m_layoutRadius) + m_viewCenter;
     const Vector3 point3D(point.x(), point.y(), 0.0);
 
     Vector3 totalForce(Vector3::Zero());
@@ -102,10 +124,19 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
     window->m_opacity.Update(dt.count());
-    img->SetOpacity(window->m_opacity.Value());
+    img->SetOpacity(window->m_opacity.Value() * m_opacity.Current());
 
     angle += angleInc;
   }
+
+  m_selectionOutline->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  m_selectionOutline->SetInnerRadius(m_selectionRadius);
+  m_selectionOutline->SetOuterRadius(1.005*m_selectionRadius);
+  m_selectionOutline->SetOpacity(m_opacity.Current());
+
+  m_selectionRegion->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  m_selectionRegion->SetRadius(m_selectionRadius);
+  m_selectionRegion->SetOpacity(m_opacity.Current());
 }
 
 void ExposeView::updateActivations(std::chrono::duration<double> dt) {
@@ -148,27 +179,59 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     }
   }
 
+  float maxSelection = 0;
+
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
 
-    if (window.get() == closestWindow && closestDistSq < distSqThreshPixels) {
+    const std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
+
+    if (window.get() == closestWindow && closestDistSq < distSqThreshPixels && !window->m_cooldown) {
       window->m_hover.SetGoal(1.0f);
       window->m_activation.SetGoal(activation * window->m_hover.Value());
       Vector3 displacement = Vector3::Zero();
       displacement.head<2>() = handPos - prevHandPos;
       window->m_grabDelta.SetSmoothStrength(0.25f);
       window->m_grabDelta.SetGoal(activation*(window->m_grabDelta.Goal() + displacement));
+
+      if ((img->Translation() - Vector3(m_viewCenter.x(), m_viewCenter.y(), 0.0)).squaredNorm() < m_selectionRadius*m_selectionRadius) {
+        window->m_selection.SetGoal(activation * window->m_activation.Value());
+
+        if (activation < window->m_selection.Value()) {
+          window->m_osWindow->SetFocus();
+          window->m_cooldown = true;          
+        }
+
+      } else {
+        window->m_selection.SetGoal(0.0f);
+      }
     } else {
       window->m_hover.SetGoal(0.0f);
       window->m_activation.SetGoal(0.0f);
       window->m_grabDelta.SetSmoothStrength(0.85f);
       window->m_grabDelta.SetGoal(Vector3::Zero());
+      window->m_selection.SetGoal(0.0f);
     }
     window->m_hover.Update(dt.count());
     window->m_activation.Update(dt.count());
     window->m_grabDelta.Update(dt.count());
+    window->m_selection.Update(dt.count());
+
+    if (window->m_cooldown && window->m_hover.Value() < 0.1f) {
+      window->m_cooldown = false;
+    }
+
+    maxSelection = std::max(maxSelection, window->m_selection.Value());
   }
+
+  const Vector4f regionColor = maxSelection*selectionRegionActiveColor.Data() + (1.0f - maxSelection)*selectionRegionColor.Data();
+  const Vector4f outlineColor = maxSelection*selectionOutlineActiveColor.Data() + (1.0f - maxSelection)*selectionOutlineColor.Data();
+  
+  m_selectionRegion->Material().SetDiffuseLightColor(regionColor);
+  m_selectionRegion->Material().SetAmbientLightColor(regionColor);
+  m_selectionOutline->Material().SetDiffuseLightColor(outlineColor);
+  m_selectionOutline->Material().SetAmbientLightColor(outlineColor);
 
   prevHandPos = handPos;
 }
@@ -221,6 +284,9 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
 
   retVal->m_hover.SetGoal(0.0f);
   retVal->m_hover.Update(0.0f);
+
+  retVal->m_selection.SetGoal(0.0f);
+  retVal->m_selection.Update(0.0f);
 
   retVal->m_grabDelta.SetGoal(Vector3::Zero());
   retVal->m_grabDelta.Update(0.0f);
