@@ -48,7 +48,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
         desiredState = OSCState::BASE;
         break;
       case HandPose::ThreeFingers:
-        desiredState = OSCState::EXPOSE_ACTIVATOR_FOCUSED;
+        desiredState = OSCState::BASE;
         break;
       case HandPose::FourFingers:
         desiredState = OSCState::EXPOSE_ACTIVATOR_FOCUSED;

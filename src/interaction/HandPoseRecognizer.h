@@ -45,7 +45,7 @@ private:
   bool areTipsSeparated(Leap::Hand hand, float thresholdDistance) const;
   bool lastExtended [5];
   Eigen::Matrix<double,3,5> lastPosition;
-  float averageFingerBend(Leap::Finger finger) const;
+  float averageFingerBend(Leap::Finger finger, int startBone = 3, int endBone = 4) const;
   bool isDown(Leap::Finger finger) const;
   float projectAlongPalmNormal(Vector3 point, Leap::Hand hand) const;
   
