@@ -26,3 +26,6 @@ src/oscontrols/*.glsl
 src/oscontrols/*.svg
 os-controls.sublime-project
 src/config/moc_config.cpp_parameters
+src/config/build-config-*
+**.cpp_parameters
+src/config/config.pro

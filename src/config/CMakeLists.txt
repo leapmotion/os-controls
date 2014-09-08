@@ -1,6 +1,6 @@
-set(config_HEADERS config.h)
-set(config_SOURCES config.cpp)
-set(config_UIFILES config.ui)
+set(config_HEADERS configwindow.h)
+set(config_SOURCES main.cpp configwindow.cpp)
+set(config_UIFILES configwindow.ui)
 #set(config_RESOURCES config.qrc)
 
 if(WIN32)
@@ -10,7 +10,7 @@ elseif(APPLE)
   set(config_EXEFLAGS MACOSX_BUNDLE)
 endif()
 
-qt5_wrap_ui(config_UI_SRCS config.ui)
+qt5_wrap_ui(config_UI_SRCS ${config_UIFILES})
 qt5_wrap_cpp(config_MOC_SOURCES ${config_HEADERS} ${config_SOURCES})
 
 add_executable(config ${config_EXEFLAGS} 
