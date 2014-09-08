@@ -3,7 +3,6 @@
 #include "DwmpApi.h"
 #include "utility/HandleUtilitiesWin.h"
 #include <thread>
-#include <DXGIFormat.h>
 #include <Primitives.h>
 
 #ifndef NT_SUCCESS
@@ -14,7 +13,7 @@
 #define NT_ERROR(Status) ((ULONG)(Status) >> 30 == 3)
 #endif
 
-HRESULT APIENTRY DwmpDxGetWindowSharedSurface(HWND hWnd, LUID adapterLuid, LUID someLuid, DXGI_FORMAT *pD3DFormat, HANDLE *pSharedHandle, unsigned __int64 *arg7);
+HRESULT APIENTRY DwmpDxGetWindowSharedSurface(HWND hWnd, LUID adapterLuid, LUID someLuid, DXGI_FORMAT *pD3DFormat, HANDLE* pSharedHandle, unsigned __int64 *arg7);
 NTSTATUS APIENTRY D3DKMTOpenAdapterFromGdiDisplayName(IN OUT D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME *pData);
 NTSTATUS APIENTRY D3DKMTCloseAdapter(IN CONST D3DKMT_CLOSEADAPTER *pData);
 
@@ -25,7 +24,29 @@ auto g_D3DKMTCloseAdapter = (decltype(D3DKMTCloseAdapter)*) GetProcAddress(hgdi,
 HMODULE hdwm = LoadLibrary("dwmapi");
 auto g_DwmpDxGetWindowSharedSurface = (decltype(DwmpDxGetWindowSharedSurface)*)GetProcAddress(hdwm, (LPCSTR) 100);
 
-HRESULT GetWindowSharedSurfaceHandle(HWND hWnd, HANDLE *sharedHandle, DXGI_FORMAT& d3dFormat)
+WindowRendererWin::WindowRendererWin(void)
+{
+  HRESULT hr;
+
+  D3D_FEATURE_LEVEL featureLevel;
+  hr = D3D11CreateDevice(
+    nullptr,
+    D3D_DRIVER_TYPE_HARDWARE,
+    nullptr,
+    0,
+    nullptr,
+    0,
+    D3D11_SDK_VERSION,
+    &m_device,
+    &featureLevel,
+    &m_context
+  );
+  if(FAILED(hr))
+    throw std::runtime_error("Failed to create a hardware-accelerated device");
+  m_dxgiDevice = m_device;
+}
+
+HRESULT GetWindowSharedSurfaceHandle(HWND hWnd, HANDLE& sharedHandle, DXGI_FORMAT& d3dFormat)
 {
   HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 
@@ -53,9 +74,10 @@ HRESULT GetWindowSharedSurfaceHandle(HWND hWnd, HANDLE *sharedHandle, DXGI_FORMA
   }
 
   LUID nullLuid = {0, 0};
-  uint64_t unknown = 0;
-  HANDLE hnd;
-  return g_DwmpDxGetWindowSharedSurface(hWnd, openDev.AdapterLuid, nullLuid, &d3dFormat, &hnd, &unknown);
+  LARGE_INTEGER unknown = {};
+  g_DwmpDxGetWindowSharedSurface(hWnd, openDev.AdapterLuid, nullLuid, &d3dFormat, &sharedHandle, (unsigned long long*)&unknown.QuadPart);
+
+  return S_OK;
 }
 
 WindowRenderer* WindowRenderer::New(void) {
@@ -69,13 +91,14 @@ std::shared_ptr<ImagePrimitive> WindowRendererWin::Render(HWND hwnd, std::shared
   } space;
   space.forbidden = nullptr;
 
-  DXGI_FORMAT d3dFormat = DXGI_FORMAT_UNKNOWN;
-  HRESULT hr = GetWindowSharedSurfaceHandle(hwnd, &space.sharedHandle, d3dFormat);
+  HANDLE hRsrc;
+  DXGI_FORMAT format;
+  HRESULT hr = GetWindowSharedSurfaceHandle(hwnd, hRsrc, format);
   if(FAILED(hr))
     return false;
 
-  //MapViewOfFile(sharedHandle, )
-  return true;
+  CComPtr<IDXGISurface> pSurface;
+  hr = m_device->OpenSharedResource(hRsrc, __uuidof(*pSurface), (void**) &pSurface);
 
   return img;
 }
