@@ -51,9 +51,12 @@ if(MSVC)
   target_link_libraries(utility shlwapi)
 elseif(APPLE)
   find_library(CORESERVICES_FRAMEWORK CoreServices)
+  find_library(SECURITY_FRAMEWORK Security)
   mark_as_advanced(CORESERVICES_FRAMEWORK)
-  target_link_libraries(utility ${CORESERVICES_FRAMEWORK})
+  mark_as_advanced(SECURITY_FRAMEWORK)
+  target_link_libraries(utility ${CORESERVICES_FRAMEWORK} ${SECURITY_FRAMEWORK})
 endif()
 
 target_link_libraries(utility Primitives)
+
 add_subdirectory(test)
