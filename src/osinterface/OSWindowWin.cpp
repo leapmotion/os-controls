@@ -78,11 +78,14 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
   params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4)};
 
   // If we can re-use the passed in image primitive do that, if not create new one -- FIXME
   img = std::make_shared<ImagePrimitive>(std::make_shared<GLTexture2>(params, pixelData));
+  img->Texture()->Bind();
+  glGenerateMipmap(GL_TEXTURE_2D);
+  img->Texture()->Unbind();
 
   return img;
 }
