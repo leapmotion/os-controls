@@ -43,7 +43,7 @@ private:
   Renderable::ZOrderList m_zorder;
 
   // Background Overlay Rectangle
-  RectanglePrim m_backgroundRect;
+  std::shared_ptr<RectanglePrim> m_backgroundRect;
 
 
   // Hand data
