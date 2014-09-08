@@ -6,8 +6,11 @@
 class OSWindow;
 
 /// <summary>
-/// Top-level monitor type used to monitor the OS for window events
+/// Top-level monitor type used to monitor the OS for window creation and destruction events
 /// </summary>
+/// <seealso cref="OSWindowEvent">
+/// This type describes the circumstances under which important events are raised
+/// </seealso>
 class OSWindowMonitor:
   public ContextMember,
   public Updatable
