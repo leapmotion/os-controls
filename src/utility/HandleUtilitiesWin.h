@@ -22,6 +22,25 @@ struct unique_ptr_of<T*> :
   std::unique_ptr<T, HandleDeleter<T*>>
 {
   unique_ptr_of(T* ptr = nullptr) :
-  std::unique_ptr<T, HandleDeleter<T*>>(ptr)
+    std::unique_ptr<T, HandleDeleter<T*>>(ptr)
   {}
+
+  struct proxy {
+    proxy(unique_ptr_of& parent):
+      parent(parent),
+      ptr(nullptr)
+    {}
+
+    ~proxy(void) {
+      // Forward unconditionally:
+      parent.reset(ptr);
+    }
+
+    T* ptr;
+    unique_ptr_of& parent;
+
+    operator T**(void) { return &ptr; }
+  };
+
+  proxy operator&(void) { return proxy(*this); }
 };
