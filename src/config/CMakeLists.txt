@@ -19,7 +19,9 @@ add_executable(config ${config_EXEFLAGS}
 )
 
 set_property(TARGET config PROPERTY AUTOMOC ON)
-set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER "Qt Generated Files")
+set_property(TARGET config PROPERTY AUTOUIC ON)
+set_property(TARGET config PROPERTY AUTORCC ON)
+set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER "QtAutoTargets")
 
 target_link_libraries(config Qt5::Core Qt5::Widgets)
 target_link_libraries(config Autowiring utility interaction graphics osinterface expose)
