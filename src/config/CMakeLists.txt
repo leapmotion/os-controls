@@ -23,8 +23,8 @@ set_property(TARGET config PROPERTY AUTOUIC ON)
 set_property(TARGET config PROPERTY AUTORCC ON)
 set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER "QtAutoTargets")
 
-target_link_libraries(config Qt5::Core Qt5::Widgets)
-target_link_libraries(config Autowiring utility interaction graphics osinterface expose)
+target_imported_libraries(config Qt5::Core Qt5::Widgets)
+target_link_libraries(config Autowiring utility)
 target_include_directories(config PUBLIC contrib/autowiring)
 
 target_package(config Leap REQUIRED)
