@@ -17,7 +17,7 @@ public:
 
   void AutoFilter(OSCState appState, const HandData& handData);
   void onWindowSelected(ExposeViewWindow& osWindow) override;
-
+  void Shutdown();
 private:
   
   enum class State {
@@ -36,6 +36,6 @@ private:
   Autowired<ExposeViewAccessManager> m_exposeViewAccessManager;
 
 public:
-  bool IsComplete() const { return m_state == State::COMPLETE; }
+  bool IsComplete() const { return ( m_state == State::COMPLETE ); }
 };
 

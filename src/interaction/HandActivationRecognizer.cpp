@@ -39,12 +39,6 @@ void HandActivationRecognizer::AutoFilter(const Leap::Hand &hand, const FrameTim
       handGrab.isGrabbing = false;
     }
   }
-
-  std::cout << "HandPinch: " << handPinch.pinchStrength << std::endl;
-  std::cout << "HandGrab: " << handGrab.grabStrength << std::endl;
-  
-  std::cout << "HandPinch: " << handPinch.isPinching << std::endl;
-  std::cout << "HandGrab: " << handGrab.isGrabbing << std::endl;
   
   handPinch.pinchDeltaPerSecond = (handPinch.pinchStrength - m_lastPinchStrength) / (frameTime.deltaTime / 1000000.0);
   handGrab.grabDeltaPerSecond = (handGrab.grabStrength - m_lastGrabStrength) / (frameTime.deltaTime / 1000000.0);

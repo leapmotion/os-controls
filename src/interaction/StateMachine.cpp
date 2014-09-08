@@ -32,7 +32,21 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     return;
   }
   
+  std::cout << "m_state: " << static_cast<int>(m_state) << std::endl;
+  
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
+  
+  if( m_state == OSCState::EXPOSE_FOCUSED ) {
+    if ( m_evp->IsComplete() )
+    {
+      m_state = OSCState::BASE;
+    }
+    else {
+      state = m_state;
+      scrollState = m_scrollState;
+      return;
+    }
+  }
   
   if ( m_lastScrollReleaseTimestep > 1000000 && m_scrollState != ScrollState::ACTIVE ) {
     // Map the hand pose to a candidate media control state
@@ -71,14 +85,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
       // going through the ground case will actually not cause a menu change to happen, and
       // if this isn't the desired behavior, then change it by assigning the current state
       // unconditionally!
-    if ( m_state != OSCState::EXPOSE_FOCUSED ) {
-      m_state = desiredState;
-    }
-    else {
-      if ( m_evp->IsComplete() ) {
-        m_state = OSCState::BASE;
-      }
-    }
+    m_state = desiredState;
   }
   
   // Ok, we've got a decision about what state we're in now.  Report it back to the user.
@@ -168,6 +175,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
 
 void StateMachine::OnHandVanished() {
   std::lock_guard<std::mutex> lk(m_lock);
+  m_evp->Shutdown();
   m_state = OSCState::FINAL;
   m_scrollState = ScrollState::DECAYING;
   m_scrollOperation.reset();
