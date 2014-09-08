@@ -90,6 +90,8 @@ private:
 
   // Send commend to controller to focus the given window.
   void focusWindow(ExposeViewWindow& windowToFocus);
+
+  void updateWindowTextures();
   
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y

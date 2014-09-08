@@ -272,6 +272,13 @@ void ExposeView::focusWindow(ExposeViewWindow& window) {
   m_exposeViewEvents(&ExposeViewEvents::onWindowSelected)(window);
 }
 
+void ExposeView::updateWindowTextures() {
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
+      continue;
+    window->UpdateTexture();
+  }
+}
 
 Vector2 ExposeView::radialCoordsToPoint(double angle, double distance) {
   return Vector2(distance * std::cos(angle), distance * std::sin(angle));
