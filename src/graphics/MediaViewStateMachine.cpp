@@ -90,7 +90,7 @@ void MediaViewStateMachine::AutoInit() {
   m_volumeSlider->InitChildren();
 }
 
-void MediaViewStateMachine::AutoFilter(OSCState appState, const HandRoll& handRoll, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime) {
+void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime) {
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
 
   // State Transitions
@@ -102,13 +102,13 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandRoll& handRo
   //Hand Pose Transitions
   switch (m_lastHandPose) {
     case HandPose::OneFinger:
-      if( handPose == HandPose::Clawed)
+      if( handData.handPose == HandPose::Clawed)
       {
-        m_startRoll = handRoll.absoluteRoll;
+        m_startRoll = handData.rollData.absoluteRoll;
       }
       break;
     case HandPose::Clawed:
-      if ( handPose == HandPose::OneFinger)
+      if ( handData.handPose == HandPose::OneFinger)
       {
         //Update volume visual to 'unity' and update starting rotation
         m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(0.0, Vector3::UnitZ()).toRotationMatrix();
@@ -117,17 +117,17 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandRoll& handRo
       break;
   }
   
-  m_lastHandPose = handPose;
+  m_lastHandPose = handData.handPose;
   
   switch( m_state )
   {
     case State::INACTIVE:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
-        m_volumeSlider->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
-        m_radialMenu->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
-        m_volumeKnob->Translation() = Vector3(handLocation.x, handLocation.y, 0.0);
+        m_volumeSlider->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
+        m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
+        m_volumeKnob->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
-        m_startRoll = handRoll.absoluteRoll;
+        m_startRoll = handData.rollData.absoluteRoll;
         m_hasRoll = true;
         m_volumeKnob->SetOpacity(0.75f);
         m_state = State::ACTIVE;
@@ -168,14 +168,14 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandRoll& handRo
     case State::ACTIVE:
     {
 
-      if( handPose != HandPose::Clawed ) {
+      if( handData.handPose != HandPose::Clawed ) {
         // MENU UPDATE
         
         // The menu always thinks it's at (0,0) so we need to offset the cursor
         // coordinates by the location of the menu to give the proper space.
         const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
         
-        Vector3 leapPosition(handLocation.x - menuOffset.x(), handLocation.y - menuOffset.y(), 0);
+        Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
         RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
         m_selectedItem = updateResult.updateIdx;
         if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
@@ -202,12 +202,12 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandRoll& handRo
         const float MAX_VELOCTY = 0.4f;
         
         if( !m_hasRoll ) {
-          m_startRoll = handRoll.absoluteRoll;
+          m_startRoll = handData.rollData.absoluteRoll;
           m_hasRoll = true;
           return;
         }
         
-        absRot = handRoll.absoluteRoll;
+        absRot = handData.rollData.absoluteRoll;
         offset = absRot - m_startRoll;
         
         // Make sure offset represents the smallest representation of the offset angle.
