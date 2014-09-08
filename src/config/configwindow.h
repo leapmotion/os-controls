@@ -2,6 +2,7 @@
 #define CONFIGWINDOW_H
 
 #include <QMainWindow>
+class QSystemTrayIcon;
 
 namespace Ui {
 class ConfigWindow;
@@ -9,14 +10,17 @@ class ConfigWindow;
 
 class ConfigWindow : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit ConfigWindow(QWidget *parent = 0);
-    ~ConfigWindow();
+  explicit ConfigWindow(QWidget *parent = 0);
+  ~ConfigWindow();
 
 private:
-    Ui::ConfigWindow *ui;
+  void createTrayIcon();
+
+  Ui::ConfigWindow *ui;
+  QSystemTrayIcon* m_trayIcon;
 };
 
 #endif // CONFIGWINDOW_H

@@ -33,3 +33,4 @@ src/config/config.pro
 src/config/ui_configwindow.h
 **/*_automoc.cpp
 bin/platforms/*
+*.autosave
