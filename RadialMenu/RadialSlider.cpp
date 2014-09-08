@@ -10,7 +10,9 @@ RadialSlider::RadialSlider() {
   m_Fill = std::shared_ptr<PartialDisk>(new PartialDisk());
   m_Handle = std::shared_ptr<Disk>(new Disk());
   m_HandleOutline = std::shared_ptr<Disk>(new Disk());
+}
 
+void RadialSlider::InitChildren() {
   AddChild(m_Track);
   AddChild(m_Fill);
   AddChild(m_Handle);

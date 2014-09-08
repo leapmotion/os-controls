@@ -9,6 +9,7 @@ public:
   HandCursor();
 
   void Update(const Leap::Hand& hand);
+  void InitChildren();
 
   virtual void Draw(RenderState& renderState) const override;
 
@@ -25,6 +26,9 @@ private:
   static float calculateFingerRadius(float bend);
   Color calculateFingerColor(float bend);
   Color calculatePalmColor(float closed);
+  float averageFingerBend(Leap::Finger finger, int startBone = 3, int endBone = 4) const;
+  
+  void formatFinger(const Leap::Finger& finger, float distance, bool isLeft = false);
 
   Color m_OutlineColor;
   Color m_FillColorOpen;
@@ -32,7 +36,6 @@ private:
 
   float m_PalmOutlineRadius;
   float m_PalmOutlineThickness;
-  float m_PalmFillRadius;
 
   std::shared_ptr<PartialDisk> m_PalmOutline;
   std::shared_ptr<Disk> m_PalmCenter;

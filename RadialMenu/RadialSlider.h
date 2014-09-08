@@ -15,6 +15,7 @@ class RadialSlider : public RadialItem {
 public:
 
   RadialSlider();
+  void InitChildren();
   void SetMinValue(double min) { m_MinValue = min; }
   void SetMaxValue(double max) { m_MaxValue = max; }
   void SetValue(double value, bool fireCallback = true) {
