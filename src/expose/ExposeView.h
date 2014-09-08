@@ -45,15 +45,45 @@ private:
   // Background Overlay Rectangle
   RectanglePrim m_backgroundRect;
 
+  std::shared_ptr<Disk> m_debugCursor;
+
   // Hand data
   HandData m_handData;
 
 private:
+  struct Force {
+    Force(const Vector3& position, float strength, ExposeViewWindow* wnd, float maxDist) :
+      m_position(position),
+      m_strength(strength),
+      m_window(wnd),
+      m_maxDist(maxDist)
+    {}
+    Vector3 ForceAt(const Vector3& position) const {
+      const Vector3 diff = position - m_position;
+      const double dist = diff.norm();
+      const double distMult = 1.0 - SmootherStep(std::min(1.0, dist/m_maxDist));
+      return m_strength * distMult * diff / dist;
+    }
+    Vector3 m_position;
+    float m_strength;
+    ExposeViewWindow* m_window;
+    float m_maxDist;
+  };
+
+  typedef std::vector<Force, Eigen::aligned_allocator<Force> > ForceVector;
+
+  ForceVector m_forces;
+  double m_layoutRadius;
+
   /// <summary>
   /// Evolves the layout by one step
   /// </summary>
   void updateLayout(std::chrono::duration<double> dt);
   
+  void updateActivations(std::chrono::duration<double> dt);
+
+  void updateForces(std::chrono::duration<double> dt);
+
   // Send commend to controller to focus the given window.
   void focusWindow(ExposeViewWindow& windowToFocus);
   

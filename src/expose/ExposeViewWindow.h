@@ -14,9 +14,6 @@ public:
   ExposeViewWindow(OSWindow& osWindow);
   ~ExposeViewWindow(void);
 
-  // Current activation level, some number in the range [0...1]
-  lockable_property<float> m_activation;
-
   // Flag, set if the view can be automatically laid out.  If this flag is cleared,
   // ExposeView should not attempt to lay out the window.
   lockable_property<void> m_layoutLocked;
@@ -31,6 +28,11 @@ public:
   Smoothed<float> m_opacity;
   Smoothed<Vector3> m_position;
   Smoothed<float> m_scale;
+  Smoothed<Vector3> m_grabDelta;
+
+  // Smooth animations for hover and activation
+  Smoothed<float> m_hover;
+  Smoothed<float> m_activation;
 
 private:
   // Texture for this window
