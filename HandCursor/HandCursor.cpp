@@ -12,9 +12,7 @@ HandCursor::HandCursor() {
   }
   
   m_OutlineColor = Color(0.802f, 0.802f, 0.802f, 0.75f); // 26 26 26
-  m_FillColorClosed = Color(0.505f, 0.831f, 0.114f, 0.75f); // 129 212 29
-  m_FillColorOpen = m_FillColorClosed;
-  m_FillColorOpen.A() = 0.5f;
+  m_FillColor = Color(0.505f, 0.831f, 0.114f, 0.75f); // 129 212 29
   
   Translation().z() = 0;
 }
@@ -30,8 +28,11 @@ void HandCursor::InitChildren() {
 }
 
 void HandCursor::Update(const Leap::Hand& hand) {
-  const Leap::Vector handPos = transformCoordinates(hand.palmPosition());
-
+  const float PALM_MAX_RAD = 30.0f;
+  const float PALM_MIN_RAD = 20.0f;
+  const float PALM_MAX_ACT = 0.9f;
+  const float PALM_MIN_ACT = 0.3f;
+  
   const float grabStrength = hand.grabStrength();
   const float pinchStrength = hand.pinchStrength();
   const float palmClosed = std::max(grabStrength, pinchStrength);
@@ -59,22 +60,19 @@ void HandCursor::Update(const Leap::Hand& hand) {
   }
 
   // process palm
-
   m_PalmOutlineRadius = 35.0f;
   m_PalmOutlineThickness = 1.0f;
+  
+  float palmNorm = (palmClosed - PALM_MIN_ACT) / (PALM_MAX_ACT - PALM_MIN_ACT);
+  palmNorm = std::min(1.0f, std::max(0.0f, palmNorm));
+  
+  float palmRadius = PALM_MIN_RAD + (palmNorm*(PALM_MAX_RAD - PALM_MIN_RAD));
 
-  const auto handVec = handPos.toVector3<Vector3>();
-  Translation().x() = handVec.x();
-  Translation().y() = handVec.y();
-
-  //LinearTransformation() = Eigen::AngleAxis<double>(M_PI/2.0, Vector3::UnitX()).toRotationMatrix();
-
-  const Color palmCenterColor = calculatePalmColor(palmClosed);
   GLMaterial& palmCenterMat = m_PalmCenter->Material();
-  palmCenterMat.SetAmbientLightColor(palmCenterColor);
-  palmCenterMat.SetDiffuseLightColor(palmCenterColor);
+  palmCenterMat.SetAmbientLightColor(m_FillColor);
+  palmCenterMat.SetDiffuseLightColor(m_FillColor);
   palmCenterMat.SetAmbientLightingProportion(1.0f);
-  m_PalmCenter->SetRadius(30.0f);
+  m_PalmCenter->SetRadius(palmRadius);
 
   GLMaterial& palmOutlineMat = m_PalmOutline->Material();
   palmOutlineMat.SetAmbientLightColor(m_OutlineColor);
@@ -127,57 +125,6 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
 
 void HandCursor::Draw(RenderState& renderState) const {
   // nothing to do, our children will be drawn automatically
-}
-
-Leap::Vector HandCursor::transformCoordinates(const Leap::Vector& vec) {
-  static const Leap::Vector LEAP_OFFSET(0.0f, -200.0f, 0.0f);
-  return vec + LEAP_OFFSET;
-}
-
-Leap::Vector HandCursor::rotateCoordinates(const Leap::Vector& vec) {
-  return Leap::Vector(vec.x, -vec.z, vec.y);
-}
-
-float HandCursor::calculateFingerBend(const Leap::Finger& finger) {
-#if 0
-  return finger.isExtended() ? 0.0f : 1.0f;
-#else
-  const float grabStrength = finger.hand().grabStrength();
-  return grabStrength * grabStrength;
-#endif
-}
-
-float HandCursor::calculatePalmFillRadius(float closed) {
-#if 0
-  static const float MIN_RADIUS = 0.0f;
-  static const float MAX_RADIUS = 34.5f;
-#else
-  static const float MIN_RADIUS = 34.5f;
-  static const float MAX_RADIUS = 0.0f;
-#endif
-  return (1.0f-closed)*MIN_RADIUS + closed*MAX_RADIUS;
-}
-
-float HandCursor::calculateFingerRadius(float bend) {
-  //static const float MIN_RADIUS = 2.5f;
-  static const float MIN_RADIUS = 27.5f;
-  static const float MAX_RADIUS = 5.0f;
-  return (1.0f-bend)*MAX_RADIUS + bend*MIN_RADIUS;
-}
-
-Color HandCursor::calculateFingerColor(float bend) {
-#if 0
-  const Vector4f blended = bend*m_OutlineColor.Data() + (1.0f-bend)*m_FillColorClosed.Data();
-  return Color(blended);
-#else
-  return m_FillColorClosed;
-#endif
-}
-
-Color HandCursor::calculatePalmColor(float closed) {
-  
-  //const Vector4f blended = closed*m_FillColorClosed.Data() + (1.0f-closed)*m_FillColorOpen.Data();
-  return Color(m_FillColorClosed);
 }
 
 float HandCursor::averageFingerBend(Leap::Finger finger, int startBone, int endBone) const {
