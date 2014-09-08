@@ -30,9 +30,7 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
   Autowired<WindowRendererWin> wr;
   if(!wr)
     throw std::runtime_error("Cannot capture a window representation without a window renderer");
-
-  wr->Render(*this, m_sysTexture);
-  return img;
+  return wr->Render(hwnd, img);
 }
 
 bool OSWindowWin::GetFocus(void) {

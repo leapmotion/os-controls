@@ -1,12 +1,22 @@
 #include "stdafx.h"
 #include "WindowRendererWin.h"
-#include "OSWindowWin.h"
 #include "DwmpApi.h"
+#include "utility/HandleUtilitiesWin.h"
 #include <thread>
+#include <DXGIFormat.h>
+#include <Primitives.h>
 
-int APIENTRY DwmpDxGetWindowSharedSurface(HWND hWnd, LUID adapterLuid, LUID someLuid, DWORD *pD3DFormat, HANDLE *pSharedHandle, unsigned __int64 *arg7);
-int	APIENTRY D3DKMTOpenAdapterFromGdiDisplayName(IN OUT D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME *pData);
-int	APIENTRY D3DKMTCloseAdapter(IN CONST D3DKMT_CLOSEADAPTER *pData);
+#ifndef NT_SUCCESS
+#define NT_SUCCESS(Status) ((NTSTATUS)(Status) >= 0)
+#endif
+
+#ifndef NT_ERROR
+#define NT_ERROR(Status) ((ULONG)(Status) >> 30 == 3)
+#endif
+
+HRESULT APIENTRY DwmpDxGetWindowSharedSurface(HWND hWnd, LUID adapterLuid, LUID someLuid, DXGI_FORMAT *pD3DFormat, HANDLE *pSharedHandle, unsigned __int64 *arg7);
+NTSTATUS APIENTRY D3DKMTOpenAdapterFromGdiDisplayName(IN OUT D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME *pData);
+NTSTATUS APIENTRY D3DKMTCloseAdapter(IN CONST D3DKMT_CLOSEADAPTER *pData);
 
 HMODULE hgdi = LoadLibrary("gdi32");
 auto g_D3DKMTOpenAdapterFromGdiDisplayName = (decltype(D3DKMTOpenAdapterFromGdiDisplayName)*) GetProcAddress(hgdi, "D3DKMTOpenAdapterFromGdiDisplayName");
@@ -15,7 +25,7 @@ auto g_D3DKMTCloseAdapter = (decltype(D3DKMTCloseAdapter)*) GetProcAddress(hgdi,
 HMODULE hdwm = LoadLibrary("dwmapi");
 auto g_DwmpDxGetWindowSharedSurface = (decltype(DwmpDxGetWindowSharedSurface)*)GetProcAddress(hdwm, (LPCSTR) 100);
 
-void GetWindowSharedSurfaceHandle(HWND hWnd, HANDLE *sharedHandle, DWORD *d3dFormat)
+HRESULT GetWindowSharedSurfaceHandle(HWND hWnd, HANDLE *sharedHandle, DXGI_FORMAT& d3dFormat)
 {
   HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 
@@ -24,30 +34,48 @@ void GetWindowSharedSurfaceHandle(HWND hWnd, HANDLE *sharedHandle, DWORD *d3dFor
 	GetMonitorInfo(hMonitor, &monitorInfo);
 
   D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME openDev;
-  mbstowcs(openDev.DeviceName, monitorInfo.szDevice, sizeof(monitorInfo.szDevice));
 
-  g_D3DKMTOpenAdapterFromGdiDisplayName(&openDev);
+  const char* szDevice = monitorInfo.szDevice;
+  size_t nConverted;
+  mbstate_t mbState;
+  mbsrtowcs_s(&nConverted, openDev.DeviceName, &szDevice, sizeof(monitorInfo.szDevice), &mbState);
+
+  auto status = g_D3DKMTOpenAdapterFromGdiDisplayName(&openDev);
+  if(NT_ERROR(status))
+    return HRESULT_FROM_NT(status);
 
   {
     D3DKMT_CLOSEADAPTER closeDev;
     closeDev.hAdapter = openDev.hAdapter;
-    g_D3DKMTCloseAdapter(&closeDev);
+    status = g_D3DKMTCloseAdapter(&closeDev);
+    if(NT_ERROR(status))
+      return HRESULT_FROM_NT(status);
   }
 
   LUID nullLuid = {0, 0};
   uint64_t unknown = 0;
-  g_DwmpDxGetWindowSharedSurface(hWnd, openDev.AdapterLuid, nullLuid, d3dFormat, sharedHandle, &unknown);
+  HANDLE hnd;
+  return g_DwmpDxGetWindowSharedSurface(hWnd, openDev.AdapterLuid, nullLuid, &d3dFormat, &hnd, &unknown);
 }
-
-WindowRendererWin::WindowRendererWin(void) {}
-WindowRendererWin::~WindowRendererWin(void) {}
 
 WindowRenderer* WindowRenderer::New(void) {
   return new WindowRendererWin;
 }
 
-void WindowRendererWin::Render(OSWindowWin& osWindow, std::vector<unsigned char>& mem) {
-  HANDLE sharedHandle = nullptr;
-  DWORD d3dFormat = 0;
-  GetWindowSharedSurfaceHandle(osWindow.hwnd, &sharedHandle, &d3dFormat);
+std::shared_ptr<ImagePrimitive> WindowRendererWin::Render(HWND hwnd, std::shared_ptr<ImagePrimitive> img) {
+  struct {
+    HANDLE sharedHandle;
+    void* forbidden;
+  } space;
+  space.forbidden = nullptr;
+
+  DXGI_FORMAT d3dFormat = DXGI_FORMAT_UNKNOWN;
+  HRESULT hr = GetWindowSharedSurfaceHandle(hwnd, &space.sharedHandle, d3dFormat);
+  if(FAILED(hr))
+    return false;
+
+  //MapViewOfFile(sharedHandle, )
+  return true;
+
+  return img;
 }

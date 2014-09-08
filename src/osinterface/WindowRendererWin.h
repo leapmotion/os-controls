@@ -1,17 +1,12 @@
 #pragma once
 #include "WindowRenderer.h"
 
-class OSWindowWin;
+class ImagePrimitive;
 
 class WindowRendererWin:
   public WindowRenderer
 {
 public:
-  WindowRendererWin(void);
-  ~WindowRendererWin(void);
-
-
-public:
-  void Render(OSWindowWin& osWindow, std::vector<unsigned char>& mem);
+  std::shared_ptr<ImagePrimitive> Render(HWND hwnd, std::shared_ptr<ImagePrimitive> img);
 };
 
