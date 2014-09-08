@@ -1,10 +1,7 @@
 #pragma once
 #include "graphics/Renderable.h"
-#include "interaction/HandLocationRecognizer.h"
-#include "interaction/FrameDeltaTimeRecognizer.h"
-#include "interaction/HandPoseRecognizer.h"
-#include "interaction/HandRollRecognizer.h"
 #include "interaction/MediaViewController.h"
+#include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
 #include "VolumeKnob.h"
@@ -25,7 +22,7 @@ public:
   void AutoInit();
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const DeltaRollAmount& dra, const HandLocation& handLocation, const HandPose& handPose, const FrameTime& frameTime);
+  void AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime);
 
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;

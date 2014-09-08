@@ -13,11 +13,11 @@ HandRollRecognizer::~HandRollRecognizer(void)
 {
 }
 
-void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, DeltaRollAmount& dra) {
+void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, HandRoll& handRoll) {
   // Compute the roll amount, decide whether to floor it down to zero
   float roll = -hand.palmNormal().roll();
   
-  dra.dTheta = roll - m_lastRoll;
+  handRoll.dTheta = roll - m_lastRoll;
   m_deltaRoll.SetGoal(roll - m_lastRoll);
   
   m_deltaRoll.Update(frameTime.deltaTime);
@@ -31,7 +31,7 @@ void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
     m_hasLast = true;
   }
   
-  dra.dTheta = m_deltaRoll.Value();
+  handRoll.dTheta = m_deltaRoll.Value();
   
-  dra.absoluteRoll = roll;
+  handRoll.absoluteRoll = roll;
 }

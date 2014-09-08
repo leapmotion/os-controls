@@ -70,5 +70,8 @@ void CursorView::Render(const RenderFrame& frame) const {
     case State::ACTIVE:
       PrimitiveBase::DrawSceneGraph(*m_handCursor, frame.renderState);
       break;
+    case State::INACTIVE:
+    default:
+      break;
   }
 }

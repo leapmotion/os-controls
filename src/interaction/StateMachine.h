@@ -10,6 +10,7 @@
 #include "interaction/HandPinchRecognizer.h"
 #include "interaction/HandPinchRecognizer.h"
 #include "interaction/ScrollRecognizer.h"
+#include "interaction/HandDataCombiner.h"
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
 
@@ -37,7 +38,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const FrameTime& frameTime, const HandPose& handPose, const HandPinch& handPinch, const HandLocation& handLocation, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
   
   void OnHandVanished();
 
