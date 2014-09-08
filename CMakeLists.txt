@@ -25,6 +25,10 @@ find_package(Eigen 3.2.1 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Glew 1.9.0 REQUIRED)
 
+list(APPEND CMAKE_LIBRARY_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
+find_package(Qt5 5.2.0 REQUIRED COMPONENTS Widgets 
+  CONFIG HINTS ${EXTERNAL_LIBRARY_DIR}/qt-5.2.0)
+
 set(SFML_STATIC_LIBRARIES ON)
 add_subdirectory(contrib)
 add_subdirectory(src)
