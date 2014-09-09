@@ -183,6 +183,10 @@ void StateMachine::RequestTransition(OSCState requestedState) {
   m_desiredState = requestedState;
 }
 
+void StateMachine::OnHandVanished() {
+  RequestTransition(OSCState::FINAL);
+}
+
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);

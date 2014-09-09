@@ -43,6 +43,7 @@ public:
   
   void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
   
+  void OnHandVanished() override;
   void RequestTransition(OSCState requestedState) override;
 
   // Updatable overrides:
