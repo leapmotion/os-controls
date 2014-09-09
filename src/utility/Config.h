@@ -3,6 +3,7 @@
 #include<string>
 #include<map>
 #include<stdexcept>
+#include<chrono>
 
 #include <autowiring/../contrib/json11/json11.hpp>
 
@@ -19,72 +20,94 @@ public:
   template<typename T>
   T Get(const std::string& prop) const { static_assert("Unspecialized on type"); }
 
+  template<typename T>
+  void Set(const std::string& prop, const T &val){
+    m_data[prop] = json11::Json(val);
+  }
+
   bool Exists(const std::string& prop) const {
-    return m_data.object_items().count(prop) > 0;
+    return m_data.count(prop) > 0;
   }
 
   json11::Json::object::const_iterator GetRef(const std::string& prop) const {
-    return m_data.object_items().find(prop);
+    return m_data.find(prop);
   }
 
   std::chrono::microseconds GetFrameRate(void) const;
 
 private:
-  json11::Json m_data;
+
+  json11::Json::object::const_iterator GetInternal(const std::string& prop) const {
+    auto ref = m_data.find(prop);
+    if (ref == m_data.end())
+      throw std::runtime_error("Could not find property:" + prop);
+    return ref;
+  }
+
+  json11::Json::object m_data;
 };
 
 //Specializations for valid storage types
 
 template<>
-double Config::Get<double>(const std::string& prop) const {
-  auto& val = m_data[prop];
-  if (!val.is_number())
+inline double Config::Get<double>(const std::string& prop) const {
+  auto val = GetInternal(prop);
+  if (!val->second.is_number())
     throw std::runtime_error(prop + "Is not a number");
 
-  return val.number_value();
+  return val->second.number_value();
 }
 
 template<>
-float Config::Get<float>(const std::string& prop) const {
-  auto& val = m_data[prop];
-  if (!val.is_number())
+inline float Config::Get<float>(const std::string& prop) const {
+  auto val = GetInternal(prop);
+  if (!val->second.is_number())
     throw std::runtime_error(prop + "Is not a number");
 
-  return static_cast<float>(val.number_value());
+  return static_cast<float>(val->second.number_value());
 }
 
 template<>
-bool Config::Get<bool>(const std::string& prop) const {
-  auto& val = m_data[prop];
-  if (!val.is_bool())
+inline int Config::Get<int>(const std::string& prop) const {
+  auto val = GetInternal(prop);
+  if (!val->second.is_number())
+    throw std::runtime_error(prop + "Is not a number");
+
+  return static_cast<int>(val->second.number_value());
+}
+
+template<>
+inline bool Config::Get<bool>(const std::string& prop) const {
+  auto val = GetInternal(prop);
+  if (!val->second.is_bool())
     throw std::runtime_error(prop + "Is not a bool");
 
-  return val.bool_value();
+  return val->second.bool_value();
 }
 
 template<>
-const std::string& Config::Get<const std::string&>(const std::string& prop) const {
-  auto& val = m_data[prop];
-  if (!val.is_string())
+inline const std::string& Config::Get<const std::string&>(const std::string& prop) const {
+  auto val = GetInternal(prop);
+  if (!val->second.is_string())
     throw std::runtime_error(prop + "Is not a string");
 
-  return val.string_value();
+  return val->second.string_value();
 }
 
 template<>
-const json11::Json::array& Config::Get<const json11::Json::array&>(const std::string& prop) const {
-  auto& val = m_data[prop];
-  if (!val.is_array())
+inline const json11::Json::array& Config::Get<const json11::Json::array&>(const std::string& prop) const {
+  auto val = GetInternal(prop);
+  if (!val->second.is_array())
     throw std::runtime_error(prop + "Is not an array");
 
-  return val.array_items();
+  return val->second.array_items();
 }
 
 template<>
-const json11::Json::object& Config::Get<const json11::Json::object&>(const std::string& prop) const {
-  auto& val = m_data[prop];
-  if (!val.is_object())
+inline const json11::Json::object& Config::Get<const json11::Json::object&>(const std::string& prop) const {
+  auto val = GetInternal(prop);
+  if (!val->second.is_object())
     throw std::runtime_error(prop + "Is not an object");
 
-  return val.object_items();
+  return val->second.object_items();
 }

@@ -1,5 +1,6 @@
 set(utilitytest_SRCS
   utilitytest.cpp
+  ConfigTest.cpp
   LockablePropertyTest.cpp
 )
 
