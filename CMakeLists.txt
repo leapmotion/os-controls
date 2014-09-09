@@ -191,9 +191,11 @@ add_sublibrary(
     HEADERS
         GLTexture2.h
         GLTexture2Params.h
+        GLTexture2PixelData.h
     SOURCES
         GLTexture2.cpp
         GLTexture2Params.cpp
+        GLTexture2PixelData.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         GLCompatibility
