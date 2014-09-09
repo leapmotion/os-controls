@@ -131,17 +131,11 @@ void OculusVR::BeginFrame() {
     m_EyeRenderPose[eye] = ovrHmd_GetEyePose(m_HMD, eye);
     m_EyeProjection[eye] = ovrMatrix4f_Projection(m_EyeRenderDesc[eye].Fov, 0.1f, 10000.0f, true);
 
-    const OVR::Matrix4f rollPitchYaw = OVR::Matrix4f::RotationY(0);
-    const OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(m_EyeRenderPose[eye].Orientation);
-    const OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
-    const OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
-    const OVR::Vector3f eyePosition = m_EyeRenderPose[eye].Position;
-    const OVR::Vector3f eyePos = rollPitchYaw.Transform(eyePosition);
-    const OVR::Vector3f shiftedEyePos = HeadPos + eyePos;
-    m_EyeRotation[eye] = OVR::Matrix4f::LookAtRH(eyePos, eyePos + finalForward, finalUp);
-    const OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
+    const OVR::Quatf orientation = m_EyeRenderPose[eye].Orientation;
+    const OVR::Vector3f worldEyePos = m_EyeRenderPose[eye].Position;
     const OVR::Vector3f viewAdjust = m_EyeRenderDesc[eye].ViewAdjust;
-    m_EyeView[eye] = OVR::Matrix4f::Translation(viewAdjust) * view;
+    m_EyeRotation[eye] = OVR::Matrix4f(orientation.Inverted());
+    m_EyeView[eye] = OVR::Matrix4f::Translation(viewAdjust) * m_EyeRotation[eye] * OVR::Matrix4f::Translation(-worldEyePos - HeadPos);
   }
 }
 
