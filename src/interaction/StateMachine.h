@@ -51,11 +51,25 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+  OSCState ValidateTransition(OSCState to) const;
+  void PerformTransition(OSCState to);
+
+  OSCState ResolvePose(HandPose pose) const;
+
+  void DoHandScroll(const Scroll& scroll, const HandLocation& handLocation, ScrollState& scrollState);
+  void DoPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch, ScrollState& scrollState);
+
   std::mutex m_lock;
 
-  // Our current state
   OSCState m_state;
+  OSCState m_desiredState;
   
+  enum class ScrollType {
+    HAND_SCROLL,
+    PINCH_SCROLL
+  };
+  ScrollType m_scrollType;
+
   ScrollState m_scrollState;
   Vector2 m_handDelta; //in millimeters
   const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
