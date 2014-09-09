@@ -32,6 +32,8 @@ add_windows_sources(
   osinterface_SOURCES
   AudioVolumeInterfaceWin.h
   AudioVolumeInterfaceWin.cpp
+  DwmThumbnailWindow.h
+  DwmThumbnailWindow.cpp
   MediaInterfaceWin.h
   MediaInterfaceWin.cpp
   OSCursorWin.h

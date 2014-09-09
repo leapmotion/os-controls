@@ -3,7 +3,9 @@
 #include "utility/HandleUtilitiesWin.h"
 #include <type_traits>
 
+class DwmThumbnailWindow;
 class OSWindowEvent;
+
 class OSWindowWin:
   public OSWindow
 {
@@ -14,6 +16,9 @@ public:
   const HWND hwnd;
 
 private:
+  // Proxy thumbnail window used to obtain the foreign window
+  std::unique_ptr<DwmThumbnailWindow> m_proxyWindow;
+
   // Resources required to get a texture of the underlying window
   unique_ptr_of<HBITMAP> m_hBmp;
   unique_ptr_of<HDC> m_hBmpDC;
