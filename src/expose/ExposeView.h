@@ -3,11 +3,12 @@
 #include "graphics/Renderable.h"
 #include <autowiring/DispatchQueue.h>
 #include <Animation.h>
+#include "interaction/HandDataCombiner.h"
+#include "expose/ExposeViewEvents.h"
 #include <vector>
 #include <tuple>
 
 class ExposeViewWindow;
-class ExposeViewEvents;
 class OSWindow;
 class RenderEngine;
 class SVGPrimitive;
@@ -16,7 +17,7 @@ class SVGPrimitive;
 /// Implements expose view
 /// </summary>
 class ExposeView:
-  public std::enable_shared_from_this<ExposeView>,
+  public ContextMember,
   public Renderable,
   DispatchQueue
 {
@@ -42,16 +43,56 @@ private:
   Renderable::ZOrderList m_zorder;
 
   // Background Overlay Rectangle
-  RectanglePrim m_backgroundRect;
+  std::shared_ptr<RectanglePrim> m_backgroundRect;
+
+
+  // Hand data
+  HandData m_handData;
 
 private:
+  struct Force {
+    Force(const Vector3& position, float strength, ExposeViewWindow* wnd, float maxDist) :
+      m_position(position),
+      m_strength(strength),
+      m_window(wnd),
+      m_maxDist(maxDist)
+    {}
+    Vector3 ForceAt(const Vector3& position) const {
+      const Vector3 diff = position - m_position;
+      const double dist = diff.norm();
+      const double distMult = 1.0 - SmootherStep(std::min(1.0, dist/m_maxDist));
+      return m_strength * distMult * diff / dist;
+    }
+    Vector3 m_position;
+    float m_strength;
+    ExposeViewWindow* m_window;
+    float m_maxDist;
+  };
+
+  typedef std::vector<Force, Eigen::aligned_allocator<Force> > ForceVector;
+
+  ForceVector m_forces;
+  double m_layoutRadius;
+  double m_selectionRadius;
+  Vector2 m_viewCenter;
+
+  std::shared_ptr<Disk> m_selectionRegion;
+  std::shared_ptr<PartialDisk> m_selectionOutline;
+
   /// <summary>
   /// Evolves the layout by one step
   /// </summary>
   void updateLayout(std::chrono::duration<double> dt);
   
+  void updateActivations(std::chrono::duration<double> dt);
+
+  void updateForces(std::chrono::duration<double> dt);
+
   // Send commend to controller to focus the given window.
   void focusWindow(ExposeViewWindow& windowToFocus);
+
+  void updateWindowTextures();
+  void updateWindowTexturesRoundRobin();
   
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y
@@ -62,11 +103,12 @@ public:
   void AnimationUpdate(const RenderFrame& frame) override;
   void Render(const RenderFrame& frame) const override;
 
-
   /// <returns>
   /// True if the ExposeView is presently visible to the user
   /// </returns>
   bool IsVisible(void) const { return 0.001f < m_alphaMask.Current(); }
+
+  void SetHandData(const HandData& handData) { m_handData = handData; }
 
   /// <summary>
   /// Creates a new ExposeViewWindow for the specified OS window
@@ -85,6 +127,11 @@ public:
   /// ExposeView proper.
   /// </remarks>
   void RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd);
+
+  /// <summary>
+  /// Update the texture of the specified expose window
+  /// </summary>
+  void UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd);
 
   /// <summary>
   /// </summary>

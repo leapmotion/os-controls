@@ -22,6 +22,6 @@ target_include_directories(expose PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 target_package(expose SFML 2.1 REQUIRED)
 target_package(expose Leap REQUIRED)
 
-target_link_components(expose Animation Primitives SceneGraph Resource GLShader GLShaderLoader)
+target_link_components(expose Animation Primitives SceneGraph Resource GLShader GLShaderLoader HandCursor)
 
 add_subdirectory(testharness)

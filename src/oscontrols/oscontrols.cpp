@@ -12,6 +12,7 @@
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/WindowScroller.h"
 #include "osinterface/VolumeLevelChecker.h"
+#include "osinterface/OSWindowMonitor.h"
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
@@ -39,6 +40,7 @@ int main(int argc, char **argv)
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
     AutoRequired<MakesRenderWindowFullScreen>();
+    AutoRequired<OSWindowMonitor>();
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(
         (int) virtualScreen->PrimaryScreen().Width(),

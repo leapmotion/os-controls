@@ -34,6 +34,18 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
   
+  if( m_state == OSCState::EXPOSE_FOCUSED ) {
+    if ( m_evp->IsComplete() )
+    {
+      m_state = OSCState::BASE;
+    }
+    else {
+      state = m_state;
+      scrollState = m_scrollState;
+      return;
+    }
+  }
+  
   if ( m_lastScrollReleaseTimestep > 1000000 && m_scrollState != ScrollState::ACTIVE ) {
     // Map the hand pose to a candidate media control state
     auto desiredState = OSCState::BASE;
@@ -48,10 +60,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
         desiredState = OSCState::BASE;
         break;
       case HandPose::ThreeFingers:
-        desiredState = OSCState::DESKTOP_SWITCHER_FOCUSED;
+        desiredState = OSCState::BASE;
         break;
       case HandPose::FourFingers:
-        desiredState = OSCState::EXPOSE_FOCUSED;
+        desiredState = OSCState::EXPOSE_ACTIVATOR_FOCUSED;
         break;
       case HandPose::Clawed:
         desiredState = OSCState::MEDIA_MENU_FOCUSED;
@@ -71,7 +83,6 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
       // going through the ground case will actually not cause a menu change to happen, and
       // if this isn't the desired behavior, then change it by assigning the current state
       // unconditionally!
-      
     m_state = desiredState;
   }
   
@@ -94,7 +105,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     }
     break;
   case ScrollState::DECAYING:
-    if (deltaScroll.squaredNorm() > deltaScrollThreshold) {
+      if (deltaScroll.squaredNorm() > deltaScrollThreshold && m_state == OSCState::BASE) {
       AutowiredFast<OSCursor> cursor;
       if (cursor) {
         auto screenPosition = handData.locationData.screenPosition();
@@ -121,7 +132,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     }
     break;
   case ScrollState::DECAYING:
-      if ( handPinch.isPinching && m_state == OSCState::BASE ) {
+      if ( handPinch.isPinching && state == OSCState::BASE ) {
       AutowiredFast<OSCursor> cursor;
       if(cursor) {
         auto screenPosition = handLocation.screenPosition();
@@ -162,7 +173,16 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
 
 void StateMachine::OnHandVanished() {
   std::lock_guard<std::mutex> lk(m_lock);
+  m_evp->Shutdown();
   m_state = OSCState::FINAL;
+  m_scrollState = ScrollState::DECAYING;
+  m_scrollOperation.reset();
+}
+
+void StateMachine::OnActivateExpose() {
+  std::lock_guard<std::mutex> lk(m_lock);
+  m_state = OSCState::EXPOSE_FOCUSED;
+  std::cout << "Expose Activated" << std::endl << std::endl;
   m_scrollState = ScrollState::DECAYING;
   m_scrollOperation.reset();
 }
@@ -175,6 +195,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     case OSCState::FINAL:
       // Remove our controls from the scene graph
       m_mediaViewStateMachine->RemoveFromParent();
+      m_exposeActivationStateMachine->RemoveFromParent();
       m_cursorView->RemoveFromParent();
 
       // Shutdown the context

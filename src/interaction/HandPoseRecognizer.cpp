@@ -22,10 +22,9 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   bool isPalmPointingDown = false;
   bool fingersOut = true;
   bool pinchIsSteady = true;
-  //bool fingerTipsSteady = true;
   bool isPoseCorrect = false;
   
-  bool isThumExtended = false;
+  bool isThumbExtended = false;
   bool isIndexExtended = false;
   bool isMiddleExtended = true;
   bool areRingAndPinkeyExtended = false;
@@ -90,21 +89,19 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
       }
     }
     else if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
-      if ( isExtended(finger) )
+      if ( finger.isExtended() )
       {
-        isThumExtended = true;
+        isThumbExtended = true;
       }
     }
     else {
-      if ( finger.isExtended() ) {  
+      if ( isExtended(finger) ) {
         areRingAndPinkeyExtended = true;
       }
     }
   
     i++;
   }
-  
-  std::cout << std::endl;
   
   averageVelocity = velocitySum / 5.0f;
   
@@ -113,7 +110,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   switch ( m_lastPose ) {
     case HandPose::Clawed:
       
-      if ( (isMiddleExtended || isThumExtended) &&
+      if ( (isMiddleExtended || isThumbExtended) &&
            !areRingAndPinkeyExtended) {
         isPoseCorrect = true;
       }
@@ -125,13 +122,12 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
       isClawDistance = areTipsSeparated(hand, persist_distance);
       
       if ( fabs(handPinch.pinchDeltaPerSecond) > persist_pinchVelocity ) { pinchIsSteady = false; }
-      //if ( averageVelocity > persist_fingerVelocity ) { fingerTipsSteady = false; }
       break;
     default:
       
       if ( isIndexExtended &&
            isMiddleExtended &&
-           isThumExtended &&
+           isThumbExtended &&
            !areRingAndPinkeyExtended) {
         isPoseCorrect = true;
       }
@@ -180,7 +176,7 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   /*
   std::cout << "isIndexExtended: " << isIndexExtended << std::endl;
   std::cout << "isMiddleExtended: " << isIndexExtended << std::endl;
-  std::cout << "isThumExtended: " << isIndexExtended << std::endl;
+  std::cout << "isThumbExtended: " << isIndexExtended << std::endl;
   std::cout << "areRingAndPinkeyExtended: " << isIndexExtended << std::endl;
   std::cout << "isPoseCorrect: " << isPoseCorrect << std::endl;
   std::cout << "isClawCurling: " << isClawCurling << std::endl;
@@ -203,26 +199,23 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
 
 //This could be cleaned up a lot to use some loops.
 bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const {
+  const float MIN_BEND_FOR_START_POINTING = 0.85;
+  const float MIN_BEND_FOR_CONTINUE_POINTING = 0.7;
   bool retVal = false;
   
-  Leap::Bone metacarpal = finger.bone(Leap::Bone::TYPE_METACARPAL);
-  Leap::Bone proximal = finger.bone(Leap::Bone::TYPE_PROXIMAL);
-  Leap::Bone intermediate = finger.bone(Leap::Bone::TYPE_INTERMEDIATE);
-  Leap::Bone distal = finger.bone(Leap::Bone::TYPE_DISTAL);
+  float bend = averageFingerBend(finger, 1, 2);
   
-  float mToPDot = 1.0f;
-  
-  if ( finger.type() != Leap::Finger::TYPE_THUMB ) {
+  if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
     return finger.isExtended();
   }
   
   if ( !wasExtended ) {
-    if(mToPDot >= config::MIN_DOT_FOR_START_POINTING/* && pToIDot >= config::MIN_DOT_FOR_START_POINTING && iToDDot >= config::MIN_DOT_FOR_START_POINTING*/) {
+    if(bend <= MIN_BEND_FOR_START_POINTING) {
       retVal = true;
     }
   }
   else {
-    if(mToPDot >= config::MAX_DOT_FOR_CONTINUE_POINTING/* &&pToIDot >= config::MAX_DOT_FOR_CONTINUE_POINTING && iToDDot >= config::MAX_DOT_FOR_CONTINUE_POINTING*/ ) {
+    if(bend <= MIN_BEND_FOR_CONTINUE_POINTING) {
       retVal = true;
     }
   }
@@ -264,15 +257,15 @@ bool HandPoseRecognizer::areTipsSeparated(Leap::Hand hand, float thresholdDistan
   return retVal;
 }
 
-float HandPoseRecognizer::averageFingerBend(Leap::Finger finger) const {
+float HandPoseRecognizer::averageFingerBend(Leap::Finger finger, int startBone, int endBone) const {
   float retVal = 0.0f;
   int count = 0;
   float sum = 0.0f;
   float average = 0.0f;
+  startBone = std::max(1, startBone);
+  endBone = std::min(4, endBone);
   
-  int startBone = 3;
-  
-  for(int i=startBone; i<4; i++) {
+  for(int i=startBone; i<endBone; i++) {
     //Angle from scalar product
     Vector3 v1 = finger.bone(static_cast<Leap::Bone::Type>(i-1)).direction().toVector3<Vector3>();
     Vector3 v2 = finger.bone(static_cast<Leap::Bone::Type>(i)).direction().toVector3<Vector3>();
@@ -282,7 +275,7 @@ float HandPoseRecognizer::averageFingerBend(Leap::Finger finger) const {
     count++;
   }
   average = count > 0 ? sum / count : 0.0f;
-
+  
   retVal = average;
   return retVal;
 }

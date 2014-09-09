@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "OSWindowWin.h"
+#include "OSWindowEvent.h"
 #include <Primitives.h>
 #include <GLTexture2.h>
 
@@ -9,10 +10,25 @@ OSWindowWin::OSWindowWin(HWND hwnd):
 {
   m_szBitmap.cx = 0;
   m_szBitmap.cy = 0;
+  m_prevSize = m_szBitmap;
 }
 
 OSWindowWin::~OSWindowWin(void)
 {
+}
+
+void OSWindowWin::CheckSize(AutoFired<OSWindowEvent>& evt) {
+  RECT rect;
+  GetWindowRect(hwnd, &rect);
+
+  SIZE sz;
+  sz.cx = rect.right - rect.left;
+  sz.cy = rect.bottom - rect.top;
+
+  // Detect changes and then fire as needed:
+  if(m_prevSize.cx != sz.cx || m_prevSize.cy != sz.cy)
+    evt(&OSWindowEvent::OnResize)(*this);
+  m_prevSize = sz;
 }
 
 bool OSWindowWin::IsValid(void) {
@@ -72,17 +88,33 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
   // Bit blit time to get at those delicious pixels
   BitBlt(m_hBmpDC.get(), 0, 0, m_szBitmap.cx, m_szBitmap.cy, hdc, 0, 0, SRCCOPY);
 
-  GLTexture2Params params{m_szBitmap.cx, m_szBitmap.cy};
-  params.SetTarget(GL_TEXTURE_2D);
-  params.SetInternalFormat(GL_RGBA8);
-  params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4)};
-
-  // If we can re-use the passed in image primitive do that, if not create new one -- FIXME
-  img = std::make_shared<ImagePrimitive>(std::make_shared<GLTexture2>(params, pixelData));
+  // See if the texture underlying image was resized or not. If so, we need to create a new texture
+  std::shared_ptr<GLTexture2> texture = img->Texture();
+  if (texture) {
+    const auto& params = texture->Params();
+    if (params.Height() != m_szBitmap.cy || params.Width() != m_szBitmap.cx) {
+      texture.reset();
+    }
+  }
+  if (texture) {
+    texture->UpdateTexture(m_phBitmapBits); // Very dangerous function interface!
+  } else {
+    GLTexture2Params params{ static_cast<GLsizei>(m_szBitmap.cx), static_cast<GLsizei>(m_szBitmap.cy) };
+    params.SetTarget(GL_TEXTURE_2D);
+    params.SetInternalFormat(GL_RGBA8);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    GLTexture2PixelDataReference pixelData{ GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4) };
+    
+    texture = std::make_shared<GLTexture2>(params, pixelData);
+    img->SetTexture(texture);
+    img->SetScaleBasedOnTextureSize();
+  }
+  texture->Bind();
+  glGenerateMipmap(GL_TEXTURE_2D);
+  texture->Unbind();
 
   return img;
 }

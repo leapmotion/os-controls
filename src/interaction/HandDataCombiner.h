@@ -1,7 +1,7 @@
 #pragma once
 #include "Leap.h"
 #include "HandLocationRecognizer.h"
-#include "HandPinchRecognizer.h"
+#include "HandActivationRecognizer.h"
 #include "HandPoseRecognizer.h"
 #include "HandRollRecognizer.h"
 #include "TimeRecognizer.h"
@@ -11,6 +11,7 @@ struct HandData {
   HandPose handPose;
   HandRoll rollData;
   HandPinch pinchData;
+  HandGrab grabData;
   double timeVisible;
 };
 
@@ -19,5 +20,5 @@ public:
   HandDataCombiner();
   ~HandDataCombiner();
   
-  void AutoFilter(const HandLocation& handLocation, const HandTime& handTime, const HandPose& handPose, const HandRoll& handRoll, const HandPinch& handPinch, HandData& handData);
+  void AutoFilter(const HandLocation& handLocation, const HandTime& handTime, const HandPose& handPose, const HandRoll& handRoll, const HandPinch& handPinch, const HandGrab& handGrab, HandData& handData);
 };

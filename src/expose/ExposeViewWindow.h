@@ -1,7 +1,8 @@
 #pragma once
-#include "ExposeView.h"
+#include "expose/ExposeView.h"
 #include "graphics/Renderable.h"
 #include "utility/lockable_property.h"
+#include "Animation.h"
 
 class OSWindow;
 struct RenderFrame;
@@ -13,9 +14,6 @@ public:
   ExposeViewWindow(OSWindow& osWindow);
   ~ExposeViewWindow(void);
 
-  // Current activation level, some number in the range [0...1]
-  lockable_property<float> m_activation;
-
   // Flag, set if the view can be automatically laid out.  If this flag is cleared,
   // ExposeView should not attempt to lay out the window.
   lockable_property<void> m_layoutLocked;
@@ -25,6 +23,19 @@ public:
 
   std::shared_ptr<ImagePrimitive>& GetTexture() { return m_texture; }
   const std::shared_ptr<ImagePrimitive>& GetTexture() const { return m_texture; }
+
+  // Smooth animations for opacity and position
+  Smoothed<float> m_opacity;
+  Smoothed<Vector3> m_position;
+  Smoothed<float> m_scale;
+  Smoothed<Vector3> m_grabDelta;
+
+  // Smooth animations for hover and activation
+  Smoothed<float> m_hover;
+  Smoothed<float> m_activation;
+  Smoothed<float> m_selection;
+
+  bool m_cooldown;
 
 private:
   // Texture for this window

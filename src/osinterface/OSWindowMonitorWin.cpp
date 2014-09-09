@@ -86,7 +86,7 @@ void OSWindowMonitorWin::Scan() {
     std::lock_guard<std::mutex> lk(m_lock);
     for(auto knownWindow : m_knownWindows) {
       auto q = block.hwnds.find(knownWindow.first);
-      if(q == block.hwnds.end())
+      if (q == block.hwnds.end())
         // Window was gone the last time we enumerated, give up
         pending.insert(knownWindow);
       else
@@ -98,10 +98,14 @@ void OSWindowMonitorWin::Scan() {
       m_knownWindows.erase(q.first);
   }
 
-  // Fire notifications off while outside of the lock:
+  // Fire destroyed notifications off while outside of the lock:
   for(auto q : pending)
     m_oswe(&OSWindowEvent::OnDestroy)(*q.second);
   pending.clear();
+
+  // Fire all resize events as needed:
+  for(auto& q : m_knownWindows)
+    q.second->CheckSize(m_oswe);
 
   // Create any windows which have been added:
   for(auto q : block.hwnds)

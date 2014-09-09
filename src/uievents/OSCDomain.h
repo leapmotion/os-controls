@@ -11,10 +11,11 @@ enum class OSCState {
   MEDIA_MENU_FOCUSED,
 
   //The state where the desktop switcher / expose accessor radial menu has focus
-  DESKTOP_SWITCHER_FOCUSED,
+  EXPOSE_ACTIVATOR_FOCUSED,
   
   //The state where the expose full screen interaction view is visible
   EXPOSE_FOCUSED,
+  
 
   // The final state, transitioning here indicates that the AutoFilter routine has received a
   // null Leap::Hand and that this control will not receive further inputs.

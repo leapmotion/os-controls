@@ -16,8 +16,8 @@ set(interaction_SOURCES
   HandEventListener.h
   HandLocationRecognizer.cpp
   HandLocationRecognizer.h
-  HandPinchRecognizer.h
-  HandPinchRecognizer.cpp
+  HandActivationRecognizer.h
+  HandActivationRecognizer.cpp
   HandPoseRecognizer.cpp
   HandPoseRecognizer.h
   HandRollRecognizer.h

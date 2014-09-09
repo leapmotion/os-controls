@@ -7,12 +7,13 @@
 #include "graphics/CursorView.h"
 #include "interaction/HandEventListener.h"
 #include "interaction/MediaViewController.h"
-#include "interaction/HandPinchRecognizer.h"
-#include "interaction/HandPinchRecognizer.h"
+#include "interaction/HandActivationRecognizer.h"
+#include "interaction/HandActivationRecognizer.h"
 #include "interaction/ScrollRecognizer.h"
 #include "interaction/HandDataCombiner.h"
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
+#include "graphics/ExposeActivationStateMachine.h"
 
 #define USE_HAND_SCROLL 1
 
@@ -32,7 +33,8 @@ class ExposeViewStateMachine;
 class StateMachine:
   public ContextMember,
   public Updatable,
-  public HandEventListener
+  public HandEventListener,
+  public ExposeActivatorEventListener
 {
 public:
   StateMachine(void);
@@ -41,6 +43,7 @@ public:
   void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
   
   void OnHandVanished();
+  void OnActivateExpose();
 
   // Updatable overrides:
   void Tick(std::chrono::duration<double> deltaT) override;
@@ -65,6 +68,7 @@ private:
 
   AutoRequired<CursorView> m_cursorView;
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
+  AutoRequired<ExposeActivationStateMachine> m_exposeActivationStateMachine;
   AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewStateMachine> m_evp;
   Autowired<IWindowScroller> m_windowScroller;

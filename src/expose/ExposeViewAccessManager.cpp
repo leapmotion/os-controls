@@ -7,6 +7,7 @@ ExposeViewAccessManager::ExposeViewAccessManager(void):
   m_exposeView(ctxt),
   m_exposeViewController(ctxt)
 {
+  ctxt->Initiate();
 }
 
 std::shared_ptr<ExposeView> ExposeViewAccessManager::Lock(void) {
