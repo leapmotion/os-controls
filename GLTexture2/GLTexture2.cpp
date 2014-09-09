@@ -21,10 +21,10 @@ void ThrowOnGLError (const std::string &while_doing) {
 // GLTexture2Params
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GLTexture2Params::GLTexture2Params (GLsizei width, GLsizei height)
+GLTexture2Params::GLTexture2Params (GLsizei width, GLsizei height, GLenum internal_format)
   :
   m_target(DEFAULT_TARGET),
-  m_internal_format(DEFAULT_INTERNAL_FORMAT)
+  m_internal_format(internal_format)
 { 
   m_size[0] = width;
   m_size[1] = height;
