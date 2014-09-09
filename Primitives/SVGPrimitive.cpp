@@ -100,7 +100,7 @@ SVGPrimitive::~SVGPrimitive()
   }
 }
 
-void SVGPrimitive::Draw(RenderState& renderState) const {
+void SVGPrimitive::DrawContents(RenderState& renderState) const {
   if (m_RecomputeGeometry) {
     const_cast<SVGPrimitive*>(this)->RecomputeChildren(); // This objects children need to be recomputed
   }

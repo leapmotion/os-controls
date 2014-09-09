@@ -9,7 +9,9 @@ RadialMenuItem::RadialMenuItem() {
   m_Activation.SetInitialValue(0.0);
 
   m_Cooldown = false;
+}
 
+void RadialMenuItem::InitChildren() {
   AddChild(m_Wedge);
   AddChild(m_Goal);
 }
@@ -36,7 +38,7 @@ bool RadialMenuItem::Hit(const Vector2& pos, double& ratio) const {
   const Vector2 radial = toRadialCoordinates(pos);
   const double itemRadius = CurrentRadius();
   const double minRadius = itemRadius - m_Thickness / 2.0;
-  const double maxRadius = itemRadius + m_Thickness / 2.0;
+  const double maxRadius = std::numeric_limits<double>::max();//itemRadius + m_Thickness / 2.0;
   const double radius = radial[0];
   const double angle = radial[1];
   
@@ -49,7 +51,7 @@ bool RadialMenuItem::Hit(const Vector2& pos, double& ratio) const {
   return false;
 }
 
-void RadialMenuItem::Draw(RenderState& renderState) const {
+void RadialMenuItem::DrawContents(RenderState& renderState) const {
   const double radius = CurrentRadius();
   const double innerRadius = radius - m_Thickness/2.0;
   const double outerRadius = radius + m_Thickness/2.0;
@@ -135,12 +137,13 @@ void RadialMenu::SetNumItems(int num) {
   for (int i=prevNumItems; i<num; i++) {
     m_Items[i] = std::shared_ptr<RadialMenuItem>(new RadialMenuItem);
     AddChild(m_Items[i]);
+    m_Items[i]->InitChildren();
   }
 
   updateItemLayout();
 }
 
-RadialMenu::UpdateResult RadialMenu::UpdateItemsFromCursor(const Vector3& cursor, float deltaTime) {
+RadialMenu::UpdateResult RadialMenu::InteractWithCursor(const Vector3& cursor) {
   const HitResult hitResult = ItemFromPoint(cursor.head<2>());
   const int numItems = static_cast<int>(m_Items.size());
   const int& idx = hitResult.hitIdx;
@@ -153,10 +156,26 @@ RadialMenu::UpdateResult RadialMenu::UpdateItemsFromCursor(const Vector3& cursor
     } else {
       item->SetActivation(ratio > 1.0 ? 1.0 : ratio);
     }
+  }
+  return UpdateResult(idx, idx >= 0 ? m_Items[idx]->CurrentActivation() : 0.0);
+}
+
+void RadialMenu::InteractWithoutCursor() {
+  const int numItems = static_cast<int>(m_Items.size());
+
+  for (int i=0; i<numItems; i++) {
+    std::shared_ptr<RadialMenuItem>& item = m_Items[i];
+    item->SetActivation(0.0);
+  }
+}
+
+void RadialMenu::UpdateItemActivation(float deltaTime) {
+  const int numItems = static_cast<int>(m_Items.size());
+  for (int i=0; i<numItems; i++) {
+    std::shared_ptr<RadialMenuItem>& item = m_Items[i];
     item->UpdateActivation(deltaTime);
     item->CheckFireCallback();
   }
-  return UpdateResult(idx, idx >= 0 ? m_Items[idx]->CurrentActivation() : 0.0);
 }
 
 RadialMenu::HitResult RadialMenu::ItemFromPoint(const Vector2& pos) const {
@@ -199,6 +218,6 @@ void RadialMenu::updateItemLayout() {
   }
 }
 
-void RadialMenu::Draw(RenderState& renderState) const {
+void RadialMenu::DrawContents(RenderState& renderState) const {
   // do nothing (our children will be drawn automatically during scene graph traversal)
 }

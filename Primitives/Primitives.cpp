@@ -1,113 +1,73 @@
 #include "Primitives.h"
 
-#include "GLShaderBindingScopeGuard.h"
 #include "GLTexture2.h"
 
-void GenericShape::Draw(RenderState& renderState) const {
-  ModelView& modelView = renderState.GetModelView();
-  modelView.Push();
-
-  GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
-  
-  GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
-  m_geometry.Draw(*m_shader, m_drawMode);
-
-  modelView.Pop();
+void GenericShape::DrawContents(RenderState& renderState) const {
+  m_geometry.Draw(Shader(), m_drawMode);
 }
 
 Sphere::Sphere() : m_Radius(1) { }
 
-void Sphere::Draw(RenderState& renderState) const {
-  ModelView& modelView = renderState.GetModelView();
-  modelView.Push();
-  modelView.Scale(Vector3::Constant(m_Radius));
-  
-  GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
+void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+  model_view.Scale(Vector3::Constant(m_Radius));
+}
 
-  GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
+void Sphere::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(30);
-  geom.Draw(*m_shader, GL_TRIANGLES);
-
-  modelView.Pop();
+  geom.Draw(Shader(), GL_TRIANGLES);
 }
 
 Cylinder::Cylinder() : m_Radius(1), m_Height(1) { }
 
-void Cylinder::Draw(RenderState& renderState) const {
-  ModelView& modelView = renderState.GetModelView();
-  modelView.Push();
-  modelView.Scale(Vector3(m_Radius, m_Height, m_Radius));
-  
-  GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
+void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+  model_view.Scale(Vector3(m_Radius, m_Height, m_Radius));
+}
 
-  GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
+void Cylinder::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(50, 1);
-  geom.Draw(*m_shader, GL_TRIANGLES);
-
-  modelView.Pop();
+  geom.Draw(Shader(), GL_TRIANGLES);
 }
 
 Box::Box() : m_Size(Vector3::Constant(1.0)) { }
 
-void Box::Draw(RenderState& renderState) const {
-  ModelView& modelView = renderState.GetModelView();
-  modelView.Push();
-  modelView.Scale(m_Size);
-  
-  GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
+void Box::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+  model_view.Scale(m_Size);
+}
 
-  GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
+void Box::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitBox();
-  geom.Draw(*m_shader, GL_TRIANGLES);
-
-  modelView.Pop();
+  geom.Draw(Shader(), GL_TRIANGLES);
 }
 
 Disk::Disk() : m_Radius(1) { }
 
-void Disk::Draw(RenderState& renderState) const {
-  ModelView& modelView = renderState.GetModelView();
-  modelView.Push();
-  modelView.Scale(Vector3::Constant(m_Radius));
-  
-  GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
+void Disk::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+  model_view.Scale(Vector3::Constant(m_Radius));
+}
 
-  GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
+void Disk::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitDisk(75);
-  geom.Draw(*m_shader, GL_TRIANGLES);
-
-  modelView.Pop();
+  geom.Draw(Shader(), GL_TRIANGLES);
 }
 
 RectanglePrim::RectanglePrim() : m_Size(1, 1) { }
 
-void RectanglePrim::Draw(RenderState& renderState) const {
-  ModelView& modelView = renderState.GetModelView();
-  modelView.Push();
-  modelView.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
-  
-  GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
+void RectanglePrim::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+  model_view.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
+}
 
-  GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
+void RectanglePrim::DrawContents(RenderState& renderState) const {
   bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
   if (useTexture) {
     glEnable(GL_TEXTURE_2D);
     m_texture->Bind();
   }
   static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSquare();
-  geom.Draw(*m_shader, GL_TRIANGLES);
+  geom.Draw(Shader(), GL_TRIANGLES);
   if (useTexture) {
     glDisable(GL_TEXTURE_2D);
     m_texture->Unbind();
   }
-  
-  modelView.Pop();
 }
 
 ImagePrimitive::ImagePrimitive(void) :
@@ -128,7 +88,7 @@ void ImagePrimitive::SetScaleBasedOnTextureSize () {
 
 PartialDisk::PartialDisk() : m_RecomputeGeometry(true), m_InnerRadius(0.5), m_OuterRadius(1), m_StartAngle(0), m_EndAngle(2*M_PI) { }
 
-void PartialDisk::Draw(RenderState& renderState) const {
+void PartialDisk::DrawContents(RenderState& renderState) const {
   if (m_InnerRadius >= m_OuterRadius || m_StartAngle >= m_EndAngle) {
     // don't proceed if the shape is empty
     return;
@@ -138,17 +98,7 @@ void PartialDisk::Draw(RenderState& renderState) const {
     RecomputeGeometry();
   }
 
-  ModelView& modelView = renderState.GetModelView();
-  modelView.Push();
-  
-  GLShaderBindingScopeGuard bso(*m_shader, BindFlags::BIND_AND_UNBIND); // binds *m_shader now, unbinds upon end of scope.
-
-  GLShaderMatrices::UploadUniforms(*m_shader, modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-  m_material.UploadUniforms(*m_shader, BindFlags::NONE);
-  m_Geometry.Draw(*m_shader, GL_TRIANGLES);
-  m_shader->Unbind();
-
-  modelView.Pop();
+  m_Geometry.Draw(Shader(), GL_TRIANGLES);
 }
 
 void PartialDisk::RecomputeGeometry() const {
@@ -189,7 +139,13 @@ void PartialDisk::RecomputeGeometry() const {
   m_RecomputeGeometry = false;
 }
 
-PartialDiskWithTriangle::PartialDiskWithTriangle() : m_TriangleSide(OUTSIDE), m_TrianglePosition(0.5), m_TriangleWidth(0.1), m_TriangleOffset(0.35) {}
+PartialDiskWithTriangle::PartialDiskWithTriangle()
+  :
+  m_TriangleSide(OUTSIDE),
+  m_TrianglePosition(0.5),
+  m_TriangleWidth(0.1),
+  m_TriangleOffset(0.35)
+{ }
 
 void PartialDiskWithTriangle::RecomputeGeometry() const {
   double sweepAngle = m_EndAngle - m_StartAngle;

@@ -15,6 +15,7 @@ class RadialMenuItem : public RadialItem  {
 public:
 
   RadialMenuItem();
+  void InitChildren();
   //void SetActivation(double activation) { m_Activation = activation; }
   void SetActivation(double activation) { m_Activation.SetGoal(activation); }
   void SetActivatedRadius(double radius) { m_ActivatedRadius = radius; }
@@ -26,8 +27,6 @@ public:
 
   bool Hit(const Vector2& pos, double& ratio) const;
 
-  virtual void Draw(RenderState& renderState) const override;
-
   double CurrentRadius() const;
 
   void UpdateActivation(float deltaTime) { m_Activation.Update(deltaTime); }
@@ -37,6 +36,7 @@ public:
   void CheckFireCallback();
 
 protected:
+  virtual void DrawContents(RenderState& renderState) const override;
   Color calculateColor() const;
 
   Smoothed<double> m_Activation;
@@ -74,10 +74,12 @@ public:
   void SetNumItems(int num);
   const std::shared_ptr<RadialMenuItem>& GetItem(int i) const { return m_Items[i]; }
   std::shared_ptr<RadialMenuItem>& GetItem(int i) { return m_Items[i]; }
-  UpdateResult UpdateItemsFromCursor(const Vector3& cursor, float deltaTime);
+  UpdateResult InteractWithCursor(const Vector3& cursor);
+  void InteractWithoutCursor();
+  void UpdateItemActivation(float deltaTime);
   HitResult ItemFromPoint(const Vector2& pos) const;
-  virtual void Draw(RenderState& renderState) const override;
 protected:
+  virtual void DrawContents(RenderState& renderState) const override;
   void updateItemLayout();
 
   std::vector<std::shared_ptr<RadialMenuItem>> m_Items;

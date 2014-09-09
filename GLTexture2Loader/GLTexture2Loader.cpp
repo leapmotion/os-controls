@@ -15,5 +15,5 @@ std::shared_ptr<GLTexture2> ResourceLoader<GLTexture2>::LoadResource (const std:
   params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  return std::shared_ptr<GLTexture2>(LoadGLTexture2UsingFreeImage(name, params));
+  return std::shared_ptr<GLTexture2>(LoadGLTexture2UsingFreeImage(calling_manager.GetBasePath() + name, params));
 }

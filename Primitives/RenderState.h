@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "ModelViewProjection.h"
 
 // This class is the bridge between geometry and the OpenGL state machine.
@@ -15,7 +16,6 @@ public:
 
 private:
 
-  // modelview and projection
   ModelView m_ModelView;
   Projection m_Projection;
 };

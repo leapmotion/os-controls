@@ -24,11 +24,17 @@ GLMaterial::GLMaterial ()
   m_texture_unit_index(0)                       // Default texture unit is 0, though is only used if texturing is enabled.
 { }
 
-void GLMaterial::UploadUniforms (const GLShader &shader, BindFlags bind_flags) const {
+void GLMaterial::UploadUniforms (const GLShader &shader, float alpha_mask, BindFlags bind_flags) const {
+  // Clamp the alpha mask to within the range [0,1].
+  alpha_mask = std::min(std::max(alpha_mask, 0.0f), 1.0f);
   GLShaderBindingScopeGuard bso(shader, bind_flags); // binds shader now if necessary, unbinds upon end of scope if necessary.
 //   shader.SetUniformf("light_position", m_light_position);
-  shader.SetUniformf("diffuse_light_color", m_diffuse_light_color);
-  shader.SetUniformf("ambient_light_color", m_ambient_light_color);
+  Color diffuseColor = m_diffuse_light_color;
+  Color ambientColor = m_ambient_light_color;
+  diffuseColor.A() *= alpha_mask;
+  ambientColor.A() *= alpha_mask;
+  shader.SetUniformf("diffuse_light_color", diffuseColor);
+  shader.SetUniformf("ambient_light_color", ambientColor);
   shader.SetUniformf("ambient_lighting_proportion", m_ambient_lighting_proportion);
   shader.SetUniformi("use_texture", m_use_texture);
   shader.SetUniformi("texture", m_texture_unit_index);

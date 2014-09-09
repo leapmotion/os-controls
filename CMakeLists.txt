@@ -92,8 +92,6 @@ add_sublibrary(
     Animation
     HEADERS
         Animation.h
-    SOURCES
-        Animation.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
     BRIEF_DOC_STRING
@@ -373,6 +371,9 @@ add_sublibrary(
     SceneGraph
     HEADERS
         SceneGraphNode.h
+        SceneGraphNodeProperties.h
+        SceneGraphNodeProperty.h
+        SceneGraphNodeValues.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         EigenTypes
@@ -484,6 +485,24 @@ add_sublibrary(
         "Provides abstract radial view classes."
 )
 
+add_sublibrary(
+    HandCursor
+    HEADERS
+        HandCursor.h
+    SOURCES
+        HandCursor.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
+        Animation
+        EigenTypes
+        GLCompatibility
+        GLMaterial
+        LeapListener
+        Primitives
+    BRIEF_DOC_STRING
+        "Simple hand cursor representation."
+)
+
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
 ###################################################################################################
@@ -505,7 +524,7 @@ set(CMAKE_INSTALL_NAME_DIR "@loader_path")
 # setting CMAKE_CXX_FLAGS.
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU") # "GNU" is GCC
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-reorder -Wno-unused-variable")
 elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX") # /WX is to treat warnings as errors.
 endif()
@@ -814,6 +833,20 @@ add_sublibrary(
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTexture2
         GLTestFramework
+    BRIEF_DOC_STRING
+        "Unit tests for the GLTexture2 component."
+)
+
+add_sublibrary(
+    SceneGraphTest
+    SOURCE_PATH
+        SceneGraph/Test
+    SOURCES
+        SceneGraphNodePropertiesTest.cpp
+        SceneGraphNodeTest.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GTest
+        SceneGraph
     BRIEF_DOC_STRING
         "Unit tests for the GLTexture2 component."
 )

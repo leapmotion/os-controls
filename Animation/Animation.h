@@ -10,7 +10,7 @@
 namespace EasingFunctions{
   template<typename T>
   void Linear(T& current, const T& start, const T& goal, double percent) {
-    current = start + (goal-start)*percent;
+    current = static_cast<T>(start + (goal-start)*percent);
   }
 
   template<typename T>
@@ -83,10 +83,16 @@ public:
     if (!m_easing)
       throw std::runtime_error("No easing function defined");
 
+    if (m_current == m_goal)
+      return;
+
     m_completion += deltaT / m_duration;
     m_completion = std::max(0.0, std::min(1.0, m_completion));
 
-    m_easing(m_current, m_start, m_goal, m_completion);
+    if (m_completion < 1.0)
+      m_easing(m_current, m_start, m_goal, m_completion);
+    else
+      m_current = m_goal;
   }
 
 private:
@@ -104,6 +110,8 @@ private:
 // The class is templated and can be used with double, float, Vector3, or anything
 // that overloads addition and scalar multiplication.
 // When NUM_ITERATIONS is 1, the functionality is the same as exponential smoothing.
+// WARNING - Due to some vagarities of possion smoothing & floating point math,
+// This is not garunteed to ever actually reach the goal value, Xeno's Paradox style
 template <class T, int _NUM_ITERATIONS = 5>
 class Smoothed {
 public:
@@ -115,6 +123,7 @@ public:
   // const getters
   operator T() const { return Value(); }
   const T& Value() const { return m_Values[NUM_ITERATIONS-1]; }
+  const T& Goal() const { return m_Goal; }
 
   // setters to control animation
   void SetGoal(const T& goal) { m_Goal = goal; }
@@ -151,3 +160,13 @@ private:
   float m_TargetFramerate;
   float m_SmoothStrength;
 };
+
+// This is a polynomial interpolation function for smoothly transitioning between two values.
+// The input parameter is between 0 and 1, and the return is also between 0 and 1.
+// The function has zero 1st- and 2nd-order derivatives at both ends.
+// See http://en.wikipedia.org/wiki/Smoothstep
+template <class T>
+static inline T SmootherStep(const T& x) {
+  // x is blending parameter between 0 and 1
+  return x*x*x*(x*(x*6 - 15) + 10);
+}
