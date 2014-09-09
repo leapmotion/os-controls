@@ -67,8 +67,6 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
   if (!imageRef) {
     return img;
   }
-  GLenum format = GL_BGRA;
-
   // If this window has an overlay window, apply the overlay to our image
   if (m_overlayWindowID) {
     CGImageRef overlayImageRef = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow,
@@ -94,7 +92,7 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
                                static_cast<CGFloat>(CGImageGetHeight(overlayImageRef))};
       CGContextRef contextRef =
           CGBitmapContextCreate(nullptr, CGImageGetWidth(imageRef), CGImageGetHeight(imageRef),
-                                8, 0, rgb, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrderDefault);
+                                8, 0, rgb, kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);
       CGContextDrawImage(contextRef, originalRect, imageRef);
       CGContextDrawImage(contextRef, overlayRect, overlayImageRef);
       CGImageRef compositeImageRef = CGBitmapContextCreateImage(contextRef);
@@ -105,7 +103,6 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
       if (compositeImageRef) {
         CFRelease(imageRef);
         imageRef = compositeImageRef;
-        format = GL_RGBA;
       }
     }
   }
@@ -139,7 +136,7 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
       params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      GLTexture2PixelDataReference pixelData{format, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+      GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
 
       texture = std::make_shared<GLTexture2>(params, pixelData);
       img->SetTexture(texture);
