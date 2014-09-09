@@ -2,7 +2,11 @@
 
 #include "GLError.h"
 
-GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0) { }
+GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0), m_SizeInBytes(0) { }
+
+GLBuffer::~GLBuffer() {
+  Destroy();
+}
 
 void GLBuffer::Create(GLenum type) {
   m_BufferType = type;
@@ -17,26 +21,21 @@ void GLBuffer::Unbind() const {
   GL_THROW_UPON_ERROR(glBindBuffer(m_BufferType, 0));
 }
 
-void GLBuffer::Allocate(const void* data, int count, GLenum pattern) {
-  GL_THROW_UPON_ERROR(glBufferData(m_BufferType, count, data, pattern));
+void GLBuffer::Allocate(const void* data, GLsizeiptr size_in_bytes, GLenum usage_pattern) {
+  GL_THROW_UPON_ERROR(glBufferData(m_BufferType, size_in_bytes, data, usage_pattern));
+  m_SizeInBytes = size_in_bytes;
 }
 
-int GLBuffer::Size() const {
-  GLint value = -1;
-  GL_THROW_UPON_ERROR(glGetBufferParameteriv(m_BufferType, GL_BUFFER_SIZE, &value));
-  return value;
-}
-
-void* GLBuffer::Map(GLuint access) {
+void* GLBuffer::Map(GLenum access) {
   Bind();
-  GL_THROW_UPON_ERROR(void *ptr = glMapBufferARB(m_BufferType, access));
+  GL_THROW_UPON_ERROR(void *ptr = glMapBuffer(m_BufferType, access));
   Unbind();
   return ptr;
 }
 
 bool GLBuffer::Unmap() {
   Bind();
-  GL_THROW_UPON_ERROR(bool result = glUnmapBufferARB(m_BufferType) == GL_TRUE);
+  GL_THROW_UPON_ERROR(bool result = glUnmapBuffer(m_BufferType) == GL_TRUE);
   Unbind();
   return result;
 }
@@ -46,6 +45,9 @@ bool GLBuffer::IsCreated() const {
 }
 
 void GLBuffer::Destroy() {
-  GL_THROW_UPON_ERROR(glDeleteBuffers(1, &m_BufferAddress));
-  m_BufferAddress = 0;
+  if (IsCreated()) {
+    GL_THROW_UPON_ERROR(glDeleteBuffers(1, &m_BufferAddress));
+    m_BufferAddress = 0;
+    m_SizeInBytes = 0;
+  }
 }

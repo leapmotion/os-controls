@@ -9,12 +9,13 @@ class GLBuffer {
 public:
 
   GLBuffer();
+  ~GLBuffer();
   void Create(GLenum type);
   void Bind() const;
   void Unbind () const;
-  void Allocate(const void* data, int count, GLenum pattern);
-  int Size() const;
-  void* Map(GLuint access);
+  void Allocate(const void* data, GLsizeiptr size, GLenum usage_pattern);
+  GLsizeiptr Size() const { return m_SizeInBytes; }
+  void* Map(GLenum access);
   bool Unmap();
   bool IsCreated() const;
   void Destroy();
@@ -23,4 +24,5 @@ private:
 
   GLuint m_BufferAddress;
   GLenum m_BufferType;
+  GLsizeiptr m_SizeInBytes;
 };
