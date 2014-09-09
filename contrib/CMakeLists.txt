@@ -1,1 +1,2 @@
 add_subdirectory(autowiring)
+add_subdirectory(DirectXTex)
