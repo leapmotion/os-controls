@@ -16,6 +16,8 @@ private:
   CComQIPtr<IDXGIDevice> m_dxgiDevice;
   CComPtr<ID3D11DeviceContext> m_context;
 
+  HRESULT CreateWindowSharedSurface(HWND hWnd, CComPtr<ID3D11Resource>& resource);
+
 public:
   std::shared_ptr<ImagePrimitive> Render(HWND hwnd, std::shared_ptr<ImagePrimitive> img);
 };
