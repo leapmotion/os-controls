@@ -64,3 +64,51 @@ TEST_F(ConfigTest, ValidateNotFoundException) {
   }
   ASSERT_TRUE(threw);
 }
+
+TEST_F(ConfigTest, ValidateMultiLoad) {
+  {
+    Config config;
+    config.Set("a", 1);
+    config.Set("b", 2);
+
+    config.Save("file1.json");
+
+    config.Set("c", 3);
+    config.Set("a", 4);
+
+    config.Save("file2.json");
+  }
+  {
+    Config config;
+    config.Load("file1.json");
+    {
+      int a = config.Get<int>("a");
+      int b = config.Get<int>("b");
+
+      bool threw = false;
+      try{
+        int c = config.Get<int>("c");
+      }
+      catch (std::runtime_error e){
+        threw = true;
+      }
+
+      ASSERT_TRUE(threw);
+      ASSERT_EQ(a, 1);
+      ASSERT_EQ(b, 2);
+    }
+    
+    config.Load("file2.json");
+    {
+      int a = config.Get<int>("a");
+      int b = config.Get<int>("b");
+      int c = config.Get<int>("c");
+
+      ASSERT_EQ(a, 4);
+      ASSERT_EQ(b, 2);
+      ASSERT_EQ(c, 3);
+    }
+  }
+  std::remove("file1.json");
+  std::remove("file2.json");
+}
