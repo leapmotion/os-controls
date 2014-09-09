@@ -190,8 +190,10 @@ add_sublibrary(
     GLTexture2
     HEADERS
         GLTexture2.h
+        GLTexture2Params.h
     SOURCES
         GLTexture2.cpp
+        GLTexture2Params.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
         GLCompatibility
