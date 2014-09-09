@@ -50,3 +50,17 @@ TEST_F(ConfigTest, ValidateSaveLoad) {
   }
   std::remove("tmpconfig.json");
 }
+
+TEST_F(ConfigTest, ValidateNotFoundException) {
+  Config config;
+
+  bool threw = false;
+  try{
+    int ui = config.Get<int>("foop");
+  }
+  catch (std::runtime_error e)
+  {
+    threw = true;
+  }
+  ASSERT_TRUE(threw);
+}
