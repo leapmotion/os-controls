@@ -3,13 +3,13 @@
 #include "uievents/OSCDomain.h"
 #include "HandLocationRecognizer.h"
 #include "expose/ExposeViewWindow.h"
+#include "uievents/OSCDomain.h"
 
 class ExposeViewAccessManager;
 
 class ExposeViewStateMachine :
   public ExposeViewEvents,
   public ContextMember
-
 {
 public:
   ExposeViewStateMachine();
@@ -34,6 +34,7 @@ private:
   std::shared_ptr<ExposeView> m_exposeView;
   
   Autowired<ExposeViewAccessManager> m_exposeViewAccessManager;
+  AutoFired<OSCStateChangeEvent> m_stateChangeEvent;
 
 public:
   bool IsComplete() const { return ( m_state == State::COMPLETE ); }

@@ -91,5 +91,6 @@ void ExposeViewStateMachine::applyUserInput(const HandLocation& handLocation) {
 
 void ExposeViewStateMachine::onWindowSelected(ExposeViewWindow& osWindow)  {
   m_state = State::COMPLETE;
+  m_stateChangeEvent(&OSCStateChangeEvent::RequestTransition)(OSCState::BASE);
 }
 

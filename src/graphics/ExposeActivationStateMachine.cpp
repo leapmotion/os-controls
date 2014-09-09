@@ -11,10 +11,6 @@ const Color fillColor(0.505f, 0.831f, 0.114f, 0.95f);
 const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
 const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
 
-ExposeActivatorEventListener::ExposeActivatorEventListener() { }
-ExposeActivatorEventListener::~ExposeActivatorEventListener() { }
-
-
 ExposeActivationStateMachine::ExposeActivationStateMachine() :
 m_radialMenu(new RadialMenu()),
 m_state(State::INACTIVE)
@@ -138,7 +134,7 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
 void ExposeActivationStateMachine::resolveSelection(int selectedID) {
   switch(selectedID) {
     case 0:
-      m_exposeActivatorEventListener(&ExposeActivatorEventListener::OnActivateExpose)();
+      m_stateChangeEvent(&OSCStateChangeEvent::RequestTransition)(OSCState::EXPOSE_FOCUSED);
       break;
     default:
       break;

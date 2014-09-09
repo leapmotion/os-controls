@@ -39,7 +39,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   m_desiredState = ValidateTransition(m_desiredState);
 
   if (m_state != m_desiredState){
-    PerformTransition(m_desiredState);
+    PerformTransition();
     return;
   }
 
@@ -60,8 +60,19 @@ OSCState StateMachine::ValidateTransition(OSCState to) const {
   return to;
 }
 
-void StateMachine::PerformTransition(OSCState to) {
+void StateMachine::PerformTransition() {
+  if (m_desiredState == OSCState::FINAL) {
+    m_evp->Shutdown();
+    m_scrollState = ScrollState::DECAYING;
+    m_scrollOperation.reset();
+  }
+  else if (m_desiredState == OSCState::EXPOSE_FOCUSED){
+    std::cout << "Expose Activated" << std::endl << std::endl;
+    m_scrollState = ScrollState::DECAYING;
+    m_scrollOperation.reset();
+  }
 
+  m_state = m_desiredState;
 }
 
 OSCState StateMachine::ResolvePose(HandPose pose) const {
@@ -167,20 +178,9 @@ void StateMachine::DoPinchScroll(const Scroll& scroll, const HandLocation& handL
   m_scrollState = scrollState;
 }
 
-void StateMachine::OnHandVanished() {
+void StateMachine::RequestTransition(OSCState requestedState) {
   std::lock_guard<std::mutex> lk(m_lock);
-  m_evp->Shutdown();
-  m_state = OSCState::FINAL;
-  m_scrollState = ScrollState::DECAYING;
-  m_scrollOperation.reset();
-}
-
-void StateMachine::OnActivateExpose() {
-  std::lock_guard<std::mutex> lk(m_lock);
-  m_state = OSCState::EXPOSE_FOCUSED;
-  std::cout << "Expose Activated" << std::endl << std::endl;
-  m_scrollState = ScrollState::DECAYING;
-  m_scrollOperation.reset();
+  m_desiredState = requestedState;
 }
 
 // Distpatch Loop

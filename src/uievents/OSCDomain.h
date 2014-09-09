@@ -22,6 +22,11 @@ enum class OSCState {
   FINAL
 };
 
+class OSCStateChangeEvent{
+public:
+  virtual void RequestTransition(OSCState requestedState) = 0;
+};
+
 enum class ScrollState {
   ACTIVE,
   DECAYING
