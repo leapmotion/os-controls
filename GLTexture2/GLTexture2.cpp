@@ -1,21 +1,11 @@
 #include "GLTexture2.h"
 
-#include <ios>
+#include "GLError.h"
 #include <sstream>
 #include <stdexcept>
-#include <string>
 
 // convenience macro for std::ostream style formatting expressions
 #define FORMAT(expr) static_cast<std::ostringstream &>(std::ostringstream().flush() << expr).str()
-
-void ThrowOnGLError (const std::string &while_doing) {
-  GLenum code = glGetError();
-  if (code != GL_NO_ERROR) {
-    std::stringstream ss;
-    ss << "OpenGL error " << code << " " << while_doing;
-    throw std::runtime_error(ss.str());
-  }
-}
 
 GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
   :
@@ -27,10 +17,12 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
   }
   VerifyPixelDataOrThrow(pixel_data);
 
+  // Clear the GL error flag in case it was not cleared from some other unrelated GL operation
+  GLClearError();
   glGenTextures(1, &m_texture_name);
-  ThrowOnGLError("in glGenTextures");
+  GLThrowUponError("in glGenTextures");
   glBindTexture(m_params.Target(), m_texture_name);
-  ThrowOnGLError("in glBindTexture");
+  GLThrowUponError("in glBindTexture");
 
   // Set all the GLfloat texture parameters.
   for (GLTexture2Params::GLTexParameterfMap::const_iterator it = m_params.TexParameterfMap().begin();
@@ -38,7 +30,7 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
        ++it)
   {
     glTexParameterf(m_params.Target(), it->first, it->second);
-    ThrowOnGLError(FORMAT("in setting glTexParameterf using pname = GLenum(0x" << std::hex << it->first << "), value = " << it->second));
+    GLThrowUponError(FORMAT("in setting glTexParameterf using pname = GLenum(0x" << std::hex << it->first << "), value = " << it->second));
   }
   // Set all the GLint texture parameters.
   for (GLTexture2Params::GLTexParameteriMap::const_iterator it = m_params.TexParameteriMap().begin();
@@ -46,7 +38,7 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
        ++it)
   {
     glTexParameteri(m_params.Target(), it->first, it->second);
-    ThrowOnGLError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << it->first << "), value = " << it->second));
+    GLThrowUponError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << it->first << "), value = " << it->second));
   }
 
   glTexImage2D(m_params.Target(),
@@ -58,12 +50,12 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
                pixel_data.Format(),
                pixel_data.Type(),
                pixel_data.RawData());
-  ThrowOnGLError("in glTexImage2D");
+  GLThrowUponError("in glTexImage2D");
 
   // Retrieve and store the actual internal format that this GL implementation used for this texture.
   GLint actual_internal_format;
   glGetTexLevelParameteriv(m_params.Target(), 0, GL_TEXTURE_INTERNAL_FORMAT, &actual_internal_format);
-  ThrowOnGLError("in glGetTexParameteriv");
+  GLThrowUponError("in glGetTexParameteriv");
   m_params.SetInternalFormat(actual_internal_format);
 
   // Unbind the texture to minimize the possibility that other GL calls may modify this texture.
@@ -80,7 +72,7 @@ void GLTexture2::UpdateTexture(const GLTexture2PixelData &pixel_data) {
   // Simply forward on to the subimage function.
 
   glBindTexture(m_params.Target(), m_texture_name);
-  ThrowOnGLError("in glBindTexture");
+  GLThrowUponError("in glBindTexture");
 
   glTexSubImage2D(
     m_params.Target(),
@@ -93,7 +85,7 @@ void GLTexture2::UpdateTexture(const GLTexture2PixelData &pixel_data) {
     pixel_data.Type(),
     pixel_data.RawData()
   );
-  ThrowOnGLError("in glTexSubImage2D");
+  GLThrowUponError("in glTexSubImage2D");
  
   glBindTexture(m_params.Target(), 0);
 }
