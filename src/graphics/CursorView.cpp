@@ -11,7 +11,7 @@
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
-  m_alphaMask(0.0f, 0.2, EasingFunctions::QuadInOut<float>),
+  m_alphaMask(0.0f, 0.5, EasingFunctions::QuadInOut<float>),
   m_handCursor(new HandCursor())
 {
 
@@ -21,13 +21,11 @@ CursorView::~CursorView() {
 }
 
 void CursorView::SetSize(float radius) {
-  //m_disk.SetRadius(radius);
 }
 
 void CursorView::AutoInit() {
   m_handCursor->InitChildren();
   m_renderEngine->Add(shared_from_this());
-  
 }
 
 void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandPose& handPose, const HandLocation& handLocation) {
@@ -65,6 +63,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_alphaMask.Update(frame.deltaT.count());
+  m_handCursor->LocalProperties().AlphaMask() = m_alphaMask.Current();
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
