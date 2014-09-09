@@ -103,7 +103,7 @@ bool OculusVR::Init() {
   // Internally, the above line calls glewInit(), which generates a GL_INVALID_ENUM error inside of it. We will make a
   // glGetError() call to clear out the phony error; otherwise the next gl function we call will appear to fail. Raffi, I'm 
   // not sure if your glewInit() changes in develop resolves this? If so, this might not be needed anymore.
-  //glGetError();
+  glGetError();
 
   ovrHmd_SetEnabledCaps(m_HMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
 
