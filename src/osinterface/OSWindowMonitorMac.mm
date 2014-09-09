@@ -65,11 +65,17 @@ void OSWindowMonitorMac::Scan() {
         m_oswe(&OSWindowEvent::OnCreate)(*window);
       } else {
         auto& window = found->second;
+        auto prvSize = window->GetSize();
         window->UpdateInfo(entry);
         window->SetMark(mark);
         window->SetZOrder(zOrder--);
         --previousCount; // Saw this window last time, decrement the count
+        auto newSize = window->GetSize();
+        const bool wasResized = newSize.height != prvSize.height || newSize.width != prvSize.width;
         lk.unlock();
+        if (wasResized) {
+          m_oswe(&OSWindowEvent::OnResize)(*window);
+        }
       }
     }
   }

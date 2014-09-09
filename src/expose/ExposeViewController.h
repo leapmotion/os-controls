@@ -17,6 +17,7 @@ public:
   
   void OnCreate(OSWindow& window) override;
   void OnDestroy(OSWindow& window) override;
+  void OnResize(OSWindow& window) override;
   
   void onWindowSelected(ExposeViewWindow& wnd) override;
   

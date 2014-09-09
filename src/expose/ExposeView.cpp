@@ -320,6 +320,10 @@ void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
   wnd->RemoveFromParent();
 }
 
+void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
+  wnd->UpdateTexture();
+}
+
 void ExposeView::StartView() {
   m_alphaMask.Set(1.0f, 0.3);
 }

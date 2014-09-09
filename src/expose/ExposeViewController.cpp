@@ -24,6 +24,16 @@ void ExposeViewController::OnDestroy(OSWindow& window) {
   m_exposeView->RemoveExposeWindow(q->second);
 }
 
+void ExposeViewController::OnResize(OSWindow& window) {
+  auto q = m_windows.find(window.shared_from_this());
+  if(q == m_windows.end())
+    // Short-circuit, we can't find this window in our map
+    return;
+
+  // Tell ExposeView that this window needs to be updated
+  m_exposeView->UpdateExposeWindow(q->second);
+}
+
 void ExposeViewController::onWindowSelected(ExposeViewWindow& wnd) {
   // Our response will be to examine the osWindow and use it to make a "Focus" event take place
   wnd.m_osWindow->SetFocus();

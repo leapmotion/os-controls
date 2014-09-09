@@ -102,7 +102,6 @@ public:
   void AnimationUpdate(const RenderFrame& frame) override;
   void Render(const RenderFrame& frame) const override;
 
-
   /// <returns>
   /// True if the ExposeView is presently visible to the user
   /// </returns>
@@ -127,6 +126,11 @@ public:
   /// ExposeView proper.
   /// </remarks>
   void RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd);
+
+  /// <summary>
+  /// Update the texture of the specified expose window
+  /// </summary>
+  void UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd);
 
   /// <summary>
   /// </summary>
