@@ -92,8 +92,6 @@ add_sublibrary(
     Animation
     HEADERS
         Animation.h
-    SOURCES
-        Animation.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
     BRIEF_DOC_STRING
