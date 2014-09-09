@@ -19,7 +19,7 @@ TEST_F(ConfigTest, ValidateGetSet) {
   bool b = config.Get<bool>("bofoop");
 
   ASSERT_EQ(42, i);
-  ASSERT_EQ(42.42, f);
+  ASSERT_EQ(42.42f, f);
   ASSERT_STREQ("213. I am a string with spaces0 and a number", s.c_str());
   ASSERT_EQ(true, b);
 }
@@ -44,7 +44,7 @@ TEST_F(ConfigTest, ValidateSaveLoad) {
     bool b = config.Get<bool>("bofoop");
 
     ASSERT_EQ(42, i);
-    ASSERT_EQ(42.42, f);
+    ASSERT_EQ(42.42f, f);
     ASSERT_STREQ("213. I am a string with spaces0 and a number", s.c_str());
     ASSERT_EQ(true, b);
   }
