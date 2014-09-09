@@ -9,6 +9,8 @@
 
 GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
   :
+  m_format(pixel_data.Format()),
+  m_type(pixel_data.Type()),
   m_params(params)
 {
   // Check the validity of the params.
@@ -64,6 +66,28 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
 
 GLTexture2::~GLTexture2 () {
   glDeleteTextures(1, &m_texture_name);
+}
+
+void GLTexture2::UpdateTexture(const void *data) {
+  // Simply forward on to the subimage function.
+
+  glBindTexture(m_params.Target(), m_texture_name);
+  GLThrowUponError("in glBindTexture");
+
+  glTexSubImage2D(
+    m_params.Target(),
+    0,
+    0,
+    0,
+    m_params.Width(),
+    m_params.Height(),
+    m_format,
+    m_type,
+    data
+  );
+  GLThrowUponError("in glTexSubImage2D");
+ 
+  glBindTexture(m_params.Target(), 0);
 }
 
 void GLTexture2::UpdateTexture(const GLTexture2PixelData &pixel_data) {
