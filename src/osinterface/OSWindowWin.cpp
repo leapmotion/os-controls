@@ -9,6 +9,8 @@ OSWindowWin::OSWindowWin(HWND hwnd):
 {
   m_szBitmap.cx = 0;
   m_szBitmap.cy = 0;
+  m_prevSize.width = 0;
+  m_prevSize.height = 0;
 }
 
 OSWindowWin::~OSWindowWin(void)

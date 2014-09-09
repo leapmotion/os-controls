@@ -23,10 +23,20 @@ private:
   // Size of the bitmap the above structures
   SIZE m_szBitmap;
 
+  OSSize m_prevSize;
+
 public:
   // PMPL routines:
   void SetZOrder(int zOrder) {
     m_zOrder = zOrder;
+  }
+
+  const OSSize& PrevSize() const {
+    return m_prevSize;
+  }
+
+  void SetPrevSize(const OSSize& size) {
+    m_prevSize = size;
   }
 
   // OSWindow overrides:
