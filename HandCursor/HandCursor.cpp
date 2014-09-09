@@ -99,9 +99,9 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   const float angles [5] { M_PI/12.0f, M_PI/3.0f, M_PI/2.0f, 2*M_PI/3.0f, 5*M_PI/6.0f };
   int fingerIndex = static_cast<int>(finger.type());
   float angle = angles[fingerIndex];
-  angle = (2*M_PI) - angle;
+  angle = static_cast<float>((2*M_PI) - angle);
   if ( !isLeft ) {
-    angle = (M_PI) - angle;
+    angle = static_cast<float>(M_PI - angle);
   }
   Vector2 visualPosition(std::cos(angle), std::sin(angle));
   
