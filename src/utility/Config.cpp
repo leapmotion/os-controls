@@ -22,11 +22,20 @@ void Config::Load(const std::string& filename) {
     data << inFile.rdbuf();
   }
   
-  m_data = json11::Json::parse(data.str(), err).object_items();
+  auto newData = json11::Json::parse(data.str(), err).object_items();
   if (!err.empty())
     throw std::runtime_error(std::string("Json parsing error:") + err);
+
+  //insert does not overwrite items in the set with the input
+  //We want the new data to take precidence, so insert old into the new set.
+  newData.insert(m_data.begin(), m_data.end());
+  std::swap(newData, m_data);
 }
 
 std::chrono::microseconds Config::GetFrameRate() const {
   return std::chrono::microseconds(static_cast<long>(Get<double>("framerate")));
+}
+
+void Config::Clear(){
+  m_data.clear();
 }
