@@ -36,11 +36,18 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
   
+  //If we recieved an update to the desired state from an event, shortcircut the rest of the function
   m_desiredState = ValidateTransition(m_desiredState);
-
   if (m_state != m_desiredState){
     PerformTransition();
     return;
+  }
+
+  //If we didn't, check if the hand pose will cause a transition
+  m_desiredState = ResolvePose(handData.handPose);
+  m_desiredState = ValidateTransition(m_desiredState);
+  if (m_state != m_desiredState) {
+    PerformTransition();
   }
 
   //Fill in our AutoFilter outputs (defaults)
