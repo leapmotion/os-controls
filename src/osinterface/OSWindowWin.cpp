@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "OSWindowWin.h"
+#include "OSWindowEvent.h"
 #include <Primitives.h>
 #include <GLTexture2.h>
 
@@ -9,12 +10,25 @@ OSWindowWin::OSWindowWin(HWND hwnd):
 {
   m_szBitmap.cx = 0;
   m_szBitmap.cy = 0;
-  m_prevSize.width = 0;
-  m_prevSize.height = 0;
+  m_prevSize = m_szBitmap;
 }
 
 OSWindowWin::~OSWindowWin(void)
 {
+}
+
+void OSWindowWin::CheckSize(AutoFired<OSWindowEvent>& evt) {
+  RECT rect;
+  GetWindowRect(hwnd, &rect);
+
+  SIZE sz;
+  sz.cx = rect.right - rect.left;
+  sz.cy = rect.bottom - rect.top;
+
+  // Detect changes and then fire as needed:
+  if(m_prevSize.cx == sz.cx && m_prevSize.cy == sz.cy)
+    evt(&OSWindowEvent::OnResize)(*this);
+  m_prevSize = sz;
 }
 
 bool OSWindowWin::IsValid(void) {

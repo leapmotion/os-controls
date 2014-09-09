@@ -82,24 +82,16 @@ void OSWindowMonitorWin::Scan() {
 
   // Figure out which windows are gone:
   std::unordered_map<HWND, std::shared_ptr<OSWindowWin>> pending;
-  std::unordered_set<std::shared_ptr<OSWindowWin>> resized;
   {
     std::lock_guard<std::mutex> lk(m_lock);
     for(auto knownWindow : m_knownWindows) {
       auto q = block.hwnds.find(knownWindow.first);
-      if (q == block.hwnds.end()) {
+      if (q == block.hwnds.end())
         // Window was gone the last time we enumerated, give up
         pending.insert(knownWindow);
-      } else {
+      else
         // Found this window, update its z-order
         knownWindow.second->SetZOrder(q->second);
-        const OSSize& prevSize = knownWindow.second->PrevSize();
-        const OSSize newSize = OSWindowWin(q->first).GetSize();
-        if ((prevSize.height != newSize.height) || (prevSize.width != newSize.width)) {
-          resized.insert(knownWindow.second);
-        }
-        knownWindow.second->SetPrevSize(newSize);
-      }
     }
 
     for(auto q : pending)
@@ -111,10 +103,9 @@ void OSWindowMonitorWin::Scan() {
     m_oswe(&OSWindowEvent::OnDestroy)(*q.second);
   pending.clear();
 
-  // Fire resized notifications while outside of the lock:
-  for(auto q: resized)
-    m_oswe(&OSWindowEvent::OnResize)(*q);
-  resized.clear();
+  // Fire all resize events as needed:
+  for(auto& q : m_knownWindows)
+    q.second->CheckSize(m_oswe);
 
   // Create any windows which have been added:
   for(auto q : block.hwnds)

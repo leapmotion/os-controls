@@ -3,6 +3,7 @@
 #include "utility/HandleUtilitiesWin.h"
 #include <type_traits>
 
+class OSWindowEvent;
 class OSWindowWin:
   public OSWindow
 {
@@ -23,7 +24,8 @@ private:
   // Size of the bitmap the above structures
   SIZE m_szBitmap;
 
-  OSSize m_prevSize;
+  // Size at the time of the last call to CheckSize
+  SIZE m_prevSize;
 
 public:
   // PMPL routines:
@@ -31,13 +33,13 @@ public:
     m_zOrder = zOrder;
   }
 
-  const OSSize& PrevSize() const {
-    return m_prevSize;
-  }
-
-  void SetPrevSize(const OSSize& size) {
-    m_prevSize = size;
-  }
+  /// <summary>
+  /// Requests that the representation to detect whether it has been resized
+  /// </summary>
+  /// <remarks>
+  /// If the size has changed, will raise OSWindowEvent::OnResize on the passed AutoFired event
+  /// </remarks>
+  void CheckSize(AutoFired<OSWindowEvent>& evt);
 
   // OSWindow overrides:
   bool IsValid(void) override;
