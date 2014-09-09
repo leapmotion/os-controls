@@ -13,6 +13,7 @@ public:
   void Bind() const;
   void Unbind () const;
   void Allocate(const void* data, int count, GLenum pattern);
+  void Write(const void* data, int count);
   int Size() const;
   void* Map(GLuint access);
   bool Unmap();

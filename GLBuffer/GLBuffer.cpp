@@ -17,6 +17,10 @@ void GLBuffer::Unbind() const {
   GL_THROW_UPON_ERROR(glBindBuffer(m_BufferType, 0));
 }
 
+void GLBuffer::Write(const void* data, int count) {
+  GL_THROW_UPON_ERROR(glBufferSubData(m_BufferType, 0, count, data));
+}
+
 void GLBuffer::Allocate(const void* data, int count, GLenum pattern) {
   GL_THROW_UPON_ERROR(glBufferData(m_BufferType, count, data, pattern));
 }
