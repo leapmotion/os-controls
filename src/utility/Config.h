@@ -8,7 +8,8 @@
 #include <autowiring/../contrib/json11/json11.hpp>
 
 /// <summary>
-/// Stores application-wide settings on a per-user basis
+/// Stores application-wide settings on a per-user basis.
+/// Presently only allows numbers, bools, strings, and vectors or maps of json11::Json objects.
 /// </summary>
 class Config {
 public:
@@ -18,7 +19,7 @@ public:
   void Load(const std::string& filename = "config.json");
 
   template<typename T>
-  T Get(const std::string& prop) const { static_assert("Unspecialized on type"); }
+  T Get(const std::string& prop) const { static_assert(false,"Unspecialized on type"); return T(); }
 
   template<typename T>
   void Set(const std::string& prop, const T &val){
