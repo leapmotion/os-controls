@@ -26,7 +26,7 @@ void OSWindowWin::CheckSize(AutoFired<OSWindowEvent>& evt) {
   sz.cy = rect.bottom - rect.top;
 
   // Detect changes and then fire as needed:
-  if(m_prevSize.cx == sz.cx && m_prevSize.cy == sz.cy)
+  if(m_prevSize.cx != sz.cx || m_prevSize.cy != sz.cy)
     evt(&OSWindowEvent::OnResize)(*this);
   m_prevSize = sz;
 }
