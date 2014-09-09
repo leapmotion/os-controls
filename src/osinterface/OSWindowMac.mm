@@ -85,12 +85,31 @@ void OSWindowMac::SetFocus(void) {
   if (!pid) {
     return;
   }
-  // Bring Application to front
+  // An AppleScript implementation
   @autoreleasepool {
+    // First make the window the top-level window for the application
+    std::ostringstream oss;
+    oss << "tell application \"System Events\"\n"
+        << "\tset appName to name of item 1 of (processes whose unix id is " << pid << ")\n"
+        << "\ttell my application appName\n"
+        << "\t\tset theWindow to window id " << m_windowID << "\n"
+        << "\t\ttell theWindow\n"
+        << "\t\t\tif index of theWindow is not 1 then\n"
+        << "\t\t\t\tset index to 1\n"
+        << "\t\t\t\tset visible to false\n"
+        << "\t\t\tend if\n"
+        << "\t\t\tset visible to true\n"
+        << "\t\tend tell\n"
+        << "\tend tell\n"
+        << "end tell\n";
+    NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
+    NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
+    NSDictionary* errInfo;
+    NSAppleEventDescriptor* res = [as executeAndReturnError:&errInfo];
+    // Then bring the application to front
     [[NSRunningApplication runningApplicationWithProcessIdentifier:pid]
-     activateWithOptions:0];
+     activateWithOptions:NSApplicationActivateIgnoringOtherApps];
   }
-  // Now attempt to bring the window to front -- FIXME
 }
 
 std::wstring OSWindowMac::GetTitle(void) {
