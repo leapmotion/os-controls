@@ -131,21 +131,14 @@ size_t GLTexture2PixelData::BytesInType (GLenum type) {
 
 GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
   :
-  m_params(params),
-  format(pixel_data.Format()),
-  type(pixel_data.Type())
+  m_params(params)
 {
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
     throw std::invalid_argument("GLTexture2Params must specify positive width and height"); // TODO: should this requirement be removed?
   }
-  if (!pixel_data.IsEmpty() && (pixel_data.Format() == GL_INVALID_ENUM || pixel_data.Type() == GL_INVALID_ENUM)) {
-    throw std::invalid_argument("GLTexture2PixelData must be empty or specify valid GLenum values for pixel data format and type");
-  }
-  // Check that the supplied data is the correct size.
-  if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() != GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*m_params.Width()*m_params.Height()) {
-    throw std::invalid_argument("the number of components in pixel_data did not correspond to width*height");
-  }
+  VerifyPixelDataOrThrow(pixel_data);
+
   glGenTextures(1, &m_texture_name);
   ThrowOnGLError("in glGenTextures");
   glBindTexture(m_params.Target(), m_texture_name);
@@ -174,7 +167,7 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
                m_params.Width(),
                m_params.Height(),
                0,                               // border (must be 0)
-               format,
+               pixel_data.Format(),
                pixel_data.Type(),
                pixel_data.RawData());
   ThrowOnGLError("in glTexImage2D");
@@ -193,8 +186,11 @@ GLTexture2::~GLTexture2 () {
   glDeleteTextures(1, &m_texture_name);
 }
 
-void GLTexture2::UpdateTexture(const void* pMem) {
-  // Simply forward on to the subimage function:
+void GLTexture2::UpdateTexture(const GLTexture2PixelData &pixel_data) {
+  VerifyPixelDataOrThrow(pixel_data);
+
+  // Simply forward on to the subimage function.
+
   glBindTexture(m_params.Target(), m_texture_name);
   ThrowOnGLError("in glBindTexture");
 
@@ -205,11 +201,24 @@ void GLTexture2::UpdateTexture(const void* pMem) {
     0,
     m_params.Width(),
     m_params.Height(),
-    format,
-    type,
-    pMem
+    pixel_data.Format(),
+    pixel_data.Type(),
+    pixel_data.RawData()
   );
   ThrowOnGLError("in glTexSubImage2D");
  
   glBindTexture(m_params.Target(), 0);
 }
+
+void GLTexture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) const {
+  // Ensure that the given data is valid and of the expected size
+  if (!pixel_data.IsEmpty() && (pixel_data.Format() == GL_INVALID_ENUM || pixel_data.Type() == GL_INVALID_ENUM)) {
+    throw std::invalid_argument("GLTexture2PixelData must be empty or specify valid GLenum values for pixel data format and type");
+  }
+  // Check that the supplied data is the correct size.
+  if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() != GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*m_params.Width()*m_params.Height()) {
+    throw std::invalid_argument("the number of components in pixel_data did not correspond to width*height");
+  }
+}
+
+
