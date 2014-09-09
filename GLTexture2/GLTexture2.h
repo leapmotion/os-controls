@@ -121,11 +121,11 @@ public:
   // If IsEmpty() returns false, this returns the format of the pixel data (see the 'format'
   // parameter in glTexImage2D documentation).  If IsEmpty returns true, then this will return
   // an arbitrary value that is a valid parameter for the 'format' parameter to glTexImage2D.
-  GLenum Format () const { return IsEmpty() ? GL_RGBA : m_format; }
+  GLenum Format () const { return m_format == GL_INVALID_ENUM ? GL_RGBA : m_format; }
   // If IsEmpty() returns false, this returns the type of the pixel data (see the 'type'
   // parameter in glTexImage2D documentation).  If IsEmpty returns true, then this will return
   // an arbitrary value that is a valid parameter for the 'type' parameter to glTexImage2D.
-  GLenum Type () const { return IsEmpty() ? GL_UNSIGNED_BYTE : m_type; }
+  GLenum Type () const { return m_type == GL_INVALID_ENUM ? GL_UNSIGNED_BYTE : m_type; }
 
   // Returns a "flattened" array of data which will be interpreted in the way specified
   // by Format() and Type().  "Flattened" means that all the components are contiguous in
