@@ -92,6 +92,7 @@ private:
   void focusWindow(ExposeViewWindow& windowToFocus);
 
   void updateWindowTextures();
+  void updateWindowTexturesRoundRobin();
   
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y

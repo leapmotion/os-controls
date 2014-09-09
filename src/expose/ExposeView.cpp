@@ -59,6 +59,7 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   updateLayout(frame.deltaT);
   updateActivations(frame.deltaT);
   updateForces(frame.deltaT);
+  updateWindowTexturesRoundRobin();
 
   for(const auto& renderable : m_zorder)
     renderable->AnimationUpdate(frame);
@@ -277,6 +278,23 @@ void ExposeView::updateWindowTextures() {
     if (window->m_layoutLocked)
       continue;
     window->UpdateTexture();
+  }
+}
+
+void ExposeView::updateWindowTexturesRoundRobin() {
+  static int counter = 0;
+  counter++;
+  const int num = m_windows.size();
+  const int selection = counter % num;
+
+  int idx = 0;
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
+      continue;
+    if (idx == selection) {
+      window->UpdateTexture();
+    }
+    idx++;
   }
 }
 
