@@ -2,6 +2,8 @@
 #pragma once
 
 #include <autowiring/CoreThread.h>
+#include <codecvt>
+#include <locale>
 #include <string>
 #include MEMORY_HEADER
 
@@ -25,6 +27,7 @@ class FileWatch:
     };
 
     FileWatch(const std::string& path) : m_path(path) {}
+    FileWatch(const std::wstring& wpath) : m_path(converter.to_bytes(wpath)) {}
 
     virtual ~FileWatch() {}
 
@@ -35,6 +38,7 @@ class FileWatch:
 
   protected:
     std::string m_path;
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
 };
 
 inline FileWatch::State operator|(FileWatch::State a, FileWatch::State b) {
@@ -55,11 +59,21 @@ class FileMonitor :
 
     /// <summary>
     /// Begin watching for activity on a particular file.
-    /// Path is assumed to be UTF-8
+    /// Path is interpreted as UTF-8.
     /// </summary>
     virtual std::shared_ptr<FileWatch> Watch(const std::string& path,
                                              const t_callbackFunc& callback,
                                              FileWatch::State states = FileWatch::State::ALL) = 0;
+
+    /// <summary>
+    /// As above, but calls the converstion function and takes a wide (UTF-16) path
+    /// </summary>
+    virtual std::shared_ptr<FileWatch> Watch(const std::wstring& path,
+                                     const t_callbackFunc& callback,
+                                     FileWatch::State states = FileWatch::State::ALL) 
+    {
+      return Watch(converter.to_bytes(path), callback, states);
+    }
 
     /// <summary>
     /// Return the number of files being watched.
@@ -70,4 +84,6 @@ class FileMonitor :
     /// Creates a new FileMonitor instance
     /// </summary>
     static FileMonitor* New();
+protected:
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
 };

@@ -81,5 +81,4 @@ class FileMonitorWin :
 
   private:
     std::atomic<int> m_numWatchers;
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
 };
