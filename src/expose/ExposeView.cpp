@@ -336,6 +336,7 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
 void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   m_windows.erase(wnd);
   wnd->RemoveFromParent();
+  m_zorder.Remove(wnd);
 }
 
 void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
