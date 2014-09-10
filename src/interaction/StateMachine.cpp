@@ -11,7 +11,7 @@
 StateMachine::StateMachine(void) :
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
-  m_scrollType(ScrollType::HAND_SCROLL),
+  m_scrollType(ScrollType::PINCH_SCROLL),
   m_scrollState(ScrollState::DECAYING),
   m_handDelta(0.0,0.0),
   m_lastScrollReleaseTimestep(0.0f),
@@ -167,6 +167,7 @@ void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handL
       m_lastScrollReleaseTimestep = 0.0f;
       scrollState = ScrollState::DECAYING;
     }
+    deltaScroll = Vector2{ handLocation.dmmX, handLocation.dmmY };
     break;
   case ScrollState::DECAYING:
     if (pinch.isPinching && m_state == OSCState::BASE) {
@@ -198,7 +199,6 @@ void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handL
           scrollState = ScrollState::ACTIVE;
         }
       }
-      deltaScroll = Vector2{ handLocation.dmmX, handLocation.dmmY };
       break;
     }
   }
