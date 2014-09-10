@@ -18,6 +18,7 @@ public:
   virtual ~OSWindow(void);
 
 protected:
+  std::shared_ptr<OSApp> m_app;
   int m_zOrder;
 
 public:
@@ -49,7 +50,7 @@ public:
   /// <returns>
   /// The application named by
   /// </returns>
-  virtual std::shared_ptr<OSApp> GetOwnerApp(void) = 0;
+  virtual std::shared_ptr<OSApp> GetOwnerApp(void) const { return m_app; }
 
   /// <returns>
   /// A unique identifier for this window
