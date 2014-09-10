@@ -31,6 +31,11 @@ CursorView::CursorView() :
   m_scrollLine->Set(scrollLineFile->Contents());
   m_scrollFingerLeft->Set(scrollFingerFile->Contents());
   m_scrollFingerRight->Set(scrollFingerFile->Contents());
+  
+  m_scrollBodyOffset = m_scrollBody->Origin() - (m_scrollBody->Size()/2.0);
+  m_scrollLineOffset = m_scrollLine->Origin() - (m_scrollLine->Size()/2.0);
+  m_scrollFingerLeftOffset = m_scrollFingerLeft->Origin() - (m_scrollFingerLeft->Size()/2.0);
+  m_scrollFingerRightOffset = m_scrollFingerRight->Origin() - (m_scrollFingerRight->Size()/2.0);
 }
 
 CursorView::~CursorView() {
@@ -43,21 +48,28 @@ void CursorView::AutoInit() {
   m_renderEngine->Add(shared_from_this());
 }
 
-void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandPose& handPose, const HandLocation& handLocation) {
+void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData) {
+  static const float PINCH_MIN = 0.0f;
+  static const float PINCH_MAX = 0.65f;
+  static const float FINGER_SPREAD_MIN = 23.0f;
+  static const float FINGER_SPREAD_MAX = 50.0f;
+  
+  float pinchNorm = 0.0f;
+  
   m_renderEngine->BringToFront(this);
 
   //State Transitions
   switch(m_state) {
     case State::INACTIVE:
       if(appState != OSCState::FINAL &&
-         handPose != HandPose::Clawed) {
+         handData.handPose != HandPose::Clawed) {
         m_state = State::ACTIVE;
         m_alphaMask.Set(1.0f);
       }
       break;
     case State::ACTIVE:
       if(appState == OSCState::FINAL ||
-         handPose == HandPose::Clawed) {
+         handData.handPose == HandPose::Clawed) {
         m_state = State::INACTIVE;
         m_alphaMask.Set(0.0f);
       }
@@ -67,7 +79,10 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   //State Loops
   switch(m_state) {
     case State::ACTIVE:
-      position = OSVector2{handLocation.x, handLocation.y};
+      pinchNorm = (handData.pinchData.pinchStrength - PINCH_MIN) / (PINCH_MAX - PINCH_MIN);
+      pinchNorm =  1.0f - std::min(1.0f, std::max(0.0f, pinchNorm));
+      m_fingerSpread = FINGER_SPREAD_MIN + (pinchNorm * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
+      position = OSVector2{handData.locationData.x, handData.locationData.y};
       break;
     case State::INACTIVE:
     default:
@@ -76,12 +91,20 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
+  m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x(), m_scrollBodyOffset.y(), 0);
+  m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x(), m_scrollLineOffset.y(), 0);
+  m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() - m_fingerSpread, m_scrollFingerLeftOffset.y(), 0);
+  m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() + m_fingerSpread, m_scrollFingerRightOffset.y(), 0);
   m_alphaMask.Update(frame.deltaT.count());
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
   switch ( m_state ) {
     case State::ACTIVE:
+      PrimitiveBase::DrawSceneGraph(*m_scrollLine, frame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_scrollBody, frame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_scrollFingerLeft, frame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_scrollFingerRight, frame.renderState);
       break;
     case State::INACTIVE:
     default:

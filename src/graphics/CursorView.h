@@ -9,8 +9,7 @@
 #include "GLShader.h"
 
 #include "uievents/OSCDomain.h"
-#include "interaction/HandLocationRecognizer.h"
-#include "interaction/HandPoseRecognizer.h"
+#include "interaction/HandDataCombiner.h"
 
 #include "HandCursor.h"
 
@@ -32,7 +31,7 @@ public:
   
   void SetSize(float radius);
   
-  void AutoFilter(const Leap::Hand& hand, OSCState appState, const HandPose& handPose, const HandLocation& handLocation);
+  void AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData);
   
   void AnimationUpdate(const RenderFrame& frame);
   
@@ -48,10 +47,22 @@ private:
   State m_state;
   Animated<float> m_alphaMask;
   
+//  double m_scrollBodyScale;
+//  double m_scrollLineScale;
+//  double m_scrollFingerLeftScale;
+//  double m_scrollFingerRightScale;
+  
+  Vector2 m_scrollBodyOffset;
+  Vector2 m_scrollLineOffset;
+  Vector2 m_scrollFingerLeftOffset;
+  Vector2 m_scrollFingerRightOffset;
+  
   std::shared_ptr<SVGPrimitive> m_scrollBody;
   std::shared_ptr<SVGPrimitive> m_scrollLine;
   std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
+  
+  float m_fingerSpread;
   
   Autowired<RenderEngine> m_renderEngine;
 };
