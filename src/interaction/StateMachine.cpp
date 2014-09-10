@@ -81,7 +81,9 @@ void StateMachine::performNextTransition() {
   OSCState desiredState = m_desiredTransitions.front();
   m_desiredTransitions.pop();
   
-  if (!validateTransition(desiredState)) {
+  desiredState = validateTransition(desiredState);
+  
+  if (m_state == desiredState) {
     return;
   }
   
