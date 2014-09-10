@@ -420,7 +420,6 @@ add_sublibrary(
         RenderState.h
         SVGPrimitive.h
     SOURCES
-        PrimitiveBase.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp
         SVGPrimitive.cpp
