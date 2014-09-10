@@ -11,7 +11,6 @@
 StateMachine::StateMachine(void) :
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
-  m_desiredState(m_state),
   m_scrollType(ScrollType::HAND_SCROLL),
   m_scrollState(ScrollState::DECAYING),
   m_handDelta(0.0,0.0),
@@ -36,20 +35,14 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
   
-  //If we recieved an update to the desired state from an event, shortcircut the rest of the function
-  m_desiredState = ValidateTransition(m_desiredState);
-  if (m_state != m_desiredState){
-    PerformTransition();
-    return;
-  }
-  
-  // If we didn't shortcircut then check for normal transitions depending on our current state.
+  // Check for normal transitions depending on our current state.
   // Define possible State Transitions
+  OSCState desiredState = m_state;
   switch(m_state) {
     case OSCState::BASE:
     case OSCState::EXPOSE_ACTIVATOR_FOCUSED:
     case OSCState::MEDIA_MENU_FOCUSED:
-      m_desiredState = ResolvePose(handData.handPose);
+      desiredState = resolvePose(handData.handPose);
       break;
     case OSCState::EXPOSE_FOCUSED:
     case OSCState::FINAL: //Here for completeness. We should never ever hit this one.
@@ -58,9 +51,8 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
       break;
   }
   
-  m_desiredState = ValidateTransition(m_desiredState);
-  if (m_state != m_desiredState) {
-    PerformTransition();
+  if (m_state != desiredState) {
+    m_desiredTransitions.push(desiredState);
   }
 
   //Fill in our AutoFilter outputs (defaults)
@@ -81,19 +73,33 @@ OSCState StateMachine::validateTransition(OSCState to) const {
   return to;
 }
 
-void StateMachine::PerformTransition() {
-  if (m_desiredState == OSCState::FINAL) {
+void StateMachine::performNextTransition() {
+  if ( m_desiredTransitions.size() <= 0 ) {
+    return;
+  }
+  
+  OSCState desiredState = m_desiredTransitions.front();
+  m_desiredTransitions.pop();
+  
+  if (!validateTransition(desiredState)) {
+    return;
+  }
+  
+  if (desiredState == OSCState::FINAL) {
     m_evp->Shutdown();
     m_scrollState = ScrollState::DECAYING;
     m_scrollOperation.reset();
   }
-  else if (m_desiredState == OSCState::EXPOSE_FOCUSED){
+  else if (desiredState == OSCState::EXPOSE_FOCUSED){
     std::cout << "Expose Activated" << std::endl << std::endl;
     m_scrollState = ScrollState::DECAYING;
     m_scrollOperation.reset();
   }
+  else if ( m_state == OSCState::EXPOSE_FOCUSED ) {
+    m_evp->Shutdown();
+  }
 
-  m_state = m_desiredState;
+  m_state = desiredState;
 }
 
 OSCState StateMachine::resolvePose(HandPose pose) const {
@@ -201,7 +207,7 @@ void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handL
 
 void StateMachine::RequestTransition(OSCState requestedState) {
   std::lock_guard<std::mutex> lk(m_lock);
-  m_desiredState = requestedState;
+  m_desiredTransitions.push(requestedState);
 }
 
 void StateMachine::OnHandVanished() {
@@ -211,6 +217,11 @@ void StateMachine::OnHandVanished() {
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
+  
+  //Perform any transitions waiting in the transition queue
+  while ( m_desiredTransitions.size() > 0 ) {
+    performNextTransition();
+  }
 
   switch ( m_state ) {
     case OSCState::FINAL:

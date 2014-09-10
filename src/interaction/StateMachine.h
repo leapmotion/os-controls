@@ -14,6 +14,7 @@
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
 #include "graphics/ExposeActivationStateMachine.h"
+#include <queue>
 
 #define USE_HAND_SCROLL 1
 
@@ -52,8 +53,8 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  void PerformTransition();
   OSCState validateTransition(OSCState to) const;
+  void performNextTransition();
 
   OSCState resolvePose(HandPose pose) const;
 
@@ -63,7 +64,7 @@ private:
   std::mutex m_lock;
 
   OSCState m_state;
-  OSCState m_desiredState;
+  std::queue<OSCState> m_desiredTransitions;
   
   enum class ScrollType {
     HAND_SCROLL,
