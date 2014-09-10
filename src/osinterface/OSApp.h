@@ -1,17 +1,13 @@
 #pragma once
 #include <string>
+#include <memory>
 
 class ImagePrimitive;
 
 class OSApp
 {
 public:
-  ~OSApp(void);
-
-  /// <summary>
-  /// Obtain an OSApp corresponding to the specified process identifier
-  /// </summary>
-  static std::shared_ptr<OSApp> GetAppInstance(uint32_t pid);
+  ~OSApp(void) {}
 
   /// <returns>
   /// The UTF-8 encoded, localized, user-presentable name of the application
@@ -29,7 +25,7 @@ public:
   bool operator==(const OSApp& rhs) const { return m_id == rhs.m_id; }
 
 protected:
-  OSApp(uint32_t pid);
+  OSApp(uint32_t pid) : m_id(GetAppIdentifier(pid)) {}
 
   // Application unique identifier
   const std::wstring m_id;
@@ -37,4 +33,6 @@ protected:
 private:
   static std::wstring GetAppIdentifier(uint32_t pid);
   static OSApp* New(uint32_t pid);
+
+  friend class OSAppManager;
 };

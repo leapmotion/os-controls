@@ -11,7 +11,8 @@ set(osinterface_SOURCES
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
   OSApp.h
-  OSApp.cpp
+  OSAppManager.h
+  OSAppManager.cpp
   OSGeometry.h
   OSCursor.h
   OSCursor.cpp

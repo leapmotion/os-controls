@@ -1,6 +1,7 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
 #include "OSWindowMac.h"
+#include "OSAppManager.h"
 #include "OSApp.h"
 #include <Primitives.h>
 #include <GLTexture2.h>
@@ -19,7 +20,10 @@ OSWindowMac::OSWindowMac(NSDictionary* info) :
 {
   @autoreleasepool {
     const pid_t pid = static_cast<pid_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
-    m_app = OSApp::GetAppInstance(pid);
+    AutowiredFast<OSAppManager> appManager;
+    if (appManager) {
+      m_app = appManager->GetApp(pid);
+    }
   }
 }
 
