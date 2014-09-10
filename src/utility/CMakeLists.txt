@@ -1,14 +1,14 @@
 set(utility_SOURCES
+  CircleFitter.h
   Config.h
   Config.cpp
   ExtendedStateMachine.h
-  lockable_property.h
-  NativeWindow.h
-  PlatformInitializer.h
-  CircleFitter.h
   HandleUtilitiesWin.h
   Hysteresis.h
   Hysteresis.cpp
+  lockable_property.h
+  NativeWindow.h
+  PlatformInitializer.h
   SamplePrimitives.h
   SamplePrimitives.cpp
 )
