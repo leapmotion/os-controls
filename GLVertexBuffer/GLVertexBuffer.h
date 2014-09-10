@@ -101,19 +101,21 @@ public:
   // for vertex attributes, if it has been created already).
   void ClearEverything () {
     ClearIntermediateAttributes();
-    ClearGLBuffer();
+    ClearGLResources();
   }
   // This clears the intermediate attribute buffer, but preserves everything else.
   void ClearIntermediateAttributes () {
     m_intermediate_attributes.clear();
   }
   // This clears the GL buffer object, but preserves everything else.
-  void ClearGLBuffer () const {
+  void ClearGLResources () const {
     m_gl_buffer.Destroy();
   }
   // Allocates (if necessary) and populates a GL buffer object with the intermediate attribute
   // buffer data.  It is recommended to clear the intermediate attributes after calling this
-  // method, unless said attribute data is going to be modified and uploaded again.
+  // method, unless said attribute data is going to be modified and uploaded again.  This
+  // method should only be called after the intermediate attributes have changed and the
+  // changes need to be propagated to the GPU.
   void UploadIntermediateAttributes () const {
     GLsizeiptr intermediate_attributes_size(m_intermediate_attributes.size()*sizeof(Attributes));
     const void *intermediate_attributes_data(m_intermediate_attributes.data());
