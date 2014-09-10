@@ -23,10 +23,11 @@ private:
   enum class State {
     INACTIVE,
     AWAITING_LOCK,
-    ACTIVE,
-    COMPLETE
+    ACTIVE
   };
   
+  void doStateTransitions(OSCState appState);
+  void doStateLoops(const HandData& handData);
   void applyUserInput(const HandLocation& handLocation);
   
   State m_state;
@@ -35,8 +36,5 @@ private:
   
   Autowired<ExposeViewAccessManager> m_exposeViewAccessManager;
   AutoFired<OSCStateChangeEvent> m_stateChangeEvent;
-
-public:
-  bool IsComplete() const { return ( m_state == State::COMPLETE ); }
 };
 

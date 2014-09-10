@@ -42,9 +42,19 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     PerformTransition();
     return;
   }
-
-  //If we didn't, check if the hand pose will cause a transition
-  m_desiredState = ResolvePose(handData.handPose);
+  
+  // If we didn't shortcircut then check for normal transitions depending on our current state.
+  // Define possible State Transitions
+  switch(m_state) {
+    case OSCState::BASE:
+    case OSCState::EXPOSE_ACTIVATOR_FOCUSED:
+    case OSCState::MEDIA_MENU_FOCUSED:
+      m_desiredState = ResolvePose(handData.handPose);
+      break;
+    default:
+      break;
+  }
+  
   m_desiredState = ValidateTransition(m_desiredState);
   if (m_state != m_desiredState) {
     PerformTransition();
@@ -54,6 +64,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   state = m_state;
   scrollState = m_scrollState; //in case we don't change state
 
+  //TODO: Make scrolling an actual state of the application
   if (m_scrollType == ScrollType::HAND_SCROLL) {
     DoHandScroll(scroll, handData.locationData, scrollState);
   }
