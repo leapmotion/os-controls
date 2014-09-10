@@ -30,6 +30,8 @@ void OSWindowMonitorMac::Scan() {
   static int s_pid = static_cast<int>(getpid());
   const uint32_t mark = ++m_mark;
   int zOrder = 0;
+  CGWindowID overlayWindowID = 0;
+  CGRect overlayBounds = NSZeroRect;
   std::unique_lock<std::mutex> lk(m_lock);
   size_t previousCount = m_knownWindows.size();
   lk.unlock();
@@ -43,7 +45,7 @@ void OSWindowMonitorMac::Scan() {
       // Do additional filtering of windows
       if ([[entry objectForKey:(id)kCGWindowLayer] intValue] != 0 ||
           [[entry objectForKey:(id)kCGWindowAlpha] floatValue] < FLT_EPSILON ||
-           [entry objectForKey:(id)kCGWindowOwnerName] == nil ||
+          [[entry objectForKey:(id)kCGWindowOwnerName] length] == 0 ||
           [[entry objectForKey:(id)kCGWindowOwnerPID] intValue] == s_pid ||
           [[entry objectForKey:(id)kCGWindowSharingState] intValue] == kCGWindowSharingNone) {
         continue;
@@ -52,11 +54,32 @@ void OSWindowMonitorMac::Scan() {
       if (windowID == 0) {
         continue;
       }
+      // Check to see if this window may be an overlay window...
+      if ([[entry objectForKey:(id)kCGWindowName] length] == 0) {
+        NSDictionary* windowBounds = [entry objectForKey:(id)kCGWindowBounds];
+        overlayBounds = NSZeroRect;
+        CGRectMakeWithDictionaryRepresentation(reinterpret_cast<CFDictionaryRef>(windowBounds), &overlayBounds);
+        overlayWindowID = (overlayBounds.size.width > 0 && overlayBounds.size.height > 0) ? windowID : 0;
+        continue;
+      }
+      CGPoint overlayOffset = NSZeroPoint;
+      if (overlayWindowID) { // ...or if it is possibly the parent of an overlay window
+        NSDictionary* windowBounds = [entry objectForKey:(id)kCGWindowBounds];
+        CGRect bounds = NSZeroRect;
+        CGRectMakeWithDictionaryRepresentation(reinterpret_cast<CFDictionaryRef>(windowBounds), &bounds);
+        if (CGRectContainsRect(bounds, overlayBounds)) {
+          overlayOffset.x = overlayBounds.origin.x - bounds.origin.x;
+          overlayOffset.y = overlayBounds.origin.y - bounds.origin.y;
+        } else {
+          overlayWindowID = 0;
+        }
+      }
       lk.lock();
       // See if we already know about this window.
       auto found = m_knownWindows.find(windowID);
       if (found == m_knownWindows.end()) {
         auto window = std::make_shared<OSWindowMac>(entry);
+        window->SetOverlayWindow(overlayWindowID, overlayOffset);
         window->SetMark(mark);
         window->SetZOrder(zOrder--);
         m_knownWindows[windowID] = window;
@@ -67,16 +90,18 @@ void OSWindowMonitorMac::Scan() {
         auto& window = found->second;
         auto prvSize = window->GetSize();
         window->UpdateInfo(entry);
+        const bool overlayChanged = window->SetOverlayWindow(overlayWindowID, overlayOffset);
         window->SetMark(mark);
         window->SetZOrder(zOrder--);
         --previousCount; // Saw this window last time, decrement the count
         auto newSize = window->GetSize();
         const bool wasResized = newSize.height != prvSize.height || newSize.width != prvSize.width;
         lk.unlock();
-        if (wasResized) {
+        if (wasResized || overlayChanged) {
           m_oswe(&OSWindowEvent::OnResize)(*window);
         }
       }
+      overlayWindowID = 0;
     }
   }
   // If we can account for all of the previously seen windows, there is no need to check for destroyed windows.

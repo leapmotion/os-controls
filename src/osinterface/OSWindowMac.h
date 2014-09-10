@@ -28,10 +28,13 @@ public:
 
 private:
   const CGWindowID m_windowID;
+  CGWindowID m_overlayWindowID;
+  CGPoint m_overlayOffset;
   NSDictionary* m_info;
   uint32_t m_mark;
 
   void UpdateInfo(NSDictionary* info);
+  bool SetOverlayWindow(CGWindowID overlayWindowID, const CGPoint& overlayOffset);
   void SetMark(uint32_t mark) { m_mark = mark; }
   uint32_t Mark() const { return m_mark; }
 
