@@ -7,6 +7,10 @@ void Renderable::ZOrderList::Add(const std::shared_ptr<Renderable>& renderable) 
   renderable->m_pos = begin();
 }
 
+void Renderable::ZOrderList::Remove(const std::shared_ptr<Renderable>& renderable) {
+  remove(renderable);
+}
+
 void Renderable::ZOrderList::BringToFront(Renderable* renderable) {
   // Move this entry to the front of the list:
   splice(

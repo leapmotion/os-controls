@@ -22,6 +22,7 @@ void ExposeViewController::OnDestroy(OSWindow& window) {
   // Tell ExposeView that the window is gone, and that shutdown operations on this window should
   // take place.
   m_exposeView->RemoveExposeWindow(q->second);
+  m_windows.erase(q);
 }
 
 void ExposeViewController::OnResize(OSWindow& window) {
