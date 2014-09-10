@@ -23,13 +23,16 @@ FrameBufferObject* FrameBufferObject::Create(int width, int height, const Format
 void FrameBufferObject::Blit(FrameBufferObject* source, FrameBufferObject* target, GLbitfield buffers, GLenum filter)
 {
   glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, source->Id());
+  GLWarnUponError("in glBindFramebuffer (read)");
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, target->Id());
+  GLWarnUponError("in glBindFramebuffer (draw)");
   
   glBlitFramebuffer(0, 0, source->Width(), source->Height(),
                     0, 0, target->Width(), target->Height(), buffers, filter);
   GLWarnUponError("in glBlitFramebuffer");
   
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  GLWarnUponError("in glBindFramebuffer");
 }
 
 // public
@@ -53,12 +56,15 @@ FrameBufferObject::~FrameBufferObject()
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  GLWarnUponError("in glBindFramebuffer");
   glDeleteFramebuffers(1, &m_FramebufferId);
+  GLWarnUponError("in glDeleteFramebuffers");
 }
 
 void FrameBufferObject::Bind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferId);
+  GLWarnUponError("in glBindFramebuffer");
 }
 
 GLTexture2* FrameBufferObject::ColorTexture()
@@ -94,6 +100,7 @@ GLenum FrameBufferObject::Status() const
 void FrameBufferObject::Unbind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  GLWarnUponError("in glBindFramebuffer");
 }
 
 // protected

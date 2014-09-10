@@ -14,6 +14,7 @@ RenderBuffer* RenderBuffer::Create(int width, int height, const Format& format)
 void RenderBuffer::Bind() const
 {
   glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferId);
+  GLWarnUponError("in glBindRenderbuffer");
 }
 
 GLuint RenderBuffer::Id() const
@@ -24,6 +25,7 @@ GLuint RenderBuffer::Id() const
 void RenderBuffer::Unbind() const
 {
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
+  GLWarnUponError("in glBindRenderbuffer");
 }
 
 // protected
