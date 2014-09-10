@@ -10,6 +10,9 @@ set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/svgs/play_pause-icon-extended-01.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/prev-track-icon-extended-01.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/volume-icon-01.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/scroll-cursor-body.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/scroll-cursor-finger.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/scroll-cursor-line.svg
 )
 
 
