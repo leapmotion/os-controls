@@ -26,10 +26,10 @@ public:
                          GLVertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
                          GLVertexAttribute<GL_FLOAT_VEC4>  // RGBA color
                         > VertexBuffer;
-  typedef typename VertexBuffer::Attributes VertexAttributes;
+  typedef VertexBuffer::Attributes VertexAttributes;
 
   // Gives direct access to the list of vertices.
-  std::vector<typename VertexBuffer::Attributes> &Vertices () { return m_Vertices; }
+  std::vector<VertexBuffer::Attributes> &Vertices () { return m_Vertices; }
   
   // functions for manipulating GPU-side buffers
   void CleanUpBuffers();
