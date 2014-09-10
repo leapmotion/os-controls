@@ -30,6 +30,7 @@ void ExposeViewStateMachine::doStateTransitions(OSCState appState) {
       m_state = State::ACTIVE;
     }
     else if ( appState != OSCState::EXPOSE_FOCUSED ) {
+      m_exposeView.reset();
       m_state = State::INACTIVE;
     }
   }
