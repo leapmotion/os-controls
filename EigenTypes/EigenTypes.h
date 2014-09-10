@@ -69,29 +69,29 @@ typedef Eigen::vector<Vector4f> stdvectorV4f;
 // If T < S, then (v_1, ..., v_T, v_{T+1}, ..., v_S) maps to (v_1, ..., v_T).
 // If T > S, then (v_1, ..., V_T) maps to (v_1, ..., v_S, x, ..., x) (with T - S values x),
 // where x is the value of extension_component (default is 0).
-template <int TARGET_DIM, typename Scalar, int SOURCE_DIM>
-typename std::enable_if<(TARGET_DIM<SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,1>>::type
-  VectorAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,1> &v, Scalar extension_component)
+template <int TARGET_DIM, typename Scalar, int SOURCE_DIM, int OPTIONS>
+typename std::enable_if<(TARGET_DIM<SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,1,OPTIONS>>::type
+  VectorAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,1,OPTIONS> &v, Scalar extension_component)
 {
   return v.template block<TARGET_DIM,1>(0,0);
 }
 
 // See comment for other version of this.
-template <int TARGET_DIM, typename Scalar, int SOURCE_DIM>
-typename std::enable_if<(TARGET_DIM==SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,1>>::type
-  VectorAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,1> &v, Scalar extension_component)
+template <int TARGET_DIM, typename Scalar, int SOURCE_DIM, int OPTIONS>
+typename std::enable_if<(TARGET_DIM==SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,1,OPTIONS>>::type
+  VectorAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,1,OPTIONS> &v, Scalar extension_component)
 {
   return v;
 }
 
 // See comment for other version of this.
-template <int TARGET_DIM, typename Scalar, int SOURCE_DIM>
-typename std::enable_if<(TARGET_DIM>SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,1>>::type
-  VectorAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,1> &v, Scalar extension_component)
+template <int TARGET_DIM, typename Scalar, int SOURCE_DIM, int OPTIONS>
+typename std::enable_if<(TARGET_DIM>SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,1,OPTIONS>>::type
+  VectorAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,1,OPTIONS> &v, Scalar extension_component)
 {
   static const int REMAINING_DIM = TARGET_DIM - SOURCE_DIM;
   static_assert(REMAINING_DIM > 0, "the condition C used in std::enable_if<C,...> is wrong.");
-  Eigen::Matrix<Scalar,TARGET_DIM,1> retval;
+  Eigen::Matrix<Scalar,TARGET_DIM,1,OPTIONS> retval;
   retval.template block<SOURCE_DIM,1>(0,0) = v;
   // Set the remaining components to extension_component.
   for (int i = SOURCE_DIM; i < TARGET_DIM; ++i) {
@@ -116,29 +116,29 @@ typename std::enable_if<(TARGET_DIM>SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,
 // where D is the diagonal matrix necessary to fill the block matrix out to the target dimension,
 // whose diagonal components are extension_component.  If extension_component is 1, then D is
 // the identity matrix of the appropriate size.
-template <int TARGET_DIM, typename Scalar, int SOURCE_DIM>
-typename std::enable_if<(TARGET_DIM<SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM>>::type
-  SquareMatrixAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,SOURCE_DIM> &m, Scalar extension_component)
+template <int TARGET_DIM, typename Scalar, int SOURCE_DIM, int OPTIONS>
+typename std::enable_if<(TARGET_DIM<SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM,OPTIONS>>::type
+  SquareMatrixAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,SOURCE_DIM,OPTIONS> &m, Scalar extension_component)
 {
   return m.template block<TARGET_DIM,TARGET_DIM>(0,0);
 }
 
 // See comment for other version of this.
-template <int TARGET_DIM, typename Scalar, int SOURCE_DIM>
-typename std::enable_if<(TARGET_DIM==SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM>>::type
-  SquareMatrixAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,SOURCE_DIM> &m, Scalar extension_component)
+template <int TARGET_DIM, typename Scalar, int SOURCE_DIM, int OPTIONS>
+typename std::enable_if<(TARGET_DIM==SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM,OPTIONS>>::type
+  SquareMatrixAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,SOURCE_DIM,OPTIONS> &m, Scalar extension_component)
 {
   return m;
 }
 
 // See comment for other version of this.
-template <int TARGET_DIM, typename Scalar, int SOURCE_DIM>
-typename std::enable_if<(TARGET_DIM>SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM>>::type
-  SquareMatrixAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,SOURCE_DIM> &m, Scalar extension_component)
+template <int TARGET_DIM, typename Scalar, int SOURCE_DIM, int OPTIONS>
+typename std::enable_if<(TARGET_DIM>SOURCE_DIM),Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM,OPTIONS>>::type
+  SquareMatrixAdaptToDim (const Eigen::Matrix<Scalar,SOURCE_DIM,SOURCE_DIM,OPTIONS> &m, Scalar extension_component)
 {
   static const int REMAINING_DIM = TARGET_DIM - SOURCE_DIM;
   static_assert(REMAINING_DIM > 0, "the condition C used in std::enable_if<C,...> is wrong.");
-  Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM> retval;
+  Eigen::Matrix<Scalar,TARGET_DIM,TARGET_DIM,OPTIONS> retval;
   retval.template block<SOURCE_DIM,SOURCE_DIM>(0,0) = m;
   retval.template block<REMAINING_DIM,SOURCE_DIM>(SOURCE_DIM,0).setZero();
   retval.template block<SOURCE_DIM,REMAINING_DIM>(0,SOURCE_DIM).setZero();
