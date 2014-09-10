@@ -15,6 +15,7 @@
 #include "HandCursor.h"
 
 #include <string>
+#include <SVGPrimitive.h>
 #include <Animation.h>
 
 class RenderEngine;
@@ -47,6 +48,10 @@ private:
   State m_state;
   Animated<float> m_alphaMask;
   
+  std::shared_ptr<SVGPrimitive> scrollBody;
+  std::shared_ptr<SVGPrimitive> scrollLine;
+  std::shared_ptr<SVGPrimitive> scrollFingerLeft;
+  std::shared_ptr<SVGPrimitive> scrollFingerRight;
   
   Autowired<RenderEngine> m_renderEngine;
 };

@@ -6,14 +6,31 @@
 #include "RenderState.h"
 #include "HandCursor.h"
 
+#include "GLShader.h"
+#include "GLShaderLoader.h"
+#include "GLTexture2.h"
+#include "TextFile.h"
+#include "Resource.h"
+#include <memory>
 #include <iostream>
 
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
-  m_alphaMask(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
+  m_alphaMask(0.0f, 0.2, EasingFunctions::QuadInOut<float>),
+  scrollBody(new SVGPrimitive()),
+  scrollLine(new SVGPrimitive()),
+  scrollFingerLeft(new SVGPrimitive()),
+  scrollFingerRight(new SVGPrimitive())
 {
-
+  Resource<TextFile> scrollBodyFile("scroll-cursor-body.svg");
+  Resource<TextFile> scrollLineFile("scroll-cursor-line.svg");
+  Resource<TextFile> scrollFingerFile("scroll-cursor-finger.svg");
+  
+  scrollBody->Set(scrollBodyFile->Contents());
+  scrollLine->Set(scrollLineFile->Contents());
+  scrollFingerLeft->Set(scrollFingerFile->Contents());
+  scrollFingerRight->Set(scrollFingerFile->Contents());
 }
 
 CursorView::~CursorView() {
@@ -60,7 +77,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_alphaMask.Update(frame.deltaT.count());
-  m_handCursor->LocalProperties().AlphaMask() = m_alphaMask.Current();
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
