@@ -49,7 +49,7 @@ private:
 class GLTexture2PixelDataEmpty : public GLTexture2PixelData {
 public:
 
-  GLTexture2PixelDataEmpty() : GLTexture2PixelData(GL_INVALID_ENUM, GL_INVALID_ENUM) { } // These are arbitrary, since IsEmpty() will return true.
+  GLTexture2PixelDataEmpty() : GLTexture2PixelData(GL_RGBA, GL_UNSIGNED_BYTE) { } // These are arbitrary but must be valid.
   virtual ~GLTexture2PixelDataEmpty() { }
   
   virtual const void *RawData () const override { return nullptr; }
