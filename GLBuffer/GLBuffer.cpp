@@ -26,6 +26,10 @@ void GLBuffer::Allocate(const void* data, GLsizeiptr size_in_bytes, GLenum usage
   m_SizeInBytes = size_in_bytes;
 }
 
+void GLBuffer::Write(const void* data, int count) {
+  GL_THROW_UPON_ERROR(glBufferSubData(m_BufferType, 0, count, data));
+}
+
 void* GLBuffer::Map(GLenum access) {
   Bind();
   GL_THROW_UPON_ERROR(void *ptr = glMapBuffer(m_BufferType, access));

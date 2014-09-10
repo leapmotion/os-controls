@@ -6,6 +6,7 @@ class Projection {
 public:
   Projection();
   const Matrix4x4& Matrix() const;
+  Matrix4x4& Matrix();
   void Perspective(double left, double bottom, double right, double top, double nearClip, double farClip);
   void Perspective(double hFovRadians, double widthOverHeight, double nearClip, double farClip);
   void Orthographic(double left, double bottom, double right, double top, double nearClip, double farClip);
@@ -18,6 +19,7 @@ class ModelView {
 public:
   ModelView();
   const Matrix4x4& Matrix() const;
+  Matrix4x4& Matrix();
   void Reset();
   void LookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
   void Translate(const Vector3& translation);

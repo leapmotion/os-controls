@@ -16,6 +16,8 @@ void OculusVR::InitGlew() {
 }
 
 bool OculusVR::Init() {
+  glewInit();
+    
   m_Debug = false;
 
   ovr_Initialize();
@@ -49,7 +51,7 @@ bool OculusVR::Init() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderTargetSize.w, renderTargetSize.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_Texture, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,m_Texture, 0);
 
   glGenRenderbuffers(1, &m_RenderBuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffer);
@@ -61,6 +63,7 @@ bool OculusVR::Init() {
     Shutdown();
     return false;
   }
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   ovrFovPort eyeFov[2] = { m_HMD->DefaultEyeFov[0], m_HMD->DefaultEyeFov[1] };
 
@@ -97,6 +100,11 @@ bool OculusVR::Init() {
  
   ovrHmd_ConfigureRendering(m_HMD, &cfg.Config, ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive, eyeFov, m_EyeRenderDesc);
 
+  // Internally, the above line calls glewInit(), which generates a GL_INVALID_ENUM error inside of it. We will make a
+  // glGetError() call to clear out the phony error; otherwise the next gl function we call will appear to fail. Raffi, I'm 
+  // not sure if your glewInit() changes in develop resolves this? If so, this might not be needed anymore.
+  glGetError();
+
   ovrHmd_SetEnabledCaps(m_HMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
 
   ovrHmd_ConfigureTracking(m_HMD, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, 0);
@@ -123,22 +131,17 @@ void OculusVR::BeginFrame() {
     m_EyeRenderPose[eye] = ovrHmd_GetEyePose(m_HMD, eye);
     m_EyeProjection[eye] = ovrMatrix4f_Projection(m_EyeRenderDesc[eye].Fov, 0.1f, 10000.0f, true);
 
-    const OVR::Matrix4f rollPitchYaw = OVR::Matrix4f::RotationY(0);
-    const OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(m_EyeRenderPose[eye].Orientation);
-    const OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
-    const OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
-    const OVR::Vector3f eyePosition = m_EyeRenderPose[eye].Position;
-    const OVR::Vector3f eyePos = rollPitchYaw.Transform(eyePosition);
-    const OVR::Vector3f shiftedEyePos = HeadPos + eyePos;
-    m_EyeRotation[eye] = OVR::Matrix4f::LookAtRH(eyePos, eyePos + finalForward, finalUp);
-    const OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
+    const OVR::Quatf orientation = m_EyeRenderPose[eye].Orientation;
+    const OVR::Vector3f worldEyePos = m_EyeRenderPose[eye].Position;
     const OVR::Vector3f viewAdjust = m_EyeRenderDesc[eye].ViewAdjust;
-    m_EyeView[eye] = OVR::Matrix4f::Translation(viewAdjust) * view;
+    m_EyeRotation[eye] = OVR::Matrix4f(orientation.Inverted());
+    m_EyeView[eye] = OVR::Matrix4f::Translation(viewAdjust) * m_EyeRotation[eye] * OVR::Matrix4f::Translation(-worldEyePos - HeadPos);
   }
 }
 
 void OculusVR::EndFrame() {
   ovrHmd_EndFrame(m_HMD, m_EyeRenderPose, &m_EyeTexture[0].Texture);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OculusVR::DismissHealthWarning() {

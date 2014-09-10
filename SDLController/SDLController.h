@@ -63,6 +63,7 @@ public:
   static std::string BasePath();
 
   const SDLControllerParams& GetParams() const { return m_Params; }
+  void ToggleFullscreen();
 
 #if _WIN32
   HWND GetHWND() { return m_HWND; }

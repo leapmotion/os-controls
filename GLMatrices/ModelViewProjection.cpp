@@ -6,6 +6,10 @@ const Matrix4x4& Projection::Matrix() const {
   return m_matrix;
 }
 
+Matrix4x4& Projection::Matrix() {
+  return m_matrix;
+}
+
 void Projection::Perspective(double left, double bottom, double right, double top, double nearClip, double farClip) {
   const double denom = 1/(nearClip - farClip);
   m_matrix << 2/(right - left),                0, (right + left)/(right - left),                        0,
@@ -42,6 +46,10 @@ ModelView::ModelView() {
 }
 
 const Matrix4x4& ModelView::Matrix() const {
+  return m_stack.back();
+}
+
+Matrix4x4& ModelView::Matrix() {
   return m_stack.back();
 }
 

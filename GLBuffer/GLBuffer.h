@@ -14,6 +14,7 @@ public:
   void Bind() const;
   void Unbind () const;
   void Allocate(const void* data, GLsizeiptr size, GLenum usage_pattern);
+  void Write(const void* data, int count);
   GLsizeiptr Size() const { return m_SizeInBytes; }
   void* Map(GLenum access);
   bool Unmap();

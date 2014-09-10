@@ -11,8 +11,8 @@ HandCursor::HandCursor() {
     m_Fingers[i] = std::shared_ptr<Disk>(new Disk());
   }
   
-  m_OutlineColor = Color(0.802f, 0.802f, 0.802f, 0.75f); // 26 26 26
-  m_FillColor = Color(0.505f, 0.831f, 0.114f, 0.75f); // 129 212 29
+  m_OutlineColor = Color(0.802f, 0.802f, 0.802f, 1.0f); // 26 26 26
+  m_FillColor = Color(0.505f, 0.831f, 0.114f, 1.0f); // 129 212 29
   
   Translation().z() = 0;
 }
@@ -93,8 +93,8 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   const float FINGER_MAX_SIZE = 5;
   const float FINGER_MIN_SIZE = 2.5;
   
-  const Color FINGER_COLOR_OUT(0.505f, 0.831f, 0.114f, 0.75f);
-  const Color FINGER_COLOR_IN(0.5f, 0.5f, 0.5f, 0.75f);
+  const Color FINGER_COLOR_OUT(0.505f, 0.831f, 0.114f, 1.0f);
+  const Color FINGER_COLOR_IN(0.5f, 0.5f, 0.5f, 1.0f);
   
   const float angles [5] { M_PI/12.0f, M_PI/3.0f, M_PI/2.0f, 2*M_PI/3.0f, 5*M_PI/6.0f };
   int fingerIndex = static_cast<int>(finger.type());
