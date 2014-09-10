@@ -3,6 +3,7 @@ set(utility_SOURCES
   Config.h
   Config.cpp
   ExtendedStateMachine.h
+  FileMonitor.h
   HandleUtilitiesWin.h
   Hysteresis.h
   Hysteresis.cpp
@@ -14,15 +15,24 @@ set(utility_SOURCES
 )
 
 add_windows_sources(utility_SOURCES 
+  FileMonitorWin.h
+  FileMonitorWin.cpp
   NativeWindowWin.cpp
   PlatformInitializerWin.h
   PlatformInitializerWin.cpp
 )
 
 add_mac_sources(utility_SOURCES
+  FileMonitorMac.h
+  FileMonitorMac.cpp
   NativeWindowMac.mm
   PlatformInitializerMac.h
   PlatformInitializerMac.mm
+)
+
+add_unix_sources(utility_SOURCES
+  FileMonitorUnix.h
+  FileMonitorUnix.cpp
 )
 
 add_library(utility ${utility_SOURCES})
