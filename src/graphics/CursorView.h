@@ -47,7 +47,6 @@ private:
   State m_state;
   Animated<float> m_alphaMask;
   
-  std::shared_ptr<HandCursor> m_handCursor;
   
   Autowired<RenderEngine> m_renderEngine;
 };

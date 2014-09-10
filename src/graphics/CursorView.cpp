@@ -11,8 +11,7 @@
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
-  m_alphaMask(0.0f, 0.5, EasingFunctions::QuadInOut<float>),
-  m_handCursor(new HandCursor())
+  m_alphaMask(0.0f, 0.2, EasingFunctions::QuadInOut<float>)
 {
 
 }
@@ -24,7 +23,6 @@ void CursorView::SetSize(float radius) {
 }
 
 void CursorView::AutoInit() {
-  m_handCursor->InitChildren();
   m_renderEngine->Add(shared_from_this());
 }
 
@@ -53,7 +51,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   switch(m_state) {
     case State::ACTIVE:
       position = OSVector2{handLocation.x, handLocation.y};
-      m_handCursor->Update(hand);
       break;
     case State::INACTIVE:
     default:
@@ -69,7 +66,6 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
 void CursorView::Render(const RenderFrame& frame) const {
   switch ( m_state ) {
     case State::ACTIVE:
-      PrimitiveBase::DrawSceneGraph(*m_handCursor, frame.renderState);
       break;
     case State::INACTIVE:
     default:
