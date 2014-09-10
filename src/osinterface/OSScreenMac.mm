@@ -92,17 +92,33 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     CGColorSpaceRelease(rgb);
     [nsImage release];
 
-    // If we can re-use the passed in image primitive do that, if not create new one -- FIXME
+    std::shared_ptr<GLTexture2> texture = img->Texture();
+    if (texture) {
+      const auto& params = texture->Params();
+      if (params.Height() != height || params.Width() != width) {
+        texture.reset();
+      }
+    }
+    if (texture) {
+      texture->UpdateTexture(dstBytes.get()); // Very dangerous function interface!
+    } else {
+      GLTexture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
+      params.SetTarget(GL_TEXTURE_2D);
+      params.SetInternalFormat(GL_RGBA8);
+      params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
 
-    GLTexture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
-    params.SetTarget(GL_TEXTURE_2D);
-    params.SetInternalFormat(GL_RGBA8);
-    params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
+      texture = std::make_shared<GLTexture2>(params, pixelData);
+      img->SetTexture(texture);
+      img->SetScaleBasedOnTextureSize();
+    }
+    texture->Bind();
+    glGenerateMipmap(GL_TEXTURE_2D);
+    texture->Unbind();
 
-    return std::make_shared<ImagePrimitive>(std::make_shared<GLTexture2>(params, pixelData));
+    return img;
   }
 }
