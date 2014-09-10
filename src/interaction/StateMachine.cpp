@@ -51,6 +51,8 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     case OSCState::MEDIA_MENU_FOCUSED:
       m_desiredState = ResolvePose(handData.handPose);
       break;
+    case OSCState::EXPOSE_FOCUSED:
+    case OSCState::FINAL: //Here for completeness. We should never ever hit this one.
     default:
       break;
   }
