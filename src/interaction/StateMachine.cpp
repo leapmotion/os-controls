@@ -69,15 +69,15 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
 
   //TODO: Make scrolling an actual state of the application
   if (m_scrollType == ScrollType::HAND_SCROLL) {
-    DoHandScroll(scroll, handData.locationData, scrollState);
+    doHandScroll(scroll, handData.locationData, scrollState);
   }
   else if (m_scrollType == ScrollType::PINCH_SCROLL) {
-    DoPinchScroll(scroll, handData.locationData, handData.pinchData, scrollState);
+    doPinchScroll(scroll, handData.locationData, handData.pinchData, scrollState);
   }
 }
 
 //returns 'to' if a valid transition, or the alternative state if not.
-OSCState StateMachine::ValidateTransition(OSCState to) const {
+OSCState StateMachine::validateTransition(OSCState to) const {
   return to;
 }
 
@@ -96,7 +96,7 @@ void StateMachine::PerformTransition() {
   m_state = m_desiredState;
 }
 
-OSCState StateMachine::ResolvePose(HandPose pose) const {
+OSCState StateMachine::resolvePose(HandPose pose) const {
   //Don't do pose based transitions if we've just been scrolling
   if (m_lastScrollReleaseTimestep <= 1000000 || m_scrollState == ScrollState::ACTIVE) {
     return m_state;
@@ -114,7 +114,7 @@ OSCState StateMachine::ResolvePose(HandPose pose) const {
   }
 }
 
-void StateMachine::DoHandScroll(const Scroll& scroll, const HandLocation& handLocation, ScrollState& scrollState) {
+void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLocation, ScrollState& scrollState) {
 
   const double deltaScrollMultiplier = 0.15;
   const double deltaScrollThreshold = 0.15;
@@ -150,7 +150,7 @@ void StateMachine::DoHandScroll(const Scroll& scroll, const HandLocation& handLo
   m_scrollState = scrollState;
 }
 
-void StateMachine::DoPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch,ScrollState& scrollState) {
+void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch,ScrollState& scrollState) {
   Vector2 deltaScroll;
   switch (m_scrollState) {
   case ScrollState::ACTIVE:

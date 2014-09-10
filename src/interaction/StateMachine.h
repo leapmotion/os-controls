@@ -52,13 +52,13 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  OSCState ValidateTransition(OSCState to) const;
   void PerformTransition();
+  OSCState validateTransition(OSCState to) const;
 
-  OSCState ResolvePose(HandPose pose) const;
+  OSCState resolvePose(HandPose pose) const;
 
-  void DoHandScroll(const Scroll& scroll, const HandLocation& handLocation, ScrollState& scrollState);
-  void DoPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch, ScrollState& scrollState);
+  void doHandScroll(const Scroll& scroll, const HandLocation& handLocation, ScrollState& scrollState);
+  void doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch, ScrollState& scrollState);
 
   std::mutex m_lock;
 
