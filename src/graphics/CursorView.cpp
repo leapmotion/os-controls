@@ -18,19 +18,19 @@ CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
   m_alphaMask(0.0f, 0.2, EasingFunctions::QuadInOut<float>),
-  scrollBody(new SVGPrimitive()),
-  scrollLine(new SVGPrimitive()),
-  scrollFingerLeft(new SVGPrimitive()),
-  scrollFingerRight(new SVGPrimitive())
+  m_scrollBody(new SVGPrimitive()),
+  m_scrollLine(new SVGPrimitive()),
+  m_scrollFingerLeft(new SVGPrimitive()),
+  m_scrollFingerRight(new SVGPrimitive())
 {
   Resource<TextFile> scrollBodyFile("scroll-cursor-body.svg");
   Resource<TextFile> scrollLineFile("scroll-cursor-line.svg");
   Resource<TextFile> scrollFingerFile("scroll-cursor-finger.svg");
   
-  scrollBody->Set(scrollBodyFile->Contents());
-  scrollLine->Set(scrollLineFile->Contents());
-  scrollFingerLeft->Set(scrollFingerFile->Contents());
-  scrollFingerRight->Set(scrollFingerFile->Contents());
+  m_scrollBody->Set(scrollBodyFile->Contents());
+  m_scrollLine->Set(scrollLineFile->Contents());
+  m_scrollFingerLeft->Set(scrollFingerFile->Contents());
+  m_scrollFingerRight->Set(scrollFingerFile->Contents());
 }
 
 CursorView::~CursorView() {

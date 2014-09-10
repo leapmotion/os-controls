@@ -48,10 +48,10 @@ private:
   State m_state;
   Animated<float> m_alphaMask;
   
-  std::shared_ptr<SVGPrimitive> scrollBody;
-  std::shared_ptr<SVGPrimitive> scrollLine;
-  std::shared_ptr<SVGPrimitive> scrollFingerLeft;
-  std::shared_ptr<SVGPrimitive> scrollFingerRight;
+  std::shared_ptr<SVGPrimitive> m_scrollBody;
+  std::shared_ptr<SVGPrimitive> m_scrollLine;
+  std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;
+  std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
   
   Autowired<RenderEngine> m_renderEngine;
 };
