@@ -54,6 +54,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
     case OSCState::EXPOSE_FOCUSED:
     case OSCState::FINAL: //Here for completeness. We should never ever hit this one.
     default:
+      //Don't do anything. Transitions from these states are event driven.
       break;
   }
   
