@@ -1,7 +1,10 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
 #include "OSAppMac.h"
+#include <Primitives.h>
+#include <GLTexture2.h>
 
+#include <AppKit/NSGraphicsContext.h>
 #include <AppKit/NSRunningApplication.h>
 #include <Foundation/NSData.h>
 #include <Foundation/NSString.h>
@@ -51,6 +54,65 @@ std::shared_ptr<ImagePrimitive> OSAppMac::GetIconTexture(std::shared_ptr<ImagePr
   if (!m_icon) {
     return img;
   }
-  // FIXME
+  const size_t width = 256;
+  const size_t height = 256;
+  const size_t bytesPerRow = width*4;
+  const size_t totalBytes = bytesPerRow*height;
+
+  std::unique_ptr<uint8_t[]> dstBytes(new uint8_t[totalBytes]);
+  if (!dstBytes.get()) {
+    return img;
+  }
+  ::memset(dstBytes.get(), 0, totalBytes);
+  @autoreleasepool {
+    CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
+    CGContextRef contextRef = CGBitmapContextCreate(dstBytes.get(), width, height, 8, bytesPerRow, rgb,
+                                                    kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);
+    NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort:contextRef flipped:NO];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:gc];
+
+    const NSSize imageSize = [m_icon size];
+    const CGFloat scaleX = width/imageSize.width;
+    const CGFloat scaleY = height/imageSize.height;
+    const CGFloat scale = (scaleX >= scaleY) ? scaleX : scaleY;
+    const NSSize scaledImageSize = NSMakeSize(imageSize.width * scale, imageSize.height * scale);
+    const CGFloat xoffset = (imageSize.width*scaleX - scaledImageSize.width)/2.0;
+    const CGFloat yoffset = (imageSize.height*scaleY - scaledImageSize.height)/2.0;
+    const NSRect rect = NSMakeRect(xoffset, yoffset, scaledImageSize.width, scaledImageSize.height);
+
+    [m_icon drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+    [NSGraphicsContext restoreGraphicsState];
+    CGContextRelease(contextRef);
+    CGColorSpaceRelease(rgb);
+  }
+  // See if the texture underlying image was resized or not. If so, we need to create a new texture
+  std::shared_ptr<GLTexture2> texture = img->Texture();
+  if (texture) {
+    const auto& params = texture->Params();
+    if (params.Height() != height || params.Width() != width) {
+      texture.reset();
+    }
+  }
+  if (texture) {
+    texture->UpdateTexture(dstBytes.get()); // Very dangerous function interface!
+  } else {
+    GLTexture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
+    params.SetTarget(GL_TEXTURE_2D);
+    params.SetInternalFormat(GL_RGBA8);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
+
+    texture = std::make_shared<GLTexture2>(params, pixelData);
+    img->SetTexture(texture);
+    img->SetScaleBasedOnTextureSize();
+  }
+  texture->Bind();
+  glGenerateMipmap(GL_TEXTURE_2D);
+  texture->Unbind();
+
   return img;
 }
