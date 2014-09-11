@@ -39,11 +39,11 @@ public:
   void Draw(const GLShader &bound_shader, GLenum drawMode) const;
 
   // Factory functions for generating some simple shapes.  These functions assume that the draw mode (see Draw) is GL_TRIANGLES.
-  static PrimitiveGeometry CreateUnitSphere(int resolution);
-  static PrimitiveGeometry CreateUnitCylinder(int radialResolution, int verticalResolution);
-  static PrimitiveGeometry CreateUnitSquare();
-  static PrimitiveGeometry CreateUnitDisk(int resolution);
-  static PrimitiveGeometry CreateUnitBox();
+  static void CreateUnitSphere(int resolution, PrimitiveGeometry& geom);
+  static void CreateUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometry& geom);
+  static void CreateUnitSquare(PrimitiveGeometry& geom);
+  static void CreateUnitDisk(int resolution, PrimitiveGeometry& geom);
+  static void CreateUnitBox(PrimitiveGeometry& geom);
 
   // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
   // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.

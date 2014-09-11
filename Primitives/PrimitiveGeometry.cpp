@@ -65,18 +65,16 @@ void PrimitiveGeometry::Draw(const GLShader &bound_shader, GLenum drawMode) cons
                                    bound_shader.LocationOfAttribute("color"));
   // This calls glEnableVertexAttribArray and glVertexAttribPointer on the relevant things.
   m_VertexBuffer.Enable(locations);
-  
+
   m_IndexBuffer.Bind();
-  glDrawElements(drawMode, m_NumIndices, GL_UNSIGNED_INT, 0);
+  GL_THROW_UPON_ERROR(glDrawElements(drawMode, m_NumIndices, GL_UNSIGNED_INT, 0));
   m_IndexBuffer.Unbind();
 
   // This calls glDisableVertexAttribArray on the relevant things.
   m_VertexBuffer.Disable(locations);
 }
 
-PrimitiveGeometry PrimitiveGeometry::CreateUnitSphere(int resolution) {
-  PrimitiveGeometry geom;
-
+void PrimitiveGeometry::CreateUnitSphere(int resolution, PrimitiveGeometry& geom) {
   const float resFloat = static_cast<float>(resolution);
   const float pi = static_cast<float>(M_PI);
   const float twoPi = static_cast<float>(2.0 * M_PI);
@@ -117,12 +115,9 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSphere(int resolution) {
   }
 
   geom.UploadDataToBuffers();
-  return geom;
 }
 
-PrimitiveGeometry PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalResolution) {
-  PrimitiveGeometry geom;
-
+void PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometry& geom) {
   const float radialRes = 1.0f / static_cast<float>(radialResolution);
   const float verticalRes = 1.0f / static_cast<float>(verticalResolution);
   
@@ -155,12 +150,9 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitCylinder(int radialResolution, in
   }
 
   geom.UploadDataToBuffers();
-  return geom;
 }
 
-PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
-  PrimitiveGeometry geom;
-
+void PrimitiveGeometry::CreateUnitSquare(PrimitiveGeometry& geom) {
   static const GLfloat X = 0.5f;
   static const Vector3f POSITIONS[4] = {
     Vector3f(-X, -X, 0),
@@ -186,12 +178,9 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
                MakeVertexAttributes(POSITIONS[3], normal, TEX_COORDS[3]));
 
   geom.UploadDataToBuffers();
-  return geom;
 }
 
-PrimitiveGeometry PrimitiveGeometry::CreateUnitDisk(int resolution) {
-  PrimitiveGeometry geom;
-
+void PrimitiveGeometry::CreateUnitDisk(int resolution, PrimitiveGeometry& geom) {
   const Vector3f center(Vector3f::Zero());
 
   const float resFloat = static_cast<float>(resolution);
@@ -213,12 +202,9 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitDisk(int resolution) {
   }
 
   geom.UploadDataToBuffers();
-  return geom;
 }
 
-PrimitiveGeometry PrimitiveGeometry::CreateUnitBox() {
-  PrimitiveGeometry geom;
-
+void PrimitiveGeometry::CreateUnitBox(PrimitiveGeometry& geom) {
   // In order for this to be a unit box, its side lengths must be unit.
   const float x = 0.5f;
   const Vector3f p000(-x, -x, -x);
@@ -238,7 +224,6 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitBox() {
   geom.PushQuad(p001, p101, p111, p011);
   
   geom.UploadDataToBuffers();
-  return geom;
 }
 
 void PrimitiveGeometry::PushTri(const VertexAttributes& p0, const VertexAttributes& p1, const VertexAttributes& p2) {
