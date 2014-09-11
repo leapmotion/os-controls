@@ -31,6 +31,7 @@ CursorView::CursorView() :
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
+  // Initialize Smoothed member variables.
   m_bodyOffset.SetInitialValue(0.0f);
   m_bodyOffset.SetSmoothStrength(0.8f);
   
@@ -43,13 +44,14 @@ CursorView::CursorView() :
   m_diskAlpha.SetSmoothStrength(0.5f);
   m_diskAlpha.SetInitialValue(0.0f);
   
-  m_disk->SetRadius(20.0f);
   
+  //Initialize Disk Cursor
+  m_disk->SetRadius(20.0f);
   m_disk->Material().SetAmbientLightColor(CURSOR_COLOR);
   m_disk->Material().SetDiffuseLightColor(CURSOR_COLOR);
   m_disk->Material().SetAmbientLightingProportion(1.0f);
   
-  // Load SVG Files
+  // Load SVG Files for scroll cursor parts
   Resource<TextFile> scrollBodyFile("scroll-cursor-body.svg");
   Resource<TextFile> scrollLineFile("scroll-cursor-line.svg");
   Resource<TextFile> scrollFingerRightFile("scroll-cursor-finger_right.svg");
