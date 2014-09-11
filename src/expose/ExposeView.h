@@ -128,7 +128,7 @@ private:
   Renderable::ZOrderList m_zorder;
 
   // Background Overlay Rectangle
-  std::shared_ptr<RectanglePrim> m_backgroundRect;
+  std::shared_ptr<ImagePrimitive> m_backgroundImage;
 
   // Hand data
   HandData m_handData;

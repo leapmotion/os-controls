@@ -20,8 +20,8 @@ ExposeView::ExposeView() :
   m_selectionRadius(100),
   m_viewCenter(Vector2::Zero())
 {
-
-  m_backgroundRect = std::shared_ptr<RectanglePrim>(new RectanglePrim);
+  m_backgroundImage = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
+  m_backgroundImage = Autowired<OSVirtualScreen>()->PrimaryScreen().GetBackgroundTexture(m_backgroundImage);
 
   m_selectionRegion = std::shared_ptr<Disk>(new Disk);
   m_selectionRegion->Material().SetDiffuseLightColor(selectionRegionColor);
@@ -32,11 +32,6 @@ ExposeView::ExposeView() :
   m_selectionOutline->Material().SetDiffuseLightColor(selectionOutlineColor);
   m_selectionOutline->Material().SetAmbientLightColor(selectionOutlineColor);
   m_selectionOutline->Material().SetAmbientLightingProportion(1.0f);
-
-  Color backgroundRectColor(0.05f, 0.05f, 0.05f, 0.9f);
-  m_backgroundRect->Material().SetDiffuseLightColor(backgroundRectColor);
-  m_backgroundRect->Material().SetAmbientLightColor(backgroundRectColor);
-  m_backgroundRect->Material().SetAmbientLightingProportion(1.0f);
 }
 
 ExposeView::~ExposeView() {
@@ -69,7 +64,7 @@ void ExposeView::Render(const RenderFrame& frame) const {
   if(!IsVisible())
     return;
 
-  PrimitiveBase::DrawSceneGraph(*m_backgroundRect, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_backgroundImage, frame.renderState);
 
   PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
@@ -81,12 +76,17 @@ void ExposeView::Render(const RenderFrame& frame) const {
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   // Handle anything pended to the render thread:
   DispatchAllEvents();
-  
+
   double angle = 0;
   const double angleInc = 2*M_PI / static_cast<double>(m_windows.size());
 
   // calculate center of the primary screen
   Autowired<OSVirtualScreen> fullScreen;
+  const Vector2 fullSize(fullScreen->Size().width, fullScreen->Size().height);
+  const OSRect fullBounds = fullScreen->Bounds();
+  const Vector2 fullOrigin(fullBounds.origin.x, fullBounds.origin.y);
+  const Vector2 fullCenter = fullOrigin + 0.5*fullSize;
+
   auto screen = fullScreen->PrimaryScreen();
   const Vector2 size(screen.Size().width, screen.Size().height);
   const OSRect bounds = screen.Bounds();
@@ -94,8 +94,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_viewCenter = origin + 0.5*size;
 
   // update background rectangle
-  m_backgroundRect->SetSize(size - Vector2(0, 1));
-  m_backgroundRect->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  m_backgroundImage->Translation() << fullCenter.x(), fullCenter.y(), 0.0;
 
   // calculate radius of layout
   m_layoutRadius = 0.4 * std::min(size.x(), size.y());
@@ -151,7 +150,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegion->SetRadius(m_selectionRadius);
   m_selectionRegion->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
-  m_backgroundRect->LocalProperties().AlphaMask() = m_alphaMask.Current();
+  m_backgroundImage->LocalProperties().AlphaMask() = m_alphaMask.Current();
 }
 
 void ExposeView::updateActivations(std::chrono::duration<double> dt) {
