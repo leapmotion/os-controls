@@ -36,6 +36,15 @@ public:
   /// </summary>
   virtual void Enumerate(const std::function<void(OSWindow&)>& callback) const = 0;
 
+  /// <summary>
+  /// Returns the topmost os window under the specified point
+  /// <summary>
+  /// <remarks>
+  /// If a window under the requested point was not formerly enumerated, a call to this
+  /// method may potentially result in an OnCreate event being raised
+  /// </remarks>
+  virtual std::shared_ptr<OSWindow> WindowFromPoint(OSPoint point) = 0;
+
   // Updatable overrides:
   void Tick(std::chrono::duration<double> deltaT) override;
 };
