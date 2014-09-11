@@ -43,26 +43,22 @@ public:
   void Render(const RenderFrame& frame) const override;
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 private:
-  const float GHOST_OPACITY = 0.3f;
-  
   enum class State {
     INACTIVE,
     ACTIVE
   };
   
-  void updateScrollerPosition();
   Vector2 getWindowCenter(OSWindow& window);
   
   State m_state;
   
-  Vector2 m_ghostCursorOffset;
   Vector2 m_scrollBodyOffset;
   Vector2 m_scrollLineOffset;
   Vector2 m_scrollFingerLeftOffset;
   Vector2 m_scrollFingerRightOffset;
   
-  std::shared_ptr<SVGPrimitive> m_ghostCursor;
   std::shared_ptr<SVGPrimitive> m_scrollBody;
   std::shared_ptr<SVGPrimitive> m_scrollLine;
   std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;

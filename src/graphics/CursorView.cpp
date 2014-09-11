@@ -18,7 +18,6 @@
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
-  m_ghostCursor(new SVGPrimitive()),
   m_scrollBody(new SVGPrimitive()),
   m_scrollLine(new SVGPrimitive()),
   m_scrollFingerLeft(new SVGPrimitive()),
@@ -36,9 +35,6 @@ CursorView::CursorView() :
   m_x.SetSmoothStrength(0.6f);
   m_y.SetSmoothStrength(0.6f);
   
-  m_ghostX.SetSmoothStrength(0.8f);
-  m_ghostY.SetSmoothStrength(0.8f);
-  
   m_bodyAlpha.SetSmoothStrength(0.3f);
   m_bodyAlpha.SetInitialValue(0.0f);
   
@@ -49,19 +45,15 @@ CursorView::CursorView() :
   Resource<TextFile> scrollFingerFile("scroll-cursor-finger.svg");
   Resource<TextFile> ghostCursorFile("scroll-cursor-ghost.svg");
   
-  m_ghostCursor->Set(ghostCursorFile->Contents());
   m_scrollBody->Set(scrollBodyFile->Contents());
   m_scrollLine->Set(scrollLineFile->Contents());
   m_scrollFingerLeft->Set(scrollFingerFile->Contents());
   m_scrollFingerRight->Set(scrollFingerFile->Contents());
   
-  m_ghostCursorOffset = m_ghostCursor->Origin() - (m_ghostCursor->Size()/2.0);
   m_scrollBodyOffset = m_scrollBody->Origin() - (m_scrollBody->Size()/2.0);
   m_scrollLineOffset = m_scrollLine->Origin() - (m_scrollLine->Size()/2.0);
   m_scrollFingerLeftOffset = m_scrollFingerLeft->Origin() - (m_scrollFingerLeft->Size()/2.0);
   m_scrollFingerRightOffset = m_scrollFingerRight->Origin() - (m_scrollFingerRight->Size()/2.0);
-  
-  m_ghostCursor->LocalProperties().AlphaMask() = GHOST_OPACITY;
 }
 
 CursorView::~CursorView() {
@@ -118,19 +110,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       m_fingerSpread = FINGER_SPREAD_MIN + (m_pinchNormal * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
     
       if ( handData.pinchData.isPinching ) {
-        
-        if ( !m_wasPinching ) {
-          if ( m_osWindowMonitor ) {
-            std::shared_ptr<OSWindow> newWindow = m_osWindowMonitor->WindowFromPoint(OSPointMake(handData.locationData.x, handData.locationData.y));
-            if( newWindow && newWindow != m_lastSelectedWindow ) {
-              updateScrollerPosition();
-            } else if ( !newWindow ) {
-              m_ghostCursor->LocalProperties().AlphaMask() = 0.0f;
-            }
-            m_lastSelectedWindow = newWindow;
-          }
-        }
-        
         velocitySign = handData.locationData.dY < 0 ? -1 : 1;
         velocityNorm = (fabs(handData.locationData.dY) - SCROLL_VELOCITY_MIN) / (SCROLL_VELOCITY_MAX - SCROLL_VELOCITY_MIN);
         velocityNorm = std::min(1.0f, std::max(0.0f, velocityNorm));
@@ -207,17 +186,12 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   
   //Disk that appears when you're not doing things with scroll
   m_disk->Translation() = Vector3(-position.x + m_x, -position.y + m_y, 0.0f);
-  
-  // Ghost Guide Cursor positioning
-  m_ghostCursor->Translation() = Vector3(m_ghostCursorOffset.x(), m_ghostCursorOffset.y(), 0.0f);
-  
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
   switch ( m_state ) {
     case State::ACTIVE:
       PrimitiveBase::DrawSceneGraph(*m_disk, frame.renderState);
-      PrimitiveBase::DrawSceneGraph(*m_ghostCursor, frame.renderState);
       if ( m_lastSelectedWindow ) {
         PrimitiveBase::DrawSceneGraph(*m_scrollLine, frame.renderState);
         PrimitiveBase::DrawSceneGraph(*m_scrollBody, frame.renderState);
@@ -229,22 +203,6 @@ void CursorView::Render(const RenderFrame& frame) const {
     default:
       break;
   }
-}
-
-void CursorView::updateScrollerPosition() {/*
-  m_ghostCursor->LocalProperties().AlphaMask() = GHOST_OPACITY;
-  
-  if ( m_lastSelectedWindow == nullptr )
-  {
-    m_x.SetInitialValue(m_ghostX.Value());
-    m_y.SetInitialValue(m_ghostY.Value());
-    m_x.SetGoal(m_ghostX.Value());
-    m_y.SetGoal(m_ghostY.Value());
-  }
-  else {
-    m_x.SetGoal(m_ghostX.Value());
-    m_y.SetGoal(m_ghostY.Value());
-  }*/
 }
 
 Vector2 CursorView::getWindowCenter(OSWindow& window) {
