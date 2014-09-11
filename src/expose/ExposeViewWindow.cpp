@@ -7,16 +7,23 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this()),
   m_texture(new ImagePrimitive)
 {
+  const float randNum = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+  const float randomSmoothVariationRadius = 0.05f;
+  const float randomVariation = 2*(randNum - 0.5f) * randomSmoothVariationRadius;
+  const float baseSmooth = 0.875f;
+  const float variedSmooth = baseSmooth + randomVariation;
+
   m_opacity.SetInitialValue(0.0f);
   m_opacity.SetGoal(0.0f);
-  m_opacity.SetSmoothStrength(0.9f);
+  m_opacity.SetSmoothStrength(variedSmooth);
 
   m_position.SetInitialValue(Vector3::Zero());
   m_position.SetGoal(Vector3::Zero());
-  m_position.SetSmoothStrength(0.85f);
+  m_position.SetSmoothStrength(variedSmooth);
 
   m_scale.SetInitialValue(0.0f);
   m_scale.SetGoal(0.0f);
+  m_scale.SetSmoothStrength(variedSmooth);
 
   m_activation.SetInitialValue(0.0f);
   m_activation.SetGoal(0.0f);
