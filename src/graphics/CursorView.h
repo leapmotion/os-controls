@@ -55,7 +55,6 @@ private:
   Vector2 getWindowCenter(OSWindow& window);
   
   State m_state;
-  Animated<float> m_alphaMask;
   
   Vector2 m_ghostCursorOffset;
   Vector2 m_scrollBodyOffset;

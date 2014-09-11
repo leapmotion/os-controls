@@ -18,7 +18,6 @@
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
-  m_alphaMask(0.0f, 0.2, EasingFunctions::QuadInOut<float>),
   m_ghostCursor(new SVGPrimitive()),
   m_scrollBody(new SVGPrimitive()),
   m_scrollLine(new SVGPrimitive()),
@@ -95,12 +94,9 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
     case State::INACTIVE:
       if(appState != OSCState::FINAL ) {
         m_state = State::ACTIVE;
-        m_alphaMask.Set(1.0f);
-        
       }
       break;
     case State::ACTIVE:
-      
       if ( handData.handPose == HandPose::OneFinger ) {
         m_isPointing = true;
       }
@@ -110,7 +106,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       
       if(appState == OSCState::FINAL) {
         m_state = State::INACTIVE;
-        m_alphaMask.Set(0.0f);
       }
       break;
   }
@@ -216,7 +211,6 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   // Ghost Guide Cursor positioning
   m_ghostCursor->Translation() = Vector3(m_ghostCursorOffset.x(), m_ghostCursorOffset.y(), 0.0f);
   
-  m_alphaMask.Update(frame.deltaT.count());
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
