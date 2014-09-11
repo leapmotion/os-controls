@@ -24,6 +24,10 @@ public:
   std::shared_ptr<ImagePrimitive>& GetTexture() { return m_texture; }
   const std::shared_ptr<ImagePrimitive>& GetTexture() const { return m_texture; }
 
+  void SetOpeningPosition();
+  void SetClosingPosition();
+  Vector2 GetOSPosition() const;
+
   // Smooth animations for opacity and position
   Smoothed<float> m_opacity;
   Smoothed<Vector3> m_position;
