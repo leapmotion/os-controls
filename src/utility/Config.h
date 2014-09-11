@@ -5,48 +5,113 @@
 #include<stdexcept>
 #include<chrono>
 
+#include "FileMonitor.h"
+#include <autowiring/Autowired.h>
 #include <autowiring/../contrib/json11/json11.hpp>
+
+#define CONFIG_DEFAULT_NAME "config.json"
+
+struct ConfigEvent {
+  /// <summary>
+  /// Event fired when a config value is added or changed - fired per config value.
+  virtual void ConfigChanged(const std::string& config, const json11::Json& value) = 0;
+};
+
 
 /// <summary>
 /// Stores application-wide settings on a per-user basis.
 /// Presently only allows numbers, bools, strings, and vectors or maps of json11::Json objects.
+/// All strings are UTF-8 encoded.
 /// </summary>
+/// TODO: Consider making this a CoreThread so we have a dispatch queue & can queue save/loads.
+
 class Config {
 public:
-  Config(void);
+  /// <summary>
+  /// Creates a config mapped to a given filename ("config.json" by default).
+  /// The config will be saved to this file on modification, and the file will be
+  /// watched for modifications.
+  /// </summary>
+  Config(const std::string& filename = CONFIG_DEFAULT_NAME) { SetPrimaryFile(filename); }
 
-  void Save(const std::string& filename = "config.json") const;
-  bool Load(const std::string& filename = "config.json");
+  /// <summary>
+  /// Sets the file to watch and save changes to
+  /// </summary>
+  void SetPrimaryFile(const std::string& filename);
+  const std::string& GetPrimaryFile() const { return m_fileWatch->Path(); }
+  
+  const std::string& GetDefaultFilename() const { 
+    static const std::string name = "config.json";
+    return name;
+  }
 
+  /// <summary>
+  /// Performs a one-off save to the specified file
+  /// </summary>
+  void Save(const std::string& filename = CONFIG_DEFAULT_NAME) const;
+
+  /// <summary>
+  /// Loads a file in a one-off manner.  If overwrite is set, it will
+  /// Overwrite any settings it finds with the ones from the file, otherwise
+  /// it will only load settings for which there is not yet a value
+  bool Load(const std::string& filename = CONFIG_DEFAULT_NAME, bool overwrite = true);
+
+  /// <summary>
+  /// Clears all config data
   void Clear();
+
   template<typename T>
   T Get(const std::string& prop) const { static_assert(false,"Unspecialized on type"); return T(); }
 
   template<typename T>
   void Set(const std::string& prop, const T &val){
-    m_data[prop] = json11::Json(val);
+    {
+      std::unique_lock<std::mutex> lock(m_mutex);
+      auto entry = m_data.find(prop);
+      if (entry == m_data.end() || entry->second == val)
+        return;
+
+      entry->second = json11::Json(val);
+      m_events(&ConfigEvent::ConfigChanged)(entry->first, entry->second);
+    }
+
+    Save(m_fileWatch->Path());
+  }
+
+  /// <summary>
+  /// Completely removes a property from the config list
+  /// </summary>
+  void Unset(const std::string& prop) {
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_data.erase(prop);
   }
 
   bool Exists(const std::string& prop) const {
-    return m_data.count(prop) > 0;
+    return std::unique_lock<std::mutex>(m_mutex), m_data.count(prop) > 0;
   }
 
   json11::Json::object::const_iterator GetRef(const std::string& prop) const {
-    return m_data.find(prop);
+    return std::unique_lock<std::mutex>(m_mutex), m_data.find(prop);
   }
 
-  std::chrono::microseconds GetFrameRate(void) const;
-
 private:
+  Autowired<FileMonitor> m_fileMonitor;
+  AutoFired<ConfigEvent> m_events;
+
+  std::shared_ptr<FileWatch> m_fileWatch;
+
+  json11::Json::object m_data;
+  mutable std::mutex m_mutex;
 
   json11::Json::object::const_iterator GetInternal(const std::string& prop) const {
+    std::unique_lock<std::mutex> lock(m_mutex);
+
     auto ref = m_data.find(prop);
     if (ref == m_data.end())
       throw std::runtime_error("Could not find property:" + prop);
     return ref;
   }
 
-  json11::Json::object m_data;
 };
 
 //Specializations for valid storage types

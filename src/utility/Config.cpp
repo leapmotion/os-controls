@@ -5,15 +5,25 @@
 #include <fstream>
 #include <sstream>
 
-Config::Config(void) {
+void Config::SetPrimaryFile(const std::string& filename)
+{
+  Load(filename);
+
+  m_fileWatch = m_fileMonitor->Watch(filename, 
+    [this](std::shared_ptr<FileWatch> fileWatch, FileWatch::State state) {
+    this->Load(fileWatch->Path());
+  });
 }
 
 void Config::Save(const std::string& filename) const {
+  std::unique_lock<std::mutex> lock(m_mutex);
   std::ofstream outFile(filename);
   outFile << json11::Json(m_data).dump();;
 }
 
-bool Config::Load(const std::string& filename) {
+bool Config::Load(const std::string& filename, bool overwrite) {
+  std::unique_lock<std::mutex> lock(m_mutex);
+
   std::string err;
   std::string data;
 
@@ -34,18 +44,26 @@ bool Config::Load(const std::string& filename) {
   if (!err.empty())
     throw std::runtime_error(std::string("Json parsing error:") + err);
 
-  //insert does not overwrite items in the set with the input
-  //We want the new data to take precidence, so insert old into the new set.
-  newData.insert(m_data.begin(), m_data.end());
-  std::swap(newData, m_data);
+  //Add the new data(only overwriting old values if overwrite is set) and fire the event
+  for (auto& newEntry : newData) {
+    auto oldEntry = m_data.find(newEntry.first);
+    if (oldEntry == m_data.end()){
+      m_data[newEntry.first] = newEntry.second;
+      m_events(&ConfigEvent::ConfigChanged)(newEntry.first, newEntry.second);
+    }
+    else if (overwrite && newEntry.second != oldEntry->second) {
+      oldEntry->second = newEntry.second;
+      m_events(&ConfigEvent::ConfigChanged)(newEntry.first, newEntry.second);
+    }
+  }
 
   return true;
 }
 
-std::chrono::microseconds Config::GetFrameRate() const {
-  return std::chrono::microseconds(static_cast<long>(Get<double>("framerate")));
-}
-
 void Config::Clear(){
-  m_data.clear();
+  {
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_data.clear();
+  }
+  Save();
 }
