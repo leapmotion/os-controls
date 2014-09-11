@@ -44,6 +44,7 @@ public:
 private:
   // Texture for this window
   std::shared_ptr<ImagePrimitive> m_texture;
+  mutable std::shared_ptr<ImagePrimitive> m_icon;
 
 public:
   /// <summary>
