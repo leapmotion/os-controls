@@ -99,18 +99,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     return;
   }
   
-  //Hand Pose Transitions
-  switch (m_lastHandPose) {
-    case HandPose::OneFinger:
-      if( handData.handPose == HandPose::Clawed)
-      {
-        m_startRoll = handData.rollData.absoluteRoll;
-      }
-      break;
-    default:
-      break;
-  }
-  
   m_lastHandPose = handData.handPose;
   
   switch( m_state )
@@ -153,63 +141,20 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       break;
     case State::ACTIVE:
     {
-
-      if( handData.handPose != HandPose::Clawed ) {
-        // MENU UPDATE
-        
-        // The menu always thinks it's at (0,0) so we need to offset the cursor
-        // coordinates by the location of the menu to give the proper space.
-        const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
-        
-        Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
-        RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
-        m_selectedItem = updateResult.updateIdx;
-        if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
-          //Selection Made Transition
-          resolveSelection(updateResult.updateIdx);
-          m_state = State::COMPLETE;
-          m_LastStateChangeTime = m_CurrentTime;
-        }
-      }
-      else {
-        // Update the menu to keep it at unity and allow for closing animations
-        m_radialMenu->InteractWithCursor(m_radialMenu->Translation());
-        
-        // VOLUME UPDATE
-        float absRot = 0; // absolute rotation of the hand
-        float offset = 0; // offset between menu start and current rotation
-        int sign = 1;
-        float visualNorm = 0;
-        float norm = 0;
-        float velocity = 0;
+      // MENU UPDATE
       
-        const float DEADZONE = 0.3f;
-        const float MAX = static_cast<float>(M_PI / 4.0);
-        const float MAX_VELOCTY = 0.4f;
-        
-        if( !m_hasRoll ) {
-          m_startRoll = handData.rollData.absoluteRoll;
-          m_hasRoll = true;
-          return;
-        }
-        
-        absRot = handData.rollData.absoluteRoll;
-        offset = absRot - m_startRoll;
-        
-        // Make sure offset represents the smallest representation of the offset angle.
-        offset = fabs(offset) > M_PI ? static_cast<float>(2*M_PI - fabs(offset)) : offset;
-
-        sign = offset < 0 ? -1 : 1; // Store the direction of the offset before we normalize it.
-        visualNorm = fabs(offset) / MAX; // The normalization for the visual feedback doens't use the deadzone.
-        visualNorm = std::min(1.0f, std::max(0.0f, visualNorm)); //Clamp the visual output
-        norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE); // The normalization for the input has a deadzone.
-        norm = std::min(1.0f, std::max(0.0f, norm)); //Clamp the normalized input
-        
-        // Calcuate velocity from the normalized input value.
-        velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
-        
-        // Send the velocity to the controller to update the system volume.
-        m_mediaViewEventListener(&MediaViewEventListener::OnUserChangedVolume)(calculateVolumeDelta(velocity));
+      // The menu always thinks it's at (0,0) so we need to offset the cursor
+      // coordinates by the location of the menu to give the proper space.
+      const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
+      
+      Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
+      RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
+      m_selectedItem = updateResult.updateIdx;
+      if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
+        //Selection Made Transition
+        resolveSelection(updateResult.updateIdx);
+        m_state = State::COMPLETE;
+        m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     }
