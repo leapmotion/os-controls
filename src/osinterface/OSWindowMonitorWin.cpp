@@ -125,3 +125,28 @@ void OSWindowMonitorWin::Scan() {
   for(auto q : pending)
     m_oswe(&OSWindowEvent::OnCreate)(*q.second);
 }
+
+std::shared_ptr<OSWindow> OSWindowMonitorWin::WindowFromPoint(OSPoint point) {
+  POINT pt = {
+    (LONG)point.x,
+    (LONG)point.y
+  };
+  HWND hwnd = ::WindowFromPoint(pt);
+  if(!hwnd)
+    // No window here, give up
+    return nullptr;
+
+  std::unique_lock<std::mutex> lk(m_lock);
+
+  // See if this window already exists:
+  auto q = m_knownWindows.find(hwnd);
+  if(q != m_knownWindows.end())
+    return q->second;
+
+  // Window doesn't exist, we need to create a representation and fire a create event
+  auto createdWindow = std::make_shared<OSWindowWin>(hwnd);
+  m_knownWindows[hwnd] = createdWindow;
+  lk.unlock();
+  m_oswe(&OSWindowEvent::OnCreate)(*createdWindow);
+  return createdWindow;
+}
