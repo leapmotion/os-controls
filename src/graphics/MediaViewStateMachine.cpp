@@ -107,12 +107,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         m_startRoll = handData.rollData.absoluteRoll;
       }
       break;
-    case HandPose::Clawed:
-      if ( handData.handPose == HandPose::OneFinger)
-      {
-        //Update volume visual to 'unity' and update starting rotation
-        m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(0.0, Vector3::UnitZ()).toRotationMatrix();
-      }
     default:
       break;
   }
@@ -125,25 +119,21 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
         m_volumeSlider->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
-        m_volumeKnob->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_startRoll = handData.rollData.absoluteRoll;
         m_hasRoll = true;
-        m_volumeKnob->SetAlphaMaskGoal(0.75f);
         m_state = State::ACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-        m_volumeKnob->SetAlphaMaskGoal(0.0f);
         m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::COMPLETE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
-        m_volumeKnob->SetAlphaMaskGoal(0.0f);
         m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
 
@@ -177,7 +167,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
           //Selection Made Transition
           resolveSelection(updateResult.updateIdx);
-          m_volumeKnob->SetAlphaMaskGoal(0.0f);
           m_state = State::COMPLETE;
           m_LastStateChangeTime = m_CurrentTime;
         }
@@ -215,9 +204,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         visualNorm = std::min(1.0f, std::max(0.0f, visualNorm)); //Clamp the visual output
         norm = (fabs(offset) - DEADZONE) / (MAX - DEADZONE); // The normalization for the input has a deadzone.
         norm = std::min(1.0f, std::max(0.0f, norm)); //Clamp the normalized input
-        
-        // Rotate the volume knob in the view based on the user's normalized input.
-        m_volumeKnob->LinearTransformation() = Eigen::AngleAxis<double>(visualNorm * (M_PI/2.0) * sign, Vector3::UnitZ()).toRotationMatrix();
         
         // Calcuate velocity from the normalized input value.
         velocity = norm * MAX_VELOCTY * sign * (frameTime.deltaTime / 100000.0f);
@@ -291,7 +277,6 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
     }
     else {
       PrimitiveBase::DrawSceneGraph(*m_volumeSlider, renderFrame.renderState);
-      PrimitiveBase::DrawSceneGraph(*m_volumeKnob, renderFrame.renderState);
     }
   }
 }

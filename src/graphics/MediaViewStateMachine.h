@@ -4,7 +4,6 @@
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
-#include "VolumeKnob.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
@@ -63,7 +62,6 @@ private:
   
   std::shared_ptr<RadialMenu>m_radialMenu;
   std::shared_ptr<RadialSlider> m_volumeSlider;
-  AutoRequired<VolumeKnob> m_volumeKnob;
   
   bool m_hasRoll;
   float m_startRoll;
