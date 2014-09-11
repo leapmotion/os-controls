@@ -82,6 +82,8 @@ private:
   bool m_wasPinching;
   Vector2 m_lastHandPosition;
   
+  bool m_isPointing;
+  
   Smoothed<float> m_bodyOffset;
   Smoothed<float> m_x;
   Smoothed<float> m_y;

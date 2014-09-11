@@ -27,7 +27,8 @@ CursorView::CursorView() :
   m_fingerSpread(0.0f),
   m_pinchNormal(0.0f),
   m_wasPinching(false),
-  m_lastHandPosition(0,0)
+  m_lastHandPosition(0,0),
+  m_isPointing(false)
 {
   m_bodyOffset.SetInitialValue(0.0f);
   m_bodyOffset.SetSmoothStrength(0.8f);
@@ -91,16 +92,22 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   //State Transitions
   switch(m_state) {
     case State::INACTIVE:
-      if(appState != OSCState::FINAL &&
-         handData.handPose != HandPose::Clawed) {
+      if(appState != OSCState::FINAL ) {
         m_state = State::ACTIVE;
         m_alphaMask.Set(1.0f);
         
       }
       break;
     case State::ACTIVE:
-      if(appState == OSCState::FINAL ||
-         handData.handPose == HandPose::Clawed) {
+      
+      if ( handData.handPose == HandPose::OneFinger ) {
+        m_isPointing = true;
+      }
+      else {
+        m_isPointing = false;
+      }
+      
+      if(appState == OSCState::FINAL) {
         m_state = State::INACTIVE;
         m_alphaMask.Set(0.0f);
       }
@@ -175,6 +182,11 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
   std::cout << "body opacity norm: " << bodyOpacityNorm << std::endl;
   m_bodyAlpha.SetGoal(bodyOpacityNorm);
+  
+  if ( m_isPointing ) {
+    m_bodyAlpha.SetGoal(0.0f);
+  }
+  
   m_bodyAlpha.Update(frame.deltaT.count());
   
   if ( m_state == State::ACTIVE ) {
