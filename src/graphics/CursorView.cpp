@@ -38,18 +38,28 @@ CursorView::CursorView() :
   m_bodyAlpha.SetSmoothStrength(0.3f);
   m_bodyAlpha.SetInitialValue(0.0f);
   
+  m_diskAlpha.SetSmoothStrength(0.5f);
+  m_diskAlpha.SetInitialValue(0.0f);
+  
   m_disk->SetRadius(20.0f);
   
+  m_disk->Material().SetAmbientLightColor(CURSOR_COLOR);
+  m_disk->Material().SetDiffuseLightColor(CURSOR_COLOR);
+  m_disk->Material().SetAmbientLightingProportion(1.0f);
+  
+  // Load SVG Files
   Resource<TextFile> scrollBodyFile("scroll-cursor-body.svg");
   Resource<TextFile> scrollLineFile("scroll-cursor-line.svg");
-  Resource<TextFile> scrollFingerFile("scroll-cursor-finger.svg");
-  Resource<TextFile> ghostCursorFile("scroll-cursor-ghost.svg");
+  Resource<TextFile> scrollFingerRightFile("scroll-cursor-finger_right.svg");
+  Resource<TextFile> scrollFingerLeftFile("scroll-cursor-finger_left.svg");
   
+  // Assign SVG data to proper primitives.
   m_scrollBody->Set(scrollBodyFile->Contents());
   m_scrollLine->Set(scrollLineFile->Contents());
-  m_scrollFingerLeft->Set(scrollFingerFile->Contents());
-  m_scrollFingerRight->Set(scrollFingerFile->Contents());
+  m_scrollFingerLeft->Set(scrollFingerRightFile->Contents());
+  m_scrollFingerRight->Set(scrollFingerLeftFile->Contents());
   
+  // Calulate the offsets to the svg primitive centers.
   m_scrollBodyOffset = m_scrollBody->Origin() - (m_scrollBody->Size()/2.0);
   m_scrollLineOffset = m_scrollLine->Origin() - (m_scrollLine->Size()/2.0);
   m_scrollFingerLeftOffset = m_scrollFingerLeft->Origin() - (m_scrollFingerLeft->Size()/2.0);
@@ -187,8 +197,8 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   // Snapped Scrolling Cursor Positioning
   m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x() - position.x + m_x.Value(), m_scrollBodyOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
   m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x() - position.x + m_x.Value(), m_scrollLineOffset.y() - position.y + m_y.Value(), 0.0f);
-  m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() - position.x - m_fingerSpread + m_x.Value(), m_scrollFingerLeftOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
-  m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - position.x + m_fingerSpread + m_x.Value(), m_scrollFingerRightOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
+  m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() - position.x + m_fingerSpread + m_x.Value(), m_scrollFingerLeftOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
+  m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - position.x - m_fingerSpread + m_x.Value(), m_scrollFingerRightOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
   
   //Disk that appears when you're not doing things with scroll
   m_disk->Translation() = Vector3(-position.x + m_x, -position.y + m_y, 0.0f);
