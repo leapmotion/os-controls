@@ -54,10 +54,11 @@ void FileWatchWin::OnReadDirectoryComplete(void) {
          nullptr;
 
     State state;
+    auto wideFilename = converter.from_bytes(m_filename);
     if(!m_isDirectory && (!isMoving || notify->Action != FILE_ACTION_RENAMED_NEW_NAME)) {
-      if(static_cast<DWORD>(m_filename.size()*sizeof(WCHAR)) != notify->FileNameLength)
+      if (static_cast<DWORD>(wideFilename.size()*sizeof(WCHAR)) != notify->FileNameLength)
         continue;
-      if(::memcmp(m_filename.c_str(), notify->FileName, notify->FileNameLength) != 0)
+      if (::memcmp(wideFilename.c_str(), notify->FileName, notify->FileNameLength) != 0)
         continue;
     }
     switch(notify->Action) {
