@@ -147,7 +147,7 @@ public:
     }
     m_gl_buffer.Bind();
     // Begin iterated binding of vertex attributes starting at the 0th one.
-    EnableAndIterate<0>(attribute_locations, sizeof(Attributes), 0);
+    EnableAndIterate<0>(attribute_locations, sizeof(Attributes));
     m_gl_buffer.Unbind();
   }
   // This method calls glDisableVertexAttribArray on each of the vertex attributes
@@ -164,7 +164,7 @@ private:
   // This is one iteration of the Enable method.  It calls the next iteration.
   template <size_t INDEX, typename... LocationTypes>
   static typename std::enable_if<(INDEX<ATTRIBUTE_COUNT),void>::type
-    EnableAndIterate (const std::tuple<LocationTypes...> &locations, size_t stride, size_t offset)
+    EnableAndIterate (const std::tuple<LocationTypes...> &locations, size_t stride)
   {
     typedef std::tuple<LocationTypes...> Locations;
     static_assert(std::tuple_size<Locations>::value == ATTRIBUTE_COUNT, "Must specify the same number of locations as attributes");
@@ -173,15 +173,19 @@ private:
     typedef typename std::tuple_element<INDEX,Attributes>::type AttributeType;
     // Get the INDEXth location value.
     GLint location = std::get<INDEX>(locations);
+    // Compute the offset of the current attribute into the Attributes tuple type.  It is NOT
+    // necessarily layed out in memory in the same order as the variadic template parameters!
+    static const Attributes A; // This is not actually used for anything at runtime, just for determining the offset.
+    static const size_t OFFSET_OF_INDEXth_ATTRIBUTE = static_cast<size_t>(reinterpret_cast<const uint8_t *>(&std::get<INDEX>(A)) - reinterpret_cast<const uint8_t *>(&A));
     // Call the Enable method of the INDEXth attribute type with the INDEXth location value, etc.
-    AttributeType::Enable(location, stride, offset);
+    AttributeType::Enable(location, stride, OFFSET_OF_INDEXth_ATTRIBUTE);
     // Increment INDEX and call this method again (this is a meta-program for loop).
-    EnableAndIterate<INDEX+1>(locations, stride, offset+sizeof(AttributeType));
+    EnableAndIterate<INDEX+1>(locations, stride);
   }
   // This is the end of the iteration in the Enable method.
   template <size_t INDEX, typename... LocationTypes>
   static typename std::enable_if<(INDEX>=ATTRIBUTE_COUNT),void>::type
-    EnableAndIterate (const std::tuple<LocationTypes...> &locations, size_t stride, size_t offset)
+    EnableAndIterate (const std::tuple<LocationTypes...> &locations, size_t stride)
   {
     // Iteration complete -- do nothing.
   }
