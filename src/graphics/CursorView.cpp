@@ -24,7 +24,7 @@ CursorView::CursorView() :
   m_scrollFingerRight(new SVGPrimitive()),
   m_disk(new Disk()),
   m_fingerSpread(0.0f),
-  m_pinchNormal(0.0f),
+  m_pinchStrength(0.0f),
   m_wasPinching(false),
   m_lastHandPosition(0,0),
   m_isPointing(false)
@@ -67,10 +67,8 @@ void CursorView::AutoInit() {
 }
 
 void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData, const FrameTime& frameTime) {
-  static const float PINCH_MIN = 0.0f;
-  static const float PINCH_MAX = 0.65f;
   static const float FINGER_SPREAD_MIN = 23.0f;
-  static const float FINGER_SPREAD_MAX = 50.0f;
+  static const float FINGER_SPREAD_MAX = 100.0f;
   static const float SCROLL_VELOCITY_MIN = 0.0f;
   static const float SCROLL_VELOCITY_MAX = 20.0f;
   static const float BODY_OFFSET_MAX = 100.0f;
@@ -105,9 +103,11 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   //State Loops
   switch(m_state) {
     case State::ACTIVE:
-      m_pinchNormal = (handData.pinchData.pinchStrength - PINCH_MIN) / (PINCH_MAX - PINCH_MIN);
-      m_pinchNormal =  1.0f - std::min(1.0f, std::max(0.0f, m_pinchNormal));
-      m_fingerSpread = FINGER_SPREAD_MIN + (m_pinchNormal * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
+    {
+      m_pinchStrength = handData.pinchData.pinchStrength;
+      float spreadNorm = m_pinchStrength / activationConfigs::MIN_PINCH_CONTINUE;
+      spreadNorm = std::max(0.0f, std::min(1.0f, spreadNorm));
+      m_fingerSpread = FINGER_SPREAD_MIN + ((1-spreadNorm) * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
     
       if ( handData.pinchData.isPinching ) {
         velocitySign = handData.locationData.dY < 0 ? -1 : 1;
@@ -127,6 +127,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
     
       m_lastHandPosition = handData.locationData.screenPosition();
       break;
+    }
     case State::INACTIVE:
       m_bodyOffset.SetInitialValue(0.0f);
     default:
@@ -135,27 +136,22 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
-  const float MIN_PINCH_START = 0.85f;
-  const float MIN_PINCH_CONTINUE = 0.8f;
   const float MIN_PINCH_NORM = 0.5f;
-  const float MAX_PINCH_NORM = 0.8f;
   
-  float reversedPinchNorm = 1 - m_pinchNormal; //the pinch normal is mapped the opposite of what we want reverse it.
-  float fingerOpacity = (reversedPinchNorm - MIN_PINCH_NORM) / (MAX_PINCH_NORM - MIN_PINCH_NORM);
+  float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
   m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
   float bodyOpacityNorm = 0.0f;
   
   if ( m_wasPinching ) {
-    bodyOpacityNorm = (reversedPinchNorm - MIN_PINCH_CONTINUE) / (MIN_PINCH_START - MIN_PINCH_CONTINUE);
+    bodyOpacityNorm = (m_pinchStrength - activationConfigs::MIN_PINCH_CONTINUE) / (activationConfigs::MIN_PINCH_START - activationConfigs::MIN_PINCH_CONTINUE);
   }
   else {
-    bodyOpacityNorm = (reversedPinchNorm - 0.4f) / (MIN_PINCH_START - 0.4f);
+    bodyOpacityNorm = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_START - MIN_PINCH_NORM);
   }
   
   bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
-  std::cout << "body opacity norm: " << bodyOpacityNorm << std::endl;
   m_bodyAlpha.SetGoal(bodyOpacityNorm);
   
   if ( m_isPointing ) {
@@ -176,7 +172,17 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
   m_scrollLine->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
   
-  m_disk->LocalProperties().AlphaMask() = 1 - m_bodyAlpha.Value();
+  if ( m_bodyAlpha.Value() < 0.2f ) {
+    m_diskAlpha.SetGoal(1.0f);
+  }
+  else {
+    m_diskAlpha.SetGoal(0.0f);
+  }
+  
+  m_diskAlpha.Update(frame.deltaT.count());
+  
+  m_disk->LocalProperties().AlphaMask() = m_diskAlpha;
+  
   
   // Snapped Scrolling Cursor Positioning
   m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x() - position.x + m_x.Value(), m_scrollBodyOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);

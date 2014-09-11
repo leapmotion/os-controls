@@ -70,10 +70,8 @@ private:
   
   std::shared_ptr<OSWindow> m_lastSelectedWindow;
   
-  
-  
   float m_fingerSpread;
-  float m_pinchNormal;
+  float m_pinchStrength;
   bool m_wasPinching;
   Vector2 m_lastHandPosition;
   
