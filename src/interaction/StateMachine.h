@@ -14,6 +14,7 @@
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
 #include "graphics/ExposeActivationStateMachine.h"
+#include <queue>
 
 #define USE_HAND_SCROLL 1
 
@@ -30,11 +31,12 @@ class ExposeViewStateMachine;
 /// This state machine has global knowledge of all interior components of the OS controls
 /// interaction system.  It is a top-level system, and 
 /// </remarks>
+
 class StateMachine:
   public ContextMember,
   public Updatable,
   public HandEventListener,
-  public ExposeActivatorEventListener
+  public OSCStateChangeEvent
 {
 public:
   StateMachine(void);
@@ -42,8 +44,8 @@ public:
   
   void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
   
-  void OnHandVanished();
-  void OnActivateExpose();
+  void OnHandVanished() override;
+  void RequestTransition(OSCState requestedState) override;
 
   // Updatable overrides:
   void Tick(std::chrono::duration<double> deltaT) override;
@@ -51,11 +53,25 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+  OSCState validateTransition(OSCState to) const;
+  void performNextTransition();
+
+  OSCState resolvePose(HandPose pose) const;
+
+  void doHandScroll(const Scroll& scroll, const HandLocation& handLocation, ScrollState& scrollState);
+  void doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch, ScrollState& scrollState);
+
   std::mutex m_lock;
 
-  // Our current state
   OSCState m_state;
+  std::queue<OSCState> m_desiredTransitions;
   
+  enum class ScrollType {
+    HAND_SCROLL,
+    PINCH_SCROLL
+  };
+  ScrollType m_scrollType;
+
   ScrollState m_scrollState;
   Vector2 m_handDelta; //in millimeters
   const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
@@ -67,11 +83,12 @@ private:
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 
   AutoRequired<CursorView> m_cursorView;
+  AutoRequired<MediaViewController> m_mediaViewController;
+  Autowired<IWindowScroller> m_windowScroller;
+
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<ExposeActivationStateMachine> m_exposeActivationStateMachine;
-  AutoRequired<MediaViewController> m_mediaViewController;
   AutoRequired<ExposeViewStateMachine> m_evp;
-  Autowired<IWindowScroller> m_windowScroller;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.

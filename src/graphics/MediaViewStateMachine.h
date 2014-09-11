@@ -45,19 +45,19 @@ private:
      *           ^-----------|-----------|
      */
     
-    //Media View is created but not focused.
-    INACTIVE,
+    // Media View is created but not focused.
+    // It is wainting for focus to activate.
+    ARMED,
     
     //Taking user input, fading in, etc
     ACTIVE,
     
-    //Done taking input, has sent its event up the chain. Mostly for finished animations.
-    SELECTION_MADE,
+    // The menu's selection action has been made.
+    // This instance of the interaction is done.
+    // Wait for animation to fade out.
+    COMPLETE,
     
-    //Wait for animation to fade out
-    FADE_OUT,
-    
-    //Tear everything down.
+    // Tear everything down.
     FINAL
   };
   
@@ -73,6 +73,7 @@ private:
   
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
+  AutoFired<OSCStateChangeEvent> m_stateEvents;
   
   Autowired<RenderEngine> m_rootNode;
   RectanglePrim prim;

@@ -28,7 +28,7 @@ MediaViewStateMachine::MediaViewStateMachine() :
 m_radialMenu(new RadialMenu()),
 m_volumeSlider(new RadialSlider()),
 m_lastHandPose(HandPose::ZeroFingers),
-m_state(State::INACTIVE) {
+m_state(State::ARMED) {
   m_CurrentTime = 0.0;
   m_LastStateChangeTime = 0.0;
   m_FadeTime = 0.25;
@@ -121,7 +121,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   
   switch( m_state )
   {
-    case State::INACTIVE:
+    case State::ARMED:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
         m_volumeSlider->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
@@ -137,20 +137,16 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
         m_volumeKnob->SetAlphaMaskGoal(0.0f);
-        m_state = State::INACTIVE;
+        m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
-    case State::SELECTION_MADE:
-      m_volumeKnob->SetAlphaMaskGoal(0.0f);
-      m_state = State::FADE_OUT;
-      m_LastStateChangeTime = m_CurrentTime;
-      break;
-    case State::FADE_OUT:
+    case State::COMPLETE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
         m_volumeKnob->SetAlphaMaskGoal(0.0f);
-        m_state = State::INACTIVE;
+        m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
+
       }
       break;
     case State::FINAL:
@@ -160,7 +156,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
 
   // State Loops
   switch (m_state) {
-    case State::INACTIVE:
+    case State::ARMED:
       // Wedge transparency is updated in AnimationUpdate loops
       m_radialMenu->InteractWithoutCursor();
       m_selectedItem = -1;
@@ -181,7 +177,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
           //Selection Made Transition
           resolveSelection(updateResult.updateIdx);
-          m_state = State::SELECTION_MADE;
+          m_volumeKnob->SetAlphaMaskGoal(0.0f);
+          m_state = State::COMPLETE;
           m_LastStateChangeTime = m_CurrentTime;
         }
       }
@@ -230,7 +227,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       }
       break;
     }
-    case State::SELECTION_MADE:
     case State::FINAL:
     default:
       break;
@@ -271,7 +267,7 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
   if (m_state == State::ACTIVE) {
     // fade in
     alphaMask = SmootherStep(std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
-  } else if (m_state == State::FADE_OUT || m_state == State::SELECTION_MADE || m_state == State::INACTIVE) {
+  } else if (m_state == State::COMPLETE || m_state == State::ARMED) {
     // fade out
     alphaMask = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
     if (m_selectedItem >= 0) {
@@ -288,7 +284,7 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
 }
 
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
-  if (m_state == State::ACTIVE || m_state == State::SELECTION_MADE || m_state == State::FADE_OUT) {
+  if (m_state == State::ACTIVE || m_state == State::COMPLETE) {
     if ( m_lastHandPose == HandPose::OneFinger )
     {
       PrimitiveBase::DrawSceneGraph(*m_radialMenu, renderFrame.renderState);

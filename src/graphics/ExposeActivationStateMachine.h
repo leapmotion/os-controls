@@ -6,14 +6,6 @@
 #include <RadialMenu.h>
 #include <autowiring/Autowiring.h>
 
-class ExposeActivatorEventListener {
-public:
-  ExposeActivatorEventListener();
-  ~ExposeActivatorEventListener();
-  
-  virtual void OnActivateExpose() { };
-};
-
 class ExposeActivationStateMachine  :
 public std::enable_shared_from_this<ExposeActivationStateMachine>,
 public Renderable
@@ -58,7 +50,7 @@ private:
   State m_state;
   
   Autowired<RenderEngine> m_rootNode;
-  AutoFired<ExposeActivatorEventListener> m_exposeActivatorEventListener;
+  AutoFired<OSCStateChangeEvent> m_stateChangeEvent;
   
   int m_selectedItem;
   double m_FadeTime;

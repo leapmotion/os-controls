@@ -115,7 +115,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     const double bonusScale = 0.5 * (window->m_hover.Value() + window->m_activation.Value());
     const double scale = (1.0 + bonusScale) * radiusPerWindow / imgRadius;
     window->m_scale.SetGoal(static_cast<float>(scale));
-    window->m_scale.Update(dt.count());
+    window->m_scale.Update((float)dt.count());
     img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
 
     // calculate position of this window in cartesian coords
@@ -131,12 +131,12 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 
     // set window position smoothly
     window->m_position.SetGoal(point3D + totalForce);
-    window->m_position.Update(dt.count());
+    window->m_position.Update((float)dt.count());
     img->Translation() = window->m_position.Value() + window->m_grabDelta.Value();
 
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
-    window->m_opacity.Update(dt.count());
+    window->m_opacity.Update((float)dt.count());
     img->LocalProperties().AlphaMask() = window->m_opacity.Value() * m_alphaMask.Current();
 
     angle += angleInc;
@@ -228,10 +228,10 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
       window->m_grabDelta.SetGoal(Vector3::Zero());
       window->m_selection.SetGoal(0.0f);
     }
-    window->m_hover.Update(dt.count());
-    window->m_activation.Update(dt.count());
-    window->m_grabDelta.Update(dt.count());
-    window->m_selection.Update(dt.count());
+    window->m_hover.Update((float)dt.count());
+    window->m_activation.Update((float)dt.count());
+    window->m_grabDelta.Update((float)dt.count());
+    window->m_selection.Update((float)dt.count());
 
     if (window->m_cooldown && window->m_hover.Value() < 0.1f) {
       window->m_cooldown = false;
@@ -253,15 +253,15 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 
 void ExposeView::updateForces(std::chrono::duration<double> dt) {
   m_forces.clear();
-  static const double MAX_RADIUS_MULT = 1.0;
-  static const double FORCE_DISTANCE_MULT = 0.1;
+  static const float MAX_RADIUS_MULT = 1.0f;
+  static const float FORCE_DISTANCE_MULT = 0.1f;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
     if (window->m_hover.Value() > 0.0001f) {
-      m_forces.push_back(Force(img->Translation(), FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value()), window.get(), MAX_RADIUS_MULT*m_layoutRadius));
+      m_forces.push_back(Force(img->Translation(), (float)(FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value())), window.get(), (float)(MAX_RADIUS_MULT*m_layoutRadius)));
     }
   }
 }

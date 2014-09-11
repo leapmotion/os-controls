@@ -2,5 +2,5 @@
 
 class HandEventListener {
 public:
-  virtual void OnHandVanished(void) {}
+  virtual void OnHandVanished(void) = 0;
 };

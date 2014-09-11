@@ -35,8 +35,8 @@ void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime&
   else {
     diff = ProjectVector(2, thumb.tipPosition().toVector3<Vector3>()) - ProjectVector(2, middle.tipPosition().toVector3<Vector3>());
   }
-  float angle = atan2(diff.x(), diff.y());
-  angle = fmod(angle, 2*M_PI);
+  float angle = (float)atan2(diff.x(), diff.y());
+  angle = (float)fmod(angle, 2*M_PI);
   //angle = 2*M_PI - angle;
   clawRotation.deltaTime = frameTime.deltaTime;
   m_deltaRot.SetGoal(angle - m_lastRot);
