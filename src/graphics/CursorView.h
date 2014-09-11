@@ -44,11 +44,14 @@ public:
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
+  const float GHOST_OPACITY = 0.3f;
+  
   enum class State {
     INACTIVE,
     ACTIVE
   };
   
+  void updateScrollerPosition();
   Vector2 getWindowCenter(OSWindow& window);
   
   State m_state;

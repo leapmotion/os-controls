@@ -54,7 +54,7 @@ CursorView::CursorView() :
   m_scrollFingerLeftOffset = m_scrollFingerLeft->Origin() - (m_scrollFingerLeft->Size()/2.0);
   m_scrollFingerRightOffset = m_scrollFingerRight->Origin() - (m_scrollFingerRight->Size()/2.0);
   
-  m_ghostCursor->LocalProperties().AlphaMask() = 0.4f;
+  m_ghostCursor->LocalProperties().AlphaMask() = GHOST_OPACITY;
 }
 
 CursorView::~CursorView() {
@@ -97,8 +97,8 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
          handData.handPose == HandPose::Clawed) {
         m_state = State::INACTIVE;
         m_alphaMask.Set(0.0f);
-        m_x.SetInitialValue(handData.locationData.x);
-        m_y.SetInitialValue(handData.locationData.y);
+        //m_x.SetInitialValue(handData.locationData.x);
+        //m_y.SetInitialValue(handData.locationData.y);
       }
       break;
   }
@@ -114,7 +114,13 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
         
         if ( !m_wasPinching ) {
           if ( m_osWindowMonitor ) {
-            m_lastSelectedWindow = m_osWindowMonitor->WindowFromPoint(OSPointMake(handData.locationData.x, handData.locationData.y));
+            std::shared_ptr<OSWindow> newWindow = m_osWindowMonitor->WindowFromPoint(OSPointMake(handData.locationData.x, handData.locationData.y));
+            if( newWindow && newWindow != m_lastSelectedWindow ) {
+              updateScrollerPosition();
+            } else if ( !newWindow ) {
+              m_ghostCursor->LocalProperties().AlphaMask() = 0.0f;
+            }
+            m_lastSelectedWindow = newWindow;
           }
         }
         
@@ -151,13 +157,6 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
-  if ( m_lastSelectedWindow ) {
-    Vector2 selectedWindowCenter = getWindowCenter(*m_lastSelectedWindow);
-    
-    m_x.SetGoal(selectedWindowCenter.x());
-    m_y.SetGoal(selectedWindowCenter.y());
-  }
-  
   if ( m_state == State::ACTIVE ) {
     m_x.Update(frame.deltaT.count());
     m_y.Update(frame.deltaT.count());
@@ -193,6 +192,22 @@ void CursorView::Render(const RenderFrame& frame) const {
     case State::INACTIVE:
     default:
       break;
+  }
+}
+
+void CursorView::updateScrollerPosition() {
+  m_ghostCursor->LocalProperties().AlphaMask() = GHOST_OPACITY;
+  
+  if ( m_lastSelectedWindow == nullptr )
+  {
+    m_x.SetInitialValue(m_ghostX.Value());
+    m_y.SetInitialValue(m_ghostY.Value());
+    m_x.SetGoal(m_ghostX.Value());
+    m_y.SetGoal(m_ghostY.Value());
+  }
+  else {
+    m_x.SetGoal(m_ghostX.Value());
+    m_y.SetGoal(m_ghostY.Value());
   }
 }
 
