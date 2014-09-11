@@ -15,7 +15,7 @@ Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.25f);
 Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.5f);
 
 ExposeView::ExposeView() :
-  m_alphaMask(0.0f, 0.3f, EasingFunctions::Linear<float>),
+  m_alphaMask(0.0f, 1.0f, EasingFunctions::Linear<float>),
   m_layoutRadius(500.0),
   m_selectionRadius(100),
   m_viewCenter(Vector2::Zero())
@@ -100,26 +100,52 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_layoutRadius = 0.4 * std::min(size.x(), size.y());
   m_selectionRadius = 0.5 * m_layoutRadius;
 
+  const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
+
   // calculate size of each window
   const double radiusPerWindow = 0.9* m_layoutRadius * std::sin(angleInc/2.0);
 
-  for(const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
-    if(window->m_layoutLocked)
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
       continue;
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
 
     // set window scale smoothly
+    const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
+#if 0
     const double imgRadius = 0.5 * img->Size().norm();
-    const double bonusScale = 0.5 * (window->m_hover.Value() + window->m_activation.Value());
     const double scale = (1.0 + bonusScale) * radiusPerWindow / imgRadius;
+<<<<<<< HEAD
     window->m_scale.SetGoal(static_cast<float>(scale));
     window->m_scale.Update((float)dt.count());
+=======
+#else
+    const double scale = (1.0 + bonusScale) * 0.5 * size.norm() / fullSize.norm();
+#endif
+    if (!m_closing) {
+      window->m_scale.SetGoal(static_cast<float>(scale));
+    }
+    window->m_scale.Update(dt.count());
+>>>>>>> Animate windows to/from their original positions
     img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
 
+#if 0
     // calculate position of this window in cartesian coords
     const Vector2 point = radialCoordsToPoint(angle, m_layoutRadius) + m_viewCenter;
     const Vector3 point3D(point.x(), point.y(), 0.0);
+#else
+    const Vector2 origPosition = window->GetOSPosition();
+
+    const Vector2 scaledPosition = (origPosition - m_viewCenter).cwiseProduct(screenToFullScale) + m_viewCenter;
+
+    const Vector2 point = radialCoordsToPoint(angle, m_layoutRadius) + m_viewCenter;
+    const Vector3 radialPoint(point.x(), point.y(), 0.0);
+
+    const Vector3 screenPoint(scaledPosition.x(), scaledPosition.y(), 0.0);
+
+    const Vector3 point3D = 0.1*radialPoint + 0.9*screenPoint;
+#endif
 
     Vector3 totalForce(Vector3::Zero());
     for (size_t i=0; i<m_forces.size(); i++) {
@@ -129,8 +155,15 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     }
 
     // set window position smoothly
+<<<<<<< HEAD
     window->m_position.SetGoal(point3D + totalForce);
     window->m_position.Update((float)dt.count());
+=======
+    if (!m_closing) {
+      window->m_position.SetGoal(point3D + totalForce);
+    }
+    window->m_position.Update(dt.count());
+>>>>>>> Animate windows to/from their original positions
     img->Translation() = window->m_position.Value() + window->m_grabDelta.Value();
 
     // set window opacity smoothly
@@ -153,6 +186,24 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_backgroundImage->LocalProperties().AlphaMask() = m_alphaMask.Current();
 }
 
+void ExposeView::startPositions() {
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
+      continue;
+
+    window->SetOpeningPosition();
+  }
+}
+
+void ExposeView::endPositions() {
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
+      continue;
+
+    window->SetClosingPosition();
+  }
+}
+
 void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 #if 0
   POINT p;
@@ -161,7 +212,8 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   const float activation = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) ? 1.0f : 0.0f;
 #else
   const Vector2& handPos = m_handData.locationData.screenPosition();
-  const float activation = std::max(m_handData.grabData.grabStrength, m_handData.pinchData.pinchStrength);
+  const float grabPinch = std::max(m_handData.grabData.grabStrength, m_handData.pinchData.pinchStrength);
+  const float activation = m_alphaMask.Current() > 0.99f ? grabPinch : 0.0f;
 #endif
   static Vector2 prevHandPos = handPos;
 
@@ -252,8 +304,13 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 
 void ExposeView::updateForces(std::chrono::duration<double> dt) {
   m_forces.clear();
-  static const float MAX_RADIUS_MULT = 1.0f;
-  static const float FORCE_DISTANCE_MULT = 0.1f;
+  // activation forces
+  static const double MAX_RADIUS_MULT = 1.0;
+  static const double FORCE_DISTANCE_MULT = 0.1;
+  static const double REPULSION_DISTANCE_MULT = 1.0;
+  static const double REPULSION_RADIUS_MULT = 0.25;
+  static const double REGION_DISTANCE_MULT = 0.5;
+  static const double REGION_RADIUS_MULT = 1.0;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
@@ -263,6 +320,20 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
       m_forces.push_back(Force(img->Translation(), (float)(FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value())), window.get(), (float)(MAX_RADIUS_MULT*m_layoutRadius)));
     }
   }
+
+#if 0
+  // repulsion forces
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
+      continue;
+
+    std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
+    m_forces.push_back(Force(img->Translation(), REPULSION_DISTANCE_MULT*m_layoutRadius, window.get(), REPULSION_RADIUS_MULT*m_layoutRadius));
+  }
+#endif
+
+  // selection region forces
+  m_forces.push_back(Force(Vector3(m_viewCenter.x(), m_viewCenter.y(), 0.0), REGION_DISTANCE_MULT*m_layoutRadius, nullptr, REGION_RADIUS_MULT*m_layoutRadius));
 }
 
 void ExposeView::focusWindow(ExposeViewWindow& window) {
@@ -343,9 +414,13 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
-  m_alphaMask.Set(1.0f, 0.3);
+  m_alphaMask.Set(1.0f, 0.5);
+  m_closing = false;
+  startPositions();
 }
 
 void ExposeView::CloseView() {
-  m_alphaMask.Set(0.0f, 0.2f);
+  m_alphaMask.Set(0.0f, 0.5);
+  m_closing = true;
+  endPositions();
 }

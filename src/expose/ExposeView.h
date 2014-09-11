@@ -98,6 +98,10 @@ private:
   /// </summary>
   void updateLayout(std::chrono::duration<double> dt);
 
+  void startPositions();
+
+  void endPositions();
+
   void updateActivations(std::chrono::duration<double> dt);
 
   void updateForces(std::chrono::duration<double> dt);
@@ -137,6 +141,8 @@ private:
   double m_layoutRadius;
   double m_selectionRadius;
   Vector2 m_viewCenter;
+
+  bool m_closing;
 
   std::shared_ptr<Disk> m_selectionRegion;
   std::shared_ptr<PartialDisk> m_selectionOutline;
