@@ -7,10 +7,15 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ConfigWindow)
 {
-    ui->setupUi(this);
-    createTrayIcon();
+  m_config.Load();
+  
+  ui->setupUi(this);
+  createTrayIcon();
 
-    m_trayIcon->show();
+  m_trayIcon->show();
+
+  connect(ui->exposeCheckbox, &QCheckBox::stateChanged, this, &ConfigWindow::onExposeCheckChanged);
+  connect(ui->mediaControlsCheckbox, &QCheckBox::stateChanged, this, &ConfigWindow::onMediaCheckChanged);
 }
 
 ConfigWindow::~ConfigWindow()
@@ -24,5 +29,14 @@ void ConfigWindow::createTrayIcon(){
 
   //set icon here
   m_trayIcon->setToolTip(tr("Leap OS Controls Settings"));
+}
 
+void ConfigWindow::onExposeCheckChanged(int newState){
+  m_config.Set("exposeEnabled", newState);
+  m_config.Save();
+}
+
+void ConfigWindow::onMediaCheckChanged(int newState){
+  m_config.Set("mediaEnabled", newState);
+  m_config.Save();
 }
