@@ -23,7 +23,7 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
     }
   }
   
-  offset *= config::OFFSET_DISTANCE;
+  offset *= loactionConfigs::INDEX_DIRECTION_OFFSET_DISTANCE;
   
   screenLocation += ProjectVector(2, offset);
   

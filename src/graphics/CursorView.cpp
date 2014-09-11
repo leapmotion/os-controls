@@ -5,6 +5,7 @@
 #include "RenderFrame.h"
 #include "RenderState.h"
 #include "HandCursor.h"
+#include "interaction/interactionConfigs.h"
 
 #include "GLShader.h"
 #include "GLShaderLoader.h"

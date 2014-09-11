@@ -19,23 +19,23 @@ void HandActivationRecognizer::AutoFilter(const Leap::Hand &hand, const FrameTim
   handGrab.isGrabbing = m_wasGrabbing;
   
   if ( !m_wasPinching ) {
-    if ( handPinch.pinchStrength > MIN_PINCH_START ) {
+    if ( handPinch.pinchStrength > activationConfigs::MIN_PINCH_START ) {
       handPinch.isPinching = true;
     }
   }
   else {
-    if ( handPinch.pinchStrength < MIN_PINCH_CONTINUE ) {
+    if ( handPinch.pinchStrength < activationConfigs::MIN_PINCH_CONTINUE ) {
       handPinch.isPinching = false;
     }
   }
   
   if ( !m_wasGrabbing ) {
-    if ( handGrab.grabStrength > MIN_GRAB_START ) {
+    if ( handGrab.grabStrength > activationConfigs::MIN_GRAB_START ) {
       handGrab.isGrabbing = true;
     }
   }
   else {
-    if ( handGrab.grabStrength < MIN_GRAB_CONTINUE ) {
+    if ( handGrab.grabStrength < activationConfigs::MIN_GRAB_CONTINUE ) {
       handGrab.isGrabbing = false;
     }
   }
