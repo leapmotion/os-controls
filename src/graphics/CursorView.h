@@ -59,6 +59,7 @@ private:
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
   
   float m_fingerSpread;
+  float m_pinchNormal;
   Vector2 m_lastHandPosition;
   
   Smoothed<float> m_bodyOffset;

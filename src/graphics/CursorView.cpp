@@ -23,6 +23,7 @@ CursorView::CursorView() :
   m_scrollFingerLeft(new SVGPrimitive()),
   m_scrollFingerRight(new SVGPrimitive()),
   m_fingerSpread(0.0f),
+  m_pinchNormal(0.0f),
   m_lastHandPosition(0,0)
 {
   m_bodyOffset.SetInitialValue(0.0f);
@@ -67,7 +68,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   
   int velocitySign = 1;
   float velocityNorm = 0.0f;
-  float pinchNorm = 0.0f;
   float goalBodyOffset = 0.0f;
   
   m_renderEngine->BringToFront(this);
@@ -96,11 +96,9 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   //State Loops
   switch(m_state) {
     case State::ACTIVE:
-      
-      
-      pinchNorm = (handData.pinchData.pinchStrength - PINCH_MIN) / (PINCH_MAX - PINCH_MIN);
-      pinchNorm =  1.0f - std::min(1.0f, std::max(0.0f, pinchNorm));
-      m_fingerSpread = FINGER_SPREAD_MIN + (pinchNorm * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
+      m_pinchNormal = (handData.pinchData.pinchStrength - PINCH_MIN) / (PINCH_MAX - PINCH_MIN);
+      m_pinchNormal =  1.0f - std::min(1.0f, std::max(0.0f, m_pinchNormal));
+      m_fingerSpread = FINGER_SPREAD_MIN + (m_pinchNormal * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
     
       if ( handData.pinchData.isPinching ) {
         velocitySign = handData.locationData.dY < 0 ? -1 : 1;
@@ -125,6 +123,14 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
+  const float MIN_PINCH_NORM = 0.5f;
+  const float MAX_PINCH_NORM = 0.8f;
+  
+  float reversedPinchNorm = 1 - m_pinchNormal; //the pinch normal is mapped the opposite of what we want
+  float fingerOpacity = (reversedPinchNorm - MIN_PINCH_NORM) / (MAX_PINCH_NORM - MIN_PINCH_NORM);
+  m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
+  m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
+  
   if ( m_state == State::ACTIVE ) {
     m_x.Update(frame.deltaT.count());
     m_y.Update(frame.deltaT.count());
