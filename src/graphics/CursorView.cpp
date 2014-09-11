@@ -29,6 +29,8 @@ CursorView::CursorView() :
   m_lastHandPosition(0,0),
   m_isPointing(false)
 {
+  const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
+  
   m_bodyOffset.SetInitialValue(0.0f);
   m_bodyOffset.SetSmoothStrength(0.8f);
   
@@ -207,13 +209,11 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
 void CursorView::Render(const RenderFrame& frame) const {
   switch ( m_state ) {
     case State::ACTIVE:
+      PrimitiveBase::DrawSceneGraph(*m_scrollLine, frame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_scrollBody, frame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_scrollFingerLeft, frame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_scrollFingerRight, frame.renderState);
       PrimitiveBase::DrawSceneGraph(*m_disk, frame.renderState);
-      if ( m_lastSelectedWindow ) {
-        PrimitiveBase::DrawSceneGraph(*m_scrollLine, frame.renderState);
-        PrimitiveBase::DrawSceneGraph(*m_scrollBody, frame.renderState);
-        PrimitiveBase::DrawSceneGraph(*m_scrollFingerLeft, frame.renderState);
-        PrimitiveBase::DrawSceneGraph(*m_scrollFingerRight, frame.renderState);
-      }
       break;
     case State::INACTIVE:
     default:

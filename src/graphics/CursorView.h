@@ -83,6 +83,7 @@ private:
   Smoothed<float> m_ghostX;
   Smoothed<float> m_ghostY;
   Smoothed<float> m_bodyAlpha;
+  Smoothed<float> m_diskAlpha;
   
   Autowired<RenderEngine> m_renderEngine;
 };
