@@ -4,6 +4,7 @@
 
 #include <Shlwapi.h>
 
+#pragma warning(disable:4800)
 //
 // FileWatchWin
 //
@@ -129,6 +130,11 @@ std::shared_ptr<FileWatch> FileMonitorWin::Watch(const std::string& path, const 
   memcpy(parent, widepath.c_str(), widepath.size());
   bool gotParent = (bool)PathRemoveFileSpecW(parent);
 
+  if (parent[0] == 0){
+    memcpy(parent, L".", sizeof(WCHAR) * 2);
+    parent[1] = 0;
+  }
+    
   auto directory = (PathIsDirectoryW(widepath.c_str()) || !gotParent) ? widepath : parent;
 
   // Open the handle to the directory we were asked to watch with the

@@ -24,7 +24,7 @@ struct ConfigEvent {
 /// All strings are UTF-8 encoded.
 /// </summary>
 /// TODO: Consider making this a CoreThread so we have a dispatch queue & can queue save/loads.
-
+/// TODO: Make typed ConfigVars that can be compile-time checked.
 class Config {
 public:
   /// <summary>
