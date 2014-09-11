@@ -17,15 +17,16 @@ OSAppWin::~OSAppWin()
 
 // Use the module file name as the application unique identifier
 std::wstring OSApp::GetAppIdentifier(uint32_t pid) {
-  HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+  HANDLE processHandle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
   if (processHandle == nullptr) {
     return std::wstring();
   }
   WCHAR filename[MAX_PATH];
   std::wstring path;
 
-  if (GetModuleFileNameExW(processHandle, nullptr, filename, MAX_PATH) != 0) {
-    path = std::wstring(filename);
+  DWORD maxPath = MAX_PATH;
+  if (QueryFullProcessImageNameW(processHandle, 0, filename, &maxPath) != 0) {
+    path = std::wstring(filename, maxPath);
   }
   CloseHandle(processHandle);
   return path;
