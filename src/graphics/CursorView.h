@@ -69,9 +69,13 @@ private:
   std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
   
+  std::shared_ptr<Disk> m_disk;
+  
   Autowired<OSWindowMonitor> m_osWindowMonitor;
   
   std::shared_ptr<OSWindow> m_lastSelectedWindow;
+  
+  
   
   float m_fingerSpread;
   float m_pinchNormal;
@@ -83,6 +87,7 @@ private:
   Smoothed<float> m_y;
   Smoothed<float> m_ghostX;
   Smoothed<float> m_ghostY;
+  Smoothed<float> m_bodyAlpha;
   
   Autowired<RenderEngine> m_renderEngine;
 };

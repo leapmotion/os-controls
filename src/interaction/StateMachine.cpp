@@ -112,11 +112,11 @@ OSCState StateMachine::resolvePose(HandPose pose) const {
 
   switch (pose) {
   case HandPose::OneFinger:
-    return OSCState::MEDIA_MENU_FOCUSED;
+    //return OSCState::MEDIA_MENU_FOCUSED;
   case HandPose::FourFingers:
-    return OSCState::EXPOSE_ACTIVATOR_FOCUSED;
+    //return OSCState::EXPOSE_ACTIVATOR_FOCUSED;
   case HandPose::Clawed:
-    return OSCState::MEDIA_MENU_FOCUSED;
+    //return OSCState::MEDIA_MENU_FOCUSED;
   default:
     return OSCState::BASE;
   }

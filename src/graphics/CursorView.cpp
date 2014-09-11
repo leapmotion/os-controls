@@ -23,6 +23,7 @@ CursorView::CursorView() :
   m_scrollLine(new SVGPrimitive()),
   m_scrollFingerLeft(new SVGPrimitive()),
   m_scrollFingerRight(new SVGPrimitive()),
+  m_disk(new Disk()),
   m_fingerSpread(0.0f),
   m_pinchNormal(0.0f),
   m_wasPinching(false),
@@ -36,6 +37,11 @@ CursorView::CursorView() :
   
   m_ghostX.SetSmoothStrength(0.8f);
   m_ghostY.SetSmoothStrength(0.8f);
+  
+  m_bodyAlpha.SetSmoothStrength(0.3f);
+  m_bodyAlpha.SetInitialValue(0.0f);
+  
+  m_disk->SetRadius(20.0f);
   
   Resource<TextFile> scrollBodyFile("scroll-cursor-body.svg");
   Resource<TextFile> scrollLineFile("scroll-cursor-line.svg");
@@ -97,8 +103,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
          handData.handPose == HandPose::Clawed) {
         m_state = State::INACTIVE;
         m_alphaMask.Set(0.0f);
-        //m_x.SetInitialValue(handData.locationData.x);
-        //m_y.SetInitialValue(handData.locationData.y);
       }
       break;
   }
@@ -132,13 +136,13 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
         m_bodyOffset.SetGoal(goalBodyOffset);
       }
       else {
+        m_x.SetGoal(handData.locationData.x);
+        m_y.SetGoal(handData.locationData.y);
         if ( m_bodyOffset.Goal() != 0.0f ) { m_bodyOffset.SetGoal(0.0f); }
       }
       
       m_wasPinching = handData.pinchData.isPinching;
-      
-      m_ghostX.SetGoal(handData.locationData.x);
-      m_ghostY.SetGoal(handData.locationData.y);
+    
       m_lastHandPosition = handData.locationData.screenPosition();
       break;
     case State::INACTIVE:
@@ -149,6 +153,8 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
+  const float MIN_PINCH_START = 0.85f;
+  const float MIN_PINCH_CONTINUE = 0.8f;
   const float MIN_PINCH_NORM = 0.5f;
   const float MAX_PINCH_NORM = 0.8f;
   
@@ -156,6 +162,20 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   float fingerOpacity = (reversedPinchNorm - MIN_PINCH_NORM) / (MAX_PINCH_NORM - MIN_PINCH_NORM);
   m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
+  
+  float bodyOpacityNorm = 0.0f;
+  
+  if ( m_wasPinching ) {
+    bodyOpacityNorm = (reversedPinchNorm - MIN_PINCH_CONTINUE) / (MIN_PINCH_START - MIN_PINCH_CONTINUE);
+  }
+  else {
+    bodyOpacityNorm = (reversedPinchNorm - 0.4f) / (MIN_PINCH_START - 0.4f);
+  }
+  
+  bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
+  std::cout << "body opacity norm: " << bodyOpacityNorm << std::endl;
+  m_bodyAlpha.SetGoal(bodyOpacityNorm);
+  m_bodyAlpha.Update(frame.deltaT.count());
   
   if ( m_state == State::ACTIVE ) {
     m_x.Update(frame.deltaT.count());
@@ -166,11 +186,19 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     position = OSVector2{m_ghostX, m_ghostY};
   }
   
+  m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
+  m_scrollLine->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
+  
+  m_disk->LocalProperties().AlphaMask() = 1 - m_bodyAlpha.Value();
+  
   // Snapped Scrolling Cursor Positioning
-  m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x() - position.x + m_x, m_scrollBodyOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
+  m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x() - position.x + m_x.Value(), m_scrollBodyOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
   m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x() - position.x + m_x.Value(), m_scrollLineOffset.y() - position.y + m_y.Value(), 0.0f);
   m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() - position.x - m_fingerSpread + m_x.Value(), m_scrollFingerLeftOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
   m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - position.x + m_fingerSpread + m_x.Value(), m_scrollFingerRightOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
+  
+  //Disk that appears when you're not doing things with scroll
+  m_disk->Translation() = Vector3(-position.x + m_x, -position.y + m_y, 0.0f);
   
   // Ghost Guide Cursor positioning
   m_ghostCursor->Translation() = Vector3(m_ghostCursorOffset.x(), m_ghostCursorOffset.y(), 0.0f);
@@ -181,6 +209,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
 void CursorView::Render(const RenderFrame& frame) const {
   switch ( m_state ) {
     case State::ACTIVE:
+      PrimitiveBase::DrawSceneGraph(*m_disk, frame.renderState);
       PrimitiveBase::DrawSceneGraph(*m_ghostCursor, frame.renderState);
       if ( m_lastSelectedWindow ) {
         PrimitiveBase::DrawSceneGraph(*m_scrollLine, frame.renderState);
@@ -195,7 +224,7 @@ void CursorView::Render(const RenderFrame& frame) const {
   }
 }
 
-void CursorView::updateScrollerPosition() {
+void CursorView::updateScrollerPosition() {/*
   m_ghostCursor->LocalProperties().AlphaMask() = GHOST_OPACITY;
   
   if ( m_lastSelectedWindow == nullptr )
@@ -208,7 +237,7 @@ void CursorView::updateScrollerPosition() {
   else {
     m_x.SetGoal(m_ghostX.Value());
     m_y.SetGoal(m_ghostY.Value());
-  }
+  }*/
 }
 
 Vector2 CursorView::getWindowCenter(OSWindow& window) {

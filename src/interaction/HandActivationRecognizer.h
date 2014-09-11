@@ -25,8 +25,8 @@ public:
 private:
   const float MIN_GRAB_START = 0.7f;
   const float MIN_GRAB_CONTINUE = 0.6f;
-  const float MIN_PINCH_START = 0.75f;
-  const float MIN_PINCH_CONTINUE = 0.65f;
+  const float MIN_PINCH_START = 0.85f;
+  const float MIN_PINCH_CONTINUE = 0.8f;
   
   float getCustomPinchStrength(const Leap::Hand& hand) const;
   float calcHandPinchVelocity(const Leap::Finger& index, const Leap::Finger& thumb) const;
