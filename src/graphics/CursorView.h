@@ -10,6 +10,7 @@
 
 #include "uievents/OSCDomain.h"
 #include "interaction/HandDataCombiner.h"
+#include "interaction/TimeRecognizer.h"
 
 #include "HandCursor.h"
 
@@ -31,7 +32,7 @@ public:
   
   void SetSize(float radius);
   
-  void AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData);
+  void AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData, const FrameTime& frameTime);
   
   void AnimationUpdate(const RenderFrame& frame);
   
@@ -58,6 +59,11 @@ private:
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
   
   float m_fingerSpread;
+  Vector2 m_lastHandPosition;
+  
+  Smoothed<float> m_bodyOffset;
+  Smoothed<float> m_x;
+  Smoothed<float> m_y;
   
   Autowired<RenderEngine> m_renderEngine;
 };
