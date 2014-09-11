@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "OSWindowWin.h"
 #include "OSWindowEvent.h"
+#include "OSAppManager.h"
+#include "OSApp.h"
 #include <Primitives.h>
 #include <GLTexture2.h>
 
@@ -11,6 +13,11 @@ OSWindowWin::OSWindowWin(HWND hwnd):
   m_szBitmap.cx = 0;
   m_szBitmap.cy = 0;
   m_prevSize = m_szBitmap;
+
+  AutowiredFast<OSAppManager> appManager;
+  if (appManager) {
+    m_app = appManager->GetApp(OSWindowWin::GetOwnerPid());
+  }
 }
 
 OSWindowWin::~OSWindowWin(void)
@@ -33,10 +40,6 @@ void OSWindowWin::CheckSize(AutoFired<OSWindowEvent>& evt) {
 
 bool OSWindowWin::IsValid(void) {
   return !!IsWindow(hwnd);
-}
-
-std::shared_ptr<OSApp> OSWindowWin::GetOwnerApp(void) {
-  return nullptr;
 }
 
 uint32_t OSWindowWin::GetOwnerPid(void) {

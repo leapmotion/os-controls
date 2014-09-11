@@ -1,6 +1,8 @@
 // Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
 #include "OSWindowMac.h"
+#include "OSAppManager.h"
+#include "OSApp.h"
 #include <Primitives.h>
 #include <GLTexture2.h>
 
@@ -16,6 +18,13 @@ OSWindowMac::OSWindowMac(NSDictionary* info) :
   m_info([info retain]),
   m_mark(0)
 {
+  @autoreleasepool {
+    const pid_t pid = static_cast<pid_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
+    AutowiredFast<OSAppManager> appManager;
+    if (appManager) {
+      m_app = appManager->GetApp(pid);
+    }
+  }
 }
 
 OSWindowMac::~OSWindowMac(void)
@@ -54,11 +63,6 @@ bool OSWindowMac::IsValid(void) {
 
 uint32_t OSWindowMac::GetOwnerPid(void) {
   return static_cast<uint32_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
-}
-
-std::shared_ptr<OSApp> OSWindowMac::GetOwnerApp(void) {
-  // FIXME
-  return nullptr;
 }
 
 std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<ImagePrimitive> img)  {
@@ -159,12 +163,14 @@ bool OSWindowMac::GetFocus(void) {
 }
 
 void OSWindowMac::SetFocus(void) {
-  const pid_t pid = static_cast<pid_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
-  if (!pid) {
-    return;
-  }
-  // An AppleScript implementation
   @autoreleasepool {
+    const pid_t pid = static_cast<pid_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
+    if (!pid) {
+      return;
+    }
+    //
+    // An AppleScript implementation
+    //
     // First make the window the top-level window for the application
     std::ostringstream oss;
     oss << "tell application \"System Events\"\n"
@@ -195,6 +201,7 @@ std::wstring OSWindowMac::GetTitle(void) {
   @autoreleasepool {
     NSString *title = [m_info objectForKey:(id)kCGWindowName];
     if (title) {
+      static_assert(sizeof(wchar_t) == 4, "Expecting 32-bit wchar_t type");
       NSData* data = [title dataUsingEncoding:NSUTF32LittleEndianStringEncoding];
       retVal = std::wstring(reinterpret_cast<const wchar_t*>([data bytes]), [data length]/sizeof(wchar_t));
     }
