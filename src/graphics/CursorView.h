@@ -47,11 +47,6 @@ private:
   State m_state;
   Animated<float> m_alphaMask;
   
-//  double m_scrollBodyScale;
-//  double m_scrollLineScale;
-//  double m_scrollFingerLeftScale;
-//  double m_scrollFingerRightScale;
-  
   Vector2 m_scrollBodyOffset;
   Vector2 m_scrollLineOffset;
   Vector2 m_scrollFingerLeftOffset;
