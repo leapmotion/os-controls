@@ -6,37 +6,46 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>442</height>
+    <width>436</width>
+    <height>288</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Leap OS Controls Config</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QCheckBox" name="checkBox">
+   <widget class="QCheckBox" name="mediaControlsCheckbox">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>70</width>
+      <x>20</x>
+      <y>20</y>
+      <width>131</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>CheckBox</string>
+     <string>Enable Media Controls</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>275</width>
-     <height>21</height>
-    </rect>
-   </property>
+   <widget class="QCheckBox" name="exposeCheckbox">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Enable Expose</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
