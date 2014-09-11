@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
+#include <stdexcept>
+#include <vector>
 
 // TEMPORARY shim until std::is_same from <type_traits> is available
 template <typename T0_, typename T1_> struct is_same { static const bool value = false; };
