@@ -13,16 +13,24 @@ void Config::Save(const std::string& filename) const {
   outFile << json11::Json(m_data).dump();;
 }
 
-void Config::Load(const std::string& filename) {
+bool Config::Load(const std::string& filename) {
   std::string err;
-  std::stringstream data;
+  std::string data;
 
   {
     std::ifstream inFile(filename);
-    data << inFile.rdbuf();
+    if (inFile.bad())
+      return false;
+
+    std::stringstream dataStream;
+    dataStream << inFile.rdbuf();
+    data = dataStream.str();
   }
   
-  auto newData = json11::Json::parse(data.str(), err).object_items();
+  if (data.empty())
+    return false;
+
+  auto newData = json11::Json::parse(data, err).object_items();
   if (!err.empty())
     throw std::runtime_error(std::string("Json parsing error:") + err);
 
@@ -30,6 +38,8 @@ void Config::Load(const std::string& filename) {
   //We want the new data to take precidence, so insert old into the new set.
   newData.insert(m_data.begin(), m_data.end());
   std::swap(newData, m_data);
+
+  return true;
 }
 
 std::chrono::microseconds Config::GetFrameRate() const {

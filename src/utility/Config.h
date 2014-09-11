@@ -16,7 +16,8 @@ public:
   Config(void);
 
   void Save(const std::string& filename = "config.json") const;
-  void Load(const std::string& filename = "config.json");
+  bool Load(const std::string& filename = "config.json");
+
   void Clear();
   template<typename T>
   T Get(const std::string& prop) const { static_assert(false,"Unspecialized on type"); return T(); }
