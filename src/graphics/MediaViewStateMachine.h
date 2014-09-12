@@ -53,7 +53,7 @@ private:
     // It is wainting for focus to activate.
     ARMED,
     
-    //Taking user input, fading in, etc
+    // Taking user input, fading in, etc
     ACTIVE,
     
     // The menu's selection action has been made.
@@ -65,7 +65,7 @@ private:
     FINAL
   };
   
-  std::shared_ptr<RadialMenu>m_radialMenu;
+  std::shared_ptr<RadialMenu> m_radialMenu;
   std::shared_ptr<VolumeSliderView> m_volumeSlider;
   
   bool m_hasRoll;

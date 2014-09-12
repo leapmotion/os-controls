@@ -34,7 +34,7 @@ m_state(State::ARMED) {
   m_FadeTime = 0.25;
   m_selectedItem = -1;
 
-  //Radial Menu Initialization
+  // Radial Menu Initialization
   m_radialMenu->SetStartAngle(startAngle);
   m_radialMenu->SetEndAngle(endAngle);
   m_radialMenu->SetNumItems(numItems);
@@ -42,7 +42,7 @@ m_state(State::ARMED) {
   m_radialMenu->SetThickness(70.0);
   
   for (int i=0; i<numItems; i++) {
-    //TODO: Break these out into a config to avoid so many magic numbers
+    // TODO: Break these out into a config to avoid so many magic numbers
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu->GetItem(i);
     item->SetRadius(120.0);
     item->SetThickness(80.0);
@@ -54,6 +54,7 @@ m_state(State::ARMED) {
     item->SetActivatedColor(handleOutlineColor);
   }
   
+  // Setup SVGs for Radial Icons
   Resource<TextFile> nextIconFile("next-track-icon-extended-01.svg");
   Resource<TextFile> playPauseIconFile("play_pause-icon-extended-01.svg");
   Resource<TextFile> prevIconFile("prev-track-icon-extended-01.svg");
