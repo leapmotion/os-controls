@@ -1,6 +1,4 @@
 set(graphics_SOURCES
-  CursorView.h
-  CursorView.cpp
   ExposeActivationStateMachine.h
   ExposeActivationStateMachine.cpp
   MediaViewStateMachine.h
