@@ -37,9 +37,14 @@ public:
   // Input logic
   void AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData, const FrameTime& frameTime);
   
-  // Handle all the visual updates that benefit from running on a graphics tick versus the input loop.
-  void AnimationUpdate(const RenderFrame& frame);
+  // Get where the cursor thinks it should be (this will be its position unless it is being overriden)
+  Vector2 GetCalculatedLocation() const;
   
+  void EnableLocationOverride() { m_locationOverride = true; }
+  void DisableLocationOverride() { m_locationOverride = false; }
+  
+  // Implement Renderable
+  void AnimationUpdate(const RenderFrame& frame);  // Handle all the visual updates that benefit from running on a graphics tick versus the input loop.
   void Render(const RenderFrame& frame) const override;
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -76,12 +81,11 @@ private:
   Vector2 m_lastHandPosition;
   
   bool m_isPointing;
+  bool m_locationOverride;
   
   Smoothed<float> m_bodyOffset;
   Smoothed<float> m_x;
   Smoothed<float> m_y;
-  Smoothed<float> m_ghostX;
-  Smoothed<float> m_ghostY;
   Smoothed<float> m_bodyAlpha;
   Smoothed<float> m_diskAlpha;
   

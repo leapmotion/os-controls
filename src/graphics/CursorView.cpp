@@ -27,7 +27,8 @@ CursorView::CursorView() :
   m_pinchStrength(0.0f),
   m_wasPinching(false),
   m_lastHandPosition(0,0),
-  m_isPointing(false)
+  m_isPointing(false),
+  m_locationOverride(false)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
@@ -149,6 +150,10 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   }
 }
 
+Vector2 CursorView::GetCalculatedLocation() const {
+  return Vector2(m_x,m_y);
+}
+
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   const float MIN_PINCH_NORM = 0.5f;
   
@@ -177,10 +182,11 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   if ( m_state == State::ACTIVE ) {
     m_x.Update(frame.deltaT.count());
     m_y.Update(frame.deltaT.count());
-    m_ghostX.Update(frame.deltaT.count());
-    m_ghostY.Update(frame.deltaT.count());
     m_bodyOffset.Update(frame.deltaT.count());
-    position = OSVector2{m_x, m_y};
+    
+    if ( !m_locationOverride ) {
+      position = OSVector2{m_x, m_y};
+    }
   }
   
   m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
