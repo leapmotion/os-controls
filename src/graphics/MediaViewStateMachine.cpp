@@ -125,21 +125,11 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       break;
     case State::ACTIVE:
     {
-      // MENU UPDATE
-      
       // The menu always thinks it's at (0,0) so we need to offset the cursor
       // coordinates by the location of the menu to give the proper space.
       const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
       
-      Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
-      RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
-      m_selectedItem = updateResult.updateIdx;
-      if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
-        //Selection Made Transition
-        resolveSelection(updateResult.updateIdx);
-        m_state = State::COMPLETE;
-        m_LastStateChangeTime = m_CurrentTime;
-      }
+      doMenuUpdate(handData, menuOffset);
       break;
     }
     case State::FINAL:
@@ -172,6 +162,17 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
   }
 }
 
+void MediaViewStateMachine::doMenuUpdate(const HandData& handData, Vector2 menuOffset) {
+  Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
+  RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
+  m_selectedItem = updateResult.updateIdx;
+  if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
+    //Selection Made Transition
+    resolveSelection(updateResult.updateIdx);
+    m_state = State::COMPLETE;
+    m_LastStateChangeTime = m_CurrentTime;
+  }
+}
 void MediaViewStateMachine::SetViewVolume(float volume) {
   volume = 1 - volume;
   //m_volumeSlider->SetValue(volume);

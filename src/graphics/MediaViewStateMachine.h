@@ -29,6 +29,7 @@ public:
   void SetViewVolume(float volume);
   
 private:
+  void doMenuUpdate(const HandData& handData, Vector2 menuOffset);
   void resolveSelection(int selectedID);
   //Adjust the view for the volume control
   float calculateVolumeDelta(float deltaHandRoll);
