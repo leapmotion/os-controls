@@ -26,6 +26,7 @@ const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
 m_radialMenu(new RadialMenu()),
+m_volumeSlider(new VolumeSliderView()),
 m_lastHandPose(HandPose::ZeroFingers),
 m_state(State::ARMED) {
   m_CurrentTime = 0.0;
@@ -69,6 +70,10 @@ m_state(State::ARMED) {
   m_radialMenu->GetItem(0)->SetIcon(prevIcon);
   m_radialMenu->GetItem(1)->SetIcon(playPauseIcon);
   m_radialMenu->GetItem(2)->SetIcon(nextIcon);
+  
+  // Initilize Volume Slider
+  m_volumeSlider->SetWidth(300.0f);
+  m_volumeSlider->SetHeight(10.0f);
 }
 
 void MediaViewStateMachine::AutoInit() {
@@ -91,6 +96,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     case State::ARMED:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
         m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
+        m_volumeSlider->Translation() = m_radialMenu->Translation() + VOLUME_SLIDER_OFFSET;
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_startRoll = handData.rollData.absoluteRoll;
         m_hasRoll = true;
@@ -179,6 +185,9 @@ void MediaViewStateMachine::SetViewVolume(float volume) {
 }
 
 void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
+  //Upate volume slider
+  m_volumeSlider->Update(renderFrame);
+  
   float alphaMask = 0.0f;
   if (m_state == State::ACTIVE) {
     // fade in
@@ -203,6 +212,7 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
     if ( m_lastHandPose == HandPose::OneFinger )
     {
       PrimitiveBase::DrawSceneGraph(*m_radialMenu, renderFrame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_volumeSlider, renderFrame.renderState);
     }
     else {
     }

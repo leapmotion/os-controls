@@ -5,6 +5,7 @@
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
 #include "graphics/CursorView.h"
+#include "graphics/VolumeSliderView.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
@@ -29,6 +30,8 @@ public:
   void SetViewVolume(float volume);
   
 private:
+  const Vector3 VOLUME_SLIDER_OFFSET = Vector3( 0.0f, 180.0f, 0.0f );
+  
   void doMenuUpdate(const HandData& handData, Vector2 menuOffset);
   void resolveSelection(int selectedID);
   //Adjust the view for the volume control
@@ -63,6 +66,7 @@ private:
   };
   
   std::shared_ptr<RadialMenu>m_radialMenu;
+  std::shared_ptr<VolumeSliderView> m_volumeSlider;
   
   bool m_hasRoll;
   float m_startRoll;
