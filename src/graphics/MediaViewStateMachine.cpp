@@ -98,8 +98,10 @@ void MediaViewStateMachine::AutoInit() {
 }
 
 void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime) {
+  const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
+  
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
-
+  
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
@@ -118,13 +120,17 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         m_volumeViewAlpha.SetGoal(1.0f);
         m_state = State::ACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
+        return;
       }
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
         m_state = State::ARMED;
+        doMenuUpdate(Vector2(0.0f,0.0f), menuOffset);
+        resetMemberState();
         m_volumeViewAlpha.SetGoal(0.0f);
         m_LastStateChangeTime = m_CurrentTime;
+        return;
       }
       break;
     case State::COMPLETE:
@@ -133,7 +139,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         m_volumeViewAlpha.SetGoal(0.0f);
         m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
-
+        return;
       }
       break;
     case State::FINAL:
@@ -144,6 +150,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   // State Loops
   switch (m_state) {
     case State::ARMED:
+      // Make sure menu is "reset"
+      doMenuUpdate(Vector2(0.0f,0.0f), Vector2(0,0));
       // Wedge transparency is updated in AnimationUpdate loops
       m_radialMenu->InteractWithoutCursor();
       m_selectedItem = -1;
@@ -152,9 +160,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     {
       // The menu always thinks it's at (0,0) so we need to offset the cursor
       // coordinates by the location of the menu to give the proper space.
-      const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
       if ( !m_interactionIsVolumeLocked ) {
-        doMenuUpdate(handData, menuOffset);
+        doMenuUpdate(handData.locationData.screenPosition(), menuOffset);
       }
       doVolumeUpdate(handData, menuOffset);
       break;
@@ -189,8 +196,8 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
   }
 }
 
-void MediaViewStateMachine::doMenuUpdate(const HandData& handData, Vector2 menuOffset) {
-  Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
+void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 menuOffset) {
+  Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
   RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
   m_selectedItem = updateResult.updateIdx;
   if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
@@ -288,6 +295,12 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
     else {
     }
   }
+}
+
+void MediaViewStateMachine::resetMemberState() {
+  m_ghostCursorAlpha.SetGoal(0.0f);
+  m_selectedItem = -1;
+  m_interactionIsVolumeLocked = false;
 }
 
 //TODO: Filter this data in the recognizer to smooth things out.

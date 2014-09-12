@@ -37,7 +37,8 @@ private:
   const Color GHOST_CURSOR_COLOR = Color( 0.505f, 0.831f, 0.114f );
   const float GHOST_CURSOR_ALPHA = 0.3f;
   
-  void doMenuUpdate(const HandData& handData, Vector2 menuOffset);
+  void resetMemberState();
+  void doMenuUpdate(const Vector2& locationData, Vector2 menuOffset);
   void doVolumeUpdate(const HandData& handData, Vector2 menuOffset);
   void resolveSelection(int selectedID);
   //Adjust the view for the volume control
