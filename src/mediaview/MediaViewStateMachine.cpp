@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "uievents/oscDomain.h"
+#include "graphics/RenderEngine.h"
+#include "graphics/RenderFrame.h"
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
+#include "uievents/oscDomain.h"
 #include "uievents/osControlConfigs.h"
-#include "RenderEngine.h"
-#include "RenderState.h"
-#include "RenderFrame.h"
 
 #include "GLShader.h"
 #include "GLShaderLoader.h"
 #include "GLTexture2.h"
 #include "TextFile.h"
+#include "RenderState.h"
 #include "Resource.h"
 #include <memory>
 

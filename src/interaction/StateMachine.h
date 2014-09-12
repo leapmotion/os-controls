@@ -2,18 +2,19 @@
 #include "StateMachineContext.h"
 #include "HandLocationRecognizer.h"
 #include "HandPoseRecognizer.h"
-#include "uievents/OSCDomain.h"
-#include "uievents/Updatable.h"
-#include "graphics/CursorView.h"
+#include "cursor/CursorView.h"
+#include "expose/ExposeActivationStateMachine.h"
+#include "mediaview/MediaViewStateMachine.h"
 #include "interaction/HandEventListener.h"
 #include "interaction/MediaViewController.h"
 #include "interaction/HandActivationRecognizer.h"
 #include "interaction/HandActivationRecognizer.h"
 #include "interaction/ScrollRecognizer.h"
 #include "interaction/HandDataCombiner.h"
-#include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
-#include "graphics/ExposeActivationStateMachine.h"
+#include "uievents/OSCDomain.h"
+#include "uievents/Updatable.h"
+
 #include <queue>
 
 #define USE_HAND_SCROLL 1

@@ -1,10 +1,11 @@
 #pragma once
 #include "graphics/Renderable.h"
+#include "graphics/VolumeKnob.h"
 #include "interaction/MediaViewController.h"
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
-#include "VolumeKnob.h"
+
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
