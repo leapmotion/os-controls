@@ -32,6 +32,7 @@ public:
   // Set the width and height of the menu
   void SetWidth(float newWidth);
   void SetHeight(float newHeight);
+  void SetOpacity(float opacity);
   
   // Get the width and height of the view
   float Width() const { return m_width; }

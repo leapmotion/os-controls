@@ -65,6 +65,14 @@ void VolumeSliderView::SetHeight(float newHeight) {
   m_height = newHeight;
 }
 
+void VolumeSliderView::SetOpacity(float opacity) {
+  opacity = std::min(1.0f, std::max(0.0f, opacity));
+  m_sliderActivePart->LocalProperties().AlphaMask() = opacity;
+  m_sliderInactivePart->LocalProperties().AlphaMask() = opacity;
+  m_sliderNotchBodyActive->LocalProperties().AlphaMask() = opacity;
+  m_sliderNotchBodyInactive->LocalProperties().AlphaMask() = opacity;
+}
+
 Vector2 VolumeSliderView::GetNotchOffset() const {
   Vector3 notchPosition = m_sliderNotchBodyActive->Translation();
   return Vector2(notchPosition.x(), notchPosition.y());
