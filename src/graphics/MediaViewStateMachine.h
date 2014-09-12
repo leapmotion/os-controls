@@ -31,6 +31,8 @@ public:
   
 private:
   const Vector3 VOLUME_SLIDER_OFFSET = Vector3( 0.0f, 180.0f, 0.0f );
+  const Color GHOST_CURSOR_COLOR = Color( 0.505f, 0.831f, 0.114f );
+  const float GHOST_CURSOR_ALPHA = 0.3f;
   
   void doMenuUpdate(const HandData& handData, Vector2 menuOffset);
   void doVolumeUpdate(const HandData& handData, Vector2 menuOffset);
@@ -68,6 +70,9 @@ private:
   
   std::shared_ptr<RadialMenu> m_radialMenu;
   std::shared_ptr<VolumeSliderView> m_volumeSlider;
+  std::shared_ptr<Disk> m_ghostCursor;
+  
+  Smoothed<float> m_ghostCursorAlpha;
   
   HandPose m_lastHandPose;
   

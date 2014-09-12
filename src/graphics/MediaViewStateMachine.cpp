@@ -29,10 +29,20 @@ m_radialMenu(new RadialMenu()),
 m_volumeSlider(new VolumeSliderView()),
 m_lastHandPose(HandPose::ZeroFingers),
 m_state(State::ARMED) {
+  m_ghostCursor(new Disk()),
   m_CurrentTime = 0.0;
   m_LastStateChangeTime = 0.0;
   m_FadeTime = 0.25;
   m_selectedItem = -1;
+  
+  // Initialize Smoothed Values
+  m_ghostCursorAlpha.SetInitialValue(0.0f);
+  m_ghostCursorAlpha.SetSmoothStrength(0.6f);
+  // Initialize Ghost Curosr
+  m_ghostCursor->SetRadius(20.0f);
+  m_ghostCursor->Material().SetDiffuseLightColor(GHOST_CURSOR_COLOR);
+  m_ghostCursor->Material().SetAmbientLightColor(GHOST_CURSOR_COLOR);
+  m_ghostCursor->Material().SetAmbientLightingProportion(1.0f);
 
   // Radial Menu Initialization
   m_radialMenu->SetStartAngle(startAngle);
@@ -191,11 +201,13 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
   offsetNormalFactor = std::max(0.0f, std::min(1.0f, offsetNormalFactor));
   
   if ( offsetNormalFactor > 0.0f ) {
+    m_ghostCursorAlpha.SetGoal(GHOST_CURSOR_ALPHA);
     m_cursorView->EnableLocationOverride();
     Vector2 cursorCalculatedPosition = m_cursorView->GetCalculatedLocation();
     Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(cursorCalculatedPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
     Vector2 offsetCursorPosition = cursorCalculatedPosition + (offsetNormalFactor * (goalPosition - cursorCalculatedPosition));
     m_cursorView->position = OSVector2{ static_cast<float>(offsetCursorPosition.x()), static_cast<float>(offsetCursorPosition.y()) };
+    m_ghostCursor->Translation() = Vector3(cursorCalculatedPosition.x(), cursorCalculatedPosition.y(), 0.0f);
     
     if ( offsetNormalFactor >= 1.0f ) {
       float deltaPixelsInVolume = handData.locationData.dX / m_volumeSlider->Width();
@@ -218,6 +230,9 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
   //Upate volume slider
   m_volumeSlider->Update(renderFrame);
   
+  // Smoothed Value Updates
+  m_ghostCursorAlpha.Update(renderFrame.deltaT.count());
+  m_ghostCursor->LocalProperties().AlphaMask() = m_ghostCursorAlpha;
   float alphaMask = 0.0f;
   if (m_state == State::ACTIVE) {
     // fade in
@@ -242,6 +257,7 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
     if ( m_lastHandPose == HandPose::OneFinger )
     {
       PrimitiveBase::DrawSceneGraph(*m_radialMenu, renderFrame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_ghostCursor, renderFrame.renderState);
       PrimitiveBase::DrawSceneGraph(*m_volumeSlider, renderFrame.renderState);
     }
     else {
