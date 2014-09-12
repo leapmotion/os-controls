@@ -1,6 +1,4 @@
 set(graphics_SOURCES
-  ExposeActivationStateMachine.h
-  ExposeActivationStateMachine.cpp
   Renderable.h
   Renderable.cpp
   RenderEngine.h

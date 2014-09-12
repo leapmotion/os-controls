@@ -1,4 +1,6 @@
 set(expose_SOURCES
+  ExposeActivationStateMachine.h
+  ExposeActivationStateMachine.cpp
   ExposeView.h
   ExposeView.cpp
   ExposeViewAccessManager.h
