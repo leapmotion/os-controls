@@ -88,10 +88,14 @@ void VolumeSliderView::Update(const RenderFrame& frame) {
   m_sliderActivePart->Translation() = Vector3(activePosition.x(), activePosition.y(), 0.0f);
   
   //Calculate notch position
-  Vector2 sliderNotchBodyPosition(meterLeftEdge + m_sliderNotchOffset.x() + m_width * m_volumeLevel, m_sliderNotchOffset.y());
+  Vector2 sliderNotchBodyPosition(meterLeftEdge + m_sliderNotchOffset.x() + (m_width * m_volumeLevel), m_sliderNotchOffset.y());
   
   //Set Active Notch Opacity
   m_sliderNotchBodyActive->LocalProperties().AlphaMask() = m_activationAmount;
+  
+  //Set notchPosition
+  m_sliderNotchBodyInactive->Translation() = Vector3(sliderNotchBodyPosition.x(), sliderNotchBodyPosition.y(),0.0f);
+  m_sliderNotchBodyActive->Translation() = Vector3(sliderNotchBodyPosition.x(), sliderNotchBodyPosition.y(),0.0f);
   
 }
 
