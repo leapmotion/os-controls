@@ -27,6 +27,7 @@ public:
   void SetOpeningPosition();
   void SetClosingPosition();
   Vector2 GetOSPosition() const;
+  Vector2 GetOSSize() const;
 
   // Smooth animations for opacity and position
   Smoothed<float> m_opacity;
@@ -44,7 +45,6 @@ public:
 private:
   // Texture for this window
   std::shared_ptr<ImagePrimitive> m_texture;
-  mutable std::shared_ptr<ImagePrimitive> m_icon;
 
 public:
   /// <summary>

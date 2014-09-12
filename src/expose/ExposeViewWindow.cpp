@@ -6,8 +6,7 @@
 
 ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this()),
-  m_texture(new ImagePrimitive),
-  m_icon(new ImagePrimitive)
+  m_texture(new ImagePrimitive)
 {
   const float randNum = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
   const float randomSmoothVariationRadius = 0.05f;
@@ -50,17 +49,10 @@ ExposeViewWindow::~ExposeViewWindow(void) {}
 
 void ExposeViewWindow::UpdateTexture(void) {
   m_texture = m_osWindow->GetWindowTexture(m_texture);
-  if (m_osWindow->GetOwnerApp()) {
-    m_icon = m_osWindow->GetOwnerApp()->GetIconTexture(m_icon);
-  }
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
   m_texture->DrawSceneGraph(*m_texture, frame.renderState);
-  m_icon->Translation() = m_texture->Translation();
-  m_icon->LinearTransformation() = m_texture->LinearTransformation();
-  m_icon->DrawSceneGraph(*m_icon, frame.renderState);
-  m_icon->LocalProperties().AlphaMask() = m_texture->LocalProperties().AlphaMask();
 }
 
 void ExposeViewWindow::SetOpeningPosition() {
@@ -114,4 +106,9 @@ Vector2 ExposeViewWindow::GetOSPosition() const {
   const OSPoint pos = m_osWindow->GetPosition();
   const OSSize size = m_osWindow->GetSize();
   return Vector2(pos.x + 0.5*size.width, pos.y + 0.5*size.height);
+}
+
+Vector2 ExposeViewWindow::GetOSSize() const {
+  const OSSize size = m_osWindow->GetSize();
+  return Vector2(size.width, size.height);
 }
