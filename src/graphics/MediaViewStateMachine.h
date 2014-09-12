@@ -33,6 +33,7 @@ private:
   const Vector3 VOLUME_SLIDER_OFFSET = Vector3( 0.0f, 180.0f, 0.0f );
   
   void doMenuUpdate(const HandData& handData, Vector2 menuOffset);
+  void doVolumeUpdate(const HandData& handData, Vector2 menuOffset);
   void resolveSelection(int selectedID);
   //Adjust the view for the volume control
   float calculateVolumeDelta(float deltaHandRoll);

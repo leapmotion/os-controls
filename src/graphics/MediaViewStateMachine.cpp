@@ -137,6 +137,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
       
       doMenuUpdate(handData, menuOffset);
+      doVolumeUpdate(handData, menuOffset);
       break;
     }
     case State::FINAL:
@@ -180,6 +181,37 @@ void MediaViewStateMachine::doMenuUpdate(const HandData& handData, Vector2 menuO
     m_LastStateChangeTime = m_CurrentTime;
   }
 }
+
+void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 menuOffset) {
+  const float VOLUME_OFFSET_START_Y = 80.0f;
+  const float VOLUME_LOCK_IN_Y = 160.0f;
+  const float VOLUME_LOCK_X_OFFSET = 35.0f;
+  
+  Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
+  
+  float offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
+  offsetNormalFactor = std::max(0.0f, std::min(1.0f, offsetNormalFactor));
+  
+  if ( offsetNormalFactor > 0.0f ) {
+    m_cursorView->EnableLocationOverride();
+    Vector2 cursorCalculatedPosition = m_cursorView->GetCalculatedLocation();
+    Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(cursorCalculatedPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
+    Vector2 offsetCursorPosition = cursorCalculatedPosition + (offsetNormalFactor * (goalPosition - cursorCalculatedPosition));
+    m_cursorView->position = OSVector2{ static_cast<float>(offsetCursorPosition.x()), static_cast<float>(offsetCursorPosition.y()) };
+    
+    if ( offsetNormalFactor >= 1.0f ) {
+      float deltaPixelsInVolume = handData.locationData.dX / m_volumeSlider->Width();
+      m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
+      m_volumeSlider->Deactivate();
+    }
+  }
+  else
+  {
+    m_cursorView->DisableLocationOverride();
+    m_volumeSlider->Deactivate();
+  }
+}
+
 void MediaViewStateMachine::SetViewVolume(float volume) {
   m_volumeSlider->SetViewVolume(volume);
 }
