@@ -30,6 +30,8 @@ public:
   void SetViewVolume(float volume);
   
 private:
+  const float MENU_RADIUS = 120.0f;
+  const float MENU_THICKNESS = 70.0f;
   const Vector3 VOLUME_SLIDER_OFFSET = Vector3( 0.0f, 180.0f, 0.0f );
   const Color GHOST_CURSOR_COLOR = Color( 0.505f, 0.831f, 0.114f );
   const float GHOST_CURSOR_ALPHA = 0.3f;
@@ -67,6 +69,7 @@ private:
   std::shared_ptr<Disk> m_ghostCursor;
   
   Smoothed<float> m_ghostCursorAlpha;
+  Smoothed<float> m_volumeViewAlpha;
   
   HandPose m_lastHandPose;
   

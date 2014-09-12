@@ -25,11 +25,13 @@ const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
 const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
-m_radialMenu(new RadialMenu()),
-m_volumeSlider(new VolumeSliderView()),
-m_lastHandPose(HandPose::ZeroFingers),
-m_state(State::ARMED) {
+  m_radialMenu(new RadialMenu()),
+  m_volumeSlider(new VolumeSliderView()),
   m_ghostCursor(new Disk()),
+  m_lastHandPose(HandPose::ZeroFingers),
+  m_state(State::ARMED),
+  m_interactionIsVolumeLocked(false)
+{
   m_CurrentTime = 0.0;
   m_LastStateChangeTime = 0.0;
   m_FadeTime = 0.25;
@@ -38,6 +40,10 @@ m_state(State::ARMED) {
   // Initialize Smoothed Values
   m_ghostCursorAlpha.SetInitialValue(0.0f);
   m_ghostCursorAlpha.SetSmoothStrength(0.6f);
+  
+  m_volumeViewAlpha.SetInitialValue(0.0f);
+  m_volumeViewAlpha.SetSmoothStrength(0.6f);
+  
   // Initialize Ghost Curosr
   m_ghostCursor->SetRadius(20.0f);
   m_ghostCursor->Material().SetDiffuseLightColor(GHOST_CURSOR_COLOR);
@@ -48,8 +54,8 @@ m_state(State::ARMED) {
   m_radialMenu->SetStartAngle(startAngle);
   m_radialMenu->SetEndAngle(endAngle);
   m_radialMenu->SetNumItems(numItems);
-  m_radialMenu->SetRadius(120.0);
-  m_radialMenu->SetThickness(70.0);
+  m_radialMenu->SetRadius(MENU_RADIUS);
+  m_radialMenu->SetThickness(MENU_THICKNESS);
   
   for (int i=0; i<numItems; i++) {
     // TODO: Break these out into a config to avoid so many magic numbers
@@ -83,7 +89,7 @@ m_state(State::ARMED) {
   m_radialMenu->GetItem(2)->SetIcon(nextIcon);
   
   // Initilize Volume Slider
-  m_volumeSlider->SetWidth(300.0f);
+  m_volumeSlider->SetWidth(220.0f);
   m_volumeSlider->SetHeight(10.0f);
 }
 
@@ -109,6 +115,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_volumeSlider->Translation() = m_radialMenu->Translation() + VOLUME_SLIDER_OFFSET;
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
+        m_volumeViewAlpha.SetGoal(1.0f);
         m_state = State::ACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
@@ -116,11 +123,14 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
         m_state = State::ARMED;
+        m_volumeViewAlpha.SetGoal(0.0f);
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::COMPLETE:
+      
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_volumeViewAlpha.SetGoal(0.0f);
         m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
 
@@ -186,6 +196,7 @@ void MediaViewStateMachine::doMenuUpdate(const HandData& handData, Vector2 menuO
   if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
     //Selection Made Transition
     resolveSelection(updateResult.updateIdx);
+    m_volumeViewAlpha.SetGoal(0.0f);
     m_state = State::COMPLETE;
     m_LastStateChangeTime = m_CurrentTime;
   }
@@ -214,6 +225,9 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
     if ( offsetNormalFactor >= 1.0f ) {
       float deltaPixelsInVolume = handData.locationData.dX / m_volumeSlider->Width();
       m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
+      m_volumeSlider->Activate();
+    }
+    else {
       m_volumeSlider->Deactivate();
     }
   }
@@ -221,6 +235,9 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
   {
     m_cursorView->DisableLocationOverride();
     m_volumeSlider->Deactivate();
+    m_ghostCursorAlpha.SetGoal(0.0f);
+  }
+  
   if ( leapPosition.norm() <=  MENU_RADIUS - (MENU_THICKNESS / 2.0f)) {
     m_interactionIsVolumeLocked = false;
   }
@@ -236,7 +253,11 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
   
   // Smoothed Value Updates
   m_ghostCursorAlpha.Update(renderFrame.deltaT.count());
+  m_volumeViewAlpha.Update(renderFrame.deltaT.count());
+  
   m_ghostCursor->LocalProperties().AlphaMask() = m_ghostCursorAlpha;
+  m_volumeSlider->SetOpacity(m_volumeViewAlpha);
+  
   float alphaMask = 0.0f;
   if (m_state == State::ACTIVE) {
     // fade in
