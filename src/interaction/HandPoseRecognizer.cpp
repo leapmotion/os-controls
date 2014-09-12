@@ -70,21 +70,33 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
 
 bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const {
   bool retVal = false;
-  
-  float bend = metaToDistalBend(finger);
-  
+  float bend = 0.0f;
   if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
-    return finger.isExtended();
-  }
-  
-  if ( !wasExtended ) {
-    if(bend <= pointingConfigs::MIN_BEND_FOR_START_POINTING) {
-      retVal = true;
+    bend = averageFingerBend(finger, 2, 3);
+    std::cout << "bend: " << bend << std::endl;
+    if ( !wasExtended ) {
+      if(bend <= pointingConfigs::MAX_BEND_FOR_START_POINTING) {
+        retVal = true;
+      }
+    }
+    else {
+      if(bend <= pointingConfigs::MAX_BEND_FOR_CONTINUE_POINTING) {
+        retVal = true;
+      }
     }
   }
   else {
-    if(bend <= pointingConfigs::MIN_BEND_FOR_CONTINUE_POINTING) {
-      retVal = true;
+    bend = metaToDistalBend(finger);
+    
+    if ( !wasExtended ) {
+      if(bend <= pointingConfigs::MAX_BEND_FOR_THUMB_START_POINTING) {
+        retVal = true;
+      }
+    }
+    else {
+      if(bend <= pointingConfigs::MAX_BEND_FOR_THUMB_END_POINTING) {
+        retVal = true;
+      }
     }
   }
 
