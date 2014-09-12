@@ -180,7 +180,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     m_ghostX.Update(frame.deltaT.count());
     m_ghostY.Update(frame.deltaT.count());
     m_bodyOffset.Update(frame.deltaT.count());
-    position = OSVector2{m_ghostX, m_ghostY};
+    position = OSVector2{m_x, m_y};
   }
   
   m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
@@ -199,10 +199,10 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   
   
   // Snapped Scrolling Cursor Positioning
-  m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x() - position.x + m_x.Value(), m_scrollBodyOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
-  m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x() - position.x + m_x.Value(), m_scrollLineOffset.y() - position.y + m_y.Value(), 0.0f);
-  m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() - position.x + m_fingerSpread + m_x.Value(), m_scrollFingerLeftOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
-  m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - position.x - m_fingerSpread + m_x.Value(), m_scrollFingerRightOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
+  m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x(), m_scrollBodyOffset.y()+ m_bodyOffset, 0.0f);
+  m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x(), m_scrollLineOffset.y(), 0.0f);
+  m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() + m_fingerSpread, m_scrollFingerLeftOffset.y() + m_bodyOffset, 0.0f);
+  m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - m_fingerSpread, m_scrollFingerRightOffset.y() + m_bodyOffset, 0.0f);
   
   //Disk that appears when you're not doing things with scroll
   m_disk->Translation() = Vector3(-position.x + m_x, -position.y + m_y, 0.0f);
