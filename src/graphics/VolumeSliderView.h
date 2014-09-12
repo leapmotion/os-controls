@@ -6,6 +6,7 @@
 #include "TextFile.h"
 #include "Resource.h"
 #include "Primitives.h"
+#include "uievents/MediaViewEventListener.h"
 #include <SVGPrimitive.h>
 #include <memory>
 #include <Animation.h>
@@ -50,6 +51,8 @@ private:
   
   float m_width;
   float m_height;
+  
+  AutoFired<MediaViewEventListener> m_mediaEvents;
   
   std::shared_ptr<RectanglePrim> m_sliderActivePart;
   std::shared_ptr<RectanglePrim> m_sliderInactivePart;
