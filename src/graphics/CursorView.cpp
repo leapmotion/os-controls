@@ -209,9 +209,6 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x(), m_scrollLineOffset.y(), 0.0f);
   m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() + m_fingerSpread, m_scrollFingerLeftOffset.y() + m_bodyOffset, 0.0f);
   m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - m_fingerSpread, m_scrollFingerRightOffset.y() + m_bodyOffset, 0.0f);
-  
-  //Disk that appears when you're not doing things with scroll
-  m_disk->Translation() = Vector3(-position.x + m_x, -position.y + m_y, 0.0f);
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
