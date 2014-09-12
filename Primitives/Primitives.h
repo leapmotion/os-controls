@@ -341,7 +341,9 @@ public:
   
   // The rectangle will be centered at the origin, and will extend half of each size component in each direction.
   void SetBasisRectangleSize (const Vector2 &size);
-  // The inner (resp. outer) rectangles' edges will extend in (resp. out) from the basis rectangle by the given offset.
+  // The inner (resp. outer) rectangles' edges will extend in (resp. out) from the basis rectangle
+  // by the given offset.  Offsets are clamped to be nonnegative, so any negative value specified
+  // here will be interpreted as zero.
   void SetRectangleEdgeOffset (Rectangle rect, RectangleEdge edge, double offset);
   // Sets the texture coordinate for the given rectangle edge (see diagram for labeling).
   void SetRectangleEdgeTextureCoordinate (Rectangle rect, RectangleEdge edge, float tex_coord);

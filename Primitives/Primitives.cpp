@@ -288,6 +288,7 @@ void TexturedFrame::SetBasisRectangleSize(const Vector2& size) {
 
 void TexturedFrame::SetRectangleEdgeOffset(TexturedFrame::Rectangle rect, TexturedFrame::RectangleEdge edge, double offset) {
   double &o = m_rectangle_edge_offset[size_t(rect)][size_t(edge)];
+  offset = std::max(0.0, offset);
   if (o != offset) {
     o = offset;
     m_recompute_geometry = true;
@@ -309,6 +310,14 @@ void TexturedFrame::DrawContents(RenderState& renderState) const {
   
   RecomputeGeometryIfNecessary();
   assert(!m_recompute_geometry);
+
+  glEnable(GL_TEXTURE_2D);
+  m_texture->Bind();
+  m_geometry.Draw(Shader(), GL_TRIANGLES);
+  m_texture->Unbind();
+  glDisable(GL_TEXTURE_2D);
+  
+  // m_geometry.Draw(Shader(), GL_LINE_STRIP);
 }
 
 void TexturedFrame::RecomputeGeometryIfNecessary() const {
@@ -323,19 +332,19 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
   // The first index indicates x (0) or y (1).
   const double rectangle_edge[2][4]{
     {
-      -bx - RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::LEFT)),
-      -bx + RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::LEFT)),
-       bx - RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::RIGHT)),
-       bx + RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::RIGHT))
+      -bx - RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::LEFT),
+      -bx + RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::LEFT),
+       bx - RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::RIGHT),
+       bx + RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::RIGHT)
     },
     {
-      -by - RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::BOTTOM)),
-      -by + RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::BOTTOM)),
-       by - RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::TOP)),
-       by + RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::TOP))
+      -by - RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::BOTTOM),
+      -by + RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::BOTTOM),
+       by - RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::TOP),
+       by + RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::TOP)
     }
   };
-  const float rectangle_texture_coordinate[2][4]{
+  const float rectangle_edge_texture_coordinate[2][4]{
     {
       RectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::LEFT),
       RectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::LEFT),
@@ -352,14 +361,31 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
 
   static const Vector3f NORMAL = Vector3f::UnitZ();
   static const Vector4f COLOR = Vector4f::Constant(1.0f);
-  VertexAttributes vertex_attributes[4][4];
+  // The spatial layout of the vertices is:
+  //    [0][3]    [1][3]    [2][3]    [3][3]
+  //    [0][2]    [1][2]    [2][2]    [3][2]
+  //    [0][1]    [1][1]    [2][1]    [3][1]
+  //    [0][0]    [1][0]    [2][0]    [3][0]
+  PrimitiveGeometry::VertexAttributes vertex_attributes[4][4];
   for (size_t u = 0; u < 4; ++u) {
     for (size_t v = 0; v < 4; ++v) {
-      vertex_attributes[u][v] = std::make_tuple(Vector3f(rectangle_edge[0][u], rectangle_edge[1][v], 0.0f), NORMAL, Vector2f(rectangle_texture_coordinate[0][u], rectangle_texture_coordinate[1][v]), COLOR);
+      vertex_attributes[u][v] = std::make_tuple(Vector3f(rectangle_edge[0][u], rectangle_edge[1][v], 0.0f),
+                                                NORMAL,
+                                                Vector2f(rectangle_edge_texture_coordinate[0][u], rectangle_edge_texture_coordinate[1][v]),
+                                                COLOR);
     }
   }
-  
-  TODO START HERE
-  
-  m_geometry.PushQuad(PrimitiveGeometry::VertexAttributes(
+
+  for (size_t u = 0; u < 3; ++u) {
+    for (size_t v = 0; v < 3; ++v) {
+      m_geometry.PushQuad(vertex_attributes[u+0][v+0],
+                          vertex_attributes[u+1][v+0],
+                          vertex_attributes[u+1][v+1],
+                          vertex_attributes[u+0][v+1]);
+    }
+  }
+
+  m_geometry.UploadDataToBuffers();
+
+  m_recompute_geometry = false;
 }
