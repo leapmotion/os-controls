@@ -46,12 +46,6 @@ private:
   /// </summary>
   
   enum class State {
-    
-    /*                        |----------V
-     *    --> Inactive --> Active --> SelectionMade
-     *           ^-----------|-----------|
-     */
-    
     // Media View is created but not focused.
     // It is wainting for focus to activate.
     ARMED,
