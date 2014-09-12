@@ -60,9 +60,9 @@ MediaViewStateMachine::MediaViewStateMachine() :
   for (int i=0; i<numItems; i++) {
     // TODO: Break these out into a config to avoid so many magic numbers
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu->GetItem(i);
-    item->SetRadius(120.0);
-    item->SetThickness(80.0);
-    item->SetActivatedRadius(160.0);
+    item->SetRadius(MENU_RADIUS);
+    item->SetThickness(MENU_THICKNESS);
+    item->SetActivatedRadius(ACTIVATION_RADIUS);
     item->Material().SetAmbientLightColor(bgColor);
     item->Material().SetAmbientLightingProportion(1.0f);
     item->Material().SetDiffuseLightColor(bgColor);
@@ -204,7 +204,7 @@ void MediaViewStateMachine::doMenuUpdate(const HandData& handData, Vector2 menuO
 
 void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 menuOffset) {
   const float VOLUME_OFFSET_START_Y = 80.0f;
-  const float VOLUME_LOCK_IN_Y = 160.0f;
+  const float VOLUME_LOCK_IN_Y = 180.0f;
   const float VOLUME_LOCK_X_OFFSET = 35.0f;
   
   Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
