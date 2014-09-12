@@ -19,6 +19,20 @@ set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/svgs/volume-notch-inactive.svg
 )
 
+add_mac_sources(
+  oscontrols_SOURCES
+  ApplicationDelegate.h
+  ApplicationDelegate.mm
+  MenubarController.h
+  MenubarController.mm
+  StatusItemView.h
+  StatusItemView.mm
+)
+
+add_mac_sources(
+  oscontrols_RESOURCES
+  ${CMAKE_SOURCE_DIR}/src/oscontrols/Status.tiff
+)
 
 add_conditional_sources(oscontrols_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${oscontrols_RESOURCES})
 
@@ -27,6 +41,15 @@ if(WIN32)
 elseif(APPLE)
   set_property(SOURCE oscontrols.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
   set(oscontrols_EXEFLAGS MACOSX_BUNDLE)
+  set(oscontrols_XIB_NAMES MainMenu)
+  set(oscontrols_XIBS "")
+  file(GLOB locales RELATIVE ${CMAKE_SOURCE_DIR}/src/oscontrols *.lproj)
+  foreach(locale ${locales})
+    foreach(xib ${oscontrols_XIB_NAMES})
+      list(APPEND oscontrols_XIBS ${locale}/${xib}.xib)
+    endforeach()
+  endforeach()
+  add_conditional_sources(oscontrols_SOURCES "" GROUP_NAME "XIBs" "FILES" ${CMAKE_SOURCE_DIR}/src/oscontrols/${oscontrols_XIBS})
 endif()
 
 add_executable(oscontrols ${oscontrols_EXEFLAGS} ${oscontrols_SOURCES})
@@ -60,5 +83,19 @@ foreach(_resource ${oscontrols_RESOURCES})
       )
     endif()
   endif()
-
 endforeach()
+
+if(APPLE)
+  find_program(IBTOOL ibtool HINTS "/usr/bin" "${OSX_DEVELOPER_ROOT}/usr/bin")
+  foreach(xib ${oscontrols_XIBS})
+    get_filename_component(nib_path ${xib} PATH)
+    get_filename_component(nib_name ${xib} NAME_WE)
+    add_custom_command(TARGET oscontrols POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory \"$<TARGET_FILE_DIR:oscontrols>/../Resources/${nib_path}\"
+      COMMAND ${IBTOOL} --errors --warnings --notices --output-format human-readable-text --compile
+      \"$<TARGET_FILE_DIR:oscontrols>/../Resources/${nib_path}/${nib_name}.nib\"
+      ${CMAKE_SOURCE_DIR}/src/oscontrols/${xib}
+      COMMENT "Compiling src/oscontrols/${xib}"
+    )
+  endforeach()
+endif()

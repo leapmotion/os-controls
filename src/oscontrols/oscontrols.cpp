@@ -17,8 +17,16 @@
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
 
+#if __APPLE__
+#include <AppKit/NSNibLoading.h>
+#include <AppKit/NSApplication.h>
+#endif
+
 int main(int argc, char **argv)
 {
+#if __APPLE__
+  [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:[NSApplication sharedApplication] topLevelObjects:nil];
+#endif
   PlatformInitializer init;
 
   AutoCurrentContext ctxt;
@@ -107,4 +115,3 @@ void OsControl::Filter(void) {
     std::cerr << ex.what() << std::endl;
   }
 }
-
