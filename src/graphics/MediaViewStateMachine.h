@@ -4,6 +4,7 @@
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
+#include "graphics/CursorView.h"
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
@@ -67,6 +68,9 @@ private:
   HandPose m_lastHandPose;
   
   State m_state;
+  
+  // Refernce to the cursor so we can override its position
+  Autowired<CursorView> m_cursorView;
   
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
