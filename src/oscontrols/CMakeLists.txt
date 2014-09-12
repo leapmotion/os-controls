@@ -15,6 +15,8 @@ set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/svgs/scroll-cursor-finger_left.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/scroll-cursor-line.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/scroll-cursor-ghost.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/volume-notch-active.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/volume-notch-inactive.svg
 )
 
 
