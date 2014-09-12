@@ -72,6 +72,10 @@ void ExposeView::Render(const RenderFrame& frame) const {
 
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
+
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    PrimitiveBase::DrawSceneGraph(*(group->m_icon), frame.renderState);
+  }
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
@@ -152,7 +156,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 
     // set window position smoothly
     if (!m_closing) {
-      window->m_position.SetGoal(point3D + totalForce);
+      //window->m_position.SetGoal(point3D + totalForce);
     }
     window->m_position.Update((float)dt.count());
     img->Translation() = window->m_position.Value() + window->m_grabDelta.Value();
@@ -175,6 +179,25 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegion->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
   m_backgroundImage->LocalProperties().AlphaMask() = m_alphaMask.Current();
+
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    Vector3 center(Vector3::Zero());
+    double scale = 0;
+    double weight = 0;
+    assert(!group->m_groupMembers.empty());
+    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
+      const double curWeight = window->GetTexture()->Size().norm();
+      center += curWeight * window->GetTexture()->Translation();
+      weight += curWeight;
+      scale += window->GetTexture()->LinearTransformation()(0,0);
+    }
+    center /= weight;
+    scale /= group->m_groupMembers.size();
+    group->m_icon->Translation() = center;
+
+    group->m_icon->LinearTransformation() = (2.0 * scale) * Matrix3x3::Identity();
+    group->m_icon->LocalProperties().AlphaMask() = m_alphaMask.Current();
+  }
 }
 
 void ExposeView::startPositions() {
@@ -395,7 +418,51 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
     createNewGroup(retVal);
   }
 
+  computeLayout();
+
   return retVal;
+}
+
+void ExposeView::computeLayout() {
+  Autowired<OSVirtualScreen> fullScreen;
+  const Vector2 fullSize(fullScreen->Size().width, fullScreen->Size().height);
+  const OSRect fullBounds = fullScreen->Bounds();
+  const Vector2 fullOrigin(fullBounds.origin.x, fullBounds.origin.y);
+  const Vector2 fullCenter = fullOrigin + 0.5*fullSize;
+
+  auto primaryScreen = fullScreen->PrimaryScreen();
+  const Vector2 primarySize(primaryScreen.Size().width, primaryScreen.Size().height);
+  const OSRect primaryBounds = primaryScreen.Bounds();
+  const Vector2 primaryOrigin(primaryBounds.origin.x, primaryBounds.origin.y);
+  const Vector2 primaryCenter = primaryOrigin + 0.5*primarySize;
+
+  const Vector2 primaryToFullScale = primarySize.cwiseQuotient(fullSize);
+
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    group->m_center.setZero();
+    double groupWeight = 0;
+    const int numGroupMembers = static_cast<int>(group->m_groupMembers.size());
+    assert(numGroupMembers > 0);
+    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
+      const double curWeight = window->GetOSSize().norm();
+      assert(curWeight > 0.0);
+      group->m_center += curWeight * window->GetOSPosition();
+      groupWeight += curWeight;
+    }
+    group->m_center /= groupWeight;
+
+    const Vector2 scaledCenter = (group->m_center - primaryCenter).cwiseProduct(primaryToFullScale) + primaryCenter;
+    const double radius = m_layoutRadius * 0.05 * numGroupMembers;
+
+    double angle = 0;
+    const double angleInc = 2*M_PI / static_cast<double>(numGroupMembers);
+    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
+      const Vector2 cartesian = radialCoordsToPoint(angle, radius) + scaledCenter;
+      const Vector3 point3D(cartesian.x(), cartesian.y(), 0.0);
+      window->m_position.SetGoal(point3D);
+      angle += angleInc;
+    }
+  }
 }
 
 bool ExposeView::addToExistingGroup(const std::shared_ptr<ExposeViewWindow>& window) {
@@ -438,16 +505,21 @@ void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
   if (group->m_groupMembers.empty()) {
     m_groups.erase(group);
   }
+
+  computeLayout();
 }
 
 void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   wnd->UpdateTexture();
+
+  computeLayout();
 }
 
 void ExposeView::StartView() {
   m_alphaMask.Set(1.0f, 0.5);
   m_closing = false;
   startPositions();
+  computeLayout();
 }
 
 void ExposeView::CloseView() {
