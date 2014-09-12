@@ -64,13 +64,15 @@ public:
 
   const SDLControllerParams& GetParams() const { return m_Params; }
   void ToggleFullscreen();
+  
+  Uint32 GetWindowID();
 
 #if _WIN32
   HWND GetHWND() { return m_HWND; }
 #endif
 
 private:
-
+  
   void InitSDL();
   void ConfigureFrameBuffer();
   void ConfigureAntialiasing();

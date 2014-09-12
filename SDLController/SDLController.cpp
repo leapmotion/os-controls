@@ -145,7 +145,7 @@ void SDLController::InitWindow() {
     m_Params.windowPosX = SDL_WINDOWPOS_CENTERED;
     m_Params.windowPosY = SDL_WINDOWPOS_CENTERED;
   }
-
+  
   if (m_Params.transparentWindow) {
     // Transparent window only works properly when the window is borderless
     m_Params.windowFlags |= SDL_WINDOW_BORDERLESS;
@@ -242,4 +242,11 @@ void SDLController::CleanUpInitializedResources() {
     m_SDL_Window = nullptr;
   }
   SDL_Quit();
+}
+
+Uint32 SDLController::GetWindowID(){
+  if (m_SDL_Window == nullptr) {
+    throw std::runtime_error("Error getting SDL window ID");
+  }
+  return SDL_GetWindowID(m_SDL_Window);
 }
