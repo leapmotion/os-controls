@@ -29,8 +29,8 @@ namespace loactionConfigs {
 namespace pointingConfigs {
   const float MAX_BEND_FOR_START_POINTING = 1.6f;
   const float MAX_BEND_FOR_CONTINUE_POINTING = 1.8f;
-  const float MAX_BEND_FOR_THUMB_START_POINTING = 1.5f;
-  const float MAX_BEND_FOR_THUMB_END_POINTING = 1.7f;
+  const float MAX_BEND_FOR_THUMB_START_POINTING = 0.35f;
+  const float MAX_BEND_FOR_THUMB_CONTINUE_POINTING = 0.45f;
 }
 
 namespace transitionConfigs {

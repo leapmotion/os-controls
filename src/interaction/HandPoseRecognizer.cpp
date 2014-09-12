@@ -34,7 +34,6 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
     
     i++;
   }
-  
     
   // Finger-Extension based pose resolution
   switch (handCode) {
@@ -71,31 +70,32 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
 bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const {
   bool retVal = false;
   float bend = 0.0f;
+  
   if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
-    bend = averageFingerBend(finger, 2, 3);
-    if ( !wasExtended ) {
-      if(bend <= pointingConfigs::MAX_BEND_FOR_START_POINTING) {
-        retVal = true;
-      }
-    }
-    else {
-      if(bend <= pointingConfigs::MAX_BEND_FOR_CONTINUE_POINTING) {
-        retVal = true;
-      }
-    }
-  }
-  else {
-    bend = metaToDistalBend(finger);
-    
+    bend = averageFingerBend(finger, 2, 4);
     if ( !wasExtended ) {
       if(bend <= pointingConfigs::MAX_BEND_FOR_THUMB_START_POINTING) {
         retVal = true;
       }
     }
     else {
-      if(bend <= pointingConfigs::MAX_BEND_FOR_THUMB_END_POINTING) {
+      if(bend <= pointingConfigs::MAX_BEND_FOR_THUMB_CONTINUE_POINTING) {
         retVal = true;
       }
+    }
+    return retVal;
+  }
+
+  bend = metaToDistalBend(finger);
+  
+  if ( !wasExtended ) {
+    if(bend <= pointingConfigs::MAX_BEND_FOR_START_POINTING) {
+      retVal = true;
+    }
+  }
+  else {
+    if(bend <= pointingConfigs::MAX_BEND_FOR_CONTINUE_POINTING) {
+      retVal = true;
     }
   }
 
