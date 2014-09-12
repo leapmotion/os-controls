@@ -60,11 +60,13 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   scrollState = m_scrollState; //in case we don't change state
 
   //TODO: Make scrolling an actual state of the application
-  if (m_scrollType == ScrollType::HAND_SCROLL) {
-    doHandScroll(scroll, handData.locationData, scrollState);
-  }
-  else if (m_scrollType == ScrollType::PINCH_SCROLL) {
-    doPinchScroll(scroll, handData.locationData, handData.pinchData, scrollState);
+  if ( m_state == OSCState::BASE) {
+    if (m_scrollType == ScrollType::HAND_SCROLL) {
+      doHandScroll(scroll, handData.locationData, scrollState);
+    }
+    else if (m_scrollType == ScrollType::PINCH_SCROLL) {
+      doPinchScroll(scroll, handData.locationData, handData.pinchData, scrollState);
+    }
   }
 }
 
