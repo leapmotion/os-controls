@@ -5,8 +5,6 @@ set(interaction_SOURCES
   CoordinateUtility.h
   ClawRotationRecognizer.cpp
   ClawRotationRecognizer.h
-  ExposeViewStateMachine.h
-  ExposeViewStateMachine.cpp
   TimeRecognizer.h
   TimeRecognizer.cpp
   FrameFragmenter.h

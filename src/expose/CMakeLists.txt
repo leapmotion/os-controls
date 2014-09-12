@@ -9,6 +9,8 @@ set(expose_SOURCES
   ExposeViewController.cpp
   ExposeViewEvents.h
   ExposeViewEvents.cpp
+  ExposeViewStateMachine.h
+  ExposeViewStateMachine.cpp
   ExposeViewWindow.h
   ExposeViewWindow.cpp
 )
