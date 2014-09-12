@@ -62,7 +62,7 @@ void VolumeSliderView::SetWidth(float newWidth) {
 
 void VolumeSliderView::SetHeight(float newHeight) {
   newHeight = std::max(0.0f, newHeight);
-  m_width = newHeight;
+  m_height = newHeight;
 }
 
 float VolumeSliderView::GetNotchOffset() const {
