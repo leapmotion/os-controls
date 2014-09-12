@@ -6,6 +6,7 @@
 #include "graphics/RenderFrame.h"
 #include "utility/SamplePrimitives.h"
 #include <SVGPrimitive.h>
+#include "OSInterface/OSApp.h"
 #include "OSInterface/OSVirtualScreen.h"
 #include "OSInterface/OSWindow.h"
 
@@ -116,18 +117,13 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 #if 0
     const double imgRadius = 0.5 * img->Size().norm();
     const double scale = (1.0 + bonusScale) * radiusPerWindow / imgRadius;
-<<<<<<< HEAD
-    window->m_scale.SetGoal(static_cast<float>(scale));
-    window->m_scale.Update((float)dt.count());
-=======
 #else
     const double scale = (1.0 + bonusScale) * 0.5 * size.norm() / fullSize.norm();
 #endif
     if (!m_closing) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
-    window->m_scale.Update(dt.count());
->>>>>>> Animate windows to/from their original positions
+    window->m_scale.Update((float)dt.count());
     img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
 
 #if 0
@@ -155,15 +151,10 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     }
 
     // set window position smoothly
-<<<<<<< HEAD
-    window->m_position.SetGoal(point3D + totalForce);
-    window->m_position.Update((float)dt.count());
-=======
     if (!m_closing) {
       window->m_position.SetGoal(point3D + totalForce);
     }
-    window->m_position.Update(dt.count());
->>>>>>> Animate windows to/from their original positions
+    window->m_position.Update((float)dt.count());
     img->Translation() = window->m_position.Value() + window->m_grabDelta.Value();
 
     // set window opacity smoothly
@@ -400,13 +391,53 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
   retVal->m_grabDelta.SetGoal(Vector3::Zero());
   retVal->m_grabDelta.Update(0.0f);
 
+  if (!addToExistingGroup(retVal)) {
+    createNewGroup(retVal);
+  }
+
   return retVal;
+}
+
+bool ExposeView::addToExistingGroup(const std::shared_ptr<ExposeViewWindow>& window) {
+  std::shared_ptr<ExposeGroup> group = getGroupForWindow(window);
+  if (group) {
+    group->m_groupMembers.insert(window);
+    return true;
+  }
+  return false;
+}
+
+std::shared_ptr<ExposeGroup> ExposeView::getGroupForWindow(const std::shared_ptr<ExposeViewWindow>& window) const {
+  OSApp& windowApp = *(window->m_osWindow->GetOwnerApp());
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    OSApp& groupApp = *group->m_app;
+    if (windowApp == groupApp) {
+      return group;
+    }
+  }
+  return nullptr;
+}
+
+std::shared_ptr<ExposeGroup> ExposeView::createNewGroup(const std::shared_ptr<ExposeViewWindow>& window) {
+  std::shared_ptr<ExposeGroup> group(new ExposeGroup);
+  group->m_app = window->m_osWindow->GetOwnerApp();
+  group->m_icon = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
+  group->m_icon = group->m_app->GetIconTexture(group->m_icon);
+  group->m_groupMembers.insert(window);
+  m_groups.insert(group);
+  return group;
 }
 
 void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   m_windows.erase(wnd);
   wnd->RemoveFromParent();
   m_zorder.Remove(wnd);
+
+  std::shared_ptr<ExposeGroup> group = getGroupForWindow(wnd);
+  group->m_groupMembers.erase(wnd);
+  if (group->m_groupMembers.empty()) {
+    m_groups.erase(group);
+  }
 }
 
 void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {

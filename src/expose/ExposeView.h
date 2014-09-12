@@ -12,6 +12,13 @@ class ExposeViewWindow;
 class OSWindow;
 class RenderEngine;
 class SVGPrimitive;
+class OSApp;
+
+struct ExposeGroup {
+  std::shared_ptr<OSApp> m_app;
+  std::shared_ptr<ImagePrimitive> m_icon;
+  std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_groupMembers;
+};
 
 /// <summary>
 /// Implements expose view
@@ -121,6 +128,14 @@ private:
   
   //Events to send to controller
   AutoFired<ExposeViewEvents> m_exposeViewEvents;
+
+  bool addToExistingGroup(const std::shared_ptr<ExposeViewWindow>& window);
+
+  std::shared_ptr<ExposeGroup> getGroupForWindow(const std::shared_ptr<ExposeViewWindow>& window) const;
+
+  std::shared_ptr<ExposeGroup> createNewGroup(const std::shared_ptr<ExposeViewWindow>& window);
+
+  std::unordered_set<std::shared_ptr<ExposeGroup>> m_groups;
 
   // Alpha masking value for the entire view
   Animated<float> m_alphaMask;
