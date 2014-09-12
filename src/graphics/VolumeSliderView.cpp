@@ -50,15 +50,12 @@ void VolumeSliderView::Deactivate() {
   m_activationAmount.SetGoal(0.0f);
 }
 
-void VolumeSliderView::SetVolumeLevel(float newVolumeLevel) {
-  newVolumeLevel = std::min(1.0f, std::max(0.0f, newVolumeLevel)); // Clamp incoming volume level
-  m_volumeLevel.SetGoal(newVolumeLevel);
+void VolumeSliderView::NudgeVolumeLevel(float dLevel) {
+  m_mediaEvents(&MediaViewEventListener::OnUserChangedVolume)(dLevel);
 }
 
-void VolumeSliderView::NudgeVolumeLevel(float dLevel) {
-  float newVolumeLevel = m_volumeLevel + dLevel;
-  newVolumeLevel = std::min(1.0f, std::max(0.0f, newVolumeLevel)); // Clamp incoming volume level
-  m_volumeLevel.SetGoal(newVolumeLevel);
+void VolumeSliderView::SetViewVolume(float volumeLevel) {
+  m_volumeLevel = std::min(1.0f, std::max(0.0f, volumeLevel)); // Clamp incoming volume level
 }
 
 void VolumeSliderView::SetWidth(float newWidth) {

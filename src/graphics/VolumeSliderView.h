@@ -22,9 +22,11 @@ public:
   void Activate();
   void Deactivate();
   
-  // Set the new goal value for the view
-  void SetVolumeLevel(float newVolumeLevel);
+  // Set the actual system volume via an event call
   void NudgeVolumeLevel(float dLevel);
+  
+  //Set the visual display volume of the view.
+  void SetViewVolume(float volumeLevel);
   
   // Set the width and height of the menu
   void SetWidth(float newWidth);
