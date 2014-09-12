@@ -11,13 +11,18 @@
 StateMachine::StateMachine(void) :
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
-  m_scrollType(ScrollType::HAND_SCROLL),
+  m_scrollType(ScrollType::PINCH_SCROLL),
   m_scrollState(ScrollState::DECAYING),
   m_handDelta(0.0,0.0),
   m_lastScrollReleaseTimestep(0.0f),
+  m_smoothedHandDeltas(0,0),
   m_ppmm(96.0f/25.4f),
   m_scrollOperation(nullptr)
 {
+  smoothedDeltaX.SetInitialValue(0.0f);
+  smoothedDeltaY.SetInitialValue(0.0f);
+  smoothedDeltaX.SetSmoothStrength(0.3f);
+  smoothedDeltaY.SetSmoothStrength(0.3f);
 }
 
 StateMachine::~StateMachine(void)
@@ -54,17 +59,24 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   if (m_state != desiredState) {
     m_desiredTransitions.push(desiredState);
   }
+  
+  smoothedDeltaX.SetGoal(handData.locationData.dX);
+  smoothedDeltaY.SetGoal(handData.locationData.dY);
+  
+  m_smoothedHandDeltas = Vector2(smoothedDeltaX, smoothedDeltaY);
 
   //Fill in our AutoFilter outputs (defaults)
   state = m_state;
   scrollState = m_scrollState; //in case we don't change state
 
   //TODO: Make scrolling an actual state of the application
-  if (m_scrollType == ScrollType::HAND_SCROLL) {
-    doHandScroll(scroll, handData.locationData, scrollState);
-  }
-  else if (m_scrollType == ScrollType::PINCH_SCROLL) {
-    doPinchScroll(scroll, handData.locationData, handData.pinchData, scrollState);
+  if ( m_state == OSCState::BASE) {
+    if (m_scrollType == ScrollType::HAND_SCROLL) {
+      doHandScroll(scroll, handData.locationData, scrollState);
+    }
+    else if (m_scrollType == ScrollType::PINCH_SCROLL) {
+      doPinchScroll(scroll, handData.locationData, handData.pinchData, scrollState);
+    }
   }
 }
 
@@ -93,7 +105,6 @@ void StateMachine::performNextTransition() {
     m_scrollOperation.reset();
   }
   else if (desiredState == OSCState::EXPOSE_FOCUSED){
-    std::cout << "Expose Activated" << std::endl << std::endl;
     m_scrollState = ScrollState::DECAYING;
     m_scrollOperation.reset();
   }
@@ -109,14 +120,16 @@ OSCState StateMachine::resolvePose(HandPose pose) const {
   if (m_lastScrollReleaseTimestep <= 1000000 || m_scrollState == ScrollState::ACTIVE) {
     return m_state;
   }
+  
+  if ( m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
+    return m_state;
+  }
 
   switch (pose) {
   case HandPose::OneFinger:
     return OSCState::MEDIA_MENU_FOCUSED;
-  case HandPose::FourFingers:
+  case HandPose::ThreeFingers:
     return OSCState::EXPOSE_ACTIVATOR_FOCUSED;
-  case HandPose::Clawed:
-    return OSCState::MEDIA_MENU_FOCUSED;
   default:
     return OSCState::BASE;
   }
@@ -167,6 +180,7 @@ void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handL
       m_lastScrollReleaseTimestep = 0.0f;
       scrollState = ScrollState::DECAYING;
     }
+    deltaScroll = Vector2{ handLocation.dmmX, handLocation.dmmY };
     break;
   case ScrollState::DECAYING:
     if (pinch.isPinching && m_state == OSCState::BASE) {
@@ -198,7 +212,6 @@ void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handL
           scrollState = ScrollState::ACTIVE;
         }
       }
-      deltaScroll = Vector2{ handLocation.dmmX, handLocation.dmmY };
       break;
     }
   }
@@ -219,6 +232,9 @@ void StateMachine::OnHandVanished() {
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
+  
+  smoothedDeltaX.Update(deltaT.count());
+  smoothedDeltaY.Update(deltaT.count());
   
   //Perform any transitions waiting in the transition queue
   while ( m_desiredTransitions.size() > 0 ) {

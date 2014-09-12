@@ -1,6 +1,7 @@
 #pragma once
 #include "Leap.h"
 #include "TimeRecognizer.h"
+#include "interaction/interactionConfigs.h"
 
 enum class HandPose;
 
@@ -23,11 +24,6 @@ public:
   
   void AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, HandGrab& handGrab, HandPinch& handPinch);
 private:
-  const float MIN_GRAB_START = 0.7f;
-  const float MIN_GRAB_CONTINUE = 0.6f;
-  const float MIN_PINCH_START = 0.75f;
-  const float MIN_PINCH_CONTINUE = 0.65f;
-  
   float getCustomPinchStrength(const Leap::Hand& hand) const;
   float calcHandPinchVelocity(const Leap::Finger& index, const Leap::Finger& thumb) const;
   

@@ -25,12 +25,8 @@ set(interaction_SOURCES
   InteractionConfigs.h
   MediaViewController.h
   MediaViewController.cpp
-  PinchScrollRecognizer.h
-  PinchScrollRecognizer.cpp
   ScrollRecognizer.h
   ScrollRecognizer.cpp
-  ScrollStateMachine.h
-  ScrollStateMachine.cpp
   StateMachine.h
   StateMachine.cpp
   StateMachineContext.h
