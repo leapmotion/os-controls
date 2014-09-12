@@ -40,6 +40,7 @@ m_state(State::ARMED) {
   m_radialMenu->SetNumItems(numItems);
   m_radialMenu->SetRadius(120.0);
   m_radialMenu->SetThickness(70.0);
+  
   for (int i=0; i<numItems; i++) {
     //TODO: Break these out into a config to avoid so many magic numbers
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu->GetItem(i);
@@ -61,12 +62,10 @@ m_state(State::ARMED) {
   std::shared_ptr<SVGPrimitive> nextIcon(new SVGPrimitive());
   std::shared_ptr<SVGPrimitive> playPauseIcon(new SVGPrimitive());
   std::shared_ptr<SVGPrimitive> prevIcon(new SVGPrimitive());
-  std::shared_ptr<SVGPrimitive> volumeIcon(new SVGPrimitive());
   
   nextIcon->Set(nextIconFile->Contents());
   playPauseIcon->Set(playPauseIconFile->Contents());
   prevIcon->Set(prevIconFile->Contents());
-  volumeIcon->Set(volumeIconFile->Contents());
   
   m_radialMenu->GetItem(0)->SetIcon(prevIcon);
   m_radialMenu->GetItem(1)->SetIcon(playPauseIcon);
