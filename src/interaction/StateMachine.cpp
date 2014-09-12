@@ -115,8 +115,6 @@ OSCState StateMachine::resolvePose(HandPose pose) const {
     return OSCState::MEDIA_MENU_FOCUSED;
   case HandPose::ThreeFingers:
     return OSCState::EXPOSE_ACTIVATOR_FOCUSED;
-  case HandPose::Clawed:
-    return OSCState::MEDIA_MENU_FOCUSED;
   default:
     return OSCState::BASE;
   }

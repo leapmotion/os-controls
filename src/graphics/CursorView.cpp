@@ -27,7 +27,8 @@ CursorView::CursorView() :
   m_pinchStrength(0.0f),
   m_wasPinching(false),
   m_lastHandPosition(0,0),
-  m_isPointing(false)
+  m_isPointing(false),
+  m_locationOverride(false)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
@@ -92,6 +93,8 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   float goalBodyOffset = 0.0f;
   
   m_renderEngine->BringToFront(this);
+  
+  m_lastAppState = appState;
 
   //State Transitions
   switch(m_state) {
@@ -149,12 +152,12 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   }
 }
 
+Vector2 CursorView::GetCalculatedLocation() const {
+  return Vector2(m_x,m_y);
+}
+
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   const float MIN_PINCH_NORM = 0.5f;
-  
-  float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
-  m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
-  m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
   float bodyOpacityNorm = 0.0f;
   
@@ -168,19 +171,27 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
   m_bodyAlpha.SetGoal(bodyOpacityNorm);
   
-  if ( m_isPointing ) {
+  if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
+       m_lastAppState == OSCState::EXPOSE_FOCUSED ||
+       m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
     m_bodyAlpha.SetGoal(0.0f);
   }
   
   m_bodyAlpha.Update(frame.deltaT.count());
   
+  float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
+  fingerOpacity = std::min(fingerOpacity, m_bodyAlpha.Value());
+  m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
+  m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
+  
   if ( m_state == State::ACTIVE ) {
     m_x.Update(frame.deltaT.count());
     m_y.Update(frame.deltaT.count());
-    m_ghostX.Update(frame.deltaT.count());
-    m_ghostY.Update(frame.deltaT.count());
     m_bodyOffset.Update(frame.deltaT.count());
-    position = OSVector2{m_ghostX, m_ghostY};
+    
+    if ( !m_locationOverride ) {
+      position = OSVector2{m_x, m_y};
+    }
   }
   
   m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
@@ -199,13 +210,10 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   
   
   // Snapped Scrolling Cursor Positioning
-  m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x() - position.x + m_x.Value(), m_scrollBodyOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
-  m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x() - position.x + m_x.Value(), m_scrollLineOffset.y() - position.y + m_y.Value(), 0.0f);
-  m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() - position.x + m_fingerSpread + m_x.Value(), m_scrollFingerLeftOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
-  m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - position.x - m_fingerSpread + m_x.Value(), m_scrollFingerRightOffset.y() - position.y + m_bodyOffset + m_y.Value(), 0.0f);
-  
-  //Disk that appears when you're not doing things with scroll
-  m_disk->Translation() = Vector3(-position.x + m_x, -position.y + m_y, 0.0f);
+  m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x(), m_scrollBodyOffset.y()+ m_bodyOffset, 0.0f);
+  m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x(), m_scrollLineOffset.y(), 0.0f);
+  m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() + m_fingerSpread, m_scrollFingerLeftOffset.y() + m_bodyOffset, 0.0f);
+  m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - m_fingerSpread, m_scrollFingerRightOffset.y() + m_bodyOffset, 0.0f);
 }
 
 void CursorView::Render(const RenderFrame& frame) const {

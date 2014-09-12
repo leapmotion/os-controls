@@ -10,8 +10,8 @@ set(graphics_SOURCES
   RenderEngine.h
   RenderEngine.cpp
   RenderFrame.h
-  VolumeKnob.cpp
-  VolumeKnob.h
+  VolumeSliderView.h
+  VolumeSliderView.cpp
 )
 
 
