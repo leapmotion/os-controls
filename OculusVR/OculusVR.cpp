@@ -128,7 +128,7 @@ bool OculusVR::Init() {
   return true;
 }
 
-OculusVR::~OculusVR() {
+void OculusVR::Destroy() {
   glDeleteFramebuffers(1, &m_FrameBuffer);
   glDeleteTextures(1, &m_Texture);
   glDeleteRenderbuffers(1, &m_RenderBuffer);
