@@ -83,6 +83,8 @@ private:
   bool m_isPointing;
   bool m_locationOverride;
   
+  OSCState m_lastAppState;
+  
   Smoothed<float> m_bodyOffset;
   Smoothed<float> m_x;
   Smoothed<float> m_y;

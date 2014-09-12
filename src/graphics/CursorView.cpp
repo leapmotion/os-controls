@@ -93,6 +93,8 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   float goalBodyOffset = 0.0f;
   
   m_renderEngine->BringToFront(this);
+  
+  m_lastAppState = appState;
 
   //State Transitions
   switch(m_state) {
@@ -173,7 +175,9 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
   m_bodyAlpha.SetGoal(bodyOpacityNorm);
   
-  if ( m_isPointing ) {
+  if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
+       m_lastAppState == OSCState::EXPOSE_FOCUSED ||
+       m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
     m_bodyAlpha.SetGoal(0.0f);
   }
   

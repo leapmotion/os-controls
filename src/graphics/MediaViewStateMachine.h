@@ -69,8 +69,6 @@ private:
   std::shared_ptr<RadialMenu> m_radialMenu;
   std::shared_ptr<VolumeSliderView> m_volumeSlider;
   
-  bool m_hasRoll;
-  float m_startRoll;
   HandPose m_lastHandPose;
   
   State m_state;

@@ -99,8 +99,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_volumeSlider->Translation() = m_radialMenu->Translation() + VOLUME_SLIDER_OFFSET;
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
-        m_startRoll = handData.rollData.absoluteRoll;
-        m_hasRoll = true;
         m_state = State::ACTIVE;
         m_LastStateChangeTime = m_CurrentTime;
       }
