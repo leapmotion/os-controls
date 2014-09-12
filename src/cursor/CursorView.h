@@ -1,21 +1,19 @@
 #pragma once
-#include "Renderable.h"
-#include "SceneGraphNode.h"
 
-#include "Primitives.h"
-#include "Color.h"
-
-#include "Resource.h"
-#include "GLShader.h"
-
-#include "uievents/OSCDomain.h"
+#include "graphics/Renderable.h"
 #include "interaction/HandLocationRecognizer.h"
 #include "interaction/HandPoseRecognizer.h"
+#include "uievents/OSCDomain.h"
 
+#include "Animation.h"
+#include "Color.h"
+#include "GLShader.h"
 #include "HandCursor.h"
+#include "Primitives.h"
+#include "Resource.h"
+#include "SceneGraphNode.h"
 
 #include <string>
-#include <Animation.h>
 
 class RenderEngine;
 
