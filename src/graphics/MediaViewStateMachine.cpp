@@ -26,7 +26,6 @@ const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
 
 MediaViewStateMachine::MediaViewStateMachine() :
 m_radialMenu(new RadialMenu()),
-m_volumeSlider(new RadialSlider()),
 m_lastHandPose(HandPose::ZeroFingers),
 m_state(State::ARMED) {
   m_CurrentTime = 0.0;
@@ -70,23 +69,10 @@ m_state(State::ARMED) {
   m_radialMenu->GetItem(0)->SetIcon(prevIcon);
   m_radialMenu->GetItem(1)->SetIcon(playPauseIcon);
   m_radialMenu->GetItem(2)->SetIcon(nextIcon);
-  
-  //Volume Slider Initilization
-  m_volumeSlider->SetRadius(70.0);
-  m_volumeSlider->SetThickness(10.0);
-  m_volumeSlider->SetStartAngle(startAngle);
-  m_volumeSlider->SetEndAngle(endAngle);
-  m_volumeSlider->SetFillColor(fillColor);
-  m_volumeSlider->SetHandleColor(handleColor);
-  m_volumeSlider->SetHandleOutlineColor(handleOutlineColor);
-  m_volumeSlider->Material().SetDiffuseLightColor(bgColor);
-  m_volumeSlider->Material().SetAmbientLightColor(bgColor);
-  m_volumeSlider->Material().SetAmbientLightingProportion(1.0f);
 }
 
 void MediaViewStateMachine::AutoInit() {
   m_rootNode->Add(shared_from_this());
-  m_volumeSlider->InitChildren();
 }
 
 void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime) {
@@ -104,7 +90,6 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   {
     case State::ARMED:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
-        m_volumeSlider->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_startRoll = handData.rollData.absoluteRoll;
@@ -189,7 +174,7 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
 
 void MediaViewStateMachine::SetViewVolume(float volume) {
   volume = 1 - volume;
-  m_volumeSlider->SetValue(volume);
+  //m_volumeSlider->SetValue(volume);
 }
 
 void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
@@ -210,7 +195,6 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
     }
   }
   m_radialMenu->LocalProperties().AlphaMask() = alphaMask;
-  m_volumeSlider->LocalProperties().AlphaMask() = alphaMask;
 }
 
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
@@ -220,7 +204,6 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
       PrimitiveBase::DrawSceneGraph(*m_radialMenu, renderFrame.renderState);
     }
     else {
-      PrimitiveBase::DrawSceneGraph(*m_volumeSlider, renderFrame.renderState);
     }
   }
 }

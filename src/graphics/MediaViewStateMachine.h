@@ -61,7 +61,6 @@ private:
   };
   
   std::shared_ptr<RadialMenu>m_radialMenu;
-  std::shared_ptr<RadialSlider> m_volumeSlider;
   
   bool m_hasRoll;
   float m_startRoll;
