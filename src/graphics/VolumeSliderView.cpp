@@ -65,9 +65,9 @@ void VolumeSliderView::SetHeight(float newHeight) {
   m_height = newHeight;
 }
 
-float VolumeSliderView::GetNotchOffset() const {
+Vector2 VolumeSliderView::GetNotchOffset() const {
   Vector3 notchPosition = m_sliderNotchBodyActive->Translation();
-  return notchPosition.x();
+  return Vector2(notchPosition.x(), notchPosition.y());
 }
 
 void VolumeSliderView::Update(const RenderFrame& frame) {

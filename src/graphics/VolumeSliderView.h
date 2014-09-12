@@ -36,7 +36,7 @@ public:
   // Get the width and height of the view
   float Width() const { return m_width; }
   float Height() const { return m_height; }
-  float GetNotchOffset() const;
+  Vector2 GetNotchOffset() const;
   
   void Update(const RenderFrame& frame);
   
