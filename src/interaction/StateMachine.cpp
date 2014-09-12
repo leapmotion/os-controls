@@ -95,7 +95,6 @@ void StateMachine::performNextTransition() {
     m_scrollOperation.reset();
   }
   else if (desiredState == OSCState::EXPOSE_FOCUSED){
-    std::cout << "Expose Activated" << std::endl << std::endl;
     m_scrollState = ScrollState::DECAYING;
     m_scrollOperation.reset();
   }

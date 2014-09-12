@@ -73,7 +73,6 @@ bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const
   float bend = 0.0f;
   if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
     bend = averageFingerBend(finger, 2, 3);
-    std::cout << "bend: " << bend << std::endl;
     if ( !wasExtended ) {
       if(bend <= pointingConfigs::MAX_BEND_FOR_START_POINTING) {
         retVal = true;
@@ -112,9 +111,6 @@ float HandPoseRecognizer::metaToDistalBend(Leap::Finger finger) const {
   
   double dot = v1.dot(v2);
   double theta = std::acos(dot);
-  
-  std::cout << static_cast<int>(finger.type()) << " bend: " << theta << std::endl;
-  
   return theta;
 }
 
