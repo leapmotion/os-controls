@@ -23,7 +23,7 @@ namespace activationConfigs {
 
 namespace loactionConfigs {
   // Hand Location Constants
-  const float INDEX_DIRECTION_OFFSET_DISTANCE = 100;
+  const float INDEX_DIRECTION_OFFSET_DISTANCE = 100.0f;
 }
 
 namespace pointingConfigs {
