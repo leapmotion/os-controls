@@ -1,8 +1,6 @@
 set(graphics_SOURCES
   ExposeActivationStateMachine.h
   ExposeActivationStateMachine.cpp
-  MediaViewStateMachine.h
-  MediaViewStateMachine.cpp
   Renderable.h
   Renderable.cpp
   RenderEngine.h
