@@ -76,7 +76,7 @@ float VolumeSliderView::GetNotchOffset() const {
   return notchPosition.x();
 }
 
-void VolumeSliderView::AnimationUpdate(const RenderFrame &frame) {
+void VolumeSliderView::Update(const RenderFrame& frame) {
   //Update Smoothed Values
   m_volumeLevel.Update(frame.deltaT.count());
   m_activationAmount.Update(frame.deltaT.count());
@@ -102,12 +102,12 @@ void VolumeSliderView::AnimationUpdate(const RenderFrame &frame) {
   
 }
 
-void VolumeSliderView::Render(const RenderFrame &frame) const {
+void VolumeSliderView::DrawContents(RenderState &render_state) const {
   // Draw bar
-  PrimitiveBase::DrawSceneGraph(*m_sliderActivePart, frame.renderState);
-  PrimitiveBase::DrawSceneGraph(*m_sliderInactivePart, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_sliderActivePart, render_state);
+  PrimitiveBase::DrawSceneGraph(*m_sliderInactivePart, render_state);
   
   //Draw notch body.
-  PrimitiveBase::DrawSceneGraph(*m_sliderNotchBodyInactive, frame.renderState);
-  PrimitiveBase::DrawSceneGraph(*m_sliderNotchBodyActive, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_sliderNotchBodyInactive, render_state);
+  PrimitiveBase::DrawSceneGraph(*m_sliderNotchBodyActive, render_state);
 }

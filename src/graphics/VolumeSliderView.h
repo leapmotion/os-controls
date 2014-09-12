@@ -11,14 +11,12 @@
 #include <Animation.h>
 
 class VolumeSliderView :
-  public Renderable
+  public PrimitiveBase
 {
 public:
 
   VolumeSliderView();
   virtual~VolumeSliderView() {};
-  
-  void Update();
   
   // Have the menu display its active or inactive state
   void Activate();
@@ -37,9 +35,10 @@ public:
   float Height() const { return m_height; }
   float GetNotchOffset() const;
   
-  // Implement Renderable
-  void AnimationUpdate(const RenderFrame& frame) override;
-  void Render(const RenderFrame& frame) const override;
+  void Update(const RenderFrame& frame);
+  
+  // Implement PrimitiveBase
+  void DrawContents(RenderState &render_state) const override;
   
 private:
   const Color ACTIVE_PART_COLOR = Color(0.4f, 0.425f, 0.45f, 0.75f);
