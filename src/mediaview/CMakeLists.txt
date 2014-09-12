@@ -1,4 +1,6 @@
 set(mediaview_SOURCES
+  MediaViewController.h
+  MediaViewController.cpp
   MediaViewStateMachine.h
   MediaViewStateMachine.cpp
 )

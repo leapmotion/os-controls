@@ -21,8 +21,6 @@ set(interaction_SOURCES
   HandRollRecognizer.h
   HandRollRecognizer.cpp
   InteractionConfigs.h
-  MediaViewController.h
-  MediaViewController.cpp
   PinchScrollRecognizer.h
   PinchScrollRecognizer.cpp
   ScrollRecognizer.h
