@@ -75,17 +75,17 @@ void VolumeSliderView::Update(const RenderFrame& frame) {
   m_activationAmount.Update(frame.deltaT.count());
   
   //Calculate bar positions
-  float meterLeftEdge = m_width / 2.0f;
+  float meterLeftEdge = -(m_width / 2.0f);
   float activeWidth = m_width * m_volumeLevel;
-  float inactiveWidth = m_width * (1 - m_volumeLevel);
-  Vector2 activePosition(meterLeftEdge + activeWidth/2.0f, 0.0f);
-  Vector2 inactivePosition(meterLeftEdge + activeWidth + inactiveWidth / 2.0f, 0.0f);
+  float inactiveWidth = m_width - activeWidth;
+  Vector2 activePosition(meterLeftEdge + (activeWidth/2.0f), 0.0f);
+  Vector2 inactivePosition(meterLeftEdge + activeWidth + (inactiveWidth / 2.0f), 0.0f);
   
   //Set Bar Positions
   m_sliderActivePart->SetSize(Vector2(activeWidth, m_height));
   m_sliderInactivePart->SetSize(Vector2(inactiveWidth, m_height));
   m_sliderActivePart->Translation() = Vector3(activePosition.x(), activePosition.y(), 0.0f);
-  m_sliderActivePart->Translation() = Vector3(activePosition.x(), activePosition.y(), 0.0f);
+  m_sliderInactivePart->Translation() = Vector3(inactivePosition.x(), inactivePosition.y(), 0.0f);
   
   //Calculate notch position
   Vector2 sliderNotchBodyPosition(meterLeftEdge + m_sliderNotchOffset.x() + (m_width * m_volumeLevel), m_sliderNotchOffset.y());
