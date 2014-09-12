@@ -159,10 +159,6 @@ Vector2 CursorView::GetCalculatedLocation() const {
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   const float MIN_PINCH_NORM = 0.5f;
   
-  float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
-  m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
-  m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
-  
   float bodyOpacityNorm = 0.0f;
   
   if ( m_wasPinching ) {
@@ -182,6 +178,11 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   }
   
   m_bodyAlpha.Update(frame.deltaT.count());
+  
+  float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
+  fingerOpacity = std::min(fingerOpacity, m_bodyAlpha.Value());
+  m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
+  m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
   if ( m_state == State::ACTIVE ) {
     m_x.Update(frame.deltaT.count());
