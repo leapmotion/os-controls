@@ -1,5 +1,6 @@
 #include "Primitives.h"
 
+#include <cassert>
 #include "GLTexture2.h"
 
 void GenericShape::DrawContents(RenderState& renderState) const {
@@ -246,4 +247,119 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
   m_Geometry.UploadDataToBuffers();
 
   m_RecomputeGeometry = false;
+}
+
+TexturedFrame::TexturedFrame() {
+  SetBasisRectangleSize(Vector2(1.0, 1.0));
+
+  // Offsets for inner rectangle.
+  SetRectangleEdgeOffset(Rectangle::INNER, RectangleEdge::TOP,    0.0);
+  SetRectangleEdgeOffset(Rectangle::INNER, RectangleEdge::RIGHT,  0.0);
+  SetRectangleEdgeOffset(Rectangle::INNER, RectangleEdge::BOTTOM, 0.0);
+  SetRectangleEdgeOffset(Rectangle::INNER, RectangleEdge::LEFT,   0.0);
+  
+  // Offsets for inner rectangle.
+  SetRectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::TOP,    1.0);
+  SetRectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::RIGHT,  1.0);
+  SetRectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::BOTTOM, 1.0);
+  SetRectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::LEFT,   1.0);
+  
+  // Vertical edges' texture coordinates.
+  SetRectangleEdgeTextureCoordinate(Rectangle::OUTER,  RectangleEdge::LEFT, 0.0f);
+  SetRectangleEdgeTextureCoordinate(Rectangle::INNER,  RectangleEdge::LEFT, 0.25f);
+  SetRectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::RIGHT, 0.75f);
+  SetRectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::RIGHT, 1.0f);
+
+  // Horizontal edges' texture coordinates.
+  SetRectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::BOTTOM, 0.0f);
+  SetRectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::BOTTOM, 0.25f);
+  SetRectangleEdgeTextureCoordinate(Rectangle::INNER,    RectangleEdge::TOP, 0.75f);
+  SetRectangleEdgeTextureCoordinate(Rectangle::OUTER,    RectangleEdge::TOP, 1.0f);
+  
+  m_recompute_geometry = true;
+}
+
+TexturedFrame::~TexturedFrame() { }
+
+void TexturedFrame::SetBasisRectangleSize(const Vector2& size) {
+  m_basis_rectangle_size = size;
+  m_recompute_geometry = true;
+}
+
+void TexturedFrame::SetRectangleEdgeOffset(TexturedFrame::Rectangle rect, TexturedFrame::RectangleEdge edge, double offset) {
+  double &o = m_rectangle_edge_offset[size_t(rect)][size_t(edge)];
+  if (o != offset) {
+    o = offset;
+    m_recompute_geometry = true;
+  }
+}
+
+void TexturedFrame::SetRectangleEdgeTextureCoordinate(TexturedFrame::Rectangle rect, TexturedFrame::RectangleEdge edge, GLfloat tex_coord) {
+  GLfloat &tc = m_rectangle_edge_texture_coordinate[size_t(rect)][size_t(edge)];
+  if (tc != tex_coord) {
+    tc = tex_coord;
+    m_recompute_geometry = true;
+  }
+}
+
+void TexturedFrame::DrawContents(RenderState& renderState) const {
+  if (!m_texture) {
+    return; // If the texture is not set, don't draw anything.
+  }
+  
+  RecomputeGeometryIfNecessary();
+  assert(!m_recompute_geometry);
+}
+
+void TexturedFrame::RecomputeGeometryIfNecessary() const {
+  if (!m_recompute_geometry) {
+    return;
+  }
+  
+  m_geometry.CleanUpBuffers();
+  
+  const double bx = 0.5 * m_basis_rectangle_size(0);
+  const double by = 0.5 * m_basis_rectangle_size(1);
+  // The first index indicates x (0) or y (1).
+  const double rectangle_edge[2][4]{
+    {
+      -bx - RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::LEFT)),
+      -bx + RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::LEFT)),
+       bx - RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::RIGHT)),
+       bx + RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::RIGHT))
+    },
+    {
+      -by - RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::BOTTOM)),
+      -by + RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::BOTTOM)),
+       by - RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::TOP)),
+       by + RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::TOP))
+    }
+  };
+  const float rectangle_texture_coordinate[2][4]{
+    {
+      RectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::LEFT),
+      RectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::LEFT),
+      RectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::RIGHT),
+      RectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::RIGHT),
+    },
+    {
+      RectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::BOTTOM),
+      RectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::BOTTOM),
+      RectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::TOP),
+      RectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::TOP),
+    }
+  };
+
+  static const Vector3f NORMAL = Vector3f::UnitZ();
+  static const Vector4f COLOR = Vector4f::Constant(1.0f);
+  VertexAttributes vertex_attributes[4][4];
+  for (size_t u = 0; u < 4; ++u) {
+    for (size_t v = 0; v < 4; ++v) {
+      vertex_attributes[u][v] = std::make_tuple(Vector3f(rectangle_edge[0][u], rectangle_edge[1][v], 0.0f), NORMAL, Vector2f(rectangle_texture_coordinate[0][u], rectangle_texture_coordinate[1][v]), COLOR);
+    }
+  }
+  
+  TODO START HERE
+  
+  m_geometry.PushQuad(PrimitiveGeometry::VertexAttributes(
 }
