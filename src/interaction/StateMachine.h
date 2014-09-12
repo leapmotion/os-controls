@@ -14,6 +14,7 @@
 #include "graphics/MediaViewStateMachine.h"
 #include "osinterface/WindowScroller.h"
 #include "graphics/ExposeActivationStateMachine.h"
+#include "Animation.h"
 #include <queue>
 
 #define USE_HAND_SCROLL 1
@@ -76,6 +77,10 @@ private:
   Vector2 m_handDelta; //in millimeters
   const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
   float m_lastScrollReleaseTimestep;
+  
+  Smoothed<float> smoothedDeltaX;
+  Smoothed<float> smoothedDeltaY;
+  Vector2 m_smoothedHandDeltas;
 
   // Pixels-per-millimeter for use with the current scroll operation
   float m_ppmm;

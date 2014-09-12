@@ -15,9 +15,14 @@ StateMachine::StateMachine(void) :
   m_scrollState(ScrollState::DECAYING),
   m_handDelta(0.0,0.0),
   m_lastScrollReleaseTimestep(0.0f),
+  m_smoothedHandDeltas(0,0),
   m_ppmm(96.0f/25.4f),
   m_scrollOperation(nullptr)
 {
+  smoothedDeltaX.SetInitialValue(0.0f);
+  smoothedDeltaY.SetInitialValue(0.0f);
+  smoothedDeltaX.SetSmoothStrength(0.3f);
+  smoothedDeltaY.SetSmoothStrength(0.3f);
 }
 
 StateMachine::~StateMachine(void)
@@ -54,6 +59,11 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   if (m_state != desiredState) {
     m_desiredTransitions.push(desiredState);
   }
+  
+  smoothedDeltaX.SetGoal(handData.locationData.dX);
+  smoothedDeltaY.SetGoal(handData.locationData.dY);
+  
+  m_smoothedHandDeltas = Vector2(smoothedDeltaX, smoothedDeltaY);
 
   //Fill in our AutoFilter outputs (defaults)
   state = m_state;
@@ -108,6 +118,10 @@ void StateMachine::performNextTransition() {
 OSCState StateMachine::resolvePose(HandPose pose) const {
   //Don't do pose based transitions if we've just been scrolling
   if (m_lastScrollReleaseTimestep <= 1000000 || m_scrollState == ScrollState::ACTIVE) {
+    return m_state;
+  }
+  
+  if ( m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
     return m_state;
   }
 
@@ -218,6 +232,9 @@ void StateMachine::OnHandVanished() {
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
+  
+  smoothedDeltaX.Update(deltaT.count());
+  smoothedDeltaY.Update(deltaT.count());
   
   //Perform any transitions waiting in the transition queue
   while ( m_desiredTransitions.size() > 0 ) {

@@ -32,3 +32,7 @@ namespace pointingConfigs {
   const float MAX_BEND_FOR_THUMB_START_POINTING = 1.5f;
   const float MAX_BEND_FOR_THUMB_END_POINTING = 1.7f;
 }
+
+namespace transitionConfigs {
+  const float MAX_HAND_DELTA_FOR_POSE_TRANSITION = 2.0f;
+}
