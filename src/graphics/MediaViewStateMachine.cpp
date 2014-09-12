@@ -143,8 +143,9 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       // The menu always thinks it's at (0,0) so we need to offset the cursor
       // coordinates by the location of the menu to give the proper space.
       const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
-      
-      doMenuUpdate(handData, menuOffset);
+      if ( !m_interactionIsVolumeLocked ) {
+        doMenuUpdate(handData, menuOffset);
+      }
       doVolumeUpdate(handData, menuOffset);
       break;
     }
@@ -201,6 +202,7 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
   offsetNormalFactor = std::max(0.0f, std::min(1.0f, offsetNormalFactor));
   
   if ( offsetNormalFactor > 0.0f ) {
+    m_interactionIsVolumeLocked = true;
     m_ghostCursorAlpha.SetGoal(GHOST_CURSOR_ALPHA);
     m_cursorView->EnableLocationOverride();
     Vector2 cursorCalculatedPosition = m_cursorView->GetCalculatedLocation();
@@ -219,6 +221,8 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
   {
     m_cursorView->DisableLocationOverride();
     m_volumeSlider->Deactivate();
+  if ( leapPosition.norm() <=  MENU_RADIUS - (MENU_THICKNESS / 2.0f)) {
+    m_interactionIsVolumeLocked = false;
   }
 }
 

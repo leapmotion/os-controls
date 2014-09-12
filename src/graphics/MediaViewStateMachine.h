@@ -86,4 +86,5 @@ private:
   double m_FadeTime;
   double m_CurrentTime;
   double m_LastStateChangeTime;
+  bool m_interactionIsVolumeLocked;
 };
