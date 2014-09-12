@@ -67,6 +67,10 @@ class OculusVR {
 
 public:
 
+  int GetHMDWidth();
+  
+  int GetHMDHeight();
+  
   void InitGlew();
 
   bool Init();
@@ -113,6 +117,9 @@ private:
 
   ovrHmd m_HMD;
   bool m_Debug;
+  
+  int m_width;
+  int m_height;
 
   GLuint m_FrameBuffer;
   GLuint m_Texture;

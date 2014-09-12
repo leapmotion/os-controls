@@ -8,6 +8,22 @@ void ovrhmd_EnableHSWDisplaySDKRender(ovrHmd hmd, ovrBool enabled);
 }
 
 
+int OculusVR::GetHMDWidth(){
+  if ( m_width < 0 ){
+    throw std::runtime_error("Unknown HMD resolution width. Is HMD initialized ?");
+  }else{
+    return m_width;
+  }
+}
+
+int OculusVR::GetHMDHeight(){
+  if ( m_height < 0 ){
+    throw std::runtime_error("Unknown HMD resolution height. Is HMD initialized ?");
+  }else{
+    return m_height;
+  }
+}
+
 void OculusVR::InitGlew() {
   GLenum result = glewInit();
   if (result != GLEW_OK) {
@@ -32,8 +48,8 @@ bool OculusVR::Init() {
     m_Debug = true;
   }
 
-  const int width = m_HMD->Resolution.w;
-  const int height = m_HMD->Resolution.h;
+  m_width = m_HMD->Resolution.w;
+  m_height = m_HMD->Resolution.h;
 
   ovrSizei recommendedTex0Size = ovrHmd_GetFovTextureSize(m_HMD, ovrEye_Left, m_HMD->DefaultEyeFov[0], 1.0f);
   ovrSizei recommendedTex1Size = ovrHmd_GetFovTextureSize(m_HMD, ovrEye_Right, m_HMD->DefaultEyeFov[1], 1.0f);
