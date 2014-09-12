@@ -10,8 +10,8 @@
 #include "EigenTypes.h"
 
 namespace config {
-  const Vector3 m_leapMin(-120.0f,340.0f,-30.0f);
-  const Vector3 m_leapMax(120.0f,550.0f,30.0f);
+  const Vector3 m_leapMin(-120.0f,290.0f,-30.0f);
+  const Vector3 m_leapMax(120.0f,450.0f,30.0f);
 }
 namespace activationConfigs {
   // Pinch and Grab Constants
@@ -34,5 +34,5 @@ namespace pointingConfigs {
 }
 
 namespace transitionConfigs {
-  const float MAX_HAND_DELTA_FOR_POSE_TRANSITION = 2.0f;
+  const float MAX_HAND_DELTA_FOR_POSE_TRANSITION = 1.5f;
 }
