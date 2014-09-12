@@ -70,7 +70,7 @@ public:
   void InitGlew();
 
   bool Init();
-  ~OculusVR();
+  void Destroy();
 
   void BeginFrame();
   void EndFrame();
