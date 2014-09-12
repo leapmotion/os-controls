@@ -3,6 +3,7 @@
 #include "RenderFrame.h"
 
 VolumeSliderView::VolumeSliderView() :
+  m_volumeLevel(0.0f),
   m_width(100.0f),
   m_height(20.0f),
   m_sliderActivePart(new RectanglePrim()),
@@ -10,10 +11,6 @@ VolumeSliderView::VolumeSliderView() :
   m_sliderNotchBodyActive(new SVGPrimitive()),
   m_sliderNotchBodyInactive(new SVGPrimitive())
 {
-  // Initialize smoothed values
-  m_volumeLevel.SetInitialValue(0.0f);
-  m_volumeLevel.SetSmoothStrength(0.5f);
-  
   m_activationAmount.SetInitialValue(0.0f);
   m_activationAmount.SetSmoothStrength(0.8f);
   
@@ -75,7 +72,6 @@ float VolumeSliderView::GetNotchOffset() const {
 
 void VolumeSliderView::Update(const RenderFrame& frame) {
   //Update Smoothed Values
-  m_volumeLevel.Update(frame.deltaT.count());
   m_activationAmount.Update(frame.deltaT.count());
   
   //Calculate bar positions

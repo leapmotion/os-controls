@@ -45,6 +45,7 @@ public:
 private:
   const Color ACTIVE_PART_COLOR = Color(0.4f, 0.425f, 0.45f, 0.75f);
   const Color INACTIVE_PART_COLOR = Color(0.505f, 0.831f, 0.114f, 0.95f);
+  float m_volumeLevel;
   
   float m_width;
   float m_height;
@@ -56,6 +57,5 @@ private:
   
   Vector2 m_sliderNotchOffset;
   
-  Smoothed<float> m_volumeLevel;
   Smoothed<float> m_activationAmount;
 };
