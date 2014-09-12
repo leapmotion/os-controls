@@ -181,8 +181,7 @@ void MediaViewStateMachine::doMenuUpdate(const HandData& handData, Vector2 menuO
   }
 }
 void MediaViewStateMachine::SetViewVolume(float volume) {
-  volume = 1 - volume;
-  //m_volumeSlider->SetValue(volume);
+  m_volumeSlider->SetViewVolume(volume);
 }
 
 void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
