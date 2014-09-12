@@ -238,6 +238,17 @@ void PrimitiveGeometry::PushTri(const Vector3f& p0, const Vector3f& p1, const Ve
   PushTri(MakeVertexAttributes(p0, normal), MakeVertexAttributes(p1, normal), MakeVertexAttributes(p2, normal));
 }
 
+void PrimitiveGeometry::PushQuad (const VertexAttributes &p0, const VertexAttributes &p1, const VertexAttributes &p2, const VertexAttributes &p3) {
+  // The orientation is given by the counterclockwise traversal of the points using the right-hand rule.
+  m_Vertices.push_back(p0);
+  m_Vertices.push_back(p1);
+  m_Vertices.push_back(p2);
+  
+  m_Vertices.push_back(p0);
+  m_Vertices.push_back(p2);
+  m_Vertices.push_back(p3);
+}
+
 void PrimitiveGeometry::PushQuad(const Vector3f& p0, const Vector3f& p1, const Vector3f& p2, const Vector3f& p3) {
   // The orientation is given by the counterclockwise traversal of the points using the right-hand rule.
 
