@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "StateMachine.h"
-#include "Color.h"
-#include "ExposeViewStateMachine.h"
 #include "InteractionConfigs.h"
+#include "expose/ExposeViewStateMachine.h"
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindow.h"
 #include "utility/NativeWindow.h"
+
+#include "Color.h"
 
 StateMachine::StateMachine(void) :
   ContextMember("StateMachine"),

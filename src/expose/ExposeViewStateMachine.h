@@ -1,8 +1,7 @@
 #pragma once
 #include "expose/ExposeView.h"
-#include "uievents/OSCDomain.h"
-#include "HandLocationRecognizer.h"
 #include "expose/ExposeViewWindow.h"
+#include "interaction/HandLocationRecognizer.h"
 #include "uievents/OSCDomain.h"
 
 class ExposeViewAccessManager;
