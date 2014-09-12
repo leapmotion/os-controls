@@ -1,7 +1,7 @@
 #pragma once
 #include "graphics/Renderable.h"
 #include "graphics/VolumeKnob.h"
-#include "interaction/MediaViewController.h"
+#include "mediaview/MediaViewController.h"
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
