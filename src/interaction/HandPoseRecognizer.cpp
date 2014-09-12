@@ -69,28 +69,41 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
 }
 
 bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const {
-  const float MIN_BEND_FOR_START_POINTING = 0.85;
-  const float MIN_BEND_FOR_CONTINUE_POINTING = 0.7;
   bool retVal = false;
   
-  float bend = averageFingerBend(finger, 1, 2);
+  float bend = metaToDistalBend(finger);
   
   if ( finger.type() == Leap::Finger::TYPE_THUMB ) {
     return finger.isExtended();
   }
   
   if ( !wasExtended ) {
-    if(bend <= MIN_BEND_FOR_START_POINTING) {
+    if(bend <= pointingConfigs::MIN_BEND_FOR_START_POINTING) {
       retVal = true;
     }
   }
   else {
-    if(bend <= MIN_BEND_FOR_CONTINUE_POINTING) {
+    if(bend <= pointingConfigs::MIN_BEND_FOR_CONTINUE_POINTING) {
       retVal = true;
     }
   }
 
   return retVal;
+}
+
+float HandPoseRecognizer::metaToDistalBend(Leap::Finger finger) const {
+  Leap::Bone distal = finger.bone(Leap::Bone::TYPE_METACARPAL);
+  Leap::Bone metacarpal = finger.bone(Leap::Bone::TYPE_DISTAL);
+  
+  Vector3 v1 = metacarpal.direction().toVector3<Vector3>();
+  Vector3 v2 = distal.direction().toVector3<Vector3>();
+  
+  double dot = v1.dot(v2);
+  double theta = std::acos(dot);
+  
+  std::cout << static_cast<int>(finger.type()) << " bend: " << theta << std::endl;
+  
+  return theta;
 }
 
 float HandPoseRecognizer::averageFingerBend(Leap::Finger finger, int startBone, int endBone) const {

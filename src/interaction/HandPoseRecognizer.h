@@ -4,6 +4,7 @@
 #include "EigenTypes.h"
 #include "HandActivationRecognizer.h"
 #include "HandCursor.h"
+#include "InteractionConfigs.h"
 #include <Eigen/Dense>
 #include <map>
 
@@ -25,7 +26,7 @@ public:
   void AutoFilter(const Leap::Hand& frame, const FrameTime& frameTime, const HandPinch& handPinch, HandPose& handPose);
 private:
   bool isExtended(Leap::Finger finger, bool wasExtended = false) const;
-
+  float metaToDistalBend(Leap::Finger finger) const;
   float averageFingerBend(Leap::Finger finger, int startBone = 3, int endBone = 4) const;
   
   bool lastExtended [5];

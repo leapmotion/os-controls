@@ -25,3 +25,8 @@ namespace loactionConfigs {
   // Hand Location Constants
   const float INDEX_DIRECTION_OFFSET_DISTANCE = 100;
 }
+
+namespace pointingConfigs {
+  const float MIN_BEND_FOR_START_POINTING = 1.5;
+  const float MIN_BEND_FOR_CONTINUE_POINTING = 1.4;
+}
