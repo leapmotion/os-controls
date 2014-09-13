@@ -173,7 +173,8 @@ void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLo
 }
 
 void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch,ScrollState& scrollState) {
-  Vector2 deltaScroll;
+  Vector2 deltaScroll = Vector2::Zero();
+
   switch (m_scrollState) {
   case ScrollState::ACTIVE:
     if (!pinch.isPinching) {
