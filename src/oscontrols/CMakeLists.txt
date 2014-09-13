@@ -19,6 +19,17 @@ set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/svgs/volume-notch-inactive.svg
 )
 
+add_windows_sources(
+  oscontrols_SOURCES
+  NativeUI.h
+  NativeUI.cpp
+)
+
+add_windows_sources(
+  oscontrols_RESOURCES
+  NativeUI.resx
+)
+
 add_mac_sources(
   oscontrols_SOURCES
   ApplicationDelegate.h
