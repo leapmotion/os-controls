@@ -25,7 +25,7 @@ CursorView::CursorView() :
   m_disk(new Disk()),
   m_fingerSpread(0.0f),
   m_pinchStrength(0.0f),
-  m_wasPinching(false),
+  m_wasScrolling(false),
   m_lastHandPosition(0,0),
   m_isPointing(false),
   m_locationOverride(false)
@@ -140,7 +140,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
         if ( m_bodyOffset.Goal() != 0.0f ) { m_bodyOffset.SetGoal(0.0f); }
       }
       
-      m_wasPinching = (appState == OSCState::SCROLLING);
+      m_wasScrolling = (appState == OSCState::SCROLLING);
     
       m_lastHandPosition = handData.locationData.screenPosition();
       break;
@@ -161,7 +161,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   
   float bodyOpacityNorm = 0.0f;
   
-  if ( m_wasPinching ) {
+  if (m_wasScrolling) {
     bodyOpacityNorm = (m_pinchStrength - activationConfigs::MIN_PINCH_CONTINUE) / (activationConfigs::MIN_PINCH_START - activationConfigs::MIN_PINCH_CONTINUE);
   }
   else {
