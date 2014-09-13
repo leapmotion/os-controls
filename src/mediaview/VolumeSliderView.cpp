@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "VolumeSliderView.h"
-#include "RenderFrame.h"
+#include "graphics/RenderFrame.h"
 
 VolumeSliderView::VolumeSliderView() :
   m_volumeLevel(0.0f),
@@ -12,7 +12,7 @@ VolumeSliderView::VolumeSliderView() :
   m_sliderNotchBodyInactive(new SVGPrimitive())
 {
   m_activationAmount.SetInitialValue(0.0f);
-  m_activationAmount.SetSmoothStrength(0.8f);
+  m_activationAmount.SetSmoothStrength(0.75f);
   
   // Setup SVGs
   Resource<TextFile> volumeNotchActiveFile("volume-notch-active.svg");
@@ -69,7 +69,7 @@ void VolumeSliderView::SetOpacity(float opacity) {
   opacity = std::min(1.0f, std::max(0.0f, opacity));
   m_sliderActivePart->LocalProperties().AlphaMask() = opacity;
   m_sliderInactivePart->LocalProperties().AlphaMask() = opacity;
-  m_sliderNotchBodyActive->LocalProperties().AlphaMask() = opacity;
+  m_sliderNotchBodyActive->LocalProperties().AlphaMask() = std::min(opacity, static_cast<float>(m_sliderNotchBodyActive->LocalProperties().AlphaMask()));
   m_sliderNotchBodyInactive->LocalProperties().AlphaMask() = opacity;
 }
 
@@ -111,7 +111,7 @@ void VolumeSliderView::DrawContents(RenderState &render_state) const {
   // Draw bar
   PrimitiveBase::DrawSceneGraph(*m_sliderActivePart, render_state);
   PrimitiveBase::DrawSceneGraph(*m_sliderInactivePart, render_state);
-  
+
   //Draw notch body.
   PrimitiveBase::DrawSceneGraph(*m_sliderNotchBodyInactive, render_state);
   PrimitiveBase::DrawSceneGraph(*m_sliderNotchBodyActive, render_state);

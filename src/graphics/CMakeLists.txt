@@ -4,8 +4,6 @@ set(graphics_SOURCES
   RenderEngine.h
   RenderEngine.cpp
   RenderFrame.h
-  VolumeSliderView.h
-  VolumeSliderView.cpp
 )
 
 
