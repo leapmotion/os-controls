@@ -61,7 +61,7 @@ public:
   void Clear();
 
   template<typename T>
-  T Get(const std::string& prop) const { static_assert(false,"Unspecialized on type"); return T(); }
+  T Get(const std::string& prop) const { }
 
   template<typename T>
   void Set(const std::string& prop, const T &val){
