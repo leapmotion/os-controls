@@ -4,7 +4,6 @@
 #include "interaction/HandDataCombiner.h"
 #include "uievents/OSCDomain.h"
 
-#include <RadialMenu.h>
 #include <autowiring/Autowiring.h>
 
 class ExposeActivationStateMachine  :
@@ -22,14 +21,9 @@ public:
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
 private:
-  void resolveSelection(int selectedID);
+  void resolveSelection();
   
   enum class State {
-    
-    /*                        |----------V
-     *    --> Inactive --> Active --> SelectionMade
-     *           ^-----------|-----------|
-     */
     
     //Media View is created but not focused.
     INACTIVE,
@@ -37,24 +31,18 @@ private:
     //Taking user input, fading in, etc
     ACTIVE,
     
-    //Done taking input, has sent its event up the chain. Mostly for finished animations.
-    SELECTION_MADE,
-    
     //Wait for animation to fade out
-    FADE_OUT,
+    COMPLETE,
     
     //Tear everything down.
     FINAL
   };
   
-  std::shared_ptr<RadialMenu>m_radialMenu;
   State m_state;
+  
+  std::shared_ptr<RectanglePrim> m_goalStrip;
+  std::shared_ptr<RectanglePrim> m_pusherBar;
   
   Autowired<RenderEngine> m_rootNode;
   AutoFired<OSCStateChangeEvent> m_stateChangeEvent;
-  
-  int m_selectedItem;
-  double m_FadeTime;
-  double m_CurrentTime;
-  double m_LastStateChangeTime;
 };
