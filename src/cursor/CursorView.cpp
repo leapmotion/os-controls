@@ -126,7 +126,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       spreadNorm = std::max(0.0f, std::min(1.0f, spreadNorm));
       m_fingerSpread = FINGER_SPREAD_MIN + ((1-spreadNorm) * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
     
-      if ( handData.pinchData.isPinching ) {
+      if ( appState == OSCState::SCROLLING ) {
         velocitySign = handData.locationData.dY < 0 ? -1 : 1;
         velocityNorm = (fabs(handData.locationData.dY) - SCROLL_VELOCITY_MIN) / (SCROLL_VELOCITY_MAX - SCROLL_VELOCITY_MIN);
         velocityNorm = std::min(1.0f, std::max(0.0f, velocityNorm));
@@ -140,7 +140,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
         if ( m_bodyOffset.Goal() != 0.0f ) { m_bodyOffset.SetGoal(0.0f); }
       }
       
-      m_wasPinching = handData.pinchData.isPinching;
+      m_wasPinching = (appState == OSCState::SCROLLING);
     
       m_lastHandPosition = handData.locationData.screenPosition();
       break;
