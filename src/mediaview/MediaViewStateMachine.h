@@ -1,11 +1,12 @@
 #pragma once
+#include "cursor/CursorView.h"
 #include "graphics/Renderable.h"
-#include "interaction/MediaViewController.h"
+#include "graphics/VolumeSliderView.h"
+#include "mediaview/MediaViewController.h"
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
-#include "graphics/CursorView.h"
-#include "graphics/VolumeSliderView.h"
+
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>

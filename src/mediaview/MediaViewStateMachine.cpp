@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "uievents/oscDomain.h"
+#include "graphics/RenderEngine.h"
+#include "graphics/RenderFrame.h"
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
+#include "uievents/oscDomain.h"
 #include "uievents/osControlConfigs.h"
-#include "RenderEngine.h"
-#include "RenderState.h"
-#include "RenderFrame.h"
 
 #include "GLShader.h"
 #include "GLShaderLoader.h"
 #include "GLTexture2.h"
 #include "TextFile.h"
+#include "RenderState.h"
 #include "Resource.h"
 #include <memory>
 
@@ -20,7 +20,7 @@ const double startAngle = 3 * M_PI/4.0;
 const double endAngle = startAngle + 6 * (M_PI/4.0);
 const int numItems = 3;
 const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
-const Color fillColor(0.505f, 0.831f, 0.114f, 0.95f);
+const Color fillColor(0.4f, 0.425f, 0.45f, 0.75f);
 const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
 const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
 

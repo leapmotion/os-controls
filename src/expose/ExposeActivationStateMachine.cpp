@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "ExposeActivationStateMachine.h"
+#include "graphics/RenderFrame.h"
+
 #include "RenderState.h"
-#include "RenderFrame.h"
 
 const double startAngle = 5 * M_PI/4.0;
 const double endAngle = startAngle + 2 * (M_PI/4.0);
