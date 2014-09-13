@@ -65,6 +65,10 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
   // State Loops
   switch (m_state) {
     case State::INACTIVE:
+      m_goalBottomY.SetInitialValue(0.0f);
+      m_pusherBottomY.SetInitialValue(0.0f);
+      m_goalBottomY.SetGoal(0.0f);
+      m_pusherBottomY.SetGoal(0.0f);
       break;
     case State::ACTIVE:
     {
@@ -73,17 +77,20 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
       diffPercent = std::min(1.0f, std::max(0.0f, diffPercent));
       Color blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
       if ( diffPercent > 0 ) {
-        m_pusherBottomY.SetInitialValue( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
-        m_pusherBottomY.SetGoal( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+        if ( m_armed ) {
+          m_pusherBottomY.SetInitialValue( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+          m_pusherBottomY.SetGoal( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+        }
       }
       else {
+        m_armed = true;
         m_pusherBottomY.SetGoal( PUSHER_BOTTOM_Y );
       }
       m_pusherBar->Material().SetAmbientLightColor(blended);
       m_pusherBar->Material().SetDiffuseLightColor(blended);
       m_pusherBar->Material().SetAmbientLightingProportion(1.0f);
       
-      if( diffPercent >= 1) {
+      if( diffPercent >= 1 && m_armed) {
         resolveSelection();
         transitionToInactive();
       }
