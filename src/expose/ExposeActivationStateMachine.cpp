@@ -2,45 +2,36 @@
 #include "ExposeActivationStateMachine.h"
 #include "graphics/RenderFrame.h"
 
+#include "GLShader.h"
+#include "GLShaderLoader.h"
+#include "GLTexture2.h"
+#include "TextFile.h"
+#include "Resource.h"
+#include <memory>
+
 #include "RenderState.h"
 
-const double startAngle = 5 * M_PI/4.0;
-const double endAngle = startAngle + 2 * (M_PI/4.0);
-const int numItems = 1;
-const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
-const Color fillColor(0.505f, 0.831f, 0.114f, 0.95f);
-const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
-const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
-
 ExposeActivationStateMachine::ExposeActivationStateMachine() :
-m_radialMenu(new RadialMenu()),
-m_state(State::INACTIVE)
+  m_state(State::INACTIVE),
+  m_goalStrip(new RectanglePrim()),
+  m_pusherBar(new RectanglePrim()),
+  m_exposeIcon(new SVGPrimitive()),
+  m_armed(false)
 {
-  m_CurrentTime = 0.0;
-  m_LastStateChangeTime = 0.0;
-  m_FadeTime = 0.25;
-  m_selectedItem = -1;
+  m_goalBottomY.SetInitialValue(0.0f);
+  m_pusherBottomY.SetInitialValue(0.0f);
   
-  //Radial Menu Initialization
-  m_radialMenu->SetStartAngle(startAngle);
-  m_radialMenu->SetEndAngle(endAngle);
-  m_radialMenu->SetNumItems(numItems);
-  m_radialMenu->SetRadius(120.0);
-  m_radialMenu->SetThickness(70.0);
-  for (int i=0; i<numItems; i++) {
-    //TODO: Break these out into a config to avoid so many magic numbers
-    std::shared_ptr<RadialMenuItem>& item = m_radialMenu->GetItem(i);
-    item->SetRadius(120.0);
-    item->SetThickness(80.0);
-    item->SetActivatedRadius(160.0);
-    item->Material().SetAmbientLightColor(bgColor);
-    item->Material().SetAmbientLightingProportion(1.0f);
-    item->Material().SetDiffuseLightColor(bgColor);
-    item->SetHoverColor(fillColor);
-    item->SetActivatedColor(handleOutlineColor);
-  }
+  m_goalBottomY.SetSmoothStrength(0.7f);
+  m_pusherBottomY.SetSmoothStrength(0.7f);
   
-  //TODO: Setup SVGs
+  m_goalStrip->Material().SetDiffuseLightColor(GOAL_COLOR);
+  m_goalStrip->Material().SetAmbientLightColor(GOAL_COLOR);
+  m_goalStrip->Material().SetAmbientLightingProportion(1.0f);
+  
+  // Setup SVG
+  Resource<TextFile> exposeIconFile("expose-icon-01.svg");
+  m_exposeIcon->Set(exposeIconFile->Contents());
+  m_exposeIconOffset = m_exposeIcon->Origin() - (m_exposeIcon->Size() / 2.0f);
 }
 
 
@@ -51,8 +42,6 @@ void ExposeActivationStateMachine::AutoInit() {
 }
 
 void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime) {
-  m_CurrentTime += 1E-6 * frameTime.deltaTime;
-  
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
@@ -62,26 +51,23 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
   switch( m_state )
   {
     case State::INACTIVE:
+      //Transition to ACTIVE
       if(appState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
-        m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
+        m_goalBottomY.SetGoal(GOAL_BOTTOM_Y);
+        m_pusherBottomY.SetGoal(PUSHER_BOTTOM_Y);
         m_state = State::ACTIVE;
-        m_LastStateChangeTime = m_CurrentTime;
       }
       break;
     case State::ACTIVE:
+      //Transition to INACTIVE
       if(appState != OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
-        m_state = State::INACTIVE;
-        m_LastStateChangeTime = m_CurrentTime;
+        transitionToInactive();
       }
       break;
-    case State::SELECTION_MADE:
-      m_state = State::FADE_OUT;
-      m_LastStateChangeTime = m_CurrentTime;
-      break;
-    case State::FADE_OUT:
-      if(appState != OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
-        m_state = State::INACTIVE;
-        m_LastStateChangeTime = m_CurrentTime;
+    case State::COMPLETE:
+      //TRANSITION TO INACTIVE
+      if(appState != OSCState::EXPOSE_ACTIVATOR_FOCUSED && appState != OSCState::EXPOSE_FOCUSED) {
+        transitionToInactive();
       }
       break;
     case State::FINAL:
@@ -92,79 +78,77 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
   // State Loops
   switch (m_state) {
     case State::INACTIVE:
-      // Wedge transparency is updated in AnimationUpdate loops
-      m_radialMenu->InteractWithoutCursor();
-      m_selectedItem = -1;
+      m_goalBottomY.SetInitialValue(0.0f);
+      m_pusherBottomY.SetInitialValue(0.0f);
+      m_goalBottomY.SetGoal(0.0f);
+      m_pusherBottomY.SetGoal(0.0f);
       break;
     case State::ACTIVE:
     {
-      // MENU UPDATE
-      
-      // The menu always thinks it's at (0,0) so we need to offset the cursor
-      // coordinates by the location of the menu to give the proper space.
-      const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
-      
-      Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
-      RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
-      m_selectedItem = updateResult.updateIdx;
-      if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
-        //Selection Made Transition
-        resolveSelection(updateResult.updateIdx);
-        m_state = State::SELECTION_MADE;
-        m_LastStateChangeTime = m_CurrentTime;
+      float yDiff = PUSHER_BOTTOM_Y - handData.locationData.y;
+      float diffPercent = yDiff / PUSHER_BOTTOM_Y;
+      diffPercent = std::min(1.0f, std::max(0.0f, diffPercent));
+      Color blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
+      if ( diffPercent > 0 ) {
+        if ( m_armed ) {
+          m_pusherBottomY.SetInitialValue( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+          m_pusherBottomY.SetGoal( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+        }
       }
-      break;
+      else {
+        m_armed = true;
+        m_pusherBottomY.SetGoal( PUSHER_BOTTOM_Y );
+      }
+      m_pusherBar->Material().SetAmbientLightColor(blended);
+      m_pusherBar->Material().SetDiffuseLightColor(blended);
+      m_pusherBar->Material().SetAmbientLightingProportion(1.0f);
+      
+      if( diffPercent >= 1 && m_armed) {
+        resolveSelection();
+        transitionToInactive();
+      }
     }
-    case State::SELECTION_MADE:
     case State::FINAL:
     default:
       break;
   }
-  for (int i=0; i<numItems; i++) {
-    // The apply type indicates how the composition of properties along the line of
-    // ancestry in the scene graph works.  ApplyType::OPERATE is ordinary composition
-    // (e.g. multiplication of coordinate transformations).  ApplyType::REPLACE
-    // is an override of the existing value, and is how the alpha mask is overridden
-    // for the selected item.
-    ApplyType apply_type = i == m_selectedItem ? ApplyType::REPLACE : ApplyType::OPERATE;
-    m_radialMenu->GetItem(i)->LocalProperties().AlphaMaskProperty().SetApplyType(apply_type);
-  }
-  m_radialMenu->UpdateItemActivation(static_cast<float>(1E-6 * frameTime.deltaTime));
 }
 
-void ExposeActivationStateMachine::resolveSelection(int selectedID) {
-  switch(selectedID) {
-    case 0:
-      m_stateChangeEvent(&OSCStateChangeEvent::RequestTransition)(OSCState::EXPOSE_FOCUSED);
-      break;
-    default:
-      break;
-  }
+Color ExposeActivationStateMachine::blendColor(Color c1, Color c2, float amnt) {
+  amnt = std::min(1.0f, std::max(0.0f, amnt));
+  const Vector4f blend = (amnt * c2.Data()) + ((1.0f-amnt) * c1.Data());
+  return Color(blend);
+}
+
+void ExposeActivationStateMachine::transitionToInactive() {
+  m_goalBottomY.SetGoal(0.0f);
+  m_pusherBottomY.SetGoal(0.0f);
+  m_state = State::INACTIVE;
+}
+
+void ExposeActivationStateMachine::resolveSelection() {
+  m_stateChangeEvent(&OSCStateChangeEvent::RequestTransition)(OSCState::EXPOSE_FOCUSED);
 }
 
 void ExposeActivationStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
-  float opacity = 0.0f;
-  if (m_state == State::ACTIVE) {
-    // fade in
-    opacity = SmootherStep(std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
-  } else if (m_state == State::FADE_OUT || m_state == State::SELECTION_MADE || m_state == State::INACTIVE) {
-    // fade out
-    opacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
-    if (m_selectedItem >= 0) {
-      const float itemOpacity = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - 2*m_FadeTime - m_LastStateChangeTime)/m_FadeTime)));
-      m_radialMenu->GetItem(m_selectedItem)->LocalProperties().AlphaMask() = itemOpacity;
-    } else {
-      for (int i=0; i<numItems; i++) {
-        m_radialMenu->GetItem(i)->LocalProperties().AlphaMask() = 1.0f;
-      }
-    }
-  }
-  m_radialMenu->LocalProperties().AlphaMask() = opacity;
+  m_goalBottomY.Update(renderFrame.deltaT.count());
+  m_pusherBottomY.Update(renderFrame.deltaT.count());
+  
+  float barWidth = m_renderWindow->getSize().x;
+  float goalStripY = m_goalBottomY - (GOAL_BOTTOM_Y/2.0f);
+  float pusherStripY = m_pusherBottomY - (PUSHER_BOTTOM_Y/2.0f);
+  float screenMiddle = m_renderWindow->getSize().x/2.0f;
+  
+  m_pusherBar->SetSize(Vector2(barWidth, PUSHER_BOTTOM_Y));
+  m_goalStrip->SetSize(Vector2(barWidth, GOAL_BOTTOM_Y));
+  
+  m_pusherBar->Translation() = Vector3(screenMiddle, pusherStripY, 0.0f);
+  m_goalStrip->Translation() = Vector3(screenMiddle, goalStripY, 0.0f);
+  m_exposeIcon->Translation() = Vector3(m_exposeIconOffset.x() + screenMiddle, m_exposeIconOffset.y() + pusherStripY + ICON_Y_OFFSET, 0.0f);
 }
 
 void ExposeActivationStateMachine::Render(const RenderFrame &renderFrame) const  {
-  if (m_state == State::ACTIVE || m_state == State::SELECTION_MADE || m_state == State::FADE_OUT) {
-    PrimitiveBase::DrawSceneGraph(*m_radialMenu, renderFrame.renderState);
-  }
+  PrimitiveBase::DrawSceneGraph(*m_pusherBar, renderFrame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_exposeIcon, renderFrame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_goalStrip, renderFrame.renderState);
 }
-

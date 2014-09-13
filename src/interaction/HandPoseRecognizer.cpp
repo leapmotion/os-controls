@@ -63,8 +63,22 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
       break;
   }
   
+  if ( isUpsideDown(hand) ) {
+    handPose = HandPose::UpsideDown;
+  }
+  
   //Store the previous hand pose.
   m_lastPose = handPose;
+}
+
+bool HandPoseRecognizer::isUpsideDown(Leap::Hand hand) {
+  bool retVal = false;
+  
+  if ( hand.palmNormal().y > 0 ) {
+    retVal = true;
+  }
+  
+  return retVal;
 }
 
 bool HandPoseRecognizer::isExtended(Leap::Finger finger, bool wasExtended) const {
