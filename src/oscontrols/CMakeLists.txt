@@ -81,9 +81,9 @@ target_package(oscontrols SFML 2.1 REQUIRED)
 
 if(WIN32)
   set_property(TARGET oscontrols APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
-
-  set(CMAKE_CXX_FLAGS ${old_CXX_FLAGS})
-  set(CMAKE_CXX_FLAGS_DEUB ${old_CXX_FLAGS_DEBUG})
+  set_property(TARGET oscontrols APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Data;System.Drawing;System.Windows.Forms;System.Xml")
+  #set(CMAKE_CXX_FLAGS ${old_CXX_FLAGS})
+  #set(CMAKE_CXX_FLAGS_DEUB ${old_CXX_FLAGS_DEBUG})
 elseif(APPLE)
   set_target_properties(oscontrols PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/oscontrols/oscontrols.plist.in)
