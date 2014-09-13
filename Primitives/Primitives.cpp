@@ -275,6 +275,9 @@ TexturedFrame::TexturedFrame() {
   SetRectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::BOTTOM, 0.25f);
   SetRectangleEdgeTextureCoordinate(Rectangle::INNER,    RectangleEdge::TOP, 0.75f);
   SetRectangleEdgeTextureCoordinate(Rectangle::OUTER,    RectangleEdge::TOP, 1.0f);
+
+  // Set up the material properties regarding textures
+  Material().SetUseTexture(true);
   
   m_recompute_geometry = true;
 }
