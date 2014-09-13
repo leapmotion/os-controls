@@ -31,7 +31,7 @@ add_mac_sources(
 
 add_mac_sources(
   oscontrols_RESOURCES
-  ${CMAKE_SOURCE_DIR}/src/oscontrols/Status.tiff
+  ${CMAKE_SOURCE_DIR}/src/icons/TrayIcon.tiff
 )
 
 add_conditional_sources(oscontrols_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${oscontrols_RESOURCES})

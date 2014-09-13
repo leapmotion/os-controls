@@ -11,7 +11,7 @@
   if (self != nil) {
     NSStatusItem* statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:24];
     _statusItemView = [[StatusItemView alloc] initWithStatusItem:statusItem];
-    _statusItemView.image = [NSImage imageNamed:@"Status"];
+    _statusItemView.image = [NSImage imageNamed:@"TrayIcon"];
   }
   return self;
 }

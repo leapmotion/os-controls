@@ -27,7 +27,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>@APP_COPYRIGHT@</string>
 	<key>NSHighResolutionCapable</key>
-	<false/>
+	<true/>
 	<key>LSMultipleInstancesProhibited</key>
 	<false/>
 	<key>LSRequiresCarbon</key>
