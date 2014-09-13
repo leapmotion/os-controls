@@ -5,8 +5,6 @@ set(interaction_SOURCES
   CoordinateUtility.h
   ClawRotationRecognizer.cpp
   ClawRotationRecognizer.h
-  ExposeViewStateMachine.h
-  ExposeViewStateMachine.cpp
   TimeRecognizer.h
   TimeRecognizer.cpp
   FrameFragmenter.h
@@ -23,8 +21,6 @@ set(interaction_SOURCES
   HandRollRecognizer.h
   HandRollRecognizer.cpp
   InteractionConfigs.h
-  MediaViewController.h
-  MediaViewController.cpp
   ScrollRecognizer.h
   ScrollRecognizer.cpp
   StateMachine.h
@@ -34,7 +30,7 @@ set(interaction_SOURCES
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
 
-target_link_libraries(interaction uievents Autowiring)
+target_link_libraries(interaction Autowiring cursor expose mediaview uievents)
 target_include_directories(interaction PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 target_package(interaction SFML 2.1 REQUIRED)

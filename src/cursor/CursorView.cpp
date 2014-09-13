@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "CursorView.h"
+#include "graphics/RenderEngine.h"
+#include "graphics/RenderFrame.h"
+
 #include "GLShaderLoader.h"
-#include "RenderEngine.h"
-#include "RenderFrame.h"
-#include "RenderState.h"
 #include "HandCursor.h"
 #include "interaction/interactionConfigs.h"
 

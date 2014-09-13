@@ -1,4 +1,6 @@
 set(expose_SOURCES
+  ExposeActivationStateMachine.h
+  ExposeActivationStateMachine.cpp
   ExposeView.h
   ExposeView.cpp
   ExposeViewAccessManager.h
@@ -7,6 +9,8 @@ set(expose_SOURCES
   ExposeViewController.cpp
   ExposeViewEvents.h
   ExposeViewEvents.cpp
+  ExposeViewStateMachine.h
+  ExposeViewStateMachine.cpp
   ExposeViewWindow.h
   ExposeViewWindow.cpp
 )
@@ -22,6 +26,6 @@ target_include_directories(expose PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 target_package(expose SFML 2.1 REQUIRED)
 target_package(expose Leap REQUIRED)
 
-target_link_components(expose Animation Primitives SceneGraph Resource GLShader GLShaderLoader HandCursor)
+target_link_components(expose Animation Primitives SceneGraph RadialMenu Resource GLShader GLShaderLoader HandCursor)
 
 add_subdirectory(testharness)
