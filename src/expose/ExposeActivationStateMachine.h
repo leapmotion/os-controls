@@ -6,6 +6,7 @@
 
 #include "Primitives.h"
 #include "Animation.h"
+#include <SVGPrimitive.h>
 #include <autowiring/Autowiring.h>
 
 class ExposeActivationStateMachine  :
@@ -29,6 +30,7 @@ private:
   const Color GOAL_COLOR = Color(0.505f, 0.831f, 0.114f, 1.0f);
   const float GOAL_BOTTOM_Y = 30.0f;
   const float PUSHER_BOTTOM_Y = 150.0f;
+  const float ICON_Y_OFFSET = 10.0f;
   
   void transitionToInactive();
   void resolveSelection();
@@ -53,6 +55,9 @@ private:
   
   std::shared_ptr<RectanglePrim> m_goalStrip;
   std::shared_ptr<RectanglePrim> m_pusherBar;
+  std::shared_ptr<SVGPrimitive> m_exposeIcon;
+  
+  Vector2 m_exposeIconOffset;
   
   bool m_armed;
   

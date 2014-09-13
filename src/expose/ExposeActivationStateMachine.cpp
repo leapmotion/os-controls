@@ -2,12 +2,20 @@
 #include "ExposeActivationStateMachine.h"
 #include "graphics/RenderFrame.h"
 
+#include "GLShader.h"
+#include "GLShaderLoader.h"
+#include "GLTexture2.h"
+#include "TextFile.h"
+#include "Resource.h"
+#include <memory>
+
 #include "RenderState.h"
 
 ExposeActivationStateMachine::ExposeActivationStateMachine() :
   m_state(State::INACTIVE),
   m_goalStrip(new RectanglePrim()),
   m_pusherBar(new RectanglePrim()),
+  m_exposeIcon(new SVGPrimitive()),
   m_armed(false)
 {
   m_goalBottomY.SetInitialValue(0.0f);
@@ -19,6 +27,11 @@ ExposeActivationStateMachine::ExposeActivationStateMachine() :
   m_goalStrip->Material().SetDiffuseLightColor(GOAL_COLOR);
   m_goalStrip->Material().SetAmbientLightColor(GOAL_COLOR);
   m_goalStrip->Material().SetAmbientLightingProportion(1.0f);
+  
+  // Setup SVG
+  Resource<TextFile> exposeIconFile("expose-icon-01.svg");
+  m_exposeIcon->Set(exposeIconFile->Contents());
+  m_exposeIconOffset = m_exposeIcon->Origin() - (m_exposeIcon->Size() / 2.0f);
 }
 
 
@@ -131,9 +144,11 @@ void ExposeActivationStateMachine::AnimationUpdate(const RenderFrame &renderFram
   
   m_pusherBar->Translation() = Vector3(screenMiddle, pusherStripY, 0.0f);
   m_goalStrip->Translation() = Vector3(screenMiddle, goalStripY, 0.0f);
+  m_exposeIcon->Translation() = Vector3(m_exposeIconOffset.x() + screenMiddle, m_exposeIconOffset.y() + pusherStripY + ICON_Y_OFFSET, 0.0f);
 }
 
 void ExposeActivationStateMachine::Render(const RenderFrame &renderFrame) const  {
   PrimitiveBase::DrawSceneGraph(*m_pusherBar, renderFrame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_exposeIcon, renderFrame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_goalStrip, renderFrame.renderState);
 }
