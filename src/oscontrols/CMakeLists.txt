@@ -38,6 +38,15 @@ add_conditional_sources(oscontrols_SOURCES "" GROUP_NAME "Resource Files" "FILES
 
 if(WIN32)
   set(oscontrols_EXEFLAGS WIN32)
+  #adding CLR support as described in:
+  #http://www.cmake.org/pipermail/cmake/2010-June/037346.html
+  set(old_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+  set(old_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
+  STRING(REPLACE "/EHsc" "/EHa" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+  STRING(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /clr")
+
 elseif(APPLE)
   set_property(SOURCE oscontrols.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
   set(oscontrols_EXEFLAGS MACOSX_BUNDLE)
@@ -61,6 +70,9 @@ target_package(oscontrols SFML 2.1 REQUIRED)
 
 if(WIN32)
   set_property(TARGET oscontrols APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+
+  set(CMAKE_CXX_FLAGS ${old_CXX_FLAGS})
+  set(CMAKE_CXX_FLAGS_DEUB ${old_CXX_FLAGS_DEBUG})
 elseif(APPLE)
   set_target_properties(oscontrols PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/oscontrols/oscontrols.plist.in)
