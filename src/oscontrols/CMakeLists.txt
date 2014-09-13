@@ -25,10 +25,12 @@ add_windows_sources(
   NativeUI.cpp
 )
 
-add_windows_sources(
-  oscontrols_RESOURCES
-  NativeUI.resx
-)
+if(WIN32)
+  set(oscontrols_RESOURCES
+    ${oscontrols_RESOURCES}
+    NativeUI.resx
+  )
+endif()
 
 add_mac_sources(
   oscontrols_SOURCES
@@ -40,10 +42,12 @@ add_mac_sources(
   StatusItemView.mm
 )
 
-add_mac_sources(
-  oscontrols_RESOURCES
-  ${CMAKE_SOURCE_DIR}/src/icons/TrayIcon.tiff
-)
+if(APPLE)
+  set(oscontrols_RESOURCES
+    ${oscontrols_RESOURCES}
+    ${CMAKE_SOURCE_DIR}/src/icons/TrayIcon.tiff
+  )
+endif()
 
 add_conditional_sources(oscontrols_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${oscontrols_RESOURCES})
 
