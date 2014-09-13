@@ -45,6 +45,7 @@ add_mac_sources(
 if(APPLE)
   set(oscontrols_RESOURCES
     ${oscontrols_RESOURCES}
+    ${CMAKE_SOURCE_DIR}/src/icons/AppIcon.icns
     ${CMAKE_SOURCE_DIR}/src/icons/TrayIcon.tiff
   )
 endif()
