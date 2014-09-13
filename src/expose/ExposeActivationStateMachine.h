@@ -24,8 +24,8 @@ public:
   void Render(const RenderFrame& renderFrame) const override;
   
 private:
-  const Color UNSELECTED_COLOR = Color(0.4f, 0.425f, 0.45f, 0.75f);
-  const Color SELECTED_COLOR = Color(0.505f, 0.831f, 0.114f, 0.95f);
+  const Color UNSELECTED_COLOR = Color(0.4f, 0.425f, 0.45f, 0.7f);
+  const Color SELECTED_COLOR = Color(0.505f, 0.831f, 0.114f, 1.0f);
   const Color GOAL_COLOR = Color(0.505f, 0.831f, 0.114f, 1.0f);
   const float GOAL_BOTTOM_Y = 30.0f;
   const float PUSHER_BOTTOM_Y = 150.0f;

@@ -15,6 +15,10 @@ ExposeActivationStateMachine::ExposeActivationStateMachine() :
   
   m_goalBottomY.SetSmoothStrength(0.7f);
   m_pusherBottomY.SetSmoothStrength(0.7f);
+  
+  m_goalStrip->Material().SetDiffuseLightColor(GOAL_COLOR);
+  m_goalStrip->Material().SetAmbientLightColor(GOAL_COLOR);
+  m_goalStrip->Material().SetAmbientLightingProportion(1.0f);
 }
 
 
@@ -68,11 +72,16 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
       float diffPercent = yDiff / PUSHER_BOTTOM_Y;
       diffPercent = std::min(1.0f, std::max(0.0f, diffPercent));
       Color blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
-      m_pusherBottomY.SetInitialValue( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
-      m_pusherBottomY.SetGoal( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+      if ( diffPercent > 0 ) {
+        m_pusherBottomY.SetInitialValue( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+        m_pusherBottomY.SetGoal( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+      }
+      else {
+        m_pusherBottomY.SetGoal( PUSHER_BOTTOM_Y );
+      }
       m_pusherBar->Material().SetAmbientLightColor(blended);
       m_pusherBar->Material().SetDiffuseLightColor(blended);
-      m_pusherBar->Material().SetAmbientLightColor(blended);
+      m_pusherBar->Material().SetAmbientLightingProportion(1.0f);
       
       if( diffPercent >= 1) {
         resolveSelection();
@@ -86,16 +95,9 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
 }
 
 Color ExposeActivationStateMachine::blendColor(Color c1, Color c2, float amnt) {
-  Color retColor = Color();
-  
   amnt = std::min(1.0f, std::max(0.0f, amnt));
-  
-  retColor.R() = ( amnt * c1.R()  ) + ( (1-amnt) * c2.R() );
-  retColor.G() = ( amnt * c1.G()  ) + ( (1-amnt) * c2.G() );
-  retColor.B() = ( amnt * c1.B()  ) + ( (1-amnt) * c2.B() );
-  retColor.A() = ( amnt * c1.A()  ) + ( (1-amnt) * c2.A() );
-  
-  return retColor;
+  const Vector4f blend = (amnt * c2.Data()) + ((1.0f-amnt) * c1.Data());
+  return Color(blend);
 }
 
 void ExposeActivationStateMachine::transitionToInactive() {
@@ -115,18 +117,16 @@ void ExposeActivationStateMachine::AnimationUpdate(const RenderFrame &renderFram
   float barWidth = m_renderWindow->getSize().x;
   float goalStripY = m_goalBottomY - (GOAL_BOTTOM_Y/2.0f);
   float pusherStripY = m_pusherBottomY - (PUSHER_BOTTOM_Y/2.0f);
+  float screenMiddle = m_renderWindow->getSize().x/2.0f;
   
   m_pusherBar->SetSize(Vector2(barWidth, PUSHER_BOTTOM_Y));
   m_goalStrip->SetSize(Vector2(barWidth, GOAL_BOTTOM_Y));
   
-  m_pusherBar->Translation() = Vector3(0.0f, pusherStripY, 0.0f);
-  m_goalStrip->Translation() = Vector3(0.0f, goalStripY, 0.0f);
+  m_pusherBar->Translation() = Vector3(screenMiddle, pusherStripY, 0.0f);
+  m_goalStrip->Translation() = Vector3(screenMiddle, goalStripY, 0.0f);
 }
 
 void ExposeActivationStateMachine::Render(const RenderFrame &renderFrame) const  {
-  if (m_state == State::ACTIVE || m_state == State::COMPLETE) {
-    PrimitiveBase::DrawSceneGraph(*m_pusherBar, renderFrame.renderState);
-    PrimitiveBase::DrawSceneGraph(*m_goalStrip, renderFrame.renderState);
-  }
+  PrimitiveBase::DrawSceneGraph(*m_pusherBar, renderFrame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_goalStrip, renderFrame.renderState);
 }
-
