@@ -216,10 +216,10 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
   
   Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
   
-  float offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
-  offsetNormalFactor = std::max(0.0f, std::min(1.0f, offsetNormalFactor));
+  double offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
+  offsetNormalFactor = std::max(0.0, std::min(1.0, offsetNormalFactor));
   
-  if ( offsetNormalFactor > 0.0f ) {
+  if ( offsetNormalFactor > 0.0 ) {
     m_interactionIsVolumeLocked = true;
     m_ghostCursorAlpha.SetGoal(GHOST_CURSOR_ALPHA);
     m_cursorView->EnableLocationOverride();
@@ -229,7 +229,7 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
     m_cursorView->position = OSVector2{ static_cast<float>(offsetCursorPosition.x()), static_cast<float>(offsetCursorPosition.y()) };
     m_ghostCursor->Translation() = Vector3(cursorCalculatedPosition.x(), cursorCalculatedPosition.y(), 0.0f);
     
-    if ( offsetNormalFactor >= 1.0f ) {
+    if ( offsetNormalFactor >= 1.0 ) {
       float deltaPixelsInVolume = handData.locationData.dX / m_volumeSlider->Width();
       m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
       m_volumeSlider->Activate();
@@ -259,8 +259,8 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
   m_volumeSlider->Update(renderFrame);
   
   // Smoothed Value Updates
-  m_ghostCursorAlpha.Update(renderFrame.deltaT.count());
-  m_volumeViewAlpha.Update(renderFrame.deltaT.count());
+  m_ghostCursorAlpha.Update(static_cast<float>(renderFrame.deltaT.count()));
+  m_volumeViewAlpha.Update(static_cast<float>(renderFrame.deltaT.count()));
   
   m_ghostCursor->LocalProperties().AlphaMask() = m_ghostCursorAlpha;
   m_volumeSlider->SetOpacity(m_volumeViewAlpha);

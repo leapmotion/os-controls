@@ -254,8 +254,8 @@ void StateMachine::OnHandVanished() {
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
   
-  smoothedDeltaX.Update(deltaT.count());
-  smoothedDeltaY.Update(deltaT.count());
+  smoothedDeltaX.Update(static_cast<float>(deltaT.count()));
+  smoothedDeltaY.Update(static_cast<float>(deltaT.count()));
   
   //Perform any transitions waiting in the transition queue
   while ( m_desiredTransitions.size() > 0 ) {

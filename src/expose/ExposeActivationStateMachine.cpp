@@ -131,10 +131,10 @@ void ExposeActivationStateMachine::resolveSelection() {
 }
 
 void ExposeActivationStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
-  m_goalBottomY.Update(renderFrame.deltaT.count());
-  m_pusherBottomY.Update(renderFrame.deltaT.count());
+  m_goalBottomY.Update(static_cast<float>(renderFrame.deltaT.count()));
+  m_pusherBottomY.Update(static_cast<float>(renderFrame.deltaT.count()));
   
-  float barWidth = m_renderWindow->getSize().x;
+  float barWidth = static_cast<float>(m_renderWindow->getSize().x);
   float goalStripY = m_goalBottomY - (GOAL_BOTTOM_Y/2.0f);
   float pusherStripY = m_pusherBottomY - (PUSHER_BOTTOM_Y/2.0f);
   float screenMiddle = m_renderWindow->getSize().x/2.0f;
