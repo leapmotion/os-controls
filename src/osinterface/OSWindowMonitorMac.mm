@@ -127,3 +127,34 @@ void OSWindowMonitorMac::Scan() {
     m_oswe(&OSWindowEvent::OnDestroy)(*window);
   }
 }
+
+std::shared_ptr<OSWindow> OSWindowMonitorMac::WindowFromPoint(OSPoint point) {
+  std::shared_ptr<OSWindowMac> topmost;
+
+  std::lock_guard<std::mutex> lk(m_lock);
+  for(auto q : m_knownWindows) {
+    // Point in rect?
+    auto pos = q.second->GetPosition();
+
+    // Compute the difference in position
+    OSPoint delta {point.x - pos.x, point.y - pos.y};
+
+    if(delta.x < 0.0f || delta.y < 0.0f)
+      // Input point to the left or above top edge of this window
+      continue;
+
+    auto size = q.second->GetSize();
+    if(size.width < point.x || size.height < point.y)
+      // To the right or below the bottom edge of this window
+      continue;
+
+    if(!topmost)
+      // No prior topmost, assign
+      topmost = q.second;
+    else if(topmost->GetZOrder() < q.second->GetZOrder())
+      // Better fit found
+      topmost = q.second;
+  }
+
+  return topmost;
+}

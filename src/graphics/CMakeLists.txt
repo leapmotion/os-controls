@@ -1,17 +1,11 @@
 set(graphics_SOURCES
-  CursorView.h
-  CursorView.cpp
-  ExposeActivationStateMachine.h
-  ExposeActivationStateMachine.cpp
-  MediaViewStateMachine.h
-  MediaViewStateMachine.cpp
   Renderable.h
   Renderable.cpp
   RenderEngine.h
   RenderEngine.cpp
   RenderFrame.h
-  VolumeKnob.cpp
-  VolumeKnob.h
+  VolumeSliderView.h
+  VolumeSliderView.cpp
 )
 
 

@@ -16,15 +16,15 @@ enum class OSCState {
   //The state where the expose full screen interaction view is visible
   EXPOSE_FOCUSED,
   
-
+  SCROLLING,
   // The final state, transitioning here indicates that the AutoFilter routine has received a
   // null Leap::Hand and that this control will not receive further inputs.
   FINAL
 };
 
-enum class ScrollState {
-  ACTIVE,
-  DECAYING
+class OSCStateChangeEvent{
+public:
+  virtual void RequestTransition(OSCState requestedState) = 0;
 };
 
 /// <summary>

@@ -1,10 +1,12 @@
 #pragma once
+#include "cursor/CursorView.h"
 #include "graphics/Renderable.h"
-#include "interaction/MediaViewController.h"
+#include "graphics/VolumeSliderView.h"
+#include "mediaview/MediaViewController.h"
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/OSCDomain.h"
-#include "VolumeKnob.h"
+
 #include <RadialMenu.h>
 #include <RadialSlider.h>
 #include <autowiring/Autowiring.h>
@@ -29,6 +31,16 @@ public:
   void SetViewVolume(float volume);
   
 private:
+  const float MENU_RADIUS = 180.0f;
+  const float ACTIVATION_RADIUS = MENU_RADIUS + 100.0f;
+  const float MENU_THICKNESS = 100.0f;
+  const Vector3 VOLUME_SLIDER_OFFSET = Vector3( 0.0f, 200.0f, 0.0f );
+  const Color GHOST_CURSOR_COLOR = Color( 0.505f, 0.831f, 0.114f );
+  const float GHOST_CURSOR_ALPHA = 0.3f;
+  
+  void resetMemberState();
+  void doMenuUpdate(const Vector2& locationData, Vector2 menuOffset);
+  void doVolumeUpdate(const HandData& handData, Vector2 menuOffset);
   void resolveSelection(int selectedID);
   //Adjust the view for the volume control
   float calculateVolumeDelta(float deltaHandRoll);
@@ -39,40 +51,39 @@ private:
   /// </summary>
   
   enum class State {
+    // Media View is created but not focused.
+    // It is wainting for focus to activate.
+    ARMED,
     
-    /*                        |----------V
-     *    --> Inactive --> Active --> SelectionMade
-     *           ^-----------|-----------|
-     */
-    
-    //Media View is created but not focused.
-    INACTIVE,
-    
-    //Taking user input, fading in, etc
+    // Taking user input, fading in, etc
     ACTIVE,
     
-    //Done taking input, has sent its event up the chain. Mostly for finished animations.
-    SELECTION_MADE,
+    // The menu's selection action has been made.
+    // This instance of the interaction is done.
+    // Wait for animation to fade out.
+    COMPLETE,
     
-    //Wait for animation to fade out
-    FADE_OUT,
-    
-    //Tear everything down.
+    // Tear everything down.
     FINAL
   };
   
-  std::shared_ptr<RadialMenu>m_radialMenu;
-  std::shared_ptr<RadialSlider> m_volumeSlider;
-  AutoRequired<VolumeKnob> m_volumeKnob;
+  std::shared_ptr<RadialMenu> m_radialMenu;
+  std::shared_ptr<VolumeSliderView> m_volumeSlider;
+  std::shared_ptr<Disk> m_ghostCursor;
   
-  bool m_hasRoll;
-  float m_startRoll;
+  Smoothed<float> m_ghostCursorAlpha;
+  Smoothed<float> m_volumeViewAlpha;
+  
   HandPose m_lastHandPose;
   
   State m_state;
   
+  // Refernce to the cursor so we can override its position
+  Autowired<CursorView> m_cursorView;
+  
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
+  AutoFired<OSCStateChangeEvent> m_stateEvents;
   
   Autowired<RenderEngine> m_rootNode;
   RectanglePrim prim;
@@ -81,4 +92,5 @@ private:
   double m_FadeTime;
   double m_CurrentTime;
   double m_LastStateChangeTime;
+  bool m_interactionIsVolumeLocked;
 };

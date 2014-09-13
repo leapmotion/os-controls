@@ -1,22 +1,29 @@
 #include "stdafx.h"
 #include "StateMachine.h"
-#include "Color.h"
-#include "ExposeViewStateMachine.h"
 #include "InteractionConfigs.h"
+#include "expose/ExposeViewStateMachine.h"
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindow.h"
 #include "utility/NativeWindow.h"
 
-StateMachine::StateMachine(void):
+#include "Color.h"
+
+StateMachine::StateMachine(void) :
   ContextMember("StateMachine"),
   m_state(OSCState::BASE),
-  m_scrollState(ScrollState::DECAYING),
+  m_scrollType(ScrollType::PINCH_SCROLL),
   m_handDelta(0.0,0.0),
+  m_lastHandLocation(0.0f,0.0f),
   m_lastScrollReleaseTimestep(0.0f),
+  m_smoothedHandDeltas(0,0),
   m_ppmm(96.0f/25.4f),
   m_scrollOperation(nullptr)
 {
+  smoothedDeltaX.SetInitialValue(0.0f);
+  smoothedDeltaY.SetInitialValue(0.0f);
+  smoothedDeltaX.SetSmoothStrength(0.3f);
+  smoothedDeltaY.SetSmoothStrength(0.3f);
 }
 
 StateMachine::~StateMachine(void)
@@ -25,90 +32,173 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState) {
-
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state) {
   std::lock_guard<std::mutex> lk(m_lock);
+
   if(m_state == OSCState::FINAL) {
     return;
   }
   
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
   
-  if( m_state == OSCState::EXPOSE_FOCUSED ) {
-    if ( m_evp->IsComplete() )
-    {
-      m_state = OSCState::BASE;
-    }
-    else {
-      state = m_state;
-      scrollState = m_scrollState;
-      return;
-    }
+  // Check for normal transitions depending on our current state.
+  // Define possible State Transitions
+  OSCState desiredState = m_state;
+  switch(m_state) {
+    case OSCState::BASE:
+    case OSCState::EXPOSE_ACTIVATOR_FOCUSED:
+    case OSCState::MEDIA_MENU_FOCUSED:
+      desiredState = resolvePose(handData.handPose);
+      break;
+    case OSCState::EXPOSE_FOCUSED:
+    case OSCState::FINAL: //Here for completeness. We should never ever hit this one.
+    default:
+      //Don't do anything. Transitions from these states are event driven.
+      break;
   }
   
-  if ( m_lastScrollReleaseTimestep > 1000000 && m_scrollState != ScrollState::ACTIVE ) {
-    // Map the hand pose to a candidate media control state
-    auto desiredState = OSCState::BASE;
-    switch(handData.handPose) {
-      case HandPose::ZeroFingers:
-        desiredState = OSCState::BASE;
-        break;
-      case HandPose::OneFinger:
-        desiredState = OSCState::MEDIA_MENU_FOCUSED;
-        break;
-      case HandPose::TwoFingers:
-        desiredState = OSCState::BASE;
-        break;
-      case HandPose::ThreeFingers:
-        desiredState = OSCState::BASE;
-        break;
-      case HandPose::FourFingers:
-        desiredState = OSCState::EXPOSE_ACTIVATOR_FOCUSED;
-        break;
-      case HandPose::Clawed:
-        desiredState = OSCState::MEDIA_MENU_FOCUSED;
-        break;
-      case HandPose::FiveFingers:
-      default:
-        break;
-    }
+  if (m_state != desiredState) {
+    m_desiredTransitions.push(desiredState);
+  }
+  
+  smoothedDeltaX.SetGoal(handData.locationData.dX);
+  smoothedDeltaY.SetGoal(handData.locationData.dY);
+  
+  m_smoothedHandDeltas = Vector2(smoothedDeltaX, smoothedDeltaY);
 
-    //if(desiredState == OSCState::BASE || m_state == OSCState::BASE)
-      // If we want to go to the base state, then transition there.  Just do it, don't think
-      // about it, do it.  Views in the this context all have their own states and know where
-      // they are, they'll be able to tell that we're in the Base state and that they should
-      // probably take steps to hide themselves.
-      //
-      // This means that a user who quickly changes from one finger to two fingers without
-      // going through the ground case will actually not cause a menu change to happen, and
-      // if this isn't the desired behavior, then change it by assigning the current state
-      // unconditionally!
-    m_state = desiredState;
-  }
-  
-  // Ok, we've got a decision about what state we're in now.  Report it back to the user.
+  //Fill in our AutoFilter outputs (defaults)
   state = m_state;
+
+  if (m_scrollType == ScrollType::HAND_SCROLL) {
+    doHandScroll(scroll, handData.locationData);
+  }
+  else if (m_scrollType == ScrollType::PINCH_SCROLL) {
+    doPinchScroll(scroll, handData.locationData, handData.pinchData);
+  }
   
-  scrollState = m_scrollState; //in case we don't change state
+  m_lastHandLocation = handData.locationData.screenPosition();
+}
 
-  Vector2 deltaScroll;
+//returns 'to' if a valid transition, or the alternative state if not.
+OSCState StateMachine::validateTransition(OSCState to) const {
+  
+  if ( to == OSCState::SCROLLING && m_state != OSCState::BASE ) {
+    return m_state;
+  }
+  else if (to == OSCState::MEDIA_MENU_FOCUSED || to == OSCState::EXPOSE_ACTIVATOR_FOCUSED ) {
+    if ( m_state == OSCState::SCROLLING || m_lastScrollReleaseTimestep <= 1000000) {
+      return m_state;
+    }
+  }
+  else if (to == OSCState::MEDIA_MENU_FOCUSED ) {
+    if ( m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
+      return m_state;
+    }
+  }
+  
+  return to;
+}
 
-#if USE_HAND_SCROLL
+void StateMachine::performNextTransition() {
+  if ( m_desiredTransitions.size() <= 0 ) {
+    return;
+  }
+  
+  OSCState desiredState = m_desiredTransitions.front();
+  m_desiredTransitions.pop();
+  
+  desiredState = validateTransition(desiredState);
+  
+  if (m_state == desiredState) {
+    return;
+  }
+  
+  if (desiredState == OSCState::FINAL) {
+    if ( m_state == OSCState::EXPOSE_FOCUSED ) {
+      m_evp->Shutdown();
+    }
+    else if ( m_state == OSCState::SCROLLING ) {
+      m_scrollOperation.reset();
+    }
+  }
+  else if (desiredState == OSCState::EXPOSE_FOCUSED){
+    if ( m_state == OSCState::SCROLLING ) {
+      m_scrollOperation.reset();
+    }
+  }
+  else if (desiredState == OSCState::SCROLLING) {
+    bool didStartScroll = initializeScroll(m_lastHandLocation);
+    if ( !didStartScroll ) { return; }
+  }
+  
+  if ( m_state == OSCState::EXPOSE_FOCUSED ) {
+    m_evp->Shutdown();
+  }
+
+  m_state = desiredState;
+}
+
+OSCState StateMachine::resolvePose(HandPose pose) const {
+  switch (pose) {
+  case HandPose::OneFinger:
+    return OSCState::MEDIA_MENU_FOCUSED;
+  case HandPose::UpsideDown:
+    return OSCState::EXPOSE_ACTIVATOR_FOCUSED;
+  default:
+    return OSCState::BASE;
+  }
+}
+
+bool StateMachine::initializeScroll(const Vector2& scrollLocation) {
+  AutowiredFast<OSCursor> cursor;
+  if (cursor) {
+    auto screenPosition = scrollLocation;
+    OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
+    
+    // Move cursor
+    AutowiredFast<OSCursor> cursor;
+    if (cursor) {
+      // Set the current cursor position
+      cursor->SetCursorPos(point);
+      // Make the application at the point become active
+      NativeWindow::RaiseWindowAtPosition(point.x, point.y);
+    }
+    
+    // Update the pixels-per-inch for scrolling on this screen
+    float ppi = 96.0f;
+    AutowiredFast<OSVirtualScreen> virtualScreen;
+    if (virtualScreen) {
+      OSScreen screen = virtualScreen->ClosestScreen(point);
+      ppi = screen.PixelsPerInch();
+    }
+    m_ppmm = ppi / 25.4f;
+    
+    m_scrollOperation = m_windowScroller->BeginScroll();
+    if (m_scrollOperation) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLocation) {
+
   const double deltaScrollMultiplier = 0.15;
   const double deltaScrollThreshold = 0.15;
-  deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
-  switch (m_scrollState) {
-  case ScrollState::ACTIVE:
+  Vector2 deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
+
+  switch (m_state) {
+    case OSCState::SCROLLING:
     if (deltaScroll.squaredNorm() < deltaScrollThreshold) {
       m_scrollOperation.reset();
-      scrollState = ScrollState::DECAYING;
+      m_desiredTransitions.push(OSCState::BASE);
     }
     break;
-  case ScrollState::DECAYING:
-      if (deltaScroll.squaredNorm() > deltaScrollThreshold && m_state == OSCState::BASE) {
+  default:
+    if (deltaScroll.squaredNorm() > deltaScrollThreshold && m_state == OSCState::BASE) {
       AutowiredFast<OSCursor> cursor;
       if (cursor) {
-        auto screenPosition = handData.locationData.screenPosition();
+        auto screenPosition = handLocation.screenPosition();
         OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
         // Set the current cursor position
         cursor->SetCursorPos(point);
@@ -117,82 +207,62 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
       }
       m_scrollOperation = m_windowScroller->BeginScroll();
       if (m_scrollOperation){
-        scrollState = ScrollState::ACTIVE;
+        m_desiredTransitions.push(OSCState::SCROLLING);
       }
     }
     break;
   }
-#else
-  switch(m_scrollState) {
-  case ScrollState::ACTIVE:
-    if(!handPinch.isPinching) {
-      m_scrollOperation.reset();
-        m_lastScrollReleaseTimestep = 0.0f;
-      scrollState = ScrollState::DECAYING;
-    }
-    break;
-  case ScrollState::DECAYING:
-      if ( handPinch.isPinching && state == OSCState::BASE ) {
-      AutowiredFast<OSCursor> cursor;
-      if(cursor) {
-        auto screenPosition = handLocation.screenPosition();
-        OSPoint point{static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y())};
 
-        // Move cursor
-        AutowiredFast<OSCursor> cursor;
-        if(cursor) {
-          // Set the current cursor position
-          cursor->SetCursorPos(point);
-          // Make the application at the point become active
-          NativeWindow::RaiseWindowAtPosition(point.x, point.y);
-        }
-
-        // Update the pixels-per-inch for scrolling on this screen
-        float ppi = 96.0f;
-        AutowiredFast<OSVirtualScreen> virtualScreen;
-        if(virtualScreen) {
-          OSScreen screen = virtualScreen->ClosestScreen(point);
-          ppi = screen.PixelsPerInch();
-        }
-        m_ppmm = ppi / 25.4f;
-
-        m_scrollOperation = m_windowScroller->BeginScroll();
-        if(m_scrollOperation) {
-          scrollState = ScrollState::ACTIVE;
-        }
-      }
-      deltaScroll = Vector2{handLocation.dmmX, handLocation.dmmY};
-      break;
-    }
-  }
-#endif
-  
   m_handDelta = deltaScroll;
-  m_scrollState = scrollState;
+}
+
+void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch) {
+  Vector2 deltaScroll = Vector2::Zero();
+
+  if ( m_state == OSCState::SCROLLING )
+  {
+    if (!pinch.isPinching) {
+      m_desiredTransitions.push(OSCState::BASE);
+      
+      //Move to transition
+      m_scrollOperation.reset();
+      m_lastScrollReleaseTimestep = 0.0f;
+      m_desiredTransitions.push(OSCState::BASE);
+    }
+    deltaScroll = Vector2{ handLocation.dmmX, handLocation.dmmY };
+  }
+  else {
+    if (pinch.isPinching && m_state == OSCState::BASE) {
+      m_desiredTransitions.push(OSCState::SCROLLING);
+    }
+  }
+
+  m_handDelta = deltaScroll;
+  //m_scrollState = scrollState;
+}
+
+void StateMachine::RequestTransition(OSCState requestedState) {
+  std::lock_guard<std::mutex> lk(m_lock);
+  m_desiredTransitions.push(requestedState);
 }
 
 void StateMachine::OnHandVanished() {
-  std::lock_guard<std::mutex> lk(m_lock);
-  m_evp->Shutdown();
-  m_state = OSCState::FINAL;
-  m_scrollState = ScrollState::DECAYING;
-  m_scrollOperation.reset();
-}
-
-void StateMachine::OnActivateExpose() {
-  std::lock_guard<std::mutex> lk(m_lock);
-  m_state = OSCState::EXPOSE_FOCUSED;
-  std::cout << "Expose Activated" << std::endl << std::endl;
-  m_scrollState = ScrollState::DECAYING;
-  m_scrollOperation.reset();
+  RequestTransition(OSCState::FINAL);
 }
 
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
+  
+  smoothedDeltaX.Update(static_cast<float>(deltaT.count()));
+  smoothedDeltaY.Update(static_cast<float>(deltaT.count()));
+  
+  //Perform any transitions waiting in the transition queue
+  while ( m_desiredTransitions.size() > 0 ) {
+    performNextTransition();
+  }
 
-  switch ( m_state ) {
-    case OSCState::FINAL:
+  if ( m_state == OSCState::FINAL ) {
       // Remove our controls from the scene graph
       m_mediaViewStateMachine->RemoveFromParent();
       m_exposeActivationStateMachine->RemoveFromParent();
@@ -203,19 +273,10 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
       
       // Remove our own reference to the context
       m_context.reset();
-      return;
-    default:
-      break;
   }
-  
-  switch ( m_scrollState ) {
-    case ScrollState::ACTIVE:
-      m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * SCROLL_SENSITIVITY * m_ppmm);
-      break;
-    case ScrollState::DECAYING:
-      break;
-    default:
-      break;
+  else if ( m_state == OSCState::SCROLLING)
+  {
+    m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * SCROLL_SENSITIVITY * m_ppmm);
   }
 
   m_handDelta = Vector2(0, 0);

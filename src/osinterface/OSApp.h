@@ -1,25 +1,38 @@
 #pragma once
 #include <string>
-#include <vector>
+#include <memory>
 
-class GLTexture2;
-class OSWindow;
+class ImagePrimitive;
 
 class OSApp
 {
 public:
+  ~OSApp(void) {}
+
   /// <returns>
-  /// The path to the primary EXE of the application
+  /// The UTF-8 encoded, localized, user-presentable name of the application
   /// </returns>
-  virtual std::wstring GetAppExe(void) = 0;
+  virtual std::string GetAppName(void) const = 0;
 
   /// <summary>
-  /// Loads a texture containing the application icon
+  /// Renders the application icon in the image primitive
   /// </summary>
-  virtual void GetAppTexture(GLTexture2& tex) = 0;
+  virtual std::shared_ptr<ImagePrimitive> GetIconTexture(std::shared_ptr<ImagePrimitive> img) const = 0;
 
   /// <summary>
   /// Compares this instance to another instance
   /// </summary>
-  virtual bool operator==(const OSApp& rhs) const = 0;
+  bool operator==(const OSApp& rhs) const { return m_id == rhs.m_id; }
+
+protected:
+  OSApp(uint32_t pid) : m_id(GetAppIdentifier(pid)) {}
+
+  // Application unique identifier
+  const std::wstring m_id;
+
+private:
+  static std::wstring GetAppIdentifier(uint32_t pid);
+  static OSApp* New(uint32_t pid);
+
+  friend class OSAppManager;
 };

@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "MediaViewController.h"
-#include "InteractionConfigs.h"
+#include "interaction/InteractionConfigs.h"
+
+#include "mediaview/MediaViewStateMachine.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/AudioVolumeInterface.h"
-#include "graphics/MediaViewStateMachine.h"
 
 MediaViewController::MediaViewController(void)
 {

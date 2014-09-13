@@ -44,6 +44,11 @@ public:
     void Add(const std::shared_ptr<Renderable>& renderable);
 
     /// <summary>
+    /// Remove this item at the bottom of the z-order
+    /// </summary>
+    void Remove(const std::shared_ptr<Renderable>& renderable);
+
+    /// <summary>
     /// Moves the specified renderable entity to the front of the render stack
     /// </summary>
     void BringToFront(Renderable* renderable);
