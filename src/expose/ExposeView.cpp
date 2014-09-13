@@ -148,22 +148,23 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 #endif
 
     Vector3 totalForce(Vector3::Zero());
-    for (size_t i=0; i<m_forces.size(); i++) {
-      if (m_forces[i].m_window != window.get()) {
-        totalForce += m_forces[i].ForceAt(point3D);
+
+    if (!m_closing) {
+      for (size_t i=0; i<m_forces.size(); i++) {
+        if (m_forces[i].m_window != window.get()) {
+          totalForce += m_forces[i].ForceAt(img->Translation());
+        }
       }
     }
 
-    // set window position smoothly
-    if (!m_closing) {
-      //window->m_position.SetGoal(point3D + totalForce);
-    }
-    window->m_position.Update((float)dt.count());
-    img->Translation() = window->m_position.Value() + window->m_grabDelta.Value();
+    window->m_forceDelta.SetGoal(totalForce);
+    window->m_position.Update(static_cast<float>(dt.count()));
+    window->m_forceDelta.Update(static_cast<float>(dt.count()));
+    img->Translation() = window->m_position.Value() + window->m_grabDelta.Value() + window->m_forceDelta.Value();
 
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
-    window->m_opacity.Update((float)dt.count());
+    window->m_opacity.Update(static_cast<float>(dt.count()));
     img->LocalProperties().AlphaMask() = window->m_opacity.Value() * m_alphaMask.Current();
 
     angle += angleInc;

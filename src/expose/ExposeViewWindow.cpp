@@ -42,6 +42,10 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_grabDelta.SetInitialValue(Vector3::Zero());
   m_grabDelta.SetSmoothStrength(0.25f);
 
+  m_forceDelta.SetGoal(Vector3::Zero());
+  m_forceDelta.SetInitialValue(Vector3::Zero());
+  m_forceDelta.SetSmoothStrength(baseSmooth);
+
   m_cooldown = false;
 }
 
@@ -77,6 +81,9 @@ void ExposeViewWindow::SetOpeningPosition() {
   m_grabDelta.SetGoal(Vector3::Zero());
   m_grabDelta.Update(0.0f);
  
+  m_forceDelta.SetGoal(Vector3::Zero());
+  m_forceDelta.Update(0.0f);
+
   const Vector2 osPosition = GetOSPosition();
   const Vector3 center(osPosition.x(), osPosition.y(), 0.0);
 
@@ -95,6 +102,8 @@ void ExposeViewWindow::SetClosingPosition() {
   m_selection.SetGoal(0.0f);
 
   m_grabDelta.SetGoal(Vector3::Zero());
+
+  m_forceDelta.SetGoal(Vector3::Zero());
 
   const Vector2 osPosition = GetOSPosition();
   const Vector3 center(osPosition.x(), osPosition.y(), 0.0);
