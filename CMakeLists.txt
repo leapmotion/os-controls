@@ -853,6 +853,8 @@ add_sublibrary(
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTexture2
         GLTestFramework
+        GLTexture2Loader
+        Resource
     BRIEF_DOC_STRING
         "Unit tests for the GLTexture2 component."
 )
