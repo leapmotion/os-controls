@@ -4,10 +4,6 @@
 #include <stdexcept>
 #include <vector>
 
-// TEMPORARY shim until std::is_same from <type_traits> is available
-template <typename T0_, typename T1_> struct is_same { static const bool value = false; };
-template <typename T_> struct is_same<T_,T_> { static const bool value = true; };
-
 // This is an invaluable resource: http://www.opengl.org/wiki/Common_Mistakes
 
 // Base class for pixel data for use in all texel-loading operations in GLTexture2.
@@ -38,7 +34,7 @@ public:
 
   static size_t ComponentsInFormat (GLenum format);
   static size_t BytesInType (GLenum type);
-  
+
 private:
 
   GLenum m_format;
@@ -76,19 +72,14 @@ public:
     }
     // TODO: checks for validity in the type and format arguments?
   }
-  template <typename PixelComponent_>
-  GLTexture2PixelDataReference (GLenum format, GLenum type, const std::vector<PixelComponent_> &pixel_data)
+  template <typename Pixel_>
+  GLTexture2PixelDataReference (GLenum format, GLenum type, const std::vector<Pixel_> &pixel_data)
     :
-    GLTexture2PixelDataReference(format, type, reinterpret_cast<const void *>(pixel_data.data()), pixel_data.size()*sizeof(PixelComponent_))
+    GLTexture2PixelDataReference(format, type, static_cast<const void *>(pixel_data.data()), pixel_data.size()*sizeof(Pixel_))
   {
-    static_assert(is_same<PixelComponent_,GLbyte>::value ||
-                  is_same<PixelComponent_,GLubyte>::value ||
-                  is_same<PixelComponent_,GLshort>::value ||
-                  is_same<PixelComponent_,GLushort>::value ||
-                  is_same<PixelComponent_,GLint>::value ||
-                  is_same<PixelComponent_,GLuint>::value ||
-                  is_same<PixelComponent_,GLfloat>::value,
-                  "PixelComponent_ must be one of GLbyte, GLubyte, GLshort, GLushort, GLint, GLuint, GLfloat");
+    if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
+      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+    }
   }
 
   virtual const void *RawData () const override { return m_raw_pixel_data; }
@@ -111,8 +102,10 @@ public:
   GLTexture2PixelDataStorage (GLenum format, GLenum type, size_t raw_pixel_count)
     :
     GLTexture2PixelData(format, type),
-    m_raw_pixels(raw_pixel_count)
+    m_raw_pixel_count(raw_pixel_count),
+    m_raw_pixels(m_raw_pixel_count)
   {
+    assert(m_raw_pixels.size() == m_raw_pixel_count);
     // TODO: checks for validity in the type and format arguments?
     // TODO: check that Pixel_ is a POD of some type, and somehow check it against format and type.
     if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
@@ -120,13 +113,24 @@ public:
     }
   }
 
+  // Const accessor for the vector of raw pixel data.
   const std::vector<Pixel_> &RawPixels () const { return m_raw_pixels; }
+  // Non-const accessor for the vector of raw pixel data.  Do not modify its length; only its contents.
   std::vector<Pixel_> &RawPixels () { return m_raw_pixels; }
   
-  virtual const void *RawData () const override { return m_raw_pixels.data(); }
+  // Returns a pointer to the raw pixel data.  If the raw pixel vector has been altered in length (which
+  // is a big no-no), this method will throw an exception.
+  virtual const void *RawData () const override {
+    // Ensure that the m_raw_pixels vector still has the correct size.
+    if (m_raw_pixels.size() != m_raw_pixel_count) {
+      throw std::runtime_error("The vector containing the raw pixel data has been resized, which is a prohibited operation");
+    }
+    return static_cast<const void *>(m_raw_pixels.data());
+  }
   virtual size_t RawDataByteCount () const override { return m_raw_pixels.size()*sizeof(Pixel_); }
 
 private:
 
+  size_t m_raw_pixel_count;
   std::vector<Pixel_> m_raw_pixels;
 };
