@@ -118,34 +118,12 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 
     // set window scale smoothly
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
-#if 0
-    const double imgRadius = 0.5 * img->Size().norm();
-    const double scale = (1.0 + bonusScale) * radiusPerWindow / imgRadius;
-#else
     const double scale = (1.0 + bonusScale) * 0.5 * size.norm() / fullSize.norm();
-#endif
     if (!m_closing) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
     window->m_scale.Update((float)dt.count());
     img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
-
-#if 0
-    // calculate position of this window in cartesian coords
-    const Vector2 point = radialCoordsToPoint(angle, m_layoutRadius) + m_viewCenter;
-    const Vector3 point3D(point.x(), point.y(), 0.0);
-#else
-    const Vector2 origPosition = window->GetOSPosition();
-
-    const Vector2 scaledPosition = (origPosition - m_viewCenter).cwiseProduct(screenToFullScale) + m_viewCenter;
-
-    const Vector2 point = radialCoordsToPoint(angle, m_layoutRadius) + m_viewCenter;
-    const Vector3 radialPoint(point.x(), point.y(), 0.0);
-
-    const Vector3 screenPoint(scaledPosition.x(), scaledPosition.y(), 0.0);
-
-    const Vector3 point3D = 0.1*radialPoint + 0.9*screenPoint;
-#endif
 
     Vector3 totalForce(Vector3::Zero());
 
@@ -439,22 +417,26 @@ void ExposeView::computeLayout() {
 
   const Vector2 primaryToFullScale = primarySize.cwiseQuotient(fullSize);
 
+  // find centers and bounding boxes of all groups
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
-    group->m_center.setZero();
-    double groupWeight = 0;
-    const int numGroupMembers = static_cast<int>(group->m_groupMembers.size());
-    assert(numGroupMembers > 0);
-    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
-      const double curWeight = window->GetOSSize().norm();
-      assert(curWeight > 0.0);
-      group->m_center += curWeight * window->GetOSPosition();
-      groupWeight += curWeight;
-    }
-    group->m_center /= groupWeight;
+    group->CalculateCenterAndBounds();
+  }
 
+  // lay out groups
+  const double groupRadius = 0.35*(0.5*fullSize).norm();
+  double groupAngle = 0;
+  const double groupAngleInc = 2*M_PI / static_cast<double>(m_groups.size());
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    const Vector2 cartesian = radialCoordsToPoint(groupAngle, groupRadius) + primaryCenter;
+    group->m_center = cartesian;
+    groupAngle += groupAngleInc;
+  }
+
+  // lay out group members
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    const int numGroupMembers = group->m_groupMembers.size();
     const Vector2 scaledCenter = (group->m_center - primaryCenter).cwiseProduct(primaryToFullScale) + primaryCenter;
-    const double radius = m_layoutRadius * 0.05 * numGroupMembers;
-
+    const double radius = m_layoutRadius * 0.025 * numGroupMembers;
     double angle = 0;
     const double angleInc = 2*M_PI / static_cast<double>(numGroupMembers);
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
