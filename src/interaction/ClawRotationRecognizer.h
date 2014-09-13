@@ -8,7 +8,7 @@
 struct ClawRotation {
   float absoluteRotation;
   float deltaRotation;
-  float deltaTime;
+  int64_t deltaTime;
 };
 
 class ClawRotationRecognizer {

@@ -80,7 +80,7 @@ Vector2 VolumeSliderView::GetNotchOffset() const {
 
 void VolumeSliderView::Update(const RenderFrame& frame) {
   //Update Smoothed Values
-  m_activationAmount.Update(frame.deltaT.count());
+  m_activationAmount.Update(static_cast<float>(frame.deltaT.count()));
   
   //Calculate bar positions
   float meterLeftEdge = -(m_width / 2.0f);

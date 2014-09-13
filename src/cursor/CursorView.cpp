@@ -177,7 +177,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     m_bodyAlpha.SetGoal(0.0f);
   }
   
-  m_bodyAlpha.Update(frame.deltaT.count());
+  m_bodyAlpha.Update(static_cast<float>(frame.deltaT.count()));
   
   float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
   fingerOpacity = std::min(fingerOpacity, m_bodyAlpha.Value());
@@ -185,9 +185,9 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
   if ( m_state == State::ACTIVE ) {
-    m_x.Update(frame.deltaT.count());
-    m_y.Update(frame.deltaT.count());
-    m_bodyOffset.Update(frame.deltaT.count());
+    m_x.Update(static_cast<float>(frame.deltaT.count()));
+    m_y.Update(static_cast<float>(frame.deltaT.count()));
+    m_bodyOffset.Update(static_cast<float>(frame.deltaT.count()));
     
     if ( !m_locationOverride ) {
       position = OSVector2{m_x, m_y};
@@ -204,7 +204,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     m_diskAlpha.SetGoal(0.0f);
   }
   
-  m_diskAlpha.Update(frame.deltaT.count());
+  m_diskAlpha.Update(static_cast<float>(frame.deltaT.count()));
   
   m_disk->LocalProperties().AlphaMask() = m_diskAlpha;
   
