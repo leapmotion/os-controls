@@ -75,7 +75,7 @@ private:
   
   float m_fingerSpread;
   float m_pinchStrength;
-  bool m_wasPinching;
+  bool m_wasScrolling;
   Vector2 m_lastHandPosition;
   
   bool m_isPointing;
