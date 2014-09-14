@@ -299,11 +299,7 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
   m_forces.clear();
   // activation forces
   static const double MAX_RADIUS_MULT = 1.0;
-  static const double FORCE_DISTANCE_MULT = 0.1;
-  static const double REPULSION_DISTANCE_MULT = 1.0;
-  static const double REPULSION_RADIUS_MULT = 0.25;
-  static const double REGION_DISTANCE_MULT = 0.5;
-  static const double REGION_RADIUS_MULT = 1.0;
+  static const double FORCE_DISTANCE_MULT = 0.15;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
@@ -313,20 +309,6 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
       m_forces.push_back(Force(img->Translation(), (float)(FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value())), window.get(), (float)(MAX_RADIUS_MULT*m_layoutRadius)));
     }
   }
-
-#if 0
-  // repulsion forces
-  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
-    if (window->m_layoutLocked)
-      continue;
-
-    std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
-    m_forces.push_back(Force(img->Translation(), REPULSION_DISTANCE_MULT*m_layoutRadius, window.get(), REPULSION_RADIUS_MULT*m_layoutRadius));
-  }
-#endif
-
-  // selection region forces
-  m_forces.push_back(Force(Vector3(m_viewCenter.x(), m_viewCenter.y(), 0.0), REGION_DISTANCE_MULT*m_layoutRadius, nullptr, REGION_RADIUS_MULT*m_layoutRadius));
 }
 
 void ExposeView::focusWindow(ExposeViewWindow& window) {
