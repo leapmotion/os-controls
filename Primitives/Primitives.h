@@ -297,14 +297,15 @@ protected:
 // of the basis rectangle.  The offsets for the outer rectangle define how much to grow the edges of
 // the basis rectangle to obtain the corresponding edges of the outer rectangle.  Similarly, the
 // offsets for the inner rectangle define how much to shrink the edges of the basis rectangle to
-// obtain the corresponding edges of the inner rectangle.  In this parlance, the outer rectangle
-// offsets' default values are each 1, while the inner rectangle offsets' default values are each 0.
+// obtain the corresponding edges of the inner rectangle, though it can't shrink to below zero width
+// or zero height.  In the parlance of edge offsets, the outer rectangle offsets' default values are
+// each 1, while the inner rectangle offsets' default values are each 0.
 //
 // The whole frame has a single texture applied to it, though each cell has particular texture
 // coordinates assigned to it, so that each cell has a well-defined region of texture that is mapped
 // to it.  The texture may stretch if the aspect ratio is not preserved, but this is by design.
-// The default texture coordinates are given by defining the u and v (x and y) coordinates for each
-// of the rectangle edges (labeled):
+// The default texture coordinates are given by defining the u and v coordinates for each of the
+// rectangle edges (labeled):
 //
 //   OUTER  INNER           INNER  OUTER
 //   LEFT   LEFT            RIGHT  RIGHT

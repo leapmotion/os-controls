@@ -333,7 +333,7 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
   const double bx = 0.5 * m_basis_rectangle_size(0);
   const double by = 0.5 * m_basis_rectangle_size(1);
   // The first index indicates x (0) or y (1).
-  const double rectangle_edge[2][4]{
+  double rectangle_edge[2][4]{
     {
       -bx - RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::LEFT),
       -bx + RectangleEdgeOffset(Rectangle::INNER, RectangleEdge::LEFT),
@@ -347,7 +347,15 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
        by + RectangleEdgeOffset(Rectangle::OUTER, RectangleEdge::TOP)
     }
   };
-  const float rectangle_edge_texture_coordinate[2][4]{
+  // Ensure that these are non-decreasing (the inner rectangle can't have negative width or height).
+  for (size_t i = 0; i < 2; ++i) {
+    if (rectangle_edge[i][1] > rectangle_edge[i][2]) {
+      // If the inner rectangle has negative width/height, make it have zero width/height,
+      // adjusting its offsets to meet in the middle.
+      rectangle_edge[i][1] = rectangle_edge[i][2] = 0.5*(rectangle_edge[i][1]+rectangle_edge[i][2]);
+    }
+  }
+  float rectangle_edge_texture_coordinate[2][4]{
     {
       RectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::LEFT),
       RectangleEdgeTextureCoordinate(Rectangle::INNER, RectangleEdge::LEFT),
@@ -361,6 +369,15 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
       RectangleEdgeTextureCoordinate(Rectangle::OUTER, RectangleEdge::TOP),
     }
   };
+  // Ensure that these are non-decreasing (the "inner rectangle" of the texture coordinates
+  // can't have negative width or height).
+  for (size_t i = 0; i < 2; ++i) {
+    if (rectangle_edge_texture_coordinate[i][1] > rectangle_edge_texture_coordinate[i][2]) {
+      // If the inner rectangle has negative width/height, make it have zero width/height,
+      // adjusting its offsets to meet in the middle.
+      rectangle_edge_texture_coordinate[i][1] = rectangle_edge_texture_coordinate[i][2] = 0.5f*(rectangle_edge_texture_coordinate[i][1]+rectangle_edge_texture_coordinate[i][2]);
+    }
+  }
 
   static const Vector3f NORMAL = Vector3f::UnitZ();
   static const Vector4f COLOR = Vector4f::Constant(1.0f);
