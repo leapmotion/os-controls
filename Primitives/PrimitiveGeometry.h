@@ -45,14 +45,17 @@ public:
   static void CreateUnitDisk(int resolution, PrimitiveGeometry& geom);
   static void CreateUnitBox(PrimitiveGeometry& geom);
 
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
-  // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
+  // Add a tri with the specified vertex attributes, winding counterclockwise.
+  // This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushTri (const VertexAttributes &p0, const VertexAttributes &p1, const VertexAttributes &p2);
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
-  // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
+  // Add a quad with the specified points, winding counterclockwise, with a derived normal vector.
+  // This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushTri (const Vector3f &p0, const Vector3f &p1, const Vector3f &p2);
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
-  // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
+  // Add a quad with the specified vertex attributes, winding counterclockwise.
+  // This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
+  void PushQuad (const VertexAttributes &p0, const VertexAttributes &p1, const VertexAttributes &p2, const VertexAttributes &p3);
+  // Add a quad with the specified points, winding counterclockwise, with derived normal vectors.  This
+  // function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushQuad (const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, const Vector3f &p3);
   
   static VertexAttributes MakeVertexAttributes (const Vector3f &position, const Vector3f &normal, const Vector2f &tex_coord = Vector2f::Zero(), const Color &color = Color::White()) {

@@ -1,5 +1,6 @@
 #include "Primitives.h"
 
+#include <cassert>
 #include "GLTexture2.h"
 
 void GenericShape::DrawContents(RenderState& renderState) const {

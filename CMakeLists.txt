@@ -434,11 +434,13 @@ add_sublibrary(
         Primitives.h
         RenderState.h
         SVGPrimitive.h
+        TexturedFrame.h
     SOURCES
         PrimitiveBase.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp
         SVGPrimitive.cpp
+        TexturedFrame.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLBuffer
