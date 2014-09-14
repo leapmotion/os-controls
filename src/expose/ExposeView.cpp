@@ -395,30 +395,39 @@ void ExposeView::computeLayout() {
 
   const Vector2 primaryToFullScale = primarySize.cwiseQuotient(fullSize);
 
+  const Vector2 aspectScale(primarySize.x() / primarySize.y(), 1.0);
+
   // find centers and bounding boxes of all groups
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     group->CalculateCenterAndBounds();
   }
 
   // lay out groups
-  const double groupRadius = 0.35*(0.5*fullSize).norm();
-  double groupAngle = 0;
-  const double groupAngleInc = 2*M_PI / static_cast<double>(m_groups.size());
+  int totalNumWindows = 0;
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
-    const Vector2 cartesian = radialCoordsToPoint(groupAngle, groupRadius) + primaryCenter;
+    totalNumWindows += group->m_groupMembers.size();
+  }
+
+  const double groupRadius = 0.3*(0.5*fullSize).norm();
+  double groupAngle = 0;
+  const double groupAngleInc = 2*M_PI / static_cast<double>(totalNumWindows);
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    const double curAngle = group->m_groupMembers.size()*groupAngleInc;
+    groupAngle += 0.5*curAngle;
+    const Vector2 cartesian = radialCoordsToPoint(groupAngle, groupRadius).cwiseProduct(aspectScale) + primaryCenter;
     group->m_center = cartesian;
-    groupAngle += groupAngleInc;
+    groupAngle += 0.5*curAngle;
   }
 
   // lay out group members
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     const int numGroupMembers = group->m_groupMembers.size();
     const Vector2 scaledCenter = (group->m_center - primaryCenter).cwiseProduct(primaryToFullScale) + primaryCenter;
-    const double radius = m_layoutRadius * 0.025 * numGroupMembers;
+    const double radius = groupRadius * 0.025 * (numGroupMembers-1);
     double angle = 0;
     const double angleInc = 2*M_PI / static_cast<double>(numGroupMembers);
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
-      const Vector2 cartesian = radialCoordsToPoint(angle, radius) + scaledCenter;
+      const Vector2 cartesian = radialCoordsToPoint(angle, radius).cwiseProduct(aspectScale) + scaledCenter;
       const Vector3 point3D(cartesian.x(), cartesian.y(), 0.0);
       window->m_position.SetGoal(point3D);
       angle += angleInc;
