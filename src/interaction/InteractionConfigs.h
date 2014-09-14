@@ -33,6 +33,11 @@ namespace pointingConfigs {
   const float MAX_BEND_FOR_THUMB_CONTINUE_POINTING = 0.45f;
 }
 
+namespace poseConfigs {
+  const float MIN_PALM_Y_FOR_START_UPSIDE_DOWN = 0.5f;
+  const float MIN_PALM_Y_FOR_CONTINUE_UPSIDE_DOWN = 0.0f;
+}
+
 namespace transitionConfigs {
   const float MAX_HAND_DELTA_FOR_POSE_TRANSITION = 1.5f;
 }
