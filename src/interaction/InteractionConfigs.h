@@ -13,6 +13,11 @@ namespace config {
   const Vector3 m_leapMin(-120.0f,290.0f,-30.0f);
   const Vector3 m_leapMax(120.0f,450.0f,30.0f);
 }
+
+namespace mediaMenuConfigs {
+  const float SCREEN_EDGE_BUFFER_DISTANCE = 380.0f;
+}
+
 namespace activationConfigs {
   // Pinch and Grab Constants
   const float MIN_GRAB_START = 0.7f;

@@ -27,7 +27,8 @@ CursorView::CursorView() :
   m_pinchStrength(0.0f),
   m_lastHandDeltas(0,0),
   m_lastHandPosition(0,0),
-  m_locationOverride(false)
+  m_overrideX(0.0f),
+  m_overrideY(0.0f)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
@@ -43,6 +44,9 @@ CursorView::CursorView() :
   
   m_diskAlpha.SetSmoothStrength(0.5f);
   m_diskAlpha.SetInitialValue(0.0f);
+  
+  m_overrideInfluence.SetInitialValue(0.0f);
+  m_overrideInfluence.SetSmoothStrength(0.75f);
   
   
   //Initialize Disk Cursor
@@ -151,6 +155,12 @@ Vector2 CursorView::GetCalculatedLocation() const {
   return Vector2(m_x,m_y);
 }
 
+void CursorView::SetOverideLocation(const Vector2& offsetLocation) {
+  // Set the offset location
+  m_overrideX = offsetLocation.x();
+  m_overrideY = offsetLocation.y();
+}
+
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   // The minimum normalized pinch to start fading in the pinch cursor
   const float MIN_PINCH_NORM = 0.5f;
@@ -192,12 +202,13 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     // Update the smoohted position variables and offset
     m_x.Update(static_cast<float>(frame.deltaT.count()));
     m_y.Update(static_cast<float>(frame.deltaT.count()));
+    m_overrideInfluence.Update(static_cast<float>(frame.deltaT.count()));
     m_bodyOffset.Update(static_cast<float>(frame.deltaT.count()));
     
     // If another object is overriding our value, we don't want to fight it by setting the location ourself.
-    if ( !m_locationOverride ) {
-      position = OSVector2{m_x, m_y};
-    }
+    Vector2 baseLocation = Vector2(m_x.Value(), m_y.Value());
+    Vector2 cursorLocation = baseLocation + (m_overrideInfluence * (Vector2(m_overrideX, m_overrideY) - baseLocation));
+    position = OSVector2{ static_cast<float>(cursorLocation.x()), static_cast<float>(cursorLocation.y()) };
   }
   
   // If the scroll cursor is fading in/out, fade out/in the disk cursor
