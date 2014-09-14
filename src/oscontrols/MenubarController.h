@@ -1,12 +1,11 @@
 #import <Cocoa/Cocoa.h>
 
-@class StatusItemView;
-
 @interface MenubarController : NSObject {
 @private
-  StatusItemView* _statusItemView;
+  NSStatusItem* _statusItem;
 }
 
-@property (nonatomic, readonly) StatusItemView* statusItemView;
+- (void)onPreferences:(id)sender;
+- (void)onQuit:(id)sender;
 
 @end

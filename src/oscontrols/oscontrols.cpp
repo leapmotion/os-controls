@@ -94,12 +94,12 @@ void OsControl::Main(void) {
     upd(&Updatable::Tick)(now - then);
     then = now;
   }
+  m_mw->close();
 }
 
 void OsControl::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
   case sf::Event::Closed:
-    m_mw->close();
     AutoCurrentContext()->SignalShutdown();
     break;
   default:

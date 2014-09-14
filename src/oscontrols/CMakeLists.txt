@@ -38,8 +38,6 @@ add_mac_sources(
   ApplicationDelegate.mm
   MenubarController.h
   MenubarController.mm
-  StatusItemView.h
-  StatusItemView.mm
 )
 
 if(APPLE)
@@ -47,6 +45,7 @@ if(APPLE)
     ${oscontrols_RESOURCES}
     ${CMAKE_SOURCE_DIR}/src/icons/AppIcon.icns
     ${CMAKE_SOURCE_DIR}/src/icons/TrayIcon.tiff
+    ${CMAKE_SOURCE_DIR}/src/icons/TrayIconInverted.tiff
   )
 endif()
 
