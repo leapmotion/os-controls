@@ -78,9 +78,6 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   // Handle anything pended to the render thread:
   DispatchAllEvents();
 
-  double angle = 0;
-  const double angleInc = 2*M_PI / static_cast<double>(m_windows.size());
-
   // calculate center of the primary screen
   Autowired<OSVirtualScreen> fullScreen;
   const Vector2 fullSize(fullScreen->Size().width, fullScreen->Size().height);
@@ -102,9 +99,6 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRadius = 0.5 * m_layoutRadius;
 
   const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
-
-  // calculate size of each window
-  const double radiusPerWindow = 0.9* m_layoutRadius * std::sin(angleInc/2.0);
 
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
@@ -140,8 +134,6 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     window->m_opacity.SetGoal(1.0f);
     window->m_opacity.Update(static_cast<float>(dt.count()));
     img->LocalProperties().AlphaMask() = window->m_opacity.Value() * m_alphaMask.Current();
-
-    angle += angleInc;
   }
 
   m_selectionOutline->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
@@ -161,16 +153,16 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     double weight = 0;
     assert(!group->m_groupMembers.empty());
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
-      const double curWeight = window->GetTexture()->Size().norm();
+      const double curWeight = window->GetTexture()->Size().norm() * window->m_opacity.Value();
       center += curWeight * window->GetTexture()->Translation();
       weight += curWeight;
-      scale += window->GetTexture()->LinearTransformation()(0,0);
+      scale += curWeight * window->GetTexture()->LinearTransformation()(0, 0);
     }
     center /= weight;
-    scale /= group->m_groupMembers.size();
+    scale /= weight;
     group->m_icon->Translation() = center;
 
-    group->m_icon->LinearTransformation() = (2.0 * scale) * Matrix3x3::Identity();
+    group->m_icon->LinearTransformation() = (1.5 * scale) * Matrix3x3::Identity();
     group->m_icon->LocalProperties().AlphaMask() = m_alphaMask.Current();
   }
 }
@@ -326,6 +318,9 @@ void ExposeView::updateWindowTexturesRoundRobin() {
   static int counter = 0;
   counter++;
   const int num = m_windows.size();
+  if (num == 0) {
+    return;
+  }
   const int selection = counter % num;
 
   int idx = 0;
@@ -488,14 +483,14 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
-  m_alphaMask.Set(1.0f, 0.5);
+  m_alphaMask.Set(1.0f, 0.75);
   m_closing = false;
   startPositions();
   computeLayout();
 }
 
 void ExposeView::CloseView() {
-  m_alphaMask.Set(0.0f, 0.5);
+  m_alphaMask.Set(0.0f, 0.75);
   m_closing = true;
   endPositions();
 }
