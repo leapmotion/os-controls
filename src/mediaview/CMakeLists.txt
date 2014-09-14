@@ -3,6 +3,8 @@ set(mediaview_SOURCES
   MediaViewController.cpp
   MediaViewStateMachine.h
   MediaViewStateMachine.cpp
+  VolumeSliderView.h
+  VolumeSliderView.cpp
 )
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
