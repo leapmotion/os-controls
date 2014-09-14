@@ -67,6 +67,7 @@ private:
   std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
   
+  // The cursor that shows up when not scrolling
   std::shared_ptr<Disk> m_disk;
   
   Autowired<OSWindowMonitor> m_osWindowMonitor;
