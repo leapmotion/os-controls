@@ -13,7 +13,7 @@ void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) cons
 }
 
 void Sphere::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(30);
+  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(12);
   geom.Draw(Shader(), GL_TRIANGLES);
 }
 
@@ -24,7 +24,7 @@ void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) co
 }
 
 void Cylinder::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(50, 1);
+  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(25, 1);
   geom.Draw(Shader(), GL_TRIANGLES);
 }
 

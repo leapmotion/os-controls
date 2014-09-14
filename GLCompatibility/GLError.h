@@ -45,13 +45,20 @@ inline void GLClearError() {
   glGetError(); // This clears the error flag.
 }
 
-// Convenience macro for checking the GL error flag before and after the call.  An exception
-// will be thrown upon error either before or after with an indicative message.  This macro
-// should NOT be used as the body of an if statement without { } brackets!
-#define GL_THROW_UPON_ERROR(single_gl_call_statement) \
-  GLThrowUponError("before " #single_gl_call_statement); \
-  single_gl_call_statement; \
-  GLThrowUponError("during " #single_gl_call_statement);
+#if !defined(NDEBUG)
+  // Convenience macro for checking the GL error flag before and after the call.  An exception
+  // will be thrown upon error either before or after with an indicative message.  This macro
+  // should NOT be used as the body of an if statement without { } brackets!
+  #define GL_THROW_UPON_ERROR(single_gl_call_statement) \
+    GLThrowUponError("before " #single_gl_call_statement); \
+    single_gl_call_statement; \
+    GLThrowUponError("during " #single_gl_call_statement);
+#else
+  // In release mode, don't mess with performance! -JH
+  // Note: GLThrowUponError calls glGetError, which is quite expensive.
+  #define GL_THROW_UPON_ERROR(single_gl_call_statement) \
+  single_gl_call_statement;
+#endif
 
 #if !defined(NDEBUG)
   // Convenience macro for checking the GL error state and issuing a non-fatal warning if there is
