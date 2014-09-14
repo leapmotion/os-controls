@@ -1,11 +1,12 @@
 #pragma once
 #include "EigenTypes.h"
+#include "graphics/Renderable.h"
 
 class ExposeViewWindow;
 class OSApp;
 class ImagePrimitive;
 
-class ExposeGroup {
+class ExposeGroup : public Renderable {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   ExposeGroup();
@@ -13,6 +14,9 @@ public:
   bool Intersects(const ExposeGroup& other) const;
   Vector2 MinMovementToResolveCollision(const ExposeGroup& other) const;
   void Move(const Vector2& displacement);
+
+  // RenderEngineNode overrides
+  void Render(const RenderFrame& frame) const override;
 
   Vector2 m_minBounds;
   Vector2 m_maxBounds;

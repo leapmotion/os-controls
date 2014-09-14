@@ -72,10 +72,6 @@ void ExposeView::Render(const RenderFrame& frame) const {
 
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
-
-  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
-    PrimitiveBase::DrawSceneGraph(*(group->m_icon), frame.renderState);
-  }
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
@@ -350,7 +346,7 @@ Vector2 ExposeView::radialCoordsToPoint(double angle, double distance) {
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
   auto retVal = std::shared_ptr<ExposeViewWindow>(new ExposeViewWindow(osWindow));
   m_windows.insert(retVal);
-  m_zorder.Add(retVal);
+  //m_zorder.Add(retVal);
 
   // Update the window texture in the main render loop:
   *this += [retVal] {
@@ -457,17 +453,19 @@ std::shared_ptr<ExposeGroup> ExposeView::createNewGroup(const std::shared_ptr<Ex
   group->m_icon = group->m_app->GetIconTexture(group->m_icon);
   group->m_groupMembers.insert(window);
   m_groups.insert(group);
+  m_zorder.Add(group);
   return group;
 }
 
 void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   m_windows.erase(wnd);
   wnd->RemoveFromParent();
-  m_zorder.Remove(wnd);
+  //m_zorder.Remove(wnd);
 
   std::shared_ptr<ExposeGroup> group = getGroupForWindow(wnd);
   group->m_groupMembers.erase(wnd);
   if (group->m_groupMembers.empty()) {
+    m_zorder.Remove(group);
     m_groups.erase(group);
   }
 

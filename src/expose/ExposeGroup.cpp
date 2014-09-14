@@ -4,6 +4,7 @@
 #include "ExposeViewWindow.h"
 #include "osinterface/OSWindow.h"
 #include "osinterface/OSApp.h"
+#include "graphics/RenderFrame.h"
 
 ExposeGroup::ExposeGroup() : m_center(Vector2::Zero()), m_minBounds(Vector2::Zero()), m_maxBounds(Vector2::Zero()) { }
 
@@ -61,4 +62,11 @@ void ExposeGroup::Move(const Vector2& displacement) {
   m_center += displacement;
   m_minBounds += displacement;
   m_maxBounds += displacement;
+}
+
+void ExposeGroup::Render(const RenderFrame& frame) const {
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_groupMembers) {
+    window->Render(frame);
+  }
+  PrimitiveBase::DrawSceneGraph(*m_icon, frame.renderState);
 }
