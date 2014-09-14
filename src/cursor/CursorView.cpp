@@ -25,6 +25,7 @@ CursorView::CursorView() :
   m_disk(new Disk()),
   m_fingerSpread(0.0f),
   m_pinchStrength(0.0f),
+  m_lastHandDeltas(0,0),
   m_lastHandPosition(0,0),
   m_locationOverride(false)
 {
@@ -34,8 +35,8 @@ CursorView::CursorView() :
   m_bodyOffset.SetInitialValue(0.0f);
   m_bodyOffset.SetSmoothStrength(0.8f);
   
-  m_x.SetSmoothStrength(0.6f);
-  m_y.SetSmoothStrength(0.6f);
+  m_x.SetSmoothStrength(0.0f);
+  m_y.SetSmoothStrength(0.0f);
   
   m_bodyAlpha.SetSmoothStrength(0.3f);
   m_bodyAlpha.SetInitialValue(0.0f);
@@ -133,7 +134,9 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
         m_y.SetGoal(handData.locationData.y);
         if ( m_bodyOffset.Goal() != 0.0f ) { m_bodyOffset.SetGoal(0.0f); } //Make sure to bring the handle back to center
       }
-      
+    
+      m_lastHandDeltas = Vector2(handData.locationData.dX, handData.locationData.dY);
+
       m_lastHandPosition = handData.locationData.screenPosition();
       break;
     }
@@ -183,6 +186,9 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
   if ( m_state == State::ACTIVE ) {
+    // Update the smooth strength on the cursor position
+    m_x.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
+    m_y.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
     // Update the smoohted position variables and offset
     m_x.Update(static_cast<float>(frame.deltaT.count()));
     m_y.Update(static_cast<float>(frame.deltaT.count()));
@@ -227,6 +233,19 @@ void CursorView::Render(const RenderFrame& frame) const {
     default:
       break;
   }
+}
+
+float CursorView::calcPositionSmoothStrength(float handDeltaDistance) const {
+  float retVal = 0.0f;
+  
+  // hand delta based smoothing
+  float normalizedDelta = (handDeltaDistance - DELTA_FOR_MAX_SMOOTHING) / (DELTA_FOR_MIN_SMOOTHING - DELTA_FOR_MAX_SMOOTHING);
+  normalizedDelta = 1.0f - std::min(1.0f, std::max(0.0f, normalizedDelta));
+  float deltaSmoothing  = MAX_CURSOR_SMOOTHING * normalizedDelta;
+  deltaSmoothing = std::min(MAX_CURSOR_SMOOTHING, std::max(0.0f, deltaSmoothing));
+  retVal = deltaSmoothing;
+  
+  return retVal;
 }
 
 Vector2 CursorView::getWindowCenter(OSWindow& window) {

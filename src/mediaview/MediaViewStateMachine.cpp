@@ -32,9 +32,9 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_state(State::ARMED),
   m_interactionIsVolumeLocked(false)
 {
-  m_CurrentTime = 0.0;
-  m_LastStateChangeTime = 0.0;
-  m_FadeTime = 0.25;
+  m_CurrentTime = 0.0f;
+  m_LastStateChangeTime = 0.0f;
+  m_FadeTime = 0.25f;
   m_selectedItem = -1;
   
   // Initialize Smoothed Values
@@ -305,5 +305,5 @@ void MediaViewStateMachine::resetMemberState() {
 
 //TODO: Filter this data in the recognizer to smooth things out.
 float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
-  return deltaHandRoll / static_cast<float>(3 * PI / 2.0);
+  return deltaHandRoll / static_cast<float>(3 * PI / 2.0f);
 }

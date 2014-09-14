@@ -53,6 +53,14 @@ private:
     ACTIVE
   };
   
+  const float CURSOR_DISTANCE_FOR_MAX_SMOOTHING = 50.0f;
+  const float MAX_CURSOR_SMOOTHING = 0.6f;
+  
+  //The mm delta that will result in a smoothing factor of 0.0 and MAX_CURSOR_SMOOTHING respectively
+  const float DELTA_FOR_MIN_SMOOTHING = 15.0f;
+  const float DELTA_FOR_MAX_SMOOTHING = 3.0f;
+  
+  float calcPositionSmoothStrength(float handDeltaDistance) const;
   Vector2 getWindowCenter(OSWindow& window);
   
   State m_state;
@@ -76,6 +84,7 @@ private:
   
   float m_fingerSpread;
   float m_pinchStrength;
+  Vector2 m_lastHandDeltas;
   Vector2 m_lastHandPosition;
   
   bool m_locationOverride;

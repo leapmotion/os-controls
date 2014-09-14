@@ -1,7 +1,7 @@
 #pragma once
 #include "cursor/CursorView.h"
 #include "graphics/Renderable.h"
-#include "graphics/VolumeSliderView.h"
+#include "mediaview/VolumeSliderView.h"
 #include "mediaview/MediaViewController.h"
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
