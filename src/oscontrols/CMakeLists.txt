@@ -60,7 +60,7 @@ if(WIN32)
 
   STRING(REPLACE "/EHsc" "/EHa" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
   STRING(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /clr")
+  set_source_files_properties(NativeUI.cpp PROPERTIES COMPILE_FLAGS "/clr")
 
 elseif(APPLE)
   set_property(SOURCE oscontrols.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")

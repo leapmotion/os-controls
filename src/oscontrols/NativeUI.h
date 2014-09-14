@@ -1,5 +1,7 @@
 #pragma once
 
+#if _MANAGED
+
 namespace oscontrols {
 
 	using namespace System;
@@ -107,3 +109,6 @@ namespace oscontrols {
 #pragma endregion
 	};
 }
+#endif
+
+void ShowUI(void);

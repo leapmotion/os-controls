@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "oscontrols.h"
-#include <autowiring/AutoNetServer.h>
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "expose/ExposeViewAccessManager.h"
@@ -16,10 +15,15 @@
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
+#include <autowiring/AutoNetServer.h>
 
 #if __APPLE__
 #include <AppKit/NSNibLoading.h>
 #include <AppKit/NSApplication.h>
+#endif
+
+#ifdef _MSC_VER
+#include "NativeUI.h"
 #endif
 
 int main(int argc, char **argv)
@@ -28,6 +32,8 @@ int main(int argc, char **argv)
   [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:[NSApplication sharedApplication] topLevelObjects:nil];
 #endif
   PlatformInitializer init;
+
+  ShowUI();
 
   AutoCurrentContext ctxt;
   ctxt->Initiate();
