@@ -74,7 +74,8 @@ void HandPoseRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
 bool HandPoseRecognizer::isUpsideDown(Leap::Hand hand) {
   bool retVal = false;
   
-  if ( hand.palmNormal().y > 0 ) {
+  if ( (m_lastPose == HandPose::UpsideDown && hand.palmNormal().y > poseConfigs::MIN_PALM_Y_FOR_CONTINUE_UPSIDE_DOWN) ||
+       (m_lastPose != HandPose::UpsideDown && hand.palmNormal().y > poseConfigs::MIN_PALM_Y_FOR_START_UPSIDE_DOWN) ) {
     retVal = true;
   }
   
