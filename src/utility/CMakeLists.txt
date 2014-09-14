@@ -1,3 +1,4 @@
+
 set(utility_SOURCES
   CircleFitter.h
   Config.h
@@ -14,7 +15,7 @@ set(utility_SOURCES
   SamplePrimitives.cpp
 )
 
-add_windows_sources(utility_SOURCES 
+add_windows_sources(utility_SOURCES
   FileMonitorWin.h
   FileMonitorWin.cpp
   NativeWindowWin.cpp
@@ -36,10 +37,13 @@ add_unix_sources(utility_SOURCES
 )
 
 add_library(utility ${utility_SOURCES})
-target_link_libraries(utility Autowiring json11)
+target_link_libraries(utility Autowiring json11 )
 
 if(MSVC)
   target_link_libraries(utility shlwapi)
+else()
+  target_link_libraries(utility ${Boost_FILESYSTEM_LIBRARIES})
+  target_include_directories(utility PUBLIC ${Boost_INCLUDE_DIR})
 endif()
 
 target_include_directories(utility PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)

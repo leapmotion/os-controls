@@ -24,6 +24,7 @@ find_package(Components REQUIRED COMPONENTS SceneGraph Primitives)
 find_package(Eigen 3.2.1 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Glew 1.9.0 REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem)
 
 list(APPEND CMAKE_LIBRARY_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
 find_package(Qt5 5.3.1 REQUIRED COMPONENTS Widgets
