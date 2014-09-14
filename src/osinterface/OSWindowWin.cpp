@@ -104,7 +104,7 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
   } else {
     GLTexture2Params params{ static_cast<GLsizei>(m_szBitmap.cx), static_cast<GLsizei>(m_szBitmap.cy) };
     params.SetTarget(GL_TEXTURE_2D);
-    params.SetInternalFormat(GL_RGBA8);
+    params.SetInternalFormat(GL_RGB8);
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
