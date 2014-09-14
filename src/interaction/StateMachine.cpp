@@ -82,7 +82,7 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
 //returns 'to' if a valid transition, or the alternative state if not.
 OSCState StateMachine::validateTransition(OSCState to) const {
   
-  if ( to == OSCState::SCROLLING && m_state != OSCState::BASE ) {
+  if ( to == OSCState::SCROLLING && (m_state != OSCState::BASE || !pointIsOnScreen(m_lastHandLocation)) ) {
     return m_state;
   }
   else if (to == OSCState::MEDIA_MENU_FOCUSED || to == OSCState::EXPOSE_ACTIVATOR_FOCUSED ) {
