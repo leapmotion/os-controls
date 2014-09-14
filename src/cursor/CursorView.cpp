@@ -25,7 +25,6 @@ CursorView::CursorView() :
   m_disk(new Disk()),
   m_fingerSpread(0.0f),
   m_pinchStrength(0.0f),
-  m_wasScrolling(false),
   m_lastHandPosition(0,0),
   m_isPointing(false),
   m_locationOverride(false)
@@ -140,8 +139,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
         if ( m_bodyOffset.Goal() != 0.0f ) { m_bodyOffset.SetGoal(0.0f); }
       }
       
-      m_wasScrolling = (appState == OSCState::SCROLLING);
-    
       m_lastHandPosition = handData.locationData.screenPosition();
       break;
     }
@@ -159,22 +156,20 @@ Vector2 CursorView::GetCalculatedLocation() const {
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   const float MIN_PINCH_NORM = 0.5f;
   
-  float bodyOpacityNorm = 0.0f;
-  
-  if (m_wasScrolling) {
-    bodyOpacityNorm = (m_pinchStrength - activationConfigs::MIN_PINCH_CONTINUE) / (activationConfigs::MIN_PINCH_START - activationConfigs::MIN_PINCH_CONTINUE);
-  }
-  else {
-    bodyOpacityNorm = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_START - MIN_PINCH_NORM);
-  }
-  
-  bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
-  m_bodyAlpha.SetGoal(bodyOpacityNorm);
-  
+
   if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
+    // Don't show the scroll cursor if we're in a state where we can't be scrolling
+    // The scroll cursor shows up before we go into the scroll state (as a hint for the user)
+    // So we can't just check if we're in the scrolling state
     m_bodyAlpha.SetGoal(0.0f);
+  }
+  else {
+    // Calculate and set the alpha of the scroll body.
+    float bodyOpacityNorm = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_START - MIN_PINCH_NORM);
+    bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
+    m_bodyAlpha.SetGoal(bodyOpacityNorm);
   }
   
   m_bodyAlpha.Update(static_cast<float>(frame.deltaT.count()));
