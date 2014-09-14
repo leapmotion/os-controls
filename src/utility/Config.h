@@ -95,7 +95,7 @@ public:
   }
 
 private:
-  Autowired<FileMonitor> m_fileMonitor;
+  AutoRequired<FileMonitor> m_fileMonitor;
   AutoFired<ConfigEvent> m_events;
 
   std::shared_ptr<FileWatch> m_fileWatch;
