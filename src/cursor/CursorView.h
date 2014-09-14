@@ -75,6 +75,7 @@ private:
   std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
   
+  // The cursor that shows up when not scrolling
   std::shared_ptr<Disk> m_disk;
   
   Autowired<OSWindowMonitor> m_osWindowMonitor;
@@ -83,11 +84,9 @@ private:
   
   float m_fingerSpread;
   float m_pinchStrength;
-  bool m_wasScrolling;
   Vector2 m_lastHandDeltas;
   Vector2 m_lastHandPosition;
   
-  bool m_isPointing;
   bool m_locationOverride;
   
   OSCState m_lastAppState;
