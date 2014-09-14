@@ -77,7 +77,6 @@ private:
   float m_pinchStrength;
   Vector2 m_lastHandPosition;
   
-  bool m_isPointing;
   bool m_locationOverride;
   
   OSCState m_lastAppState;

@@ -26,7 +26,6 @@ CursorView::CursorView() :
   m_fingerSpread(0.0f),
   m_pinchStrength(0.0f),
   m_lastHandPosition(0,0),
-  m_isPointing(false),
   m_locationOverride(false)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
@@ -103,13 +102,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       }
       break;
     case State::ACTIVE:
-      if ( handData.handPose == HandPose::OneFinger ) {
-        m_isPointing = true;
-      }
-      else {
-        m_isPointing = false;
-      }
-      
       if(appState == OSCState::FINAL) {
         m_state = State::INACTIVE;
       }
