@@ -2,8 +2,6 @@
 #include "stdafx.h"
 #include "FileMonitorMac.h"
 
-#include <boost/filesystem/operations.hpp>
-
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/event.h>

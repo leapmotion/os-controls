@@ -31,19 +31,11 @@ add_mac_sources(utility_SOURCES
   PlatformInitializerMac.mm
 )
 
-add_unix_sources(utility_SOURCES
-  FileMonitorUnix.h
-  FileMonitorUnix.cpp
-)
-
 add_library(utility ${utility_SOURCES})
 target_link_libraries(utility Autowiring json11 )
 
 if(MSVC)
   target_link_libraries(utility shlwapi)
-else()
-  target_link_libraries(utility ${Boost_FILESYSTEM_LIBRARIES})
-  target_include_directories(utility PUBLIC ${Boost_INCLUDE_DIR})
 endif()
 
 target_include_directories(utility PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)

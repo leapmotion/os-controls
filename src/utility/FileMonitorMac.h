@@ -5,8 +5,6 @@
 #include MUTEX_HEADER
 #include <map>
 
-#include <boost/filesystem.hpp>
-
 class FileWatchMac :
   public FileWatch
 {

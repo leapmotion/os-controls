@@ -23,7 +23,7 @@ TEST_F(FileMonitorTest, MonitorDirectory) {
 
   std::atomic<bool> dirModified{false}, dirDeleted{false};
 
-  auto dirWatcher = fm->Watch(parent.wstring(),
+  auto dirWatcher = fm->Watch(parent.string(),
                               [&mutex, &cond, &dirModified, &dirDeleted]
                               (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                                 std::unique_lock<std::mutex> lock(mutex);
@@ -107,13 +107,13 @@ TEST_F(FileMonitorTest, DISABLED_MonitorMultipleDeletes) {
 
   std::atomic<bool> oneDeleted{false}, twoDeleted{false};
 
-  auto oneWatcher = fm->Watch(one.wstring(),
+  auto oneWatcher = fm->Watch(one.string(),
                               [&oneDeleted]
                               (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                                 if (states == FileWatch::State::DELETED) { oneDeleted = true; }
                               },
                               FileWatch::State::DELETED);
-  auto twoWatcher = fm->Watch(two.wstring(),
+  auto twoWatcher = fm->Watch(two.string(),
                               [&twoDeleted]
                               (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                                 if (states == FileWatch::State::DELETED) { twoDeleted = true; }
@@ -145,7 +145,7 @@ TEST_F(FileMonitorTest, DISABLED_MultipleWatchersSameFile) {
 
   std::atomic<int> oneOneDeleted{0}, twoOneDeleted{0}, oneTwoDeleted{0}, twoTwoDeleted{0};
 
-  auto oneOneWatcher = fm->Watch(one.wstring(),
+  auto oneOneWatcher = fm->Watch(one.string(),
                                  [&mutex, &cond, &oneOneDeleted]
                                  (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                                    ASSERT_EQ(FileWatch::State::DELETED, states);
@@ -154,7 +154,7 @@ TEST_F(FileMonitorTest, DISABLED_MultipleWatchersSameFile) {
                                    cond.notify_all();
                                  },
                                  FileWatch::State::DELETED);
-  auto twoOneWatcher = fm->Watch(one.wstring(),
+  auto twoOneWatcher = fm->Watch(one.string(),
                                  [&mutex, &cond, &twoOneDeleted]
                                  (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                                    ASSERT_EQ(FileWatch::State::DELETED, states);
@@ -163,7 +163,7 @@ TEST_F(FileMonitorTest, DISABLED_MultipleWatchersSameFile) {
                                    cond.notify_all();
                                  },
                                  FileWatch::State::DELETED);
-  auto oneTwoWatcher = fm->Watch(two.wstring(),
+  auto oneTwoWatcher = fm->Watch(two.string(),
                                  [&mutex, &cond, &oneTwoDeleted]
                                  (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                                    ASSERT_EQ(FileWatch::State::DELETED, states);
@@ -172,7 +172,7 @@ TEST_F(FileMonitorTest, DISABLED_MultipleWatchersSameFile) {
                                    cond.notify_all();
                                  },
                                  FileWatch::State::DELETED);
-  auto twoTwoWatcher = fm->Watch(two.wstring(),
+  auto twoTwoWatcher = fm->Watch(two.string(),
                                  [&mutex, &cond, &twoTwoDeleted]
                                  (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                                    ASSERT_EQ(FileWatch::State::DELETED, states);
@@ -212,7 +212,7 @@ TEST_F(FileMonitorTest, FileNotFound) {
 
   boost::filesystem::path missing = GetTemporaryPath();
 
-  auto watcher = fm->Watch(missing.wstring(),
+  auto watcher = fm->Watch(missing.string(),
                            []
                            (std::shared_ptr<FileWatch> fileWatch, FileWatch::State states) {
                            },
