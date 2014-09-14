@@ -166,6 +166,9 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   
   m_bodyAlpha.Update(static_cast<float>(frame.deltaT.count()));
   
+  //Set the alpha of the body and the line behind it.
+  m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
+  m_scrollLine->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
   float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
   fingerOpacity = std::min(fingerOpacity, m_bodyAlpha.Value());
   m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
@@ -180,9 +183,6 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
       position = OSVector2{m_x, m_y};
     }
   }
-  
-  m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
-  m_scrollLine->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
   
   if ( m_bodyAlpha.Value() < 0.2f ) {
     m_diskAlpha.SetGoal(1.0f);
