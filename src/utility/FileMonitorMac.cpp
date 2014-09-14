@@ -12,7 +12,7 @@
 // FileWatchMac
 //
 
-FileWatchMac::FileWatchMac(const boost::filesystem::path& path) : FileWatch(path)
+FileWatchMac::FileWatchMac(const std::string& path) : FileWatch(path)
 {
   m_key = ::open(Path().c_str(), O_EVTONLY);
 }
@@ -83,7 +83,7 @@ void FileMonitorMac::Run()
   }
 }
 
-std::shared_ptr<FileWatch> FileMonitorMac::Watch(const boost::filesystem::path& path,
+std::shared_ptr<FileWatch> FileMonitorMac::Watch(const std::string& path,
                                                  const t_callbackFunc& callback,
                                                  FileWatch::State states)
 {
