@@ -101,6 +101,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
   
+  m_goalCursorPosition = m_cursorView->GetCalculatedLocation() + ProjectVector(2, m_cursorBufferzoneOffset);
+  
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
@@ -169,6 +171,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         doMenuUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), menuOffset);
       }
       doVolumeUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), Vector2(handData.locationData.dX, handData.locationData.dY), menuOffset);
+      m_cursorView->SetOverideLocation(m_goalCursorPosition);
       break;
     }
     case State::FINAL:
@@ -225,15 +228,12 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
   
   double offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
   offsetNormalFactor = std::max(0.0, std::min(1.0, offsetNormalFactor));
-  Vector2 cursorCalculatedPosition = m_cursorView->GetCalculatedLocation();
-  cursorCalculatedPosition += ProjectVector(2, m_cursorBufferzoneOffset);
   if ( offsetNormalFactor > 0.0 ) {
     m_interactionIsVolumeLocked = true;
     m_ghostCursorAlpha.SetGoal(GHOST_CURSOR_ALPHA);
-    Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(cursorCalculatedPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
-    Vector2 offsetCursorPosition = cursorCalculatedPosition + (offsetNormalFactor * (goalPosition - cursorCalculatedPosition));
-    m_cursorView->SetOverideLocation(offsetCursorPosition);
-    m_ghostCursor->Translation() = Vector3(cursorCalculatedPosition.x(), cursorCalculatedPosition.y(), 0.0f);
+    Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
+    m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
+    m_ghostCursor->Translation() = Vector3(m_goalCursorPosition.x(), m_goalCursorPosition.y(), 0.0f);
     
     if ( offsetNormalFactor >= 1.0 ) {
       float deltaPixelsInVolume = deltaPixels.x() / m_volumeSlider->Width();
@@ -246,7 +246,6 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
   }
   else
   {
-    m_cursorView->SetOverideLocation(cursorCalculatedPosition);
     m_volumeSlider->Deactivate();
     m_ghostCursorAlpha.SetGoal(0.0f);
   }

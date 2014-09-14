@@ -94,6 +94,10 @@ private:
   // interactions with the radial menu within
   // the screen's "buffer zone"
   Vector3 m_cursorBufferzoneOffset;
+  
+  // When we're active we're offsetting the cursor position.
+  // This is where we want to put it.
+  Vector2 m_goalCursorPosition;
 
   int m_selectedItem;
   double m_FadeTime;
