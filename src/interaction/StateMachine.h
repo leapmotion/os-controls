@@ -57,6 +57,8 @@ public:
 private:
   OSCState validateTransition(OSCState to) const;
   void performNextTransition();
+  
+  bool pointIsOnScreen(const Vector2& point) const;
 
   OSCState resolvePose(HandPose pose) const;
   
@@ -92,6 +94,7 @@ private:
   AutoRequired<CursorView> m_cursorView;
   AutoRequired<MediaViewController> m_mediaViewController;
   Autowired<IWindowScroller> m_windowScroller;
+  Autowired<sf::RenderWindow> m_renderWindow;
 
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<ExposeActivationStateMachine> m_exposeActivationStateMachine;

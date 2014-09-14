@@ -86,12 +86,11 @@ OSCState StateMachine::validateTransition(OSCState to) const {
     return m_state;
   }
   else if (to == OSCState::MEDIA_MENU_FOCUSED || to == OSCState::EXPOSE_ACTIVATOR_FOCUSED ) {
-    if ( m_state == OSCState::SCROLLING || m_lastScrollReleaseTimestep <= 1000000) {
+    if (to == OSCState::MEDIA_MENU_FOCUSED && m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
       return m_state;
     }
-  }
-  else if (to == OSCState::MEDIA_MENU_FOCUSED ) {
-    if ( m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
+    
+    if ( m_state == OSCState::SCROLLING || m_lastScrollReleaseTimestep <= 1000000 || !pointIsOnScreen(m_lastHandLocation)) {
       return m_state;
     }
   }
@@ -136,6 +135,21 @@ void StateMachine::performNextTransition() {
   }
 
   m_state = desiredState;
+}
+
+bool StateMachine::pointIsOnScreen(const Vector2 &point) const {
+  if ( !m_renderWindow ) { return false; }
+  
+  bool retVal = false;
+  Vector2 renderWindowSize(m_renderWindow->getSize().x, m_renderWindow->getSize().y);
+  if (point.x() >= 0 &&
+      point.x() <= renderWindowSize.x() &&
+      point.y() >= 0 &&
+      point.y() <= renderWindowSize.y()) {
+    retVal = true;
+  }
+  
+  return retVal;
 }
 
 OSCState StateMachine::resolvePose(HandPose pose) const {
