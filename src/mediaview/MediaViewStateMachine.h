@@ -40,10 +40,11 @@ private:
   
   void resetMemberState();
   void doMenuUpdate(const Vector2& locationData, Vector2 menuOffset);
-  void doVolumeUpdate(const HandData& handData, Vector2 menuOffset);
+  void doVolumeUpdate(const Vector2& locationData, const Vector2& deltaPixels, Vector2 menuOffset);
   void resolveSelection(int selectedID);
   //Adjust the view for the volume control
   float calculateVolumeDelta(float deltaHandRoll);
+  Vector3 calculateBufferZoneOffset(const Vector2& screenPosition);
   
   
   /// <summary>
@@ -80,6 +81,7 @@ private:
   
   // Refernce to the cursor so we can override its position
   Autowired<CursorView> m_cursorView;
+  Autowired<sf::RenderWindow> m_renderWindow;
   
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
@@ -87,6 +89,11 @@ private:
   
   Autowired<RenderEngine> m_rootNode;
   RectanglePrim prim;
+  
+  // How much do we want to offset the cursor to keep
+  // interactions with the radial menu within
+  // the screen's "buffer zone"
+  Vector3 m_cursorBufferzoneOffset;
 
   int m_selectedItem;
   double m_FadeTime;
