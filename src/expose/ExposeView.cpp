@@ -280,6 +280,15 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   m_selectionOutline->Material().SetDiffuseLightColor(outlineColor);
   m_selectionOutline->Material().SetAmbientLightColor(outlineColor);
 
+  // bring a group to front when one of its members is activated
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
+      if (window->m_activation.Value() > 0.1f) {
+        m_zorder.BringToFront(group.get());
+      }
+    }
+  }
+
   prevHandPos = handPos;
 }
 
@@ -341,7 +350,6 @@ Vector2 ExposeView::radialCoordsToPoint(double angle, double distance) {
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
   auto retVal = std::shared_ptr<ExposeViewWindow>(new ExposeViewWindow(osWindow));
   m_windows.insert(retVal);
-  //m_zorder.Add(retVal);
 
   // Update the window texture in the main render loop:
   *this += [retVal] {
@@ -464,7 +472,6 @@ std::shared_ptr<ExposeGroup> ExposeView::createNewGroup(const std::shared_ptr<Ex
 void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   m_windows.erase(wnd);
   wnd->RemoveFromParent();
-  //m_zorder.Remove(wnd);
 
   std::shared_ptr<ExposeGroup> group = getGroupForWindow(wnd);
   group->m_groupMembers.erase(wnd);
