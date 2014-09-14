@@ -51,8 +51,8 @@ int main(int argc, char **argv)
     );
 
     // Run as fast as possible:
-    mw->setFramerateLimit(0);
-    mw->setVerticalSyncEnabled(true);
+    mw->setFramerateLimit(120);
+    mw->setVerticalSyncEnabled(false);
 
     // Handoff to the main loop:
     control->Main();
