@@ -56,6 +56,22 @@ void ExposeViewWindow::UpdateTexture(void) {
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
+  static const double HIGHLIGHT_WIDTH = 50.0;
+  RectanglePrim bgPrim;
+  bgPrim.LocalProperties().AlphaMask() = m_activation.Value();
+  const Vector3f highlightRGB(0.505f, 0.831f, 0.114f);
+  Color highlightColor(highlightRGB);
+  bgPrim.Material().SetDiffuseLightColor(highlightColor);
+  bgPrim.Material().SetAmbientLightColor(highlightColor);
+  bgPrim.Material().SetAmbientLightingProportion(1.0f);
+  Vector2 size = m_texture->Size();
+  size += Vector2::Constant(HIGHLIGHT_WIDTH);
+  bgPrim.SetSize(size);
+  bgPrim.Translation() = m_texture->Translation();
+  bgPrim.LinearTransformation() = m_texture->LinearTransformation();
+
+  PrimitiveBase::DrawSceneGraph(bgPrim, frame.renderState);
+
   m_texture->DrawSceneGraph(*m_texture, frame.renderState);
 }
 
