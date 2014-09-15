@@ -239,7 +239,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
       window->m_activation.SetGoal(activation * window->m_hover.Value());
       Vector3 displacement = Vector3::Zero();
       displacement.head<2>() = handPos - prevHandPos;
-      window->m_grabDelta.SetSmoothStrength(0.25f);
+      window->m_grabDelta.SetSmoothStrength(0.5f);
       window->m_grabDelta.SetGoal(activation*(window->m_grabDelta.Goal() + displacement));
 
       if ((img->Translation() - Vector3(m_viewCenter.x(), m_viewCenter.y(), 0.0)).squaredNorm() < m_selectionRadius*m_selectionRadius) {
@@ -256,7 +256,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     } else {
       window->m_hover.SetGoal(0.0f);
       window->m_activation.SetGoal(0.0f);
-      window->m_grabDelta.SetSmoothStrength(0.85f);
+      window->m_grabDelta.SetSmoothStrength(0.9f);
       window->m_grabDelta.SetGoal(Vector3::Zero());
       window->m_selection.SetGoal(0.0f);
     }
