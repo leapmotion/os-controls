@@ -120,7 +120,10 @@ void GLTexture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) 
     throw std::invalid_argument("GLTexture2PixelData must be empty or specify valid GLenum values for pixel data format and type");
   }
   // Check that the supplied data is the correct size.
-  if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() != GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*m_params.Width()*m_params.Height()) {
+  size_t pixel_count = m_params.Width()*m_params.Height();
+  size_t sizeof_pixel = GLTexture2PixelData::ComponentsInFormat(pixel_data.Format())*GLTexture2PixelData::BytesInType(pixel_data.Type());
+  size_t expected_raw_data_byte_count = pixel_count*sizeof_pixel;
+  if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() != expected_raw_data_byte_count) {
     throw std::invalid_argument("the number of components in pixel_data did not correspond to width*height");
   }
 }

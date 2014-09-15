@@ -38,7 +38,7 @@ public:
 
   // The necessary parameters that have reasonable defaults which are defined here.
   static const GLenum DEFAULT_TARGET          = GL_TEXTURE_2D;
-  static const GLint  DEFAULT_INTERNAL_FORMAT = GL_RGBA8;
+  static const GLenum DEFAULT_INTERNAL_FORMAT = GL_RGBA8;
 
   // Construct a texture params object with the given paramers.
   // The target, format (format), type (type), internal_format parameters

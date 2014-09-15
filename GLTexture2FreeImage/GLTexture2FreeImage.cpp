@@ -188,7 +188,7 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
   // alignment boundary.  Note: FreeImage_GetBits will return NULL if the bitmap does not
   // contain pixel data (i.e. if it contains only header and possibly some or all metadata).
   // See also FreeImage_HasPixels.
-  const void *raw_pixel_data = reinterpret_cast<const void *>(FreeImage_GetBits(bitmap));
+  const void *raw_pixel_data = static_cast<const void *>(FreeImage_GetBits(bitmap));
   if (raw_pixel_data == nullptr) {
     throw std::runtime_error("FreeImage_GetBits returned nullptr, indicating there was no pixel data in the image.  We could add the capability to create an uninitialized GLTexture2 from this.");
   }

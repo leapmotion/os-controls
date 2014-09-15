@@ -80,7 +80,7 @@ void RadialMenuItem::DrawContents(RenderState& renderState) const {
   m_Goal->SetInnerRadius(m_ActivatedRadius + m_Thickness/2.0);
   m_Goal->SetOuterRadius(m_ActivatedRadius + m_Thickness/2.0 + goalThickness);
   m_Goal->Material().SetAmbientLightingProportion(1.0f);
-  const Color goalColor = m_Activation > 0.001 ? Material().DiffuseLightColor() : Color::Transparent();
+  const Color goalColor = m_Activation > 0.001 ? m_ActivatedColor : Color::Transparent();
   m_Goal->Material().SetDiffuseLightColor(goalColor);
   m_Goal->Material().SetAmbientLightColor(goalColor);
   m_Goal->SetTriangleOffset(-triangleRatio * (m_Thickness/goalThickness));

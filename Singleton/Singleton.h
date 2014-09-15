@@ -30,16 +30,25 @@ public:
 template <typename T>
 class Singleton {
 public:
-
-  /// @brief Explicitly create the T singleton if it doesn't already exist.
-  /// @details Allocates the singleton on the heap via new.
+  /// @brief Explicitly create the T singleton.
+  /// @details Allocates the singleton on the heap via new.  If the singleton
+  /// exists already, this throws a SingletonExceptionOfType<T>.  This method
+  /// should be used if the singleton needs to be constructed with particular
+  /// parameters before being used.
   template<typename... Arguments>
   static void CreateInstance(Arguments... params) {
+    if (s_inst != nullptr) {
+      throw SingletonExceptionOfType<T>("Singleton of this type already exists");
+    }
+    s_inst = new T(params...);
+  }
+  /// @brief Ensure that the T singleton exists.
+  /// @details Allocates the singleton on the heap via new with no arguments.
+  static void EnsureInstanceExists() {
     if (s_inst == nullptr){
-      s_inst = new T(params...);
+      s_inst = new T();
     }
   }
-
   /// @brief Explicitly destroy the T singleton if it exists.
   /// @details Deallocates the singleton via delete.
   static void DestroyInstance () {
@@ -65,7 +74,7 @@ public:
   /// @brief Returns a reference to the T singleton.  Will create the T singleton if
   /// it doesn't already exist.
   static T &SafeRef () { 
-    CreateInstance();
+    EnsureInstanceExists();
     return *s_inst;
   }
 

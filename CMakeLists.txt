@@ -5,10 +5,12 @@ cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSIO
 ###################################################################################################
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
-project(Components VERSION 0.1)
+project(Components VERSION 0.2)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
 
 # TODO: set a default value for CMAKE_INSTALL_PREFIX to something like
 # Components-versionnumber
@@ -229,6 +231,19 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    GLVertexBuffer
+    HEADERS
+        GLVertexAttribute.h
+        GLVertexBuffer.h
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+        GLBuffer
+        GLCompatibility
+    BRIEF_DOC_STRING
+        "An encapsulation of the OpenGL vertex buffer object concept."
+)
+
+add_sublibrary(
     GLController
     HEADERS
         GLController.h
@@ -414,15 +429,19 @@ add_sublibrary(
 add_sublibrary(
     Primitives
     HEADERS
+        DropShadow.h
         PrimitiveBase.h
         PrimitiveGeometry.h
         Primitives.h
         RenderState.h
         SVGPrimitive.h
+        TexturedFrame.h
     SOURCES
+        DropShadow.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp
         SVGPrimitive.cpp
+        TexturedFrame.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLBuffer
@@ -430,6 +449,7 @@ add_sublibrary(
         GLMatrices
         GLShaderLoader
         GLTexture2
+        GLVertexBuffer
         NanoSVG
         PolyPartition
         Resource

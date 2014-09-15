@@ -5,9 +5,13 @@
 #include <memory>
 #include <vector>
 
-class GLTexture2Test : public GLTestFramework_Headless { };
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Headless tests
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(GLTexture2Test, EmptyTexture) {
+class GLTexture2HeadlessTest : public GLTestFramework_Headless { };
+
+TEST_F(GLTexture2HeadlessTest, EmptyTexture) {
   GLsizei width = 100;
   GLsizei height = 120;
   
@@ -18,7 +22,7 @@ TEST_F(GLTexture2Test, EmptyTexture) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(GLTexture2Test, NonEmptyTexture_RawPointer) {
+TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_RawPointer) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Generate some raw pixel data
@@ -38,7 +42,7 @@ TEST_F(GLTexture2Test, NonEmptyTexture_RawPointer) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(GLTexture2Test, NonEmptyTexture_reference_to_std_vector) {
+TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Generate some raw pixel data
@@ -57,7 +61,7 @@ TEST_F(GLTexture2Test, NonEmptyTexture_reference_to_std_vector) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(GLTexture2Test, NonEmptyTexture_stored_std_vector) {
+TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Create the pixel data storage and write some data to it.
@@ -74,3 +78,78 @@ TEST_F(GLTexture2Test, NonEmptyTexture_stored_std_vector) {
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Visible tests
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class GLTexture2VisibleTest : public GLTestFramework_Visible { };
+
+TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated) {
+  std::shared_ptr<GLTexture2> texture;
+  
+  // Generate a texture procedurally.
+  {
+    GLsizei width = 4;
+    GLsizei height = 4;
+    GLTexture2Params params(width, height, GL_RGBA8);
+    params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
+    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    struct RgbPixel { uint8_t r, g, b; };
+    
+    GLTexture2PixelDataStorage<RgbPixel> pixel_data(GL_RGB, GL_UNSIGNED_BYTE, width*height);
+    std::vector<RgbPixel> &pixels = pixel_data.RawPixels();
+    // Make a simple bilinear gradient in green and blue.
+    for (GLsizei v = 0; v < height; ++v) {
+      for (GLsizei u = 0; u < width; ++u) {
+        uint32_t r = 0;
+        uint32_t g = u*255/(width-1);
+        uint32_t b = v*255/(height-1);
+        RgbPixel &pixel = pixels[v*width+u];
+        pixel = RgbPixel{uint8_t(r), uint8_t(g), uint8_t(b)};
+      }
+    }
+    texture = std::make_shared<GLTexture2>(params, pixel_data);
+  }
+  
+  // Render a textured rectangle.
+  {
+    glDisable(GL_LIGHTING);
+    glEnable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+      
+    static const GLuint VERTEX_COUNT = 4;
+    const GLfloat param = 0.7f;
+    const GLfloat vertex_array[VERTEX_COUNT*2] = {
+      -param, -param,
+       param, -param,
+       param,  param,
+      -param,  param
+    };
+    static const GLfloat TEXTURE_COORD_ARRAY[VERTEX_COUNT*2] = {
+      0.0f, 0.0f,
+      1.0f, 0.0f,
+      1.0f, 1.0f,
+      0.0f, 1.0f
+    };
+    texture->Bind();
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+    glTexCoordPointer(2, GL_FLOAT, 0, TEXTURE_COORD_ARRAY);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, VERTEX_COUNT);
+    texture->Unbind();
+   
+    // Finish the frame before delaying. 
+    m_GLController.EndRender();
+    m_SDLController.EndRender();
+  }
+  
+  SDL_Delay(1000); // Delay for 1000 milliseconds.
+}
+

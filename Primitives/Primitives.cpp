@@ -1,5 +1,6 @@
 #include "Primitives.h"
 
+#include <cassert>
 #include "GLTexture2.h"
 
 void GenericShape::DrawContents(RenderState& renderState) const {
@@ -13,7 +14,12 @@ void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) cons
 }
 
 void Sphere::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSphere(30);
+  static PrimitiveGeometry geom;
+  static bool loaded = false;
+  if (!loaded) {
+    PrimitiveGeometry::CreateUnitSphere(30, geom);
+    loaded = true;
+  }
   geom.Draw(Shader(), GL_TRIANGLES);
 }
 
@@ -24,7 +30,12 @@ void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) co
 }
 
 void Cylinder::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitCylinder(50, 1);
+  static PrimitiveGeometry geom;
+  static bool loaded = false;
+  if (!loaded) {
+    PrimitiveGeometry::CreateUnitCylinder(50, 1, geom);
+    loaded = true;
+  }
   geom.Draw(Shader(), GL_TRIANGLES);
 }
 
@@ -35,7 +46,12 @@ void Box::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
 }
 
 void Box::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitBox();
+  static PrimitiveGeometry geom;
+  static bool loaded = false;
+  if (!loaded) {
+    PrimitiveGeometry::CreateUnitBox(geom);
+    loaded = true;
+  }
   geom.Draw(Shader(), GL_TRIANGLES);
 }
 
@@ -46,7 +62,12 @@ void Disk::MakeAdditionalModelViewTransformations (ModelView &model_view) const 
 }
 
 void Disk::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitDisk(75);
+  static PrimitiveGeometry geom;
+  static bool loaded = false;
+  if (!loaded) {
+    PrimitiveGeometry::CreateUnitDisk(75, geom);
+    loaded = true;
+  }
   geom.Draw(Shader(), GL_TRIANGLES);
 }
 
@@ -62,7 +83,12 @@ void RectanglePrim::DrawContents(RenderState& renderState) const {
     glEnable(GL_TEXTURE_2D);
     m_texture->Bind();
   }
-  static PrimitiveGeometry geom = PrimitiveGeometry::CreateUnitSquare();
+  static PrimitiveGeometry geom;
+  static bool loaded = false;
+  if (!loaded) {
+    PrimitiveGeometry::CreateUnitSquare(geom);
+    loaded = true;
+  }
   geom.Draw(Shader(), GL_TRIANGLES);
   if (useTexture) {
     glDisable(GL_TEXTURE_2D);
