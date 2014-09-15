@@ -21,14 +21,14 @@ public:
   static void DrawSceneGraph(const Primitive &root, RenderState &render_state) {
     // TODO: the existing model view matrix can be inputted as the initial state of global_properties
     // in the call to DepthFirstTraverse.
-    root.DepthFirstTraverse<Primitive>([&render_state](const Primitive &node, const Properties &global_properties) {
+    root.template DepthFirstTraverse<Primitive>([&render_state](const Primitive &node, const Properties &global_properties) {
       node.Draw(render_state, global_properties);
     });
   }
 
   typedef ParticularSceneGraphNodeProperties<MATH_TYPE,DIM,float> Properties;
   typedef SceneGraphNode<ParticularSceneGraphNodeProperties<MATH_TYPE,DIM,float>> Parent_SceneGraphNode;
-  typedef Properties::AffineTransformValue_::Transform Transform;
+  typedef typename Properties::AffineTransformValue_::Transform Transform;
 
   Primitive() : m_shader("material") {
     GLMaterial::CheckShaderForUniforms(*m_shader);
@@ -44,10 +44,10 @@ public:
   const GLMaterial &Material () const { return m_material; }
   GLMaterial &Material () { return m_material; }
 
-  Transform::ConstTranslationPart Translation () const { return LocalProperties().AffineTransform().translation(); }
-  Transform::TranslationPart Translation () { return LocalProperties().AffineTransform().translation(); }
-  Transform::ConstLinearPart LinearTransformation () const { return LocalProperties().AffineTransform().linear(); }
-  Transform::LinearPart LinearTransformation () { return LocalProperties().AffineTransform().linear(); }
+  typename Transform::ConstTranslationPart Translation () const { return this->LocalProperties().AffineTransform().translation(); }
+  typename Transform::TranslationPart Translation () { return this->LocalProperties().AffineTransform().translation(); }
+  typename Transform::ConstLinearPart LinearTransformation () const { return this->LocalProperties().AffineTransform().linear(); }
+  typename Transform::LinearPart LinearTransformation () { return this->LocalProperties().AffineTransform().linear(); }
 
   void Draw(RenderState &render_state, const Properties &global_properties) const {
     // Set the model view (TODO: change this to not be in the RenderState, since it's tracked by DepthFirstTraverse)
