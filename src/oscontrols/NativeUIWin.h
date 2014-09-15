@@ -65,26 +65,7 @@ namespace oscontrols {
 		}
 
   private: System::Windows::Forms::NotifyIcon^  notificationIcon;
-  private: System::Windows::Forms::ContextMenuStrip^  notificationMenu;
-
-
-
-  protected:
-
-  protected:
-
-  private: System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
-  private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
-
-
-  protected:
   private: System::ComponentModel::IContainer^  components;
-
-	private:
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -98,16 +79,19 @@ namespace oscontrols {
       System::Windows::Forms::Button^  okButton;
       System::Windows::Forms::Button^  cancelButton;
       System::Windows::Forms::TableLayoutPanel^  tableLayoutPanel2;
+      System::Windows::Forms::ContextMenuStrip^  notificationMenu;
+      System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
+      System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
       this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
-      this->notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
-      this->configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-      this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       tableLayoutPanel1 = (gcnew System::Windows::Forms::TableLayoutPanel());
       okButton = (gcnew System::Windows::Forms::Button());
       cancelButton = (gcnew System::Windows::Forms::Button());
       tableLayoutPanel2 = (gcnew System::Windows::Forms::TableLayoutPanel());
+      notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+      configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+      exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       tableLayoutPanel1->SuspendLayout();
-      this->notificationMenu->SuspendLayout();
+      notificationMenu->SuspendLayout();
       this->SuspendLayout();
       // 
       // tableLayoutPanel1
@@ -166,35 +150,35 @@ namespace oscontrols {
       tableLayoutPanel2->Size = System::Drawing::Size(418, 378);
       tableLayoutPanel2->TabIndex = 2;
       // 
-      // notificationIcon
-      // 
-      this->notificationIcon->ContextMenuStrip = this->notificationMenu;
-      this->notificationIcon->Text = L"Leap Hand Control";
-      this->notificationIcon->Visible = true;
-      // 
       // notificationMenu
       // 
-      this->notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
-        this->configToolStripMenuItem,
-          this->exitToolStripMenuItem
+      notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+        configToolStripMenuItem,
+          exitToolStripMenuItem
       });
-      this->notificationMenu->Name = L"contextMenuStrip1";
-      this->notificationMenu->ShowImageMargin = false;
-      this->notificationMenu->Size = System::Drawing::Size(133, 48);
+      notificationMenu->Name = L"contextMenuStrip1";
+      notificationMenu->ShowImageMargin = false;
+      notificationMenu->Size = System::Drawing::Size(133, 70);
       // 
       // configToolStripMenuItem
       // 
-      this->configToolStripMenuItem->Name = L"configToolStripMenuItem";
-      this->configToolStripMenuItem->Size = System::Drawing::Size(132, 22);
-      this->configToolStripMenuItem->Text = L"&Configuration...";
-      this->configToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::configToolStripMenuItem_Click);
+      configToolStripMenuItem->Name = L"configToolStripMenuItem";
+      configToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      configToolStripMenuItem->Text = L"&Configuration...";
+      configToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::configToolStripMenuItem_Click);
       // 
       // exitToolStripMenuItem
       // 
-      this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-      this->exitToolStripMenuItem->Size = System::Drawing::Size(132, 22);
-      this->exitToolStripMenuItem->Text = L"&Quit";
-      this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
+      exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
+      exitToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      exitToolStripMenuItem->Text = L"&Quit";
+      exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
+      // 
+      // notificationIcon
+      // 
+      this->notificationIcon->ContextMenuStrip = notificationMenu;
+      this->notificationIcon->Text = L"Leap Hand Control";
+      this->notificationIcon->Visible = true;
       // 
       // NativeUIWin
       // 
@@ -210,7 +194,7 @@ namespace oscontrols {
       this->Text = L"Configuration";
       this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &NativeUIWin::NativeUIWin_FormClosing);
       tableLayoutPanel1->ResumeLayout(false);
-      this->notificationMenu->ResumeLayout(false);
+      notificationMenu->ResumeLayout(false);
       this->ResumeLayout(false);
 
     }
