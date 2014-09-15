@@ -8,6 +8,8 @@ namespace oscontrols {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+  using namespace System::Resources;
+  using namespace System::Reflection;
 
 	/// <summary>
 	/// Summary for NativeUI
@@ -18,9 +20,13 @@ namespace oscontrols {
     NativeUIWin(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
+			
+      ResourceManager^ rm = gcnew ResourceManager("oscontrols.Resource", Assembly::GetExecutingAssembly());
+      System::Drawing::Bitmap^ bmp = (System::Drawing::Bitmap^) rm->GetObject("icon_512x512");
+
+      auto icon = System::Drawing::Icon::FromHandle(bmp->GetHicon());
+      this->notificationIcon->Icon = icon;
+      this->Icon = icon;
 		}
 
 	protected:
@@ -34,11 +40,14 @@ namespace oscontrols {
 				delete components;
 			}
 		}
-  private: System::Windows::Forms::NotifyIcon^  notifyIcon1;
+  private: System::Windows::Forms::NotifyIcon^  notificationIcon;
+  protected:
+
   protected:
   private: System::Windows::Forms::ContextMenuStrip^  contextMenuStrip1;
   private: System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
   private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+
 
   protected:
   private: System::ComponentModel::IContainer^  components;
@@ -57,19 +66,17 @@ namespace oscontrols {
 		void InitializeComponent(void)
 		{
       this->components = (gcnew System::ComponentModel::Container());
-      System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(NativeUIWin::typeid));
-      this->notifyIcon1 = (gcnew System::Windows::Forms::NotifyIcon(this->components));
+      this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
       this->contextMenuStrip1 = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
       this->configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       this->contextMenuStrip1->SuspendLayout();
       this->SuspendLayout();
       // 
-      // notifyIcon1
+      // notificationIcon
       // 
-      this->notifyIcon1->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"notifyIcon1.Icon")));
-      this->notifyIcon1->Text = L"Leap Hand Control";
-      this->notifyIcon1->Visible = true;
+      this->notificationIcon->Text = L"Leap Hand Control";
+      this->notificationIcon->Visible = true;
       // 
       // contextMenuStrip1
       // 
@@ -79,26 +86,26 @@ namespace oscontrols {
       });
       this->contextMenuStrip1->Name = L"contextMenuStrip1";
       this->contextMenuStrip1->ShowImageMargin = false;
-      this->contextMenuStrip1->Size = System::Drawing::Size(128, 70);
+      this->contextMenuStrip1->Size = System::Drawing::Size(92, 48);
       // 
       // configToolStripMenuItem
       // 
       this->configToolStripMenuItem->Name = L"configToolStripMenuItem";
-      this->configToolStripMenuItem->Size = System::Drawing::Size(127, 22);
+      this->configToolStripMenuItem->Size = System::Drawing::Size(91, 22);
       this->configToolStripMenuItem->Text = L"Config..";
       // 
       // exitToolStripMenuItem
       // 
       this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-      this->exitToolStripMenuItem->Size = System::Drawing::Size(127, 22);
+      this->exitToolStripMenuItem->Size = System::Drawing::Size(91, 22);
       this->exitToolStripMenuItem->Text = L"Quit";
       // 
-      // NativeUI
+      // NativeUIWin
       // 
       this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
       this->ClientSize = System::Drawing::Size(284, 262);
-      this->Name = L"NativeUI";
+      this->Name = L"NativeUIWin";
       this->Text = L"NativeUI";
       this->contextMenuStrip1->ResumeLayout(false);
       this->ResumeLayout(false);
