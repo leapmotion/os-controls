@@ -1,6 +1,8 @@
 #pragma once
 #include "NativeUI.h"
 
+struct NativeUI;
+
 namespace oscontrols {
 
 	using namespace System;
@@ -18,7 +20,7 @@ namespace oscontrols {
 	public ref class NativeUIWin : public System::Windows::Forms::Form
 	{
 	public:
-    NativeUIWin(const NativeCallbacks& callbacks) :
+    NativeUIWin(NativeUI& callbacks):
       callbacks(callbacks)
 		{
 			InitializeComponent();
@@ -32,17 +34,12 @@ namespace oscontrols {
 		}
 
     static size_t s_nativeUIInitCount = 0;
-  private: System::Windows::Forms::TableLayoutPanel^  tableLayoutPanel2;
-  public:
+    NativeUI& callbacks;
 
   public:
+    static NativeUIWin^ s_nativeUI;
 
-
-  public:
-
-           static NativeUIWin^ s_nativeUI;
-
-    static void AddTrayIcon(const NativeCallbacks& callbacks) {
+    static void AddTrayIcon(NativeUI& callbacks) {
       if(!s_nativeUIInitCount++)
         s_nativeUI = gcnew NativeUIWin(callbacks);
     }
@@ -66,8 +63,6 @@ namespace oscontrols {
 				delete components;
 			}
 		}
-
-    const NativeCallbacks& callbacks;
 
   private: System::Windows::Forms::NotifyIcon^  notificationIcon;
   private: System::Windows::Forms::ContextMenuStrip^  notificationMenu;
@@ -100,16 +95,17 @@ namespace oscontrols {
 		{
       this->components = (gcnew System::ComponentModel::Container());
       System::Windows::Forms::TableLayoutPanel^  tableLayoutPanel1;
-      System::Windows::Forms::Button^  cancelButton;
       System::Windows::Forms::Button^  okButton;
-      this->tableLayoutPanel2 = (gcnew System::Windows::Forms::TableLayoutPanel());
+      System::Windows::Forms::Button^  cancelButton;
+      System::Windows::Forms::TableLayoutPanel^  tableLayoutPanel2;
       this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
       this->notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
       this->configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       tableLayoutPanel1 = (gcnew System::Windows::Forms::TableLayoutPanel());
-      cancelButton = (gcnew System::Windows::Forms::Button());
       okButton = (gcnew System::Windows::Forms::Button());
+      cancelButton = (gcnew System::Windows::Forms::Button());
+      tableLayoutPanel2 = (gcnew System::Windows::Forms::TableLayoutPanel());
       tableLayoutPanel1->SuspendLayout();
       this->notificationMenu->SuspendLayout();
       this->SuspendLayout();
@@ -122,7 +118,7 @@ namespace oscontrols {
       tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute, 80)));
       tableLayoutPanel1->Controls->Add(okButton, 1, 1);
       tableLayoutPanel1->Controls->Add(cancelButton, 2, 1);
-      tableLayoutPanel1->Controls->Add(this->tableLayoutPanel2, 0, 0);
+      tableLayoutPanel1->Controls->Add(tableLayoutPanel2, 0, 0);
       tableLayoutPanel1->Dock = System::Windows::Forms::DockStyle::Fill;
       tableLayoutPanel1->Location = System::Drawing::Point(0, 0);
       tableLayoutPanel1->Name = L"tableLayoutPanel1";
@@ -131,17 +127,6 @@ namespace oscontrols {
       tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 31)));
       tableLayoutPanel1->Size = System::Drawing::Size(418, 409);
       tableLayoutPanel1->TabIndex = 1;
-      // 
-      // cancelButton
-      // 
-      cancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-      cancelButton->Location = System::Drawing::Point(341, 381);
-      cancelButton->Name = L"cancelButton";
-      cancelButton->Size = System::Drawing::Size(74, 23);
-      cancelButton->TabIndex = 1;
-      cancelButton->Text = L"Cancel";
-      cancelButton->UseVisualStyleBackColor = true;
-      cancelButton->Click += gcnew System::EventHandler(this, &NativeUIWin::cancelButton_Click);
       // 
       // okButton
       // 
@@ -154,23 +139,32 @@ namespace oscontrols {
       okButton->UseVisualStyleBackColor = true;
       okButton->Click += gcnew System::EventHandler(this, &NativeUIWin::okButton_Click);
       // 
+      // cancelButton
+      // 
+      cancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
+      cancelButton->Location = System::Drawing::Point(341, 381);
+      cancelButton->Name = L"cancelButton";
+      cancelButton->Size = System::Drawing::Size(74, 23);
+      cancelButton->TabIndex = 1;
+      cancelButton->Text = L"Cancel";
+      cancelButton->UseVisualStyleBackColor = true;
+      cancelButton->Click += gcnew System::EventHandler(this, &NativeUIWin::cancelButton_Click);
+      // 
       // tableLayoutPanel2
       // 
-      this->tableLayoutPanel2->ColumnCount = 2;
-      tableLayoutPanel1->SetColumnSpan(this->tableLayoutPanel2, 3);
-      this->tableLayoutPanel2->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-        50)));
-      this->tableLayoutPanel2->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-        50)));
-      this->tableLayoutPanel2->Dock = System::Windows::Forms::DockStyle::Fill;
-      this->tableLayoutPanel2->Location = System::Drawing::Point(0, 0);
-      this->tableLayoutPanel2->Margin = System::Windows::Forms::Padding(0);
-      this->tableLayoutPanel2->Name = L"tableLayoutPanel2";
-      this->tableLayoutPanel2->RowCount = 2;
-      this->tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
-      this->tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
-      this->tableLayoutPanel2->Size = System::Drawing::Size(418, 378);
-      this->tableLayoutPanel2->TabIndex = 2;
+      tableLayoutPanel2->ColumnCount = 2;
+      tableLayoutPanel1->SetColumnSpan(tableLayoutPanel2, 3);
+      tableLayoutPanel2->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
+      tableLayoutPanel2->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
+      tableLayoutPanel2->Dock = System::Windows::Forms::DockStyle::Fill;
+      tableLayoutPanel2->Location = System::Drawing::Point(0, 0);
+      tableLayoutPanel2->Margin = System::Windows::Forms::Padding(0);
+      tableLayoutPanel2->Name = L"tableLayoutPanel2";
+      tableLayoutPanel2->RowCount = 2;
+      tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
+      tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
+      tableLayoutPanel2->Size = System::Drawing::Size(418, 378);
+      tableLayoutPanel2->TabIndex = 2;
       // 
       // notificationIcon
       // 
@@ -242,6 +236,7 @@ namespace oscontrols {
       // treating this as a simple "config dismissed" event, we should instead treat it as an "app
       // quit" event.
       callbacks.OnQuit();
+      break;
     }
   }
   void okButton_Click(Object^  sender, System::EventArgs^  e) {

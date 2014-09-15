@@ -1,5 +1,6 @@
 set(oscontrols_SOURCES
   NativeUI.h
+  NativeUI.cpp
   oscontrols.h
   oscontrols.cpp
 )
