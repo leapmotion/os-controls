@@ -1,6 +1,7 @@
 #pragma once
 #include "EigenTypes.h"
 #include "graphics/Renderable.h"
+#include "DropShadow.h"
 
 class ExposeViewWindow;
 class OSApp;
@@ -23,5 +24,6 @@ public:
   Vector2 m_center;
   std::shared_ptr<OSApp> m_app;
   std::shared_ptr<ImagePrimitive> m_icon;
+  std::shared_ptr<DropShadow> m_dropShadow;
   std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_groupMembers;
 };

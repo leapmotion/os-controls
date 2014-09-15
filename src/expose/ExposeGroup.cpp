@@ -6,7 +6,13 @@
 #include "osinterface/OSApp.h"
 #include "graphics/RenderFrame.h"
 
-ExposeGroup::ExposeGroup() : m_center(Vector2::Zero()), m_minBounds(Vector2::Zero()), m_maxBounds(Vector2::Zero()) { }
+ExposeGroup::ExposeGroup() :
+  m_center(Vector2::Zero()),
+  m_minBounds(Vector2::Zero()),
+  m_maxBounds(Vector2::Zero()),
+  m_dropShadow(new DropShadow)
+{
+}
 
 void ExposeGroup::CalculateCenterAndBounds() {
   const int numGroupMembers = static_cast<int>(m_groupMembers.size());
@@ -77,5 +83,16 @@ void ExposeGroup::Render(const RenderFrame& frame) const {
       window->GetTexture()->LocalProperties().AlphaMask() = tempMask;
     }
   }
+
+  static const Vector3 DROP_SHADOW_OFFSET(0, 0, 0);
+  static const double DROP_SHADOW_RADIUS = 150.0;
+  static const float DROP_SHADOW_OPACITY = 0.35f;
+  m_dropShadow->Translation() = m_icon->Translation() + DROP_SHADOW_OFFSET;
+  m_dropShadow->SetBasisRectangleSize(0.75*m_icon->Size());
+  m_dropShadow->LinearTransformation() = m_icon->LinearTransformation();
+  m_dropShadow->SetShadowRadius(DROP_SHADOW_RADIUS);
+  m_dropShadow->LocalProperties().AlphaMask() = DROP_SHADOW_OPACITY * m_icon->LocalProperties().AlphaMask();
+  PrimitiveBase::DrawSceneGraph(*m_dropShadow, frame.renderState);
+
   PrimitiveBase::DrawSceneGraph(*m_icon, frame.renderState);
 }

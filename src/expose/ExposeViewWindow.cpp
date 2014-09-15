@@ -6,7 +6,8 @@
 
 ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this()),
-  m_texture(new ImagePrimitive)
+  m_texture(new ImagePrimitive),
+  m_dropShadow(new DropShadow)
 {
   const float randNum = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
   const float randomSmoothVariationRadius = 0.05f;
@@ -56,6 +57,16 @@ void ExposeViewWindow::UpdateTexture(void) {
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
+  static const Vector3 DROP_SHADOW_OFFSET(5, 10, 0);
+  static const double DROP_SHADOW_RADIUS = 200.0;
+  static const float DROP_SHADOW_OPACITY = 0.35f;
+  m_dropShadow->Translation() = m_texture->Translation() + DROP_SHADOW_OFFSET;
+  m_dropShadow->SetBasisRectangleSize(m_texture->Size());
+  m_dropShadow->LinearTransformation() = m_texture->LinearTransformation();
+  m_dropShadow->SetShadowRadius(DROP_SHADOW_RADIUS);
+  m_dropShadow->LocalProperties().AlphaMask() = DROP_SHADOW_OPACITY * m_texture->LocalProperties().AlphaMask();
+  PrimitiveBase::DrawSceneGraph(*m_dropShadow, frame.renderState);
+
   static const double HIGHLIGHT_WIDTH = 50.0;
   RectanglePrim bgPrim;
   bgPrim.LocalProperties().AlphaMask() = m_activation.Value();

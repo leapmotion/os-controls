@@ -3,6 +3,7 @@
 #include "graphics/Renderable.h"
 #include "utility/lockable_property.h"
 #include "Animation.h"
+#include "DropShadow.h"
 
 class OSWindow;
 struct RenderFrame;
@@ -46,6 +47,9 @@ public:
 private:
   // Texture for this window
   std::shared_ptr<ImagePrimitive> m_texture;
+
+  // Drop shadow
+  std::shared_ptr<DropShadow> m_dropShadow;
 
 public:
   /// <summary>
