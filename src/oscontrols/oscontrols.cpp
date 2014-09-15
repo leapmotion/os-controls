@@ -18,24 +18,17 @@
 #include "utility/PlatformInitializer.h"
 #include <autowiring/AutoNetServer.h>
 
-const NativeCallbacks sc_callbacks = [] {
-  NativeCallbacks retVal;
-  retVal.OnQuit = [] {
-    AutoGlobalContext()->SignalShutdown();
-  };
-  retVal.OnConfigUiVisible = [] {};
-  retVal.OnConfigUiHidden = [] (bool) {};
-  return retVal;
-}();
-
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
-  ShowUI(sc_callbacks);
-
   AutoCurrentContext ctxt;
-  ctxt->Initiate();
+  AutoRequired<NativeUI> nativeUI;
   //AutoRequired<AutoNetServer> autonet(ctxt);
+
+  ctxt->Initiate();
+
+  nativeUI->ShowUI();
+
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
     osCtxt->Initiate();
@@ -69,6 +62,8 @@ int main(int argc, char **argv)
   catch (std::exception& e) {
     std::cout << e.what() << std::endl;
   }
+
+  nativeUI->DestroyUI();
 
   ctxt->SignalShutdown(true);
   return 0;

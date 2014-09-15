@@ -3,10 +3,22 @@
 
 using namespace oscontrols;
 
-void ShowUI(const NativeCallbacks& callbacks) {
-  NativeUIWin::AddTrayIcon(callbacks);
+void NativeUI::ShowUI() {
+  NativeUIWin::AddTrayIcon(*this);
 }
 
-void DestroyUI(void) {
+void NativeUI::DestroyUI(void) {
   Application::Exit();
+}
+
+void NativeUI::OnQuit() {
+  for (auto ctxt : ContextEnumeratorT<OsControlContext>(CoreContext::CurrentContext())) {
+    ctxt->SignalShutdown(false);
+  }
+}
+
+void NativeUI::OnConfigUiVisible() {
+}
+
+void NativeUI::OnConfigUiHidden(bool) {
 }

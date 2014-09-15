@@ -19,8 +19,6 @@
   [super dealloc];
 }
 
-#include <iostream>
-
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
   if (_isInitialized) {

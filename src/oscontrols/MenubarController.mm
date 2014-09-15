@@ -1,7 +1,7 @@
 #import "MenubarController.h"
+#import "NativeUI.h"
 
-#include <autowiring/autowiring.h>
-#include "oscontrols.h"
+#import <autowiring/autowiring.h>
 
 @implementation MenubarController
 
@@ -38,8 +38,11 @@
 - (void)onQuit:(id)sender
 {
   [[NSStatusBar systemStatusBar] removeStatusItem:_statusItem];
-  for (auto ctxt : ContextEnumeratorT<OsControlContext>(CoreContext::CurrentContext())) {
-    ctxt->SignalShutdown(false);
+  AutowiredFast<NativeUI> nativeUI;
+  if (nativeUI) {
+    nativeUI->OnQuit();
+  } else { // Failsafe in case we fail to get the NativeUI instance
+    [[NSApplication sharedApplication] terminate:nil];
   }
 }
 
