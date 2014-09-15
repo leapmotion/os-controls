@@ -1,87 +1,102 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #pragma once
 
-/// <summary>A range defined by a coordinate interval</summary>
-class Range {
-public:
-  double min;
-  double max;
-
-  Range():
-    min(0.),
-    max(0.)
-  {}
-
-  /// <returns>True if there exist points in Range</returns>
-  operator bool () const {
-    return (min < max);
-  }
-
-  /// <returns>True if the point is inside of the range</returns>
-  bool operator () (double point) const {
-    return min < point && point < max;
-  }
-
-  /// <returns>True if all points in the argument range are inside of this range</returns>
-  /// <remarks>
-  /// If the argument range is empty the result always true.
-  /// </remarks>
-  bool operator () (Range inside) const;
-
-  const Range& operator += (double displace);
-  const Range& operator -= (double displace);
-  const Range& operator *= (double rescale);
-  const Range& operator /= (double rescale);
-};
-
 /// <summary>
-/// A two-state system with hysteresis.
+/// Implements a two-state system with hysteresis.
+/// An update via a point above the activation threshold yields an activated state.
+/// An update below the persistence threshold yields an enervated state.
+/// The state cannot change in the interval between persistence and activation thresholds.
 /// </summary>
 /// <remarks>
-/// A small range defines the activation volume.
-/// A larger enveloping range defines the persistence volume.
+/// The Hysteresis can be visualized as a function equal to 1 above the activation threshold,
+/// equal to 0 below the persistence threshold, and equal to a linear interpolation between.
+/// Given an a configured Hysteresis
+///  Hysteresis instance(persistance, activation);
+/// this function can be evaluated for all points as follows:
+///  instance(point).interpolated();
+/// In order to for Hysteresis to apply a condition it must be the case that
+///  ((persistence <= activation) && increasing) ||
+///  ((persistence <= activation) && !increasing)
+/// In the absence of conditions the state cannot change due to updates.
 /// </remarks>
 class Hysteresis {
+  friend class HysteresisRange;
+  template<int dim>
+  friend class HysteresisVolume;
+
 protected:
-  bool m_active;
+  bool m_activated;
   double m_interpolated;
 
 public:
-  Range activation;
-  Range persistence;
+  bool increasing;
+  double persistence;
+  double activation;
 
-  Hysteresis(Range i_activation = Range(), Range i_persistence = Range()):
-    m_active(false),
-    activation(i_activation),
-    persistence(i_persistence)
-  {}
+  /// <summary>Default constructor applies no conditions and is enervated</summary>
+  /// <remarks>
+  /// Since the absence of conditions prevents updates from changing activation,
+  /// the constructor allows the option of initializing in the active state.
+  /// </remarks>
+  Hysteresis(bool i_activated = false);
 
-  const Hysteresis& operator += (double displace);
-  const Hysteresis& operator -= (double displace);
-  const Hysteresis& operator *= (double rescale);
-  const Hysteresis& operator /= (double rescale);
+  /// <summary>Constructs a Hysteresis threshold, and is initialized in an enervated state</summary>
+  Hysteresis(double i_persistence, double i_activation, bool i_activated = false);
 
+  /// <summary>Implicit cast to activation state</summary>
   /// <returns>True when the system is in the active state</returns>
   operator bool() const {
-    return m_active;
+    return m_activated;
   }
 
+  /// <summary>Implicit cast to interpolating function</summary>
   /// <returns>Interpolation between active and inactive states</returns>
-  /// <remarks>
-  /// Interpolation is equal to 1 inside of the active region
-  /// is equal to 0 outside of the persistence region
-  /// and is the fraction of the distance between the regions otherwise.
-  /// </remarks>
   operator double() const {
     return m_interpolated;
   }
 
   /// <summary>Updates the activation state according to the point argument</summary>
   /// <remarks>
-  /// Return enables in-line comparison via cast to bool or double
+  /// Return enables in-line comparison to updated state via cast to bool or double.
   /// </remarks>
   const Hysteresis& operator () (double point);
 
-  /// <summary>Makes state inactive</summary>
-  void reset();
+  /// <summary>Defines an activation threshold without hysteresis</summary>
+  Hysteresis& operator = (const double& rhs);
+
+  /// <summary>Combines Hysteresis conditions so that activation and enervation require lhs && rhs.</summary>
+  /// <remarks>
+  /// This combination always expands the persistence region.
+  /// </remarks>
+  void operator &= (const Hysteresis& rhs);
+
+  /// <summary>Combines Hysteresis conditions so that activation and enervation require lhs || rhs.</summary>
+  /// <remarks>
+  /// This combination always retracts the persistence region, and can revoke the Hysteresis condition.
+  /// </remarks>
+  void operator |= (const Hysteresis& rhs);
+
+  /// <summary>Displaces activation and persistence thresholds by +displace</summary>
+  void operator += (double displace);
+  /// <summary>Displaces activation and persistence thresholds by -displace</summary>
+  void operator -= (double displace);
+
+  /// <summary>
+  /// Makes bool(*this) == true && double(*this) == 1.
+  /// </summary>
+  void activate();
+
+  /// <summary>
+  /// Makes bool(*this) == false && double(*this) == 0.
+  /// </summary>
+  void enervate();
+
+  /// <returns>True if the point update will yield bool(*this) == true</returns>
+  bool will_activate(double point) const;
+
+  /// <returns>True if the point update will yield bool(*this) == false</returns>
+  bool will_enervate(double point) const;
+
+  /// <returns>Returns the number of conditions - either 0 or 1</returns>
+  int conditions() const;
 };

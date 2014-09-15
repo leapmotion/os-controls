@@ -8,6 +8,9 @@ set(utility_SOURCES
   HandleUtilitiesWin.h
   Hysteresis.h
   Hysteresis.cpp
+  HysteresisRange.h
+  HysteresisRange.cpp
+  HysteresisVolume.h
   lockable_property.h
   NativeWindow.h
   PlatformInitializer.h
