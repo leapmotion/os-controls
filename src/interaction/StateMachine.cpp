@@ -126,7 +126,7 @@ void StateMachine::performNextTransition() {
     }
   }
   else if (desiredState == OSCState::SCROLLING) {
-    bool didStartScroll = initializeScroll(m_lastHandLocation);
+    bool didStartScroll = initializeScroll(m_cursorView->GetCalculatedLocation());
     if ( !didStartScroll ) { return; }
   }
   
