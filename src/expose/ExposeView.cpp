@@ -105,7 +105,17 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_viewCenter = origin + 0.5*size;
 
   // update background rectangle
+  const Vector2& bgSize = m_backgroundImage->Size();
+  const double bgAspect = bgSize.x() / bgSize.y();
+  const double fullAspect = fullSize.x() / fullSize.y();
+  double bgScale = 1.0;
+  if (bgAspect > fullAspect) {
+    bgScale = fullSize.y() / bgSize.y();
+  } else {
+    bgScale = fullSize.x() / bgSize.x();
+  }
   m_backgroundImage->Translation() << fullCenter.x(), fullCenter.y(), 0.0;
+  m_backgroundImage->LinearTransformation() = bgScale*Matrix3x3::Identity();
 
   // calculate radius of layout
   m_layoutRadius = 0.4 * std::min(size.x(), size.y());
