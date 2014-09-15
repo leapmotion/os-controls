@@ -158,5 +158,8 @@ private:
 
   std::shared_ptr<Disk> m_selectionRegion;
   std::shared_ptr<PartialDisk> m_selectionOutline;
+
+  std::shared_ptr<Disk> m_selectionRegionActive;
+  std::shared_ptr<PartialDisk> m_selectionOutlineActive;
 };
 

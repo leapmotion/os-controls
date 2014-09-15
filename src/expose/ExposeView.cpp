@@ -33,6 +33,16 @@ ExposeView::ExposeView() :
   m_selectionOutline->Material().SetDiffuseLightColor(selectionOutlineColor);
   m_selectionOutline->Material().SetAmbientLightColor(selectionOutlineColor);
   m_selectionOutline->Material().SetAmbientLightingProportion(1.0f);
+
+  m_selectionRegionActive = std::shared_ptr<Disk>(new Disk);
+  m_selectionRegionActive->Material().SetDiffuseLightColor(selectionRegionActiveColor);
+  m_selectionRegionActive->Material().SetAmbientLightColor(selectionRegionActiveColor);
+  m_selectionRegionActive->Material().SetAmbientLightingProportion(1.0f);
+
+  m_selectionOutlineActive = std::shared_ptr<PartialDisk>(new PartialDisk);
+  m_selectionOutlineActive->Material().SetDiffuseLightColor(selectionOutlineActiveColor);
+  m_selectionOutlineActive->Material().SetAmbientLightColor(selectionOutlineActiveColor);
+  m_selectionOutlineActive->Material().SetAmbientLightingProportion(1.0f);
 }
 
 ExposeView::~ExposeView() {
@@ -72,6 +82,9 @@ void ExposeView::Render(const RenderFrame& frame) const {
 
   for(const auto& renderable : m_zorder)
     renderable->Render(frame);
+
+  PrimitiveBase::DrawSceneGraph(*m_selectionRegionActive, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_selectionOutlineActive, frame.renderState);
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
@@ -146,6 +159,14 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegion->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
   m_selectionRegion->SetRadius(m_selectionRadius);
   m_selectionRegion->LocalProperties().AlphaMask() = m_alphaMask.Current();
+
+  m_selectionOutlineActive->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  m_selectionOutlineActive->SetInnerRadius(m_selectionRadius);
+  m_selectionOutlineActive->SetOuterRadius(1.005*m_selectionRadius);
+
+  m_selectionRegionActive->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  m_selectionRegionActive->SetRadius(m_selectionRadius);
+  m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
   m_backgroundImage->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
@@ -274,6 +295,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     maxSelection = std::max(maxSelection, window->m_selection.Value());
   }
 
+#if 0
   const Vector4f regionColor = maxSelection*selectionRegionActiveColor.Data() + (1.0f - maxSelection)*selectionRegionColor.Data();
   const Vector4f outlineColor = maxSelection*selectionOutlineActiveColor.Data() + (1.0f - maxSelection)*selectionOutlineColor.Data();
   
@@ -281,6 +303,10 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   m_selectionRegion->Material().SetAmbientLightColor(regionColor);
   m_selectionOutline->Material().SetDiffuseLightColor(outlineColor);
   m_selectionOutline->Material().SetAmbientLightColor(outlineColor);
+#else
+  m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
+  m_selectionOutlineActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
+#endif
 
   // bring a group to front when one of its members is activated
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
