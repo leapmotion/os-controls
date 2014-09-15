@@ -99,6 +99,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRadius = 0.5 * m_layoutRadius;
 
   const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
+  const double radiusPerWindow = 0.75 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
 
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
@@ -108,7 +109,8 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 
     // set window scale smoothly
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
-    const double scale = (1.0 + bonusScale) * 0.5 * size.norm() / fullSize.norm();
+    const double imgRadius = 0.5 * img->Size().norm();
+    const double scale = 3.0 * (1.0 + bonusScale) * (radiusPerWindow / imgRadius) * size.norm() / fullSize.norm();
     if (!m_closing) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
@@ -431,7 +433,7 @@ void ExposeView::computeLayout() {
 
     const int numGroupMembers = group->m_groupMembers.size();
     const Vector2 scaledCenter = (group->m_center - primaryCenter).cwiseProduct(primaryToFullScale) + primaryCenter;
-    const double radius = groupRadius * 0.1 * (numGroupMembers-1);
+    const double radius = groupRadius * 0.05 * (numGroupMembers-1);
     double angle = 0;
     const double angleInc = 2*M_PI / totalSize;
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
