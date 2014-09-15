@@ -5,6 +5,17 @@ struct NativeCallbacks {
   /// Invoked by the UI when the user has indicated that we should quit
   /// </summary>
   void(*OnQuit)();
+
+  /// <summary>
+  /// Invoked when the configuration dialog is presented
+  /// </summary>
+  void(*OnConfigUiVisible)(void);
+
+  /// <summary>
+  /// Invoked when the configuration dialog is hidden
+  /// </summary>
+  /// <param name="bCancelled">True if the configuration dialog was dismissed via a "cancel" behavior</param>
+  void(*OnConfigUiHidden)(bool bCancelled);
 };
 
 /// <summary>

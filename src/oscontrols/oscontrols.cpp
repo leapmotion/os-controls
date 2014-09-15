@@ -23,6 +23,8 @@ const NativeCallbacks sc_callbacks = [] {
   retVal.OnQuit = [] {
     AutoGlobalContext()->SignalShutdown();
   };
+  retVal.OnConfigUiVisible = [] {};
+  retVal.OnConfigUiHidden = [] (bool) {};
   return retVal;
 }();
 

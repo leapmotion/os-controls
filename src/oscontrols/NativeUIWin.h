@@ -119,6 +119,7 @@ namespace oscontrols {
       this->configToolStripMenuItem->Name = L"configToolStripMenuItem";
       this->configToolStripMenuItem->Size = System::Drawing::Size(132, 22);
       this->configToolStripMenuItem->Text = L"&Configuration...";
+      this->configToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::configToolStripMenuItem_Click);
       // 
       // exitToolStripMenuItem
       // 
@@ -132,16 +133,26 @@ namespace oscontrols {
       this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
       this->ClientSize = System::Drawing::Size(284, 262);
+      this->MaximizeBox = false;
+      this->MinimizeBox = false;
       this->Name = L"NativeUIWin";
-      this->Text = L"NativeUI";
+      this->Text = L"Configuration";
+      this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &NativeUIWin::NativeUIWin_FormClosing);
       this->notificationMenu->ResumeLayout(false);
       this->ResumeLayout(false);
 
     }
 #pragma endregion
-  private: System::Void exitToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+  void exitToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
     callbacks.OnQuit();
     Close();
+  }
+  void configToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+    Visible = true;
+  }
+  void NativeUIWin_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
+    e->Cancel = true;
+    Visible = false;
   }
 };
 }
