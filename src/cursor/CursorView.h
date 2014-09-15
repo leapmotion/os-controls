@@ -38,8 +38,8 @@ public:
   // Get where the cursor thinks it should be (this will be its position unless it is being overriden)
   Vector2 GetCalculatedLocation() const;
   
-  void EnableLocationOverride() { m_overrideInfluence.SetGoal(1.0f); }
-  void DisableLocationOverride() { m_overrideInfluence.SetGoal(0.0f); }
+  void EnableLocationOverride() { m_overrideInfluence = 1.0f; }
+  void DisableLocationOverride() { m_overrideInfluence = 0.0f; }
   void SetOverideLocation(const Vector2& offsetLocation);
   
   // Implement Renderable
@@ -94,7 +94,7 @@ private:
   Smoothed<float> m_y;
   float m_overrideX;
   float m_overrideY;
-  Smoothed<float> m_overrideInfluence; // how much do we follow the offset amount.
+  float m_overrideInfluence; // how much do we follow the offset amount.
   Smoothed<float> m_bodyAlpha;
   Smoothed<float> m_diskAlpha;
   

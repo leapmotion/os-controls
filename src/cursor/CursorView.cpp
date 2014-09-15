@@ -28,7 +28,8 @@ CursorView::CursorView() :
   m_lastHandDeltas(0,0),
   m_lastHandPosition(0,0),
   m_overrideX(0.0f),
-  m_overrideY(0.0f)
+  m_overrideY(0.0f),
+  m_overrideInfluence(0.0f)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
@@ -45,8 +46,8 @@ CursorView::CursorView() :
   m_diskAlpha.SetSmoothStrength(0.5f);
   m_diskAlpha.SetInitialValue(0.0f);
   
-  m_overrideInfluence.SetInitialValue(0.0f);
-  m_overrideInfluence.SetSmoothStrength(0.75f);
+  //m_overrideInfluence.SetInitialValue(0.0f);
+  //m_overrideInfluence.SetSmoothStrength(0.75f);
   
   
   //Initialize Disk Cursor
@@ -193,7 +194,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     // Update the smoohted position variables and offset
     m_x.Update(static_cast<float>(frame.deltaT.count()));
     m_y.Update(static_cast<float>(frame.deltaT.count()));
-    m_overrideInfluence.Update(static_cast<float>(frame.deltaT.count()));
+    //m_overrideInfluence.Update(static_cast<float>(frame.deltaT.count()));
     m_bodyOffset.Update(static_cast<float>(frame.deltaT.count()));
     
     // If another object is overriding our value, we don't want to fight it by setting the location ourself.
