@@ -1,32 +1,43 @@
+
 set(utility_SOURCES
+  CircleFitter.h
   Config.h
   Config.cpp
   ExtendedStateMachine.h
-  lockable_property.h
-  NativeWindow.h
-  PlatformInitializer.h
-  CircleFitter.h
+  FileMonitor.h
   HandleUtilitiesWin.h
   Hysteresis.h
   Hysteresis.cpp
+  lockable_property.h
+  NativeWindow.h
+  PlatformInitializer.h
   SamplePrimitives.h
   SamplePrimitives.cpp
 )
 
-add_windows_sources(utility_SOURCES 
+add_windows_sources(utility_SOURCES
+  FileMonitorWin.h
+  FileMonitorWin.cpp
   NativeWindowWin.cpp
   PlatformInitializerWin.h
   PlatformInitializerWin.cpp
 )
 
 add_mac_sources(utility_SOURCES
+  FileMonitorMac.h
+  FileMonitorMac.cpp
   NativeWindowMac.mm
   PlatformInitializerMac.h
   PlatformInitializerMac.mm
 )
 
 add_library(utility ${utility_SOURCES})
-target_link_libraries(utility Autowiring)
+target_link_libraries(utility Autowiring json11 )
+
+if(MSVC)
+  target_link_libraries(utility shlwapi)
+endif()
+
 target_include_directories(utility PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 target_link_components(utility Primitives)
 add_subdirectory(test)

@@ -14,6 +14,8 @@
 #include "osinterface/VolumeLevelChecker.h"
 #include "osinterface/OSWindowMonitor.h"
 #include "uievents/SystemMultimediaEventListener.h"
+#include "utility/Config.h"
+#include "utility/FileMonitor.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
 
@@ -23,6 +25,13 @@ int main(int argc, char **argv)
 
   AutoCurrentContext ctxt;
   ctxt->Initiate();
+  AutoRequired<Config> config;
+  AutoRequired<FileMonitor> fileMonitor;
+  config->Load("config.json");
+  auto configFileWatcher = fileMonitor->Watch("config.json", [&config](std::shared_ptr<FileWatch> fileWatch, FileWatch::State state) {
+    config->Load("config.json");
+  }, FileWatch::State::MODIFIED);
+
   //AutoRequired<AutoNetServer> autonet(ctxt);
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
