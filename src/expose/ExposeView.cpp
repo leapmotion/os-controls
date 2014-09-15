@@ -123,7 +123,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     // set window scale smoothly
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
     const double imgRadius = 0.5 * img->Size().norm();
-    const double scale = 3.0 * (1.0 + bonusScale) * (radiusPerWindow / imgRadius) * size.norm() / fullSize.norm();
+    const double scale = 4.0 * (1.0 + bonusScale) * (radiusPerWindow / imgRadius) * size.norm() / fullSize.norm();
     if (!m_closing) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
@@ -324,7 +324,7 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
   m_forces.clear();
   // activation forces
   static const double MAX_RADIUS_MULT = 1.0;
-  static const double FORCE_DISTANCE_MULT = 0.15;
+  static const double FORCE_DISTANCE_MULT = 0.2;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
