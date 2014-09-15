@@ -1,8 +1,7 @@
 set(oscontrols_SOURCES
+  NativeUI.h
   oscontrols.h
   oscontrols.cpp
-  NativeUI.h
-  NativeUI.cpp
 )
 
 set(oscontrols_RESOURCES
@@ -23,7 +22,9 @@ set(oscontrols_RESOURCES
 
 add_windows_sources(
   oscontrols_SOURCES
-  NativeUI.resx
+  NativeUIWin.resx
+  NativeUIWin.h
+  NativeUIWin.cpp
 )
 
 add_mac_sources(
@@ -32,6 +33,7 @@ add_mac_sources(
   ApplicationDelegate.mm
   MenubarController.h
   MenubarController.mm
+  NativeUIMac.mm
 )
 
 if(APPLE)
@@ -54,10 +56,9 @@ if(WIN32)
 
   STRING(REPLACE "/EHsc" "/EHa" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
   STRING(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-  set_source_files_properties(NativeUI.cpp PROPERTIES COMPILE_FLAGS "/clr")
+  set_source_files_properties(NativeUIWin.cpp PROPERTIES COMPILE_FLAGS "/clr")
 
 elseif(APPLE)
-  set_source_files_properties(NativeUI.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
   set(oscontrols_EXEFLAGS MACOSX_BUNDLE)
   set(oscontrols_XIB_NAMES MainMenu)
   set(oscontrols_XIBS "")
