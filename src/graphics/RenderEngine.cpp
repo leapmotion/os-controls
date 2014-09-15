@@ -40,7 +40,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
 
   //Set the mode
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
 
   const auto windowSize = m_rw->getSize();
   m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 1, -100);
