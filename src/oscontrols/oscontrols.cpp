@@ -18,11 +18,18 @@
 #include "utility/PlatformInitializer.h"
 #include <autowiring/AutoNetServer.h>
 
+const NativeCallbacks sc_callbacks = [] {
+  NativeCallbacks retVal;
+  retVal.OnQuit = [] {
+    AutoGlobalContext()->SignalShutdown();
+  };
+  return retVal;
+}();
+
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
-
-  ShowUI();
+  ShowUI(sc_callbacks);
 
   AutoCurrentContext ctxt;
   ctxt->Initiate();

@@ -1,4 +1,5 @@
 #pragma once
+#include "NativeUI.h"
 
 namespace oscontrols {
 
@@ -17,7 +18,8 @@ namespace oscontrols {
 	public ref class NativeUIWin : public System::Windows::Forms::Form
 	{
 	public:
-    NativeUIWin(void)
+    NativeUIWin(const NativeCallbacks& callbacks) :
+      callbacks(callbacks)
 		{
 			InitializeComponent();
 			
@@ -29,10 +31,20 @@ namespace oscontrols {
       this->Icon = icon;
 		}
 
+    static size_t s_nativeUIInitCount = 0;
     static NativeUIWin^ s_nativeUI;
 
-    static void AddTrayIcon(void) {
-      s_nativeUI = gcnew NativeUIWin;
+    static void AddTrayIcon(const NativeCallbacks& callbacks) {
+      if(!s_nativeUIInitCount++)
+        s_nativeUI = gcnew NativeUIWin(callbacks);
+    }
+
+    static void RemoveTrayIcon(void) {
+      if(--s_nativeUIInitCount)
+        return;
+
+      s_nativeUI->Close();
+      s_nativeUI = nullptr;
     }
 
 	protected:
@@ -46,6 +58,9 @@ namespace oscontrols {
 				delete components;
 			}
 		}
+
+    const NativeCallbacks& callbacks;
+
   private: System::Windows::Forms::NotifyIcon^  notificationIcon;
   private: System::Windows::Forms::ContextMenuStrip^  notificationMenu;
 
@@ -97,19 +112,20 @@ namespace oscontrols {
       });
       this->notificationMenu->Name = L"contextMenuStrip1";
       this->notificationMenu->ShowImageMargin = false;
-      this->notificationMenu->Size = System::Drawing::Size(92, 48);
+      this->notificationMenu->Size = System::Drawing::Size(133, 48);
       // 
       // configToolStripMenuItem
       // 
       this->configToolStripMenuItem->Name = L"configToolStripMenuItem";
-      this->configToolStripMenuItem->Size = System::Drawing::Size(127, 22);
-      this->configToolStripMenuItem->Text = L"Config..";
+      this->configToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      this->configToolStripMenuItem->Text = L"&Configuration...";
       // 
       // exitToolStripMenuItem
       // 
       this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-      this->exitToolStripMenuItem->Size = System::Drawing::Size(127, 22);
-      this->exitToolStripMenuItem->Text = L"Quit";
+      this->exitToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      this->exitToolStripMenuItem->Text = L"&Quit";
+      this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
       // 
       // NativeUIWin
       // 
@@ -123,5 +139,9 @@ namespace oscontrols {
 
     }
 #pragma endregion
-	};
+  private: System::Void exitToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+    callbacks.OnQuit();
+    Close();
+  }
+};
 }

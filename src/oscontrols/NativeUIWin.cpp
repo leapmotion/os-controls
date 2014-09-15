@@ -3,6 +3,10 @@
 
 using namespace oscontrols;
 
-void ShowUI(void) {
-  NativeUIWin::AddTrayIcon();
+void ShowUI(const NativeCallbacks& callbacks) {
+  NativeUIWin::AddTrayIcon(callbacks);
+}
+
+void DestroyUI(void) {
+  Application::Exit();
 }
