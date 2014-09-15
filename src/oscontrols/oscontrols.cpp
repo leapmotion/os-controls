@@ -45,11 +45,8 @@ int main(int argc, char **argv)
     AutoRequired<MakesRenderWindowFullScreen>();
     AutoRequired<OSWindowMonitor>();
     AutoConstruct<sf::RenderWindow> mw(
-      sf::VideoMode(
-        (int) virtualScreen->PrimaryScreen().Width(),
-        (int) virtualScreen->PrimaryScreen().Height()
-      ),
-      "Leap Os Control", sf::Style::None,
+      sf::VideoMode(1, 1),
+      "Leap Hand Control", sf::Style::None,
       *contextSettings
     );
 
