@@ -38,23 +38,23 @@ public:
   /// Sets the file to watch and save changes to
   /// </summary>
   void SetPrimaryFile(const std::string& filename);
-  const std::string& GetPrimaryFile() const { return m_fileWatch->Path(); }
+  const std::string& GetPrimaryFile() const { return m_fileName; }
   
   const std::string& GetDefaultFilename() const { 
-    static const std::string name = "config.json";
+    static const std::string name = CONFIG_DEFAULT_NAME;
     return name;
   }
 
   /// <summary>
   /// Performs a one-off save to the specified file
   /// </summary>
-  void Save(const std::string& filename = CONFIG_DEFAULT_NAME) const;
+  void Save(const std::string& filename);
 
   /// <summary>
   /// Loads a file in a one-off manner.  If overwrite is set, it will
   /// Overwrite any settings it finds with the ones from the file, otherwise
   /// it will only load settings for which there is not yet a value
-  bool Load(const std::string& filename = CONFIG_DEFAULT_NAME, bool overwrite = true);
+  bool Load(const std::string& filename, bool overwrite = true);
 
   /// <summary>
   /// Clears all config data
@@ -71,11 +71,15 @@ public:
       if (entry != m_data.end() && entry->second == val)
         return;
 
-      m_data[prop] = json11::Json(val);
-      m_events(&ConfigEvent::ConfigChanged)(entry->first, entry->second);
+      if (entry == m_data.end())
+        entry = m_data.emplace(prop, json11::Json(val)).first;
+      else
+        m_data[prop] = json11::Json(val);
+
+      m_events(&ConfigEvent::ConfigChanged)(entry->first,entry->second);
     }
 
-    Save(m_fileWatch->Path());
+    Save(m_fileName);
   }
 
   /// <summary>
@@ -99,9 +103,12 @@ private:
   AutoFired<ConfigEvent> m_events;
 
   std::shared_ptr<FileWatch> m_fileWatch;
+  std::string m_fileName;
 
   json11::Json::object m_data;
   mutable std::mutex m_mutex;
+  
+  void WatchFile(const std::string& filename);
 
   json11::Json::object::const_iterator GetInternal(const std::string& prop) const {
     std::unique_lock<std::mutex> lock(m_mutex);

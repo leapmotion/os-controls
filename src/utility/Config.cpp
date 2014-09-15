@@ -8,17 +8,27 @@
 void Config::SetPrimaryFile(const std::string& filename)
 {
   Load(filename);
+  m_fileName = filename;
+  WatchFile(filename);
+}
 
-  m_fileWatch = m_fileMonitor->Watch(filename, 
+void Config::Save(const std::string& filename) {
+  std::unique_lock<std::mutex> lock(m_mutex);
+
+  {
+    std::ofstream outFile(filename);
+    outFile << json11::Json(m_data).dump();;
+  }
+  if (!m_fileWatch) {
+    WatchFile(filename);
+  }
+}
+
+void Config::WatchFile(const std::string& filename) {
+  m_fileWatch = m_fileMonitor->Watch(filename,
     [this](std::shared_ptr<FileWatch> fileWatch, FileWatch::State state) {
     this->Load(fileWatch->Path());
   });
-}
-
-void Config::Save(const std::string& filename) const {
-  std::unique_lock<std::mutex> lock(m_mutex);
-  std::ofstream outFile(filename);
-  outFile << json11::Json(m_data).dump();;
 }
 
 bool Config::Load(const std::string& filename, bool overwrite) {
@@ -65,5 +75,5 @@ void Config::Clear(){
     std::unique_lock<std::mutex> lock(m_mutex);
     m_data.clear();
   }
-  Save();
+  Save(m_fileName);
 }

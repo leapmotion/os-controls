@@ -8,7 +8,7 @@ class ConfigTest :
 {};
 
 TEST_F(ConfigTest, ValidateGetSet) {
-  Config config;
+  Config config("tmpconfig.json");
   config.Set("stringfoop", "213. I am a string with spaces0 and a number");
   config.Set("foop", 42.42);
   config.Set("bofoop", true);
@@ -22,21 +22,21 @@ TEST_F(ConfigTest, ValidateGetSet) {
   ASSERT_EQ(42.42f, f);
   ASSERT_STREQ("213. I am a string with spaces0 and a number", s.c_str());
   ASSERT_EQ(true, b);
+
+  std::remove("tmpconfig.json");
 }
 
 TEST_F(ConfigTest, ValidateSaveLoad) {
   {
-    Config config;
+    Config config("tmpconfig.json");
+    
     config.Set("stringfoop", "213. I am a string with spaces0 and a number");
     config.Set("foop", 42.42);
     config.Set("bofoop", true);
-    
-    config.Save("tmpconfig.json");
   }
 
   {
-    Config config;
-    config.Load("tmpconfig.json");
+    Config config("tmpconfig.json");
 
     int i = config.Get<int>("foop");
     float f = config.Get<float>("foop");
@@ -52,7 +52,7 @@ TEST_F(ConfigTest, ValidateSaveLoad) {
 }
 
 TEST_F(ConfigTest, ValidateNotFoundException) {
-  Config config;
+  Config config("non-existant-file");
 
   bool threw = false;
   try{
@@ -62,25 +62,23 @@ TEST_F(ConfigTest, ValidateNotFoundException) {
   {
     threw = true;
   }
+  std::remove("config.json");
   ASSERT_TRUE(threw);
 }
 
 TEST_F(ConfigTest, ValidateMultiLoad) {
   {
-    Config config;
+    Config config("file1.json");
     config.Set("a", 1);
     config.Set("b", 2);
 
-    config.Save("file1.json");
+    config.SetPrimaryFile("file2.json");
 
     config.Set("c", 3);
     config.Set("a", 4);
-
-    config.Save("file2.json");
   }
   {
-    Config config;
-    config.Load("file1.json");
+    Config config("file1.json");
     {
       int a = config.Get<int>("a");
       int b = config.Get<int>("b");
@@ -109,6 +107,7 @@ TEST_F(ConfigTest, ValidateMultiLoad) {
       ASSERT_EQ(c, 3);
     }
   }
+  std::remove("config.json");
   std::remove("file1.json");
   std::remove("file2.json");
 }
