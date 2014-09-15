@@ -39,8 +39,10 @@ TexturedFrame::TexturedFrame() {
 TexturedFrame::~TexturedFrame() { }
 
 void TexturedFrame::SetBasisRectangleSize(const Vector2& size) {
-  m_basis_rectangle_size = size;
-  m_recompute_geometry = true;
+  if (m_basis_rectangle_size != size) {
+    m_basis_rectangle_size = size;
+    m_recompute_geometry = true;
+  }
 }
 
 void TexturedFrame::SetRectangleEdgeOffset(TexturedFrame::Rectangle rect, TexturedFrame::RectangleEdge edge, double offset) {
@@ -143,7 +145,7 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
   PrimitiveGeometry::VertexAttributes vertex_attributes[4][4];
   for (size_t u = 0; u < 4; ++u) {
     for (size_t v = 0; v < 4; ++v) {
-      vertex_attributes[u][v] = std::make_tuple(Vector3f(rectangle_edge[0][u], rectangle_edge[1][v], 0.0f),
+      vertex_attributes[u][v] = std::make_tuple(Vector3f(static_cast<float>(rectangle_edge[0][u]), static_cast<float>(rectangle_edge[1][v]), 0.0f),
                                                 NORMAL,
                                                 Vector2f(rectangle_edge_texture_coordinate[0][u], rectangle_edge_texture_coordinate[1][v]),
                                                 COLOR);
