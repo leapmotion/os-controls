@@ -23,14 +23,8 @@ add_windows_sources(
   oscontrols_SOURCES
   NativeUI.h
   NativeUI.cpp
+  NativeUI.resx
 )
-
-if(WIN32)
-  set(oscontrols_RESOURCES
-    ${oscontrols_RESOURCES}
-    NativeUI.resx
-  )
-endif()
 
 add_mac_sources(
   oscontrols_SOURCES
