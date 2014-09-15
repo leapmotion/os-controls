@@ -22,17 +22,20 @@ int main(int argc, char **argv)
 {
   PlatformInitializer init;
   AutoCurrentContext ctxt;
-  AutoRequired<NativeUI> nativeUI;
   //AutoRequired<AutoNetServer> autonet(ctxt);
 
   ctxt->Initiate();
-
-  nativeUI->ShowUI();
 
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
     osCtxt->Initiate();
     CurrentContextPusher pshr(osCtxt);
+    AutoRequired<NativeUI> nativeUI;
+
+    // Register the tray icon early in the process, before we spend a bunch of time doing everything else
+    nativeUI->ShowUI();
+    auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
+
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
@@ -62,8 +65,6 @@ int main(int argc, char **argv)
   catch (std::exception& e) {
     std::cout << e.what() << std::endl;
   }
-
-  nativeUI->DestroyUI();
 
   ctxt->SignalShutdown(true);
   return 0;

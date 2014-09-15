@@ -3,9 +3,7 @@
 #include "oscontrols.h"
 
 void NativeUI::OnQuit() {
-  for(auto ctxt : ContextEnumeratorT<OsControlContext>(CoreContext::CurrentContext())) {
-    ctxt->SignalShutdown(false);
-  }
+  GetContext()->SignalShutdown(false);
 }
 
 void NativeUI::OnConfigUiVisible() {

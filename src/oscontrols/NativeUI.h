@@ -1,6 +1,9 @@
 #pragma once
+#include "autowiring/ContextMember.h"
 
-struct NativeUI {
+struct NativeUI:
+  public ContextMember
+{
   /// <summary>
   /// Registers the system tray icon with the system to allow user interaction
   /// </summary>
