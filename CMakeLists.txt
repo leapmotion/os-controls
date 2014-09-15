@@ -429,6 +429,7 @@ add_sublibrary(
 add_sublibrary(
     Primitives
     HEADERS
+        DropShadow.h
         PrimitiveBase.h
         PrimitiveGeometry.h
         Primitives.h
@@ -436,6 +437,7 @@ add_sublibrary(
         SVGPrimitive.h
         TexturedFrame.h
     SOURCES
+        DropShadow.cpp
         PrimitiveBase.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp

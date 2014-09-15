@@ -111,6 +111,8 @@ public:
 protected:
 
   virtual void DrawContents (RenderState& renderState) const override;
+  
+  void ForceRecomputeGeometry () { m_recompute_geometry = true; }
 
 private:
   
