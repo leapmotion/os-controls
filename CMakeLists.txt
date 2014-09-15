@@ -179,7 +179,6 @@ add_sublibrary(
         FbxSceneLoader.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         ResourceManager
-        SDLController
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
     BRIEF_DOC_STRING
