@@ -24,6 +24,7 @@ build/
 **/*.xcodeproj
 src/oscontrols/*.glsl
 src/oscontrols/*.svg
+Testing/*
 os-controls.sublime-project
 src/config/moc_config.cpp_parameters
 src/config/build-config-*

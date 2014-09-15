@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "oscontrols.h"
-#include <autowiring/AutoNetServer.h>
+#include "NativeUI.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "expose/ExposeViewAccessManager.h"
@@ -18,13 +18,12 @@
 #include "utility/FileMonitor.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
+#include <autowiring/AutoNetServer.h>
 
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
-
   AutoCurrentContext ctxt;
-  ctxt->Initiate();
   AutoRequired<Config> config;
   AutoRequired<FileMonitor> fileMonitor;
   config->Load("config.json");
@@ -33,10 +32,19 @@ int main(int argc, char **argv)
   }, FileWatch::State::MODIFIED);
 
   //AutoRequired<AutoNetServer> autonet(ctxt);
+
+  ctxt->Initiate();
+
   try {
     AutoCreateContextT<OsControlContext> osCtxt;
     osCtxt->Initiate();
     CurrentContextPusher pshr(osCtxt);
+    AutoRequired<NativeUI> nativeUI;
+
+    // Register the tray icon early in the process, before we spend a bunch of time doing everything else
+    nativeUI->ShowUI();
+    auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
+
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<OsControl> control;
@@ -51,11 +59,8 @@ int main(int argc, char **argv)
     AutoRequired<MakesRenderWindowFullScreen>();
     AutoRequired<OSWindowMonitor>();
     AutoConstruct<sf::RenderWindow> mw(
-      sf::VideoMode(
-        (int) virtualScreen->PrimaryScreen().Width(),
-        (int) virtualScreen->PrimaryScreen().Height()
-      ),
-      "Leap Os Control", sf::Style::None,
+      sf::VideoMode(1, 1),
+      "Leap Hand Control", sf::Style::None,
       *contextSettings
     );
 
@@ -95,12 +100,12 @@ void OsControl::Main(void) {
     upd(&Updatable::Tick)(now - then);
     then = now;
   }
+  m_mw->close();
 }
 
 void OsControl::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
   case sf::Event::Closed:
-    m_mw->close();
     AutoCurrentContext()->SignalShutdown();
     break;
   default:
@@ -116,4 +121,3 @@ void OsControl::Filter(void) {
     std::cerr << ex.what() << std::endl;
   }
 }
-

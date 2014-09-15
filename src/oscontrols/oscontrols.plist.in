@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>@PROJECT_NAME@</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.leapmotion.@PROJECT_NAME@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -16,23 +16,27 @@
 	<string>@PROJECT_NAME@</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleVersion</key>
+	<string>@APP_VERSION@</string>
 	<key>CFBundleShortVersionString</key>
 	<string>@APP_VERSION@</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>@CMAKE_OSX_DEPLOYMENT_TARGET@</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>@APP_COPYRIGHT@</string>
 	<key>NSHighResolutionCapable</key>
-	<false/>
+	<true/>
 	<key>LSMultipleInstancesProhibited</key>
 	<false/>
 	<key>LSRequiresCarbon</key>
 	<true/>
 	<key>LSUIElement</key>
 	<string>1</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 </dict>
 </plist>
