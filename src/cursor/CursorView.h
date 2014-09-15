@@ -54,7 +54,6 @@ private:
     ACTIVE
   };
   
-  const float CURSOR_DISTANCE_FOR_MAX_SMOOTHING = 50.0f;
   const float MAX_CURSOR_SMOOTHING = 0.6f;
   
   //The mm delta that will result in a smoothing factor of 0.0 and MAX_CURSOR_SMOOTHING respectively

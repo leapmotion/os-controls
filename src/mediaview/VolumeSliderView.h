@@ -47,6 +47,7 @@ public:
 private:
   const Color INACTIVE_PART_COLOR = Color(0.4f, 0.425f, 0.45f, 0.75f);
   const Color ACTIVE_PART_COLOR = Color(0.505f, 0.831f, 0.114f, 0.95f);
+  const float ICON_Y_OFFSET = 45.0f;
   
   float m_volumeLevel;
   
@@ -59,8 +60,14 @@ private:
   std::shared_ptr<RectanglePrim> m_sliderInactivePart;
   std::shared_ptr<SVGPrimitive> m_sliderNotchBodyActive;
   std::shared_ptr<SVGPrimitive> m_sliderNotchBodyInactive;
+  std::shared_ptr<SVGPrimitive> m_volumeIcon;
+  std::shared_ptr<SVGPrimitive> m_plusIcon;
+  std::shared_ptr<SVGPrimitive> m_minusIcon;
   
   Vector2 m_sliderNotchOffset;
+  Vector2 m_volumeIconOffset;
+  Vector2 m_plusIconOffset;
+  Vector2 m_minusIconOffset;
   
   Smoothed<float> m_activationAmount;
 };

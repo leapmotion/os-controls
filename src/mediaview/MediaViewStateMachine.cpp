@@ -73,7 +73,6 @@ MediaViewStateMachine::MediaViewStateMachine() :
   Resource<TextFile> nextIconFile("next-track-icon-extended-01.svg");
   Resource<TextFile> playPauseIconFile("play_pause-icon-extended-01.svg");
   Resource<TextFile> prevIconFile("prev-track-icon-extended-01.svg");
-  Resource<TextFile> volumeIconFile("volume-icon-01.svg");
   
   std::shared_ptr<SVGPrimitive> nextIcon(new SVGPrimitive());
   std::shared_ptr<SVGPrimitive> playPauseIcon(new SVGPrimitive());
