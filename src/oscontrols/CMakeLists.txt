@@ -45,9 +45,9 @@ add_mac_sources(
 if(APPLE)
   set(oscontrols_RESOURCES
     ${oscontrols_RESOURCES}
-    ${CMAKE_SOURCE_DIR}/src/icons/AppIcon.icns
-    ${CMAKE_SOURCE_DIR}/src/icons/TrayIcon.tiff
-    ${CMAKE_SOURCE_DIR}/src/icons/TrayIconInverted.tiff
+    icons/AppIcon.icns
+    icons/TrayIcon.tiff
+    icons/TrayIconInverted.tiff
   )
 endif()
 
@@ -108,6 +108,7 @@ foreach(_resource ${oscontrols_RESOURCES})
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" "${CMAKE_CURRENT_BINARY_DIR}"
     )
   elseif(APPLE)
+    get_filename_component(_resource ${_resource} ABSOLUTE)
     get_target_property(_is_bundle oscontrols MACOSX_BUNDLE)
     if(_is_bundle)
       add_custom_command(TARGET oscontrols POST_BUILD
