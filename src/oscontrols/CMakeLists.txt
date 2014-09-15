@@ -1,6 +1,8 @@
 set(oscontrols_SOURCES
   oscontrols.h
   oscontrols.cpp
+  NativeUI.h
+  NativeUI.cpp
 )
 
 set(oscontrols_RESOURCES
@@ -21,8 +23,6 @@ set(oscontrols_RESOURCES
 
 add_windows_sources(
   oscontrols_SOURCES
-  NativeUI.h
-  NativeUI.cpp
   NativeUI.resx
 )
 
@@ -57,7 +57,7 @@ if(WIN32)
   set_source_files_properties(NativeUI.cpp PROPERTIES COMPILE_FLAGS "/clr")
 
 elseif(APPLE)
-  set_property(SOURCE oscontrols.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
+  set_source_files_properties(NativeUI.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
   set(oscontrols_EXEFLAGS MACOSX_BUNDLE)
   set(oscontrols_XIB_NAMES MainMenu)
   set(oscontrols_XIBS "")

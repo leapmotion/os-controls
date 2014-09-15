@@ -1,6 +1,6 @@
 #pragma once
 
-#if _MANAGED
+#if defined(_MSC_VER) && _MANAGED
 
 namespace oscontrols {
 
