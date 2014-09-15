@@ -30,5 +30,7 @@ private:
   /// Creates a new processing context to handle operations on a particular hand
   /// </summary>
   std::shared_ptr<CoreContext> CreateMenuContext(const Leap::Hand& hand) const;
+
+  int m_activeHandID;
 };
 

@@ -6,7 +6,8 @@
 #include "StateMachineContext.h"
 #include <Leap.h>
 
-FrameFragmenter::FrameFragmenter(void)
+FrameFragmenter::FrameFragmenter(void) :
+m_activeHandID(Leap::Hand::invalid().id())
 {
 }
 
@@ -33,8 +34,15 @@ void FrameFragmenter::OnLeapFrame(const Leap::Frame& frame) {
   std::unordered_map<int, std::shared_ptr<CoreContext>> contexts;
   std::swap(contexts, m_contexts);
 
-  // Process each context that we have found a hand for:
-  for(auto& hand : frame.hands()) {
+  //Update the active hand ID - search in the current frame, grab a new one if the old one is gone
+  m_activeHandID = frame.hand(m_activeHandID).id();
+  auto hands = frame.hands();
+  if (m_activeHandID == Leap::Hand::invalid().id() && hands.count() > 0) {
+    m_activeHandID = hands[0].id();
+  }
+
+  auto& hand = frame.hand(m_activeHandID);
+  if (hand != Leap::Hand::invalid()) {
     std::shared_ptr<CoreContext>& ctxt = contexts[hand.id()];
 
     if(!ctxt)
