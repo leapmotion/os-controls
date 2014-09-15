@@ -25,6 +25,7 @@ set(oscontrols_CLR_SOURCES
   NativeUIWin.h
   NativeUIWin.cpp
   AssemblyInfo.cpp
+  Resource.resx
 )
 
 add_windows_sources(
