@@ -4,4 +4,5 @@
 using namespace oscontrols;
 
 void ShowUI(void) {
+  NativeUIWin::AddTrayIcon();
 }

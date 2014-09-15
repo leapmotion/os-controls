@@ -29,6 +29,12 @@ namespace oscontrols {
       this->Icon = icon;
 		}
 
+    static NativeUIWin^ s_nativeUI;
+
+    static void AddTrayIcon(void) {
+      s_nativeUI = gcnew NativeUIWin;
+    }
+
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
@@ -41,10 +47,14 @@ namespace oscontrols {
 			}
 		}
   private: System::Windows::Forms::NotifyIcon^  notificationIcon;
+  private: System::Windows::Forms::ContextMenuStrip^  notificationMenu;
+
+
+
   protected:
 
   protected:
-  private: System::Windows::Forms::ContextMenuStrip^  contextMenuStrip1;
+
   private: System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
   private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
 
@@ -67,37 +77,38 @@ namespace oscontrols {
 		{
       this->components = (gcnew System::ComponentModel::Container());
       this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
-      this->contextMenuStrip1 = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+      this->notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
       this->configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-      this->contextMenuStrip1->SuspendLayout();
+      this->notificationMenu->SuspendLayout();
       this->SuspendLayout();
       // 
       // notificationIcon
       // 
+      this->notificationIcon->ContextMenuStrip = this->notificationMenu;
       this->notificationIcon->Text = L"Leap Hand Control";
       this->notificationIcon->Visible = true;
       // 
-      // contextMenuStrip1
+      // notificationMenu
       // 
-      this->contextMenuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+      this->notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
         this->configToolStripMenuItem,
           this->exitToolStripMenuItem
       });
-      this->contextMenuStrip1->Name = L"contextMenuStrip1";
-      this->contextMenuStrip1->ShowImageMargin = false;
-      this->contextMenuStrip1->Size = System::Drawing::Size(92, 48);
+      this->notificationMenu->Name = L"contextMenuStrip1";
+      this->notificationMenu->ShowImageMargin = false;
+      this->notificationMenu->Size = System::Drawing::Size(92, 48);
       // 
       // configToolStripMenuItem
       // 
       this->configToolStripMenuItem->Name = L"configToolStripMenuItem";
-      this->configToolStripMenuItem->Size = System::Drawing::Size(91, 22);
+      this->configToolStripMenuItem->Size = System::Drawing::Size(127, 22);
       this->configToolStripMenuItem->Text = L"Config..";
       // 
       // exitToolStripMenuItem
       // 
       this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-      this->exitToolStripMenuItem->Size = System::Drawing::Size(91, 22);
+      this->exitToolStripMenuItem->Size = System::Drawing::Size(127, 22);
       this->exitToolStripMenuItem->Text = L"Quit";
       // 
       // NativeUIWin
@@ -107,7 +118,7 @@ namespace oscontrols {
       this->ClientSize = System::Drawing::Size(284, 262);
       this->Name = L"NativeUIWin";
       this->Text = L"NativeUI";
-      this->contextMenuStrip1->ResumeLayout(false);
+      this->notificationMenu->ResumeLayout(false);
       this->ResumeLayout(false);
 
     }
