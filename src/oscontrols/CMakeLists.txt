@@ -57,6 +57,7 @@ if(WIN32)
   STRING(REPLACE "/EHsc" "/EHa" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
   STRING(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
   set_source_files_properties(NativeUIWin.cpp PROPERTIES COMPILE_FLAGS "/clr")
+  set_source_files_properties(AssemblyInfo.cpp PROPERTIES COMPILE_FLAGS "/clr")
 
 elseif(APPLE)
   set(oscontrols_EXEFLAGS MACOSX_BUNDLE)
