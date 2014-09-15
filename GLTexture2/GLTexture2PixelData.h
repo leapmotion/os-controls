@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <vector>
 
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
