@@ -26,11 +26,11 @@ namespace oscontrols {
 			InitializeComponent();
 			
       ResourceManager^ rm = gcnew ResourceManager("oscontrols.Resource", Assembly::GetExecutingAssembly());
-      System::Drawing::Bitmap^ bmp = (System::Drawing::Bitmap^) rm->GetObject("icon_512x512");
+      System::Drawing::Bitmap^ appBmp = (System::Drawing::Bitmap^) rm->GetObject("icon_512x512");
+      this->Icon = System::Drawing::Icon::FromHandle(appBmp->GetHicon());
 
-      auto icon = System::Drawing::Icon::FromHandle(bmp->GetHicon());
-      this->notificationIcon->Icon = icon;
-      this->Icon = icon;
+      System::Drawing::Bitmap^ trayBmp = (System::Drawing::Bitmap^) rm->GetObject("TrayIcon_20x18");
+      this->notificationIcon->Icon = System::Drawing::Icon::FromHandle(trayBmp->GetHicon());
 		}
 
     static size_t s_nativeUIInitCount = 0;

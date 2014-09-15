@@ -127,4 +127,10 @@
   <data name="icon_512x512" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>icons\AppIcon.iconset\icon_512x512.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="TrayIcon_20x18" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>icons\TrayIcon_20x18.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="TrayIcon_20x18@2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>icons\TrayIcon_20x18@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
