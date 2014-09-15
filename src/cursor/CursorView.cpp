@@ -119,7 +119,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
     case State::ACTIVE:
     {
       m_pinchStrength = handData.pinchData.pinchStrength;
-      float spreadNorm = m_pinchStrength / activationConfigs::MIN_PINCH_CONTINUE;
+      float spreadNorm = m_pinchStrength / activationConfigs::MIN_PINCH_START;
       spreadNorm = std::max(0.0f, std::min(1.0f, spreadNorm));
       m_fingerSpread = FINGER_SPREAD_MIN + ((1-spreadNorm) * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
     
@@ -162,10 +162,6 @@ void CursorView::SetOverideLocation(const Vector2& offsetLocation) {
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
-  // The minimum normalized pinch to start fading in the pinch cursor
-  const float MIN_PINCH_NORM = 0.5f;
-  
-
   if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
@@ -175,10 +171,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     m_bodyAlpha.SetGoal(0.0f);
   }
   else {
-    // Calculate and set the alpha of the scroll body.
-    float bodyOpacityNorm = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_START - MIN_PINCH_NORM);
-    bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
-    m_bodyAlpha.SetGoal(bodyOpacityNorm);
+    m_bodyAlpha.SetGoal(1.0f);
   }
   
   // Update smoothed value
@@ -189,9 +182,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollLine->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
   
   // Calculate and set the opacity of the fingers
-  // NOTE: this may be exstraneous at this point do to how similar this is to the opacity of the body that it is being capped on.
-  float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
-  fingerOpacity = std::min(fingerOpacity, m_bodyAlpha.Value());
+  float fingerOpacity = std::min(1.0f, m_bodyAlpha.Value());
   m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
