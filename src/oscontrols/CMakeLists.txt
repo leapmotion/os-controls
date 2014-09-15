@@ -20,11 +20,16 @@ set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/svgs/volume-notch-inactive.svg
 )
 
-add_windows_sources(
-  oscontrols_SOURCES
+set(oscontrols_CLR_SOURCES
   NativeUIWin.resx
   NativeUIWin.h
   NativeUIWin.cpp
+  AssemblyInfo.cpp
+)
+
+add_windows_sources(
+  oscontrols_SOURCES
+  ${oscontrols_CLR_SOURCES}
 )
 
 add_mac_sources(
@@ -56,8 +61,13 @@ if(WIN32)
 
   STRING(REPLACE "/EHsc" "/EHa" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
   STRING(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-  set_source_files_properties(NativeUIWin.cpp PROPERTIES COMPILE_FLAGS "/clr")
-  set_source_files_properties(AssemblyInfo.cpp PROPERTIES COMPILE_FLAGS "/clr")
+
+  foreach(oscontrols_CLR_SOURCE ${oscontrols_CLR_SOURCES})
+    get_filename_component(srcext ${oscontrols_CLR_SOURCE} EXT)
+    if(${srcext} STREQUAL ".cpp")
+      set_source_files_properties(${oscontrols_CLR_SOURCE} PROPERTIES COMPILE_FLAGS "/clr")
+    endif()
+  endforeach()
 
 elseif(APPLE)
   set(oscontrols_EXEFLAGS MACOSX_BUNDLE)
