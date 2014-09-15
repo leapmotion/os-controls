@@ -17,6 +17,12 @@ namespace NativeWindow
 
 #endif
 
+  /// <summary>
+  /// Causes the specified window to act as a transparent overlay
+  /// </summary>
+  /// <remarks>
+  /// Transparent windows by default do not have a title bar, close button, or appear in the taskbar
+  /// </remarks>
   void MakeTransparent(const Handle& window);
   void MakeAlwaysOnTop(const Handle& window);
   void AllowInput(const Handle& window, bool allowInput);
