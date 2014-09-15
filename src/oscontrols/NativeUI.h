@@ -1,6 +1,6 @@
 #pragma once
 
 /// <summary>
-/// Shows the OS controls configuration UI to the user
+/// Registers the system tray icon with the system to allow user interaction
 /// </summary>
 void ShowUI(void);
