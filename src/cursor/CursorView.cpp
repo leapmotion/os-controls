@@ -25,10 +25,10 @@ CursorView::CursorView() :
   m_disk(new Disk()),
   m_fingerSpread(0.0f),
   m_pinchStrength(0.0f),
-  m_wasPinching(false),
+  m_lastHandDeltas(0,0),
   m_lastHandPosition(0,0),
-  m_isPointing(false),
-  m_locationOverride(false)
+  m_overrideX(0.0f),
+  m_overrideY(0.0f)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
@@ -36,14 +36,17 @@ CursorView::CursorView() :
   m_bodyOffset.SetInitialValue(0.0f);
   m_bodyOffset.SetSmoothStrength(0.8f);
   
-  m_x.SetSmoothStrength(0.6f);
-  m_y.SetSmoothStrength(0.6f);
+  m_x.SetSmoothStrength(0.0f);
+  m_y.SetSmoothStrength(0.0f);
   
   m_bodyAlpha.SetSmoothStrength(0.3f);
   m_bodyAlpha.SetInitialValue(0.0f);
   
   m_diskAlpha.SetSmoothStrength(0.5f);
   m_diskAlpha.SetInitialValue(0.0f);
+  
+  m_overrideInfluence.SetInitialValue(0.0f);
+  m_overrideInfluence.SetSmoothStrength(0.75f);
   
   
   //Initialize Disk Cursor
@@ -82,16 +85,17 @@ void CursorView::AutoInit() {
 }
 
 void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData, const FrameTime& frameTime) {
-  static const float FINGER_SPREAD_MIN = 23.0f;
-  static const float FINGER_SPREAD_MAX = 100.0f;
-  static const float SCROLL_VELOCITY_MIN = 0.0f;
-  static const float SCROLL_VELOCITY_MAX = 20.0f;
-  static const float BODY_OFFSET_MAX = 100.0f;
+  static const float FINGER_SPREAD_MIN = 23.0f; // The min spread that the "finger arrow" visuals should have
+  static const float FINGER_SPREAD_MAX = 100.0f;// The max spread that the "finger arrow" visuals should have
+  static const float SCROLL_VELOCITY_MIN = 0.0f; // The low bound of scroll velocity for our visual feedback ( the handle moving up and down )
+  static const float SCROLL_VELOCITY_MAX = 20.0f; // The high bound of scroll velcity for our visual feedback ( the handle moving up and down )
+  static const float BODY_OFFSET_MAX = 100.0f; // The maximum distance the handle will move up or down along the cursor
   
   int velocitySign = 1;
   float velocityNorm = 0.0f;
   float goalBodyOffset = 0.0f;
   
+  // Make sure the cursor is frontmost in its rendering context
   m_renderEngine->BringToFront(this);
   
   m_lastAppState = appState;
@@ -104,13 +108,6 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       }
       break;
     case State::ACTIVE:
-      if ( handData.handPose == HandPose::OneFinger ) {
-        m_isPointing = true;
-      }
-      else {
-        m_isPointing = false;
-      }
-      
       if(appState == OSCState::FINAL) {
         m_state = State::INACTIVE;
       }
@@ -122,11 +119,12 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
     case State::ACTIVE:
     {
       m_pinchStrength = handData.pinchData.pinchStrength;
-      float spreadNorm = m_pinchStrength / activationConfigs::MIN_PINCH_CONTINUE;
+      float spreadNorm = m_pinchStrength / activationConfigs::MIN_PINCH_START;
       spreadNorm = std::max(0.0f, std::min(1.0f, spreadNorm));
       m_fingerSpread = FINGER_SPREAD_MIN + ((1-spreadNorm) * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
     
-      if ( handData.pinchData.isPinching ) {
+      if ( appState == OSCState::SCROLLING ) {
+        // Calculate the offset of the cursor handle based on the current hand deltas
         velocitySign = handData.locationData.dY < 0 ? -1 : 1;
         velocityNorm = (fabs(handData.locationData.dY) - SCROLL_VELOCITY_MIN) / (SCROLL_VELOCITY_MAX - SCROLL_VELOCITY_MIN);
         velocityNorm = std::min(1.0f, std::max(0.0f, velocityNorm));
@@ -135,13 +133,14 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
         m_bodyOffset.SetGoal(goalBodyOffset);
       }
       else {
+        // we only want to move the cursor if we're not scrolling so move it in this else
         m_x.SetGoal(handData.locationData.x);
         m_y.SetGoal(handData.locationData.y);
-        if ( m_bodyOffset.Goal() != 0.0f ) { m_bodyOffset.SetGoal(0.0f); }
+        if ( m_bodyOffset.Goal() != 0.0f ) { m_bodyOffset.SetGoal(0.0f); } //Make sure to bring the handle back to center
       }
-      
-      m_wasPinching = handData.pinchData.isPinching;
     
+      m_lastHandDeltas = Vector2(handData.locationData.dX, handData.locationData.dY);
+
       m_lastHandPosition = handData.locationData.screenPosition();
       break;
     }
@@ -156,47 +155,54 @@ Vector2 CursorView::GetCalculatedLocation() const {
   return Vector2(m_x,m_y);
 }
 
+void CursorView::SetOverideLocation(const Vector2& offsetLocation) {
+  // Set the offset location
+  m_overrideX = offsetLocation.x();
+  m_overrideY = offsetLocation.y();
+}
+
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
-  const float MIN_PINCH_NORM = 0.5f;
-  
-  float bodyOpacityNorm = 0.0f;
-  
-  if ( m_wasPinching ) {
-    bodyOpacityNorm = (m_pinchStrength - activationConfigs::MIN_PINCH_CONTINUE) / (activationConfigs::MIN_PINCH_START - activationConfigs::MIN_PINCH_CONTINUE);
-  }
-  else {
-    bodyOpacityNorm = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_START - MIN_PINCH_NORM);
-  }
-  
-  bodyOpacityNorm = std::max(0.0f, std::min(1.0f, bodyOpacityNorm));
-  m_bodyAlpha.SetGoal(bodyOpacityNorm);
-  
   if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
+    // Don't show the scroll cursor if we're in a state where we can't be scrolling
+    // The scroll cursor shows up before we go into the scroll state (as a hint for the user)
+    // So we can't just check if we're in the scrolling state
     m_bodyAlpha.SetGoal(0.0f);
   }
+  else {
+    m_bodyAlpha.SetGoal(1.0f);
+  }
   
-  m_bodyAlpha.Update(frame.deltaT.count());
+  // Update smoothed value
+  m_bodyAlpha.Update(static_cast<float>(frame.deltaT.count()));
   
-  float fingerOpacity = (m_pinchStrength - MIN_PINCH_NORM) / (activationConfigs::MIN_PINCH_CONTINUE - MIN_PINCH_NORM);
-  fingerOpacity = std::min(fingerOpacity, m_bodyAlpha.Value());
+  //Set the alpha of the body and the line behind it.
+  m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
+  m_scrollLine->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
+  
+  // Calculate and set the opacity of the fingers
+  float fingerOpacity = std::min(1.0f, m_bodyAlpha.Value());
   m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
   if ( m_state == State::ACTIVE ) {
-    m_x.Update(frame.deltaT.count());
-    m_y.Update(frame.deltaT.count());
-    m_bodyOffset.Update(frame.deltaT.count());
+    // Update the smooth strength on the cursor position
+    m_x.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
+    m_y.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
+    // Update the smoohted position variables and offset
+    m_x.Update(static_cast<float>(frame.deltaT.count()));
+    m_y.Update(static_cast<float>(frame.deltaT.count()));
+    m_overrideInfluence.Update(static_cast<float>(frame.deltaT.count()));
+    m_bodyOffset.Update(static_cast<float>(frame.deltaT.count()));
     
-    if ( !m_locationOverride ) {
-      position = OSVector2{m_x, m_y};
-    }
+    // If another object is overriding our value, we don't want to fight it by setting the location ourself.
+    Vector2 baseLocation = Vector2(m_x.Value(), m_y.Value());
+    Vector2 cursorLocation = baseLocation + (m_overrideInfluence * (Vector2(m_overrideX, m_overrideY) - baseLocation));
+    position = OSVector2{ static_cast<float>(cursorLocation.x()), static_cast<float>(cursorLocation.y()) };
   }
   
-  m_scrollBody->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
-  m_scrollLine->LocalProperties().AlphaMask() = m_bodyAlpha.Value();
-  
+  // If the scroll cursor is fading in/out, fade out/in the disk cursor
   if ( m_bodyAlpha.Value() < 0.2f ) {
     m_diskAlpha.SetGoal(1.0f);
   }
@@ -204,8 +210,8 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     m_diskAlpha.SetGoal(0.0f);
   }
   
-  m_diskAlpha.Update(frame.deltaT.count());
-  
+  // Update and set the alpha value of the disk cursor
+  m_diskAlpha.Update(static_cast<float>(frame.deltaT.count()));
   m_disk->LocalProperties().AlphaMask() = m_diskAlpha;
   
   
@@ -229,6 +235,19 @@ void CursorView::Render(const RenderFrame& frame) const {
     default:
       break;
   }
+}
+
+float CursorView::calcPositionSmoothStrength(float handDeltaDistance) const {
+  float retVal = 0.0f;
+  
+  // hand delta based smoothing
+  float normalizedDelta = (handDeltaDistance - DELTA_FOR_MAX_SMOOTHING) / (DELTA_FOR_MIN_SMOOTHING - DELTA_FOR_MAX_SMOOTHING);
+  normalizedDelta = 1.0f - std::min(1.0f, std::max(0.0f, normalizedDelta));
+  float deltaSmoothing  = MAX_CURSOR_SMOOTHING * normalizedDelta;
+  deltaSmoothing = std::min(MAX_CURSOR_SMOOTHING, std::max(0.0f, deltaSmoothing));
+  retVal = deltaSmoothing;
+  
+  return retVal;
 }
 
 Vector2 CursorView::getWindowCenter(OSWindow& window) {

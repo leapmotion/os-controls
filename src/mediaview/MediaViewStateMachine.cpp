@@ -30,13 +30,13 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_ghostCursor(new Disk()),
   m_lastHandPose(HandPose::ZeroFingers),
   m_state(State::ARMED),
+  m_cursorBufferzoneOffset(0,0,0),
+  m_selectedItem(-1),
+  m_FadeTime(0.25),
+  m_CurrentTime(0.0),
+  m_LastStateChangeTime(0.0),
   m_interactionIsVolumeLocked(false)
 {
-  m_CurrentTime = 0.0;
-  m_LastStateChangeTime = 0.0;
-  m_FadeTime = 0.25;
-  m_selectedItem = -1;
-  
   // Initialize Smoothed Values
   m_ghostCursorAlpha.SetInitialValue(0.0f);
   m_ghostCursorAlpha.SetSmoothStrength(0.6f);
@@ -58,7 +58,6 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_radialMenu->SetThickness(MENU_THICKNESS);
   
   for (int i=0; i<numItems; i++) {
-    // TODO: Break these out into a config to avoid so many magic numbers
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu->GetItem(i);
     item->SetRadius(MENU_RADIUS);
     item->SetThickness(MENU_THICKNESS);
@@ -102,6 +101,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
   
+  m_goalCursorPosition = m_cursorView->GetCalculatedLocation() + ProjectVector(2, m_cursorBufferzoneOffset);
+  
   // State Transitions
   if (appState == OSCState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
@@ -114,7 +115,9 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   {
     case State::ARMED:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
-        m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0);
+        m_cursorBufferzoneOffset = calculateBufferZoneOffset(handData.locationData.screenPosition());
+        m_cursorView->EnableLocationOverride();
+        m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0) + m_cursorBufferzoneOffset;
         m_volumeSlider->Translation() = m_radialMenu->Translation() + VOLUME_SLIDER_OFFSET;
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_volumeViewAlpha.SetGoal(1.0f);
@@ -126,6 +129,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
         m_state = State::ARMED;
+        m_cursorView->DisableLocationOverride();
+        m_cursorBufferzoneOffset = Vector3(0,0,0);
         doMenuUpdate(Vector2(0.0f,0.0f), menuOffset);
         resetMemberState();
         m_volumeViewAlpha.SetGoal(0.0f);
@@ -136,6 +141,8 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     case State::COMPLETE:
       
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_cursorView->DisableLocationOverride();
+        m_cursorBufferzoneOffset = Vector3(0,0,0);
         m_volumeViewAlpha.SetGoal(0.0f);
         m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
@@ -161,9 +168,10 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       // The menu always thinks it's at (0,0) so we need to offset the cursor
       // coordinates by the location of the menu to give the proper space.
       if ( !m_interactionIsVolumeLocked ) {
-        doMenuUpdate(handData.locationData.screenPosition(), menuOffset);
+        doMenuUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), menuOffset);
       }
-      doVolumeUpdate(handData, menuOffset);
+      doVolumeUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), Vector2(handData.locationData.dX, handData.locationData.dY), menuOffset);
+      m_cursorView->SetOverideLocation(m_goalCursorPosition);
       break;
     }
     case State::FINAL:
@@ -204,33 +212,31 @@ void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 me
     //Selection Made Transition
     resolveSelection(updateResult.updateIdx);
     m_volumeViewAlpha.SetGoal(0.0f);
+    m_cursorView->DisableLocationOverride();
+    m_cursorBufferzoneOffset = Vector3(0,0,0);
     m_state = State::COMPLETE;
     m_LastStateChangeTime = m_CurrentTime;
   }
 }
 
-void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 menuOffset) {
+void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Vector2& deltaPixels, Vector2 menuOffset) {
   const float VOLUME_OFFSET_START_Y = 80.0f;
   const float VOLUME_LOCK_IN_Y = 180.0f;
   const float VOLUME_LOCK_X_OFFSET = 35.0f;
   
-  Vector3 leapPosition(handData.locationData.x - menuOffset.x(), handData.locationData.y - menuOffset.y(), 0);
+  Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
   
-  float offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
-  offsetNormalFactor = std::max(0.0f, std::min(1.0f, offsetNormalFactor));
-  
-  if ( offsetNormalFactor > 0.0f ) {
+  double offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
+  offsetNormalFactor = std::max(0.0, std::min(1.0, offsetNormalFactor));
+  if ( offsetNormalFactor > 0.0 ) {
     m_interactionIsVolumeLocked = true;
     m_ghostCursorAlpha.SetGoal(GHOST_CURSOR_ALPHA);
-    m_cursorView->EnableLocationOverride();
-    Vector2 cursorCalculatedPosition = m_cursorView->GetCalculatedLocation();
-    Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(cursorCalculatedPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
-    Vector2 offsetCursorPosition = cursorCalculatedPosition + (offsetNormalFactor * (goalPosition - cursorCalculatedPosition));
-    m_cursorView->position = OSVector2{ static_cast<float>(offsetCursorPosition.x()), static_cast<float>(offsetCursorPosition.y()) };
-    m_ghostCursor->Translation() = Vector3(cursorCalculatedPosition.x(), cursorCalculatedPosition.y(), 0.0f);
+    Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
+    m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
+    m_ghostCursor->Translation() = Vector3(m_goalCursorPosition.x(), m_goalCursorPosition.y(), 0.0f);
     
-    if ( offsetNormalFactor >= 1.0f ) {
-      float deltaPixelsInVolume = handData.locationData.dX / m_volumeSlider->Width();
+    if ( offsetNormalFactor >= 1.0 ) {
+      float deltaPixelsInVolume = deltaPixels.x() / m_volumeSlider->Width();
       m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
       m_volumeSlider->Activate();
     }
@@ -240,7 +246,6 @@ void MediaViewStateMachine::doVolumeUpdate(const HandData& handData, Vector2 men
   }
   else
   {
-    m_cursorView->DisableLocationOverride();
     m_volumeSlider->Deactivate();
     m_ghostCursorAlpha.SetGoal(0.0f);
   }
@@ -259,8 +264,8 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
   m_volumeSlider->Update(renderFrame);
   
   // Smoothed Value Updates
-  m_ghostCursorAlpha.Update(renderFrame.deltaT.count());
-  m_volumeViewAlpha.Update(renderFrame.deltaT.count());
+  m_ghostCursorAlpha.Update(static_cast<float>(renderFrame.deltaT.count()));
+  m_volumeViewAlpha.Update(static_cast<float>(renderFrame.deltaT.count()));
   
   m_ghostCursor->LocalProperties().AlphaMask() = m_ghostCursorAlpha;
   m_volumeSlider->SetOpacity(m_volumeViewAlpha);
@@ -305,5 +310,25 @@ void MediaViewStateMachine::resetMemberState() {
 
 //TODO: Filter this data in the recognizer to smooth things out.
 float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
-  return deltaHandRoll / static_cast<float>(3 * PI / 2.0);
+  return deltaHandRoll / static_cast<float>(3 * PI / 2.0f);
+}
+
+Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const Vector2& screenPosition) {
+  Vector3 retVal(0,0,0);
+  
+  // Find our distance from the screen edge
+  float xEdgeDistance = std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x());
+  float yEdgeDistance = std::min(screenPosition.y(), m_renderWindow->getSize().y - screenPosition.y());
+  
+  // Calculate any offset needed
+  float xOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - xEdgeDistance);
+  float yOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - yEdgeDistance);
+  
+  // Make sure the offset is in the proper direction based on cloest edge
+  xOffset = (screenPosition.x() > m_renderWindow->getSize().x / 2.0) ? xOffset*-1 : xOffset;
+  yOffset = (screenPosition.y() > m_renderWindow->getSize().y / 2.0) ? yOffset*-1 : yOffset;
+  
+  retVal = Vector3( xOffset, yOffset, 0.0f );
+  
+  return retVal;
 }

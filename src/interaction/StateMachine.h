@@ -44,7 +44,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state, ScrollState& scrollState);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state);
   
   void OnHandVanished() override;
   void RequestTransition(OSCState requestedState) override;
@@ -57,11 +57,14 @@ public:
 private:
   OSCState validateTransition(OSCState to) const;
   void performNextTransition();
+  
+  bool pointIsOnScreen(const Vector2& point) const;
 
   OSCState resolvePose(HandPose pose) const;
-
-  void doHandScroll(const Scroll& scroll, const HandLocation& handLocation, ScrollState& scrollState);
-  void doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch, ScrollState& scrollState);
+  
+  bool initializeScroll(const Vector2& scrollPosition); // returns if the initialization was sucessful
+  void doHandScroll(const Scroll& scroll, const HandLocation& handLocation);
+  void doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch);
 
   std::mutex m_lock;
 
@@ -74,8 +77,8 @@ private:
   };
   ScrollType m_scrollType;
 
-  ScrollState m_scrollState;
   Vector2 m_handDelta; //in millimeters
+  Vector2 m_lastHandLocation; //in screen coordinates
   const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
   float m_lastScrollReleaseTimestep;
   
@@ -91,6 +94,7 @@ private:
   AutoRequired<CursorView> m_cursorView;
   AutoRequired<MediaViewController> m_mediaViewController;
   Autowired<IWindowScroller> m_windowScroller;
+  Autowired<sf::RenderWindow> m_renderWindow;
 
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<ExposeActivationStateMachine> m_exposeActivationStateMachine;

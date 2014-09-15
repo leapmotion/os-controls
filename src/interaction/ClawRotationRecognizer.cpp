@@ -44,8 +44,8 @@ void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime&
   // Need to keep track of what the last roll was, now
   m_lastRot.SetGoal(angle);
   
-  m_deltaRot.Update(frameTime.deltaTime);
-  m_lastRot.Update(frameTime.deltaTime);
+  m_deltaRot.Update(static_cast<float>(frameTime.deltaTime));
+  m_lastRot.Update(static_cast<float>(frameTime.deltaTime));
   
   
   // Zeroize theta if we don't have a prior roll value
