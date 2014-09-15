@@ -68,10 +68,10 @@ public:
     {
       std::unique_lock<std::mutex> lock(m_mutex);
       auto entry = m_data.find(prop);
-      if (entry == m_data.end() || entry->second == val)
+      if (entry != m_data.end() && entry->second == val)
         return;
 
-      entry->second = json11::Json(val);
+      m_data[prop] = json11::Json(val);
       m_events(&ConfigEvent::ConfigChanged)(entry->first, entry->second);
     }
 
