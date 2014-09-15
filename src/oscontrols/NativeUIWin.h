@@ -58,10 +58,10 @@ namespace oscontrols {
 		/// </summary>
     ~NativeUIWin()
 		{
-			if (components)
-			{
-				delete components;
-			}
+      if(components)
+        delete components;
+      if(notificationIcon)
+        delete notificationIcon;
 		}
 
   private: System::Windows::Forms::NotifyIcon^  notificationIcon;
