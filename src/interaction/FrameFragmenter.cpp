@@ -42,7 +42,7 @@ void FrameFragmenter::OnLeapFrame(const Leap::Frame& frame) {
   }
 
   const auto& hand = frame.hand(m_activeHandID);
-  if (hand != Leap::Hand::invalid()) {
+  if (hand.isValid()) {
     std::shared_ptr<CoreContext>& ctxt = contexts[hand.id()];
 
     if(!ctxt)
