@@ -25,6 +25,7 @@ namespace Leap {
 }
 
 class ExposeViewStateMachine;
+class Config;
 
 /// <summary>
 /// The central state machine concept
@@ -95,6 +96,7 @@ private:
   AutoRequired<MediaViewController> m_mediaViewController;
   Autowired<IWindowScroller> m_windowScroller;
   Autowired<sf::RenderWindow> m_renderWindow;
+  Autowired<Config> m_config;
 
   AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
   AutoRequired<ExposeActivationStateMachine> m_exposeActivationStateMachine;

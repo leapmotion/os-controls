@@ -2,6 +2,7 @@
 #include "CursorView.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
+#include "utility/Config.h"
 
 #include "GLShaderLoader.h"
 #include "HandCursor.h"
@@ -161,7 +162,8 @@ void CursorView::SetOverideLocation(const Vector2& offsetLocation) {
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_FOCUSED ||
-       m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
+       m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED ||
+       !m_config->Get<bool>("enableScroll")) {
     // Don't show the scroll cursor if we're in a state where we can't be scrolling
     // The scroll cursor shows up before we go into the scroll state (as a hint for the user)
     // So we can't just check if we're in the scrolling state
