@@ -157,7 +157,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRadius = 0.5 * m_layoutRadius;
 
   const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
-  const double radiusPerWindow = 0.75 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
+  const double radiusPerWindow = 0.4 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
 
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
@@ -168,7 +168,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     // set window scale smoothly
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
     const double imgRadius = 0.5 * img->Size().norm();
-    const double scale = 4.0 * (1.0 + bonusScale) * (radiusPerWindow / imgRadius) * size.norm() / fullSize.norm();
+    const double scale = (1.0 + bonusScale) * std::sqrt(radiusPerWindow / imgRadius);// *size.norm() / fullSize.norm();
     if (!m_closing) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
