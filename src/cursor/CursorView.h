@@ -39,6 +39,9 @@ public:
   // Get where the cursor thinks it should be (this will be its position unless it is being overriden)
   Vector2 GetCalculatedLocation() const;
   
+  void Disable() { m_state = State::DISABLED; }
+  void Enable() { m_state = State::ACTIVE; }
+  
   void EnableLocationOverride() { m_overrideInfluence = 1.0f; }
   void DisableLocationOverride() { m_overrideInfluence = 0.0f; }
   void SetOverideLocation(const Vector2& offsetLocation);
@@ -52,6 +55,7 @@ public:
 private:
   enum class State {
     INACTIVE,
+    DISABLED,
     ACTIVE
   };
   
@@ -70,11 +74,13 @@ private:
   Vector2 m_scrollLineOffset;
   Vector2 m_scrollFingerLeftOffset;
   Vector2 m_scrollFingerRightOffset;
+  Vector2 m_disabledCursorOffset;
   
   std::shared_ptr<SVGPrimitive> m_scrollBody;
   std::shared_ptr<SVGPrimitive> m_scrollLine;
   std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
+  std::shared_ptr<SVGPrimitive> m_disabledCursor;
   
   // The cursor that shows up when not scrolling
   std::shared_ptr<Disk> m_disk;
