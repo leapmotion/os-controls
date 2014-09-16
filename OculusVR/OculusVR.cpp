@@ -7,6 +7,9 @@ extern "C" {
 void ovrhmd_EnableHSWDisplaySDKRender(ovrHmd hmd, ovrBool enabled);
 }
 
+bool OculusVR::isDebug(){
+  return m_Debug;
+}
 
 int OculusVR::GetHMDWidth(){
   if ( m_width < 0 ){

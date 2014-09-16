@@ -66,7 +66,8 @@ typedef union ovrGLTexture_s
 class OculusVR {
 
 public:
-
+  bool isDebug();
+  
   int GetHMDWidth();
   
   int GetHMDHeight();
