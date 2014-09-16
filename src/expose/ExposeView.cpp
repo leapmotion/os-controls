@@ -421,29 +421,13 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
     retVal->UpdateTexture();
   };
 
-  retVal->m_opacity.SetGoal(0.0f);
-  retVal->m_opacity.Update(0.0f);
-
-  retVal->m_scale.SetGoal(0.0f);
-  retVal->m_scale.Update(0.0f);
-
-  retVal->m_activation.SetGoal(0.0f);
-  retVal->m_activation.Update(0.0f);
-
-  retVal->m_hover.SetGoal(0.0f);
-  retVal->m_hover.Update(0.0f);
-
-  retVal->m_selection.SetGoal(0.0f);
-  retVal->m_selection.Update(0.0f);
-
-  retVal->m_grabDelta.SetGoal(Vector3::Zero());
-  retVal->m_grabDelta.Update(0.0f);
-
   if (!addToExistingGroup(retVal)) {
     createNewGroup(retVal);
   }
 
   computeLayout();
+
+  retVal->m_position.SetImmediate(retVal->m_position.Goal());
 
   return retVal;
 }

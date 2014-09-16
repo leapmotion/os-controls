@@ -22,6 +22,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_opacity.SetInitialValue(0.0f);
   m_opacity.SetGoal(0.0f);
   m_opacity.SetSmoothStrength(baseSmooth);
+  m_opacity.Update(0.0f);
 
 #if 0
   m_position.SetInitialValue(Vector3::Zero());
@@ -35,26 +36,32 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_scale.SetInitialValue(0.0f);
   m_scale.SetGoal(0.0f);
   m_scale.SetSmoothStrength(baseSmooth);
+  m_scale.Update(0.0f);
 
   m_activation.SetInitialValue(0.0f);
   m_activation.SetGoal(0.0f);
   m_activation.SetSmoothStrength(0.3f);
+  m_activation.Update(0.0f);
 
   m_hover.SetInitialValue(0.0f);
   m_hover.SetGoal(0.0f);
-  m_hover.SetSmoothStrength(0.3f);
+  m_hover.SetSmoothStrength(0.5f);
+  m_hover.Update(0.0f);
 
   m_selection.SetInitialValue(0.0f);
   m_selection.SetGoal(0.0f);
   m_selection.SetSmoothStrength(0.5f);
+  m_selection.Update(0.0f);
 
   m_grabDelta.SetGoal(Vector3::Zero());
   m_grabDelta.SetInitialValue(Vector3::Zero());
   m_grabDelta.SetSmoothStrength(0.25f);
+  m_grabDelta.Update(0.0f);
 
   m_forceDelta.SetGoal(Vector3::Zero());
   m_forceDelta.SetInitialValue(Vector3::Zero());
   m_forceDelta.SetSmoothStrength(baseSmooth);
+  m_forceDelta.Update(0.0f);
 
   m_cooldown = false;
 }
