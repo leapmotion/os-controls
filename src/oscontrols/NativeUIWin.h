@@ -29,7 +29,7 @@ namespace oscontrols {
       System::Drawing::Bitmap^ appBmp = (System::Drawing::Bitmap^) rm->GetObject("icon_512x512");
       this->Icon = System::Drawing::Icon::FromHandle(appBmp->GetHicon());
 
-      System::Drawing::Bitmap^ trayBmp = (System::Drawing::Bitmap^) rm->GetObject("TrayIcon_20x18");
+      System::Drawing::Bitmap^ trayBmp = (System::Drawing::Bitmap^) rm->GetObject("icon_16x16");
       this->notificationIcon->Icon = System::Drawing::Icon::FromHandle(trayBmp->GetHicon());
 		}
 
