@@ -11,6 +11,8 @@
 #include <autowiring/AutoSelfUpdate.h>
 #include <autowiring/AutoTimeStamp.h>
 #include <autowiring/SatCounter.h>
+#include <autowiring/AutoMerge.h>
+#include <autowiring/AutoStile.h>
 #include THREAD_HEADER
 
 class AutoFilterTest:
@@ -1364,10 +1366,26 @@ typedef std::function<void(const Decoration<0>& typeIn, Decoration<1> noEdge)> N
 typedef std::function<int(const Decoration<0>& typeIn, auto_out<Decoration<1>>& typeOut)> NonFilterFunctionType3;
 
 TEST_F(AutoFilterTest, AutoFilterTemplateTests) {
+  ASSERT_TRUE(static_cast<const bool>(is_required_input<const Decoration<0>&>::value)) << "Input type FAIL";
+  ASSERT_TRUE(static_cast<const bool>(is_required_output<Decoration<0>&>::value)) << "Output type FAIL";
+  ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<const Decoration<0>&>::is_input)) << "Input type FAIL";
+  ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<Decoration<0>&>::is_output)) << "Output type FAIL";
+
+  ASSERT_TRUE(is_optional_ptr<optional_ptr<Decoration<0>>>::value) << "Type of optional_ptr instance incorrectly identified";
   ASSERT_TRUE(is_auto_out<auto_out<Decoration<0>>>::value) << "Type of auto_out instance incorrectly identified";
 
   ASSERT_FALSE(static_cast<const bool>(is_autofilter_arg<const Decoration<0>>::value)) << "Validity of AutoFilter input incorrectly identified";
   ASSERT_FALSE(static_cast<const bool>(is_autofilter_arg<Decoration<0>>::value)) << "Validity of AutoFilter input incorrectly identified";
+
+  ASSERT_TRUE(is_autofilter_arg<const Decoration<0>&>::is_input) << "Incorrect IO assessment";
+  ASSERT_TRUE(is_autofilter_arg<Decoration<0>&>::is_output) << "Incorrect IO assessment";
+  ASSERT_TRUE(is_autofilter_arg<auto_out<Decoration<0>>>::is_output) << "Incorrect IO assessment";
+
+  ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<const Decoration<0>&>::is_required)) << "Incorrect OR assessment";
+  ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<Decoration<0>&>::is_required)) << "Incorrect OR assessment";
+  ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<auto_out<Decoration<0>, true>>::is_required)) << "Incorrect OR assessment";
+  ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<optional_ptr<Decoration<0>>>::is_optional)) << "Incorrect OR assessment";
+  ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<auto_out<Decoration<0>, false>>::is_optional)) << "Incorrect OR assessment";
 
   ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<const Decoration<0>&>::value)) << "Validity of AutoFilter input incorrectly identified";
   ASSERT_TRUE(static_cast<const bool>(is_autofilter_arg<Decoration<0>&>::value)) << "Validity of AutoFilter output incorrectly identified";
@@ -1648,4 +1666,192 @@ TEST_F(AutoFilterTest, AutoEdgeTest) {
   factory->PipeData<FilterDiamondA, FilterDiamondOut>(); //Pipe all correctly oriented types
   ASSERT_THROW(factory->NewPacket(), std::runtime_error) << "Data failed to collide";
    */
+}
+
+template<int num = 0>
+class FilterOD0 {
+public:
+  void AutoFilter(auto_out<Decoration<0>> out) {
+    out->i = 0;
+  }
+};
+
+class FilterID0 {
+public:
+  void AutoFilter(const Decoration<0>& in) {}
+};
+
+TEST_F(AutoFilterTest, VerifyMergedOutputs) {
+  AutoRequired<AutoPacketFactory> factory;
+
+  AutoRequired<FilterOD0<0>> f0D0_broadcast;
+  AutoRequired<FilterOD0<1>> f1D0_pipe_merge;
+  AutoRequired<FilterOD0<2>> f1D0_pipe_fID0;
+  AutoRequired<FilterID0> fID0_pipe_f2D0;
+
+  AutoRequired<AutoMerge<Decoration<0>>> merge;
+
+  // No broadcast from f1D0 and f2D0
+  factory->BroadcastDataIn<FilterID0>(nullptr,false);
+  factory->BroadcastDataOut<FilterOD0<1>>(nullptr,false);
+  factory->BroadcastDataOut<FilterOD0<2>>(nullptr,false);
+
+  // f0D0 is broadcast, and will be received by merge
+  // f1D0 -> merge only
+  // f2D0 -> fID0 only
+  factory->PipeData<FilterOD0<1>, AutoMerge<Decoration<0>>>();
+  factory->PipeData<FilterOD0<2>, FilterID0>();
+
+  AutoMerge<Decoration<0>>::merge_data extracted;
+  {
+    std::shared_ptr<AutoPacket> packet;
+    ASSERT_NO_THROW(packet = factory->NewPacket()) << "Multi-Decorate hit an exception";
+    packet->Decorate(AutoMerge<Decoration<0>>::merge_call([&extracted](const AutoMerge<Decoration<0>>::merge_data& data) {
+      extracted = data;
+    }));
+
+    ASSERT_TRUE(packet->Has<Decoration<0>>()) << "Broadcast data should be present";
+    ASSERT_FALSE(packet->Has<Decoration<0>>(typeid(FilterOD0<0>))) << "Sourced data should be absent from broadcasting source";
+    ASSERT_TRUE(packet->Has<Decoration<0>>(typeid(FilterOD0<1>))) << "Sourced data should be present from non-broadcasting source";
+    ASSERT_TRUE(packet->Has<Decoration<0>>(typeid(FilterOD0<2>))) << "Sourced data should be present from non-broadcasting source";
+
+    // Final-Call methods
+    // TODO: Make these throw if called early!
+    ASSERT_EQ(1, packet->HasAll<Decoration<0>>()) << "Single Broadcast source only";
+    ASSERT_EQ(1, packet->HasAll<Decoration<0>>(typeid(AutoMerge<Decoration<0>>))) << "Single Piped source only";
+    ASSERT_EQ(1, packet->HasAll<Decoration<0>>(typeid(FilterID0))) << "Single Piped source only";
+  }
+  ASSERT_EQ(2, extracted.size()) << "Should collect 1 broadcast & 1 pipe";
+}
+
+TEST_F(AutoFilterTest, VerifyForwardAll) {
+  const std::shared_ptr<Decoration<0>>* contents = nullptr;
+  AutoRequired<AutoPacketFactory> factory;
+  std::shared_ptr<AutoPacket> toPacket = factory->NewPacket();
+  {
+    std::shared_ptr<AutoPacket> fromPacket = factory->NewPacket();
+    fromPacket->Decorate(Decoration<0>(1));
+    contents = nullptr; //contents does not own referenced data
+    ASSERT_TRUE(fromPacket->Get(contents)) << "ForwardedAll failed to move data";
+    ASSERT_EQ(1, (*contents)->i) << "ForwardedAll failed to move data";
+
+    fromPacket->ForwardAll(toPacket);
+    contents = nullptr; //contents does not own referenced data
+    ASSERT_TRUE(toPacket->Get(contents)) << "ForwardedAll failed to move data";
+    ASSERT_EQ(1, (*contents)->i) << "ForwardedAll failed to move data";
+  }
+  contents = nullptr; //contents does not own referenced data
+  ASSERT_TRUE(toPacket->Get(contents)) << "Forwarded data is not persistent";
+  ASSERT_EQ(1, (*contents)->i) << "Forwarded data is not persistent";
+}
+
+class Junction01 {
+public:
+  void AutoFilter(const Decoration<0>&, auto_out<Decoration<1>>) {}
+};
+
+class SlaveContext {};
+class MasterContext {};
+
+TEST_F(AutoFilterTest, VerifyContextStile) {
+  // Stile injects Decoration<0> and extracts Decoration<1>
+  std::shared_ptr<AutoStile<const Decoration<0>&, auto_out<Decoration<1>>>> stile;
+  std::shared_ptr<AutoPacketFactory> master_factory;
+
+  AutoCreateContextT<SlaveContext> slave_context;
+  {
+    CurrentContextPusher pusher(slave_context);
+    AutoRequired<AutoPacketFactory>();
+    AutoRequired<Junction01>();
+    slave_context->Initiate();
+  }
+
+  AutoCreateContextT<MasterContext> master_context;
+  {
+    CurrentContextPusher pusher(master_context);
+    master_factory = AutoRequired<AutoPacketFactory>();
+    stile = AutoRequired<AutoStile<const Decoration<0>&, auto_out<Decoration<1>>>>();
+    master_context->Initiate();
+  }
+
+  stile->Leash(slave_context);
+  {
+    CurrentContextPusher pusher(master_context);
+    std::shared_ptr<AutoPacket> master_packet;
+    master_packet = master_factory->NewPacket();
+    master_packet->Decorate(Decoration<0>());
+    ASSERT_TRUE(master_packet->Has<Decoration<1>>()) << "Stile failed to send & retrieve data";
+  }
+}
+
+TEST_F(AutoFilterTest, VerifyStileExtractAll) {
+  // Stile injects Decoration<0> and extracts Decoration<1>
+  std::shared_ptr<AutoStile<const Decoration<0>&>> stile;
+  std::shared_ptr<AutoPacketFactory> master_factory;
+
+  AutoCreateContextT<SlaveContext> slave_context;
+  {
+    CurrentContextPusher pusher(slave_context);
+    AutoRequired<AutoPacketFactory>();
+    AutoRequired<Junction01>();
+    slave_context->Initiate();
+  }
+
+  AutoCreateContextT<MasterContext> master_context;
+  {
+    CurrentContextPusher pusher(master_context);
+    master_factory = AutoRequired<AutoPacketFactory>();
+    stile = AutoRequired<AutoStile<const Decoration<0>&>>();
+    master_context->Initiate();
+  }
+
+  stile->Leash(slave_context);
+  {
+    CurrentContextPusher pusher(master_context);
+    std::shared_ptr<AutoPacket> master_packet;
+    master_packet = master_factory->NewPacket();
+    master_packet->Decorate(Decoration<0>());
+    ASSERT_TRUE(master_packet->Has<Decoration<1>>()) << "Stile failed to send & retrieve data";
+  }
+}
+
+TEST_F(AutoFilterTest, ExtractMergedData) {
+  std::shared_ptr<AutoStile<const AutoMergeStile<Decoration<0>>::merge_call&>> stile;
+  std::shared_ptr<AutoPacketFactory> master_factory;
+
+  AutoCreateContextT<SlaveContext> slave_context;
+  {
+    CurrentContextPusher pusher(slave_context);
+
+    AutoRequired<AutoPacketFactory>();
+    AutoRequired<FilterOD0<0>> f0D0;
+    AutoRequired<FilterOD0<1>> f1D0;
+
+    slave_context->Initiate();
+  }
+
+  AutoCreateContextT<MasterContext> master_context;
+  {
+    CurrentContextPusher pusher(master_context);
+
+    master_factory = AutoRequired<AutoPacketFactory>();
+    stile = AutoRequired<AutoStile<const AutoMergeStile<Decoration<0>>::merge_call&>>();
+    AutoConstruct<AutoMergeStile<Decoration<0>>> merge(*slave_context);
+
+    merge->GetMerge()->PipeToMerge<FilterOD0<0>>();
+    merge->GetMerge()->PipeToMerge<FilterOD0<1>>();
+
+    master_context->Initiate();
+  }
+
+  stile->Leash(slave_context);
+  {
+    CurrentContextPusher pusher(master_context);
+    std::shared_ptr<AutoPacket> master_packet;
+    master_packet = master_factory->NewPacket();
+    master_packet->Decorate(Decoration<0>());
+    const AutoMergeStile<Decoration<0>>::merge_data* data = nullptr;
+    ASSERT_TRUE(master_packet->Get(data)) << "Stile failed to send & retrieve data";
+    ASSERT_EQ(2, data->size()) << "Merge failed to gather all data";
+  }
 }
