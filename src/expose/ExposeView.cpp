@@ -224,20 +224,17 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     Vector3 center(Vector3::Zero());
-    double scale = 0;
     double weight = 0;
     assert(!group->m_groupMembers.empty());
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
       const double curWeight = window->GetTexture()->Size().norm() * window->m_opacity.Value();
       center += curWeight * window->GetTexture()->Translation();
       weight += curWeight;
-      scale += curWeight * window->GetTexture()->LinearTransformation()(0, 0);
     }
     center /= weight;
-    scale /= weight;
     group->m_icon->Translation() = center;
 
-    group->m_icon->LinearTransformation() = (1.5 * scale) * Matrix3x3::Identity();
+    group->m_icon->LinearTransformation() = (0.25 + (1.0 - m_alphaMask.Current())) * Matrix3x3::Identity();
     group->m_icon->LocalProperties().AlphaMask() = m_alphaMask.Current();
   }
 }
