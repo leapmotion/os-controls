@@ -5,18 +5,12 @@
 #include<stdexcept>
 #include<chrono>
 
+#include "ConfigEvent.h"
 #include "FileMonitor.h"
 #include <autowiring/Autowired.h>
 #include <autowiring/../contrib/json11/json11.hpp>
 
 #define CONFIG_DEFAULT_NAME "config.json"
-
-struct ConfigEvent {
-  /// <summary>
-  /// Event fired when a config value is added or changed - fired per config value.
-  virtual void ConfigChanged(const std::string& config, const json11::Json& value) = 0;
-};
-
 
 /// <summary>
 /// Stores application-wide settings on a per-user basis.
