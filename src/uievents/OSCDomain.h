@@ -22,6 +22,29 @@ enum class OSCState {
   FINAL
 };
 
+class OSCStateClass {
+protected:
+  OSCState m_state;
+
+public:
+  OSCStateClass() {
+    m_state = OSCState::BASE;
+  }
+
+  operator OSCState&() {
+    return m_state;
+  }
+
+  operator const OSCState&() const {
+    return m_state;
+  }
+
+  OSCStateClass& operator = (const OSCState& rhs) {
+    m_state = rhs;
+    return *this;
+  }
+};
+
 class OSCStateChangeEvent{
 public:
   virtual void RequestTransition(OSCState requestedState) = 0;
@@ -31,6 +54,8 @@ public:
 /// The set of possible inputs to the OS controls state machine
 /// </summary>
 enum class OSCInputs {
+  NoInput,
+
   // A selection of a wedge has taken place
   Selection,
 
@@ -41,4 +66,27 @@ enum class OSCInputs {
   ThreeFingers,
   FourFingers,
   FiveFingers
+};
+
+class OSCInputsClass {
+protected:
+  OSCInputs m_inputs;
+
+public:
+  OSCInputsClass() {
+    m_inputs = OSCInputs::NoInput;
+  }
+
+  operator OSCInputs&() {
+    return m_inputs;
+  }
+
+  operator const OSCInputs&() const {
+    return m_inputs;
+  }
+
+  OSCInputsClass& operator = (const OSCInputs& rhs) {
+    m_inputs = rhs;
+    return *this;
+  }
 };

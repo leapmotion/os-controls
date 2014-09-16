@@ -89,6 +89,10 @@ MediaViewStateMachine::MediaViewStateMachine() :
   // Initilize Volume Slider
   m_volumeSlider->SetWidth(220.0f);
   m_volumeSlider->SetHeight(10.0f);
+
+  AutoCurrentContext()->AddTeardownListener([this](){
+    RemoveFromParent();
+  });
 }
 
 void MediaViewStateMachine::AutoInit() {
@@ -149,6 +153,10 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       }
       break;
     case State::FINAL:
+      // NOTE: This will probably not be called.
+      // Instead, the call-back registered in AddTearDownListener.
+      RemoveFromParent();
+      break;
     default:
       break;
   }
