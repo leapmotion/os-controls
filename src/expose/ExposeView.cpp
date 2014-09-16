@@ -4,6 +4,7 @@
 #include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
+#include "utility/NativeWindow.h"
 #include "utility/SamplePrimitives.h"
 #include <SVGPrimitive.h>
 #include "OSInterface/OSApp.h"
@@ -549,6 +550,10 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 
 void ExposeView::StartView() {
   m_alphaMask.Set(1.0f, 0.75);
+  AutowiredFast<sf::RenderWindow> mw;
+  if (mw) {
+    NativeWindow::AllowInput(mw->getSystemHandle(), true);
+  }
   m_closing = false;
   startPositions();
   computeLayout();
@@ -556,6 +561,10 @@ void ExposeView::StartView() {
 
 void ExposeView::CloseView() {
   m_alphaMask.Set(0.0f, 0.75);
+  AutowiredFast<sf::RenderWindow> mw;
+  if (mw) {
+    NativeWindow::AllowInput(mw->getSystemHandle(), false);
+  }
   m_closing = true;
   endPositions();
 }
