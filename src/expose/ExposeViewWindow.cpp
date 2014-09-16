@@ -4,28 +4,37 @@
 #include "osinterface/OSApp.h"
 #include "graphics/RenderFrame.h"
 
+const double ExposeViewWindow::VIEW_ANIMATION_TIME = 0.75;
+
+static float getRandomVariation(float radius) {
+  const float randNum = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+  return 2.0f*(randNum - 0.5f) * radius;
+}
+
 ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this()),
   m_texture(new ImagePrimitive),
-  m_dropShadow(new DropShadow)
+  m_dropShadow(new DropShadow),
+  m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>)
 {
-  const float randNum = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-  const float randomSmoothVariationRadius = 0.05f;
-  const float randomVariation = 2*(randNum - 0.5f) * randomSmoothVariationRadius;
-  const float baseSmooth = 0.875f;
-  const float variedSmooth = baseSmooth + randomVariation;
+  const float baseSmooth = 0.825f;
 
   m_opacity.SetInitialValue(0.0f);
   m_opacity.SetGoal(0.0f);
-  m_opacity.SetSmoothStrength(variedSmooth);
+  m_opacity.SetSmoothStrength(baseSmooth);
 
+#if 0
   m_position.SetInitialValue(Vector3::Zero());
   m_position.SetGoal(Vector3::Zero());
   m_position.SetSmoothStrength(variedSmooth);
+#else
+  m_position.SetImmediate(Vector3::Zero());
+  m_position.Set(Vector3::Zero());
+#endif
 
   m_scale.SetInitialValue(0.0f);
   m_scale.SetGoal(0.0f);
-  m_scale.SetSmoothStrength(variedSmooth);
+  m_scale.SetSmoothStrength(baseSmooth);
 
   m_activation.SetInitialValue(0.0f);
   m_activation.SetGoal(0.0f);
@@ -114,9 +123,15 @@ void ExposeViewWindow::SetOpeningPosition() {
   const Vector2 osPosition = GetOSPosition();
   const Vector3 center(osPosition.x(), osPosition.y(), 0.0);
 
+#if 0
   m_position.SetInitialValue(center);
   m_position.SetGoal(center);
-  m_position.Update(0.0f);
+#else
+  const float randomTimeVariation = 0.15f;
+
+  m_position.SetImmediate(center);
+  m_position.Set(center, VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
+#endif
 }
 
 void ExposeViewWindow::SetClosingPosition() {
@@ -135,7 +150,12 @@ void ExposeViewWindow::SetClosingPosition() {
   const Vector2 osPosition = GetOSPosition();
   const Vector3 center(osPosition.x(), osPosition.y(), 0.0);
 
+#if 0
   m_position.SetGoal(center);
+#else
+  const float randomTimeVariation = 0.15f;
+  m_position.Set(center, VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
+#endif
 }
 
 Vector2 ExposeViewWindow::GetOSPosition() const {

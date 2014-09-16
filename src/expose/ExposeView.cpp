@@ -17,7 +17,7 @@ Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.25f);
 Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.5f);
 
 ExposeView::ExposeView() :
-  m_alphaMask(0.0f, 1.0f, EasingFunctions::Linear<float>),
+  m_alphaMask(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<float>),
   m_layoutRadius(500.0),
   m_selectionRadius(100),
   m_viewCenter(Vector2::Zero())
@@ -163,7 +163,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
     window->m_scale.Update((float)dt.count());
-    img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
+    img->LinearTransformation() = window->GetScale() * Matrix3x3::Identity();
 
     Vector3 totalForce(Vector3::Zero());
 
@@ -178,7 +178,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     window->m_forceDelta.SetGoal(totalForce);
     window->m_position.Update(static_cast<float>(dt.count()));
     window->m_forceDelta.Update(static_cast<float>(dt.count()));
-    img->Translation() = window->m_position.Value() + window->m_grabDelta.Value() + window->m_forceDelta.Value();
+    img->Translation() = window->GetPosition();
 
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
@@ -493,7 +493,7 @@ void ExposeView::computeLayout() {
       angle += 0.5*curAngle;
       const Vector2 cartesian = radialCoordsToPoint(angle, radius).cwiseProduct(aspectScale) + scaledCenter;
       const Vector3 point3D(cartesian.x(), cartesian.y(), 0.0);
-      window->m_position.SetGoal(point3D);
+      window->m_position.Set(point3D);
       angle += 0.5*curAngle;
     }
   }
@@ -549,22 +549,22 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
-  m_alphaMask.Set(1.0f, 0.75);
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), true);
   }
+  m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_closing = false;
   startPositions();
   computeLayout();
 }
 
 void ExposeView::CloseView() {
-  m_alphaMask.Set(0.0f, 0.75);
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), false);
   }
+  m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_closing = true;
   endPositions();
 }
