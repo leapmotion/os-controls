@@ -67,7 +67,8 @@ uint32_t OSWindowMac::GetOwnerPid(void) {
 
 std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<ImagePrimitive> img)  {
   CGImageRef imageRef = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow,
-                                                m_windowID, kCGWindowImageNominalResolution);
+                                                m_windowID, kCGWindowImageBoundsIgnoreFraming |
+                                                            kCGWindowImageNominalResolution);
   if (!imageRef) {
     return img;
   }
