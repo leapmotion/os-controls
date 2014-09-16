@@ -75,7 +75,8 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
   // If this window has an overlay window, apply the overlay to our image
   if (m_overlayWindowID) {
     CGImageRef overlayImageRef = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow,
-                                                         m_overlayWindowID, kCGWindowImageNominalResolution);
+                                                         m_overlayWindowID, kCGWindowImageBoundsIgnoreFraming |
+                                                                            kCGWindowImageNominalResolution);
     if (overlayImageRef) {
       CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
       // Determine actual window size
