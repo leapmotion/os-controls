@@ -44,7 +44,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state);
+  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, OSCState& state);
   
   void OnHandVanished() override;
   void RequestTransition(OSCState requestedState) override;
@@ -57,7 +57,7 @@ public:
 private:
   OSCState validateTransition(OSCState to) const;
   void performNextTransition();
-  
+
   bool pointIsOnScreen(const Vector2& point) const;
 
   OSCState resolvePose(HandPose pose) const;

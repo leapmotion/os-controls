@@ -32,7 +32,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state) {
+void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, OSCState& state) {
   std::lock_guard<std::mutex> lk(m_lock);
 
   if(m_state == OSCState::FINAL) {
@@ -70,10 +70,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   state = m_state;
 
   if (m_scrollType == ScrollType::HAND_SCROLL) {
-    doHandScroll(scroll, handData.locationData);
+    doHandScroll(handData.scroll, handData.locationData);
   }
   else if (m_scrollType == ScrollType::PINCH_SCROLL) {
-    doPinchScroll(scroll, handData.locationData, handData.pinchData);
+    doPinchScroll(handData.scroll, handData.locationData, handData.pinchData);
   }
   
   m_lastHandLocation = handData.locationData.screenPosition();

@@ -3,8 +3,8 @@
 
 #include <autowiring/AutoPacketFactory.h>
 #include "StateMachine.h"
+
 #include "HandDataCombiner.h"
-#include "ScrollRecognizer.h"
 
 #include "cursor/CursorView.h"
 
@@ -22,9 +22,6 @@ StateMachineContextManifest::StateMachineContextManifest()
 
   // HandDataCombiner will introduce additional depedent types
   AutoRequired<HandDataCombiner>();
-
-  // TODO: Merge this into HandDataCombiner
-  AutoRequired<ScrollRecognizer>();
 
   AutoRequired<CursorView> m_cursorView;
 

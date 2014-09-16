@@ -4,6 +4,7 @@
 #include "HandActivationRecognizer.h"
 #include "HandPoseRecognizer.h"
 #include "HandRollRecognizer.h"
+#include "ScrollRecognizer.h"
 #include "TimeRecognizer.h"
 
 struct HandData {
@@ -12,6 +13,7 @@ struct HandData {
   HandRoll rollData;
   HandPinch pinchData;
   HandGrab grabData;
+  Scroll scroll;
   double timeVisible;
 };
 
@@ -20,5 +22,5 @@ public:
   HandDataCombiner();
   ~HandDataCombiner();
   
-  void AutoFilter(const HandLocation& handLocation, const HandTime& handTime, const HandPose& handPose, const HandRoll& handRoll, const HandPinch& handPinch, const HandGrab& handGrab, HandData& handData);
+  void AutoFilter(const HandLocation& handLocation, const HandPose& handPose, const HandRoll& handRoll, const HandPinch& handPinch, const HandGrab& handGrab, const Scroll& handScroll, const HandTime& handTime, HandData& handData);
 };
