@@ -35,3 +35,5 @@ src/config/ui_configwindow.h
 **/*_automoc.cpp
 bin/platforms/*
 *.autosave
+*.aps
+src/oscontrols/Version.h
