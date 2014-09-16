@@ -168,6 +168,9 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
       continue;
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
+    if(!img->Texture())
+      // No texture on this window, do not bother trying to lay it out
+      continue;
 
     // set window scale smoothly
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
