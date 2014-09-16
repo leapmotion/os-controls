@@ -10,9 +10,15 @@ class SystemMultimediaEventListener;
 class VolumeLevelChecker:
   public Updatable
 {
+public:
+  VolumeLevelChecker(void);
+
 private:
   Autowired<AudioVolumeInterface> m_avi;
   AutoFired<SystemMultimediaEventListener> m_smel;
+
+  // Mute status as of last check:
+  bool m_oldMute;
 
   // Volume as of the last check
   float m_oldVolume;
