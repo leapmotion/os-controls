@@ -61,6 +61,9 @@ private:
   // Drop shadow
   std::shared_ptr<DropShadow> m_dropShadow;
 
+  // Highlight
+  std::shared_ptr<RectanglePrim> m_highlight;
+
 public:
   /// <summary>
   /// Causes this window to attempt to update its texture from the underlying OSWindow

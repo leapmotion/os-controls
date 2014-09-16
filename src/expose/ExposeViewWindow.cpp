@@ -15,6 +15,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this()),
   m_texture(new ImagePrimitive),
   m_dropShadow(new DropShadow),
+  m_highlight(new RectanglePrim),
   m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>)
 {
   const float baseSmooth = 0.825f;
@@ -84,20 +85,19 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
   PrimitiveBase::DrawSceneGraph(*m_dropShadow, frame.renderState);
 
   static const double HIGHLIGHT_WIDTH = 50.0;
-  RectanglePrim bgPrim;
-  bgPrim.LocalProperties().AlphaMask() = m_activation.Value();
+  m_highlight->LocalProperties().AlphaMask() = m_activation.Value();
   const Vector3f highlightRGB(0.505f, 0.831f, 0.114f);
   Color highlightColor(highlightRGB);
-  bgPrim.Material().SetDiffuseLightColor(highlightColor);
-  bgPrim.Material().SetAmbientLightColor(highlightColor);
-  bgPrim.Material().SetAmbientLightingProportion(1.0f);
+  m_highlight->Material().SetDiffuseLightColor(highlightColor);
+  m_highlight->Material().SetAmbientLightColor(highlightColor);
+  m_highlight->Material().SetAmbientLightingProportion(1.0f);
   Vector2 size = m_texture->Size();
   size += Vector2::Constant(HIGHLIGHT_WIDTH);
-  bgPrim.SetSize(size);
-  bgPrim.Translation() = m_texture->Translation();
-  bgPrim.LinearTransformation() = m_texture->LinearTransformation();
+  m_highlight->SetSize(size);
+  m_highlight->Translation() = m_texture->Translation();
+  m_highlight->LinearTransformation() = m_texture->LinearTransformation();
 
-  PrimitiveBase::DrawSceneGraph(bgPrim, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_highlight, frame.renderState);
 
   m_texture->DrawSceneGraph(*m_texture, frame.renderState);
 }
