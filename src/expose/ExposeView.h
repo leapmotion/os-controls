@@ -141,7 +141,7 @@ private:
   std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_windows;
 
   // Windows represented in order:
-  Renderable::ZOrderList m_zorder;
+  std::vector<std::shared_ptr<ExposeViewWindow>> m_orderedWindows;
 
   // Background Overlay Rectangle
   std::shared_ptr<ImagePrimitive> m_backgroundImage;

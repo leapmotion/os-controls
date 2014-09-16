@@ -72,9 +72,6 @@ void ExposeGroup::Move(const Vector2& displacement) {
 
 void ExposeGroup::Render(const RenderFrame& frame) const {
   for (const std::shared_ptr<ExposeViewWindow>& window : m_groupMembers) {
-    window->Render(frame);
-  }
-  for (const std::shared_ptr<ExposeViewWindow>& window : m_groupMembers) {
     const float hover = window->m_hover.Value();
     if (hover > 0.01f) {
       const float tempMask = window->GetTexture()->LocalProperties().AlphaMask();

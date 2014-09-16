@@ -67,7 +67,18 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   updateForces(frame.deltaT);
   updateWindowTexturesRoundRobin();
 
-  for(const auto& renderable : m_zorder)
+  m_orderedWindows.clear();
+  m_orderedWindows.reserve(m_windows.size());
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    m_orderedWindows.push_back(window);
+  }
+  std::sort(m_orderedWindows.begin(), m_orderedWindows.end(),
+    [] (const std::shared_ptr<ExposeViewWindow>& win1, const std::shared_ptr<ExposeViewWindow>& win2) {
+      return win1->m_osWindow->GetZOrder() < win2->m_osWindow->GetZOrder();
+    }
+  );
+
+  for (const auto& renderable : m_orderedWindows)
     renderable->AnimationUpdate(frame);
 }
 
@@ -80,8 +91,13 @@ void ExposeView::Render(const RenderFrame& frame) const {
   PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
 
-  for(const auto& renderable : m_zorder)
-    renderable->Render(frame);
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_orderedWindows) {
+    window->Render(frame);
+  }
+
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    group->Render(frame);
+  }
 
   PrimitiveBase::DrawSceneGraph(*m_selectionRegionActive, frame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_selectionOutlineActive, frame.renderState);
@@ -326,15 +342,6 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   m_selectionOutlineActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
 #endif
 
-  // bring a group to front when one of its members is activated
-  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
-    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
-      if (window->m_activation.Value() > 0.1f) {
-        m_zorder.BringToFront(group.get());
-      }
-    }
-  }
-
   prevHandPos = handPos;
 }
 
@@ -518,7 +525,6 @@ std::shared_ptr<ExposeGroup> ExposeView::createNewGroup(const std::shared_ptr<Ex
   group->m_icon = group->m_app->GetIconTexture(group->m_icon);
   group->m_groupMembers.insert(window);
   m_groups.insert(group);
-  m_zorder.Add(group);
   return group;
 }
 
@@ -529,7 +535,6 @@ void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
   std::shared_ptr<ExposeGroup> group = getGroupForWindow(wnd);
   group->m_groupMembers.erase(wnd);
   if (group->m_groupMembers.empty()) {
-    m_zorder.Remove(group);
     m_groups.erase(group);
   }
 
