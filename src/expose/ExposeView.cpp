@@ -183,7 +183,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
     window->m_opacity.Update(static_cast<float>(dt.count()));
-    img->LocalProperties().AlphaMask() = window->m_opacity.Value() * m_alphaMask.Current();
+    img->LocalProperties().AlphaMask() = window->m_opacity.Value();
   }
 
   m_selectionOutline->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
@@ -203,7 +203,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegionActive->SetRadius(m_selectionRadius);
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
-  m_backgroundImage->LocalProperties().AlphaMask() = m_alphaMask.Current();
+  m_backgroundImage->LocalProperties().AlphaMask() = 1.0f;
 
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     Vector3 center(Vector3::Zero());
