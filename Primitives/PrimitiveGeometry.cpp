@@ -108,16 +108,17 @@ void PrimitiveGeometry::Draw(const GLShader &bound_shader, GLenum drawMode) cons
 PrimitiveGeometry PrimitiveGeometry::CreateUnitSphere(int resolution) {
   PrimitiveGeometry geom;
 
-  const float resFloat = static_cast<float>(resolution);
+  const float resFloatW = static_cast<float>(2*resolution);
+  const float resFloatH = static_cast<float>(resolution);
   const float pi = static_cast<float>(M_PI);
   const float twoPi = static_cast<float>(2.0 * M_PI);
 
-  for (int w=0; w<resolution; w++) {
+  for (int w=0; w<2*resolution; w++) {
     for (int h=-resolution/2; h<resolution/2; h++) {
-      const float inc1 = (w/resFloat) * twoPi;
-      const float inc2 = ((w+1)/resFloat) * twoPi;
-      const float inc3 = (h/resFloat) * pi;
-      const float inc4 = ((h+1)/resFloat) * pi;
+      const float inc1 = (w/resFloatW) * twoPi;
+      const float inc2 = ((w+1)/resFloatW) * twoPi;
+      const float inc3 = (h/resFloatH) * pi;
+      const float inc4 = ((h+1)/resFloatH) * pi;
 
       // compute first position
       const float x1 = std::sin(inc1);
