@@ -20,7 +20,8 @@ ExposeView::ExposeView() :
   m_alphaMask(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<float>),
   m_layoutRadius(500.0),
   m_selectionRadius(100),
-  m_viewCenter(Vector2::Zero())
+  m_viewCenter(Vector2::Zero()),
+  m_closing(true)
 {
   m_backgroundImage = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
   m_backgroundImage = Autowired<OSVirtualScreen>()->PrimaryScreen().GetBackgroundTexture(m_backgroundImage);
@@ -47,7 +48,6 @@ ExposeView::ExposeView() :
 }
 
 ExposeView::~ExposeView() {
-  
 }
 
 void ExposeView::AutoInit() {
@@ -179,7 +179,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 
     if (!m_closing) {
       for (size_t i=0; i<m_forces.size(); i++) {
-        if (m_forces[i].m_window != window.get()) {
+        if (m_forces[i].m_window != window) {
           totalForce += m_forces[i].ForceAt(img->Translation());
         }
       }
@@ -267,7 +267,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 #endif
   static Vector2 prevHandPos = handPos;
 
-  ExposeViewWindow* closestWindow = nullptr;
+  std::shared_ptr<ExposeViewWindow> closestWindow;
   double closestDistSq = DBL_MAX;
   const double distSqThreshPixels = 100;
 
@@ -290,7 +290,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     const double distSq = (handPos - closestPoint).squaredNorm();
     const double modifiedDistSq = (1.0f - window->m_activation.Value()) * (distSq + 0.9999*distSqThreshPixels);
     if (modifiedDistSq < closestDistSq) {
-      closestWindow = window.get();
+      closestWindow = window;
       closestDistSq = modifiedDistSq;
     }
   }
@@ -303,7 +303,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 
     const std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
 
-    if (window.get() == closestWindow && closestDistSq < distSqThreshPixels && !window->m_cooldown) {
+    if (window == closestWindow && closestDistSq < distSqThreshPixels && !window->m_cooldown) {
       window->m_hover.SetGoal(1.0f);
       window->m_activation.SetGoal(activation * window->m_hover.Value());
       Vector3 displacement = Vector3::Zero();
@@ -368,7 +368,7 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
     if (window->m_hover.Value() > 0.0001f) {
-      m_forces.push_back(Force(img->Translation(), (float)(FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value())), window.get(), (float)(MAX_RADIUS_MULT*m_layoutRadius)));
+      m_forces.push_back(Force(img->Translation(), (float)(FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value())), window, (float)(MAX_RADIUS_MULT*m_layoutRadius)));
     }
   }
 }
@@ -544,6 +544,9 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
+  if (!m_closing) {
+    return;
+  }
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), true);
@@ -555,6 +558,9 @@ void ExposeView::StartView() {
 }
 
 void ExposeView::CloseView() {
+  if (m_closing) {
+    return;
+  }
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), false);
