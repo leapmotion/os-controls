@@ -13,14 +13,18 @@
 
 Color selectionRegionColor(1.0f, 1.0f, 1.0f, 0.15f);
 Color selectionOutlineColor(1.0f, 1.0f, 1.0f, 0.3f);
-Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.25f);
-Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.5f);
+Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.35f);
+Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.65f);
 
 ExposeView::ExposeView() :
   m_alphaMask(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<float>),
   m_layoutRadius(500.0),
   m_selectionRadius(100),
-  m_viewCenter(Vector2::Zero())
+  m_viewCenter(Vector2::Zero()),
+  m_ignoreInteraction(true),
+  m_closing(true),
+  m_time(0.0),
+  m_selectionTime(0.0)
 {
   m_backgroundImage = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
   m_backgroundImage = Autowired<OSVirtualScreen>()->PrimaryScreen().GetBackgroundTexture(m_backgroundImage);
@@ -47,7 +51,6 @@ ExposeView::ExposeView() :
 }
 
 ExposeView::~ExposeView() {
-  
 }
 
 void ExposeView::AutoInit() {
@@ -57,6 +60,7 @@ void ExposeView::AutoInit() {
 }
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
+  m_time += frame.deltaT.count();
   m_alphaMask.Update(frame.deltaT.count());
 
   // Do nothing else if we're invisible
@@ -89,9 +93,6 @@ void ExposeView::Render(const RenderFrame& frame) const {
 
   PrimitiveBase::DrawSceneGraph(*m_backgroundImage, frame.renderState);
 
-  PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
-  PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
-
   for (const std::shared_ptr<ExposeViewWindow>& window : m_orderedWindows) {
     window->Render(frame);
   }
@@ -99,6 +100,19 @@ void ExposeView::Render(const RenderFrame& frame) const {
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     group->Render(frame);
   }
+
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_orderedWindows) {
+    const float hover = window->m_hover.Value();
+    if (hover > 0.01f) {
+      const float tempMask = window->GetTexture()->LocalProperties().AlphaMask();
+      window->GetTexture()->LocalProperties().AlphaMask() = hover;
+      window->Render(frame);
+      window->GetTexture()->LocalProperties().AlphaMask() = tempMask;
+    }
+  }
+
+  PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
 
   PrimitiveBase::DrawSceneGraph(*m_selectionRegionActive, frame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_selectionOutlineActive, frame.renderState);
@@ -147,7 +161,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRadius = 0.5 * m_layoutRadius;
 
   const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
-  const double radiusPerWindow = 0.75 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
+  const double radiusPerWindow = 0.4 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
 
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
@@ -158,18 +172,20 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     // set window scale smoothly
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
     const double imgRadius = 0.5 * img->Size().norm();
-    const double scale = 4.0 * (1.0 + bonusScale) * (radiusPerWindow / imgRadius) * size.norm() / fullSize.norm();
-    if (!m_closing) {
+    const double scale = (1.0 + bonusScale) * std::sqrt(radiusPerWindow / imgRadius);// *size.norm() / fullSize.norm();
+    if (!m_ignoreInteraction) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
     window->m_scale.Update((float)dt.count());
-    img->LinearTransformation() = window->GetScale() * Matrix3x3::Identity();
+    const double actualScale = (1.0 - m_alphaMask.Current()) + m_alphaMask.Current()*window->GetScale();
+
+    img->LinearTransformation() = actualScale * Matrix3x3::Identity();
 
     Vector3 totalForce(Vector3::Zero());
 
-    if (!m_closing) {
+    if (!m_ignoreInteraction) {
       for (size_t i=0; i<m_forces.size(); i++) {
-        if (m_forces[i].m_window != window.get()) {
+        if (m_forces[i].m_window != window) {
           totalForce += m_forces[i].ForceAt(img->Translation());
         }
       }
@@ -178,7 +194,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     window->m_forceDelta.SetGoal(totalForce);
     window->m_position.Update(static_cast<float>(dt.count()));
     window->m_forceDelta.Update(static_cast<float>(dt.count()));
-    img->Translation() = window->GetPosition();
+    img->Translation() = window->m_position.Current() + m_alphaMask.Current()*window->m_grabDelta.Value() + m_alphaMask.Current()*window->m_forceDelta.Value();
 
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
@@ -203,24 +219,22 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegionActive->SetRadius(m_selectionRadius);
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
-  m_backgroundImage->LocalProperties().AlphaMask() = 1.0f;
+  float alphaMask = SmootherStep(std::min(1.0f, 5.0f * m_alphaMask.Current()));
+  m_backgroundImage->LocalProperties().AlphaMask() = alphaMask;
 
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     Vector3 center(Vector3::Zero());
-    double scale = 0;
     double weight = 0;
     assert(!group->m_groupMembers.empty());
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
       const double curWeight = window->GetTexture()->Size().norm() * window->m_opacity.Value();
       center += curWeight * window->GetTexture()->Translation();
       weight += curWeight;
-      scale += curWeight * window->GetTexture()->LinearTransformation()(0, 0);
     }
     center /= weight;
-    scale /= weight;
     group->m_icon->Translation() = center;
 
-    group->m_icon->LinearTransformation() = (1.5 * scale) * Matrix3x3::Identity();
+    group->m_icon->LinearTransformation() = (0.25 + (1.0 - m_alphaMask.Current())) * Matrix3x3::Identity();
     group->m_icon->LocalProperties().AlphaMask() = m_alphaMask.Current();
   }
 }
@@ -256,7 +270,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 #endif
   static Vector2 prevHandPos = handPos;
 
-  ExposeViewWindow* closestWindow = nullptr;
+  std::shared_ptr<ExposeViewWindow> closestWindow;
   double closestDistSq = DBL_MAX;
   const double distSqThreshPixels = 100;
 
@@ -279,7 +293,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     const double distSq = (handPos - closestPoint).squaredNorm();
     const double modifiedDistSq = (1.0f - window->m_activation.Value()) * (distSq + 0.9999*distSqThreshPixels);
     if (modifiedDistSq < closestDistSq) {
-      closestWindow = window.get();
+      closestWindow = window;
       closestDistSq = modifiedDistSq;
     }
   }
@@ -292,7 +306,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 
     const std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
 
-    if (window.get() == closestWindow && closestDistSq < distSqThreshPixels && !window->m_cooldown) {
+    if (!m_ignoreInteraction && window == closestWindow && closestDistSq < distSqThreshPixels) {
       window->m_hover.SetGoal(1.0f);
       window->m_activation.SetGoal(activation * window->m_hover.Value());
       Vector3 displacement = Vector3::Zero();
@@ -304,15 +318,21 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
         window->m_selection.SetGoal(activation * window->m_activation.Value());
 
         if (activation < window->m_selection.Value()) {
+          m_selectionTime = m_time;
+          m_ignoreInteraction = true;
+          m_selectedWindow = window;
           focusWindow(*window);
-          window->m_cooldown = true;          
         }
 
       } else {
         window->m_selection.SetGoal(0.0f);
       }
     } else {
-      window->m_hover.SetGoal(0.0f);
+      float newHover = 0.0f;
+      if (window.get() == m_selectedWindow.get()) {
+        newHover = 1.0f;
+      }
+      window->m_hover.SetGoal(newHover);
       window->m_activation.SetGoal(0.0f);
       window->m_grabDelta.SetSmoothStrength(0.9f);
       window->m_grabDelta.SetGoal(Vector3::Zero());
@@ -322,10 +342,6 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     window->m_activation.Update((float)dt.count());
     window->m_grabDelta.Update((float)dt.count());
     window->m_selection.Update((float)dt.count());
-
-    if (window->m_cooldown && window->m_hover.Value() < 0.1f) {
-      window->m_cooldown = false;
-    }
 
     maxSelection = std::max(maxSelection, window->m_selection.Value());
   }
@@ -343,6 +359,10 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   m_selectionOutlineActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
 #endif
 
+  if (m_ignoreInteraction && (m_selectionTime - m_time) > ExposeViewWindow::VIEW_ANIMATION_TIME) {
+    m_ignoreInteraction = false;
+  }
+
   prevHandPos = handPos;
 }
 
@@ -357,7 +377,7 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
     if (window->m_hover.Value() > 0.0001f) {
-      m_forces.push_back(Force(img->Translation(), (float)(FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value())), window.get(), (float)(MAX_RADIUS_MULT*m_layoutRadius)));
+      m_forces.push_back(Force(img->Translation(), (float)(FORCE_DISTANCE_MULT*m_layoutRadius*(window->m_hover.Value() + window->m_activation.Value())), window, (float)(MAX_RADIUS_MULT*m_layoutRadius)));
     }
   }
 }
@@ -410,29 +430,13 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
     retVal->UpdateTexture();
   };
 
-  retVal->m_opacity.SetGoal(0.0f);
-  retVal->m_opacity.Update(0.0f);
-
-  retVal->m_scale.SetGoal(0.0f);
-  retVal->m_scale.Update(0.0f);
-
-  retVal->m_activation.SetGoal(0.0f);
-  retVal->m_activation.Update(0.0f);
-
-  retVal->m_hover.SetGoal(0.0f);
-  retVal->m_hover.Update(0.0f);
-
-  retVal->m_selection.SetGoal(0.0f);
-  retVal->m_selection.Update(0.0f);
-
-  retVal->m_grabDelta.SetGoal(Vector3::Zero());
-  retVal->m_grabDelta.Update(0.0f);
-
   if (!addToExistingGroup(retVal)) {
     createNewGroup(retVal);
   }
 
   computeLayout();
+
+  retVal->m_position.SetImmediate(retVal->m_position.Goal());
 
   return retVal;
 }
@@ -485,7 +489,7 @@ void ExposeView::computeLayout() {
 
     const int numGroupMembers = group->m_groupMembers.size();
     const Vector2 scaledCenter = (group->m_center - primaryCenter).cwiseProduct(primaryToFullScale) + primaryCenter;
-    const double radius = groupRadius * 0.05 * (numGroupMembers-1);
+    const double radius = std::sqrt(groupRadius * (numGroupMembers-1));
     double angle = 0;
     const double angleInc = 2*M_PI / totalSize;
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
@@ -549,22 +553,31 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
+  if (!m_closing) {
+    return;
+  }
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), true);
   }
-  m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_closing = false;
+  m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
+  m_ignoreInteraction = false;
+  m_selectedWindow = nullptr;
   startPositions();
   computeLayout();
 }
 
 void ExposeView::CloseView() {
+  if (m_closing) {
+    return;
+  }
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), false);
   }
-  m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_closing = true;
+  m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
+  m_ignoreInteraction = true;
   endPositions();
 }

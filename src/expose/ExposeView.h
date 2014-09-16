@@ -75,7 +75,7 @@ public:
 
 private:
   struct Force {
-    Force(const Vector3& position, float strength, ExposeViewWindow* wnd, float maxDist) :
+    Force(const Vector3& position, float strength, const std::shared_ptr<ExposeViewWindow>& wnd, float maxDist) :
     m_position(position),
     m_strength(strength),
     m_window(wnd),
@@ -89,11 +89,11 @@ private:
     }
     Vector3 m_position;
     float m_strength;
-    ExposeViewWindow* m_window;
+    std::shared_ptr<ExposeViewWindow> m_window;
     float m_maxDist;
   };
 
-  typedef std::vector<Force, Eigen::aligned_allocator<Force> > ForceVector;
+  typedef std::vector<Force, Eigen::aligned_allocator<Force>> ForceVector;
 
   /// <summary>
   /// Evolves the layout by one step
@@ -154,6 +154,9 @@ private:
   double m_selectionRadius;
   Vector2 m_viewCenter;
 
+  std::shared_ptr<ExposeViewWindow> m_selectedWindow;
+
+  bool m_ignoreInteraction;
   bool m_closing;
 
   std::shared_ptr<Disk> m_selectionRegion;
@@ -161,5 +164,7 @@ private:
 
   std::shared_ptr<Disk> m_selectionRegionActive;
   std::shared_ptr<PartialDisk> m_selectionOutlineActive;
-};
 
+  double m_time;
+  double m_selectionTime;
+};
