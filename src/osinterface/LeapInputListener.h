@@ -8,4 +8,8 @@ class LeapInputListener {
 public:
   ~LeapInputListener(void) {}
   virtual void OnLeapFrame(const Leap::Frame& frame) = 0;
+  virtual void OnConnect(void) {}
+  virtual void OnDisconnect(void) {}
+  virtual void OnServiceConnect(void) {}
+  virtual void OnServiceDisconnect(void) {}
 };

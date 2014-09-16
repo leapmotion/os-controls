@@ -16,7 +16,27 @@ LeapInput::~LeapInput(void)
   m_controller->removeListener(*this);
 }
 
+void LeapInput::onServiceConnect(const Leap::Controller& controller) {
+  CurrentContextPusher pshr(this->GetContext());
+  m_listener(&LeapInputListener::OnServiceConnect)();
+}
+
+void LeapInput::onConnect(const Leap::Controller& controller) {
+  CurrentContextPusher pshr(this->GetContext());
+  m_listener(&LeapInputListener::OnConnect)();
+}
+
 void LeapInput::onFrame(const Leap::Controller& controller) {
   CurrentContextPusher pshr(this->GetContext());
   m_listener(&LeapInputListener::OnLeapFrame)(controller.frame());
+}
+
+void LeapInput::onDisconnect(const Leap::Controller& controller) {
+  CurrentContextPusher pshr(this->GetContext());
+  m_listener(&LeapInputListener::OnDisconnect)();
+}
+
+void LeapInput::onServiceDisconnect(const Leap::Controller& controller) {
+  CurrentContextPusher pshr(this->GetContext());
+  m_listener(&LeapInputListener::OnServiceDisconnect)();
 }

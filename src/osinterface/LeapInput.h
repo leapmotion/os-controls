@@ -23,5 +23,9 @@ private:
   AutoFired<LeapInputListener> m_listener;
 
   // Leap::Listener overrides:
+  void onServiceConnect(const Leap::Controller& controller) override;
+  void onConnect(const Leap::Controller& controller) override;
   void onFrame(const Leap::Controller& controller) override;
+  void onDisconnect(const Leap::Controller& controller) override;
+  void onServiceDisconnect(const Leap::Controller& controller) override;
 };
