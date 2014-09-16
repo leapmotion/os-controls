@@ -4,6 +4,29 @@
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
+static std::map<HWND, LONG_PTR> s_winProcForwarding;
+
+LRESULT CALLBACK TransparentWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
+  LONG_PTR forwardingProc = 0;
+  if (s_winProcForwarding.count(hwnd) > 0)
+    forwardingProc = s_winProcForwarding[hwnd];
+
+  if (msg == WM_PAINT){
+    PAINTSTRUCT paintStruct;
+    BeginPaint(hwnd, &paintStruct);
+    paintStruct.fErase = true;
+    EndPaint(hwnd, &paintStruct);
+  }
+  else if( forwardingProc != 0){
+    return CallWindowProc((WNDPROC)forwardingProc, hwnd, msg, wParam, lParam);
+  }
+  else{
+    return DefWindowProc(hwnd, msg, wParam, lParam);
+  }
+   
+  return 0;
+}
+
 void NativeWindow::MakeTransparent(const Handle& window) {
   if (!window) {
     throw std::runtime_error("Error retrieving native window");
@@ -18,6 +41,10 @@ void NativeWindow::MakeTransparent(const Handle& window) {
   bb.fEnable = true;
   bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
   ::DwmEnableBlurBehindWindow(window, &bb);
+
+  LONG_PTR ptr = ::GetWindowLongPtr(window, GWLP_WNDPROC);
+  s_winProcForwarding[window] = ptr;
+  ::SetWindowLongPtr(window, GWLP_WNDPROC, (LONG)TransparentWndProc);
 }
 
 void NativeWindow::MakeAlwaysOnTop(const Handle& window) {
