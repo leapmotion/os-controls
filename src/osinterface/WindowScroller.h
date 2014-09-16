@@ -48,8 +48,8 @@ private:
   // scroll units per microsecond, and will be reduced by the drag amount.
   OSPoint m_remainingMomentum;
 
-  Smoothed<float> m_VelocityX;
-  Smoothed<float> m_VelocityY;
+  Smoothed<float, 15> m_VelocityX;
+  Smoothed<float, 15> m_VelocityY;
 
   // Time-point of last scroll
   std::chrono::steady_clock::time_point m_lastScrollTimePoint;
