@@ -35,7 +35,8 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_FadeTime(0.25),
   m_CurrentTime(0.0),
   m_LastStateChangeTime(0.0),
-  m_interactionIsVolumeLocked(false)
+  m_interactionIsVolumeLocked(false),
+  m_distanceFadeCap(1.0f)
 {
   // Initialize Smoothed Values
   m_ghostCursorAlpha.SetInitialValue(0.0f);
@@ -136,6 +137,11 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
         m_LastStateChangeTime = m_CurrentTime;
         return;
       }
+      if(shouldMenuDistanceKill()) {
+        doActiveToCompleteTasks();
+        m_state = State::COMPLETE;
+        m_LastStateChangeTime = m_CurrentTime;
+      }
       break;
     case State::COMPLETE:
       
@@ -164,6 +170,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       break;
     case State::ACTIVE:
     {
+      m_distanceFadeCap = calculateMenuAlphaFade();
       // The menu always thinks it's at (0,0) so we need to offset the cursor
       // coordinates by the location of the menu to give the proper space.
       if ( !m_interactionIsVolumeLocked ) {
@@ -210,18 +217,13 @@ void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 me
   if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
     //Selection Made Transition
     resolveSelection(updateResult.updateIdx);
-    m_volumeViewAlpha.SetGoal(0.0f);
-    m_cursorView->DisableLocationOverride();
-    m_cursorBufferzoneOffset = Vector3(0,0,0);
+    doActiveToCompleteTasks();
     m_state = State::COMPLETE;
     m_LastStateChangeTime = m_CurrentTime;
   }
 }
 
 void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Vector2& deltaPixels, Vector2 menuOffset) {
-  const float VOLUME_OFFSET_START_Y = 80.0f;
-  const float VOLUME_LOCK_IN_Y = 180.0f;
-  const float VOLUME_LOCK_X_OFFSET = 35.0f;
   
   Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
   
@@ -231,8 +233,8 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
     m_interactionIsVolumeLocked = true;
     m_ghostCursorAlpha.SetGoal(GHOST_CURSOR_ALPHA);
     Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
-    m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
     m_ghostCursor->Translation() = Vector3(m_goalCursorPosition.x(), m_goalCursorPosition.y(), 0.0f);
+    m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
     
     if ( offsetNormalFactor >= 1.0 ) {
       float deltaPixelsInVolume = deltaPixels.x() / m_volumeSlider->Width();
@@ -285,7 +287,11 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
       }
     }
   }
+  
+  alphaMask = std::min(alphaMask, m_distanceFadeCap);
+  
   m_radialMenu->LocalProperties().AlphaMask() = alphaMask;
+  m_volumeSlider->LocalProperties().AlphaMask() = alphaMask;
 }
 
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
@@ -293,12 +299,45 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
     if ( m_lastHandPose == HandPose::OneFinger )
     {
       PrimitiveBase::DrawSceneGraph(*m_radialMenu, renderFrame.renderState);
-      PrimitiveBase::DrawSceneGraph(*m_ghostCursor, renderFrame.renderState);
+      if ( m_state == State::ACTIVE ) {
+        PrimitiveBase::DrawSceneGraph(*m_ghostCursor, renderFrame.renderState);
+      }
       PrimitiveBase::DrawSceneGraph(*m_volumeSlider, renderFrame.renderState);
     }
     else {
+      
     }
   }
+}
+
+float MediaViewStateMachine::calculateMenuAlphaFade() {
+  float retVal = 1.0f;
+  Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
+  if ( diff.y() > VOLUME_LOCK_IN_Y) {
+    retVal = (diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE);
+    retVal = 1.0f - std::min(1.0f, std::max(0.0f, retVal));
+  }
+  
+  return retVal;
+}
+
+bool MediaViewStateMachine::shouldMenuDistanceKill() {
+  bool retVal = false;
+  
+  Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
+  //std::cout << "diff.norm(): " << diff.norm() << std::endl;
+  if ( diff.y() > VOLUME_LOCK_IN_Y) {
+    if(diff.norm() > KILL_FADE_END_DISTANCE) {
+      retVal = true;
+    }
+  }
+  return retVal;
+}
+
+void MediaViewStateMachine::doActiveToCompleteTasks() {
+  m_volumeViewAlpha.SetGoal(0.0f);
+  m_cursorView->DisableLocationOverride();
+  m_cursorBufferzoneOffset = Vector3(0,0,0);
 }
 
 void MediaViewStateMachine::resetMemberState() {
