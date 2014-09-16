@@ -8,8 +8,8 @@ IWindowScroller::IWindowScroller(void):
 {
   m_VelocityX.SetInitialValue(0.0f);
   m_VelocityY.SetInitialValue(0.0f);
-  m_VelocityX.SetSmoothStrength(0.5f);
-  m_VelocityY.SetSmoothStrength(0.5f);
+  m_VelocityX.SetSmoothStrength(0.4f);
+  m_VelocityY.SetSmoothStrength(0.4f);
 }
 
 IWindowScroller::~IWindowScroller(void)
