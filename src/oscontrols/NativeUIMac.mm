@@ -11,3 +11,7 @@ void NativeUI::ShowUI() {
 
 void NativeUI::DestroyUI() {
 }
+
+void NativeUI::ConfigChanged(const std::string& config, const json11::Json& value) {
+  //TODO: Implementation
+}

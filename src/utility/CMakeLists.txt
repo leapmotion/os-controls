@@ -3,6 +3,7 @@ set(utility_SOURCES
   CircleFitter.h
   Config.h
   Config.cpp
+  ConfigEvent.h
   ExtendedStateMachine.h
   FileMonitor.h
   HandleUtilitiesWin.h

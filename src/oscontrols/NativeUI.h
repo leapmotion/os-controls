@@ -1,8 +1,10 @@
 #pragma once
 #include "autowiring/ContextMember.h"
+#include "utility/ConfigEvent.h"
 
 struct NativeUI:
-  public ContextMember
+  public ContextMember,
+  public ConfigEvent
 {
   /// <summary>
   /// Registers the system tray icon with the system to allow user interaction
@@ -32,4 +34,14 @@ struct NativeUI:
   /// </summary>
   /// <param name="bCancelled">True if the configuration dialog was dismissed via a "cancel" behavior</param>
   void OnConfigUiHidden(bool bCancelled);
+
+  /// <summary>
+  /// Invoked when a user changes a config setting from the UI.
+  /// </summary>
+  void OnSettingChanged(const std::string& var, bool state);
+
+  /// <summary>
+  /// Invoked when a config setting is altered from the native code.
+  /// </summary>
+  void ConfigChanged(const std::string& config, const json11::Json& value) override;
 };
