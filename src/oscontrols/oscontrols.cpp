@@ -6,13 +6,14 @@
 #include "expose/ExposeViewAccessManager.h"
 #include "interaction/FrameFragmenter.h"
 #include "osinterface/AudioVolumeInterface.h"
+#include "osinterface/HtmlPageLauncher.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/OSVirtualScreen.h"
-#include "osinterface/WindowScroller.h"
-#include "osinterface/VolumeLevelChecker.h"
 #include "osinterface/OSWindowMonitor.h"
+#include "osinterface/VolumeLevelChecker.h"
+#include "osinterface/WindowScroller.h"
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/Config.h"
 #include "utility/FileMonitor.h"
@@ -47,6 +48,7 @@ int main(int argc, char **argv)
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
+    AutoRequired<HtmlPageLauncher>();
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
