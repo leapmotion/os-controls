@@ -19,11 +19,11 @@ void MediaInterfaceMac::Stop(void) {
 }
 
 void MediaInterfaceMac::Next(void) {
-  SendSpecialKeyEventPair(NX_KEYTYPE_NEXT);
+  SendSpecialKeyEventPair(NX_KEYTYPE_FAST);
 }
 
 void MediaInterfaceMac::Prev(void) {
-  SendSpecialKeyEventPair(NX_KEYTYPE_PREVIOUS);
+  SendSpecialKeyEventPair(NX_KEYTYPE_REWIND);
 }
 
 void MediaInterfaceMac::VolumeUp(void) {
