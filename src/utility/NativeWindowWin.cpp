@@ -39,6 +39,17 @@ void NativeWindow::AllowInput(const Handle& window, bool allowInput) {
   ::SetWindowLongA(window, GWL_EXSTYLE, style);
 }
 
+void NativeWindow::AbandonFocus(const Handle& window) {
+  if (!window)
+    throw std::runtime_error("Error retrieving native window");
+
+  Handle nextWindow = GetNextWindow(window, GW_HWNDNEXT);
+  if (!nextWindow)
+    throw std::runtime_error("Error getting next window");
+
+  ::SetForegroundWindow(nextWindow);
+}
+
 void NativeWindow::RaiseWindowAtPosition(float x, float y) {
   HWND hwnd = ::WindowFromPoint(POINT{(int) x, (int) y});
   if(!hwnd)

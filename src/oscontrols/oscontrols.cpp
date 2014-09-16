@@ -99,6 +99,9 @@ void OsControl::Main(void) {
 
 void OsControl::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
+  case sf::Event::GainedFocus:
+    NativeWindow::AbandonFocus(m_mw->getSystemHandle());
+    break;
   case sf::Event::Closed:
     AutoCurrentContext()->SignalShutdown();
     break;
