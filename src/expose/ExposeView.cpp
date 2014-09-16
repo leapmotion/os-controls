@@ -480,7 +480,7 @@ void ExposeView::computeLayout() {
 
     const int numGroupMembers = group->m_groupMembers.size();
     const Vector2 scaledCenter = (group->m_center - primaryCenter).cwiseProduct(primaryToFullScale) + primaryCenter;
-    const double radius = groupRadius * 0.05 * (numGroupMembers-1);
+    const double radius = std::sqrt(groupRadius * (numGroupMembers-1));
     double angle = 0;
     const double angleInc = 2*M_PI / totalSize;
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
