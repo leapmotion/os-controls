@@ -154,7 +154,7 @@ private:
   double m_selectionRadius;
   Vector2 m_viewCenter;
 
-  bool m_closing;
+  bool m_ignoreInteraction;
 
   std::shared_ptr<Disk> m_selectionRegion;
   std::shared_ptr<PartialDisk> m_selectionOutline;

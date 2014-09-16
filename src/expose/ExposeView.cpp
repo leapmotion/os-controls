@@ -21,7 +21,7 @@ ExposeView::ExposeView() :
   m_layoutRadius(500.0),
   m_selectionRadius(100),
   m_viewCenter(Vector2::Zero()),
-  m_closing(true)
+  m_ignoreInteraction(true)
 {
   m_backgroundImage = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
   m_backgroundImage = Autowired<OSVirtualScreen>()->PrimaryScreen().GetBackgroundTexture(m_backgroundImage);
@@ -169,7 +169,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
     const double imgRadius = 0.5 * img->Size().norm();
     const double scale = (1.0 + bonusScale) * std::sqrt(radiusPerWindow / imgRadius);// *size.norm() / fullSize.norm();
-    if (!m_closing) {
+    if (!m_ignoreInteraction) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
     window->m_scale.Update((float)dt.count());
@@ -177,7 +177,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
 
     Vector3 totalForce(Vector3::Zero());
 
-    if (!m_closing) {
+    if (!m_ignoreInteraction) {
       for (size_t i=0; i<m_forces.size(); i++) {
         if (m_forces[i].m_window != window) {
           totalForce += m_forces[i].ForceAt(img->Translation());
@@ -303,7 +303,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 
     const std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
 
-    if (window == closestWindow && closestDistSq < distSqThreshPixels && !window->m_cooldown) {
+    if (!m_ignoreInteraction && window == closestWindow && closestDistSq < distSqThreshPixels && !window->m_cooldown) {
       window->m_hover.SetGoal(1.0f);
       window->m_activation.SetGoal(activation * window->m_hover.Value());
       Vector3 displacement = Vector3::Zero();
@@ -544,7 +544,7 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
-  if (!m_closing) {
+  if (!m_ignoreInteraction) {
     return;
   }
   AutowiredFast<sf::RenderWindow> mw;
@@ -552,13 +552,13 @@ void ExposeView::StartView() {
     NativeWindow::AllowInput(mw->getSystemHandle(), true);
   }
   m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
-  m_closing = false;
+  m_ignoreInteraction = false;
   startPositions();
   computeLayout();
 }
 
 void ExposeView::CloseView() {
-  if (m_closing) {
+  if (m_ignoreInteraction) {
     return;
   }
   AutowiredFast<sf::RenderWindow> mw;
@@ -566,6 +566,6 @@ void ExposeView::CloseView() {
     NativeWindow::AllowInput(mw->getSystemHandle(), false);
   }
   m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
-  m_closing = true;
+  m_ignoreInteraction = true;
   endPositions();
 }
