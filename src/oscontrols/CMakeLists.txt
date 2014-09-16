@@ -3,6 +3,7 @@ set(oscontrols_SOURCES
   NativeUI.cpp
   oscontrols.h
   oscontrols.cpp
+  Version.h
 )
 
 set(oscontrols_RESOURCES
@@ -30,6 +31,8 @@ set(oscontrols_CLR_SOURCES
   NativeUIWin.cpp
   AssemblyInfo.cpp
   Resource.resx
+  Resource.rc
+  resource.h
 )
 
 add_windows_sources(
@@ -86,6 +89,8 @@ elseif(APPLE)
   endforeach()
   add_conditional_sources(oscontrols_SOURCES "" GROUP_NAME "XIBs" "FILES" ${CMAKE_SOURCE_DIR}/src/oscontrols/${oscontrols_XIBS})
 endif()
+
+configure_file(Version.h.in Version.h)
 
 add_executable(oscontrols ${oscontrols_EXEFLAGS} ${oscontrols_SOURCES})
 target_link_libraries(oscontrols Autowiring utility interaction graphics osinterface expose)

@@ -1,3 +1,7 @@
+#include "Version.h"
+
+#define WIDEN(x) L#x
+
 using namespace System;
 using namespace System::Reflection;
 using namespace System::Runtime::CompilerServices;
@@ -9,12 +13,12 @@ using namespace System::Security::Permissions;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly:AssemblyTitleAttribute(L"OS Controls")];
-[assembly:AssemblyDescriptionAttribute(L"")];
+[assembly:AssemblyTitleAttribute(WIDEN(oscontrols_APPNAME))];
+[assembly:AssemblyDescriptionAttribute(WIDEN(oscontrols_APPDESC))];
 [assembly:AssemblyConfigurationAttribute(L"")];
-[assembly:AssemblyCompanyAttribute(L"")];
-[assembly:AssemblyProductAttribute(L"OS Controls")];
-[assembly:AssemblyCopyrightAttribute(L"Copyright (c) Leap Motion 2014")];
+[assembly:AssemblyCompanyAttribute(WIDEN(LEAP_COMPANY_NAME))];
+[assembly:AssemblyProductAttribute(WIDEN(oscontrols_APPNAME))];
+[assembly:AssemblyCopyrightAttribute(WIDEN(APP_COPYRIGHT))];
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 
@@ -29,7 +33,7 @@ using namespace System::Security::Permissions;
 // You can specify all the value or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
 
-[assembly:AssemblyVersionAttribute("1.0.*")];
+[assembly:AssemblyVersionAttribute(oscontrols_WVERSION)];
 
 [assembly:ComVisible(false)];
 

@@ -2,7 +2,15 @@ cmake_minimum_required(VERSION 3.0)
 project(oscontrols)
 include(CTest)
 
-set(APP_VERSION "0.0.1")
+set(oscontrols_VERSION_MAJOR "1")
+set(oscontrols_VERSION_MINOR "0")
+set(oscontrols_VERSION_PATCH "0")
+set(oscontrols_VERSION "${oscontrols_VERSION_MAJOR}.${oscontrols_VERSION_MINOR}.${oscontrols_VERSION_PATCH}")
+set(oscontrols_APPNAME "OS Controls")
+set(oscontrols_APPDESC "Leap Motion Operating Systems Controls")
+set(LEAP_COMPANY_NAME "Leap Motion")
+
+set(APP_VERSION "${oscontrols_VERSION}")
 set(APP_COPYRIGHT "Copyright © 2014 Leap Motion, Inc. All rights reserved.")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
