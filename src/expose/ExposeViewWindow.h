@@ -30,10 +30,6 @@ public:
   Vector2 GetOSPosition() const;
   Vector2 GetOSSize() const;
 
-  Vector3 GetPosition() const {
-    return m_position.Current() + m_grabDelta.Value() + m_forceDelta.Value();
-  }
-
   float GetScale() const {
     return m_scale.Value();
   }
@@ -51,8 +47,6 @@ public:
   Smoothed<float> m_hover;
   Smoothed<float> m_activation;
   Smoothed<float> m_selection;
-
-  bool m_cooldown;
 
 private:
   // Texture for this window

@@ -154,11 +154,17 @@ private:
   double m_selectionRadius;
   Vector2 m_viewCenter;
 
+  std::shared_ptr<ExposeViewWindow> m_selectedWindow;
+
   bool m_ignoreInteraction;
+  bool m_closing;
 
   std::shared_ptr<Disk> m_selectionRegion;
   std::shared_ptr<PartialDisk> m_selectionOutline;
 
   std::shared_ptr<Disk> m_selectionRegionActive;
   std::shared_ptr<PartialDisk> m_selectionOutlineActive;
+
+  double m_time;
+  double m_selectionTime;
 };

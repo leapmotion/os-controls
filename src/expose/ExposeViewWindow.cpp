@@ -63,8 +63,6 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_forceDelta.SetInitialValue(Vector3::Zero());
   m_forceDelta.SetSmoothStrength(baseSmooth);
   m_forceDelta.Update(0.0f);
-
-  m_cooldown = false;
 }
 
 ExposeViewWindow::~ExposeViewWindow(void) {}

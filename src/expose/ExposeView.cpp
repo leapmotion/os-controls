@@ -21,7 +21,10 @@ ExposeView::ExposeView() :
   m_layoutRadius(500.0),
   m_selectionRadius(100),
   m_viewCenter(Vector2::Zero()),
-  m_ignoreInteraction(true)
+  m_ignoreInteraction(true),
+  m_closing(true),
+  m_time(0.0),
+  m_selectionTime(0.0)
 {
   m_backgroundImage = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
   m_backgroundImage = Autowired<OSVirtualScreen>()->PrimaryScreen().GetBackgroundTexture(m_backgroundImage);
@@ -57,6 +60,7 @@ void ExposeView::AutoInit() {
 }
 
 void ExposeView::AnimationUpdate(const RenderFrame& frame) {
+  m_time += frame.deltaT.count();
   m_alphaMask.Update(frame.deltaT.count());
 
   // Do nothing else if we're invisible
@@ -173,7 +177,9 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
       window->m_scale.SetGoal(static_cast<float>(scale));
     }
     window->m_scale.Update((float)dt.count());
-    img->LinearTransformation() = window->GetScale() * Matrix3x3::Identity();
+    const double actualScale = (1.0 - m_alphaMask.Current()) + m_alphaMask.Current()*window->GetScale();
+
+    img->LinearTransformation() = actualScale * Matrix3x3::Identity();
 
     Vector3 totalForce(Vector3::Zero());
 
@@ -188,7 +194,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     window->m_forceDelta.SetGoal(totalForce);
     window->m_position.Update(static_cast<float>(dt.count()));
     window->m_forceDelta.Update(static_cast<float>(dt.count()));
-    img->Translation() = window->GetPosition();
+    img->Translation() = window->m_position.Current() + m_alphaMask.Current()*window->m_grabDelta.Value() + m_alphaMask.Current()*window->m_forceDelta.Value();
 
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
@@ -303,7 +309,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 
     const std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
 
-    if (!m_ignoreInteraction && window == closestWindow && closestDistSq < distSqThreshPixels && !window->m_cooldown) {
+    if (!m_ignoreInteraction && window == closestWindow && closestDistSq < distSqThreshPixels) {
       window->m_hover.SetGoal(1.0f);
       window->m_activation.SetGoal(activation * window->m_hover.Value());
       Vector3 displacement = Vector3::Zero();
@@ -315,15 +321,21 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
         window->m_selection.SetGoal(activation * window->m_activation.Value());
 
         if (activation < window->m_selection.Value()) {
+          m_selectionTime = m_time;
+          m_ignoreInteraction = true;
+          m_selectedWindow = window;
           focusWindow(*window);
-          window->m_cooldown = true;          
         }
 
       } else {
         window->m_selection.SetGoal(0.0f);
       }
     } else {
-      window->m_hover.SetGoal(0.0f);
+      float newHover = 0.0f;
+      if (window.get() == m_selectedWindow.get()) {
+        newHover = 1.0f;
+      }
+      window->m_hover.SetGoal(newHover);
       window->m_activation.SetGoal(0.0f);
       window->m_grabDelta.SetSmoothStrength(0.9f);
       window->m_grabDelta.SetGoal(Vector3::Zero());
@@ -333,10 +345,6 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     window->m_activation.Update((float)dt.count());
     window->m_grabDelta.Update((float)dt.count());
     window->m_selection.Update((float)dt.count());
-
-    if (window->m_cooldown && window->m_hover.Value() < 0.1f) {
-      window->m_cooldown = false;
-    }
 
     maxSelection = std::max(maxSelection, window->m_selection.Value());
   }
@@ -353,6 +361,10 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
   m_selectionOutlineActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
 #endif
+
+  if (m_ignoreInteraction && (m_selectionTime - m_time) > ExposeViewWindow::VIEW_ANIMATION_TIME) {
+    m_ignoreInteraction = false;
+  }
 
   prevHandPos = handPos;
 }
@@ -544,27 +556,30 @@ void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::StartView() {
-  if (!m_ignoreInteraction) {
+  if (!m_closing) {
     return;
   }
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), true);
   }
+  m_closing = false;
   m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_ignoreInteraction = false;
+  m_selectedWindow = nullptr;
   startPositions();
   computeLayout();
 }
 
 void ExposeView::CloseView() {
-  if (m_ignoreInteraction) {
+  if (m_closing) {
     return;
   }
   AutowiredFast<sf::RenderWindow> mw;
   if (mw) {
     NativeWindow::AllowInput(mw->getSystemHandle(), false);
   }
+  m_closing = true;
   m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_ignoreInteraction = true;
   endPositions();
