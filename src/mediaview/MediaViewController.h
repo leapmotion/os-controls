@@ -30,6 +30,7 @@ public:
   
   //Implementation of SystemMultimediaEventListener
   void OnVolumeChanged(float oldVolume, float newVolume) override;
+  void OnMuteChanged(bool muted) override;
   
 private:
   // Need to store current volume as a float, since system volume

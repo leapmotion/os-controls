@@ -62,3 +62,18 @@ void MediaViewController::OnVolumeChanged(float oldVolume, float newVolume) {
     m_mediaViewStateMachine->SetViewVolume(m_volume);
   }
 }
+
+void MediaViewController::OnMuteChanged(bool muted) {
+  if (m_mediaViewStateMachine) {
+    if ( muted ) {
+      m_volume = 0.0f;
+    }
+    else {
+      float systemVolume = m_audioVolumeInterface->GetVolume();
+      m_volume = systemVolume;
+      m_volume = std::min(1.0f, std::max(0.0f, m_volume));
+    }
+    
+    m_mediaViewStateMachine->SetViewVolume(m_volume);
+  }
+}
