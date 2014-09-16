@@ -43,9 +43,9 @@ void NativeWindow::AbandonFocus(const Handle& window) {
   if (!window)
     throw std::runtime_error("Error retrieving native window");
 
-  Handle nextWindow = GetNextWindow(window, GW_HWNDNEXT);
+  Handle nextWindow = GetDesktopWindow();
   if (!nextWindow)
-    throw std::runtime_error("Error getting next window");
+    throw std::runtime_error("Error getting desktop window");
 
   ::SetForegroundWindow(nextWindow);
 }
