@@ -11,6 +11,9 @@ AudioVolumeInterface* AudioVolumeInterface::New(void) {
 float AudioVolumeInterfaceMac::GetVolume(void) {
   float volume = 0;
   AudioDeviceID audioDevice = GetAudioDeviceID();
+  if (!audioDevice) {
+    return volume;
+  }
   // Try to get the master channel. If it fails, try to then get left channel and right channel
   for (AudioObjectPropertyElement channel = 0; channel < 3; channel++) {
     AudioObjectPropertyAddress propertyAddress = { kAudioDevicePropertyVolumeScalar,
@@ -34,6 +37,9 @@ float AudioVolumeInterfaceMac::GetVolume(void) {
 
 void AudioVolumeInterfaceMac::SetVolume(float volume) {
   AudioDeviceID audioDevice = GetAudioDeviceID();
+  if (!audioDevice) {
+    return;
+  }
   // Try to set the master channel. If it fails, try to then set left channel and right channel
   for (AudioObjectPropertyElement channel = 0; channel < 3; channel++) {
     AudioObjectPropertyAddress propertyAddress = { kAudioDevicePropertyVolumeScalar,
@@ -52,6 +58,9 @@ void AudioVolumeInterfaceMac::SetVolume(float volume) {
 
 void AudioVolumeInterfaceMac::SetMute(bool mute) {
   AudioDeviceID audioDevice = GetAudioDeviceID();
+  if (!audioDevice) {
+    return;
+  }
   // Try to set the master channel. If it fails, try to then set left channel and right channel
   for (AudioObjectPropertyElement channel = 0; channel < 3; channel++) {
     AudioObjectPropertyAddress propertyAddress = { kAudioDevicePropertyMute,
@@ -72,6 +81,9 @@ bool AudioVolumeInterfaceMac::IsMuted(void) {
   bool muted = false;
   bool setMutedState = false;
   AudioDeviceID audioDevice = GetAudioDeviceID();
+  if (!audioDevice) {
+    return muted;
+  }
   // Try to get the master channel. If it fails, try to then get left channel and right channel
   for (AudioObjectPropertyElement channel = 0; channel < 3; channel++) {
     AudioObjectPropertyAddress propertyAddress = { kAudioDevicePropertyMute,

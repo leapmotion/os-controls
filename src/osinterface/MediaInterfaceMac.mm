@@ -19,11 +19,11 @@ void MediaInterfaceMac::Stop(void) {
 }
 
 void MediaInterfaceMac::Next(void) {
-  SendSpecialKeyEventPair(NX_KEYTYPE_NEXT);
+  SendSpecialKeyEventPair(NX_KEYTYPE_FAST);
 }
 
 void MediaInterfaceMac::Prev(void) {
-  SendSpecialKeyEventPair(NX_KEYTYPE_PREVIOUS);
+  SendSpecialKeyEventPair(NX_KEYTYPE_REWIND);
 }
 
 void MediaInterfaceMac::VolumeUp(void) {
@@ -44,11 +44,12 @@ void MediaInterfaceMac::Mute(void) {
 void MediaInterfaceMac::SendSpecialKeyEvent(int32_t keyType, uint32_t mask, bool isDown) {
   const NSUInteger flags = (isDown ? NX_KEYDOWN : NX_KEYUP) << 8;
   const NSInteger data1 = (keyType << 16) | flags;
+  mask = ((mask & 0xFFFF0000) >> 16) | (mask & 0xFFFF0000);
 
   // Create a system-defined event in order to send our special-key event
   NSEvent* event = [NSEvent otherEventWithType:NSSystemDefined
                             location:NSZeroPoint
-                            modifierFlags:(flags | mask) // Include an optional "modifier flags" mask
+                            modifierFlags:mask | 0x100
                             timestamp:0
                             windowNumber:0
                             context:nullptr
