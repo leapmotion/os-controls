@@ -21,6 +21,10 @@ public:
     position{position}
   {}
 
+  ~Renderable() {
+    RemoveFromParent();
+  }
+
   /// <summary>
   /// Counterpart collection for the Renderable, maintains a z-ordering for renderables
   /// </summary>

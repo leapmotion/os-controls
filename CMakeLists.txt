@@ -4,7 +4,7 @@ include(CTest)
 
 set(oscontrols_VERSION_MAJOR "1")
 set(oscontrols_VERSION_MINOR "0")
-set(oscontrols_VERSION_PATCH "0")
+set(oscontrols_VERSION_PATCH "1")
 set(oscontrols_VERSION "${oscontrols_VERSION_MAJOR}.${oscontrols_VERSION_MINOR}.${oscontrols_VERSION_PATCH}")
 set(oscontrols_APPNAME "OS Controls")
 set(oscontrols_APPDESC "Leap Motion Operating Systems Controls")

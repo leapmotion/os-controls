@@ -1,6 +1,6 @@
 set(interaction_SOURCES
-  GestureTriggerManifest.cpp
-  GestureTriggerManifest.h
+  StateMachineContextManifest.cpp
+  StateMachineContextManifest.h
   CoordinateUtility.cpp
   CoordinateUtility.h
   ClawRotationRecognizer.cpp

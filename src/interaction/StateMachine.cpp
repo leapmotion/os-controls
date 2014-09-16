@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "StateMachine.h"
 #include "InteractionConfigs.h"
-#include "expose/ExposeViewStateMachine.h"
+#include "interaction/HandDataCombiner.h"
+#include "uievents/OSCDomain.h"
+
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindow.h"
@@ -33,7 +35,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, const Scroll& scroll, OSCState& state) {
+void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTime, OSCState& state) {
   std::lock_guard<std::mutex> lk(m_lock);
 
   if(m_state == OSCState::FINAL) {
@@ -71,10 +73,10 @@ void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData&
   state = m_state;
 
   if (m_scrollType == ScrollType::HAND_SCROLL) {
-    doHandScroll(scroll, handData.locationData);
+    doHandScroll(handData.scroll, handData.locationData);
   }
   else if (m_scrollType == ScrollType::PINCH_SCROLL) {
-    doPinchScroll(scroll, handData.locationData, handData.pinchData);
+    doPinchScroll(handData.scroll, handData.locationData, handData.pinchData);
   }
   
   m_lastHandLocation = handData.locationData.screenPosition();
@@ -126,10 +128,7 @@ void StateMachine::performNextTransition() {
   }
   
   if (desiredState == OSCState::FINAL) {
-    if ( m_state == OSCState::EXPOSE_FOCUSED ) {
-      m_evp->Shutdown();
-    }
-    else if ( m_state == OSCState::SCROLLING ) {
+    if (m_state == OSCState::SCROLLING ) {
       m_scrollOperation.reset();
     }
   }
@@ -139,12 +138,11 @@ void StateMachine::performNextTransition() {
     }
   }
   else if (desiredState == OSCState::SCROLLING) {
-    bool didStartScroll = initializeScroll(m_cursorView->GetCalculatedLocation());
+    bool didStartScroll = false;
+    if (m_cursorView) {
+      didStartScroll = initializeScroll(m_cursorView->GetCalculatedLocation());
+    }
     if ( !didStartScroll ) { return; }
-  }
-  
-  if ( m_state == OSCState::EXPOSE_FOCUSED ) {
-    m_evp->Shutdown();
   }
 
   m_state = desiredState;
@@ -290,16 +288,11 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   }
 
   if ( m_state == OSCState::FINAL ) {
-      // Remove our controls from the scene graph
-      m_mediaViewStateMachine->RemoveFromParent();
-      m_exposeActivationStateMachine->RemoveFromParent();
-      m_cursorView->RemoveFromParent();
-
-      // Shutdown the context
-      m_context->SignalShutdown();
-      
-      // Remove our own reference to the context
-      m_context.reset();
+    // Shutdown the context
+    m_context->SignalShutdown();
+    
+    // Remove our own reference to the context
+    m_context.reset();
   }
   else if ( m_state == OSCState::SCROLLING)
   {

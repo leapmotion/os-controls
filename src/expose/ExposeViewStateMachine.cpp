@@ -7,6 +7,9 @@ ExposeViewStateMachine::ExposeViewStateMachine(void) :
 m_state(State::INACTIVE)
 {
   m_exposeView = nullptr;
+  AutoCurrentContext()->AddTeardownListener([this](){
+    Shutdown();
+  });
 }
 
 ExposeViewStateMachine::~ExposeViewStateMachine(void) {
@@ -35,6 +38,10 @@ void ExposeViewStateMachine::doStateTransitions(OSCState appState) {
   }
   else if ( m_state == State::ACTIVE &&
            appState != OSCState::EXPOSE_FOCUSED ) {
+    Shutdown();
+  } else if (appState == OSCState::FINAL) {
+    // NOTE: This is probably not called.
+    // Instead, the call back in AddTearDownListener is called.
     Shutdown();
   }
 }
