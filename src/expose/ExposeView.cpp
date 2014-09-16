@@ -100,6 +100,16 @@ void ExposeView::Render(const RenderFrame& frame) const {
     group->Render(frame);
   }
 
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_orderedWindows) {
+    const float hover = window->m_hover.Value();
+    if (hover > 0.01f) {
+      const float tempMask = window->GetTexture()->LocalProperties().AlphaMask();
+      window->GetTexture()->LocalProperties().AlphaMask() = hover;
+      window->Render(frame);
+      window->GetTexture()->LocalProperties().AlphaMask() = tempMask;
+    }
+  }
+
   PrimitiveBase::DrawSceneGraph(*m_selectionRegionActive, frame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_selectionOutlineActive, frame.renderState);
 }

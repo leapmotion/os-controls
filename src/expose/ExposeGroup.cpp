@@ -71,16 +71,6 @@ void ExposeGroup::Move(const Vector2& displacement) {
 }
 
 void ExposeGroup::Render(const RenderFrame& frame) const {
-  for (const std::shared_ptr<ExposeViewWindow>& window : m_groupMembers) {
-    const float hover = window->m_hover.Value();
-    if (hover > 0.01f) {
-      const float tempMask = window->GetTexture()->LocalProperties().AlphaMask();
-      window->GetTexture()->LocalProperties().AlphaMask() = hover;
-      window->Render(frame);
-      window->GetTexture()->LocalProperties().AlphaMask() = tempMask;
-    }
-  }
-
   static const Vector3 DROP_SHADOW_OFFSET(0, 0, 0);
   static const double DROP_SHADOW_RADIUS = 150.0;
   static const float DROP_SHADOW_OPACITY = 0.35f;
