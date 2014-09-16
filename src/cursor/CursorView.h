@@ -19,6 +19,7 @@
 #include <SVGPrimitive.h>
 
 class RenderEngine;
+class Config;
 
 class CursorView :
   public std::enable_shared_from_this<CursorView>,
@@ -79,7 +80,8 @@ private:
   std::shared_ptr<Disk> m_disk;
   
   Autowired<OSWindowMonitor> m_osWindowMonitor;
-  
+  Autowired<Config> m_config;
+
   std::shared_ptr<OSWindow> m_lastSelectedWindow;
   
   float m_fingerSpread;
