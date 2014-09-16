@@ -13,8 +13,8 @@
 
 Color selectionRegionColor(1.0f, 1.0f, 1.0f, 0.15f);
 Color selectionOutlineColor(1.0f, 1.0f, 1.0f, 0.3f);
-Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.25f);
-Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.5f);
+Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.35f);
+Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.65f);
 
 ExposeView::ExposeView() :
   m_alphaMask(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<float>),
@@ -93,9 +93,6 @@ void ExposeView::Render(const RenderFrame& frame) const {
 
   PrimitiveBase::DrawSceneGraph(*m_backgroundImage, frame.renderState);
 
-  PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
-  PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
-
   for (const std::shared_ptr<ExposeViewWindow>& window : m_orderedWindows) {
     window->Render(frame);
   }
@@ -113,6 +110,9 @@ void ExposeView::Render(const RenderFrame& frame) const {
       window->GetTexture()->LocalProperties().AlphaMask() = tempMask;
     }
   }
+
+  PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
 
   PrimitiveBase::DrawSceneGraph(*m_selectionRegionActive, frame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_selectionOutlineActive, frame.renderState);
