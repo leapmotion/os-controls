@@ -39,4 +39,9 @@ struct NativeUI:
   /// Invoked when a user changes a config setting from the UI.
   /// </summary>
   void OnSettingChanged(const std::string& var, bool state);
+
+  /// <summary>
+  /// Invoked when a config setting is altered from the native code.
+  /// </summary>
+  void ConfigChanged(const std::string& config, const json11::Json& value) override;
 };
