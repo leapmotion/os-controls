@@ -188,10 +188,13 @@ void OSWindowMac::SetFocus(void) {
         << "\t\tend tell\n"
         << "\tend tell\n"
         << "end tell\n";
-    NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
-    NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
-    NSDictionary* errInfo;
-    NSAppleEventDescriptor* res = [as executeAndReturnError:&errInfo];
+    @try {
+      NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
+      NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
+      NSDictionary* errInfo = nullptr;
+      [as executeAndReturnError:&errInfo];
+    }
+    @catch (NSException*) {}
     // Then bring the application to front
     [[NSRunningApplication runningApplicationWithProcessIdentifier:pid]
      activateWithOptions:NSApplicationActivateIgnoringOtherApps];
