@@ -4,8 +4,10 @@
 #include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
+#include "utility/NativeWindow.h"
 #include "utility/SamplePrimitives.h"
 #include <SVGPrimitive.h>
+#include "OSInterface/OSApp.h"
 #include "OSInterface/OSVirtualScreen.h"
 #include "OSInterface/OSWindow.h"
 
@@ -15,13 +17,13 @@ Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.25f);
 Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.5f);
 
 ExposeView::ExposeView() :
-  m_alphaMask(0.0f, 0.3f, EasingFunctions::Linear<float>),
+  m_alphaMask(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<float>),
   m_layoutRadius(500.0),
   m_selectionRadius(100),
   m_viewCenter(Vector2::Zero())
 {
-
-  m_backgroundRect = std::shared_ptr<RectanglePrim>(new RectanglePrim);
+  m_backgroundImage = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
+  m_backgroundImage = Autowired<OSVirtualScreen>()->PrimaryScreen().GetBackgroundTexture(m_backgroundImage);
 
   m_selectionRegion = std::shared_ptr<Disk>(new Disk);
   m_selectionRegion->Material().SetDiffuseLightColor(selectionRegionColor);
@@ -33,10 +35,15 @@ ExposeView::ExposeView() :
   m_selectionOutline->Material().SetAmbientLightColor(selectionOutlineColor);
   m_selectionOutline->Material().SetAmbientLightingProportion(1.0f);
 
-  Color backgroundRectColor(0.05f, 0.05f, 0.05f, 0.9f);
-  m_backgroundRect->Material().SetDiffuseLightColor(backgroundRectColor);
-  m_backgroundRect->Material().SetAmbientLightColor(backgroundRectColor);
-  m_backgroundRect->Material().SetAmbientLightingProportion(1.0f);
+  m_selectionRegionActive = std::shared_ptr<Disk>(new Disk);
+  m_selectionRegionActive->Material().SetDiffuseLightColor(selectionRegionActiveColor);
+  m_selectionRegionActive->Material().SetAmbientLightColor(selectionRegionActiveColor);
+  m_selectionRegionActive->Material().SetAmbientLightingProportion(1.0f);
+
+  m_selectionOutlineActive = std::shared_ptr<PartialDisk>(new PartialDisk);
+  m_selectionOutlineActive->Material().SetDiffuseLightColor(selectionOutlineActiveColor);
+  m_selectionOutlineActive->Material().SetAmbientLightColor(selectionOutlineActiveColor);
+  m_selectionOutlineActive->Material().SetAmbientLightingProportion(1.0f);
 }
 
 ExposeView::~ExposeView() {
@@ -61,7 +68,18 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   updateForces(frame.deltaT);
   updateWindowTexturesRoundRobin();
 
-  for(const auto& renderable : m_zorder)
+  m_orderedWindows.clear();
+  m_orderedWindows.reserve(m_windows.size());
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    m_orderedWindows.push_back(window);
+  }
+  std::sort(m_orderedWindows.begin(), m_orderedWindows.end(),
+    [] (const std::shared_ptr<ExposeViewWindow>& win1, const std::shared_ptr<ExposeViewWindow>& win2) {
+      return win1->m_osWindow->GetZOrder() < win2->m_osWindow->GetZOrder();
+    }
+  );
+
+  for (const auto& renderable : m_orderedWindows)
     renderable->AnimationUpdate(frame);
 }
 
@@ -69,24 +87,34 @@ void ExposeView::Render(const RenderFrame& frame) const {
   if(!IsVisible())
     return;
 
-  PrimitiveBase::DrawSceneGraph(*m_backgroundRect, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_backgroundImage, frame.renderState);
 
   PrimitiveBase::DrawSceneGraph(*m_selectionRegion, frame.renderState);
   PrimitiveBase::DrawSceneGraph(*m_selectionOutline, frame.renderState);
 
-  for(const auto& renderable : m_zorder)
-    renderable->Render(frame);
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_orderedWindows) {
+    window->Render(frame);
+  }
+
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    group->Render(frame);
+  }
+
+  PrimitiveBase::DrawSceneGraph(*m_selectionRegionActive, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_selectionOutlineActive, frame.renderState);
 }
 
 void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   // Handle anything pended to the render thread:
   DispatchAllEvents();
-  
-  double angle = 0;
-  const double angleInc = 2*M_PI / static_cast<double>(m_windows.size());
 
   // calculate center of the primary screen
   Autowired<OSVirtualScreen> fullScreen;
+  const Vector2 fullSize(fullScreen->Size().width, fullScreen->Size().height);
+  const OSRect fullBounds = fullScreen->Bounds();
+  const Vector2 fullOrigin(fullBounds.origin.x, fullBounds.origin.y);
+  const Vector2 fullCenter = fullOrigin + 0.5*fullSize;
+
   auto screen = fullScreen->PrimaryScreen();
   const Vector2 size(screen.Size().width, screen.Size().height);
   const OSRect bounds = screen.Bounds();
@@ -94,52 +122,68 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_viewCenter = origin + 0.5*size;
 
   // update background rectangle
-  m_backgroundRect->SetSize(size - Vector2(0, 1));
-  m_backgroundRect->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  const Vector2& bgSize = m_backgroundImage->Size();
+  const double bgAspect = bgSize.x() / bgSize.y();
+#if _WIN32
+  const Vector2 screenSize = fullSize;
+  const Vector2 screenCenter = fullCenter;
+#else
+  const Vector2 screenSize = size;
+  const Vector2 screenCenter = m_viewCenter;
+#endif
+  const double fullAspect = screenSize.x() / screenSize.y();
+  m_backgroundImage->Translation() << screenCenter.x(), screenCenter.y(), 0.0;
+
+  double bgScale = 1.0;
+  if (bgAspect > fullAspect) {
+    bgScale = screenSize.y() / bgSize.y();
+  } else {
+    bgScale = screenSize.x() / bgSize.x();
+  }
+  m_backgroundImage->LinearTransformation() = bgScale*Matrix3x3::Identity();
 
   // calculate radius of layout
   m_layoutRadius = 0.4 * std::min(size.x(), size.y());
   m_selectionRadius = 0.5 * m_layoutRadius;
 
-  // calculate size of each window
-  const double radiusPerWindow = 0.9* m_layoutRadius * std::sin(angleInc/2.0);
+  const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
+  const double radiusPerWindow = 0.75 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
 
-  for(const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
-    if(window->m_layoutLocked)
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
       continue;
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
 
     // set window scale smoothly
+    const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
     const double imgRadius = 0.5 * img->Size().norm();
-    const double bonusScale = 0.5 * (window->m_hover.Value() + window->m_activation.Value());
-    const double scale = (1.0 + bonusScale) * radiusPerWindow / imgRadius;
-    window->m_scale.SetGoal(static_cast<float>(scale));
+    const double scale = 4.0 * (1.0 + bonusScale) * (radiusPerWindow / imgRadius) * size.norm() / fullSize.norm();
+    if (!m_closing) {
+      window->m_scale.SetGoal(static_cast<float>(scale));
+    }
     window->m_scale.Update((float)dt.count());
-    img->LinearTransformation() = window->m_scale.Value() * Matrix3x3::Identity();
-
-    // calculate position of this window in cartesian coords
-    const Vector2 point = radialCoordsToPoint(angle, m_layoutRadius) + m_viewCenter;
-    const Vector3 point3D(point.x(), point.y(), 0.0);
+    img->LinearTransformation() = window->GetScale() * Matrix3x3::Identity();
 
     Vector3 totalForce(Vector3::Zero());
-    for (size_t i=0; i<m_forces.size(); i++) {
-      if (m_forces[i].m_window != window.get()) {
-        totalForce += m_forces[i].ForceAt(point3D);
+
+    if (!m_closing) {
+      for (size_t i=0; i<m_forces.size(); i++) {
+        if (m_forces[i].m_window != window.get()) {
+          totalForce += m_forces[i].ForceAt(img->Translation());
+        }
       }
     }
 
-    // set window position smoothly
-    window->m_position.SetGoal(point3D + totalForce);
-    window->m_position.Update((float)dt.count());
-    img->Translation() = window->m_position.Value() + window->m_grabDelta.Value();
+    window->m_forceDelta.SetGoal(totalForce);
+    window->m_position.Update(static_cast<float>(dt.count()));
+    window->m_forceDelta.Update(static_cast<float>(dt.count()));
+    img->Translation() = window->GetPosition();
 
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
-    window->m_opacity.Update((float)dt.count());
-    img->LocalProperties().AlphaMask() = window->m_opacity.Value() * m_alphaMask.Current();
-
-    angle += angleInc;
+    window->m_opacity.Update(static_cast<float>(dt.count()));
+    img->LocalProperties().AlphaMask() = window->m_opacity.Value();
   }
 
   m_selectionOutline->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
@@ -151,7 +195,52 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegion->SetRadius(m_selectionRadius);
   m_selectionRegion->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
-  m_backgroundRect->LocalProperties().AlphaMask() = m_alphaMask.Current();
+  m_selectionOutlineActive->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  m_selectionOutlineActive->SetInnerRadius(m_selectionRadius);
+  m_selectionOutlineActive->SetOuterRadius(1.005*m_selectionRadius);
+
+  m_selectionRegionActive->Translation() << m_viewCenter.x(), m_viewCenter.y(), 0.0;
+  m_selectionRegionActive->SetRadius(m_selectionRadius);
+  m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
+
+  m_backgroundImage->LocalProperties().AlphaMask() = 1.0f;
+
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    Vector3 center(Vector3::Zero());
+    double scale = 0;
+    double weight = 0;
+    assert(!group->m_groupMembers.empty());
+    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
+      const double curWeight = window->GetTexture()->Size().norm() * window->m_opacity.Value();
+      center += curWeight * window->GetTexture()->Translation();
+      weight += curWeight;
+      scale += curWeight * window->GetTexture()->LinearTransformation()(0, 0);
+    }
+    center /= weight;
+    scale /= weight;
+    group->m_icon->Translation() = center;
+
+    group->m_icon->LinearTransformation() = (1.5 * scale) * Matrix3x3::Identity();
+    group->m_icon->LocalProperties().AlphaMask() = m_alphaMask.Current();
+  }
+}
+
+void ExposeView::startPositions() {
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
+      continue;
+
+    window->SetOpeningPosition();
+  }
+}
+
+void ExposeView::endPositions() {
+  for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
+    if (window->m_layoutLocked)
+      continue;
+
+    window->SetClosingPosition();
+  }
 }
 
 void ExposeView::updateActivations(std::chrono::duration<double> dt) {
@@ -162,7 +251,8 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   const float activation = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) ? 1.0f : 0.0f;
 #else
   const Vector2& handPos = m_handData.locationData.screenPosition();
-  const float activation = std::max(m_handData.grabData.grabStrength, m_handData.pinchData.pinchStrength);
+  const float grabPinch = std::max(m_handData.grabData.grabStrength, m_handData.pinchData.pinchStrength);
+  const float activation = m_alphaMask.Current() > 0.99f ? grabPinch : 0.0f;
 #endif
   static Vector2 prevHandPos = handPos;
 
@@ -207,7 +297,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
       window->m_activation.SetGoal(activation * window->m_hover.Value());
       Vector3 displacement = Vector3::Zero();
       displacement.head<2>() = handPos - prevHandPos;
-      window->m_grabDelta.SetSmoothStrength(0.25f);
+      window->m_grabDelta.SetSmoothStrength(0.5f);
       window->m_grabDelta.SetGoal(activation*(window->m_grabDelta.Goal() + displacement));
 
       if ((img->Translation() - Vector3(m_viewCenter.x(), m_viewCenter.y(), 0.0)).squaredNorm() < m_selectionRadius*m_selectionRadius) {
@@ -224,7 +314,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     } else {
       window->m_hover.SetGoal(0.0f);
       window->m_activation.SetGoal(0.0f);
-      window->m_grabDelta.SetSmoothStrength(0.85f);
+      window->m_grabDelta.SetSmoothStrength(0.9f);
       window->m_grabDelta.SetGoal(Vector3::Zero());
       window->m_selection.SetGoal(0.0f);
     }
@@ -240,6 +330,7 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     maxSelection = std::max(maxSelection, window->m_selection.Value());
   }
 
+#if 0
   const Vector4f regionColor = maxSelection*selectionRegionActiveColor.Data() + (1.0f - maxSelection)*selectionRegionColor.Data();
   const Vector4f outlineColor = maxSelection*selectionOutlineActiveColor.Data() + (1.0f - maxSelection)*selectionOutlineColor.Data();
   
@@ -247,14 +338,19 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
   m_selectionRegion->Material().SetAmbientLightColor(regionColor);
   m_selectionOutline->Material().SetDiffuseLightColor(outlineColor);
   m_selectionOutline->Material().SetAmbientLightColor(outlineColor);
+#else
+  m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
+  m_selectionOutlineActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
+#endif
 
   prevHandPos = handPos;
 }
 
 void ExposeView::updateForces(std::chrono::duration<double> dt) {
   m_forces.clear();
-  static const float MAX_RADIUS_MULT = 1.0f;
-  static const float FORCE_DISTANCE_MULT = 0.1f;
+  // activation forces
+  static const double MAX_RADIUS_MULT = 1.0;
+  static const double FORCE_DISTANCE_MULT = 0.2;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
@@ -285,6 +381,9 @@ void ExposeView::updateWindowTexturesRoundRobin() {
   static int counter = 0;
   counter++;
   const int num = m_windows.size();
+  if (num == 0) {
+    return;
+  }
   const int selection = counter % num;
 
   int idx = 0;
@@ -305,7 +404,6 @@ Vector2 ExposeView::radialCoordsToPoint(double angle, double distance) {
 std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow) {
   auto retVal = std::shared_ptr<ExposeViewWindow>(new ExposeViewWindow(osWindow));
   m_windows.insert(retVal);
-  m_zorder.Add(retVal);
 
   // Update the window texture in the main render loop:
   *this += [retVal] {
@@ -330,23 +428,143 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
   retVal->m_grabDelta.SetGoal(Vector3::Zero());
   retVal->m_grabDelta.Update(0.0f);
 
+  if (!addToExistingGroup(retVal)) {
+    createNewGroup(retVal);
+  }
+
+  computeLayout();
+
   return retVal;
+}
+
+void ExposeView::computeLayout() {
+  Autowired<OSVirtualScreen> fullScreen;
+  const Vector2 fullSize(fullScreen->Size().width, fullScreen->Size().height);
+  const OSRect fullBounds = fullScreen->Bounds();
+  const Vector2 fullOrigin(fullBounds.origin.x, fullBounds.origin.y);
+  const Vector2 fullCenter = fullOrigin + 0.5*fullSize;
+
+  auto primaryScreen = fullScreen->PrimaryScreen();
+  const Vector2 primarySize(primaryScreen.Size().width, primaryScreen.Size().height);
+  const OSRect primaryBounds = primaryScreen.Bounds();
+  const Vector2 primaryOrigin(primaryBounds.origin.x, primaryBounds.origin.y);
+  const Vector2 primaryCenter = primaryOrigin + 0.5*primarySize;
+
+  const Vector2 primaryToFullScale = primarySize.cwiseQuotient(fullSize);
+
+  const Vector2 aspectScale(primarySize.x() / primarySize.y(), 1.0);
+
+  // find centers and bounding boxes of all groups
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    group->CalculateCenterAndBounds();
+  }
+
+  // lay out groups
+  int totalNumWindows = 0;
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    totalNumWindows += group->m_groupMembers.size();
+  }
+
+  const double groupRadius = 0.25*(0.5*fullSize).norm();
+  double groupAngle = 0;
+  const double groupAngleInc = 2*M_PI / static_cast<double>(totalNumWindows);
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    const double curAngle = group->m_groupMembers.size()*groupAngleInc;
+    groupAngle += 0.5*curAngle;
+    const Vector2 cartesian = radialCoordsToPoint(groupAngle, groupRadius).cwiseProduct(aspectScale) + primaryCenter;
+    group->m_center = cartesian;
+    groupAngle += 0.5*curAngle;
+  }
+
+  // lay out group members
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    double totalSize = 0;
+    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
+      totalSize += window->GetOSSize().norm();
+    }
+
+    const int numGroupMembers = group->m_groupMembers.size();
+    const Vector2 scaledCenter = (group->m_center - primaryCenter).cwiseProduct(primaryToFullScale) + primaryCenter;
+    const double radius = groupRadius * 0.05 * (numGroupMembers-1);
+    double angle = 0;
+    const double angleInc = 2*M_PI / totalSize;
+    for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
+      const double curAngle = angleInc * window->GetOSSize().norm();
+      angle += 0.5*curAngle;
+      const Vector2 cartesian = radialCoordsToPoint(angle, radius).cwiseProduct(aspectScale) + scaledCenter;
+      const Vector3 point3D(cartesian.x(), cartesian.y(), 0.0);
+      window->m_position.Set(point3D);
+      angle += 0.5*curAngle;
+    }
+  }
+}
+
+bool ExposeView::addToExistingGroup(const std::shared_ptr<ExposeViewWindow>& window) {
+  std::shared_ptr<ExposeGroup> group = getGroupForWindow(window);
+  if (group) {
+    group->m_groupMembers.insert(window);
+    return true;
+  }
+  return false;
+}
+
+std::shared_ptr<ExposeGroup> ExposeView::getGroupForWindow(const std::shared_ptr<ExposeViewWindow>& window) const {
+  OSApp& windowApp = *(window->m_osWindow->GetOwnerApp());
+  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
+    OSApp& groupApp = *group->m_app;
+    if (windowApp == groupApp) {
+      return group;
+    }
+  }
+  return nullptr;
+}
+
+std::shared_ptr<ExposeGroup> ExposeView::createNewGroup(const std::shared_ptr<ExposeViewWindow>& window) {
+  std::shared_ptr<ExposeGroup> group(new ExposeGroup);
+  group->m_app = window->m_osWindow->GetOwnerApp();
+  group->m_icon = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
+  group->m_icon = group->m_app->GetIconTexture(group->m_icon);
+  group->m_groupMembers.insert(window);
+  m_groups.insert(group);
+  return group;
 }
 
 void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   m_windows.erase(wnd);
   wnd->RemoveFromParent();
-  m_zorder.Remove(wnd);
+
+  std::shared_ptr<ExposeGroup> group = getGroupForWindow(wnd);
+  group->m_groupMembers.erase(wnd);
+  if (group->m_groupMembers.empty()) {
+    m_groups.erase(group);
+  }
+
+  computeLayout();
 }
 
 void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
   wnd->UpdateTexture();
+
+  computeLayout();
 }
 
 void ExposeView::StartView() {
-  m_alphaMask.Set(1.0f, 0.3);
+  AutowiredFast<sf::RenderWindow> mw;
+  if (mw) {
+    NativeWindow::AllowInput(mw->getSystemHandle(), true);
+  }
+  m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
+  m_closing = false;
+  startPositions();
+  computeLayout();
 }
 
 void ExposeView::CloseView() {
-  m_alphaMask.Set(0.0f, 0.2f);
+  AutowiredFast<sf::RenderWindow> mw;
+  if (mw) {
+    NativeWindow::AllowInput(mw->getSystemHandle(), false);
+  }
+  m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
+  m_closing = true;
+  endPositions();
 }

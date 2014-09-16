@@ -13,7 +13,6 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   if(!m_mw || !m_virtualScreen || !m_contextSettings)
     return;
 
-  m_mw->setVisible(false);
   const sf::Vector2i olPosition = m_mw->getPosition();
   const sf::Vector2u oldSize = m_mw->getSize();
 
@@ -22,8 +21,9 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   const sf::Vector2u newSize{static_cast<uint32_t>(bounds.size.width), static_cast<uint32_t>(bounds.size.height)};
 
   if(oldSize != newSize) {
-    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Os Control", sf::Style::None, *m_contextSettings);
+    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Hand Control", sf::Style::None, *m_contextSettings);
   }
+  m_mw->setVisible(false);
 #if __APPLE__
   // The SFML code for positioning a window on Mac OS X incorrectly uses the
   // height of the screen containing the window to flip the Y coordinates. It

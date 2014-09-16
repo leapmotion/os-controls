@@ -1,0 +1,10 @@
+#define oscontrols_VERSION_MAJOR @oscontrols_VERSION_MAJOR@
+#define oscontrols_VERSION_MINOR @oscontrols_VERSION_MINOR@
+#define oscontrols_VERSION_PATCH @oscontrols_VERSION_PATCH@
+#define oscontrols_VERSION "@oscontrols_VERSION@"
+#define oscontrols_WVERSION L"@oscontrols_VERSION@"
+
+#define oscontrols_APPNAME "@oscontrols_APPNAME@"
+#define oscontrols_APPDESC "@oscontrols_APPDESC@"
+#define LEAP_COMPANY_NAME "@LEAP_COMPANY_NAME@"
+#define APP_COPYRIGHT "@APP_COPYRIGHT@"

@@ -5,6 +5,7 @@
 #include <Animation.h>
 #include "interaction/HandDataCombiner.h"
 #include "expose/ExposeViewEvents.h"
+#include "ExposeGroup.h"
 #include <vector>
 #include <tuple>
 
@@ -12,6 +13,7 @@ class ExposeViewWindow;
 class OSWindow;
 class RenderEngine;
 class SVGPrimitive;
+class OSApp;
 
 /// <summary>
 /// Implements expose view
@@ -98,6 +100,10 @@ private:
   /// </summary>
   void updateLayout(std::chrono::duration<double> dt);
 
+  void startPositions();
+
+  void endPositions();
+
   void updateActivations(std::chrono::duration<double> dt);
 
   void updateForces(std::chrono::duration<double> dt);
@@ -111,12 +117,22 @@ private:
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y
   Vector2 radialCoordsToPoint(double angle, double distance);
+  
+  void computeLayout();
 
   //Root node in the render tree
   Autowired<RenderEngine> m_rootNode;
   
   //Events to send to controller
   AutoFired<ExposeViewEvents> m_exposeViewEvents;
+
+  bool addToExistingGroup(const std::shared_ptr<ExposeViewWindow>& window);
+
+  std::shared_ptr<ExposeGroup> getGroupForWindow(const std::shared_ptr<ExposeViewWindow>& window) const;
+
+  std::shared_ptr<ExposeGroup> createNewGroup(const std::shared_ptr<ExposeViewWindow>& window);
+
+  std::unordered_set<std::shared_ptr<ExposeGroup>> m_groups;
 
   // Alpha masking value for the entire view
   Animated<float> m_alphaMask;
@@ -125,10 +141,10 @@ private:
   std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_windows;
 
   // Windows represented in order:
-  Renderable::ZOrderList m_zorder;
+  std::vector<std::shared_ptr<ExposeViewWindow>> m_orderedWindows;
 
   // Background Overlay Rectangle
-  std::shared_ptr<RectanglePrim> m_backgroundRect;
+  std::shared_ptr<ImagePrimitive> m_backgroundImage;
 
   // Hand data
   HandData m_handData;
@@ -138,7 +154,12 @@ private:
   double m_selectionRadius;
   Vector2 m_viewCenter;
 
+  bool m_closing;
+
   std::shared_ptr<Disk> m_selectionRegion;
   std::shared_ptr<PartialDisk> m_selectionOutline;
+
+  std::shared_ptr<Disk> m_selectionRegionActive;
+  std::shared_ptr<PartialDisk> m_selectionOutlineActive;
 };
 

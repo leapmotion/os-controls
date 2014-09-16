@@ -8,6 +8,7 @@
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindow.h"
 #include "utility/NativeWindow.h"
+#include "utility/Config.h"
 
 #include "Color.h"
 
@@ -83,7 +84,19 @@ void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTi
 
 //returns 'to' if a valid transition, or the alternative state if not.
 OSCState StateMachine::validateTransition(OSCState to) const {
+  const bool enableExpose = m_config->Get<bool>("enableExpose");
+  const bool enableScroll = m_config->Get<bool>("enableScroll");
+  const bool enableMedia = m_config->Get<bool>("enableMedia");
   
+  if (!enableMedia && to == OSCState::MEDIA_MENU_FOCUSED)
+    return m_state;
+
+  if (!enableExpose && to == OSCState::EXPOSE_ACTIVATOR_FOCUSED)
+    return m_state;
+
+  if (!enableScroll && to == OSCState::SCROLLING)
+    return m_state;
+
   if ( to == OSCState::SCROLLING && (m_state != OSCState::BASE || !pointIsOnScreen(m_lastHandLocation)) ) {
     return m_state;
   }

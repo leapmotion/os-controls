@@ -17,6 +17,8 @@ struct HandData;
 struct FrameTime;
 enum class OSCState;
 
+class Config;
+
 /// <summary>
 /// The central state machine concept
 /// </summary>
@@ -85,6 +87,8 @@ private:
   Autowired<CursorView> m_cursorView;
   Autowired<IWindowScroller> m_windowScroller;
   Autowired<sf::RenderWindow> m_renderWindow;
+
+  Autowired<Config> m_config;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.

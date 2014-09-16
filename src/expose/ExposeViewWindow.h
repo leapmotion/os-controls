@@ -3,6 +3,7 @@
 #include "graphics/Renderable.h"
 #include "utility/lockable_property.h"
 #include "Animation.h"
+#include "DropShadow.h"
 
 class OSWindow;
 struct RenderFrame;
@@ -24,11 +25,27 @@ public:
   std::shared_ptr<ImagePrimitive>& GetTexture() { return m_texture; }
   const std::shared_ptr<ImagePrimitive>& GetTexture() const { return m_texture; }
 
+  void SetOpeningPosition();
+  void SetClosingPosition();
+  Vector2 GetOSPosition() const;
+  Vector2 GetOSSize() const;
+
+  Vector3 GetPosition() const {
+    return m_position.Current() + m_grabDelta.Value() + m_forceDelta.Value();
+  }
+
+  float GetScale() const {
+    return m_scale.Value();
+  }
+
+  static const double VIEW_ANIMATION_TIME;
+
   // Smooth animations for opacity and position
   Smoothed<float> m_opacity;
-  Smoothed<Vector3> m_position;
+  Animated<Vector3> m_position;
   Smoothed<float> m_scale;
   Smoothed<Vector3> m_grabDelta;
+  Smoothed<Vector3> m_forceDelta;
 
   // Smooth animations for hover and activation
   Smoothed<float> m_hover;
@@ -40,6 +57,9 @@ public:
 private:
   // Texture for this window
   std::shared_ptr<ImagePrimitive> m_texture;
+
+  // Drop shadow
+  std::shared_ptr<DropShadow> m_dropShadow;
 
 public:
   /// <summary>

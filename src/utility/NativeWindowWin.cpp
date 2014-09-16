@@ -9,7 +9,7 @@ void NativeWindow::MakeTransparent(const Handle& window) {
     throw std::runtime_error("Error retrieving native window");
   }
 
-  LONG flags = ::GetWindowLongA(window, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT;
+  LONG flags = ::GetWindowLongA(window, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW;
   ::SetWindowLongA(window, GWL_EXSTYLE, flags);
   ::SetLayeredWindowAttributes(window, RGB(0, 0, 0), 255, LWA_ALPHA);
  
@@ -24,7 +24,7 @@ void NativeWindow::MakeAlwaysOnTop(const Handle& window) {
   if(!window)
     throw std::runtime_error("Error retrieving native window");
   
-  LONG flags = ::GetWindowLongA(window, GWL_EXSTYLE) | WS_EX_TOPMOST;;
+  LONG flags = ::GetWindowLongA(window, GWL_EXSTYLE) | WS_EX_TOPMOST;
   ::SetWindowLongA(window, GWL_EXSTYLE, flags);
   ::SetWindowPos(window, HWND_TOPMOST,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
 }

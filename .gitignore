@@ -24,6 +24,7 @@ build/
 **/*.xcodeproj
 src/oscontrols/*.glsl
 src/oscontrols/*.svg
+Testing/*
 os-controls.sublime-project
 src/config/moc_config.cpp_parameters
 src/config/build-config-*
@@ -34,3 +35,5 @@ src/config/ui_configwindow.h
 **/*_automoc.cpp
 bin/platforms/*
 *.autosave
+*.aps
+src/oscontrols/Version.h

@@ -2,6 +2,7 @@
 #include "CursorView.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
+#include "utility/Config.h"
 
 #include "GLShaderLoader.h"
 #include "HandCursor.h"
@@ -28,7 +29,8 @@ CursorView::CursorView() :
   m_lastHandDeltas(0,0),
   m_lastHandPosition(0,0),
   m_overrideX(0.0f),
-  m_overrideY(0.0f)
+  m_overrideY(0.0f),
+  m_overrideInfluence(0.0f)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
@@ -44,10 +46,6 @@ CursorView::CursorView() :
   
   m_diskAlpha.SetSmoothStrength(0.5f);
   m_diskAlpha.SetInitialValue(0.0f);
-  
-  m_overrideInfluence.SetInitialValue(0.0f);
-  m_overrideInfluence.SetSmoothStrength(0.75f);
-  
   
   //Initialize Disk Cursor
   m_disk->SetRadius(20.0f);
@@ -174,7 +172,8 @@ void CursorView::SetOverideLocation(const Vector2& offsetLocation) {
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
   if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
        m_lastAppState == OSCState::EXPOSE_FOCUSED ||
-       m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
+       m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED ||
+       !m_config->Get<bool>("enableScroll")) {
     // Don't show the scroll cursor if we're in a state where we can't be scrolling
     // The scroll cursor shows up before we go into the scroll state (as a hint for the user)
     // So we can't just check if we're in the scrolling state
@@ -203,7 +202,6 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
     // Update the smoohted position variables and offset
     m_x.Update(static_cast<float>(frame.deltaT.count()));
     m_y.Update(static_cast<float>(frame.deltaT.count()));
-    m_overrideInfluence.Update(static_cast<float>(frame.deltaT.count()));
     m_bodyOffset.Update(static_cast<float>(frame.deltaT.count()));
     
     // If another object is overriding our value, we don't want to fight it by setting the location ourself.
