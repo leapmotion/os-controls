@@ -17,10 +17,6 @@ struct HandData;
 struct FrameTime;
 enum class OSCState;
 
-class MediaViewStateMachine;
-class ExposeActivationStateMachine;
-class ExposeViewStateMachine;
-
 /// <summary>
 /// The central state machine concept
 /// </summary>
@@ -89,11 +85,6 @@ private:
   Autowired<CursorView> m_cursorView;
   Autowired<IWindowScroller> m_windowScroller;
   Autowired<sf::RenderWindow> m_renderWindow;
-
-  // FIXME: These should respond to state changes
-  Autowired<MediaViewStateMachine> m_mediaViewStateMachine;
-  Autowired<ExposeActivationStateMachine> m_exposeActivationStateMachine;
-  Autowired<ExposeViewStateMachine> m_evp;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.

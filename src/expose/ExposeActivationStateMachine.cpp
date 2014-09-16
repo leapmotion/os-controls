@@ -32,6 +32,10 @@ ExposeActivationStateMachine::ExposeActivationStateMachine() :
   Resource<TextFile> exposeIconFile("expose-icon-01.svg");
   m_exposeIcon->Set(exposeIconFile->Contents());
   m_exposeIconOffset = m_exposeIcon->Origin() - (m_exposeIcon->Size() / 2.0f);
+
+  AutoCurrentContext()->AddTeardownListener([this](){
+    RemoveFromParent();
+  });
 }
 
 
@@ -71,6 +75,10 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
       }
       break;
     case State::FINAL:
+      // NOTE: This is probably not called.
+      // Instead, the call-back in AddTearDownListener will be called.
+      RemoveFromParent();
+      break;
     default:
       break;
   }

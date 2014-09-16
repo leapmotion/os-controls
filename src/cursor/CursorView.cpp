@@ -72,6 +72,10 @@ CursorView::CursorView() :
   m_scrollLineOffset = m_scrollLine->Origin() - (m_scrollLine->Size()/2.0);
   m_scrollFingerLeftOffset = m_scrollFingerLeft->Origin() - (m_scrollFingerLeft->Size()/2.0);
   m_scrollFingerRightOffset = m_scrollFingerRight->Origin() - (m_scrollFingerRight->Size()/2.0);
+
+  AutoCurrentContext()->AddTeardownListener([this](){
+    RemoveFromParent();
+  });
 }
 
 CursorView::~CursorView() {
@@ -96,7 +100,13 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   float goalBodyOffset = 0.0f;
   
   // Make sure the cursor is frontmost in its rendering context
-  m_renderEngine->BringToFront(this);
+  if (appState != OSCState::FINAL) {
+    m_renderEngine->BringToFront(this);
+  } else {
+    // NOTE: This is probably not called.
+    // Instead, the callback set in AddTearDownListener will be called
+    RemoveFromParent();
+  }
   
   m_lastAppState = appState;
 

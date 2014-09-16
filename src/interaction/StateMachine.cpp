@@ -2,12 +2,7 @@
 #include "StateMachine.h"
 #include "InteractionConfigs.h"
 #include "interaction/HandDataCombiner.h"
-#include "expose/ExposeViewStateMachine.h"
 #include "uievents/OSCDomain.h"
-
-#include "expose/ExposeActivationStateMachine.h"
-#include "mediaview/MediaViewController.h"
-#include "mediaview/MediaViewStateMachine.h"
 
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSVirtualScreen.h"
@@ -120,10 +115,7 @@ void StateMachine::performNextTransition() {
   }
   
   if (desiredState == OSCState::FINAL) {
-    if ( m_state == OSCState::EXPOSE_FOCUSED ) {
-      m_evp->Shutdown();
-    }
-    else if ( m_state == OSCState::SCROLLING ) {
+    if (m_state == OSCState::SCROLLING ) {
       m_scrollOperation.reset();
     }
   }
@@ -138,10 +130,6 @@ void StateMachine::performNextTransition() {
       didStartScroll = initializeScroll(m_cursorView->GetCalculatedLocation());
     }
     if ( !didStartScroll ) { return; }
-  }
-  
-  if ( m_state == OSCState::EXPOSE_FOCUSED ) {
-    m_evp->Shutdown();
   }
 
   m_state = desiredState;
@@ -287,14 +275,6 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   }
 
   if ( m_state == OSCState::FINAL ) {
-    // Remove our controls from the scene graph
-    if (m_mediaViewStateMachine)
-      m_mediaViewStateMachine->RemoveFromParent();
-    if (m_exposeActivationStateMachine)
-      m_exposeActivationStateMachine->RemoveFromParent();
-    if (m_cursorView)
-      m_cursorView->RemoveFromParent();
-
     // Shutdown the context
     m_context->SignalShutdown();
     
