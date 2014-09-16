@@ -26,11 +26,11 @@ StateMachineContextManifest::StateMachineContextManifest()
   // HandDataCombiner will introduce additional depedent types
   AutoRequired<HandDataCombiner>();
 
-  AutoRequired<CursorView> m_cursorView;
+  AutoRequired<CursorView>();
 
-  AutoRequired<MediaViewController> m_mediaViewController;
-  AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
+  AutoRequired<MediaViewController>();
+  AutoRequired<MediaViewStateMachine>();
 
-  AutoRequired<ExposeActivationStateMachine> m_exposeActivationStateMachine;
-  AutoRequired<ExposeViewStateMachine> m_evp;
+  AutoRequired<ExposeActivationStateMachine>();
+  AutoRequired<ExposeViewStateMachine>();
 }

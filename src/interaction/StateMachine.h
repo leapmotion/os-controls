@@ -2,17 +2,10 @@
 #include "StateMachineContext.h"
 #include "HandLocationRecognizer.h"
 #include "HandPoseRecognizer.h"
-#include "cursor/CursorView.h"
-#include "expose/ExposeActivationStateMachine.h"
-#include "mediaview/MediaViewController.h"
-#include "mediaview/MediaViewStateMachine.h"
+#include <SFML/Graphics/RenderWindow.hpp>
 #include "interaction/HandEventListener.h"
-#include "interaction/HandActivationRecognizer.h"
-#include "interaction/HandActivationRecognizer.h"
-#include "interaction/ScrollRecognizer.h"
-#include "interaction/HandDataCombiner.h"
+#include "cursor/CursorView.h"
 #include "osinterface/WindowScroller.h"
-#include "uievents/OSCDomain.h"
 #include "uievents/Updatable.h"
 #include "Animation.h"
 
@@ -20,10 +13,12 @@
 
 #define USE_HAND_SCROLL 1
 
-namespace Leap {
-  class Hand;
-}
+struct HandData;
+struct FrameTime;
+enum class OSCState;
 
+class MediaViewStateMachine;
+class ExposeActivationStateMachine;
 class ExposeViewStateMachine;
 
 /// <summary>
@@ -44,7 +39,7 @@ public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, OSCState& state);
+  void AutoFilter(const HandData& handData, const FrameTime& frameTime, OSCState& state);
   
   void OnHandVanished() override;
   void RequestTransition(OSCState requestedState) override;
@@ -91,14 +86,14 @@ private:
   
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 
-  AutoRequired<CursorView> m_cursorView;
-  AutoRequired<MediaViewController> m_mediaViewController;
+  Autowired<CursorView> m_cursorView;
   Autowired<IWindowScroller> m_windowScroller;
   Autowired<sf::RenderWindow> m_renderWindow;
 
-  AutoRequired<MediaViewStateMachine> m_mediaViewStateMachine;
-  AutoRequired<ExposeActivationStateMachine> m_exposeActivationStateMachine;
-  AutoRequired<ExposeViewStateMachine> m_evp;
+  // FIXME: These should respond to state changes
+  Autowired<MediaViewStateMachine> m_mediaViewStateMachine;
+  Autowired<ExposeActivationStateMachine> m_exposeActivationStateMachine;
+  Autowired<ExposeViewStateMachine> m_evp;
   
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.

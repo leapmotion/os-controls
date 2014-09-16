@@ -1,7 +1,14 @@
 #include "stdafx.h"
 #include "StateMachine.h"
 #include "InteractionConfigs.h"
+#include "interaction/HandDataCombiner.h"
 #include "expose/ExposeViewStateMachine.h"
+#include "uievents/OSCDomain.h"
+
+#include "expose/ExposeActivationStateMachine.h"
+#include "mediaview/MediaViewController.h"
+#include "mediaview/MediaViewStateMachine.h"
+
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindow.h"
@@ -32,7 +39,7 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(std::shared_ptr<Leap::Hand> pHand, const HandData& handData, const FrameTime& frameTime, OSCState& state) {
+void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTime, OSCState& state) {
   std::lock_guard<std::mutex> lk(m_lock);
 
   if(m_state == OSCState::FINAL) {
@@ -126,7 +133,10 @@ void StateMachine::performNextTransition() {
     }
   }
   else if (desiredState == OSCState::SCROLLING) {
-    bool didStartScroll = initializeScroll(m_cursorView->GetCalculatedLocation());
+    bool didStartScroll = false;
+    if (m_cursorView) {
+      didStartScroll = initializeScroll(m_cursorView->GetCalculatedLocation());
+    }
     if ( !didStartScroll ) { return; }
   }
   
@@ -277,16 +287,19 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   }
 
   if ( m_state == OSCState::FINAL ) {
-      // Remove our controls from the scene graph
+    // Remove our controls from the scene graph
+    if (m_mediaViewStateMachine)
       m_mediaViewStateMachine->RemoveFromParent();
+    if (m_exposeActivationStateMachine)
       m_exposeActivationStateMachine->RemoveFromParent();
+    if (m_cursorView)
       m_cursorView->RemoveFromParent();
 
-      // Shutdown the context
-      m_context->SignalShutdown();
-      
-      // Remove our own reference to the context
-      m_context.reset();
+    // Shutdown the context
+    m_context->SignalShutdown();
+    
+    // Remove our own reference to the context
+    m_context.reset();
   }
   else if ( m_state == OSCState::SCROLLING)
   {
