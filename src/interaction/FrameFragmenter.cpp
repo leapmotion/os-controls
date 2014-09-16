@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FrameFragmenter.h"
-#include "GestureTriggerManifest.h"
+#include "StateMachineContextManifest.h"
 #include "HandEventListener.h"
 #include "StateMachine.h"
 #include "StateMachineContext.h"
@@ -20,9 +20,7 @@ std::shared_ptr<CoreContext> FrameFragmenter::CreateMenuContext(const Leap::Hand
   CurrentContextPusher pshr(ctxt);
 
   // Stick the things in the context that we need in the context
-  AutoRequired<StateMachine>();
-  AutoRequired<AutoPacketFactory>();
-  GestureTriggerManifest();
+  StateMachineContextManifest();
 
   // Done setting it up, initiate it and hand it back
   ctxt->Initiate();
