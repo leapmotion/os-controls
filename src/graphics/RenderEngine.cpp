@@ -80,7 +80,6 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
 
   if (m_drewThisFrame || m_drewPrevFrame) {
     // Update the window
-    std::cout << "swap" << std::endl;
     m_rw->display();
   } else {
     // if we haven't drawn anything, sleep for a bit (otherwise this loop occurs too quickly)
