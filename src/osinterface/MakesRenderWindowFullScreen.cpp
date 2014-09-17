@@ -39,4 +39,5 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   NativeWindow::MakeAlwaysOnTop(handle);
   NativeWindow::AllowInput(handle, false);
   m_mw->setVisible(true);
+  NativeWindow::AbandonFocus(m_mw->getSystemHandle());
 }

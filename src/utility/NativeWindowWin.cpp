@@ -4,6 +4,35 @@
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
+static std::map<HWND, LONG_PTR> s_winProcForwarding;
+
+LRESULT CALLBACK TransparentWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
+  LONG_PTR forwardingProc = 0;
+  if (s_winProcForwarding.count(hwnd) > 0)
+    forwardingProc = s_winProcForwarding[hwnd];
+
+  if (msg == WM_PAINT){
+    PAINTSTRUCT paintStruct;
+    BeginPaint(hwnd, &paintStruct);
+    RECT rect;
+    rect.top = 100;
+    rect.left = 100;
+    rect.bottom = 200;
+    rect.right = 200;
+    FillRect(paintStruct.hdc, &rect, (HBRUSH)WHITE_BRUSH(DKGRAY_BRUSH));
+
+    EndPaint(hwnd, &paintStruct);
+  }
+  else if( forwardingProc != 0){
+    return CallWindowProc((WNDPROC)forwardingProc, hwnd, msg, wParam, lParam);
+  }
+  else{
+    return DefWindowProc(hwnd, msg, wParam, lParam);
+  }
+   
+  return 0;
+}
+
 void NativeWindow::MakeTransparent(const Handle& window) {
   if (!window) {
     throw std::runtime_error("Error retrieving native window");
@@ -18,6 +47,10 @@ void NativeWindow::MakeTransparent(const Handle& window) {
   bb.fEnable = true;
   bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
   ::DwmEnableBlurBehindWindow(window, &bb);
+
+  LONG_PTR ptr = ::GetWindowLongPtr(window, GWLP_WNDPROC);
+  s_winProcForwarding[window] = ptr;
+  ::SetWindowLongPtr(window, GWLP_WNDPROC, (LONG)TransparentWndProc);
 }
 
 void NativeWindow::MakeAlwaysOnTop(const Handle& window) {
@@ -37,6 +70,17 @@ void NativeWindow::AllowInput(const Handle& window, bool allowInput) {
   const LONG modStyle = WS_EX_NOACTIVATE | WS_EX_TRANSPARENT;
   const LONG style = allowInput ? (prevStyle & ~modStyle) : (prevStyle | modStyle);
   ::SetWindowLongA(window, GWL_EXSTYLE, style);
+}
+
+void NativeWindow::AbandonFocus(const Handle& window) {
+  if (!window)
+    throw std::runtime_error("Error retrieving native window");
+
+  Handle nextWindow = GetDesktopWindow();
+  if (!nextWindow)
+    throw std::runtime_error("Error getting desktop window");
+
+  ::SetForegroundWindow(window);
 }
 
 void NativeWindow::RaiseWindowAtPosition(float x, float y) {

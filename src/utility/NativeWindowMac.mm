@@ -56,6 +56,10 @@ void NativeWindow::AllowInput(const Handle& handle, bool allowInput) {
   [window setIgnoresMouseEvents:!allowInput];
 }
 
+void NativeWindow::AbandonFocus(const Handle& handle) {
+
+}
+
 void NativeWindow::RaiseWindowAtPosition(float x, float y) {
   NSPoint point{x, y};
   @autoreleasepool {
