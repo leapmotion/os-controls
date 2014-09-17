@@ -13,11 +13,11 @@ using namespace System::Security::Permissions;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly:AssemblyTitleAttribute(WIDEN(oscontrols_APPNAME))];
-[assembly:AssemblyDescriptionAttribute(WIDEN(oscontrols_APPDESC))];
+[assembly:AssemblyTitleAttribute(WIDEN(Shortcuts_APPNAME))];
+[assembly:AssemblyDescriptionAttribute(WIDEN(Shortcuts_APPDESC))];
 [assembly:AssemblyConfigurationAttribute(L"")];
 [assembly:AssemblyCompanyAttribute(WIDEN(LEAP_COMPANY_NAME))];
-[assembly:AssemblyProductAttribute(WIDEN(oscontrols_APPNAME))];
+[assembly:AssemblyProductAttribute(WIDEN(Shortcuts_APPNAME))];
 [assembly:AssemblyCopyrightAttribute(WIDEN(APP_COPYRIGHT))];
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
@@ -33,7 +33,7 @@ using namespace System::Security::Permissions;
 // You can specify all the value or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
 
-[assembly:AssemblyVersionAttribute(oscontrols_WVERSION)];
+[assembly:AssemblyVersionAttribute(Shortcuts_WVERSION)];
 
 [assembly:ComVisible(false)];
 

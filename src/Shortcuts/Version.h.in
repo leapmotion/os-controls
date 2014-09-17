@@ -1,0 +1,10 @@
+#define Shortcuts_VERSION_MAJOR @Shortcuts_VERSION_MAJOR@
+#define Shortcuts_VERSION_MINOR @Shortcuts_VERSION_MINOR@
+#define Shortcuts_VERSION_PATCH @Shortcuts_VERSION_PATCH@
+#define Shortcuts_VERSION "@Shortcuts_VERSION@"
+#define Shortcuts_WVERSION L"@Shortcuts_VERSION@"
+
+#define Shortcuts_APPNAME "@Shortcuts_APPNAME@"
+#define Shortcuts_APPDESC "@Shortcuts_APPDESC@"
+#define LEAP_COMPANY_NAME "@LEAP_COMPANY_NAME@"
+#define APP_COPYRIGHT "@APP_COPYRIGHT@"

@@ -3,7 +3,7 @@
 
 struct NativeUI;
 
-namespace oscontrols {
+namespace Shortcuts {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -25,7 +25,7 @@ namespace oscontrols {
 		{
 			InitializeComponent();
 			
-      ResourceManager^ rm = gcnew ResourceManager("oscontrols.Resource", Assembly::GetExecutingAssembly());
+      ResourceManager^ rm = gcnew ResourceManager("Shortcuts.Resource", Assembly::GetExecutingAssembly());
       System::Drawing::Bitmap^ appBmp = (System::Drawing::Bitmap^) rm->GetObject("icon_512x512");
       this->Icon = System::Drawing::Icon::FromHandle(appBmp->GetHicon());
 

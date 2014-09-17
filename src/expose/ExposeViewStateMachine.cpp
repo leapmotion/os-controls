@@ -13,14 +13,14 @@ ExposeViewStateMachine::~ExposeViewStateMachine(void) {
   
 }
 
-void ExposeViewStateMachine::AutoFilter(OSCState appState, const HandData& handData) {
+void ExposeViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& handData) {
   doStateTransitions(appState);
   doStateLoops(handData);
 }
 
-void ExposeViewStateMachine::doStateTransitions(OSCState appState) {
+void ExposeViewStateMachine::doStateTransitions(ShortcutsState appState) {
   if ( m_state == State::INACTIVE &&
-      appState == OSCState::EXPOSE_FOCUSED ) {
+      appState == ShortcutsState::EXPOSE_FOCUSED ) {
     m_state = State::AWAITING_LOCK;
   }
   else if ( m_state == State::AWAITING_LOCK ) {
@@ -29,12 +29,12 @@ void ExposeViewStateMachine::doStateTransitions(OSCState appState) {
       m_exposeView->GetContext()->Snoop(shared_from_this());
       m_state = State::ACTIVE;
     }
-    else if ( appState != OSCState::EXPOSE_FOCUSED ) {
+    else if ( appState != ShortcutsState::EXPOSE_FOCUSED ) {
       Shutdown();
     }
   }
   else if ( m_state == State::ACTIVE &&
-           appState != OSCState::EXPOSE_FOCUSED ) {
+           appState != ShortcutsState::EXPOSE_FOCUSED ) {
     Shutdown();
   }
 }
@@ -75,6 +75,6 @@ void ExposeViewStateMachine::applyUserInput(const HandLocation& handLocation) {
 }
 
 void ExposeViewStateMachine::onWindowSelected(ExposeViewWindow& osWindow)  {
-  m_stateChangeEvent(&OSCStateChangeEvent::RequestTransition)(OSCState::BASE);
+  m_stateChangeEvent(&ShortcutsStateChangeEvent::RequestTransition)(ShortcutsState::BASE);
 }
 

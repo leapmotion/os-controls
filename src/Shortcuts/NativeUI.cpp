@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "NativeUI.h"
-#include "oscontrols.h"
+#include "Shortcuts.h"
 #include "osinterface/HtmlPageLauncher.h"
 #include "utility/Config.h"
 

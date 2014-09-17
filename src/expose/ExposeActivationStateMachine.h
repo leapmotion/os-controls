@@ -2,7 +2,7 @@
 #include "graphics/Renderable.h"
 #include "graphics/RenderEngine.h"
 #include "interaction/HandDataCombiner.h"
-#include "uievents/OSCDomain.h"
+#include "uievents/ShortcutsDomain.h"
 
 #include "Primitives.h"
 #include "Animation.h"
@@ -19,7 +19,7 @@ public:
   
   void AutoInit();
   
-  void AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime);
+  void AutoFilter(ShortcutsState appState, const HandData& handData, const FrameTime& frameTime);
   
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
@@ -67,5 +67,5 @@ private:
   
   Autowired<sf::RenderWindow> m_renderWindow; // Grabbing this for layout purposes.
   Autowired<RenderEngine> m_rootNode;
-  AutoFired<OSCStateChangeEvent> m_stateChangeEvent;
+  AutoFired<ShortcutsStateChangeEvent> m_stateChangeEvent;
 };

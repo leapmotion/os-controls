@@ -1,9 +1,9 @@
 #pragma once
 
 /// <summary>
-/// The set of possible states that the OS controls state machine can reside in
+/// The set of possible states that the Shortcuts state machine can reside in
 /// </summary>
-enum class OSCState {
+enum class ShortcutsState {
   // The ground state, no controls visible, do nothing special
   BASE,
 
@@ -22,15 +22,15 @@ enum class OSCState {
   FINAL
 };
 
-class OSCStateChangeEvent{
+class ShortcutsStateChangeEvent{
 public:
-  virtual void RequestTransition(OSCState requestedState) = 0;
+  virtual void RequestTransition(ShortcutsState requestedState) = 0;
 };
 
 /// <summary>
-/// The set of possible inputs to the OS controls state machine
+/// The set of possible inputs to the Shortcuts state machine
 /// </summary>
-enum class OSCInputs {
+enum class ShortcutsInputs {
   // A selection of a wedge has taken place
   Selection,
 

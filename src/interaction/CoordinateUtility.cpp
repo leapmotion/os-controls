@@ -1,6 +1,6 @@
 //
 //  CoordianateUtility.cpp
-//  oscontrols
+//  Shortcuts
 //
 //  Created by Daniel Plemmons on 8/15/14.
 //

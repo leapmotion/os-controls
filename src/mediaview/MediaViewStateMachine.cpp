@@ -3,8 +3,8 @@
 #include "graphics/RenderFrame.h"
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
-#include "uievents/oscDomain.h"
-#include "uievents/osControlConfigs.h"
+#include "uievents/ShortcutsDomain.h"
+#include "uievents/ShortcutsConfigs.h"
 
 #include "GLShader.h"
 #include "GLShaderLoader.h"
@@ -96,7 +96,7 @@ void MediaViewStateMachine::AutoInit() {
   m_rootNode->Add(shared_from_this());
 }
 
-void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime) {
+void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& handData, const FrameTime& frameTime) {
   const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
   
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
@@ -104,7 +104,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   m_goalCursorPosition = m_cursorView->GetCalculatedLocation() + ProjectVector(2, m_cursorBufferzoneOffset);
   
   // State Transitions
-  if (appState == OSCState::FINAL && m_state != State::FINAL) {
+  if (appState == ShortcutsState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
     return;
   }
@@ -114,7 +114,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   switch( m_state )
   {
     case State::ARMED:
-      if(appState == OSCState::MEDIA_MENU_FOCUSED) {
+      if(appState == ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->Enable();
         m_cursorBufferzoneOffset = calculateBufferZoneOffset(handData.locationData.screenPosition());
         m_cursorView->EnableLocationOverride();
@@ -128,7 +128,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       }
       break;
     case State::ACTIVE:
-      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+      if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->Enable();
         m_state = State::ARMED;
         m_cursorView->DisableLocationOverride();
@@ -147,7 +147,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       break;
     case State::COMPLETE:
       
-      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+      if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->Enable();
         m_cursorView->DisableLocationOverride();
         m_cursorBufferzoneOffset = Vector3(0,0,0);

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "oscontrols.h"
+#include "Shortcuts.h"
 #include "NativeUI.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
@@ -29,9 +29,9 @@ int main(int argc, char **argv)
   ctxt->Initiate();
 
   try {
-    AutoCreateContextT<OsControlContext> osCtxt;
-    osCtxt->Initiate();
-    CurrentContextPusher pshr(osCtxt);
+    AutoCreateContextT<ShortcutsContext> shortcutsCtxt;
+    shortcutsCtxt->Initiate();
+    CurrentContextPusher pshr(shortcutsCtxt);
     AutoRequired<NativeUI> nativeUI;
 
     // Register the tray icon early in the process, before we spend a bunch of time doing everything else
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
-    AutoRequired<OsControl> control;
+    AutoRequired<Shortcuts> shortcuts;
     AutoRequired<FrameFragmenter> fragmenter;
     AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
     AutoRequired<ExposeViewAccessManager> exposeView;
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     mw->setVerticalSyncEnabled(false);
 
     // Handoff to the main loop:
-    control->Main();
+    shortcuts->Main();
   }
   catch (std::exception& e) {
     std::cout << e.what() << std::endl;
@@ -75,13 +75,13 @@ int main(int argc, char **argv)
   return 0;
 }
 
-OsControl::OsControl(void)
+Shortcuts::Shortcuts(void)
 {
 }
 
-OsControl::~OsControl(void) {}
+Shortcuts::~Shortcuts(void) {}
 
-void OsControl::Main(void) {
+void Shortcuts::Main(void) {
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
@@ -99,7 +99,7 @@ void OsControl::Main(void) {
   m_mw->close();
 }
 
-void OsControl::HandleEvent(const sf::Event& ev) const {
+void Shortcuts::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
   case sf::Event::Closed:
     AutoCurrentContext()->SignalShutdown();
@@ -109,7 +109,7 @@ void OsControl::HandleEvent(const sf::Event& ev) const {
   }
 }
 
-void OsControl::Filter(void) {
+void Shortcuts::Filter(void) {
   try {
     throw;
   }

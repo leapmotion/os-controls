@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(oscontrols)
+project(Shortcuts)
 include(CTest)
 
 set(oscontrols_VERSION_MAJOR "1")
