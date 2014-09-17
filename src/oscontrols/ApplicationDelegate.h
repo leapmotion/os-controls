@@ -7,4 +7,6 @@
   BOOL _wasHidden;
 }
 
+@property (nonatomic, readonly) MenubarController* menubarController;
+
 @end

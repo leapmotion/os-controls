@@ -70,6 +70,13 @@ bool Config::Load(const std::string& filename, bool overwrite) {
   return true;
 }
 
+void Config::RebroadcastConfig(){
+  std::unique_lock<std::mutex> lock(m_mutex);
+  for (auto& entry : m_data) {
+    m_events(&ConfigEvent::ConfigChanged)(entry.first, entry.second);
+  }
+}
+
 void Config::Clear(){
   {
     std::unique_lock<std::mutex> lock(m_mutex);

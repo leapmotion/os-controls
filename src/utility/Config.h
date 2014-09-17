@@ -48,10 +48,17 @@ public:
   /// Loads a file in a one-off manner.  If overwrite is set, it will
   /// Overwrite any settings it finds with the ones from the file, otherwise
   /// it will only load settings for which there is not yet a value
+  /// </summary>
   bool Load(const std::string& filename, bool overwrite = true);
 
   /// <summary>
+  /// Send out configuration change events, even if nothing has changed.
+  /// </summary>
+  void RebroadcastConfig();
+
+  /// <summary>
   /// Clears all config data
+  /// </summary>
   void Clear();
 
   template<typename T>

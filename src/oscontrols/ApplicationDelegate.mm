@@ -1,6 +1,11 @@
 #import "ApplicationDelegate.h"
+#import "utility/Config.h"
+
+#import <autowiring/autowiring.h>
 
 @implementation ApplicationDelegate
+
+@synthesize menubarController = _menubarController;
 
 - (id)init
 {
@@ -31,6 +36,25 @@
 
   _menubarController = [[MenubarController alloc] init];
   _isInitialized = YES;
+
+  // Load config settings
+  Autowired<Config> config;
+  config.NotifyWhenAutowired([] {
+    AutowiredFast<Config> cfg;
+    if (cfg) {
+      NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+      NSString *applicationSupportDirectory = [paths objectAtIndex:0];
+      const char* c_str = [applicationSupportDirectory UTF8String];
+      std::string path = "./";
+      if (c_str) {
+        path = std::string(c_str);
+        path += "/Leap Motion/";
+      }
+      path += "oscontrols.json";
+      cfg->SetPrimaryFile(path);
+      cfg->RebroadcastConfig();
+    }
+  });
 }
 
 - (void)applicationDidHide:(NSNotification*)aNotification
