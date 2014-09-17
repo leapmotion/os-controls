@@ -57,6 +57,8 @@ public:
   const T& Current() const { return m_current; }
   const T& Goal() const { return m_goal; }
 
+  double Completion() const { return m_completion; }
+
   void SetEasingFunction(const EasingFunction& func) {
     m_easing = func;
   }
