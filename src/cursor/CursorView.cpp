@@ -91,7 +91,7 @@ void CursorView::AutoInit() {
   m_renderEngine->Add(shared_from_this());
 }
 
-void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData, const FrameTime& frameTime) {
+void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, const HandData& handData, const FrameTime& frameTime) {
   static const float FINGER_SPREAD_MIN = 23.0f; // The min spread that the "finger arrow" visuals should have
   static const float FINGER_SPREAD_MAX = 100.0f;// The max spread that the "finger arrow" visuals should have
   static const float SCROLL_VELOCITY_MIN = 0.0f; // The low bound of scroll velocity for our visual feedback ( the handle moving up and down )
@@ -110,16 +110,16 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
   //State Transitions
   switch(m_state) {
     case State::INACTIVE:
-      if(appState != OSCState::FINAL ) {
+      if(appState != ShortcutsState::FINAL ) {
         m_state = State::ACTIVE;
       }
       break;
     case State::ACTIVE:
-      if(appState == OSCState::FINAL) {
+      if(appState == ShortcutsState::FINAL) {
         m_state = State::INACTIVE;
       }
     case State::DISABLED:
-      if(appState == OSCState::FINAL) {
+      if(appState == ShortcutsState::FINAL) {
         m_state = State::INACTIVE;
       }
       break;
@@ -135,7 +135,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       spreadNorm = std::max(0.0f, std::min(1.0f, spreadNorm));
       m_fingerSpread = FINGER_SPREAD_MIN + ((1-spreadNorm) * (FINGER_SPREAD_MAX - FINGER_SPREAD_MIN));
     
-      if ( appState == OSCState::SCROLLING ) {
+      if ( appState == ShortcutsState::SCROLLING ) {
         // Calculate the offset of the cursor handle based on the current hand deltas
         velocitySign = handData.locationData.dY < 0 ? -1 : 1;
         velocityNorm = (fabs(handData.locationData.dY) - SCROLL_VELOCITY_MIN) / (SCROLL_VELOCITY_MAX - SCROLL_VELOCITY_MIN);
@@ -174,9 +174,9 @@ void CursorView::SetOverideLocation(const Vector2& offsetLocation) {
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
-  if ( m_lastAppState == OSCState::MEDIA_MENU_FOCUSED ||
-       m_lastAppState == OSCState::EXPOSE_FOCUSED ||
-       m_lastAppState == OSCState::EXPOSE_ACTIVATOR_FOCUSED ||
+  if ( m_lastAppState == ShortcutsState::MEDIA_MENU_FOCUSED ||
+       m_lastAppState == ShortcutsState::EXPOSE_FOCUSED ||
+       m_lastAppState == ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED ||
        !m_config->Get<bool>("enableScroll")) {
     // Don't show the scroll cursor if we're in a state where we can't be scrolling
     // The scroll cursor shows up before we go into the scroll state (as a hint for the user)

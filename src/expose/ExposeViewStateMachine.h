@@ -2,7 +2,7 @@
 #include "expose/ExposeView.h"
 #include "expose/ExposeViewWindow.h"
 #include "interaction/HandLocationRecognizer.h"
-#include "uievents/OSCDomain.h"
+#include "uievents/ShortcutsDomain.h"
 
 class ExposeViewAccessManager;
 
@@ -14,7 +14,7 @@ public:
   ExposeViewStateMachine();
   ~ExposeViewStateMachine();
 
-  void AutoFilter(OSCState appState, const HandData& handData);
+  void AutoFilter(ShortcutsState appState, const HandData& handData);
   void onWindowSelected(ExposeViewWindow& osWindow) override;
   void Shutdown();
 private:
@@ -25,7 +25,7 @@ private:
     ACTIVE
   };
   
-  void doStateTransitions(OSCState appState);
+  void doStateTransitions(ShortcutsState appState);
   void doStateLoops(const HandData& handData);
   void applyUserInput(const HandLocation& handLocation);
   
@@ -34,6 +34,6 @@ private:
   std::shared_ptr<ExposeView> m_exposeView;
   
   Autowired<ExposeViewAccessManager> m_exposeViewAccessManager;
-  AutoFired<OSCStateChangeEvent> m_stateChangeEvent;
+  AutoFired<ShortcutsStateChangeEvent> m_stateChangeEvent;
 };
 

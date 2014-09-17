@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <atomic>
 
-struct OsControlContext {};
+struct ShortcutsContext {};
 
 class AudioVolumeInterface;
 class ExposeViewAccessManager;
@@ -17,14 +17,14 @@ namespace sf {
   class RenderWindow;
 }
 
-int oscontrols_main(int argc, char **argv);
+int Shortcuts_main(int argc, char **argv);
 
-class OsControl :
+class Shortcuts :
   public ExceptionFilter
 {
 public:
-  OsControl(void);
-  ~OsControl(void);
+  Shortcuts(void);
+  ~Shortcuts(void);
 
 private:
   Autowired<sf::RenderWindow> m_mw;

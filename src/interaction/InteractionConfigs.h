@@ -1,6 +1,6 @@
 //
 //  InteractionConfigs.h
-//  oscontrols
+//  Shortcuts
 //
 //  Created by Daniel Plemmons on 8/18/14.
 //

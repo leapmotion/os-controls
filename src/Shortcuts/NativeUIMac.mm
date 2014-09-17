@@ -1,7 +1,7 @@
 #import "ApplicationDelegate.h"
 
 #include "NativeUI.h"
-#include "oscontrols.h"
+#include "Shortcuts.h"
 
 #include <AppKit/NSApplication.h>
 #include <AppKit/NSNibLoading.h>

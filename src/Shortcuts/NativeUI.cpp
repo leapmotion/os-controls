@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "NativeUI.h"
-#include "oscontrols.h"
+#include "Shortcuts.h"
 #include "osinterface/HtmlPageLauncher.h"
 #include "utility/Config.h"
 
@@ -19,7 +19,7 @@ void NativeUI::OnConfigUiHidden(bool) {
 void NativeUI::OnShowHtmlHelp(const char* helpWith) {
   AutowiredFast<HtmlPageLauncher> hpl;
   if(hpl)
-    hpl->LaunchPage("http://handcontrols.leapmotion.com/help.html");
+    hpl->LaunchPage("http://shortcuts.leapmotion.com/help.html");
 }
 
 void NativeUI::OnSettingChanged(const std::string& var, bool state)
