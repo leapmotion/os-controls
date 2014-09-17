@@ -1,6 +1,8 @@
 set(osinterface_SOURCES
   AudioVolumeInterface.h
   AudioVolumeInterface.cpp
+  HtmlPageLauncher.h
+  HtmlPageLauncher.cpp
   LeapInput.h
   LeapInput.cpp
   LeapInputListener.h
@@ -34,6 +36,8 @@ add_windows_sources(
   osinterface_SOURCES
   AudioVolumeInterfaceWin.h
   AudioVolumeInterfaceWin.cpp
+  HtmlPageLauncherWin.h
+  HtmlPageLauncherWin.cpp
   MediaInterfaceWin.h
   MediaInterfaceWin.cpp
   OSAppWin.h
@@ -55,6 +59,8 @@ add_mac_sources(
   osinterface_SOURCES
   AudioVolumeInterfaceMac.h
   AudioVolumeInterfaceMac.cpp
+  HtmlPageLauncherMac.h
+  HtmlPageLauncherMac.mm
   MediaInterfaceMac.h
   MediaInterfaceMac.mm
   OSAppMac.h

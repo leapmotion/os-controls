@@ -42,13 +42,15 @@
   config.NotifyWhenAutowired([] {
     AutowiredFast<Config> cfg;
     if (cfg) {
-      NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-      NSString *applicationSupportDirectory = [paths objectAtIndex:0];
-      const char* c_str = [applicationSupportDirectory UTF8String];
       std::string path = "./";
-      if (c_str) {
-        path = std::string(c_str);
-        path += "/Leap Motion/";
+      @autoreleasepool {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSString *applicationSupportDirectory = [paths objectAtIndex:0];
+        const char* c_str = [applicationSupportDirectory UTF8String];
+        if (c_str) {
+          path = std::string(c_str);
+          path += "/Leap Motion/";
+        }
       }
       path += "oscontrols.json";
       cfg->SetPrimaryFile(path);
