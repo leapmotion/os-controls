@@ -39,7 +39,15 @@ private:
   const Vector3 VOLUME_SLIDER_OFFSET = Vector3( 0.0f, 200.0f, 0.0f );
   const Color GHOST_CURSOR_COLOR = Color( 0.505f, 0.831f, 0.114f );
   const float GHOST_CURSOR_ALPHA = 0.3f;
+  const float VOLUME_OFFSET_START_Y = 80.0f;
+  const float VOLUME_LOCK_IN_Y = 180.0f;
+  const float VOLUME_LOCK_X_OFFSET = 35.0f;
+  const float KILL_FADE_START_DISTANCE = 320.0f;
+  const float KILL_FADE_END_DISTANCE = 375.0f;
   
+  float calculateMenuAlphaFade();
+  bool shouldMenuDistanceKill();
+  void doActiveToCompleteTasks();
   void resetMemberState();
   void doMenuUpdate(const Vector2& locationData, Vector2 menuOffset);
   void doVolumeUpdate(const Vector2& locationData, const Vector2& deltaPixels, Vector2 menuOffset);
@@ -106,4 +114,5 @@ private:
   double m_CurrentTime;
   double m_LastStateChangeTime;
   bool m_interactionIsVolumeLocked;
+  float m_distanceFadeCap;
 };
