@@ -67,14 +67,16 @@ uint32_t OSWindowMac::GetOwnerPid(void) {
 
 std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<ImagePrimitive> img)  {
   CGImageRef imageRef = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow,
-                                                m_windowID, kCGWindowImageNominalResolution);
+                                                m_windowID, kCGWindowImageBoundsIgnoreFraming |
+                                                            kCGWindowImageNominalResolution);
   if (!imageRef) {
     return img;
   }
   // If this window has an overlay window, apply the overlay to our image
   if (m_overlayWindowID) {
     CGImageRef overlayImageRef = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow,
-                                                         m_overlayWindowID, kCGWindowImageNominalResolution);
+                                                         m_overlayWindowID, kCGWindowImageBoundsIgnoreFraming |
+                                                                            kCGWindowImageNominalResolution);
     if (overlayImageRef) {
       CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
       // Determine actual window size
@@ -186,10 +188,13 @@ void OSWindowMac::SetFocus(void) {
         << "\t\tend tell\n"
         << "\tend tell\n"
         << "end tell\n";
-    NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
-    NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
-    NSDictionary* errInfo;
-    NSAppleEventDescriptor* res = [as executeAndReturnError:&errInfo];
+    @try {
+      NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
+      NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
+      NSDictionary* errInfo = nullptr;
+      [as executeAndReturnError:&errInfo];
+    }
+    @catch (NSException*) {}
     // Then bring the application to front
     [[NSRunningApplication runningApplicationWithProcessIdentifier:pid]
      activateWithOptions:NSApplicationActivateIgnoringOtherApps];

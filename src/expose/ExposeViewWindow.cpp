@@ -15,6 +15,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_osWindow(osWindow.shared_from_this()),
   m_texture(new ImagePrimitive),
   m_dropShadow(new DropShadow),
+  m_highlight(new RectanglePrim),
   m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>)
 {
   const float baseSmooth = 0.825f;
@@ -22,6 +23,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_opacity.SetInitialValue(0.0f);
   m_opacity.SetGoal(0.0f);
   m_opacity.SetSmoothStrength(baseSmooth);
+  m_opacity.Update(0.0f);
 
 #if 0
   m_position.SetInitialValue(Vector3::Zero());
@@ -35,28 +37,32 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_scale.SetInitialValue(0.0f);
   m_scale.SetGoal(0.0f);
   m_scale.SetSmoothStrength(baseSmooth);
+  m_scale.Update(0.0f);
 
   m_activation.SetInitialValue(0.0f);
   m_activation.SetGoal(0.0f);
   m_activation.SetSmoothStrength(0.3f);
+  m_activation.Update(0.0f);
 
   m_hover.SetInitialValue(0.0f);
   m_hover.SetGoal(0.0f);
-  m_hover.SetSmoothStrength(0.3f);
+  m_hover.SetSmoothStrength(0.5f);
+  m_hover.Update(0.0f);
 
   m_selection.SetInitialValue(0.0f);
   m_selection.SetGoal(0.0f);
   m_selection.SetSmoothStrength(0.5f);
+  m_selection.Update(0.0f);
 
   m_grabDelta.SetGoal(Vector3::Zero());
   m_grabDelta.SetInitialValue(Vector3::Zero());
   m_grabDelta.SetSmoothStrength(0.25f);
+  m_grabDelta.Update(0.0f);
 
   m_forceDelta.SetGoal(Vector3::Zero());
   m_forceDelta.SetInitialValue(Vector3::Zero());
   m_forceDelta.SetSmoothStrength(baseSmooth);
-
-  m_cooldown = false;
+  m_forceDelta.Update(0.0f);
 }
 
 ExposeViewWindow::~ExposeViewWindow(void) {}
@@ -77,20 +83,19 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
   PrimitiveBase::DrawSceneGraph(*m_dropShadow, frame.renderState);
 
   static const double HIGHLIGHT_WIDTH = 50.0;
-  RectanglePrim bgPrim;
-  bgPrim.LocalProperties().AlphaMask() = m_activation.Value();
+  m_highlight->LocalProperties().AlphaMask() = m_activation.Value();
   const Vector3f highlightRGB(0.505f, 0.831f, 0.114f);
   Color highlightColor(highlightRGB);
-  bgPrim.Material().SetDiffuseLightColor(highlightColor);
-  bgPrim.Material().SetAmbientLightColor(highlightColor);
-  bgPrim.Material().SetAmbientLightingProportion(1.0f);
+  m_highlight->Material().SetDiffuseLightColor(highlightColor);
+  m_highlight->Material().SetAmbientLightColor(highlightColor);
+  m_highlight->Material().SetAmbientLightingProportion(1.0f);
   Vector2 size = m_texture->Size();
   size += Vector2::Constant(HIGHLIGHT_WIDTH);
-  bgPrim.SetSize(size);
-  bgPrim.Translation() = m_texture->Translation();
-  bgPrim.LinearTransformation() = m_texture->LinearTransformation();
+  m_highlight->SetSize(size);
+  m_highlight->Translation() = m_texture->Translation();
+  m_highlight->LinearTransformation() = m_texture->LinearTransformation();
 
-  PrimitiveBase::DrawSceneGraph(bgPrim, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(*m_highlight, frame.renderState);
 
   m_texture->DrawSceneGraph(*m_texture, frame.renderState);
 }

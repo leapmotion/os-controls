@@ -59,6 +59,9 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
     bmSz.cx = rc.right - rc.left;
     bmSz.cy = rc.bottom - rc.top;
   }
+  if(!bmSz.cx || !bmSz.cy)
+    // Cannot create a window texture, window is gone
+    return img;
 
   if(m_szBitmap.cx != bmSz.cx || m_szBitmap.cy != bmSz.cy) {
     BITMAPINFO bmi;

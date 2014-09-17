@@ -23,7 +23,8 @@ set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/svgs/expose-icon-01.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/plus-icon.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/minus-icon.svg
-  config.json
+  ${CMAKE_SOURCE_DIR}/src/svgs/disabled-cursor.svg
+  ${CMAKE_SOURCE_DIR}/src/oscontrols/config.json
 )
 
 set(oscontrols_CLR_SOURCES
@@ -96,6 +97,9 @@ configure_file(Version.h.in Version.h)
 add_executable(oscontrols ${oscontrols_EXEFLAGS} ${oscontrols_SOURCES})
 target_link_libraries(oscontrols Autowiring utility interaction graphics osinterface expose)
 target_include_directories(oscontrols PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
+
+#For version.h
+target_include_directories(oscontrols PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_package(oscontrols Leap REQUIRED)
 target_package(oscontrols SFML 2.1 REQUIRED)

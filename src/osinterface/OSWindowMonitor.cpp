@@ -3,7 +3,8 @@
 #include "OSAppManager.h"
 
 OSWindowMonitor::OSWindowMonitor(void):
-  ContextMember("OSWindowMonitor")
+  ContextMember("OSWindowMonitor"),
+  m_scanEnabled(false)
 {
   AutoRequired<OSAppManager>();
 }
@@ -13,5 +14,7 @@ OSWindowMonitor::~OSWindowMonitor(void)
 }
 
 void OSWindowMonitor::Tick(std::chrono::duration<double> deltaT) {
-  Scan();
+  if (m_scanEnabled) {
+    Scan();
+  }
 }

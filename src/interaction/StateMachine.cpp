@@ -84,14 +84,14 @@ void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTi
 
 //returns 'to' if a valid transition, or the alternative state if not.
 OSCState StateMachine::validateTransition(OSCState to) const {
-  const bool enableExpose = m_config->Get<bool>("enableExpose");
+  const bool enableWS = m_config->Get<bool>("enableWindowSelection");
   const bool enableScroll = m_config->Get<bool>("enableScroll");
   const bool enableMedia = m_config->Get<bool>("enableMedia");
   
   if (!enableMedia && to == OSCState::MEDIA_MENU_FOCUSED)
     return m_state;
 
-  if (!enableExpose && to == OSCState::EXPOSE_ACTIVATOR_FOCUSED)
+  if (!enableWS && to == OSCState::EXPOSE_ACTIVATOR_FOCUSED)
     return m_state;
 
   if (!enableScroll && to == OSCState::SCROLLING)

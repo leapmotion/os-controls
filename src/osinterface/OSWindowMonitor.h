@@ -30,6 +30,8 @@ protected:
   /// </remarks>
   virtual void Scan(void) = 0;
 
+  bool m_scanEnabled;
+
 public:
   /// <summary>
   /// Enumeration routine, used to list all windows presently known to the monitor
@@ -44,6 +46,8 @@ public:
   /// method may potentially result in an OnCreate event being raised
   /// </remarks>
   virtual std::shared_ptr<OSWindow> WindowFromPoint(OSPoint point) = 0;
+
+  void EnableScan(bool scan) { m_scanEnabled = scan; }
 
   // Updatable overrides:
   void Tick(std::chrono::duration<double> deltaT) override;

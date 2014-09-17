@@ -69,7 +69,7 @@ namespace oscontrols {
 
       if (var == "enableScroll")
         s_nativeUI->scrollCheckBox->Checked = value;
-      else if (var == "enableExpose")
+      else if (var == "enableWindowSelection")
         s_nativeUI->exposeCheckBox->Checked = value;
       else if (var == "enableMedia")
         s_nativeUI->mediaCheckBox->Checked = value;
@@ -199,9 +199,9 @@ namespace oscontrols {
       this->exposeCheckBox->AutoSize = true;
       this->exposeCheckBox->Location = System::Drawing::Point(3, 25);
       this->exposeCheckBox->Name = L"exposeCheckBox";
-      this->exposeCheckBox->Size = System::Drawing::Size(97, 16);
+      this->exposeCheckBox->Size = System::Drawing::Size(148, 16);
       this->exposeCheckBox->TabIndex = 1;
-      this->exposeCheckBox->Text = L"Enable Expose";
+      this->exposeCheckBox->Text = L"Enable Window Selection";
       this->exposeCheckBox->UseVisualStyleBackColor = true;
       this->exposeCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::exposeCheckBox_CheckedChanged);
       // 
@@ -224,7 +224,7 @@ namespace oscontrols {
       });
       notificationMenu->Name = L"contextMenuStrip1";
       notificationMenu->ShowImageMargin = false;
-      notificationMenu->Size = System::Drawing::Size(133, 70);
+      notificationMenu->Size = System::Drawing::Size(133, 48);
       // 
       // configToolStripMenuItem
       // 
@@ -306,7 +306,7 @@ namespace oscontrols {
   }
   
   System::Void exposeCheckBox_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-    callbacks.OnSettingChanged("enableExpose", exposeCheckBox->Checked);
+    callbacks.OnSettingChanged("enableWindowSelection", exposeCheckBox->Checked);
   }
   
   System::Void mediaCheckBox_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
