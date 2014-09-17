@@ -21,7 +21,7 @@ public:
     position{position}
   {}
 
-  virtual bool IsVisible() const { return false; }
+  virtual bool IsVisible() const { return true; }
 
   /// <summary>
   /// Counterpart collection for the Renderable, maintains a z-ordering for renderables
