@@ -84,7 +84,7 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
                0,                               // border (must be 0)
                pixel_data.Format(),
                pixel_data.Type(),
-               pixel_data.RawData());
+               pixel_data.ReadableRawData());
   GLThrowUponError("in glTexImage2D");
 
   // Restore the PixelStorei parameter values that were overridden above.
@@ -104,12 +104,15 @@ GLTexture2::~GLTexture2 () {
   glDeleteTextures(1, &m_texture_name);
 }
 
-void GLTexture2::UpdateTexture(const GLTexture2PixelData &pixel_data) {
+void GLTexture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
+  if (pixel_data.ReadableRawData() == nullptr) {
+    throw std::invalid_argument("pixel_data object must be readable (return non-null pointer from ReadableRawData)");
+  }
 
   // Simply forward on to the subimage function.
 
-  glBindTexture(m_params.Target(), m_texture_name);
+  Bind();
   GLThrowUponError("in glBindTexture");
 
   // Store all the PixelStorei parameters that are about to be overridden, then override them.
@@ -125,20 +128,46 @@ void GLTexture2::UpdateTexture(const GLTexture2PixelData &pixel_data) {
     m_params.Height(),
     pixel_data.Format(),
     pixel_data.Type(),
-    pixel_data.RawData()
+    pixel_data.ReadableRawData()
   );
   GLThrowUponError("in glTexSubImage2D");
 
   // Restore the PixelStorei parameter values that were overridden above.
   RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
 
-  glBindTexture(m_params.Target(), 0);
+  Unbind();
+}
+
+void GLTexture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
+  VerifyPixelDataOrThrow(pixel_data);
+  if (pixel_data.WriteableRawData() == nullptr) {
+    throw std::invalid_argument("pixel_data object must be writeable (return non-null pointer from WriteableRawData)");
+  }
+  
+  Bind();
+  GLThrowUponError("in glBindTexture");
+  
+  // Store all the PixelStorei parameters that are about to be overridden, then override them.
+  GLTexture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
+  OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
+  
+  glGetTexImage(
+    m_params.Target(),
+    0,                      // Mipmap level (0 is the full image).
+    pixel_data.Format(),
+    pixel_data.Type(),
+    pixel_data.WriteableRawData()
+  );
+  
+  // Restore the PixelStorei parameter values that were overridden above.
+  RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
+  
+  Unbind();
 }
 
 void GLTexture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) const {
-  // Ensure that the given data is valid and of the expected size
-  if (!pixel_data.IsEmpty() && (pixel_data.Format() == GL_INVALID_ENUM || pixel_data.Type() == GL_INVALID_ENUM)) {
-    throw std::invalid_argument("GLTexture2PixelData must be empty or specify valid GLenum values for pixel data format and type");
+  if (pixel_data.IsEmpty()) {
+    return; // Nothing to verify
   }
   
   // Check that the supplied data is a valid size.  This is complicated slightly by the configurability

@@ -34,6 +34,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_RawPointer) {
     }
   }
   
+  // Create the texture from the pixel data.
   std::shared_ptr<GLTexture2> texture;
   GLTexture2Params params(width, height);
   GLTexture2PixelDataReference pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixel_data, raw_pixel_data_byte_count);
@@ -53,9 +54,10 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
     }
   }
   
+  // Create the texture from the pixel data.
   std::shared_ptr<GLTexture2> texture;
   GLTexture2Params params(width, height);
-  GLTexture2PixelDataReference pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixels);
+  GLTexture2PixelDataReference pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixels.data(), raw_pixels.size()*sizeof(uint8_t));
   ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
@@ -72,11 +74,38 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
     }
   }
   
+  // Create the texture from the pixel data.
   std::shared_ptr<GLTexture2> texture;
   GLTexture2Params params(width, height);
   ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
+}
+
+TEST_F(GLTexture2HeadlessTest, ExtractTexture) {
+  GLsizei width = 100;
+  GLsizei height = 120;
+  // Create the pixel data storage and write some data to it.
+  GLTexture2PixelDataStorage<uint8_t> pixel_data(GL_RED, GL_UNSIGNED_BYTE, width*height);
+  for (GLsizei x = 0; x < width; ++x) {
+    for (GLsizei y = 0; y < height; ++y) {
+      pixel_data.RawPixels()[y*width + x] = static_cast<uint8_t>(x*y);
+    }
+  }
+
+  // Create the texture from the pixel data.
+  std::shared_ptr<GLTexture2> texture;
+  GLTexture2Params params(width, height);
+  ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params, pixel_data));
+  EXPECT_EQ(100, texture->Params().Width());
+  EXPECT_EQ(120, texture->Params().Height());
+  
+  // Create another pixel data storage object to extract the texture data into.
+  GLTexture2PixelDataStorage<uint8_t> extracted_pixel_data(GL_RED, GL_UNSIGNED_BYTE, width*height);
+  texture->ExtractTexture(extracted_pixel_data);
+  
+  // Ensure that the pixel data is identical.
+  EXPECT_EQ(pixel_data.RawPixels(), extracted_pixel_data.RawPixels());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
