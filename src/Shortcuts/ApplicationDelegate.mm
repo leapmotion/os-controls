@@ -55,6 +55,11 @@
       path += "Shortcuts.json";
       cfg->SetPrimaryFile(path);
       cfg->RebroadcastConfig();
+
+      if (cfg->Get<bool>("showHelpOnStart")) {
+        [_menubarController onHelp:nil];
+        cfg->Set("showHelpOnStart", false);
+      }
     }
   });
 }
