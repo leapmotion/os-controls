@@ -73,11 +73,13 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
   static const Vector3 DROP_SHADOW_OFFSET(5, 10, 0);
   static const double DROP_SHADOW_RADIUS = 200.0;
   static const float DROP_SHADOW_OPACITY = 0.35f;
+  const float transition = static_cast<float>(m_position.Completion());
+  const float opacity = DROP_SHADOW_OPACITY * (m_closing ? 1.0f - transition : transition);
   m_dropShadow->Translation() = m_texture->Translation() + DROP_SHADOW_OFFSET;
   m_dropShadow->SetBasisRectangleSize(m_texture->Size());
   m_dropShadow->LinearTransformation() = m_texture->LinearTransformation();
   m_dropShadow->SetShadowRadius(DROP_SHADOW_RADIUS);
-  m_dropShadow->LocalProperties().AlphaMask() = DROP_SHADOW_OPACITY * m_texture->LocalProperties().AlphaMask();
+  m_dropShadow->LocalProperties().AlphaMask() = opacity * m_texture->LocalProperties().AlphaMask();
   PrimitiveBase::DrawSceneGraph(*m_dropShadow, frame.renderState);
 
   static const double HIGHLIGHT_WIDTH = 50.0;
@@ -99,6 +101,8 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
 }
 
 void ExposeViewWindow::SetOpeningPosition() {
+  m_closing = false;
+
   m_opacity.SetInitialValue(1.0f);
   m_opacity.SetGoal(1.0f);
 
@@ -138,6 +142,8 @@ void ExposeViewWindow::SetOpeningPosition() {
 }
 
 void ExposeViewWindow::SetClosingPosition() {
+  m_closing = true;
+
   m_scale.SetGoal(1.0f);
 
   m_activation.SetGoal(0.0f);
