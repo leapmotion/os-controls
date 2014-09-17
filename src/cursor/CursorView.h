@@ -46,7 +46,8 @@ public:
   // Implement Renderable
   void AnimationUpdate(const RenderFrame& frame);  // Handle all the visual updates that benefit from running on a graphics tick versus the input loop.
   void Render(const RenderFrame& frame) const override;
-  
+  bool IsVisible() const override { return m_state == State::ACTIVE; }
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:

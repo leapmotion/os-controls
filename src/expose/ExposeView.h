@@ -36,7 +36,7 @@ public:
   /// <returns>
   /// True if the ExposeView is presently visible to the user
   /// </returns>
-  bool IsVisible(void) const { return 0.001f < m_alphaMask.Current(); }
+  bool IsVisible(void) const override { return 0.001f < m_alphaMask.Current(); }
 
   void SetHandData(const HandData& handData) { m_handData = handData; }
 

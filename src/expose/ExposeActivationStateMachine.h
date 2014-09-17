@@ -23,6 +23,7 @@ public:
   
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
+  bool IsVisible() const override { return m_pusherBottomY.Value() > 0.0f; }
   
 private:
   const Color UNSELECTED_COLOR = Color(0.4f, 0.425f, 0.45f, 0.7f);

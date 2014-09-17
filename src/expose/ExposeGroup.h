@@ -18,6 +18,7 @@ public:
 
   // RenderEngineNode overrides
   void Render(const RenderFrame& frame) const override;
+  bool IsVisible() const override { return m_icon->LocalProperties().AlphaMask() > 0.001f; }
 
   Vector2 m_minBounds;
   Vector2 m_maxBounds;
