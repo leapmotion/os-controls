@@ -169,8 +169,8 @@ Vector2 CursorView::GetCalculatedLocation() const {
 
 void CursorView::SetOverideLocation(const Vector2& offsetLocation) {
   // Set the offset location
-  m_overrideX = offsetLocation.x();
-  m_overrideY = offsetLocation.y();
+  m_overrideX = static_cast<float>(offsetLocation.x());
+  m_overrideY = static_cast<float>(offsetLocation.y());
 }
 
 void CursorView::AnimationUpdate(const RenderFrame &frame) {
@@ -200,8 +200,8 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
   // Update the smooth strength on the cursor position
-  m_x.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
-  m_y.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
+  m_x.SetSmoothStrength(calcPositionSmoothStrength(static_cast<float>(m_lastHandDeltas.norm())));
+  m_y.SetSmoothStrength(calcPositionSmoothStrength(static_cast<float>(m_lastHandDeltas.norm())));
   // Update the smoohted position variables and offset
   m_x.Update(static_cast<float>(frame.deltaT.count()));
   m_y.Update(static_cast<float>(frame.deltaT.count()));
