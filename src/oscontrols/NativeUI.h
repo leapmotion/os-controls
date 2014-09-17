@@ -41,6 +41,12 @@ struct NativeUI:
   void OnSettingChanged(const std::string& var, bool state);
 
   /// <summary>
+  /// Invoked when the user has requested that HTML help be displayed
+  /// </summary>
+  /// <param name="helpWith">A context clue used to indicate what the user specifically wants help with, may be nullptr</param>
+  void OnShowHtmlHelp(const char* helpWith);
+
+  /// <summary>
   /// Invoked when a config setting is altered from the native code.
   /// </summary>
   void ConfigChanged(const std::string& config, const json11::Json& value) override;

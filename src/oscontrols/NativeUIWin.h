@@ -40,6 +40,7 @@ namespace oscontrols {
 
   private: System::Windows::Forms::CheckBox^  exposeCheckBox;
   private: System::Windows::Forms::CheckBox^  scrollCheckBox;
+  private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator1;
   public:
 
 
@@ -105,10 +106,12 @@ namespace oscontrols {
       System::Windows::Forms::ContextMenuStrip^  notificationMenu;
       System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
       System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+      System::Windows::Forms::ToolStripMenuItem^  helpToolStripMenuItem;
       this->mediaCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->exposeCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->scrollCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
+      this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
       tableLayoutPanel1 = (gcnew System::Windows::Forms::TableLayoutPanel());
       okButton = (gcnew System::Windows::Forms::Button());
       cancelButton = (gcnew System::Windows::Forms::Button());
@@ -116,6 +119,7 @@ namespace oscontrols {
       notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
       configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+      helpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       tableLayoutPanel1->SuspendLayout();
       tableLayoutPanel2->SuspendLayout();
       notificationMenu->SuspendLayout();
@@ -218,9 +222,9 @@ namespace oscontrols {
       // 
       // notificationMenu
       // 
-      notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+      notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
         configToolStripMenuItem,
-          exitToolStripMenuItem
+          helpToolStripMenuItem, this->toolStripSeparator1, exitToolStripMenuItem
       });
       notificationMenu->Name = L"contextMenuStrip1";
       notificationMenu->ShowImageMargin = false;
@@ -245,6 +249,18 @@ namespace oscontrols {
       this->notificationIcon->ContextMenuStrip = notificationMenu;
       this->notificationIcon->Text = L"Leap Hand Control";
       this->notificationIcon->Visible = true;
+      // 
+      // helpToolStripMenuItem
+      // 
+      helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
+      helpToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      helpToolStripMenuItem->Text = L"&Help";
+      helpToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::helpToolStripMenuItem_Click);
+      // 
+      // toolStripSeparator1
+      // 
+      this->toolStripSeparator1->Name = L"toolStripSeparator1";
+      this->toolStripSeparator1->Size = System::Drawing::Size(129, 6);
       // 
       // NativeUIWin
       // 
@@ -299,6 +315,9 @@ namespace oscontrols {
   void cancelButton_Click(Object^  sender, System::EventArgs^  e) {
     callbacks.OnConfigUiHidden(true);
     Visible = false;
+  }
+  void helpToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+    callbacks.OnShowHtmlHelp("main");
   }
 
   System::Void scrollCheckBox_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
