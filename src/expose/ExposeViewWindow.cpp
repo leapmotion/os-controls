@@ -4,7 +4,7 @@
 #include "osinterface/OSApp.h"
 #include "graphics/RenderFrame.h"
 
-const double ExposeViewWindow::VIEW_ANIMATION_TIME = 0.75;
+const double ExposeViewWindow::VIEW_ANIMATION_TIME = 1.0;
 
 static float getRandomVariation(float radius) {
   const float randNum = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
