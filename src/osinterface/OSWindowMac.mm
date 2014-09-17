@@ -132,8 +132,9 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
         texture.reset();
       }
     }
+    GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
     if (texture) {
-      texture->UpdateTexture(dstBytes); // Very dangerous function interface!
+      texture->UpdateTexture(pixelData);
     } else {
       GLTexture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
       params.SetTarget(GL_TEXTURE_2D);
@@ -142,7 +143,6 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
       params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
 
       texture = std::make_shared<GLTexture2>(params, pixelData);
       img->SetTexture(texture);
