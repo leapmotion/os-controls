@@ -161,7 +161,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRadius = 0.5 * m_layoutRadius;
 
   const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
-  const double radiusPerWindow = 0.4 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
+  const double radiusPerWindow = 0.5 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
 
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
