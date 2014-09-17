@@ -47,8 +47,14 @@ struct NativeUI:
 
   /// <summary>
   /// Causes the config events to be re-fired if a config object exists in the current context.
+  /// Used only on windows since we can't autowire things.
   /// </summary>
   void RequestConfigs();
+
+  /// <summary>
+  /// Used on windows to set the user config file.
+  /// </summary>
+  void SetUserConfigFile(const std::string& path);
 
   /// <summary>
   /// Invoked when a config setting is altered from the native code.

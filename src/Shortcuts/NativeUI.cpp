@@ -31,6 +31,15 @@ void NativeUI::RequestConfigs() {
   config->RebroadcastConfig();
 }
 
+void NativeUI::SetUserConfigFile(const std::string& file)
+{
+  AutowiredFast<Config> config;
+  if (!config)
+    return;
+
+  config->SetPrimaryFile(file);
+}
+
 void NativeUI::OnSettingChanged(const std::string& var, bool state)
 {
   AutowiredFast<Config> config;
