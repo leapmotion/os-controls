@@ -52,8 +52,12 @@ namespace Shortcuts {
     static NativeUIWin^ s_nativeUI;
 
     static void AddTrayIcon(NativeUI& callbacks) {
-      if(!s_nativeUIInitCount++)
+      if (!s_nativeUIInitCount++)
+      {
         s_nativeUI = gcnew NativeUIWin(callbacks);
+        callbacks.RequestConfigs();
+      }
+        
     }
 
     static void RemoveTrayIcon(void) {

@@ -27,6 +27,7 @@ int main(int argc, char **argv)
   AutoCurrentContext ctxt;
   
   ctxt->Initiate();
+  AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
 
   try {
     AutoCreateContextT<ShortcutsContext> shortcutsCtxt;
@@ -37,8 +38,6 @@ int main(int argc, char **argv)
     // Register the tray icon early in the process, before we spend a bunch of time doing everything else
     nativeUI->ShowUI();
     auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
-
-    AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
 
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
