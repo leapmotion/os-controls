@@ -222,8 +222,8 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegionActive->SetRadius(m_selectionRadius);
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
-  float alphaMask = SmootherStep(std::min(1.0f, 5.0f * m_alphaMask.Current()));
-  m_backgroundImage->LocalProperties().AlphaMask() = alphaMask;
+  const float alphaMask = m_alphaMask.Current() > 0.00001 ? 1.0f : 0.0f;
+  m_backgroundImage->Material().SetAmbientLightColor(Color(alphaMask, alphaMask, alphaMask, alphaMask));
 
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     Vector3 center(Vector3::Zero());
