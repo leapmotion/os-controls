@@ -19,10 +19,16 @@
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),
+  m_scrollBodyOffset(0,0),
+  m_scrollLineOffset(0,0),
+  m_scrollFingerLeftOffset(0,0),
+  m_scrollFingerRightOffset(0,0),
+  m_disabledCursorOffset(0,0),
   m_scrollBody(new SVGPrimitive()),
   m_scrollLine(new SVGPrimitive()),
   m_scrollFingerLeft(new SVGPrimitive()),
   m_scrollFingerRight(new SVGPrimitive()),
+  m_disabledCursor(new SVGPrimitive()),
   m_disk(new Disk()),
   m_fingerSpread(0.0f),
   m_pinchStrength(0.0f),
@@ -58,18 +64,21 @@ CursorView::CursorView() :
   Resource<TextFile> scrollLineFile("scroll-cursor-line.svg");
   Resource<TextFile> scrollFingerRightFile("scroll-cursor-finger_right.svg");
   Resource<TextFile> scrollFingerLeftFile("scroll-cursor-finger_left.svg");
+  Resource<TextFile> disabledCursorFile("disabled-cursor.svg");
   
   // Assign SVG data to proper primitives.
   m_scrollBody->Set(scrollBodyFile->Contents());
   m_scrollLine->Set(scrollLineFile->Contents());
   m_scrollFingerLeft->Set(scrollFingerRightFile->Contents());
   m_scrollFingerRight->Set(scrollFingerLeftFile->Contents());
+  m_disabledCursor->Set(disabledCursorFile->Contents());
   
   // Calulate the offsets to the svg primitive centers.
   m_scrollBodyOffset = m_scrollBody->Origin() - (m_scrollBody->Size()/2.0);
   m_scrollLineOffset = m_scrollLine->Origin() - (m_scrollLine->Size()/2.0);
   m_scrollFingerLeftOffset = m_scrollFingerLeft->Origin() - (m_scrollFingerLeft->Size()/2.0);
   m_scrollFingerRightOffset = m_scrollFingerRight->Origin() - (m_scrollFingerRight->Size()/2.0);
+  m_disabledCursorOffset = m_disabledCursor->Origin() - (m_disabledCursor->Size()/2.0);
 }
 
 CursorView::~CursorView() {
@@ -109,12 +118,17 @@ void CursorView::AutoFilter(const Leap::Hand& hand, OSCState appState, const Han
       if(appState == OSCState::FINAL) {
         m_state = State::INACTIVE;
       }
+    case State::DISABLED:
+      if(appState == OSCState::FINAL) {
+        m_state = State::INACTIVE;
+      }
       break;
   }
   
   //State Loops
   switch(m_state) {
     case State::ACTIVE:
+    case State::DISABLED:
     {
       m_pinchStrength = handData.pinchData.pinchStrength;
       float spreadNorm = m_pinchStrength / activationConfigs::MIN_PINCH_START;
@@ -185,21 +199,19 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollFingerLeft->LocalProperties().AlphaMask() = fingerOpacity;
   m_scrollFingerRight->LocalProperties().AlphaMask() = fingerOpacity;
   
-  if ( m_state == State::ACTIVE ) {
-    // Update the smooth strength on the cursor position
-    m_x.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
-    m_y.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
-    // Update the smoohted position variables and offset
-    m_x.Update(static_cast<float>(frame.deltaT.count()));
-    m_y.Update(static_cast<float>(frame.deltaT.count()));
-    m_bodyOffset.Update(static_cast<float>(frame.deltaT.count()));
-    
-    // If another object is overriding our value, we don't want to fight it by setting the location ourself.
-    Vector2 baseLocation = Vector2(m_x.Value(), m_y.Value());
-    Vector2 cursorLocation = baseLocation + (m_overrideInfluence * (Vector2(m_overrideX, m_overrideY) - baseLocation));
-    position = OSVector2{ static_cast<float>(cursorLocation.x()), static_cast<float>(cursorLocation.y()) };
-  }
+  // Update the smooth strength on the cursor position
+  m_x.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
+  m_y.SetSmoothStrength(calcPositionSmoothStrength(m_lastHandDeltas.norm()));
+  // Update the smoohted position variables and offset
+  m_x.Update(static_cast<float>(frame.deltaT.count()));
+  m_y.Update(static_cast<float>(frame.deltaT.count()));
+  m_bodyOffset.Update(static_cast<float>(frame.deltaT.count()));
   
+  // If another object is overriding our value, we don't want to fight it by setting the location ourself.
+  Vector2 baseLocation = Vector2(m_x.Value(), m_y.Value());
+  Vector2 cursorLocation = baseLocation + (m_overrideInfluence * (Vector2(m_overrideX, m_overrideY) - baseLocation));
+  position = OSVector2{ static_cast<float>(cursorLocation.x()), static_cast<float>(cursorLocation.y()) };
+
   // If the scroll cursor is fading in/out, fade out/in the disk cursor
   if ( m_bodyAlpha.Value() < 0.2f ) {
     m_diskAlpha.SetGoal(1.0f);
@@ -218,6 +230,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollLine->Translation() = Vector3(m_scrollLineOffset.x(), m_scrollLineOffset.y(), 0.0f);
   m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() + m_fingerSpread, m_scrollFingerLeftOffset.y() + m_bodyOffset, 0.0f);
   m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - m_fingerSpread, m_scrollFingerRightOffset.y() + m_bodyOffset, 0.0f);
+  m_disabledCursor->Translation() = Vector3(m_disabledCursorOffset.x(), m_disabledCursorOffset.y(), 0.0f);
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
@@ -229,6 +242,8 @@ void CursorView::Render(const RenderFrame& frame) const {
       PrimitiveBase::DrawSceneGraph(*m_scrollFingerRight, frame.renderState);
       PrimitiveBase::DrawSceneGraph(*m_disk, frame.renderState);
       break;
+    case State::DISABLED:
+      PrimitiveBase::DrawSceneGraph(*m_disabledCursor, frame.renderState);
     case State::INACTIVE:
     default:
       break;
