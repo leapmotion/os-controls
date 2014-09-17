@@ -11,6 +11,7 @@ void NativeUI::OnQuit() {
 }
 
 void NativeUI::OnConfigUiVisible() {
+
 }
 
 void NativeUI::OnConfigUiHidden(bool) {
@@ -20,6 +21,14 @@ void NativeUI::OnShowHtmlHelp(const char* helpWith) {
   AutowiredFast<HtmlPageLauncher> hpl;
   if(hpl)
     hpl->LaunchPage("http://shortcuts.leapmotion.com/help.html");
+}
+
+void NativeUI::RequestConfigs() {
+  AutowiredFast<Config> config;
+  if (!config)
+    return;
+
+  config->RebroadcastConfig();
 }
 
 void NativeUI::OnSettingChanged(const std::string& var, bool state)

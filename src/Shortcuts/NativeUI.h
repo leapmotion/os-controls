@@ -1,7 +1,6 @@
 #pragma once
 #include "autowiring/ContextMember.h"
 #include "utility/ConfigEvent.h"
-
 struct NativeUI:
   public ContextMember,
   public ConfigEvent
@@ -45,6 +44,11 @@ struct NativeUI:
   /// </summary>
   /// <param name="helpWith">A context clue used to indicate what the user specifically wants help with, may be nullptr</param>
   void OnShowHtmlHelp(const char* helpWith);
+
+  /// <summary>
+  /// Causes the config events to be re-fired if a config object exists in the current context.
+  /// </summary>
+  void RequestConfigs();
 
   /// <summary>
   /// Invoked when a config setting is altered from the native code.
