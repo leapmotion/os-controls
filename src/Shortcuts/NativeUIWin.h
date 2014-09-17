@@ -1,5 +1,6 @@
 #pragma once
 #include "NativeUI.h"
+#include <msclr/marshal_cppstd.h>
 
 struct NativeUI;
 
@@ -55,6 +56,16 @@ namespace Shortcuts {
       if (!s_nativeUIInitCount++)
       {
         s_nativeUI = gcnew NativeUIWin(callbacks);
+
+        String^ appData = Environment::GetFolderPath(Environment::SpecialFolder::ApplicationData);
+        String^ newDir = System::IO::Path::Combine(appData, L"Leap Motion\\Shortcuts");
+        if( !System::IO::Directory::Exists(newDir) )
+          System::IO::Directory::CreateDirectory(newDir);
+
+        String^ configFile = System::IO::Path::Combine(newDir, L"config.json");
+        msclr::interop::marshal_context ctxt;
+        std::string str = ctxt.marshal_as<std::string>(configFile);
+        callbacks.SetUserConfigFile(str);
         callbacks.RequestConfigs();
       }
         
