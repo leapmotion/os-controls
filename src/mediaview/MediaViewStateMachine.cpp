@@ -115,6 +115,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   {
     case State::ARMED:
       if(appState == OSCState::MEDIA_MENU_FOCUSED) {
+        m_cursorView->Enable();
         m_cursorBufferzoneOffset = calculateBufferZoneOffset(handData.locationData.screenPosition());
         m_cursorView->EnableLocationOverride();
         m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0) + m_cursorBufferzoneOffset;
@@ -128,6 +129,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       break;
     case State::ACTIVE:
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_cursorView->Enable();
         m_state = State::ARMED;
         m_cursorView->DisableLocationOverride();
         m_cursorBufferzoneOffset = Vector3(0,0,0);
@@ -146,6 +148,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
     case State::COMPLETE:
       
       if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+        m_cursorView->Enable();
         m_cursorView->DisableLocationOverride();
         m_cursorBufferzoneOffset = Vector3(0,0,0);
         m_volumeViewAlpha.SetGoal(0.0f);
@@ -218,6 +221,7 @@ void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 me
     //Selection Made Transition
     resolveSelection(updateResult.updateIdx);
     doActiveToCompleteTasks();
+    m_cursorView->Disable();
     m_state = State::COMPLETE;
     m_LastStateChangeTime = m_CurrentTime;
   }

@@ -23,6 +23,7 @@ set(oscontrols_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/svgs/expose-icon-01.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/plus-icon.svg
   ${CMAKE_SOURCE_DIR}/src/svgs/minus-icon.svg
+  ${CMAKE_SOURCE_DIR}/src/svgs/disabled-cursor.svg
   ${CMAKE_SOURCE_DIR}/src/oscontrols/config.json
 )
 

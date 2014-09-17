@@ -28,6 +28,8 @@ public:
 
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
+  bool IsVisible() const override { return m_state == State::ACTIVE || m_state == State::COMPLETE; }
+
   void SetViewVolume(float volume);
   
 private:

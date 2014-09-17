@@ -62,7 +62,9 @@ public:
   /// </summary>
   /// <param name="img">The prior texture, or nullptr if this is the first invocation</param>
   /// <returns>
-  /// Either an updated version of the passed texture, or a new texture.
+  /// Either an updated version of the passed texture, or a new texture.  The returned ImagePrimitive
+  /// may potentially not have any bound texture in cases where the window's texture could not be
+  /// captured.
   /// </returns>
   virtual std::shared_ptr<ImagePrimitive> GetWindowTexture(std::shared_ptr<ImagePrimitive> img) = 0;
 

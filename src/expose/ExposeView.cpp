@@ -168,6 +168,9 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
       continue;
 
     std::shared_ptr<ImagePrimitive>& img = window->GetTexture();
+    if(!img->Texture())
+      // No texture on this window, do not bother trying to lay it out
+      continue;
 
     // set window scale smoothly
     const double bonusScale = 0.2 * (window->m_hover.Value() + window->m_activation.Value());
@@ -398,19 +401,25 @@ void ExposeView::updateWindowTextures() {
 }
 
 void ExposeView::updateWindowTexturesRoundRobin() {
+  static const int SKIP_FACTOR = 3; // every this many ticks, update one of the window textures
+  static int skipCounter = 0;
+  skipCounter = (skipCounter + 1) % SKIP_FACTOR;
+  if (skipCounter != 0) {
+    return;
+  }
+
   static int counter = 0;
-  counter++;
   const int num = m_windows.size();
   if (num == 0) {
     return;
   }
-  const int selection = counter % num;
+  counter = (counter + 1) % num;
 
   int idx = 0;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
-    if (idx == selection) {
+    if (idx == counter) {
       window->UpdateTexture();
     }
     idx++;

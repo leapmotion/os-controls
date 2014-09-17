@@ -39,6 +39,8 @@ public:
 private:
   Autowired<sf::RenderWindow> m_rw;
 
+  bool m_drewThisFrame;
+  bool m_drewPrevFrame;
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
 };
