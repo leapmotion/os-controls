@@ -18,10 +18,17 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
 
   const auto bounds = m_virtualScreen->PrimaryScreen().Bounds();
   const sf::Vector2i newPosition{static_cast<int32_t>(bounds.origin.x), static_cast<int32_t>(bounds.origin.y)};
-  const sf::Vector2u newSize{static_cast<uint32_t>(bounds.size.width), static_cast<uint32_t>(bounds.size.height)};
+
+#if _WIN32
+  //On windows, if you're somehow focused & the window is the same size as the screen, Aero just stops rendering everything
+  //behind you.
+  const sf::Vector2u newSize{static_cast<uint32_t>(bounds.size.width+1), static_cast<uint32_t>(bounds.size.height+1)};
+#else
+  const sf::Vector2u newSize{ static_cast<uint32_t>(bounds.size.width), static_cast<uint32_t>(bounds.size.height) };
+#endif
 
   if(oldSize != newSize) {
-    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Shortcuts", sf::Style::None, *m_contextSettings);
+    m_mw->create(sf::VideoMode(newSize.x, newSize.y, 32), "Shortcuts", sf::Style::None, *m_contextSettings);
   }
   m_mw->setVisible(false);
 #if __APPLE__
