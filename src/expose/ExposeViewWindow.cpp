@@ -18,11 +18,9 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_highlight(new RectanglePrim),
   m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>)
 {
-  const float baseSmooth = 0.825f;
-
   m_opacity.SetInitialValue(0.0f);
   m_opacity.SetGoal(0.0f);
-  m_opacity.SetSmoothStrength(baseSmooth);
+  m_opacity.SetSmoothStrength(0.825f);
   m_opacity.Update(0.0f);
 
 #if 0
@@ -36,7 +34,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
 
   m_scale.SetInitialValue(0.0f);
   m_scale.SetGoal(0.0f);
-  m_scale.SetSmoothStrength(baseSmooth);
+  m_scale.SetSmoothStrength(0.825f);
   m_scale.Update(0.0f);
 
   m_activation.SetInitialValue(0.0f);
@@ -61,7 +59,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
 
   m_forceDelta.SetGoal(Vector3::Zero());
   m_forceDelta.SetInitialValue(Vector3::Zero());
-  m_forceDelta.SetSmoothStrength(baseSmooth);
+  m_forceDelta.SetSmoothStrength(0.75f);
   m_forceDelta.Update(0.0f);
 }
 

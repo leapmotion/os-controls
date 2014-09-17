@@ -373,7 +373,7 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
   m_forces.clear();
   // activation forces
   static const double MAX_RADIUS_MULT = 1.0;
-  static const double FORCE_DISTANCE_MULT = 0.2;
+  static const double FORCE_DISTANCE_MULT = 0.15;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
