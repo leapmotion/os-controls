@@ -8,23 +8,24 @@ void ovrhmd_EnableHSWDisplaySDKRender(ovrHmd hmd, ovrBool enabled);
 }
 
 bool OculusVR::isDebug(){
+  if ( ! m_HMD ){
+    throw std::runtime_error("HMD is not initialized");
+  }
   return m_Debug;
 }
 
 int OculusVR::GetHMDWidth(){
-  if ( m_width < 0 ){
-    throw std::runtime_error("Unknown HMD resolution width. Is HMD initialized ?");
-  }else{
-    return m_width;
+  if ( ! m_HMD ){
+    throw std::runtime_error("HMD is not initialized");
   }
+  return m_HMD->Resolution.w;
 }
 
 int OculusVR::GetHMDHeight(){
-  if ( m_height < 0 ){
-    throw std::runtime_error("Unknown HMD resolution height. Is HMD initialized ?");
-  }else{
-    return m_height;
+  if ( ! m_HMD ){
+    throw std::runtime_error("HMD is not initialized");
   }
+  return m_HMD->Resolution.h;
 }
 
 void OculusVR::InitGlew() {
@@ -34,21 +35,26 @@ void OculusVR::InitGlew() {
   }
 }
 
-bool OculusVR::Init() {
-  glewInit();
-    
-  m_Debug = false;
-
+void OculusVR::InitHMD(){
   ovr_Initialize();
-
   m_HMD = ovrHmd_Create(0);
-
+    
   if (!m_HMD) {
     m_HMD = ovrHmd_CreateDebug(ovrHmd_DK1);
     if (!m_HMD) {
-      return false;
+      throw std::runtime_error("Cannot initialized the HMD device.");
     }
     m_Debug = true;
+  }else{
+    m_Debug = false;
+  }
+}
+
+bool OculusVR::Init() {
+  glewInit();
+  
+  if ( ! m_HMD ){
+    InitHMD();
   }
 
   m_width = m_HMD->Resolution.w;
