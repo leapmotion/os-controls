@@ -192,6 +192,9 @@ void OSWindowMac::SetFocus(void) {
         NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
         NSDictionary* errInfo = nullptr;
         [as executeAndReturnError:&errInfo];
+        if (errInfo) {
+          NSLog(@"Warning: %@\n",errInfo);
+        }
       }
       @catch (NSException*) {}
     }
