@@ -40,7 +40,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
 {
   // There must be a current OpenGL context in order to obtain a texture
   if (CGLGetCurrentContext() == nullptr) {
-    return std::shared_ptr<ImagePrimitive>();
+    return img;
   }
   @autoreleasepool {
     NSScreen* screen = nil;
@@ -52,7 +52,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
       }
     }
     if (!screen) {
-      return std::shared_ptr<ImagePrimitive>();
+      return img;
     }
     const size_t width = static_cast<size_t>(Width());
     const size_t height = static_cast<size_t>(Height());
@@ -61,14 +61,14 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
 
     std::unique_ptr<uint8_t[]> dstBytes(new uint8_t[totalBytes]);
     if (!dstBytes.get()) {
-      return std::shared_ptr<ImagePrimitive>();
+      return img;
     }
     ::memset(dstBytes.get(), 0, totalBytes);
 
     NSImage* nsImage =
         [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
     if (!nsImage) {
-      return std::shared_ptr<ImagePrimitive>();
+      return img;
     }
     CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
     CGContextRef cgContextRef =
