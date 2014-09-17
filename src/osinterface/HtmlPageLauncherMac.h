@@ -11,4 +11,3 @@ public:
   // HtmlPageLauncher overrides
   void LaunchPage(const char* url) override;
 };
-

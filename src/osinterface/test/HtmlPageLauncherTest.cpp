@@ -7,5 +7,5 @@ class HtmlPageLauncherTest:
 
 TEST_F(HtmlPageLauncherTest, LaunchPage) {
   AutoRequired<HtmlPageLauncher> launcher;
-  launcher->LaunchPage(L"http://www.google.com/");
+  launcher->LaunchPage("http://www.google.com/");
 }
