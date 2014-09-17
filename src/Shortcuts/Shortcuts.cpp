@@ -33,6 +33,7 @@ int main(int argc, char **argv)
     AutoCreateContextT<ShortcutsContext> shortcutsCtxt;
     shortcutsCtxt->Initiate();
     CurrentContextPusher pshr(shortcutsCtxt);
+    AutoRequired<HtmlPageLauncher>(); //needs to exist before the native ui so we can launch the help page on startup.
     AutoRequired<NativeUI> nativeUI;
 
     // Register the tray icon early in the process, before we spend a bunch of time doing everything else
@@ -47,7 +48,7 @@ int main(int argc, char **argv)
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
-    AutoRequired<HtmlPageLauncher>();
+    
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
