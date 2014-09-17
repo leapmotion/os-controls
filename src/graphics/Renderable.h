@@ -21,6 +21,14 @@ public:
     position{position}
   {}
 
+  /// <returns>
+  /// True if this window would potentially draw something to the screen
+  /// </returns>
+  /// <remarks>
+  /// This routine is a prospective optimization.  If this method returns false, then the corresponding
+  /// call to Render will not be made.  If all Renderables in the current scene are invisible, then no
+  /// attempt will be made to flip the backing buffer.  This can result in significant CPU savings.
+  /// </remarks>
   virtual bool IsVisible() const { return true; }
 
   /// <summary>
