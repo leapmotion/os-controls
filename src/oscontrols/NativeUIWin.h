@@ -247,7 +247,7 @@ namespace oscontrols {
       // notificationIcon
       // 
       this->notificationIcon->ContextMenuStrip = notificationMenu;
-      this->notificationIcon->Text = L"Leap Hand Control";
+      this->notificationIcon->Text = L"Shortcuts";
       this->notificationIcon->Visible = true;
       // 
       // helpToolStripMenuItem

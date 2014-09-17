@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     AutoRequired<OSWindowMonitor>();
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(1, 1),
-      "Leap Hand Control", sf::Style::None,
+      "Shortcuts", sf::Style::None,
       *contextSettings
     );
 

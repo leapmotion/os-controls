@@ -52,7 +52,7 @@
           path += "/Leap Motion/";
         }
       }
-      path += "oscontrols.json";
+      path += "Shortcuts.json";
       cfg->SetPrimaryFile(path);
       cfg->RebroadcastConfig();
     }

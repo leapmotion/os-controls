@@ -21,7 +21,7 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   const sf::Vector2u newSize{static_cast<uint32_t>(bounds.size.width), static_cast<uint32_t>(bounds.size.height)};
 
   if(oldSize != newSize) {
-    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Leap Hand Control", sf::Style::None, *m_contextSettings);
+    m_mw->create(sf::VideoMode(newSize.x, newSize.y), "Shortcuts", sf::Style::None, *m_contextSettings);
   }
   m_mw->setVisible(false);
 #if __APPLE__
