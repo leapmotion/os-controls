@@ -37,11 +37,20 @@ RenderEngine::~RenderEngine()
 
 void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // Active the window for OpenGL rendering
+  InvalidateRect(NULL, NULL, TRUE);
   m_rw->setActive();
-
+  
   // Clear window
-  m_rw->clear(sf::Color::Transparent);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glEnable(GL_ALPHA_TEST);
 
+  glClearColor(0, .1, .9, 0);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  unsigned char bytes[10];
+  glReadPixels(1, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &bytes);
+  /*
   //Set the mode
   glEnable(GL_BLEND);
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
@@ -77,7 +86,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
 
   // General cleanup
   m_shader->Unbind();
-
+  */
   if (m_drewThisFrame || m_drewPrevFrame) {
     // Update the window
     m_rw->display();
@@ -89,4 +98,6 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   m_drewPrevFrame = m_drewThisFrame;
 
   m_rw->setActive(false);
+
+  
 }

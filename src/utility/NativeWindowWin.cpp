@@ -14,7 +14,13 @@ LRESULT CALLBACK TransparentWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
   if (msg == WM_PAINT){
     PAINTSTRUCT paintStruct;
     BeginPaint(hwnd, &paintStruct);
-    paintStruct.fErase = true;
+    RECT rect;
+    rect.top = 100;
+    rect.left = 100;
+    rect.bottom = 200;
+    rect.right = 200;
+    FillRect(paintStruct.hdc, &rect, (HBRUSH)WHITE_BRUSH(DKGRAY_BRUSH));
+
     EndPaint(hwnd, &paintStruct);
   }
   else if( forwardingProc != 0){
@@ -74,7 +80,7 @@ void NativeWindow::AbandonFocus(const Handle& window) {
   if (!nextWindow)
     throw std::runtime_error("Error getting desktop window");
 
-  ::SetForegroundWindow(nextWindow);
+  ::SetForegroundWindow(window);
 }
 
 void NativeWindow::RaiseWindowAtPosition(float x, float y) {

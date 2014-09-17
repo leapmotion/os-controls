@@ -1,6 +1,8 @@
 #pragma once
 #include "osinterface/OSVirtualScreen.h"
 #include "uievents/Updatable.h"
+#include "utility/NativeWindow.h"
+#include <SFML/Graphics/RenderWindow.hpp>
 
 namespace sf {
   class RenderWindow;
@@ -36,6 +38,7 @@ private:
 
 public:
   void Tick(std::chrono::duration<double> deltaT) override {
+    NativeWindow::AbandonFocus(m_mw->getSystemHandle());
     DispatchAllEvents();
   }
 };
