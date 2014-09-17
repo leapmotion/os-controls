@@ -2,29 +2,36 @@
 
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 #include <stdexcept>
+#include <map>
 #include <vector>
 
-// This is an invaluable resource: http://www.opengl.org/wiki/Common_Mistakes
+// These are invaluable resources:
+//   http://www.opengl.org/wiki/Common_Mistakes
+//   http://www.opengl.org/wiki/Pixel_Transfer#Pixel_layout
+
+// The OpenGL API website docs incorrectly formatted some of the formulas for glPixelStorei,
+// but the MSDN website had them correctly formatted: http://msdn.microsoft.com/en-us/library/windows/desktop/dd940385(v=vs.85).aspx
 
 // Base class for pixel data for use in all texel-loading operations in GLTexture2.
 // Subclasses provide storage of and reference to pixel data.
 class GLTexture2PixelData {
 public:
 
+  // Returns the number of components in format.  E.g. ComponentsInFormat(GL_RGBA) is 4.
+  static size_t ComponentsInFormat (GLenum format);
+  // Returns the number of bytes in the type.  E.g. BytesInType(GL_UNSIGNED_BYTE) is 1.
+  static size_t BytesInType (GLenum type);
+
+  typedef std::map<GLenum,GLint> GLPixelStoreiParameterMap;
+  
   // The format and type values must be GL_INVALID_ENUM if RawData returns nullptr.
-  GLTexture2PixelData (GLenum format, GLenum type)
-    :
-    m_format(format),
-    m_type(type)
-  {
-    // TODO: checks for validity
-  }
+  GLTexture2PixelData (GLenum format, GLenum type);
   virtual ~GLTexture2PixelData () { }
 
   bool IsEmpty () const { return RawData() == nullptr; }
   GLenum Format () const { return m_format; }
   GLenum Type () const { return m_type; }
-
+  
   // Returns a "flattened" array of data which will be interpreted in the way specified
   // by Format() and Type().  "Flattened" means that all the components are contiguous in
   // the array, e.g. RGBARGBARGBA...
@@ -32,13 +39,23 @@ public:
   // Returns the number of bytes of data in the array returned by RawData.
   virtual size_t RawDataByteCount () const = 0;
 
-  static size_t ComponentsInFormat (GLenum format);
-  static size_t BytesInType (GLenum type);
+  // Returns true iff pname exists in the PixelStorei parameter map (i.e. SetPixelStoreiParameter has been called with pname).
+  bool HasPixelStoreiParameter (GLenum pname) const { return m_pixel_store_i_parameter.find(pname) != m_pixel_store_i_parameter.end(); }
+  // Returns the value of the requested PixelStorei parameter mapping, or throws an exception if not set.
+  GLint PixelStoreiParameter (GLenum pname) const;
+  // Returns a const reference to the PixelStorei parameter map.
+  const GLPixelStoreiParameterMap &PixelStoreiParameterMap () const { return m_pixel_store_i_parameter; }
+  // Clears the PixelStorei parameter map.
+  void ClearPixelStoreiParameterMap () { m_pixel_store_i_parameter.clear(); }
+
+  // Record that the PixelStorei parameter given by pname will be set to the value given in param.
+  void SetPixelStoreiParameter (GLenum pname, GLint param);
 
 private:
 
   GLenum m_format;
   GLenum m_type;
+  GLPixelStoreiParameterMap m_pixel_store_i_parameter;
 };
 
 // This class is used as a sentinel value for creating a GLTexture2 without uploading any pixel data.

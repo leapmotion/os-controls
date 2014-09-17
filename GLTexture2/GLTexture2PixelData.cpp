@@ -63,3 +63,35 @@ size_t GLTexture2PixelData::BytesInType (GLenum type) {
     default: throw std::invalid_argument("invalid pixel type; must be one of GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV.");
   }
 }
+
+GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type)
+  :
+  m_format(format),
+  m_type(type)
+{
+  // TODO: checks for validity
+  size_t bytes_in_pixel = ComponentsInFormat(format)*BytesInType(type);
+  // NOTE: TEMPORARY hacky handling of GL_UNPACK_ALIGNMENT, so that the assumption that all pixel
+  // data is layed out contiguously in the raw pixel data is correct (it isn't necessarily, as
+  // OpenGL has a row alignment feature, which depends on GL_UNPACK_ALIGNMENT).
+  if (bytes_in_pixel % 4 != 0) {
+    // The default is 4, so if our pixels don't align to 4 bytes, just hackily set it to 1.
+    // This probably slows things down a bit, so TODO this should be re-engineered correctly later.
+    SetPixelStoreiParameter(GL_UNPACK_ALIGNMENT, 1);
+    // If this value is overridden, it's assumed that the overrider knows what they're doing.
+  }
+}
+
+GLint GLTexture2PixelData::PixelStoreiParameter (GLenum pname) const {
+  // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
+  auto it = m_pixel_store_i_parameter.find(pname);
+  if (it == m_pixel_store_i_parameter.end()) {
+    throw std::domain_error("specified GLint-valued PixelStorei parameter not found and/or specified");
+  }
+  return it->second;
+}
+
+void GLTexture2PixelData::SetPixelStoreiParameter (GLenum pname, GLint param) {
+  // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
+  m_pixel_store_i_parameter[pname] = param;
+}

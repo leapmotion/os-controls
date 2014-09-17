@@ -29,12 +29,10 @@ public:
   const GLTexture2Params &Params() const { return m_params; }
 
   // This method should be called to bind this shader.
-  void Bind () { glBindTexture(m_params.Target(), m_texture_name); }
+  void Bind () const { glBindTexture(m_params.Target(), m_texture_name); }
   // This method should be called when no shader program should be used.
-  void Unbind () { glBindTexture(m_params.Target(), 0); }
+  void Unbind () const { glBindTexture(m_params.Target(), 0); }
 
-  // DEPRECATED old version of UpdateTexture -- DO NOT USE IN NEW CODE
-  void UpdateTexture(const void *data);
   // Updates the contents of this texture from the specified pixel data.
   void UpdateTexture(const GLTexture2PixelData &pixel_data);
   
@@ -42,8 +40,6 @@ private:
 
   void VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) const;
 
-  GLenum m_format; // TODO: DELETE once deprecated version of UpdateTexture is deleted
-  GLenum m_type;   // TODO: DELETE once deprecated version of UpdateTexture is deleted
   GLTexture2Params m_params;
   GLuint m_texture_name;
 };
