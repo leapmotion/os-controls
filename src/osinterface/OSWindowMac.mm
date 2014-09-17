@@ -117,10 +117,9 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
   if (dataRef) {
     const uint8_t* dstBytes = CFDataGetBytePtr(dataRef);
     const size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
-    // const size_t width = CGImageGetWidth(imageRef);
-    // For now, adjust the width to be that of the stride -- FIXME
     assert(bytesPerRow % 4 == 0);
-    const size_t width = bytesPerRow/4;
+    const size_t stride = bytesPerRow/4;
+    const size_t width = CGImageGetWidth(imageRef);
     const size_t height = CGImageGetHeight(imageRef);
     const size_t totalBytes = bytesPerRow*height;
 
@@ -133,6 +132,8 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
       }
     }
     GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+    pixelData.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, stride);
+
     if (texture) {
       texture->UpdateTexture(pixelData);
     } else {
