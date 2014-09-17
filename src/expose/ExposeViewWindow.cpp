@@ -135,7 +135,7 @@ void ExposeViewWindow::SetOpeningPosition() {
   const float randomTimeVariation = 0.15f;
 
   m_position.SetImmediate(center);
-  m_position.Set(center, VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
+  m_position.Set(center, 0.95*VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
 #endif
 }
 
@@ -159,7 +159,7 @@ void ExposeViewWindow::SetClosingPosition() {
   m_position.SetGoal(center);
 #else
   const float randomTimeVariation = 0.15f;
-  m_position.Set(center, VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
+  m_position.Set(center, 0.95*VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
 #endif
 }
 
