@@ -89,6 +89,12 @@ namespace Shortcuts {
         s_nativeUI->exposeCheckBox->Checked = value;
       else if (var == "enableMedia")
         s_nativeUI->mediaCheckBox->Checked = value;
+      else if (var == "showHelpOnStart") {
+        if (value) {
+          s_nativeUI->callbacks.OnShowHtmlHelp("main");
+          s_nativeUI->callbacks.OnSettingChanged("showHelpOnStart", false);
+        }
+      }
     }
 
 	protected:
