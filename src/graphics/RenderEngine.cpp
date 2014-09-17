@@ -12,8 +12,12 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
-RenderEngine::RenderEngine()
+RenderEngine::RenderEngine() :
+  m_drewThisFrame(false),
+  m_drewPrevFrame(false)
 {
   if (!sf::Shader::isAvailable()) //This also calls glewInit for us
     throw std::runtime_error("Shaders are not supported!");
@@ -55,8 +59,14 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   for(const auto& renderable : *this)
     renderable->AnimationUpdate(frame);
   
+  m_drewThisFrame = false;
+
   // Perform render operation in a second pass:
   for(auto& renderable : *this) {
+    if (!renderable->IsVisible()) {
+      continue;
+    }
+    m_drewThisFrame = true;
     auto& mv = frame.renderState.GetModelView();
     mv.Push();
     
@@ -68,7 +78,16 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // General cleanup
   m_shader->Unbind();
 
-  // Update the window
-  m_rw->display();
+  if (m_drewThisFrame || m_drewPrevFrame) {
+    // Update the window
+    std::cout << "swap" << std::endl;
+    m_rw->display();
+  } else {
+    // if we haven't drawn anything, sleep for a bit (otherwise this loop occurs too quickly)
+    std::chrono::milliseconds delay(100); // 100 msec
+    std::this_thread::sleep_for(delay);
+  }
+  m_drewPrevFrame = m_drewThisFrame;
+
   m_rw->setActive(false);
 }
