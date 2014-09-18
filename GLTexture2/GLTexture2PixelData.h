@@ -91,6 +91,28 @@ public:
   // and WriteableRawData will return this pointer.
   GLTexture2PixelDataReference (GLenum format, GLenum type, void *readable_and_writeable_raw_pixel_data, size_t raw_pixel_data_byte_count);
 
+  // Construct this object with only a readable pointer to the given std::vector.  WriteableRawData will return nullptr.
+  template <typename Pixel_>
+  GLTexture2PixelDataReference (GLenum format, GLenum type, const std::vector<Pixel_> &pixel_data)
+    :
+    GLTexture2PixelDataReference(format, type, static_cast<const void *>(pixel_data.data()), pixel_data.size()*sizeof(Pixel_))
+  {
+    if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
+      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+    }
+  }
+  // Construct this object with a readable and writeable pointer to the given std::vector.  Both ReadableRawData
+  // and WriteableRawData will return this pointer.
+  template <typename Pixel_>
+  GLTexture2PixelDataReference (GLenum format, GLenum type, std::vector<Pixel_> &pixel_data)
+    :
+    GLTexture2PixelDataReference(format, type, static_cast<void *>(pixel_data.data()), pixel_data.size()*sizeof(Pixel_))
+  {
+    if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
+      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+    }
+  }
+
   virtual bool IsEmpty () const override { return m_readable_raw_pixel_data == nullptr && m_writeable_raw_pixel_data == nullptr; }
   virtual const void *ReadableRawData () const override { return m_readable_raw_pixel_data; }
   virtual void *WriteableRawData () override { return m_writeable_raw_pixel_data; }
