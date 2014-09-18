@@ -7,7 +7,7 @@ set(Shortcuts_VERSION_MINOR "0")
 set(Shortcuts_VERSION_PATCH "0")
 set(Shortcuts_VERSION "${Shortcuts_VERSION_MAJOR}.${Shortcuts_VERSION_MINOR}.${Shortcuts_VERSION_PATCH}")
 set(Shortcuts_APPNAME "OS Controls")
-set(Shortcuts_APPDESC "Leap Motion Operating Systems Controls")
+set(Shortcuts_APPDESC "Leap Motion Shortcuts")
 set(LEAP_COMPANY_NAME "Leap Motion")
 
 set(APP_VERSION "${Shortcuts_VERSION}")
