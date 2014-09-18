@@ -73,8 +73,12 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
   static const Vector3 DROP_SHADOW_OFFSET(3, 5, 0);
   static const double DROP_SHADOW_RADIUS = 30.0;
   static const float DROP_SHADOW_OPACITY = 0.4f;
+#if __APPLE__
+  const float opacity = DROP_SHADOW_OPACITY;
+#else
   const float transition = static_cast<float>(m_position.Completion());
   const float opacity = DROP_SHADOW_OPACITY * (m_closing ? 1.0f - transition : transition);
+#endif
   m_dropShadow->Translation() = m_texture->Translation() + DROP_SHADOW_OFFSET;
   m_dropShadow->SetBasisRectangleSize(m_texture->Size());
   m_dropShadow->LinearTransformation() = m_texture->LinearTransformation();
