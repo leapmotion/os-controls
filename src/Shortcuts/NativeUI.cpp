@@ -33,11 +33,12 @@ void NativeUI::RequestConfigs() {
 
 void NativeUI::SetUserConfigFile(const std::string& file)
 {
-  AutowiredFast<Config> config;
-  if (!config)
-    return;
+  AutoCurrentContext ctxt;
+  ctxt->NotifyWhenAutowired<Config>([file]() {
+    AutowiredFast<Config> cfg;
+    cfg->SetPrimaryFile(file);
+  });
 
-  config->SetPrimaryFile(file);
 }
 
 void NativeUI::OnSettingChanged(const std::string& var, bool state)
