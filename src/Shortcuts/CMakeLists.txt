@@ -103,12 +103,12 @@ target_include_directories(Shortcuts PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_package(Shortcuts Leap REQUIRED)
 target_package(Shortcuts SFML 2.1 REQUIRED)
-set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES})
 
 if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
   set_property(TARGET Shortcuts APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Data;System.Drawing;System.Windows.Forms;System.Xml")
   set_target_properties(Shortcuts PROPERTIES VS_GLOBAL_ROOTNAMESPACE Shortcuts)
+  set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES})
 elseif(APPLE)
   set_target_properties(Shortcuts PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Shortcuts/Shortcuts.plist.in)
@@ -153,5 +153,6 @@ endif()
 # Install commands for the Resources
 install(TARGETS Shortcuts
   RUNTIME DESTINATION "."
-  RESOURCE DESTINATION "." #ignored on Apple platforms
+  BUNDLE DESTINATION "."
+  RESOURCE DESTINATION "."
 )
