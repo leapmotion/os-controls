@@ -241,7 +241,7 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
     m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
     
     if ( offsetNormalFactor >= 1.0 ) {
-      float deltaPixelsInVolume = deltaPixels.x() / m_volumeSlider->Width();
+      float deltaPixelsInVolume = static_cast<float>(deltaPixels.x()) / m_volumeSlider->Width();
       m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
       m_volumeSlider->Activate();
     }
@@ -318,7 +318,7 @@ float MediaViewStateMachine::calculateMenuAlphaFade() {
   float retVal = 1.0f;
   Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
   if ( diff.y() > VOLUME_LOCK_IN_Y) {
-    retVal = (diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE);
+    retVal = static_cast<float>((diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE));
     retVal = 1.0f - std::min(1.0f, std::max(0.0f, retVal));
   }
   
@@ -359,8 +359,8 @@ Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const Vector2& screenPo
   Vector3 retVal(0,0,0);
   
   // Find our distance from the screen edge
-  float xEdgeDistance = std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x());
-  float yEdgeDistance = std::min(screenPosition.y(), m_renderWindow->getSize().y - screenPosition.y());
+  float xEdgeDistance = static_cast<float>(std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x()));
+  float yEdgeDistance = static_cast<float>(std::min(screenPosition.y(), m_renderWindow->getSize().y - screenPosition.y()));
   
   // Calculate any offset needed
   float xOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - xEdgeDistance);

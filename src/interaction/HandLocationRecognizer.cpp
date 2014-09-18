@@ -28,16 +28,16 @@ void HandLocationRecognizer::AutoFilter(const Leap::Hand& hand, const HandPose& 
   screenLocation += ProjectVector(2, offset);
   
   screenLocation.y() *= -1.0f;
-  handLocation.x = screenLocation.x();
-  handLocation.y = screenLocation.y();
-  handLocation.mmX = hand.palmPosition().x;
-  handLocation.mmY = hand.palmPosition().y * -1;
+  handLocation.x = static_cast<float>(screenLocation.x());
+  handLocation.y = static_cast<float>(screenLocation.y());
+  handLocation.mmX = static_cast<float>(hand.palmPosition().x);
+  handLocation.mmY = static_cast<float>(hand.palmPosition().y * -1);
   
   if ( isInitialized ) {
-    handLocation.dX = handLocation.x - lastPosition.x();
-    handLocation.dY = handLocation.y - lastPosition.y();
-    handLocation.dmmX = handLocation.mmX - lastLeapPosition.x();
-    handLocation.dmmY = handLocation.mmY - lastLeapPosition.y();
+    handLocation.dX = static_cast<float>(handLocation.x - lastPosition.x());
+    handLocation.dY = static_cast<float>(handLocation.y - lastPosition.y());
+    handLocation.dmmX = static_cast<float>(handLocation.mmX - lastLeapPosition.x());
+    handLocation.dmmY = static_cast<float>(handLocation.mmY - lastLeapPosition.y());
   } else {
     handLocation.dX = 0.0f;
     handLocation.dY = 0.0f;
