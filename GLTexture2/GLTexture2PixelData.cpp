@@ -122,7 +122,8 @@ GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenu
   :
   GLTexture2PixelData(format, type),
   m_readable_raw_pixel_data(readable_and_writeable_raw_pixel_data),
-  m_writeable_raw_pixel_data(readable_and_writeable_raw_pixel_data)
+  m_writeable_raw_pixel_data(readable_and_writeable_raw_pixel_data),
+  m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
 {
   if (readable_and_writeable_raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
     throw std::invalid_argument("if readable_and_writeable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
