@@ -171,31 +171,33 @@ void OSWindowMac::SetFocus(void) {
     if (!pid) {
       return;
     }
-    //
-    // An AppleScript implementation
-    //
-    // First make the window the top-level window for the application
-    std::ostringstream oss;
-    oss << "tell application \"System Events\"\n"
-        << "\tset appName to name of item 1 of (processes whose unix id is " << pid << ")\n"
-        << "\ttell my application appName\n"
-        << "\t\tset theWindow to window id " << m_windowID << "\n"
-        << "\t\ttell theWindow\n"
-        << "\t\t\tif index of theWindow is not 1 then\n"
-        << "\t\t\t\tset index to 1\n"
-        << "\t\t\t\tset visible to false\n"
-        << "\t\t\tend if\n"
-        << "\t\t\tset visible to true\n"
-        << "\t\tend tell\n"
-        << "\tend tell\n"
-        << "end tell\n";
-    @try {
-      NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
-      NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
-      NSDictionary* errInfo = nullptr;
-      [as executeAndReturnError:&errInfo];
+    if (m_app) {
+      //
+      // An AppleScript implementation
+      //
+      // First make the window the top-level window for the application
+      std::ostringstream oss;
+      oss << "tell application \"" << m_app->GetAppName() << "\"\n"
+          << "\tset theWindow to window id " << m_windowID << "\n"
+          << "\ttell theWindow\n"
+          << "\t\tif index of theWindow is not 1 then\n"
+          << "\t\t\tset index to 1\n"
+          << "\t\t\tset visible to false\n"
+          << "\t\tend if\n"
+          << "\t\tset visible to true\n"
+          << "\tend tell\n"
+          << "end tell\n";
+      @try {
+        NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
+        NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
+        NSDictionary* errInfo = nullptr;
+        [as executeAndReturnError:&errInfo];
+        if (errInfo) {
+          NSLog(@"Warning: %@\n",errInfo);
+        }
+      }
+      @catch (NSException*) {}
     }
-    @catch (NSException*) {}
     // Then bring the application to front
     [[NSRunningApplication runningApplicationWithProcessIdentifier:pid]
      activateWithOptions:NSApplicationActivateIgnoringOtherApps];
