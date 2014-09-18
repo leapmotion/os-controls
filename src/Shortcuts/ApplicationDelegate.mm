@@ -38,8 +38,8 @@
   _isInitialized = YES;
 
   // Load config settings
-  Autowired<Config> config;
-  config.NotifyWhenAutowired([] {
+  AutoCurrentContext ctxt;
+  ctxt->NotifyWhenAutowired<Config>([self] {
     AutowiredFast<Config> cfg;
     if (cfg) {
       std::string path = "./";
@@ -55,6 +55,11 @@
       path += "Shortcuts.json";
       cfg->SetPrimaryFile(path);
       cfg->RebroadcastConfig();
+
+      if (cfg->Get<bool>("showHelpOnStart")) {
+        [_menubarController onHelp:nil];
+        cfg->Set("showHelpOnStart", false);
+      }
     }
   });
 }

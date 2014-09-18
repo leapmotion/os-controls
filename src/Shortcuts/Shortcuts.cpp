@@ -27,18 +27,18 @@ int main(int argc, char **argv)
   AutoCurrentContext ctxt;
   
   ctxt->Initiate();
+  AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
 
   try {
     AutoCreateContextT<ShortcutsContext> shortcutsCtxt;
     shortcutsCtxt->Initiate();
     CurrentContextPusher pshr(shortcutsCtxt);
+    AutoRequired<HtmlPageLauncher>(); //needs to exist before the native ui so we can launch the help page on startup.
     AutoRequired<NativeUI> nativeUI;
 
     // Register the tray icon early in the process, before we spend a bunch of time doing everything else
     nativeUI->ShowUI();
     auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
-
-    AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
 
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
-    AutoRequired<HtmlPageLauncher>();
+    
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();

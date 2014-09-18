@@ -1,5 +1,6 @@
 #pragma once
 #include "NativeUI.h"
+#include <msclr/marshal_cppstd.h>
 
 struct NativeUI;
 
@@ -52,8 +53,22 @@ namespace Shortcuts {
     static NativeUIWin^ s_nativeUI;
 
     static void AddTrayIcon(NativeUI& callbacks) {
-      if(!s_nativeUIInitCount++)
+      if (!s_nativeUIInitCount++)
+      {
         s_nativeUI = gcnew NativeUIWin(callbacks);
+
+        String^ appData = Environment::GetFolderPath(Environment::SpecialFolder::ApplicationData);
+        String^ newDir = System::IO::Path::Combine(appData, L"Leap Motion\\Shortcuts");
+        if( !System::IO::Directory::Exists(newDir) )
+          System::IO::Directory::CreateDirectory(newDir);
+
+        String^ configFile = System::IO::Path::Combine(newDir, L"config.json");
+        msclr::interop::marshal_context ctxt;
+        std::string str = ctxt.marshal_as<std::string>(configFile);
+        callbacks.SetUserConfigFile(str);
+        callbacks.RequestConfigs();
+      }
+        
     }
 
     static void RemoveTrayIcon(void) {
@@ -74,6 +89,12 @@ namespace Shortcuts {
         s_nativeUI->exposeCheckBox->Checked = value;
       else if (var == "enableMedia")
         s_nativeUI->mediaCheckBox->Checked = value;
+      else if (var == "showHelpOnStart") {
+        if (value) {
+          s_nativeUI->callbacks.OnShowHtmlHelp("main");
+          s_nativeUI->callbacks.OnSettingChanged("showHelpOnStart", false);
+        }
+      }
     }
 
 	protected:
