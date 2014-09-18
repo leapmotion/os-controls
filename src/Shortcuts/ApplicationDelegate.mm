@@ -38,8 +38,8 @@
   _isInitialized = YES;
 
   // Load config settings
-  Autowired<Config> config;
-  config.NotifyWhenAutowired([self] {
+  AutoCurrentContext ctxt;
+  ctxt.NotifyWhenAutowired<Config>([self] {
     AutowiredFast<Config> cfg;
     if (cfg) {
       std::string path = "./";
