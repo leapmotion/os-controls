@@ -74,6 +74,7 @@ public:
   
   void InitGlew();
 
+  void InitHMD();
   bool Init();
   void Destroy();
 

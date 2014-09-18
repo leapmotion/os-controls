@@ -64,7 +64,7 @@ public:
 
   const SDLControllerParams& GetParams() const { return m_Params; }
   void ToggleFullscreen();
-  
+  void ResizeWindow(int width, int height);
   Uint32 GetWindowID();
 
 #if _WIN32

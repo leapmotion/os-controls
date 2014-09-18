@@ -244,6 +244,13 @@ void SDLController::CleanUpInitializedResources() {
   SDL_Quit();
 }
 
+void SDLController::ResizeWindow(int width, int height){
+  if (m_SDL_Window == nullptr) {
+    throw std::runtime_error("Error resizing SDL window");
+  }
+  SDL_SetWindowSize(m_SDL_Window, width, height);
+}
+
 Uint32 SDLController::GetWindowID(){
   if (m_SDL_Window == nullptr) {
     throw std::runtime_error("Error getting SDL window ID");
