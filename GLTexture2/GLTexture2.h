@@ -11,6 +11,7 @@
 // not, and is only used to pass in data for texel-loading operations.
 class GLTexture2 {
 public:
+  
   GLTexture2(const GLTexture2& rhs) = delete;
 
   // TODO: make GLTexture2-specific std::exception subclass?
@@ -34,7 +35,9 @@ public:
   void Unbind () const { glBindTexture(m_params.Target(), 0); }
 
   // Updates the contents of this texture from the specified pixel data.
-  void UpdateTexture(const GLTexture2PixelData &pixel_data);
+  void UpdateTexture (const GLTexture2PixelData &pixel_data);
+  // Extracts the contents of this texture to the specified pixel data.
+  void ExtractTexture (GLTexture2PixelData &pixel_data);
   
 private:
 

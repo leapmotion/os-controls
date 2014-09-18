@@ -28,14 +28,19 @@ public:
   GLTexture2PixelData (GLenum format, GLenum type);
   virtual ~GLTexture2PixelData () { }
 
-  bool IsEmpty () const { return RawData() == nullptr; }
   GLenum Format () const { return m_format; }
   GLenum Type () const { return m_type; }
   
-  // Returns a "flattened" array of data which will be interpreted in the way specified
-  // by Format() and Type().  "Flattened" means that all the components are contiguous in
-  // the array, e.g. RGBARGBARGBA...
-  virtual const void *RawData () const = 0;
+  // Returns true if and only if this object refers to no data.
+  virtual bool IsEmpty () const = 0;
+  // Returns nullptr if this is not a readable pixel data object, otherwise a const "flattened"
+  // array of data which will be interpreted in the way specified by Format() and Type().
+  // "Flattened" means that all the components are contiguous in the array, e.g. RGBARGBARGBA...
+  virtual const void *ReadableRawData () const = 0;
+  // Returns nullptr if this is not a writeable pixel data object, otherwise a non-const
+  // "flattened" array of data which will be interpreted in the way specified by Format() and
+  // Type().  "Flattened" means that all the components are contiguous in the array, e.g. RGBARGBARGBA...
+  virtual void *WriteableRawData () = 0;
   // Returns the number of bytes of data in the array returned by RawData.
   virtual size_t RawDataByteCount () const = 0;
 
@@ -65,7 +70,9 @@ public:
   GLTexture2PixelDataEmpty() : GLTexture2PixelData(GL_RGBA, GL_UNSIGNED_BYTE) { } // These are arbitrary but must be valid.
   virtual ~GLTexture2PixelDataEmpty() { }
   
-  virtual const void *RawData () const override { return nullptr; }
+  virtual bool IsEmpty () const override { return true; }
+  virtual const void *ReadableRawData () const override { return nullptr; }
+  virtual void *WriteableRawData () override { return nullptr; }
   virtual size_t RawDataByteCount () const override { return 0; }
 };
 
@@ -78,17 +85,13 @@ public:
 class GLTexture2PixelDataReference : public GLTexture2PixelData {
 public:
 
-  GLTexture2PixelDataReference (GLenum format, GLenum type, const void *raw_pixel_data, size_t raw_pixel_data_byte_count)
-    :
-    GLTexture2PixelData(format, type),
-    m_raw_pixel_data(raw_pixel_data),
-    m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
-  {
-    if (raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
-      throw std::invalid_argument("if raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
-    }
-    // TODO: checks for validity in the type and format arguments?
-  }
+  // Construct this object with only a readable raw data pointer.  WriteableRawData will return nullptr.
+  GLTexture2PixelDataReference (GLenum format, GLenum type, const void *readable_raw_pixel_data, size_t raw_pixel_data_byte_count);
+  // Construct this object with a readable and writeable raw data pointer.  Both ReadableRawData
+  // and WriteableRawData will return this pointer.
+  GLTexture2PixelDataReference (GLenum format, GLenum type, void *readable_and_writeable_raw_pixel_data, size_t raw_pixel_data_byte_count);
+
+  // Construct this object with only a readable pointer to the given std::vector.  WriteableRawData will return nullptr.
   template <typename Pixel_>
   GLTexture2PixelDataReference (GLenum format, GLenum type, const std::vector<Pixel_> &pixel_data)
     :
@@ -98,13 +101,27 @@ public:
       throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
     }
   }
+  // Construct this object with a readable and writeable pointer to the given std::vector.  Both ReadableRawData
+  // and WriteableRawData will return this pointer.
+  template <typename Pixel_>
+  GLTexture2PixelDataReference (GLenum format, GLenum type, std::vector<Pixel_> &pixel_data)
+    :
+    GLTexture2PixelDataReference(format, type, static_cast<void *>(pixel_data.data()), pixel_data.size()*sizeof(Pixel_))
+  {
+    if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
+      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+    }
+  }
 
-  virtual const void *RawData () const override { return m_raw_pixel_data; }
+  virtual bool IsEmpty () const override { return m_readable_raw_pixel_data == nullptr && m_writeable_raw_pixel_data == nullptr; }
+  virtual const void *ReadableRawData () const override { return m_readable_raw_pixel_data; }
+  virtual void *WriteableRawData () override { return m_writeable_raw_pixel_data; }
   virtual size_t RawDataByteCount () const override { return m_raw_pixel_data_byte_count; }
   
 private:
 
-  const void *m_raw_pixel_data;
+  const void *m_readable_raw_pixel_data;
+  void *m_writeable_raw_pixel_data;
   size_t m_raw_pixel_data_byte_count;
 };
 
@@ -134,15 +151,26 @@ public:
   const std::vector<Pixel_> &RawPixels () const { return m_raw_pixels; }
   // Non-const accessor for the vector of raw pixel data.  Do not modify its length; only its contents.
   std::vector<Pixel_> &RawPixels () { return m_raw_pixels; }
-  
-  // Returns a pointer to the raw pixel data.  If the raw pixel vector has been altered in length (which
+
+  // Returns true if and only if the raw pixel count is zero.
+  virtual bool IsEmpty () const override { return m_raw_pixel_count == 0; }
+  // Returns a pointer to the readable raw pixel data.  If the raw pixel vector has been altered in length (which
   // is a big no-no), this method will throw an exception.
-  virtual const void *RawData () const override {
+  virtual const void *ReadableRawData () const override {
     // Ensure that the m_raw_pixels vector still has the correct size.
     if (m_raw_pixels.size() != m_raw_pixel_count) {
       throw std::runtime_error("The vector containing the raw pixel data has been resized, which is a prohibited operation");
     }
     return static_cast<const void *>(m_raw_pixels.data());
+  }
+  // Returns a pointer to the writeable raw pixel data.  If the raw pixel vector has been altered in length (which
+  // is a big no-no), this method will throw an exception.
+  virtual void *WriteableRawData () override {
+    // Ensure that the m_raw_pixels vector still has the correct size.
+    if (m_raw_pixels.size() != m_raw_pixel_count) {
+      throw std::runtime_error("The vector containing the raw pixel data has been resized, which is a prohibited operation");
+    }
+    return static_cast<void *>(m_raw_pixels.data());
   }
   virtual size_t RawDataByteCount () const override { return m_raw_pixels.size()*sizeof(Pixel_); }
 

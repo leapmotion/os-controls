@@ -2,6 +2,10 @@
 
 #include <stdexcept>
 
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+// GLTexture2PixelData
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+
 // TODO: somehow make this less version-specific (?), or come up with a version-agnostic way
 // to determine the size of each pixel from given pixel data format and type.
 size_t GLTexture2PixelData::ComponentsInFormat (GLenum format) {
@@ -69,7 +73,8 @@ GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type)
   m_format(format),
   m_type(type)
 {
-  // TODO: checks for validity
+  // The following calls do checks for validity (basically checking that the format and type are each valid
+  // in the sense that they're acceptable values for OpenGL 2.1 or OpenGL 3.3).
   size_t bytes_in_pixel = ComponentsInFormat(format)*BytesInType(type);
   // NOTE: TEMPORARY hacky handling of GL_UNPACK_ALIGNMENT, so that the assumption that all pixel
   // data is layed out contiguously in the raw pixel data is correct (it isn't necessarily, as
@@ -77,7 +82,7 @@ GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type)
   if (bytes_in_pixel % 4 != 0) {
     // The default is 4, so if our pixels don't align to 4 bytes, just hackily set it to 1.
     // This probably slows things down a bit, so TODO this should be re-engineered correctly later.
-    SetPixelStoreiParameter(GL_UNPACK_ALIGNMENT, 1);
+//     SetPixelStoreiParameter(GL_UNPACK_ALIGNMENT, 1);
     // If this value is overridden, it's assumed that the overrider knows what they're doing.
   }
 }
@@ -94,4 +99,34 @@ GLint GLTexture2PixelData::PixelStoreiParameter (GLenum pname) const {
 void GLTexture2PixelData::SetPixelStoreiParameter (GLenum pname, GLint param) {
   // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
   m_pixel_store_i_parameter[pname] = param;
+}
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+// GLTexture2PixelDataReference
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+
+GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenum type, const void *readable_raw_pixel_data, size_t raw_pixel_data_byte_count)
+  :
+  GLTexture2PixelData(format, type),
+  m_readable_raw_pixel_data(readable_raw_pixel_data),
+  m_writeable_raw_pixel_data(nullptr),
+  m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
+{
+  if (readable_raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
+    throw std::invalid_argument("if readable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
+  }
+  // TODO: checks for validity in the type and format arguments?
+}
+
+GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenum type, void *readable_and_writeable_raw_pixel_data, size_t raw_pixel_data_byte_count)
+  :
+  GLTexture2PixelData(format, type),
+  m_readable_raw_pixel_data(readable_and_writeable_raw_pixel_data),
+  m_writeable_raw_pixel_data(readable_and_writeable_raw_pixel_data),
+  m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
+{
+  if (readable_and_writeable_raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
+    throw std::invalid_argument("if readable_and_writeable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
+  }
+  // TODO: checks for validity in the type and format arguments?
 }
