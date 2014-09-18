@@ -80,10 +80,12 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
         pixel_data_format = GL_LUMINANCE;
         internal_format = GL_RGB;
       } else if (bpp == 24) {
-        pixel_data_format = GL_RGB;
+        // See FreeImage.h (and FreeImage docs under Pixel access functions / Color model)
+        pixel_data_format = (FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR) ? GL_BGR : GL_RGB;
         internal_format = GL_RGB8;
       } else if (bpp == 32) {
-        pixel_data_format = GL_RGBA;
+        // See FreeImage.h (and FreeImage docs under Pixel access functions / Color model)
+        pixel_data_format = (FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR) ? GL_BGRA : GL_RGBA;
         internal_format = GL_RGBA8;
       } else {
         throw std::runtime_error("unsupported bits-per-pixel; only 8, 24 and 32 bpp are supported");
@@ -144,6 +146,7 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
 
     case FIT_RGB16:
       assert(bpp == 48 && "unexpected bpp value");
+      // The RGB/BGR order consideration only applies to 24 and 32 bit formats (see FreeImage.h near FREEIMAGE_COLORORDER)
       pixel_data_format = GL_RGB;
       pixel_data_type = GL_UNSIGNED_SHORT;
       internal_format = GL_RGB16;
@@ -151,6 +154,7 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
 
     case FIT_RGBA16:
       assert(bpp == 64 && "unexpected bpp value");
+      // The RGB/BGR order consideration only applies to 24 and 32 bit formats (see FreeImage.h near FREEIMAGE_COLORORDER)
       pixel_data_format = GL_RGBA;
       pixel_data_type = GL_UNSIGNED_SHORT;
       internal_format = GL_RGBA16;
@@ -158,6 +162,7 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
 
     case FIT_RGBF:
       assert(bpp == 96 && "unexpected bpp value");
+      // The RGB/BGR order consideration only applies to 24 and 32 bit formats (see FreeImage.h near FREEIMAGE_COLORORDER)
       pixel_data_format = GL_RGB;
       pixel_data_type = GL_FLOAT;
       internal_format = GL_RGB32F_ARB;
@@ -165,6 +170,7 @@ GLTexture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2P
 
     case FIT_RGBAF:
       assert(bpp == 128 && "unexpected bpp value");
+      // The RGB/BGR order consideration only applies to 24 and 32 bit formats (see FreeImage.h near FREEIMAGE_COLORORDER)
       pixel_data_format = GL_RGBA;
       pixel_data_type = GL_FLOAT;
       internal_format = GL_RGBA32F_ARB;
