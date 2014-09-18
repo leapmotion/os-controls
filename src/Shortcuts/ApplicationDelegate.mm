@@ -39,7 +39,7 @@
 
   // Load config settings
   AutoCurrentContext ctxt;
-  ctxt.NotifyWhenAutowired<Config>([self] {
+  ctxt->NotifyWhenAutowired<Config>([self] {
     AutowiredFast<Config> cfg;
     if (cfg) {
       std::string path = "./";
