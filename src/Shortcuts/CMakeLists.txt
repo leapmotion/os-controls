@@ -103,6 +103,7 @@ target_include_directories(Shortcuts PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_package(Shortcuts Leap REQUIRED)
 target_package(Shortcuts SFML 2.1 REQUIRED)
+set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES})
 
 if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
@@ -112,6 +113,7 @@ elseif(APPLE)
   set_target_properties(Shortcuts PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Shortcuts/Shortcuts.plist.in)
 endif()
+
 
 foreach(_resource ${Shortcuts_RESOURCES})
   if(WIN32)
@@ -151,6 +153,5 @@ endif()
 # Install commands for the Resources
 install(TARGETS Shortcuts
   RUNTIME DESTINATION "."
+  RESOURCE DESTINATION "." #ignored on Apple platforms
 )
-
-install(FILES ${Shortcuts_RESOURCES} DESTINATION ".")
