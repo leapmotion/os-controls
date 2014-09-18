@@ -73,7 +73,9 @@ bool Config::Load(const std::string& filename, bool overwrite) {
 void Config::RebroadcastConfig(){
   std::unique_lock<std::mutex> lock(m_mutex);
   for (auto& entry : m_data) {
+    lock.unlock();
     m_events(&ConfigEvent::ConfigChanged)(entry.first, entry.second);
+    lock.lock();
   }
 }
 

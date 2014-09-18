@@ -22,8 +22,8 @@ DartConfiguration.tcl
 build/
 **/CMakeScripts
 **/*.xcodeproj
-src/oscontrols/*.glsl
-src/oscontrols/*.svg
+src/Shortcuts/*.glsl
+src/Shortcuts/*.svg
 Testing/*
 os-controls.sublime-project
 src/config/moc_config.cpp_parameters
@@ -36,4 +36,4 @@ src/config/ui_configwindow.h
 bin/platforms/*
 *.autosave
 *.aps
-src/oscontrols/Version.h
+src/Shortcuts/Version.h

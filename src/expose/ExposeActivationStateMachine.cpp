@@ -45,9 +45,9 @@ void ExposeActivationStateMachine::AutoInit() {
   m_rootNode->Add(shared_from_this());
 }
 
-void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime) {
+void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const HandData& handData, const FrameTime& frameTime) {
   // State Transitions
-  if (appState == OSCState::FINAL && m_state != State::FINAL) {
+  if (appState == ShortcutsState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
     return;
   }
@@ -56,7 +56,7 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
   {
     case State::INACTIVE:
       //Transition to ACTIVE
-      if(appState == OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
+      if(appState == ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED) {
         m_goalBottomY.SetGoal(GOAL_BOTTOM_Y);
         m_pusherBottomY.SetGoal(PUSHER_BOTTOM_Y);
         m_state = State::ACTIVE;
@@ -64,13 +64,13 @@ void ExposeActivationStateMachine::AutoFilter(OSCState appState, const HandData&
       break;
     case State::ACTIVE:
       //Transition to INACTIVE
-      if(appState != OSCState::EXPOSE_ACTIVATOR_FOCUSED) {
+      if(appState != ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED) {
         transitionToInactive();
       }
       break;
     case State::COMPLETE:
       //TRANSITION TO INACTIVE
-      if(appState != OSCState::EXPOSE_ACTIVATOR_FOCUSED && appState != OSCState::EXPOSE_FOCUSED) {
+      if(appState != ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED && appState != ShortcutsState::EXPOSE_FOCUSED) {
         transitionToInactive();
       }
       break;
@@ -135,7 +135,7 @@ void ExposeActivationStateMachine::transitionToInactive() {
 }
 
 void ExposeActivationStateMachine::resolveSelection() {
-  m_stateChangeEvent(&OSCStateChangeEvent::RequestTransition)(OSCState::EXPOSE_FOCUSED);
+  m_stateChangeEvent(&ShortcutsStateChangeEvent::RequestTransition)(ShortcutsState::EXPOSE_FOCUSED);
 }
 
 void ExposeActivationStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {

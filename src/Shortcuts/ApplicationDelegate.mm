@@ -38,21 +38,28 @@
   _isInitialized = YES;
 
   // Load config settings
-  Autowired<Config> config;
-  config.NotifyWhenAutowired([] {
+  AutoCurrentContext ctxt;
+  ctxt->NotifyWhenAutowired<Config>([self] {
     AutowiredFast<Config> cfg;
     if (cfg) {
-      NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-      NSString *applicationSupportDirectory = [paths objectAtIndex:0];
-      const char* c_str = [applicationSupportDirectory UTF8String];
       std::string path = "./";
-      if (c_str) {
-        path = std::string(c_str);
-        path += "/Leap Motion/";
+      @autoreleasepool {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSString *applicationSupportDirectory = [paths objectAtIndex:0];
+        const char* c_str = [applicationSupportDirectory UTF8String];
+        if (c_str) {
+          path = std::string(c_str);
+          path += "/Leap Motion/";
+        }
       }
-      path += "oscontrols.json";
+      path += "Shortcuts.json";
       cfg->SetPrimaryFile(path);
       cfg->RebroadcastConfig();
+
+      if (cfg->Get<bool>("showHelpOnStart")) {
+        [_menubarController onHelp:nil];
+        cfg->Set("showHelpOnStart", false);
+      }
     }
   });
 }

@@ -4,7 +4,7 @@
 #include "osinterface/OSApp.h"
 #include "graphics/RenderFrame.h"
 
-const double ExposeViewWindow::VIEW_ANIMATION_TIME = 0.75;
+const double ExposeViewWindow::VIEW_ANIMATION_TIME = 1.0;
 
 static float getRandomVariation(float radius) {
   const float randNum = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
@@ -18,11 +18,9 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_highlight(new RectanglePrim),
   m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>)
 {
-  const float baseSmooth = 0.825f;
-
   m_opacity.SetInitialValue(0.0f);
   m_opacity.SetGoal(0.0f);
-  m_opacity.SetSmoothStrength(baseSmooth);
+  m_opacity.SetSmoothStrength(0.825f);
   m_opacity.Update(0.0f);
 
 #if 0
@@ -36,7 +34,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
 
   m_scale.SetInitialValue(0.0f);
   m_scale.SetGoal(0.0f);
-  m_scale.SetSmoothStrength(baseSmooth);
+  m_scale.SetSmoothStrength(0.825f);
   m_scale.Update(0.0f);
 
   m_activation.SetInitialValue(0.0f);
@@ -61,7 +59,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
 
   m_forceDelta.SetGoal(Vector3::Zero());
   m_forceDelta.SetInitialValue(Vector3::Zero());
-  m_forceDelta.SetSmoothStrength(baseSmooth);
+  m_forceDelta.SetSmoothStrength(0.75f);
   m_forceDelta.Update(0.0f);
 }
 
@@ -72,14 +70,20 @@ void ExposeViewWindow::UpdateTexture(void) {
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
-  static const Vector3 DROP_SHADOW_OFFSET(5, 10, 0);
-  static const double DROP_SHADOW_RADIUS = 200.0;
-  static const float DROP_SHADOW_OPACITY = 0.35f;
+  static const Vector3 DROP_SHADOW_OFFSET(3, 5, 0);
+  static const double DROP_SHADOW_RADIUS = 30.0;
+  static const float DROP_SHADOW_OPACITY = 0.4f;
+#if __APPLE__
+  const float opacity = DROP_SHADOW_OPACITY;
+#else
+  const float transition = static_cast<float>(m_position.Completion());
+  const float opacity = DROP_SHADOW_OPACITY * (m_closing ? 1.0f - transition : transition);
+#endif
   m_dropShadow->Translation() = m_texture->Translation() + DROP_SHADOW_OFFSET;
   m_dropShadow->SetBasisRectangleSize(m_texture->Size());
   m_dropShadow->LinearTransformation() = m_texture->LinearTransformation();
   m_dropShadow->SetShadowRadius(DROP_SHADOW_RADIUS);
-  m_dropShadow->LocalProperties().AlphaMask() = DROP_SHADOW_OPACITY * m_texture->LocalProperties().AlphaMask();
+  m_dropShadow->LocalProperties().AlphaMask() = opacity * m_texture->LocalProperties().AlphaMask();
   PrimitiveBase::DrawSceneGraph(*m_dropShadow, frame.renderState);
 
   static const double HIGHLIGHT_WIDTH = 50.0;
@@ -101,6 +105,8 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
 }
 
 void ExposeViewWindow::SetOpeningPosition() {
+  m_closing = false;
+
   m_opacity.SetInitialValue(1.0f);
   m_opacity.SetGoal(1.0f);
 
@@ -135,11 +141,13 @@ void ExposeViewWindow::SetOpeningPosition() {
   const float randomTimeVariation = 0.15f;
 
   m_position.SetImmediate(center);
-  m_position.Set(center, VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
+  m_position.Set(center, 0.95*VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
 #endif
 }
 
 void ExposeViewWindow::SetClosingPosition() {
+  m_closing = true;
+
   m_scale.SetGoal(1.0f);
 
   m_activation.SetGoal(0.0f);
@@ -159,7 +167,7 @@ void ExposeViewWindow::SetClosingPosition() {
   m_position.SetGoal(center);
 #else
   const float randomTimeVariation = 0.15f;
-  m_position.Set(center, VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
+  m_position.Set(center, 0.95*VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
 #endif
 }
 

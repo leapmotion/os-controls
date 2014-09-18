@@ -1,9 +1,9 @@
 #pragma once
 
 /// <summary>
-/// The set of possible states that the OS controls state machine can reside in
+/// The set of possible states that the Shortcuts state machine can reside in
 /// </summary>
-enum class OSCState {
+enum class ShortcutsState {
   // The ground state, no controls visible, do nothing special
   BASE,
 
@@ -22,38 +22,38 @@ enum class OSCState {
   FINAL
 };
 
-class OSCStateClass {
+class ShortcutsStateClass {
 protected:
-  OSCState m_state;
+  ShortcutsState m_state;
 
 public:
-  OSCStateClass() {
-    m_state = OSCState::BASE;
+  ShortcutsStateClass() {
+    m_state = ShortcutsState::BASE;
   }
 
-  operator OSCState&() {
+  operator ShortcutsState&() {
     return m_state;
   }
 
-  operator const OSCState&() const {
+  operator const ShortcutsState&() const {
     return m_state;
   }
 
-  OSCStateClass& operator = (const OSCState& rhs) {
+  ShortcutsStateClass& operator = (const ShortcutsState& rhs) {
     m_state = rhs;
     return *this;
   }
 };
 
-class OSCStateChangeEvent{
+class ShortcutsStateChangeEvent {
 public:
-  virtual void RequestTransition(OSCState requestedState) = 0;
+  virtual void RequestTransition(ShortcutsState requestedState) = 0;
 };
 
 /// <summary>
-/// The set of possible inputs to the OS controls state machine
+/// The set of possible inputs to the Shortcuts state machine
 /// </summary>
-enum class OSCInputs {
+enum class ShortcutsInputs {
   NoInput,
 
   // A selection of a wedge has taken place
@@ -68,24 +68,24 @@ enum class OSCInputs {
   FiveFingers
 };
 
-class OSCInputsClass {
+class ShortcutsInputsClass {
 protected:
-  OSCInputs m_inputs;
+  ShortcutsInputs m_inputs;
 
 public:
-  OSCInputsClass() {
-    m_inputs = OSCInputs::NoInput;
+  ShortcutsInputsClass() {
+    m_inputs = ShortcutsInputs::NoInput;
   }
 
-  operator OSCInputs&() {
+  operator ShortcutsInputs&() {
     return m_inputs;
   }
 
-  operator const OSCInputs&() const {
+  operator const ShortcutsInputs&() const {
     return m_inputs;
   }
 
-  OSCInputsClass& operator = (const OSCInputs& rhs) {
+  ShortcutsInputsClass& operator = (const ShortcutsInputs& rhs) {
     m_inputs = rhs;
     return *this;
   }

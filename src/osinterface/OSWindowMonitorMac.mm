@@ -54,13 +54,22 @@ void OSWindowMonitorMac::Scan() {
       if (windowID == 0) {
         continue;
       }
+
       // Check to see if this window may be an overlay window...
       if ([[entry objectForKey:(id)kCGWindowName] length] == 0) {
-        NSDictionary* windowBounds = [entry objectForKey:(id)kCGWindowBounds];
-        overlayBounds = NSZeroRect;
-        CGRectMakeWithDictionaryRepresentation(reinterpret_cast<CFDictionaryRef>(windowBounds), &overlayBounds);
-        overlayWindowID = (overlayBounds.size.width > 0 && overlayBounds.size.height > 0) ? windowID : 0;
-        continue;
+        // The assumption here is that only windows without names are overlay windows
+        NSRunningApplication* runningApp =
+          [NSRunningApplication
+             runningApplicationWithProcessIdentifier:[[entry objectForKey:(id)kCGWindowOwnerPID] intValue]];
+
+        // Only launched applications will have a launch date. Otherwise, we are assuming that it is an overlay.
+        if ([runningApp launchDate] == nil) {
+          NSDictionary* windowBounds = [entry objectForKey:(id)kCGWindowBounds];
+          overlayBounds = NSZeroRect;
+          CGRectMakeWithDictionaryRepresentation(reinterpret_cast<CFDictionaryRef>(windowBounds), &overlayBounds);
+          overlayWindowID = (overlayBounds.size.width > 0 && overlayBounds.size.height > 0) ? windowID : 0;
+          continue;
+        }
       }
       CGPoint overlayOffset = NSZeroPoint;
       if (overlayWindowID) { // ...or if it is possibly the parent of an overlay window

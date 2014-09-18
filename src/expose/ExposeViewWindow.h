@@ -58,6 +58,8 @@ private:
   // Highlight
   std::shared_ptr<RectanglePrim> m_highlight;
 
+  bool m_closing;
+
 public:
   /// <summary>
   /// Causes this window to attempt to update its texture from the underlying OSWindow

@@ -1,6 +1,6 @@
 //
-//  osControlConfigs.h
-//  oscontrols
+//  ShortcutsConfigs.h
+//  Shortcuts
 //
 //  Created by Daniel Plemmons on 8/18/14.
 //

@@ -15,7 +15,7 @@
 
 struct HandData;
 struct FrameTime;
-enum class OSCState;
+enum class ShortcutsState;
 
 class Config;
 
@@ -23,7 +23,7 @@ class Config;
 /// The central state machine concept
 /// </summary>
 /// <remarks>
-/// This state machine has global knowledge of all interior components of the OS controls
+/// This state machine has global knowledge of all interior components of the Shortcuts
 /// interaction system.  It is a top-level system, and 
 /// </remarks>
 
@@ -31,16 +31,16 @@ class StateMachine:
   public ContextMember,
   public Updatable,
   public HandEventListener,
-  public OSCStateChangeEvent
+  public ShortcutsStateChangeEvent
 {
 public:
   StateMachine(void);
   ~StateMachine(void);
   
-  void AutoFilter(const HandData& handData, const FrameTime& frameTime, OSCState& state);
+  void AutoFilter(const HandData& handData, const FrameTime& frameTime, ShortcutsState& state);
   
   void OnHandVanished() override;
-  void RequestTransition(OSCState requestedState) override;
+  void RequestTransition(ShortcutsState requestedState) override;
 
   // Updatable overrides:
   void Tick(std::chrono::duration<double> deltaT) override;
@@ -48,12 +48,12 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  OSCState validateTransition(OSCState to) const;
+  ShortcutsState validateTransition(ShortcutsState to) const;
   void performNextTransition();
 
   bool pointIsOnScreen(const Vector2& point) const;
 
-  OSCState resolvePose(HandPose pose) const;
+  ShortcutsState resolvePose(HandPose pose) const;
   
   bool initializeScroll(const Vector2& scrollPosition); // returns if the initialization was sucessful
   void doHandScroll(const Scroll& scroll, const HandLocation& handLocation);
@@ -61,8 +61,8 @@ private:
 
   std::mutex m_lock;
 
-  OSCState m_state;
-  std::queue<OSCState> m_desiredTransitions;
+  ShortcutsState m_state;
+  std::queue<ShortcutsState> m_desiredTransitions;
   
   enum class ScrollType {
     HAND_SCROLL,

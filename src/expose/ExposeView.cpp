@@ -161,7 +161,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRadius = 0.5 * m_layoutRadius;
 
   const Vector2 screenToFullScale = size.cwiseQuotient(fullSize);
-  const double radiusPerWindow = 0.4 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
+  const double radiusPerWindow = 0.5 * m_layoutRadius * std::sin(std::min(M_PI/2.0, M_PI / static_cast<double>(m_windows.size())));
 
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
@@ -222,8 +222,8 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegionActive->SetRadius(m_selectionRadius);
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
-  float alphaMask = SmootherStep(std::min(1.0f, 5.0f * m_alphaMask.Current()));
-  m_backgroundImage->LocalProperties().AlphaMask() = alphaMask;
+  const float alphaMask = m_alphaMask.Current() > 0.00001 ? 1.0f : 0.0f;
+  m_backgroundImage->Material().SetAmbientLightColor(Color(alphaMask, alphaMask, alphaMask, alphaMask));
 
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     Vector3 center(Vector3::Zero());
@@ -373,7 +373,7 @@ void ExposeView::updateForces(std::chrono::duration<double> dt) {
   m_forces.clear();
   // activation forces
   static const double MAX_RADIUS_MULT = 1.0;
-  static const double FORCE_DISTANCE_MULT = 0.2;
+  static const double FORCE_DISTANCE_MULT = 0.15;
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;

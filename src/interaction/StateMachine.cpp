@@ -2,7 +2,7 @@
 #include "StateMachine.h"
 #include "InteractionConfigs.h"
 #include "interaction/HandDataCombiner.h"
-#include "uievents/OSCDomain.h"
+#include "uievents/ShortcutsDomain.h"
 
 #include "osinterface/OSCursor.h"
 #include "osinterface/OSVirtualScreen.h"
@@ -14,7 +14,7 @@
 
 StateMachine::StateMachine(void) :
   ContextMember("StateMachine"),
-  m_state(OSCState::BASE),
+  m_state(ShortcutsState::BASE),
   m_scrollType(ScrollType::PINCH_SCROLL),
   m_handDelta(0.0,0.0),
   m_lastHandLocation(0.0f,0.0f),
@@ -35,10 +35,10 @@ StateMachine::~StateMachine(void)
 }
 
 // Transition Checking Loop
-void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTime, OSCState& state) {
+void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTime, ShortcutsState& state) {
   std::lock_guard<std::mutex> lk(m_lock);
 
-  if(m_state == OSCState::FINAL) {
+  if(m_state == ShortcutsState::FINAL) {
     return;
   }
   
@@ -46,15 +46,15 @@ void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTi
   
   // Check for normal transitions depending on our current state.
   // Define possible State Transitions
-  OSCState desiredState = m_state;
+  ShortcutsState desiredState = m_state;
   switch(m_state) {
-    case OSCState::BASE:
-    case OSCState::EXPOSE_ACTIVATOR_FOCUSED:
-    case OSCState::MEDIA_MENU_FOCUSED:
+    case ShortcutsState::BASE:
+    case ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED:
+    case ShortcutsState::MEDIA_MENU_FOCUSED:
       desiredState = resolvePose(handData.handPose);
       break;
-    case OSCState::EXPOSE_FOCUSED:
-    case OSCState::FINAL: //Here for completeness. We should never ever hit this one.
+    case ShortcutsState::EXPOSE_FOCUSED:
+    case ShortcutsState::FINAL: //Here for completeness. We should never ever hit this one.
     default:
       //Don't do anything. Transitions from these states are event driven.
       break;
@@ -83,29 +83,29 @@ void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTi
 }
 
 //returns 'to' if a valid transition, or the alternative state if not.
-OSCState StateMachine::validateTransition(OSCState to) const {
+ShortcutsState StateMachine::validateTransition(ShortcutsState to) const {
   const bool enableWS = m_config->Get<bool>("enableWindowSelection");
   const bool enableScroll = m_config->Get<bool>("enableScroll");
   const bool enableMedia = m_config->Get<bool>("enableMedia");
   
-  if (!enableMedia && to == OSCState::MEDIA_MENU_FOCUSED)
+  if (!enableMedia && to == ShortcutsState::MEDIA_MENU_FOCUSED)
     return m_state;
 
-  if (!enableWS && to == OSCState::EXPOSE_ACTIVATOR_FOCUSED)
+  if (!enableWS && to == ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED)
     return m_state;
 
-  if (!enableScroll && to == OSCState::SCROLLING)
+  if (!enableScroll && to == ShortcutsState::SCROLLING)
     return m_state;
 
-  if ( to == OSCState::SCROLLING && (m_state != OSCState::BASE || !pointIsOnScreen(m_lastHandLocation)) ) {
+  if ( to == ShortcutsState::SCROLLING && (m_state != ShortcutsState::BASE || !pointIsOnScreen(m_lastHandLocation)) ) {
     return m_state;
   }
-  else if (to == OSCState::MEDIA_MENU_FOCUSED || to == OSCState::EXPOSE_ACTIVATOR_FOCUSED ) {
-    if (to == OSCState::MEDIA_MENU_FOCUSED && m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
+  else if (to == ShortcutsState::MEDIA_MENU_FOCUSED || to == ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED ) {
+    if (to == ShortcutsState::MEDIA_MENU_FOCUSED && m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
       return m_state;
     }
     
-    if ( m_state == OSCState::SCROLLING || m_lastScrollReleaseTimestep <= 1000000 || !pointIsOnScreen(m_lastHandLocation)) {
+    if ( m_state == ShortcutsState::SCROLLING || m_lastScrollReleaseTimestep <= 1000000 || !pointIsOnScreen(m_lastHandLocation)) {
       return m_state;
     }
   }
@@ -118,7 +118,7 @@ void StateMachine::performNextTransition() {
     return;
   }
   
-  OSCState desiredState = m_desiredTransitions.front();
+  ShortcutsState desiredState = m_desiredTransitions.front();
   m_desiredTransitions.pop();
   
   desiredState = validateTransition(desiredState);
@@ -127,17 +127,17 @@ void StateMachine::performNextTransition() {
     return;
   }
   
-  if (desiredState == OSCState::FINAL) {
-    if (m_state == OSCState::SCROLLING ) {
+  if (desiredState == ShortcutsState::FINAL) {
+    if (m_state == ShortcutsState::SCROLLING ) {
       m_scrollOperation.reset();
     }
   }
-  else if (desiredState == OSCState::EXPOSE_FOCUSED){
-    if ( m_state == OSCState::SCROLLING ) {
+  else if (desiredState == ShortcutsState::EXPOSE_FOCUSED){
+    if ( m_state == ShortcutsState::SCROLLING ) {
       m_scrollOperation.reset();
     }
   }
-  else if (desiredState == OSCState::SCROLLING) {
+  else if (desiredState == ShortcutsState::SCROLLING) {
     bool didStartScroll = false;
     if (m_cursorView) {
       didStartScroll = initializeScroll(m_cursorView->GetCalculatedLocation());
@@ -163,14 +163,14 @@ bool StateMachine::pointIsOnScreen(const Vector2 &point) const {
   return retVal;
 }
 
-OSCState StateMachine::resolvePose(HandPose pose) const {
+ShortcutsState StateMachine::resolvePose(HandPose pose) const {
   switch (pose) {
   case HandPose::OneFinger:
-    return OSCState::MEDIA_MENU_FOCUSED;
+    return ShortcutsState::MEDIA_MENU_FOCUSED;
   case HandPose::UpsideDown:
-    return OSCState::EXPOSE_ACTIVATOR_FOCUSED;
+    return ShortcutsState::EXPOSE_ACTIVATOR_FOCUSED;
   default:
-    return OSCState::BASE;
+    return ShortcutsState::BASE;
   }
 }
 
@@ -213,14 +213,14 @@ void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLo
   Vector2 deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
 
   switch (m_state) {
-    case OSCState::SCROLLING:
+    case ShortcutsState::SCROLLING:
     if (deltaScroll.squaredNorm() < deltaScrollThreshold) {
       m_scrollOperation.reset();
-      m_desiredTransitions.push(OSCState::BASE);
+      m_desiredTransitions.push(ShortcutsState::BASE);
     }
     break;
   default:
-    if (deltaScroll.squaredNorm() > deltaScrollThreshold && m_state == OSCState::BASE) {
+    if (deltaScroll.squaredNorm() > deltaScrollThreshold && m_state == ShortcutsState::BASE) {
       AutowiredFast<OSCursor> cursor;
       if (cursor) {
         auto screenPosition = handLocation.screenPosition();
@@ -232,7 +232,7 @@ void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLo
       }
       m_scrollOperation = m_windowScroller->BeginScroll();
       if (m_scrollOperation){
-        m_desiredTransitions.push(OSCState::SCROLLING);
+        m_desiredTransitions.push(ShortcutsState::SCROLLING);
       }
     }
     break;
@@ -244,21 +244,21 @@ void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLo
 void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch) {
   Vector2 deltaScroll = Vector2::Zero();
 
-  if ( m_state == OSCState::SCROLLING )
+  if ( m_state == ShortcutsState::SCROLLING )
   {
     if (!pinch.isPinching) {
-      m_desiredTransitions.push(OSCState::BASE);
+      m_desiredTransitions.push(ShortcutsState::BASE);
       
       //Move to transition
       m_scrollOperation.reset();
       m_lastScrollReleaseTimestep = 0.0f;
-      m_desiredTransitions.push(OSCState::BASE);
+      m_desiredTransitions.push(ShortcutsState::BASE);
     }
     deltaScroll = Vector2{ handLocation.dmmX, handLocation.dmmY };
   }
   else {
-    if (pinch.isPinching && m_state == OSCState::BASE) {
-      m_desiredTransitions.push(OSCState::SCROLLING);
+    if (pinch.isPinching && m_state == ShortcutsState::BASE) {
+      m_desiredTransitions.push(ShortcutsState::SCROLLING);
     }
   }
 
@@ -266,13 +266,13 @@ void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handL
   //m_scrollState = scrollState;
 }
 
-void StateMachine::RequestTransition(OSCState requestedState) {
+void StateMachine::RequestTransition(ShortcutsState requestedState) {
   std::lock_guard<std::mutex> lk(m_lock);
   m_desiredTransitions.push(requestedState);
 }
 
 void StateMachine::OnHandVanished() {
-  RequestTransition(OSCState::FINAL);
+  RequestTransition(ShortcutsState::FINAL);
 }
 
 // Distpatch Loop
@@ -287,14 +287,14 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     performNextTransition();
   }
 
-  if ( m_state == OSCState::FINAL ) {
+  if ( m_state == ShortcutsState::FINAL ) {
     // Shutdown the context
     m_context->SignalShutdown();
     
     // Remove our own reference to the context
     m_context.reset();
   }
-  else if ( m_state == OSCState::SCROLLING)
+  else if ( m_state == ShortcutsState::SCROLLING)
   {
     m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * SCROLL_SENSITIVITY * m_ppmm);
   }

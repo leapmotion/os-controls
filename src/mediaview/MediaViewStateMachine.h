@@ -5,7 +5,7 @@
 #include "mediaview/MediaViewController.h"
 #include "interaction/HandDataCombiner.h"
 #include "uievents/MediaViewEventListener.h"
-#include "uievents/OSCDomain.h"
+#include "uievents/ShortcutsDomain.h"
 
 #include <RadialMenu.h>
 #include <RadialSlider.h>
@@ -24,7 +24,7 @@ public:
   void AutoInit();
   
   //All user and state machine driven changes to the view are dealt with from here.
-  void AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime);
+  void AutoFilter(ShortcutsState appState, const HandData& handData, const FrameTime& frameTime);
 
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
@@ -95,7 +95,7 @@ private:
   
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;
-  AutoFired<OSCStateChangeEvent> m_stateEvents;
+  AutoFired<ShortcutsStateChangeEvent> m_stateEvents;
   
   Autowired<RenderEngine> m_rootNode;
   RectanglePrim prim;

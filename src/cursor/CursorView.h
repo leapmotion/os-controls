@@ -5,7 +5,7 @@
 #include "interaction/TimeRecognizer.h"
 #include "osinterface/OSWindowMonitor.h"
 #include "osinterface/OSWindow.h"
-#include "uievents/OSCDomain.h"
+#include "uievents/ShortcutsDomain.h"
 
 #include "Animation.h"
 #include "Color.h"
@@ -34,7 +34,7 @@ public:
   void SetSize(float radius);
   
   // Input logic
-  void AutoFilter(const Leap::Hand& hand, OSCState appState, const HandData& handData, const FrameTime& frameTime);
+  void AutoFilter(const Leap::Hand& hand, ShortcutsState appState, const HandData& handData, const FrameTime& frameTime);
   
   // Get where the cursor thinks it should be (this will be its position unless it is being overriden)
   Vector2 GetCalculatedLocation() const;
@@ -96,7 +96,7 @@ private:
   Vector2 m_lastHandDeltas;
   Vector2 m_lastHandPosition;
   
-  OSCState m_lastAppState;
+  ShortcutsState m_lastAppState;
   
   Smoothed<float> m_bodyOffset;
   Smoothed<float> m_x;

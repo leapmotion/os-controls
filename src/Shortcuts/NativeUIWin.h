@@ -1,9 +1,10 @@
 #pragma once
 #include "NativeUI.h"
+#include <msclr/marshal_cppstd.h>
 
 struct NativeUI;
 
-namespace oscontrols {
+namespace Shortcuts {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -25,7 +26,7 @@ namespace oscontrols {
 		{
 			InitializeComponent();
 			
-      ResourceManager^ rm = gcnew ResourceManager("oscontrols.Resource", Assembly::GetExecutingAssembly());
+      ResourceManager^ rm = gcnew ResourceManager("Shortcuts.Resource", Assembly::GetExecutingAssembly());
       System::Drawing::Bitmap^ appBmp = (System::Drawing::Bitmap^) rm->GetObject("icon_512x512");
       this->Icon = System::Drawing::Icon::FromHandle(appBmp->GetHicon());
 
@@ -40,6 +41,7 @@ namespace oscontrols {
 
   private: System::Windows::Forms::CheckBox^  exposeCheckBox;
   private: System::Windows::Forms::CheckBox^  scrollCheckBox;
+  private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator1;
   public:
 
 
@@ -51,8 +53,22 @@ namespace oscontrols {
     static NativeUIWin^ s_nativeUI;
 
     static void AddTrayIcon(NativeUI& callbacks) {
-      if(!s_nativeUIInitCount++)
+      if (!s_nativeUIInitCount++)
+      {
         s_nativeUI = gcnew NativeUIWin(callbacks);
+
+        String^ appData = Environment::GetFolderPath(Environment::SpecialFolder::ApplicationData);
+        String^ newDir = System::IO::Path::Combine(appData, L"Leap Motion\\Shortcuts");
+        if( !System::IO::Directory::Exists(newDir) )
+          System::IO::Directory::CreateDirectory(newDir);
+
+        String^ configFile = System::IO::Path::Combine(newDir, L"config.json");
+        msclr::interop::marshal_context ctxt;
+        std::string str = ctxt.marshal_as<std::string>(configFile);
+        callbacks.SetUserConfigFile(str);
+        callbacks.RequestConfigs();
+      }
+        
     }
 
     static void RemoveTrayIcon(void) {
@@ -73,6 +89,12 @@ namespace oscontrols {
         s_nativeUI->exposeCheckBox->Checked = value;
       else if (var == "enableMedia")
         s_nativeUI->mediaCheckBox->Checked = value;
+      else if (var == "showHelpOnStart") {
+        if (value) {
+          s_nativeUI->callbacks.OnShowHtmlHelp("main");
+          s_nativeUI->callbacks.OnSettingChanged("showHelpOnStart", false);
+        }
+      }
     }
 
 	protected:
@@ -105,10 +127,12 @@ namespace oscontrols {
       System::Windows::Forms::ContextMenuStrip^  notificationMenu;
       System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
       System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+      System::Windows::Forms::ToolStripMenuItem^  helpToolStripMenuItem;
       this->mediaCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->exposeCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->scrollCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
+      this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
       tableLayoutPanel1 = (gcnew System::Windows::Forms::TableLayoutPanel());
       okButton = (gcnew System::Windows::Forms::Button());
       cancelButton = (gcnew System::Windows::Forms::Button());
@@ -116,6 +140,7 @@ namespace oscontrols {
       notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
       configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+      helpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       tableLayoutPanel1->SuspendLayout();
       tableLayoutPanel2->SuspendLayout();
       notificationMenu->SuspendLayout();
@@ -218,9 +243,9 @@ namespace oscontrols {
       // 
       // notificationMenu
       // 
-      notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+      notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
         configToolStripMenuItem,
-          exitToolStripMenuItem
+          helpToolStripMenuItem, this->toolStripSeparator1, exitToolStripMenuItem
       });
       notificationMenu->Name = L"contextMenuStrip1";
       notificationMenu->ShowImageMargin = false;
@@ -243,8 +268,20 @@ namespace oscontrols {
       // notificationIcon
       // 
       this->notificationIcon->ContextMenuStrip = notificationMenu;
-      this->notificationIcon->Text = L"Leap Hand Control";
+      this->notificationIcon->Text = L"Shortcuts";
       this->notificationIcon->Visible = true;
+      // 
+      // helpToolStripMenuItem
+      // 
+      helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
+      helpToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      helpToolStripMenuItem->Text = L"&Help";
+      helpToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::helpToolStripMenuItem_Click);
+      // 
+      // toolStripSeparator1
+      // 
+      this->toolStripSeparator1->Name = L"toolStripSeparator1";
+      this->toolStripSeparator1->Size = System::Drawing::Size(129, 6);
       // 
       // NativeUIWin
       // 
@@ -299,6 +336,9 @@ namespace oscontrols {
   void cancelButton_Click(Object^  sender, System::EventArgs^  e) {
     callbacks.OnConfigUiHidden(true);
     Visible = false;
+  }
+  void helpToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+    callbacks.OnShowHtmlHelp("main");
   }
 
   System::Void scrollCheckBox_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {

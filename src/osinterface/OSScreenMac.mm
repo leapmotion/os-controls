@@ -40,7 +40,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
 {
   // There must be a current OpenGL context in order to obtain a texture
   if (CGLGetCurrentContext() == nullptr) {
-    return std::shared_ptr<ImagePrimitive>();
+    return img;
   }
   @autoreleasepool {
     NSScreen* screen = nil;
@@ -52,7 +52,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
       }
     }
     if (!screen) {
-      return std::shared_ptr<ImagePrimitive>();
+      return img;
     }
     const size_t width = static_cast<size_t>(Width());
     const size_t height = static_cast<size_t>(Height());
@@ -61,14 +61,14 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
 
     std::unique_ptr<uint8_t[]> dstBytes(new uint8_t[totalBytes]);
     if (!dstBytes.get()) {
-      return std::shared_ptr<ImagePrimitive>();
+      return img;
     }
     ::memset(dstBytes.get(), 0, totalBytes);
 
     NSImage* nsImage =
         [[NSImage alloc] initWithContentsOfURL:[[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen]];
     if (!nsImage) {
-      return std::shared_ptr<ImagePrimitive>();
+      return img;
     }
     CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
     CGContextRef cgContextRef =
@@ -99,8 +99,9 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
         texture.reset();
       }
     }
+    GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
     if (texture) {
-      texture->UpdateTexture(dstBytes.get()); // Very dangerous function interface!
+      texture->UpdateTexture(pixelData);
     } else {
       GLTexture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
       params.SetTarget(GL_TEXTURE_2D);
@@ -109,7 +110,6 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
       params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
 
       texture = std::make_shared<GLTexture2>(params, pixelData);
       img->SetTexture(texture);

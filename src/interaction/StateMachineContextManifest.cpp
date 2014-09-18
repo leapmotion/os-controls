@@ -3,7 +3,7 @@
 
 #include <autowiring/AutoPacketFactory.h>
 #include "StateMachine.h"
-#include "uievents/OSCDomain.h"
+#include "uievents/ShortcutsDomain.h"
 #include <autowiring/AutoSelfUpdate.h>
 
 #include "HandDataCombiner.h"
@@ -21,7 +21,7 @@ StateMachineContextManifest::StateMachineContextManifest()
   AutoRequired<AutoPacketFactory>();
 
   AutoRequired<StateMachine>();
-  AutoRequired<AutoSelfUpdate<OSCStateClass>>();
+  AutoRequired<AutoSelfUpdate<ShortcutsStateClass>>();
 
   // HandDataCombiner will introduce additional depedent types
   AutoRequired<HandDataCombiner>();

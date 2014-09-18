@@ -8,7 +8,7 @@ set(expose_testharness_SOURCES
 if(WIN32)
   set(expose_testharness_EXEFLAGS WIN32)
 elseif(APPLE)
-  set_property(SOURCE oscontrols.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
+  set_property(SOURCE Shortcuts.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
   set(expose_testharness_EXEFLAGS MACOSX_BUNDLE)
 endif()
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" expose_testharness_SOURCES)

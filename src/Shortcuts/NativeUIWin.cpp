@@ -1,7 +1,7 @@
 #include "NativeUI.h"
 #include "NativeUIWin.h"
 
-using namespace oscontrols;
+using namespace Shortcuts;
 
 void NativeUI::ShowUI() {
   NativeUIWin::AddTrayIcon(*this);

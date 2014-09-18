@@ -3,8 +3,8 @@
 #include "graphics/RenderFrame.h"
 #include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
-#include "uievents/oscDomain.h"
-#include "uievents/osControlConfigs.h"
+#include "uievents/ShortcutsDomain.h"
+#include "uievents/ShortcutsConfigs.h"
 
 #include "GLShader.h"
 #include "GLShaderLoader.h"
@@ -100,7 +100,7 @@ void MediaViewStateMachine::AutoInit() {
   m_rootNode->Add(shared_from_this());
 }
 
-void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handData, const FrameTime& frameTime) {
+void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& handData, const FrameTime& frameTime) {
   const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
   
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
@@ -108,7 +108,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   m_goalCursorPosition = m_cursorView->GetCalculatedLocation() + ProjectVector(2, m_cursorBufferzoneOffset);
   
   // State Transitions
-  if (appState == OSCState::FINAL && m_state != State::FINAL) {
+  if (appState == ShortcutsState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
     return;
   }
@@ -118,7 +118,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
   switch( m_state )
   {
     case State::ARMED:
-      if(appState == OSCState::MEDIA_MENU_FOCUSED) {
+      if(appState == ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->Enable();
         m_cursorBufferzoneOffset = calculateBufferZoneOffset(handData.locationData.screenPosition());
         m_cursorView->EnableLocationOverride();
@@ -132,7 +132,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       }
       break;
     case State::ACTIVE:
-      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+      if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->Enable();
         m_state = State::ARMED;
         m_cursorView->DisableLocationOverride();
@@ -151,7 +151,7 @@ void MediaViewStateMachine::AutoFilter(OSCState appState, const HandData& handDa
       break;
     case State::COMPLETE:
       
-      if(appState != OSCState::MEDIA_MENU_FOCUSED) {
+      if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->Enable();
         m_cursorView->DisableLocationOverride();
         m_cursorBufferzoneOffset = Vector3(0,0,0);
@@ -249,7 +249,7 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
     m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
     
     if ( offsetNormalFactor >= 1.0 ) {
-      float deltaPixelsInVolume = deltaPixels.x() / m_volumeSlider->Width();
+      float deltaPixelsInVolume = static_cast<float>(deltaPixels.x()) / m_volumeSlider->Width();
       m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
       m_volumeSlider->Activate();
     }
@@ -326,7 +326,7 @@ float MediaViewStateMachine::calculateMenuAlphaFade() {
   float retVal = 1.0f;
   Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
   if ( diff.y() > VOLUME_LOCK_IN_Y) {
-    retVal = (diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE);
+    retVal = static_cast<float>((diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE));
     retVal = 1.0f - std::min(1.0f, std::max(0.0f, retVal));
   }
   
@@ -367,8 +367,8 @@ Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const Vector2& screenPo
   Vector3 retVal(0,0,0);
   
   // Find our distance from the screen edge
-  float xEdgeDistance = std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x());
-  float yEdgeDistance = std::min(screenPosition.y(), m_renderWindow->getSize().y - screenPosition.y());
+  float xEdgeDistance = static_cast<float>(std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x()));
+  float yEdgeDistance = static_cast<float>(std::min(screenPosition.y(), m_renderWindow->getSize().y - screenPosition.y()));
   
   // Calculate any offset needed
   float xOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - xEdgeDistance);

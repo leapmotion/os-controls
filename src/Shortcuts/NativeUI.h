@@ -1,7 +1,6 @@
 #pragma once
 #include "autowiring/ContextMember.h"
 #include "utility/ConfigEvent.h"
-
 struct NativeUI:
   public ContextMember,
   public ConfigEvent
@@ -39,6 +38,23 @@ struct NativeUI:
   /// Invoked when a user changes a config setting from the UI.
   /// </summary>
   void OnSettingChanged(const std::string& var, bool state);
+
+  /// <summary>
+  /// Invoked when the user has requested that HTML help be displayed
+  /// </summary>
+  /// <param name="helpWith">A context clue used to indicate what the user specifically wants help with, may be nullptr</param>
+  void OnShowHtmlHelp(const char* helpWith);
+
+  /// <summary>
+  /// Causes the config events to be re-fired if a config object exists in the current context.
+  /// Used only on windows since we can't autowire things.
+  /// </summary>
+  void RequestConfigs();
+
+  /// <summary>
+  /// Used on windows to set the user config file.
+  /// </summary>
+  void SetUserConfigFile(const std::string& path);
 
   /// <summary>
   /// Invoked when a config setting is altered from the native code.

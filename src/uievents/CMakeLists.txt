@@ -1,6 +1,6 @@
 set(uievents_SOURCES
-  osControlConfigs.h
-  OSCDomain.h
+  ShortcutsConfigs.h
+  ShortcutsDomain.h
   MediaViewEventListener.h
   MediaViewEventListener.cpp
   SystemMultimediaEventListener.h

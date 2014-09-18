@@ -1,18 +1,19 @@
 #include "stdafx.h"
-#include "oscontrols.h"
+#include "Shortcuts.h"
 #include "NativeUI.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "expose/ExposeViewAccessManager.h"
 #include "interaction/FrameFragmenter.h"
 #include "osinterface/AudioVolumeInterface.h"
+#include "osinterface/HtmlPageLauncher.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/OSVirtualScreen.h"
-#include "osinterface/WindowScroller.h"
-#include "osinterface/VolumeLevelChecker.h"
 #include "osinterface/OSWindowMonitor.h"
+#include "osinterface/VolumeLevelChecker.h"
+#include "osinterface/WindowScroller.h"
 #include "uievents/SystemMultimediaEventListener.h"
 #include "utility/Config.h"
 #include "utility/FileMonitor.h"
@@ -26,27 +27,28 @@ int main(int argc, char **argv)
   AutoCurrentContext ctxt;
   
   ctxt->Initiate();
+  AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
 
   try {
-    AutoCreateContextT<OsControlContext> osCtxt;
-    osCtxt->Initiate();
-    CurrentContextPusher pshr(osCtxt);
+    AutoCreateContextT<ShortcutsContext> shortcutsCtxt;
+    shortcutsCtxt->Initiate();
+    CurrentContextPusher pshr(shortcutsCtxt);
+    AutoRequired<HtmlPageLauncher>(); //needs to exist before the native ui so we can launch the help page on startup.
     AutoRequired<NativeUI> nativeUI;
 
     // Register the tray icon early in the process, before we spend a bunch of time doing everything else
     nativeUI->ShowUI();
     auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
 
-    AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
-
     AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
-    AutoRequired<OsControl> control;
+    AutoRequired<Shortcuts> shortcuts;
     AutoRequired<FrameFragmenter> fragmenter;
     AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
+    
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
@@ -54,7 +56,7 @@ int main(int argc, char **argv)
     AutoRequired<OSWindowMonitor>();
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(1, 1),
-      "Leap Hand Control", sf::Style::None,
+      "Shortcuts", sf::Style::None,
       *contextSettings
     );
 
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
     mw->setVerticalSyncEnabled(false);
 
     // Handoff to the main loop:
-    control->Main();
+    shortcuts->Main();
   }
   catch (std::exception& e) {
     std::cout << e.what() << std::endl;
@@ -73,13 +75,13 @@ int main(int argc, char **argv)
   return 0;
 }
 
-OsControl::OsControl(void)
+Shortcuts::Shortcuts(void)
 {
 }
 
-OsControl::~OsControl(void) {}
+Shortcuts::~Shortcuts(void) {}
 
-void OsControl::Main(void) {
+void Shortcuts::Main(void) {
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
@@ -97,7 +99,7 @@ void OsControl::Main(void) {
   m_mw->close();
 }
 
-void OsControl::HandleEvent(const sf::Event& ev) const {
+void Shortcuts::HandleEvent(const sf::Event& ev) const {
   switch (ev.type) {
   case sf::Event::Closed:
     AutoCurrentContext()->SignalShutdown();
@@ -107,7 +109,7 @@ void OsControl::HandleEvent(const sf::Event& ev) const {
   }
 }
 
-void OsControl::Filter(void) {
+void Shortcuts::Filter(void) {
   try {
     throw;
   }

@@ -13,11 +13,11 @@
         <customObject id="-3" userLabel="Application"/>
         <menu title="AMainMenu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="OS Controls" id="1Xt-HY-uBw">
+                <menuItem title="Shortcuts" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="OS Controls" systemMenu="apple" id="uQy-DD-JDr">
+                    <menu key="submenu" title="Shortcuts" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About OS Controls" id="5kV-Vb-QxS">
+                            <menuItem title="About Shortcuts" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-1" id="Exp-CZ-Vem"/>
@@ -49,7 +49,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                            <menuItem title="Quit OS Controls" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit Shortcuts" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="terminate:" target="-1" id="Te7-pn-YzF"/>
                                 </connections>

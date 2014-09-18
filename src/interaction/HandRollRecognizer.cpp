@@ -20,7 +20,9 @@ void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
   handRoll.dTheta = roll - m_lastRoll;
   m_deltaRoll.SetGoal(roll - m_lastRoll);
   
-  m_deltaRoll.Update(frameTime.deltaTime);
+  // TODO: this delta time is in microseconds
+  // should convert to seconds before passing into Smoothed and adjust strength accordingly
+  m_deltaRoll.Update(static_cast<float>(frameTime.deltaTime));
   
   // Need to keep track of what the last roll was, now
   m_lastRoll = roll;
