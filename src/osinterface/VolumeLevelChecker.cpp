@@ -11,6 +11,10 @@ VolumeLevelChecker::VolumeLevelChecker(void):
 }
 
 void VolumeLevelChecker::Tick(std::chrono::duration<double> deltaT) {
+  if(!m_avi)
+    // No audio-volume interface, we cannot raise any interrupts to higher tiers
+    return;
+
   float volume = m_avi->GetVolume();
   if(m_oldVolume != volume) {
     m_smel(&SystemMultimediaEventListener::OnVolumeChanged)(m_oldVolume, volume);
