@@ -82,7 +82,7 @@ GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type)
   if (bytes_in_pixel % 4 != 0) {
     // The default is 4, so if our pixels don't align to 4 bytes, just hackily set it to 1.
     // This probably slows things down a bit, so TODO this should be re-engineered correctly later.
-    SetPixelStoreiParameter(GL_UNPACK_ALIGNMENT, 1);
+//     SetPixelStoreiParameter(GL_UNPACK_ALIGNMENT, 1);
     // If this value is overridden, it's assumed that the overrider knows what they're doing.
   }
 }
