@@ -147,3 +147,10 @@ if(APPLE)
     )
   endforeach()
 endif()
+
+# Install commands for the Resources
+install(TARGETS Shortcuts
+  RUNTIME DESTINATION "."
+)
+
+install(FILES ${Shortcuts_RESOURCES} DESTINATION ".")
