@@ -39,7 +39,7 @@
 
   // Load config settings
   Autowired<Config> config;
-  config.NotifyWhenAutowired([] {
+  config.NotifyWhenAutowired([self] {
     AutowiredFast<Config> cfg;
     if (cfg) {
       std::string path = "./";
