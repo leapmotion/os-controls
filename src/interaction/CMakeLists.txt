@@ -31,7 +31,6 @@ set(interaction_SOURCES
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
 
 target_link_libraries(interaction Autowiring cursor expose mediaview uievents)
-target_include_directories(interaction PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 target_package(interaction SFML 2.1 REQUIRED)
 target_package(interaction Eigen 3.2.1 REQUIRED)

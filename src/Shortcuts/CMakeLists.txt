@@ -96,7 +96,6 @@ configure_file(Version.h.in Version.h)
 
 add_executable(Shortcuts ${Shortcuts_EXEFLAGS} ${Shortcuts_SOURCES})
 target_link_libraries(Shortcuts Autowiring utility interaction graphics osinterface expose)
-target_include_directories(Shortcuts PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 #For version.h
 target_include_directories(Shortcuts PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

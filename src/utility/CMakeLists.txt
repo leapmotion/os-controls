@@ -42,6 +42,5 @@ if(MSVC)
   target_link_libraries(utility shlwapi)
 endif()
 
-target_include_directories(utility PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 target_link_components(utility Primitives)
 add_subdirectory(test)
