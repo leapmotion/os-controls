@@ -67,6 +67,11 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
   if(!IsVisible())
     return;
 
+  for (const auto& group : m_groups) {
+    if (!group->m_icon) {
+      group->m_icon = group->m_app->GetIconTexture(std::shared_ptr<ImagePrimitive>(new ImagePrimitive));
+    }
+  }
   updateLayout(frame.deltaT);
   updateActivations(frame.deltaT);
   updateForces(frame.deltaT);
@@ -97,8 +102,10 @@ void ExposeView::Render(const RenderFrame& frame) const {
     window->Render(frame);
   }
 
-  for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
-    group->Render(frame);
+  for (const auto& group : m_groups) {
+    if (group->m_icon) {
+      group->Render(frame);
+    }
   }
 
   for (const std::shared_ptr<ExposeViewWindow>& window : m_orderedWindows) {
@@ -235,10 +242,12 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
       weight += curWeight;
     }
     center /= weight;
-    group->m_icon->Translation() = center;
+    if (group->m_icon) {
+      group->m_icon->Translation() = center;
 
-    group->m_icon->LinearTransformation() = (0.25 + (1.0 - m_alphaMask.Current())) * Matrix3x3::Identity();
-    group->m_icon->LocalProperties().AlphaMask() = m_alphaMask.Current();
+      group->m_icon->LinearTransformation() = (0.25 + (1.0 - m_alphaMask.Current())) * Matrix3x3::Identity();
+      group->m_icon->LocalProperties().AlphaMask() = m_alphaMask.Current();
+    }
   }
 }
 
@@ -535,8 +544,7 @@ std::shared_ptr<ExposeGroup> ExposeView::getGroupForWindow(const std::shared_ptr
 std::shared_ptr<ExposeGroup> ExposeView::createNewGroup(const std::shared_ptr<ExposeViewWindow>& window) {
   std::shared_ptr<ExposeGroup> group(new ExposeGroup);
   group->m_app = window->m_osWindow->GetOwnerApp();
-  group->m_icon = std::shared_ptr<ImagePrimitive>(new ImagePrimitive);
-  group->m_icon = group->m_app->GetIconTexture(group->m_icon);
+  group->m_icon = nullptr;
   group->m_groupMembers.insert(window);
   m_groups.insert(group);
   return group;
