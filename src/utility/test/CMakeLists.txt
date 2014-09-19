@@ -15,7 +15,6 @@ target_include_directories(utilitytest PUBLIC ${Boost_INCLUDE_DIR})
 
 target_link_libraries(utilitytest utility AutoTesting)
 target_include_directories(utilitytest PUBLIC ..)
-target_include_directories(utilitytest PUBLIC ${CMAKE_SOURCE_DIR}/contrib/autowiring)
 
 # This is a unit test, let CMake know this
 add_test(NAME utilitytest COMMAND $<TARGET_FILE:utilitytest>)
