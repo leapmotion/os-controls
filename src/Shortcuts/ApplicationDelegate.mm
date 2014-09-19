@@ -32,8 +32,11 @@
   // Hide ourselves from the Dock. Unfortunately, this causes our application
   // to hide as well. See our workaround for that problem in the
   // applicationDidHide: method below
-  [[NSApplication sharedApplication] setActivationPolicy:NSApplicationActivationPolicyAccessory];
-
+  NSApplication* app = [NSApplication sharedApplication];
+  [app setActivationPolicy:NSApplicationActivationPolicyAccessory];
+  if ([app activationPolicy] != NSApplicationActivationPolicyAccessory) {
+    [app setActivationPolicy:NSApplicationActivationPolicyProhibited];
+  }
   _menubarController = [[MenubarController alloc] init];
   _isInitialized = YES;
 
