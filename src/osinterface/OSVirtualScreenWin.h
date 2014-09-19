@@ -10,6 +10,8 @@ class OSVirtualScreenWin :
     OSVirtualScreenWin();
     virtual ~OSVirtualScreenWin();
 
+    bool IsScreenSaverActive() const override;
+
   protected:
     virtual std::vector<OSScreen> GetScreens() const override;
 

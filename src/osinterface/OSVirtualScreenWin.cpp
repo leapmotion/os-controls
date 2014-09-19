@@ -64,7 +64,7 @@ OSVirtualScreenWin::OSVirtualScreenWin()
                              L"", WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, nullptr, nullptr, nullptr, this);
   ::SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
   ::ShowWindow(m_hWnd, SW_HIDE);
-  Update();
+  UpdateScreenSize();
 }
 
 OSVirtualScreenWin::~OSVirtualScreenWin()
@@ -72,6 +72,11 @@ OSVirtualScreenWin::~OSVirtualScreenWin()
   if (m_hWnd) {
     ::DestroyWindow(m_hWnd);
   }
+}
+
+bool OSVirtualScreenWin::IsScreenSaverActive() const
+{
+  return false; // FIXME
 }
 
 std::vector<OSScreen> OSVirtualScreenWin::GetScreens() const
@@ -84,7 +89,7 @@ std::vector<OSScreen> OSVirtualScreenWin::GetScreens() const
 LRESULT OSVirtualScreenWin::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   if (uMsg == WM_DISPLAYCHANGE) {
-    Update();
+    UpdateScreenSize();
   }
   return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 }

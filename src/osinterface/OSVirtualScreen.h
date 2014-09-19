@@ -13,7 +13,8 @@ class OSVirtualScreenListener {
     OSVirtualScreenListener(void) {}
     virtual ~OSVirtualScreenListener(void) {}
 
-    virtual void OnChange(void) = 0;
+    virtual void OnScreenSizeChange(void) {}
+    virtual void OnScreenSaverChange(void) {}
 };
 
 class OSVirtualScreen :
@@ -34,10 +35,13 @@ class OSVirtualScreen :
     OSScreen PrimaryScreen() const;
     OSScreen ClosestScreen(const OSPoint& position) const;
 
+    virtual bool IsScreenSaverActive() const = 0;
+
   protected:
     virtual std::vector<OSScreen> GetScreens() const = 0;
 
-    void Update();
+    void UpdateScreenSize();
+    void UpdateScreenSaver();
 
   private:
     OSRect ComputeBounds(const std::vector<OSScreen>& screens);
