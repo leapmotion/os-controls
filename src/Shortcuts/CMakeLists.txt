@@ -107,10 +107,12 @@ if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
   set_property(TARGET Shortcuts APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Data;System.Drawing;System.Windows.Forms;System.Xml")
   set_target_properties(Shortcuts PROPERTIES VS_GLOBAL_ROOTNAMESPACE Shortcuts)
+  set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES})
 elseif(APPLE)
   set_target_properties(Shortcuts PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Shortcuts/Shortcuts.plist.in)
 endif()
+
 
 foreach(_resource ${Shortcuts_RESOURCES})
   if(WIN32)
@@ -146,3 +148,10 @@ if(APPLE)
     )
   endforeach()
 endif()
+
+# Install commands for the Resources
+install(TARGETS Shortcuts
+  RUNTIME DESTINATION "."
+  BUNDLE DESTINATION "."
+  RESOURCE DESTINATION "."
+)
