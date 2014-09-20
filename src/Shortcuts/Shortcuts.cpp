@@ -19,11 +19,13 @@
 #include "utility/FileMonitor.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
+#include "utility/SingleInstanceEnforcer.h"
 #include <autowiring/AutoNetServer.h>
 
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
+  SingleInstanceEnforcer enforcer(L"Leap_Motion_Shortcuts");
   AutoCurrentContext ctxt;
   
   ctxt->Initiate();
@@ -54,6 +56,7 @@ int main(int argc, char **argv)
     AutoRequired<LeapInput>();
     AutoRequired<MakesRenderWindowFullScreen>();
     AutoRequired<OSWindowMonitor>();
+
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(1, 1),
       "Shortcuts", sf::Style::None,
