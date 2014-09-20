@@ -1,5 +1,6 @@
 
 set(utility_SOURCES
+  AutoLaunch.h
   CircleFitter.h
   Config.h
   Config.cpp
@@ -20,6 +21,7 @@ set(utility_SOURCES
 )
 
 add_windows_sources(utility_SOURCES
+  AutoLaunchWin.cpp
   FileMonitorWin.h
   FileMonitorWin.cpp
   NativeWindowWin.cpp
@@ -28,6 +30,7 @@ add_windows_sources(utility_SOURCES
 )
 
 add_mac_sources(utility_SOURCES
+  AutoLaunchMac.cpp
   FileMonitorMac.h
   FileMonitorMac.cpp
   NativeWindowMac.mm

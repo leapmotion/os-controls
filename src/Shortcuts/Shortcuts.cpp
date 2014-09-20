@@ -15,6 +15,7 @@
 #include "osinterface/VolumeLevelChecker.h"
 #include "osinterface/WindowScroller.h"
 #include "uievents/SystemMultimediaEventListener.h"
+#include "utility/AutoLaunch.h"
 #include "utility/Config.h"
 #include "utility/FileMonitor.h"
 #include "utility/NativeWindow.h"
@@ -28,6 +29,7 @@ int main(int argc, char **argv)
   
   ctxt->Initiate();
   AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
+  AutoConstruct<AutoLaunch> autoLaunch("Leap Motion Shortcuts");
 
   try {
     AutoCreateContextT<ShortcutsContext> shortcutsCtxt;
