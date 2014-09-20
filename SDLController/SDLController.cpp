@@ -141,11 +141,8 @@ void SDLController::InitWindow() {
       m_Params.windowWidth = rect.w;
       m_Params.windowHeight = rect.h-1;
     }
-  }else{
-    m_Params.windowPosX = SDL_WINDOWPOS_CENTERED;
-    m_Params.windowPosY = SDL_WINDOWPOS_CENTERED;
   }
-  
+
   if (m_Params.transparentWindow) {
     // Transparent window only works properly when the window is borderless
     m_Params.windowFlags |= SDL_WINDOW_BORDERLESS;
