@@ -48,13 +48,11 @@ int main(int argc, char **argv)
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
-    
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
     AutoRequired<MakesRenderWindowFullScreen>();
     AutoRequired<OSWindowMonitor>();
-
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(1, 1),
       "Shortcuts", sf::Style::None,

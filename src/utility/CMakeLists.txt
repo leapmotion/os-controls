@@ -17,7 +17,6 @@ set(utility_SOURCES
   PlatformInitializer.h
   SamplePrimitives.h
   SamplePrimitives.cpp
-  SingleInstanceEnforcer.h
 )
 
 add_windows_sources(utility_SOURCES
@@ -26,6 +25,7 @@ add_windows_sources(utility_SOURCES
   NativeWindowWin.cpp
   PlatformInitializerWin.h
   PlatformInitializerWin.cpp
+  SingleInstanceEnforcerWin.h
   SingleInstanceEnforcerWin.cpp
 )
 
