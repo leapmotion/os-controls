@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SingleInstanceEnforcerWin.h"
 class PlatformInitializer
 {
 public:
@@ -11,6 +12,7 @@ public:
 
 private:
   const HRESULT m_hr;
+  SingleInstanceEnforcer m_enforcer;
 
 public:
   operator HRESULT() const { return m_hr; }

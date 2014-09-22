@@ -25,6 +25,8 @@ add_windows_sources(utility_SOURCES
   NativeWindowWin.cpp
   PlatformInitializerWin.h
   PlatformInitializerWin.cpp
+  SingleInstanceEnforcerWin.h
+  SingleInstanceEnforcerWin.cpp
 )
 
 add_mac_sources(utility_SOURCES

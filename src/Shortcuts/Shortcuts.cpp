@@ -48,7 +48,6 @@ int main(int argc, char **argv)
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
-    
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
