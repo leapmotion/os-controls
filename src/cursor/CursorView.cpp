@@ -152,6 +152,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, con
         velocityNorm = std::min(1.0f, std::max(0.0f, velocityNorm));
         velocityNorm *= velocitySign;
         goalBodyOffset = velocityNorm * BODY_OFFSET_MAX;
+        goalBodyOffset = std::min(BODY_OFFSET_MAX, std::max(-1*BODY_OFFSET_MAX, goalBodyOffset));
         m_bodyOffset.SetGoal(goalBodyOffset);
       }
       else {
@@ -168,6 +169,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, con
     }
     case State::INACTIVE:
       m_bodyOffset.SetInitialValue(0.0f);
+      m_bodyOffset.SetGoal(0.0f);
     default:
       break;
   }
