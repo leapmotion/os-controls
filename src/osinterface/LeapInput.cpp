@@ -23,20 +23,25 @@ bool LeapInput::AcceptInput(void) const {
   return m_virtualScreen && !m_virtualScreen->IsScreenSaverActive();
 }
 
-void LeapInput::onDisconnect(const Leap::Controller& controller) {
+void LeapInput::AbortInput(void) {
   m_isAcceptingInput = false;
   CurrentContextPusher pshr(this->GetContext());
-  // Send an invalid frame when the device has disconnected
+  // Send an invalid frame to abort any interactions using the Leap input
   m_listener(&LeapInputListener::OnLeapFrame)(Leap::Frame::invalid());
+}
+
+void LeapInput::onDisconnect(const Leap::Controller& controller) {
+  AbortInput();
+}
+
+void LeapInput::onFocusLost(const Leap::Controller& controller) {
+  AbortInput();
 }
 
 void LeapInput::onFrame(const Leap::Controller& controller) {
   if (!AcceptInput()) {
     if (m_isAcceptingInput) {
-      m_isAcceptingInput = false;
-      CurrentContextPusher pshr(this->GetContext());
-      // Send an invalid frame when transitioning from "accepting input" to "not-accepting input"
-      m_listener(&LeapInputListener::OnLeapFrame)(Leap::Frame::invalid());
+      AbortInput();
     }
     return;
   }
