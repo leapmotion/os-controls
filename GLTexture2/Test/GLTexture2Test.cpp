@@ -116,7 +116,7 @@ class GLTexture2VisibleTest : public GLTestFramework_Visible { };
 
 struct RgbPixel { uint8_t r, g, b; };
 
-void GeneratePixels (GLTexture2PixelDataStorage<RgbPixel> &pixel_data, size_t width, size_t height) {
+void GeneratePixels (GLTexture2PixelDataStorage<RgbPixel> &pixel_data, GLsizei width, GLsizei height) {
   std::vector<RgbPixel> &pixels = pixel_data.RawPixels();
   // Make a simple bilinear gradient in green and blue.
   for (GLsizei v = 0; v < height; ++v) {

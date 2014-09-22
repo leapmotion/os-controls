@@ -95,8 +95,10 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   
   const Color FINGER_COLOR_OUT(0.505f, 0.831f, 0.114f, 1.0f);
   const Color FINGER_COLOR_IN(0.5f, 0.5f, 0.5f, 1.0f);
+
+  const float M_PIf = static_cast<float>(M_PI);
   
-  const float angles [5] { M_PI/12.0f, M_PI/3.0f, M_PI/2.0f, 2*M_PI/3.0f, 5*M_PI/6.0f };
+  const float angles [5] { M_PIf/12.0f, M_PIf/3.0f, M_PIf/2.0f, 2.0f*M_PIf/3.0f, 5.0f*M_PIf/6.0f };
   int fingerIndex = static_cast<int>(finger.type());
   float angle = angles[fingerIndex];
   angle = static_cast<float>((2*M_PI) - angle);
