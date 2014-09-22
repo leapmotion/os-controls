@@ -40,6 +40,26 @@ bool AutoLaunch::IsAutoLaunch() {
   return read == ERROR_SUCCESS;
 }
 
-void AutoLaunch::SetAutoLaunch() {
-  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
+bool AutoLaunch::SetAutoLaunch(bool shouldLaunch) {
+
+  HKEY hKey;
+  LONG openRes = RegOpenKeyExW(HKEY_CURRENT_USER, s_RegKey, 0, KEY_ALL_ACCESS, &hKey);
+  if (openRes != ERROR_SUCCESS)
+    return false;
+
+  LONG writeRes = 0;
+  if (shouldLaunch) {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
+    std::wstring wideCommand = converter.from_bytes(m_command);
+    LONG writeRes = RegSetValueExW(hKey, converter.from_bytes(m_appName).c_str(), 0, REG_SZ, (LPBYTE)wideCommand.c_str(), (wideCommand.size() + 1)*sizeof(wchar_t));
+  }
+  else {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
+    LONG writeRes = RegDeleteValueW(hKey, converter.from_bytes(m_appName).c_str());
+  }
+
+  if (writeRes != ERROR_SUCCESS)
+    return false;
+
+  return true;
 }

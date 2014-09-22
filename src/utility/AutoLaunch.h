@@ -9,7 +9,7 @@ public:
   AutoLaunch(const char* appName, const char* commandLineOptions = nullptr);
 
   bool IsAutoLaunch();
-  void SetAutoLaunch();
+  bool SetAutoLaunch(bool shouldLaunch);
 private:
   std::string m_appName;
   std::string m_command;
