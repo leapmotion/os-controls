@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SingleInstanceEnforcer.h"
+#include "SingleInstanceEnforcerWin.h"
 
 #include <codecvt>
 #include <locale>

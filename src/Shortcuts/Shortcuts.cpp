@@ -19,13 +19,11 @@
 #include "utility/FileMonitor.h"
 #include "utility/NativeWindow.h"
 #include "utility/PlatformInitializer.h"
-#include "utility/SingleInstanceEnforcer.h"
 #include <autowiring/AutoNetServer.h>
 
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
-  SingleInstanceEnforcer enforcer(L"Leap_Motion_Shortcuts");
   AutoCurrentContext ctxt;
   
   ctxt->Initiate();
