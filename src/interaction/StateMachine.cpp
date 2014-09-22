@@ -286,17 +286,19 @@ void StateMachine::OnHandVanished() {
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
   
-  float scrollSmoothing = (fabs(m_handDelta.y()) - 0.0f) / (1.5f - 1.0f);
+  float scrollSmoothing = (fabs(m_handDelta.y()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING);
   scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
   scrollSmoothing = 1 - scrollSmoothing;
-  scrollSmoothing *= 0.6f;
+  scrollSmoothing *= scrollConfigs::MAX_SCROLL_SMOOTHING;
+  
+  std::cout << scrollSmoothing << std::endl;
   
   m_handDeltaMM_Y.SetSmoothStrength(scrollSmoothing);
   
-  scrollSmoothing = (fabs(m_handDelta.x()) - 0.0f) / (1.5f - 1.0f);
+  scrollSmoothing = (fabs(m_handDelta.x()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING);
   scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
   scrollSmoothing = 1 - scrollSmoothing;
-  scrollSmoothing *= 0.6f;
+  scrollSmoothing *= scrollConfigs::MAX_SCROLL_SMOOTHING;
   
   m_handDeltaMM_X.SetSmoothStrength(scrollSmoothing);
   

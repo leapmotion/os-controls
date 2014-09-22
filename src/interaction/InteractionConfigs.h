@@ -46,3 +46,10 @@ namespace poseConfigs {
 namespace transitionConfigs {
   const float MAX_HAND_DELTA_FOR_POSE_TRANSITION = 1.5f;
 }
+
+namespace scrollConfigs {
+  const float MAX_SCROLL_SMOOTHING = 0.6f;
+  const float MM_DELTA_FOR_MIN_SMOOTHING = 1.0f;
+  const float MM_DELTA_FOR_MAX_SMOOTHING = 0.0f;
+  
+}
