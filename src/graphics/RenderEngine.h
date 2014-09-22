@@ -12,6 +12,7 @@
 #include <vector>
 
 class GLShader;
+class OSVirtualScreen;
 
 //Tracks & dispatches update & render calls to a SceneGraph. Intended for use
 //with RenderEngineNodes, but will also support PrimitiveBase children.  Eventually
@@ -37,10 +38,10 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
+  Autowired<OSVirtualScreen> m_virtualScreen;
   Autowired<sf::RenderWindow> m_rw;
 
-  bool m_drewThisFrame;
-  bool m_drewPrevFrame;
+  bool m_drewFrame;
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
 };

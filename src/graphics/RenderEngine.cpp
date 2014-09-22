@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderEngine.h"
 #include "RenderFrame.h"
+#include "osinterface/OSVirtualScreen.h"
 #include <GL/glew.h>
 #include "GLShader.h"
 #include "GLShaderLoader.h"
@@ -16,8 +17,7 @@
 #include <chrono>
 
 RenderEngine::RenderEngine() :
-  m_drewThisFrame(false),
-  m_drewPrevFrame(false)
+  m_drewFrame(false)
 {
   if (!sf::Shader::isAvailable()) //This also calls glewInit for us
     throw std::runtime_error("Shaders are not supported!");
@@ -58,35 +58,37 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // AnimationUpdate all attached nodes
   for(const auto& renderable : *this)
     renderable->AnimationUpdate(frame);
-  
-  m_drewThisFrame = false;
 
-  // Perform render operation in a second pass:
-  for(auto& renderable : *this) {
-    if (!renderable->IsVisible()) {
-      continue;
+  bool drewThisFrame = false;
+
+  // Only render objects when the screensaver is disabled
+  if (m_virtualScreen && !m_virtualScreen->IsScreenSaverActive()) {
+    // Perform render operation in a second pass:
+    for(auto& renderable : *this) {
+      if (!renderable->IsVisible()) {
+        continue;
+      }
+      drewThisFrame = true;
+      auto& mv = frame.renderState.GetModelView();
+      mv.Push();
+
+      mv.Translate(Vector3{renderable->position.x, renderable->position.y, 0.0});
+      renderable->Render(frame);
+      mv.Pop();
     }
-    m_drewThisFrame = true;
-    auto& mv = frame.renderState.GetModelView();
-    mv.Push();
-    
-    mv.Translate(Vector3{renderable->position.x, renderable->position.y, 0.0});
-    renderable->Render(frame);
-    mv.Pop();
   }
 
   // General cleanup
   m_shader->Unbind();
 
-  if (m_drewThisFrame || m_drewPrevFrame) {
+  if (drewThisFrame || m_drewFrame) {
     // Update the window
     m_rw->display();
   } else {
     // if we haven't drawn anything, sleep for a bit (otherwise this loop occurs too quickly)
-    std::chrono::milliseconds delay(100); // 100 msec
-    std::this_thread::sleep_for(delay);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
-  m_drewPrevFrame = m_drewThisFrame;
+  m_drewFrame = drewThisFrame;
 
   m_rw->setActive(false);
 }

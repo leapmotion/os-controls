@@ -30,7 +30,7 @@ private:
   void AdjustDesktopWindow(void);
 
   // OSVirtualScreenListener overrides:
-  void OnChange(void) override {
+  void OnScreenSizeChange(void) override {
     *this += [this] { AdjustDesktopWindow(); };
   }
 

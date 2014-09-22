@@ -64,7 +64,7 @@ OSScreen OSVirtualScreen::ClosestScreen(const OSPoint& position) const
   return m_screens[0];
 }
 
-void OSVirtualScreen::Update()
+void OSVirtualScreen::UpdateScreenSize()
 {
   auto screens = GetScreens();
   std::unique_lock<std::mutex> lock(m_mutex);
@@ -72,7 +72,13 @@ void OSVirtualScreen::Update()
   m_bounds = ComputeBounds(m_screens);
   lock.unlock();
   AutoFired<OSVirtualScreenListener> vsl;
-  vsl(&OSVirtualScreenListener::OnChange)();
+  vsl(&OSVirtualScreenListener::OnScreenSizeChange)();
+}
+
+void OSVirtualScreen::UpdateScreenSaver()
+{
+  AutoFired<OSVirtualScreenListener> vsl;
+  vsl(&OSVirtualScreenListener::OnScreenSaverChange)();
 }
 
 OSRect OSVirtualScreen::ComputeBounds(const std::vector<OSScreen>& screens)

@@ -40,8 +40,8 @@ int main(int argc, char **argv)
     nativeUI->ShowUI();
     auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
 
-    AutoRequired<RenderEngine> render;
     AutoRequired<OSVirtualScreen> virtualScreen;
+    AutoRequired<RenderEngine> render;
     AutoRequired<Shortcuts> shortcuts;
     AutoRequired<FrameFragmenter> fragmenter;
     AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
