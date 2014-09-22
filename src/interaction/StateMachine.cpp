@@ -23,10 +23,17 @@ StateMachine::StateMachine(void) :
   m_ppmm(96.0f/25.4f),
   m_scrollOperation(nullptr)
 {
+  // Smoothed pixel deltas for movement
   smoothedDeltaX.SetInitialValue(0.0f);
   smoothedDeltaY.SetInitialValue(0.0f);
   smoothedDeltaX.SetSmoothStrength(0.3f);
   smoothedDeltaY.SetSmoothStrength(0.3f);
+  
+  // Smoothed mm deltas for scrolling
+  m_handDeltaMM_X.SetInitialValue(0.0f);
+  m_handDeltaMM_X.SetSmoothStrength(0.3f);
+  m_handDeltaMM_Y.SetInitialValue(0.0f);
+  m_handDeltaMM_Y.SetSmoothStrength(0.3f);
 }
 
 StateMachine::~StateMachine(void)
@@ -279,8 +286,28 @@ void StateMachine::OnHandVanished() {
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
   
+  float scrollSmoothing = (fabs(m_handDelta.y()) - 0.0f) / (1.5f - 1.0f);
+  scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
+  scrollSmoothing = 1 - scrollSmoothing;
+  scrollSmoothing *= 0.6f;
+  
+  m_handDeltaMM_Y.SetSmoothStrength(scrollSmoothing);
+  
+  scrollSmoothing = (fabs(m_handDelta.x()) - 0.0f) / (1.5f - 1.0f);
+  scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
+  scrollSmoothing = 1 - scrollSmoothing;
+  scrollSmoothing *= 0.6f;
+  
+  m_handDeltaMM_X.SetSmoothStrength(scrollSmoothing);
+  
+  m_handDeltaMM_X.SetGoal(m_handDelta.x());
+  m_handDeltaMM_Y.SetGoal(m_handDelta.y());
+  
   smoothedDeltaX.Update(static_cast<float>(deltaT.count()));
   smoothedDeltaY.Update(static_cast<float>(deltaT.count()));
+  
+  m_handDeltaMM_X.Update(static_cast<float>(deltaT.count()));
+  m_handDeltaMM_Y.Update(static_cast<float>(deltaT.count()));
   
   //Perform any transitions waiting in the transition queue
   while ( m_desiredTransitions.size() > 0 ) {
@@ -296,7 +323,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   }
   else if ( m_state == ShortcutsState::SCROLLING)
   {
-    m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * SCROLL_SENSITIVITY * m_ppmm);
+    m_scrollOperation->ScrollBy(0.0f, m_handDeltaMM_Y.Value() * SCROLL_SENSITIVITY * m_ppmm);
   }
 
   m_handDelta = Vector2(0, 0);
