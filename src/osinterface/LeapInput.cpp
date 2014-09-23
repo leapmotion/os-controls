@@ -8,8 +8,6 @@ LeapInput::LeapInput(void):
   ContextMember("LeapInput"),
   m_isAcceptingInput(false)
 {
-  m_controller->enableGesture(Leap::Gesture::TYPE_CIRCLE);
-  m_controller->setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
   m_controller->addListener(*this);
 }
 
@@ -28,6 +26,10 @@ void LeapInput::AbortInput(void) {
   CurrentContextPusher pshr(this->GetContext());
   // Send an invalid frame to abort any interactions using the Leap input
   m_listener(&LeapInputListener::OnLeapFrame)(Leap::Frame::invalid());
+}
+
+void LeapInput::onServiceConnect(const Leap::Controller& controller) {
+  controller.setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 }
 
 void LeapInput::onDisconnect(const Leap::Controller& controller) {
