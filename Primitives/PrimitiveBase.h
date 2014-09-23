@@ -17,6 +17,7 @@ class RenderState;
 class PrimitiveBase : public SceneGraphNode<ParticularSceneGraphNodeProperties<MATH_TYPE,3,float>> {
 public:
   static void DrawSceneGraph(const PrimitiveBase &root, RenderState &render_state);
+  static Matrix3x3 SquashStretchTransform(const Vector3& velocity, const Vector3& viewDirection, double speedDenom = 900.0);
 
 public:
 

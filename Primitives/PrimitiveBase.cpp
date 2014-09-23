@@ -21,6 +21,33 @@ void PrimitiveBase::DrawSceneGraph(const PrimitiveBase& rootNode, RenderState &r
   });
 }
 
+Matrix3x3 PrimitiveBase::SquashStretchTransform(const Vector3& velocity, const Vector3& viewDirection, double speedDenom) {
+  // compute velocity magnitude and direction
+  const double speed = velocity.norm();
+  static const double EPSILON = 0.0001;
+  if (speedDenom < EPSILON || speed < EPSILON*speedDenom) {
+    return Matrix3x3::Identity();
+  }
+  const Vector3 direction = velocity / speed;
+
+  // compute stretch and squash multipliers (area preserving)
+  const double stretch = 1.0 + std::min(1.0, speed / speedDenom);
+  const double squash = std::sqrt(1.0 / stretch);
+
+  // compute velocity basis and its inverse for rotation
+  Matrix3x3 velocityBasis(Matrix3x3::Identity());
+  velocityBasis.col(0) = direction;
+  velocityBasis.col(1) = direction.cross(viewDirection);
+  velocityBasis.col(2) = viewDirection;
+  const Matrix3x3 velocityBasisInv = velocityBasis.inverse();
+
+  // compute scale matrix for deformation
+  const Matrix3x3 scaleMatrix = Vector3(stretch, squash, squash).asDiagonal();
+
+  // undo rotation, deform, then rotate back
+  return velocityBasis * scaleMatrix * velocityBasisInv;
+}
+
 void PrimitiveBase::Draw(RenderState &render_state, const Properties &properties) const {
   // Set the model view (TODO: change this to not be in the RenderState, since it's tracked by DepthFirstTraverse)
   ModelView& model_view = render_state.GetModelView();
