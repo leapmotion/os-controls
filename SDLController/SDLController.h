@@ -1,12 +1,12 @@
 #pragma once
 
 #include "SDL.h"
-#if __APPLE__
+#if __APPLE__ && __clang_major__ >= 6
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextern-c-compat"
 #endif
 #include "SDL_syswm.h"
-#if __APPLE__
+#if __APPLE__ && __clang_major__ >= 6
 #pragma GCC diagnostic pop
 #endif
 
