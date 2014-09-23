@@ -48,6 +48,8 @@ public:
   Smoothed<float> m_activation;
   Smoothed<float> m_selection;
 
+  Vector3 m_prevPosition;
+
 private:
   // Texture for this window
   std::shared_ptr<ImagePrimitive> m_texture;

@@ -16,21 +16,16 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_texture(new ImagePrimitive),
   m_dropShadow(new DropShadow),
   m_highlight(new RectanglePrim),
-  m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>)
+  m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>),
+  m_prevPosition(Vector3::Zero())
 {
   m_opacity.SetInitialValue(0.0f);
   m_opacity.SetGoal(0.0f);
   m_opacity.SetSmoothStrength(0.825f);
   m_opacity.Update(0.0f);
 
-#if 0
-  m_position.SetInitialValue(Vector3::Zero());
-  m_position.SetGoal(Vector3::Zero());
-  m_position.SetSmoothStrength(variedSmooth);
-#else
   m_position.SetImmediate(Vector3::Zero());
   m_position.Set(Vector3::Zero());
-#endif
 
   m_scale.SetInitialValue(0.0f);
   m_scale.SetGoal(0.0f);
@@ -71,7 +66,7 @@ void ExposeViewWindow::UpdateTexture(void) {
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
   static const Vector3 DROP_SHADOW_OFFSET(3, 5, 0);
-  static const double DROP_SHADOW_RADIUS = 30.0;
+  static const double DROP_SHADOW_RADIUS = 50.0;
   static const float DROP_SHADOW_OPACITY = 0.4f;
 #if __APPLE__
   const float opacity = DROP_SHADOW_OPACITY;
@@ -142,6 +137,7 @@ void ExposeViewWindow::SetOpeningPosition() {
 
   m_position.SetImmediate(center);
   m_position.Set(center, 0.95*VIEW_ANIMATION_TIME - randomTimeVariation + getRandomVariation(randomTimeVariation));
+  m_prevPosition = center;
 #endif
 }
 

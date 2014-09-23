@@ -189,8 +189,6 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     window->m_scale.Update((float)dt.count());
     const double actualScale = (1.0 - m_alphaMask.Current()) + m_alphaMask.Current()*window->GetScale();
 
-    img->LinearTransformation() = actualScale * Matrix3x3::Identity();
-
     Vector3 totalForce(Vector3::Zero());
 
     if (!m_ignoreInteraction) {
@@ -204,7 +202,11 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     window->m_forceDelta.SetGoal(totalForce);
     window->m_position.Update(static_cast<float>(dt.count()));
     window->m_forceDelta.Update(static_cast<float>(dt.count()));
-    img->Translation() = window->m_position.Current() + m_alphaMask.Current()*window->m_grabDelta.Value() + m_alphaMask.Current()*window->m_forceDelta.Value();
+    const Vector3 newPosition = window->m_position.Current() + m_alphaMask.Current()*window->m_grabDelta.Value() + m_alphaMask.Current()*window->m_forceDelta.Value();
+    const Vector3 delta = newPosition - window->m_prevPosition;
+    window->m_prevPosition = newPosition;
+    img->LinearTransformation() = (actualScale * Matrix3x3::Identity()) * PrimitiveBase::SquashStretchTransform(2.0*delta, Vector3::UnitZ());
+    img->Translation() = newPosition;
 
     // set window opacity smoothly
     window->m_opacity.SetGoal(1.0f);
