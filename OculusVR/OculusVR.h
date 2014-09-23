@@ -119,7 +119,7 @@ private:
 
   void Shutdown();
 
-  ovrHmd m_HMD;
+  ovrHmd m_HMD = NULL;
   bool m_Debug;
   
   int m_width;
