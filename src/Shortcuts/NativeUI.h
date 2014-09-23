@@ -61,4 +61,14 @@ struct NativeUI:
   /// Invoked when a config setting is altered from the native code.
   /// </summary>
   void ConfigChanged(const std::string& config, const json11::Json& value) override;
+
+  /// <summary>
+  /// Invoked when the launch on startup setting is changed by the user
+  /// </summary>
+  void OnStartupChanged(bool value);
+
+  /// <summary>
+  /// Used to query what the launch on startup setting is
+  /// </summary>
+  bool GetLaunchOnStartup();
 };

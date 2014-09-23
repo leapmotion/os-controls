@@ -58,3 +58,11 @@ void NativeUI::OnSettingChanged(const std::string& var, double value)
 
   config->Set(var, value);
 }
+
+void NativeUI::OnStartupChanged(bool value) {
+  //Implement me
+}
+
+bool NativeUI::GetLaunchOnStartup() {
+  return false; //Implement me
+}
