@@ -71,6 +71,8 @@ private:
   ScrollType m_scrollType;
 
   Vector2 m_handDelta; //in millimeters
+  Smoothed<float> m_handDeltaMM_Y;
+  Smoothed<float> m_handDeltaMM_X;
   Vector2 m_lastHandLocation; //in screen coordinates
   const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
   float m_lastScrollReleaseTimestep;
