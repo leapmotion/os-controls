@@ -317,6 +317,7 @@ namespace Shortcuts {
       this->button_ok->TabIndex = 9;
       this->button_ok->Text = L"Ok";
       this->button_ok->UseVisualStyleBackColor = true;
+      this->button_ok->Click += gcnew System::EventHandler(this, &NativeUIWin::okButton_Click);
       // 
       // label_version
       // 
@@ -392,15 +393,15 @@ namespace Shortcuts {
       break;
     }
   }
-  void okButton_Click(Object^  sender, System::EventArgs^  e) {
+  System::Void okButton_Click(Object^  sender, System::EventArgs^  e) {
     callbacks.OnConfigUiHidden(false);
     Visible = false;
   }
-  void cancelButton_Click(Object^  sender, System::EventArgs^  e) {
+  System::Void cancelButton_Click(Object^  sender, System::EventArgs^  e) {
     callbacks.OnConfigUiHidden(true);
     Visible = false;
   }
-  void helpToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+  System::Void helpToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
     callbacks.OnShowHtmlHelp("main");
   }
 
