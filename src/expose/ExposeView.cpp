@@ -238,7 +238,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     assert(!group->m_groupMembers.empty());
     for (const std::shared_ptr<ExposeViewWindow>& window : group->m_groupMembers) {
       const double curWeight = window->GetTexture()->Size().norm() * window->m_opacity.Value();
-      center += curWeight * window->GetTexture()->Translation();
+      center += curWeight * (window->GetTexture()->Translation() - window->m_grabDelta.Value());
       weight += curWeight;
     }
     center /= weight;
