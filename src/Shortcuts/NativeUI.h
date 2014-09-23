@@ -38,6 +38,7 @@ struct NativeUI:
   /// Invoked when a user changes a config setting from the UI.
   /// </summary>
   void OnSettingChanged(const std::string& var, bool state);
+  void OnSettingChanged(const std::string& var, double value);
 
   /// <summary>
   /// Invoked when the user has requested that HTML help be displayed

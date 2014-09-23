@@ -12,5 +12,8 @@ void NativeUI::DestroyUI(void) {
 }
 
 void NativeUI::ConfigChanged(const std::string& config, const json11::Json& value) {
-  NativeUIWin::ConfigChanged(config, value.bool_value());
+  if (value.is_bool())
+    NativeUIWin::ConfigChanged(config, value.bool_value());
+  else if (value.is_number())
+    NativeUIWin::ConfigChanged(config, value.number_value());
 }

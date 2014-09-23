@@ -49,3 +49,12 @@ void NativeUI::OnSettingChanged(const std::string& var, bool state)
 
   config->Set(var, state);
 }
+
+void NativeUI::OnSettingChanged(const std::string& var, double value)
+{
+  AutowiredFast<Config> config;
+  if (!config)
+    return;
+
+  config->Set(var, value);
+}
