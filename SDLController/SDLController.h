@@ -1,7 +1,14 @@
 #pragma once
 
 #include "SDL.h"
+#if __APPLE__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextern-c-compat"
+#endif
 #include "SDL_syswm.h"
+#if __APPLE__
+#pragma GCC diagnostic pop
+#endif
 
 #include <string>
 
