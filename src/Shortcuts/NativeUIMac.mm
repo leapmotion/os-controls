@@ -5,6 +5,7 @@
 
 #include <AppKit/NSApplication.h>
 #include <AppKit/NSNibLoading.h>
+#include <Foundation/NSUserNotification.h>
 #include <autowiring/autowiring.h>
 
 void NativeUI::ShowUI() {
@@ -12,6 +13,18 @@ void NativeUI::ShowUI() {
 }
 
 void NativeUI::DestroyUI() {
+}
+
+void NativeUI::ShowToolbarMessage(const char* title, const char* message) {
+  //TODO - Get reviewed by someone who knows absolutely anything about Objective-C
+  @autoreleasepool {
+    NSUserNotification *notification = [[NSUserNotification alloc] init];
+    notification.title = [NSString stringWithFormat: @"%c",title];
+    notification.informativeText = [NSString stringWithFormat: @"%c",message];
+    notification.soundName = NSUserNotificationDefaultSoundName;
+
+    [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
+  }
 }
 
 void NativeUI::ConfigChanged(const std::string& config, const json11::Json& value) {
