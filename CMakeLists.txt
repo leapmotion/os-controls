@@ -536,8 +536,8 @@ endif()
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     option(MSVC_USE_MT "Build using static runtime instead of dynamic" OFF)
     if (MSVC_USE_MT)
-      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MT")
-      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+      string(REGEX REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+      string(REGEX REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
     endif()
 endif()
 
@@ -873,6 +873,9 @@ foreach(_test ${_tests})
     list(APPEND Test_SOURCES ${_headers} ${_sources})
 endforeach()
 add_executable(Test ${Test_SOURCES})
+if (MSVC_USE_MT)
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:LIBCMT")
+endif()
 
 # Link each of the dependencies of each unit test components.  The reason for this
 # indirection is because the test sources must be specified directly in the call to
