@@ -178,3 +178,46 @@ void OculusVR::Shutdown() {
   ovrHmd_Destroy(m_HMD);
   ovr_Shutdown();
 }
+
+void OculusVR::GetFramebufferStatus(GLenum status){
+  switch (glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
+    case GL_FRAMEBUFFER_COMPLETE:
+      printf(" :: GL_FRAMEBUFFER_COMPLETE in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_UNDEFINED:
+      printf(" :: GL_FRAMEBUFFER_UNDEFINED in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      printf(" :: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      printf(" :: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+      printf(" :: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+      printf(" :: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+      printf(" :: GL_FRAMEBUFFER_UNSUPPORTED in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+      printf(" :: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE in %i\n", status);
+      break;
+      
+    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+      printf(" :: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS in %i\n", status);
+      break;
+    default:
+      printf(" :: GL_FRAMEBUFFER unknown status\n");
+      break;
+	}
+}

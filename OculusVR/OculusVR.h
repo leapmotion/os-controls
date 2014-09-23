@@ -106,6 +106,8 @@ public:
   ovrHmd& GetHMD() {
     return m_HMD;
   }
+  
+  void GetFramebufferStatus(GLenum status);
 
 #if _WIN32
   void SetHWND(const HWND& hwnd) {
