@@ -8,12 +8,8 @@ ErrorDialogs::ErrorDialogs()
   *this += std::chrono::seconds(5), [this] { RaiseErrorMessages(); };
 }
 
-void ErrorDialogs::OnLeapFrame(const Leap::Frame& frame){
-  if (!frame.isValid())
-    *this += [this] {RaiseErrorMessages(); };
-}
-
-void ErrorDialogs::RaiseErrorMessages(){
+void ErrorDialogs::RaiseErrorMessages()
+{
   AutowiredFast<Leap::Controller> controller;
   AutowiredFast<NativeUI> ui;
   if (!controller || !ui)
@@ -24,7 +20,6 @@ void ErrorDialogs::RaiseErrorMessages(){
       "Leap Motion Service not enabled.\n"
       "Launch the \"Leap Motion\" service to continue using Shortcuts.");
   }
-
   else if (!controller->isConnected()) {
     bool isEmbedded = false;
     for (auto device : controller->devices()){

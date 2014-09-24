@@ -19,8 +19,8 @@ void NativeUI::ShowToolbarMessage(const char* title, const char* message) {
   //TODO - Get reviewed by someone who knows absolutely anything about Objective-C
   @autoreleasepool {
     NSUserNotification *notification = [[NSUserNotification alloc] init];
-    notification.title = [NSString stringWithFormat: @"%c",title];
-    notification.informativeText = [NSString stringWithFormat: @"%c",message];
+    notification.title = [NSString stringWithUTF8String:title];
+    notification.informativeText = [NSString stringWithUTF8String:message];
     notification.soundName = NSUserNotificationDefaultSoundName;
 
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
