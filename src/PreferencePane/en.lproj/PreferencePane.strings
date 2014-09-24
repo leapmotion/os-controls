@@ -14,8 +14,8 @@
 /* Class = "NSTabViewItem"; label = "Controls"; ObjectID = "Dug-nP-dZc"; */
 "Dug-nP-dZc.label" = "Controls";
 
-/* Class = "NSButtonCell"; title = "Launch Shortcuts"; ObjectID = "F5g-cB-agv"; */
-"F5g-cB-agv.title" = "Launch Shortcuts";
+/* Class = "NSButtonCell"; title = "Open Shortcuts"; ObjectID = "F5g-cB-agv"; */
+"F5g-cB-agv.title" = "Open Shortcuts";
 
 /* Class = "NSTabViewItem"; label = "Login"; ObjectID = "lJS-nf-Bra"; */
 "lJS-nf-Bra.label" = "Login";

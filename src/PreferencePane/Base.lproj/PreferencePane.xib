@@ -6,9 +6,15 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6245"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NSPreferencePane">
+        <customObject id="-2" userLabel="File's Owner" customClass="ComLeapMotionShortcutsPreferencePane">
             <connections>
                 <outlet property="_window" destination="12" id="26"/>
+                <outlet property="applicationSwitcherCheckbox" destination="6ML-v9-0p0" id="CQR-r7-ILk"/>
+                <outlet property="autoStartCheckbox" destination="prt-8x-klq" id="39c-vq-fBK"/>
+                <outlet property="launchShortcutsButton" destination="F5g-cB-agv" id="vyW-h7-RCk"/>
+                <outlet property="mediaControlsCheckbox" destination="Q72-B3-v6N" id="4VG-ra-Vft"/>
+                <outlet property="scrollingCheckbox" destination="eeT-sD-vMH" id="5nD-nM-D0p"/>
+                <outlet property="versionLabel" destination="Jnh-GZ-BhU" id="fim-YT-qj0"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -17,17 +23,20 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="176" y="715" width="668" height="159"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1418"/>
             <value key="minSize" type="size" width="224.66399999999999" height="10"/>
             <view key="contentView" id="6">
                 <rect key="frame" x="0.0" y="0.0" width="668" height="159"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vvb-7g-6hk">
-                        <rect key="frame" x="260" y="5" width="148" height="32"/>
-                        <buttonCell key="cell" type="push" title="Launch Shortcuts" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5g-cB-agv">
+                        <rect key="frame" x="266" y="5" width="137" height="32"/>
+                        <buttonCell key="cell" type="push" title="Open Shortcuts" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5g-cB-agv">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
+                            <connections>
+                                <action selector="launchShortcuts:" target="-2" id="8pn-6j-cl2"/>
+                            </connections>
                         </buttonCell>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="viB-Cc-5S0">
@@ -53,6 +62,9 @@
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <action selector="enableMediaControlsCheckbox:" target="-2" id="nHq-p9-IOx"/>
+                                            </connections>
                                         </button>
                                         <button translatesAutoresizingMaskIntoConstraints="NO" id="6ML-v9-0p0">
                                             <rect key="frame" x="15" y="34" width="196" height="18"/>
@@ -60,6 +72,9 @@
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <action selector="enableApplicationSwitcherCheckbox:" target="-2" id="c0P-Qu-Y3i"/>
+                                            </connections>
                                         </button>
                                         <button translatesAutoresizingMaskIntoConstraints="NO" id="eeT-sD-vMH">
                                             <rect key="frame" x="15" y="14" width="123" height="18"/>
@@ -67,15 +82,20 @@
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <action selector="enableScrollingCheckbox:" target="-2" id="mJg-K4-Prf"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="Q72-B3-v6N" firstAttribute="top" secondItem="sHJ-zD-hBL" secondAttribute="top" constant="3" id="2hb-Fj-u5W"/>
+                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="6ML-v9-0p0" secondAttribute="leading" id="3VM-MM-RNx"/>
                                         <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="sHJ-zD-hBL" secondAttribute="leading" constant="17" id="90P-hI-LBC"/>
                                         <constraint firstItem="6ML-v9-0p0" firstAttribute="top" secondItem="Q72-B3-v6N" secondAttribute="bottom" constant="6" symbolic="YES" id="IZ7-qF-zUM"/>
                                         <constraint firstItem="eeT-sD-vMH" firstAttribute="top" secondItem="6ML-v9-0p0" secondAttribute="bottom" constant="6" symbolic="YES" id="de5-MG-QSj"/>
                                         <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="6ML-v9-0p0" secondAttribute="leading" id="edB-0k-a2R"/>
                                         <constraint firstItem="6ML-v9-0p0" firstAttribute="leading" secondItem="eeT-sD-vMH" secondAttribute="leading" id="iCh-CC-TEC"/>
+                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="eeT-sD-vMH" secondAttribute="leading" id="nep-1T-9e0"/>
                                     </constraints>
                                 </view>
                             </tabViewItem>
@@ -90,6 +110,9 @@
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <action selector="enableAutoStart:" target="-2" id="sd1-AU-O8X"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <constraints>
@@ -111,11 +134,11 @@
                 </subviews>
                 <constraints>
                     <constraint firstItem="Jnh-GZ-BhU" firstAttribute="baseline" secondItem="Vvb-7g-6hk" secondAttribute="baseline" id="8XU-s1-LFr"/>
-                    <constraint firstItem="Jnh-GZ-BhU" firstAttribute="leading" secondItem="6" secondAttribute="leading" constant="73" id="BYh-8x-EEP"/>
                     <constraint firstItem="7yt-u3-fER" firstAttribute="leading" secondItem="6" secondAttribute="leading" constant="20" symbolic="YES" id="GSE-UW-PG2"/>
                     <constraint firstAttribute="bottom" secondItem="Vvb-7g-6hk" secondAttribute="bottom" constant="12" id="GqE-7e-6R0"/>
                     <constraint firstAttribute="bottom" secondItem="7yt-u3-fER" secondAttribute="bottom" constant="44" id="Opv-qL-BqT"/>
                     <constraint firstItem="Jnh-GZ-BhU" firstAttribute="baseline" secondItem="viB-Cc-5S0" secondAttribute="baseline" id="bLq-EP-PdH"/>
+                    <constraint firstItem="Jnh-GZ-BhU" firstAttribute="leading" secondItem="viB-Cc-5S0" secondAttribute="trailing" constant="2" id="ble-IU-HSH"/>
                     <constraint firstItem="7yt-u3-fER" firstAttribute="centerX" secondItem="Vvb-7g-6hk" secondAttribute="centerX" id="lD9-e7-Djb"/>
                     <constraint firstItem="viB-Cc-5S0" firstAttribute="leading" secondItem="7yt-u3-fER" secondAttribute="leading" id="stX-fz-60g"/>
                     <constraint firstAttribute="trailing" secondItem="7yt-u3-fER" secondAttribute="trailing" constant="20" symbolic="YES" id="tSz-Wl-YcF"/>
