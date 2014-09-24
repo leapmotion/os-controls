@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Shortcuts.h"
 #include "NativeUI.h"
+#include "ErrorDialogs.h"
 #include "graphics/RenderFrame.h"
 #include "graphics/RenderEngine.h"
 #include "expose/ExposeViewAccessManager.h"
@@ -15,6 +16,7 @@
 #include "osinterface/VolumeLevelChecker.h"
 #include "osinterface/WindowScroller.h"
 #include "uievents/SystemMultimediaEventListener.h"
+#include "utility/AutoLaunch.h"
 #include "utility/Config.h"
 #include "utility/FileMonitor.h"
 #include "utility/NativeWindow.h"
@@ -28,6 +30,9 @@ int main(int argc, char **argv)
   
   ctxt->Initiate();
   AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
+  AutoRequired<AutoLaunch> autoLaunch;
+
+  autoLaunch->SetFriendlyName("Leap Motion Shortcuts");
 
   try {
     AutoCreateContextT<ShortcutsContext> shortcutsCtxt;
@@ -39,6 +44,7 @@ int main(int argc, char **argv)
     // Register the tray icon early in the process, before we spend a bunch of time doing everything else
     nativeUI->ShowUI();
     auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
+    AutoRequired<ErrorDialogs>();
 
     AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<RenderEngine> render;

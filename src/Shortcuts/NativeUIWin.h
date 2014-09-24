@@ -97,6 +97,13 @@ namespace Shortcuts {
       }
     }
 
+    static void ShowToolbarMessage(const char* title, const char* message) {
+      if (!s_nativeUI)
+        return;
+
+      s_nativeUI->notificationIcon->ShowBalloonTip(10000, gcnew String(title), gcnew String(message), Windows::Forms::ToolTipIcon::Warning);
+    }
+
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
