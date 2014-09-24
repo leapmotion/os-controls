@@ -11,6 +11,10 @@ void NativeUI::DestroyUI(void) {
   Application::Exit();
 }
 
+void NativeUI::ShowToolbarMessage(const char* title, const char* message) {
+  NativeUIWin::ShowToolbarMessage(title, message);
+}
+
 void NativeUI::ConfigChanged(const std::string& config, const json11::Json& value) {
   if (value.is_bool())
     NativeUIWin::ConfigChanged(config, value.bool_value());

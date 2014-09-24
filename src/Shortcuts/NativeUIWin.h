@@ -121,10 +121,20 @@ namespace Shortcuts {
     }
 
     static void ConfigChanged(const std::string& var, double value) {
+      if(!s_nativeUI)
+        return;
+        
       if (var == "scrollSensitivity") {
         const int intvalue = std::max(s_nativeUI->scrollSensitivityBar->Minimum, std::min(s_nativeUI->scrollSensitivityBar->Maximum, static_cast<int>(value)));
         s_nativeUI->scrollSensitivityBar->Value = intvalue;
       }
+    }
+    
+    static void ShowToolbarMessage(const char* title, const char* message) {
+      if (!s_nativeUI)
+        return;
+
+      s_nativeUI->notificationIcon->ShowBalloonTip(10000, gcnew String(title), gcnew String(message), Windows::Forms::ToolTipIcon::Warning);
     }
 
     static void StartupChanged(bool value) {

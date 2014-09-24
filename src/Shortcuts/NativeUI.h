@@ -47,6 +47,11 @@ struct NativeUI:
   void OnShowHtmlHelp(const char* helpWith);
 
   /// <summary>
+  /// Invoked when we want to display a toolbar notification message
+  /// </summary>
+  void ShowToolbarMessage(const char* title, const char* message);
+
+  /// <summary>
   /// Causes the config events to be re-fired if a config object exists in the current context.
   /// Used only on windows since we can't autowire things.
   /// </summary>
