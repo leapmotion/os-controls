@@ -166,7 +166,7 @@ GLMesh<DIM>
   e.g. Lm::Gl::Shader, Lm::Gl::Texture2.
 
 - There are two detail-levels of GL components.  One is the granular, consisting of abstractions
-  of separate OpenGL concepts.  The other is sort of "package level".  There are two package-level
+  of separate OpenGL concepts.  The other is sort of "package level".  There are two disjoint package-level
   GL components, which I'll make up names for because they don't exist tangibly at this moment in time.
   * GLCoreComponent (better name needed) -- abstractions of OpenGL concepts; no external library
     requirements besides OpenGL and Glew.
