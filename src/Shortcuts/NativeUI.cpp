@@ -2,6 +2,7 @@
 #include "NativeUI.h"
 #include "Shortcuts.h"
 #include "osinterface/HtmlPageLauncher.h"
+#include "utility/AutoLaunch.h"
 #include "utility/Config.h"
 
 #include <autowiring/Autowired.h>
@@ -60,9 +61,15 @@ void NativeUI::OnSettingChanged(const std::string& var, double value)
 }
 
 void NativeUI::OnStartupChanged(bool value) {
-  //Implement me
+  AutowiredFast<AutoLaunch> launch;
+  if (!launch)
+    return;
+  launch->SetAutoLaunch(value);
 }
 
 bool NativeUI::GetLaunchOnStartup() {
-  return false; //Implement me
+  AutowiredFast<AutoLaunch> launch;
+  if (!launch)
+    return false;
+  return launch->IsAutoLaunch();
 }
