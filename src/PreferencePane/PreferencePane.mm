@@ -95,7 +95,7 @@ class ConfigHandler:
 }
 
 - (IBAction)onUserSensitivtyChanged:(id)sender {
-  [sender ]
+  
 }
 
 - (IBAction)launchShortcuts:(id)sender
