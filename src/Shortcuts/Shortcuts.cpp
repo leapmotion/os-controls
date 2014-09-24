@@ -29,7 +29,9 @@ int main(int argc, char **argv)
   
   ctxt->Initiate();
   AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
-  AutoConstruct<AutoLaunch> autoLaunch("Leap Motion Shortcuts");
+  AutoRequired<AutoLaunch> autoLaunch;
+
+  autoLaunch->SetFriendlyName("Leap Motion Shortcuts");
 
   try {
     AutoCreateContextT<ShortcutsContext> shortcutsCtxt;

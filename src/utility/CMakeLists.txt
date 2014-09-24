@@ -21,6 +21,7 @@ set(utility_SOURCES
 )
 
 add_windows_sources(utility_SOURCES
+  AutoLaunchWin.h
   AutoLaunchWin.cpp
   FileMonitorWin.h
   FileMonitorWin.cpp
@@ -30,7 +31,8 @@ add_windows_sources(utility_SOURCES
 )
 
 add_mac_sources(utility_SOURCES
-  AutoLaunchMac.cpp
+  AutoLaunchMac.h
+  AutoLaunchMac.mm
   FileMonitorMac.h
   FileMonitorMac.cpp
   NativeWindowMac.mm
@@ -43,6 +45,10 @@ target_link_libraries(utility Autowiring json11 )
 
 if(MSVC)
   target_link_libraries(utility shlwapi)
+elseif(APPLE)
+  find_library(CORESERVICES_FRAMEWORK CoreServices)
+  mark_as_advanced(CORESERVICES_FRAMEWORK)
+  target_link_libraries(utility ${CORESERVICES_FRAMEWORK})
 endif()
 
 target_link_components(utility Primitives)

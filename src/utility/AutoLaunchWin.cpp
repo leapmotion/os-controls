@@ -1,5 +1,6 @@
+// Copyright (c) 2010 - 2014 Leap Motion. All rights reserved. Proprietary and confidential.
 #include "stdafx.h"
-#include "AutoLaunch.h"
+#include "AutoLaunchWin.h"
 
 #include <sstream>
 #include <codecvt>
@@ -8,8 +9,12 @@
 
 const static wchar_t* s_RegKey = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
-AutoLaunch::AutoLaunch(const char* appName, const char* commandLineOptions):
-m_appName(appName)
+AutoLaunch* AutoLaunch::New(void)
+{
+  return new AutoLaunchWin;
+}
+
+AutoLaunchWin::AutoLaunchWin()
 {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
 
@@ -24,13 +29,10 @@ m_appName(appName)
 
   std::wstringstream stream;
   stream << L"\"" << path << L"\"";
-  if (commandLineOptions)
-    stream << L" " << converter.from_bytes(commandLineOptions);
-
   m_command = converter.to_bytes(stream.str());
 }
 
-bool AutoLaunch::IsAutoLaunch() {
+bool AutoLaunchWin::IsAutoLaunch() {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
 
   char value[MAX_PATH] = {};
@@ -40,7 +42,7 @@ bool AutoLaunch::IsAutoLaunch() {
   return read == ERROR_SUCCESS;
 }
 
-bool AutoLaunch::SetAutoLaunch(bool shouldLaunch) {
+bool AutoLaunchWin::SetAutoLaunch(bool shouldLaunch) {
 
   HKEY hKey;
   LONG openRes = RegOpenKeyExW(HKEY_CURRENT_USER, s_RegKey, 0, KEY_ALL_ACCESS, &hKey);
@@ -49,8 +51,9 @@ bool AutoLaunch::SetAutoLaunch(bool shouldLaunch) {
 
   LONG writeRes = 0;
   if (shouldLaunch) {
+    std::string commandLine = m_command + " " + m_commandLineOptions;
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
-    std::wstring wideCommand = converter.from_bytes(m_command);
+    std::wstring wideCommand = converter.from_bytes(commandLine);
     LONG writeRes = RegSetValueExW(hKey, converter.from_bytes(m_appName).c_str(), 0, REG_SZ, (LPBYTE)wideCommand.c_str(), (wideCommand.size() + 1)*sizeof(wchar_t));
   }
   else {
