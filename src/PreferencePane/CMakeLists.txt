@@ -18,6 +18,7 @@ file(GLOB PreferencePane_STRINGS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.lproj/*.
 add_conditional_sources(PreferencePane_SOURCES "" GROUP_NAME "XIBs" "FILES" ${PreferencePane_XIBS} ${PreferencePane_STRINGS})
 
 add_library(ShortcutsPreferences SHARED ${PreferencePane_SOURCES})
+add_dependencies(ShortcutsPreferences Shortcuts)
 find_library(PREFERENCEPANES_FRAMEWORK PreferencePanes)
 find_library(APPKIT_FRAMEWORK AppKit)
 mark_as_advanced(PREFERENCEPANES_FRAMEWORK)
@@ -27,7 +28,7 @@ target_link_libraries(ShortcutsPreferences utility ${PREFERENCEPANES_FRAMEWORK} 
 #For version.h
 target_include_directories(ShortcutsPreferences PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-set(SHORTCUTS_PREFERENCES_CONTENTS ${CMAKE_BINARY_DIR}/bin/Shortcuts.prefPane/Contents)
+set(SHORTCUTS_PREFERENCES_CONTENTS ${CMAKE_BINARY_DIR}/bin/Shortcuts.app/Contents/MacOS/Shortcuts.prefPane/Contents)
 
 add_custom_command(TARGET ShortcutsPreferences PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory ${SHORTCUTS_PREFERENCES_CONTENTS}/Resources/
