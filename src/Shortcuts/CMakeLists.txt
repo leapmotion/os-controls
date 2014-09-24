@@ -1,4 +1,6 @@
 set(Shortcuts_SOURCES
+  ErrorDialogs.h
+  ErrorDialogs.cpp
   NativeUI.h
   NativeUI.cpp
   Shortcuts.h
