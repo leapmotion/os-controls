@@ -18,7 +18,7 @@
     _mediaControlsMenu = [[NSMenuItem alloc] initWithTitle:@"Enable Media Controls"
                                                     action:@selector(onMediaControls:)
                                              keyEquivalent:@""];
-    _windowSelectionMenu = [[NSMenuItem alloc] initWithTitle:@"Enable Window Selection"
+    _windowSelectionMenu = [[NSMenuItem alloc] initWithTitle:@"Enable Application Switcher"
                                                       action:@selector(onWindowSelection:)
                                                keyEquivalent:@""];
     _scrollingMenu = [[NSMenuItem alloc] initWithTitle:@"Enable Scrolling"

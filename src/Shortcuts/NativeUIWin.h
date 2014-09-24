@@ -241,9 +241,9 @@ namespace Shortcuts {
       this->exposeCheckBox->Location = System::Drawing::Point(22, 98);
       this->exposeCheckBox->Margin = System::Windows::Forms::Padding(6);
       this->exposeCheckBox->Name = L"exposeCheckBox";
-      this->exposeCheckBox->Size = System::Drawing::Size(267, 29);
-      this->exposeCheckBox->TabIndex = 4;
-      this->exposeCheckBox->Text = L"Enable Window Selection";
+      this->exposeCheckBox->Size = System::Drawing::Size(148, 16);
+      this->exposeCheckBox->TabIndex = 1;
+      this->exposeCheckBox->Text = L"Enable Application Switcher";
       this->exposeCheckBox->UseVisualStyleBackColor = true;
       this->exposeCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::exposeCheckBox_CheckedChanged);
       // 
