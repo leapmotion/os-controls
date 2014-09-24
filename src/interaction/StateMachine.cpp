@@ -296,7 +296,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   }
   else if ( m_state == ShortcutsState::SCROLLING)
   {
-    m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * SCROLL_SENSITIVITY * m_ppmm);
+    m_scrollOperation->ScrollBy(0.0f, (float)m_handDelta.y() * m_config->Get<double>("scrollSensitivity") * m_ppmm);
   }
 
   m_handDelta = Vector2(0, 0);

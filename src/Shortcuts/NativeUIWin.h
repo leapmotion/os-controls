@@ -276,12 +276,12 @@ namespace Shortcuts {
       // scrollSensitivityBar
       // 
       this->scrollSensitivityBar->Location = System::Drawing::Point(3, 3);
-      this->scrollSensitivityBar->Maximum = 20;
-      this->scrollSensitivityBar->Minimum = 5;
+      this->scrollSensitivityBar->Maximum = 9;
+      this->scrollSensitivityBar->Minimum = 1;
       this->scrollSensitivityBar->Name = L"scrollSensitivityBar";
       this->scrollSensitivityBar->Size = System::Drawing::Size(398, 53);
       this->scrollSensitivityBar->TabIndex = 6;
-      this->scrollSensitivityBar->Value = 12;
+      this->scrollSensitivityBar->Value = 5;
       this->scrollSensitivityBar->MouseCaptureChanged += gcnew System::EventHandler(this, &NativeUIWin::trackBar1_MouseCaptureChanged);
       // 
       // label_scrollSensitivity
