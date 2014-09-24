@@ -215,7 +215,7 @@ namespace Shortcuts {
       // 
       exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
       exitToolStripMenuItem->Size = System::Drawing::Size(227, 36);
-      exitToolStripMenuItem->Text = L"&Quit";
+      exitToolStripMenuItem->Text = L"&Exit";
       exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
       // 
       // notificationIcon
