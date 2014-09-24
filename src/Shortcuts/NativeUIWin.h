@@ -1,6 +1,8 @@
 #pragma once
+#define NOMINMAX
 #include "NativeUI.h"
 #include <msclr/marshal_cppstd.h>
+#include <algorithm>
 
 struct NativeUI;
 
@@ -120,7 +122,8 @@ namespace Shortcuts {
 
     static void ConfigChanged(const std::string& var, double value) {
       if (var == "scrollSensitivity") {
-        s_nativeUI->scrollSensitivityBar->Value = (int)value;
+        const int intvalue = std::max(s_nativeUI->scrollSensitivityBar->Minimum, std::min(s_nativeUI->scrollSensitivityBar->Maximum, static_cast<int>(value)));
+        s_nativeUI->scrollSensitivityBar->Value = intvalue;
       }
     }
 
@@ -241,7 +244,7 @@ namespace Shortcuts {
       this->exposeCheckBox->Location = System::Drawing::Point(22, 98);
       this->exposeCheckBox->Margin = System::Windows::Forms::Padding(6);
       this->exposeCheckBox->Name = L"exposeCheckBox";
-      this->exposeCheckBox->Size = System::Drawing::Size(148, 16);
+      this->exposeCheckBox->Size = System::Drawing::Size(286, 29);
       this->exposeCheckBox->TabIndex = 1;
       this->exposeCheckBox->Text = L"Enable Application Switcher";
       this->exposeCheckBox->UseVisualStyleBackColor = true;
@@ -275,6 +278,7 @@ namespace Shortcuts {
       // 
       // scrollSensitivityBar
       // 
+      this->scrollSensitivityBar->LargeChange = 1;
       this->scrollSensitivityBar->Location = System::Drawing::Point(3, 3);
       this->scrollSensitivityBar->Maximum = 9;
       this->scrollSensitivityBar->Minimum = 1;
