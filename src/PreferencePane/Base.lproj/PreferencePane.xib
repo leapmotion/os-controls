@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment version="1080" identifier="macosx"/>
+        <development version="5000" identifier="xcode"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6245"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NSPreferencePane">
+            <connections>
+                <outlet property="_window" destination="12" id="26"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="&lt;&lt; do not localize >>" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" deferred="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="12" userLabel="ComLeapMotionShortcutsPreferencePane">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="176" y="715" width="668" height="159"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
+            <value key="minSize" type="size" width="224.66399999999999" height="10"/>
+            <view key="contentView" id="6">
+                <rect key="frame" x="0.0" y="0.0" width="668" height="159"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vvb-7g-6hk">
+                        <rect key="frame" x="260" y="5" width="148" height="32"/>
+                        <buttonCell key="cell" type="push" title="Launch Shortcuts" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5g-cB-agv">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="viB-Cc-5S0">
+                        <rect key="frame" x="18" y="15" width="55" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Version:" id="mwD-OG-swO">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <tabView translatesAutoresizingMaskIntoConstraints="NO" id="7yt-u3-fER">
+                        <rect key="frame" x="13" y="34" width="642" height="119"/>
+                        <font key="font" metaFont="system"/>
+                        <tabViewItems>
+                            <tabViewItem label="Controls" identifier="1" id="Dug-nP-dZc">
+                                <view key="view" id="sHJ-zD-hBL">
+                                    <rect key="frame" x="10" y="33" width="622" height="73"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="Q72-B3-v6N">
+                                            <rect key="frame" x="15" y="54" width="163" height="18"/>
+                                            <buttonCell key="cell" type="check" title="Enable Media Controls" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Ciz-wY-tSY">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="6ML-v9-0p0">
+                                            <rect key="frame" x="15" y="34" width="196" height="18"/>
+                                            <buttonCell key="cell" type="check" title="Enable Application Switcher" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="xol-Di-VRe">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="eeT-sD-vMH">
+                                            <rect key="frame" x="15" y="14" width="123" height="18"/>
+                                            <buttonCell key="cell" type="check" title="Enable Scrolling" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3do-7e-2Z1">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="top" secondItem="sHJ-zD-hBL" secondAttribute="top" constant="3" id="2hb-Fj-u5W"/>
+                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="sHJ-zD-hBL" secondAttribute="leading" constant="17" id="90P-hI-LBC"/>
+                                        <constraint firstItem="6ML-v9-0p0" firstAttribute="top" secondItem="Q72-B3-v6N" secondAttribute="bottom" constant="6" symbolic="YES" id="IZ7-qF-zUM"/>
+                                        <constraint firstItem="eeT-sD-vMH" firstAttribute="top" secondItem="6ML-v9-0p0" secondAttribute="bottom" constant="6" symbolic="YES" id="de5-MG-QSj"/>
+                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="6ML-v9-0p0" secondAttribute="leading" id="edB-0k-a2R"/>
+                                        <constraint firstItem="6ML-v9-0p0" firstAttribute="leading" secondItem="eeT-sD-vMH" secondAttribute="leading" id="iCh-CC-TEC"/>
+                                    </constraints>
+                                </view>
+                            </tabViewItem>
+                            <tabViewItem label="Login" identifier="2" id="lJS-nf-Bra">
+                                <view key="view" id="2O8-eR-8DS">
+                                    <rect key="frame" x="10" y="33" width="622" height="73"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="prt-8x-klq">
+                                            <rect key="frame" x="15" y="54" width="311" height="18"/>
+                                            <buttonCell key="cell" type="check" title="Automatically open Shortcuts when you log in" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="n0Z-ho-M2C">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="prt-8x-klq" firstAttribute="leading" secondItem="2O8-eR-8DS" secondAttribute="leading" constant="17" id="Rt0-Yq-cZw"/>
+                                        <constraint firstItem="prt-8x-klq" firstAttribute="top" secondItem="2O8-eR-8DS" secondAttribute="top" constant="3" id="mIt-zF-7W1"/>
+                                    </constraints>
+                                </view>
+                            </tabViewItem>
+                        </tabViewItems>
+                    </tabView>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jnh-GZ-BhU">
+                        <rect key="frame" x="71" y="15" width="37" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="0.0.0" id="Dtn-DN-ZNS">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Jnh-GZ-BhU" firstAttribute="baseline" secondItem="Vvb-7g-6hk" secondAttribute="baseline" id="8XU-s1-LFr"/>
+                    <constraint firstItem="Jnh-GZ-BhU" firstAttribute="leading" secondItem="6" secondAttribute="leading" constant="73" id="BYh-8x-EEP"/>
+                    <constraint firstItem="7yt-u3-fER" firstAttribute="leading" secondItem="6" secondAttribute="leading" constant="20" symbolic="YES" id="GSE-UW-PG2"/>
+                    <constraint firstAttribute="bottom" secondItem="Vvb-7g-6hk" secondAttribute="bottom" constant="12" id="GqE-7e-6R0"/>
+                    <constraint firstAttribute="bottom" secondItem="7yt-u3-fER" secondAttribute="bottom" constant="44" id="Opv-qL-BqT"/>
+                    <constraint firstItem="Jnh-GZ-BhU" firstAttribute="baseline" secondItem="viB-Cc-5S0" secondAttribute="baseline" id="bLq-EP-PdH"/>
+                    <constraint firstItem="7yt-u3-fER" firstAttribute="centerX" secondItem="Vvb-7g-6hk" secondAttribute="centerX" id="lD9-e7-Djb"/>
+                    <constraint firstItem="viB-Cc-5S0" firstAttribute="leading" secondItem="7yt-u3-fER" secondAttribute="leading" id="stX-fz-60g"/>
+                    <constraint firstAttribute="trailing" secondItem="7yt-u3-fER" secondAttribute="trailing" constant="20" symbolic="YES" id="tSz-Wl-YcF"/>
+                    <constraint firstItem="7yt-u3-fER" firstAttribute="top" secondItem="6" secondAttribute="top" constant="12" symbolic="YES" id="uRZ-RE-9Lt"/>
+                </constraints>
+            </view>
+            <point key="canvasLocation" x="139" y="146.5"/>
+        </window>
+    </objects>
+</document>

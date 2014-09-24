@@ -1,0 +1,30 @@
+
+/* Class = "NSWindow"; title = "<< do not localize >>"; ObjectID = "12"; */
+"12.title" = "<< do not localize >>";
+
+/* Class = "NSButtonCell"; title = "Enable Scrolling"; ObjectID = "3do-7e-2Z1"; */
+"3do-7e-2Z1.title" = "Enable Scrolling";
+
+/* Class = "NSButtonCell"; title = "Enable Media Controls"; ObjectID = "Ciz-wY-tSY"; */
+"Ciz-wY-tSY.title" = "Enable Media Controls";
+
+/* Class = "NSTextFieldCell"; title = "0.0.0"; ObjectID = "Dtn-DN-ZNS"; */
+"Dtn-DN-ZNS.title" = "0.0.0";
+
+/* Class = "NSTabViewItem"; label = "Controls"; ObjectID = "Dug-nP-dZc"; */
+"Dug-nP-dZc.label" = "Controls";
+
+/* Class = "NSButtonCell"; title = "Launch Shortcuts"; ObjectID = "F5g-cB-agv"; */
+"F5g-cB-agv.title" = "Launch Shortcuts";
+
+/* Class = "NSTabViewItem"; label = "Login"; ObjectID = "lJS-nf-Bra"; */
+"lJS-nf-Bra.label" = "Login";
+
+/* Class = "NSTextFieldCell"; title = "Version:"; ObjectID = "mwD-OG-swO"; */
+"mwD-OG-swO.title" = "Version:";
+
+/* Class = "NSButtonCell"; title = "Automatically open Shortcuts when you log in"; ObjectID = "n0Z-ho-M2C"; */
+"n0Z-ho-M2C.title" = "Automatically open Shortcuts when you log in";
+
+/* Class = "NSButtonCell"; title = "Enable Application Switcher"; ObjectID = "xol-Di-VRe"; */
+"xol-Di-VRe.title" = "Enable Application Switcher";
