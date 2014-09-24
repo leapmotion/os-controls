@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6245" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment version="1080" identifier="macosx"/>
         <development version="5000" identifier="xcode"/>
@@ -9,11 +9,12 @@
         <customObject id="-2" userLabel="File's Owner" customClass="ComLeapMotionShortcutsPreferencePane">
             <connections>
                 <outlet property="_window" destination="12" id="26"/>
-                <outlet property="applicationSwitcherCheckbox" destination="6ML-v9-0p0" id="CQR-r7-ILk"/>
-                <outlet property="autoStartCheckbox" destination="prt-8x-klq" id="39c-vq-fBK"/>
+                <outlet property="applicationSwitcherCheckbox" destination="mWC-4H-nvy" id="zcJ-d7-MHz"/>
+                <outlet property="autoStartCheckbox" destination="lWo-qQ-r30" id="8bl-ha-WOv"/>
                 <outlet property="launchShortcutsButton" destination="F5g-cB-agv" id="vyW-h7-RCk"/>
-                <outlet property="mediaControlsCheckbox" destination="Q72-B3-v6N" id="4VG-ra-Vft"/>
-                <outlet property="scrollingCheckbox" destination="eeT-sD-vMH" id="5nD-nM-D0p"/>
+                <outlet property="mediaControlsCheckbox" destination="KZg-b0-K7D" id="mGy-1Y-twX"/>
+                <outlet property="scrollingCheckbox" destination="kUV-wY-ESH" id="TKS-TX-6k5"/>
+                <outlet property="sensitivityBar" destination="YJs-qg-ybx" id="qyj-hS-7X0"/>
                 <outlet property="versionLabel" destination="Jnh-GZ-BhU" id="fim-YT-qj0"/>
             </connections>
         </customObject>
@@ -22,15 +23,132 @@
         <window title="&lt;&lt; do not localize >>" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" deferred="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="12" userLabel="ComLeapMotionShortcutsPreferencePane">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="176" y="715" width="668" height="159"/>
+            <rect key="contentRect" x="176" y="715" width="526" height="231"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1418"/>
             <value key="minSize" type="size" width="224.66399999999999" height="10"/>
             <view key="contentView" id="6">
-                <rect key="frame" x="0.0" y="0.0" width="668" height="159"/>
+                <rect key="frame" x="0.0" y="0.0" width="526" height="231"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vvb-7g-6hk">
-                        <rect key="frame" x="266" y="5" width="137" height="32"/>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="viB-Cc-5S0">
+                        <rect key="frame" x="24" y="17" width="55" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Version:" id="mwD-OG-swO">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jnh-GZ-BhU">
+                        <rect key="frame" x="77" y="17" width="37" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="0.0.0" id="Dtn-DN-ZNS">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <box autoresizesSubviews="NO" fixedFrame="YES" title="Box" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="OW3-Z6-156">
+                        <rect key="frame" x="17" y="46" width="492" height="167"/>
+                        <view key="contentView">
+                            <rect key="frame" x="1" y="1" width="490" height="165"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <box autoresizesSubviews="NO" fixedFrame="YES" title="Feature Selection" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="wuq-Rh-7bu">
+                                    <rect key="frame" x="24" y="49" width="230" height="98"/>
+                                    <view key="contentView">
+                                        <rect key="frame" x="1" y="1" width="228" height="82"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                        <subviews>
+                                            <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KZg-b0-K7D">
+                                                <rect key="frame" x="16" y="55" width="163" height="18"/>
+                                                <buttonCell key="cell" type="check" title="Enable Media Controls" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3xc-dV-LzW">
+                                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="enableMediaControlsCheckbox:" target="-2" id="iur-uY-uch"/>
+                                                </connections>
+                                            </button>
+                                            <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mWC-4H-nvy">
+                                                <rect key="frame" x="16" y="35" width="196" height="18"/>
+                                                <buttonCell key="cell" type="check" title="Enable Application Switcher" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="gCf-hR-Cvd">
+                                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="enableApplicationSwitcherCheckbox:" target="-2" id="bB3-NS-bWU"/>
+                                                </connections>
+                                            </button>
+                                            <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kUV-wY-ESH">
+                                                <rect key="frame" x="16" y="15" width="123" height="18"/>
+                                                <buttonCell key="cell" type="check" title="Enable Scrolling" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="4yP-uB-2CU">
+                                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="enableScrollingCheckbox:" target="-2" id="McI-i9-IcV"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </view>
+                                    <constraints>
+                                        <constraint firstItem="KZg-b0-K7D" firstAttribute="leading" secondItem="kUV-wY-ESH" secondAttribute="leading" id="3DG-hh-rk4"/>
+                                        <constraint firstItem="mWC-4H-nvy" firstAttribute="top" secondItem="KZg-b0-K7D" secondAttribute="bottom" constant="6" symbolic="YES" id="7Pi-Qz-VsQ"/>
+                                        <constraint firstItem="mWC-4H-nvy" firstAttribute="leading" secondItem="kUV-wY-ESH" secondAttribute="leading" id="pyN-uj-Zf6"/>
+                                        <constraint firstItem="KZg-b0-K7D" firstAttribute="leading" secondItem="mWC-4H-nvy" secondAttribute="leading" id="t4A-wL-Hl5"/>
+                                        <constraint firstItem="kUV-wY-ESH" firstAttribute="top" secondItem="mWC-4H-nvy" secondAttribute="bottom" constant="6" symbolic="YES" id="w4a-YE-3IJ"/>
+                                        <constraint firstItem="KZg-b0-K7D" firstAttribute="leading" secondItem="mWC-4H-nvy" secondAttribute="leading" id="ymf-6Z-4hD"/>
+                                    </constraints>
+                                    <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                    <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </box>
+                                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lWo-qQ-r30">
+                                    <rect key="frame" x="42" y="22" width="174" height="18"/>
+                                    <buttonCell key="cell" type="check" title="Start Shortcuts on Login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Ifm-eL-7Mv">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                    <connections>
+                                        <action selector="enableAutoStart:" target="-2" id="c9I-Vg-9C7"/>
+                                    </connections>
+                                </button>
+                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1Qz-tf-TdN">
+                                    <rect key="frame" x="319" y="130" width="106" height="17"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Scroll Sensitivity" id="Nhp-sT-wRU">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Q7z-ha-F39">
+                                    <rect key="frame" x="437" y="79" width="28" height="17"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="high" id="pQf-Cx-I2l">
+                                        <font key="font" metaFont="smallSystem"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YJs-qg-ybx">
+                                    <rect key="frame" x="284" y="97" width="176" height="27"/>
+                                    <sliderCell key="cell" state="on" alignment="left" minValue="1" maxValue="9" doubleValue="5" tickMarkPosition="below" numberOfTickMarks="9" allowsTickMarkValuesOnly="YES" sliderType="linear" id="cVD-Ul-bqP"/>
+                                    <connections>
+                                        <action selector="onUserSensitivtyChanged:" target="-2" id="uIY-zm-51g"/>
+                                    </connections>
+                                </slider>
+                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9br-nf-bY1">
+                                    <rect key="frame" x="282" y="79" width="26" height="17"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="low" id="4hY-be-8WH">
+                                        <font key="font" metaFont="smallSystem"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                            </subviews>
+                        </view>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </box>
+                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vvb-7g-6hk">
+                        <rect key="frame" x="195" y="8" width="137" height="32"/>
                         <buttonCell key="cell" type="push" title="Open Shortcuts" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5g-cB-agv">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -39,113 +157,25 @@
                             </connections>
                         </buttonCell>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="viB-Cc-5S0">
-                        <rect key="frame" x="18" y="15" width="55" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Version:" id="mwD-OG-swO">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <tabView translatesAutoresizingMaskIntoConstraints="NO" id="7yt-u3-fER">
-                        <rect key="frame" x="13" y="34" width="642" height="119"/>
-                        <font key="font" metaFont="system"/>
-                        <tabViewItems>
-                            <tabViewItem label="Controls" identifier="1" id="Dug-nP-dZc">
-                                <view key="view" id="sHJ-zD-hBL">
-                                    <rect key="frame" x="10" y="33" width="622" height="73"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="Q72-B3-v6N">
-                                            <rect key="frame" x="15" y="54" width="163" height="18"/>
-                                            <buttonCell key="cell" type="check" title="Enable Media Controls" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Ciz-wY-tSY">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="enableMediaControlsCheckbox:" target="-2" id="nHq-p9-IOx"/>
-                                            </connections>
-                                        </button>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="6ML-v9-0p0">
-                                            <rect key="frame" x="15" y="34" width="196" height="18"/>
-                                            <buttonCell key="cell" type="check" title="Enable Application Switcher" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="xol-Di-VRe">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="enableApplicationSwitcherCheckbox:" target="-2" id="c0P-Qu-Y3i"/>
-                                            </connections>
-                                        </button>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="eeT-sD-vMH">
-                                            <rect key="frame" x="15" y="14" width="123" height="18"/>
-                                            <buttonCell key="cell" type="check" title="Enable Scrolling" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3do-7e-2Z1">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="enableScrollingCheckbox:" target="-2" id="mJg-K4-Prf"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="top" secondItem="sHJ-zD-hBL" secondAttribute="top" constant="3" id="2hb-Fj-u5W"/>
-                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="6ML-v9-0p0" secondAttribute="leading" id="3VM-MM-RNx"/>
-                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="sHJ-zD-hBL" secondAttribute="leading" constant="17" id="90P-hI-LBC"/>
-                                        <constraint firstItem="6ML-v9-0p0" firstAttribute="top" secondItem="Q72-B3-v6N" secondAttribute="bottom" constant="6" symbolic="YES" id="IZ7-qF-zUM"/>
-                                        <constraint firstItem="eeT-sD-vMH" firstAttribute="top" secondItem="6ML-v9-0p0" secondAttribute="bottom" constant="6" symbolic="YES" id="de5-MG-QSj"/>
-                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="6ML-v9-0p0" secondAttribute="leading" id="edB-0k-a2R"/>
-                                        <constraint firstItem="6ML-v9-0p0" firstAttribute="leading" secondItem="eeT-sD-vMH" secondAttribute="leading" id="iCh-CC-TEC"/>
-                                        <constraint firstItem="Q72-B3-v6N" firstAttribute="leading" secondItem="eeT-sD-vMH" secondAttribute="leading" id="nep-1T-9e0"/>
-                                    </constraints>
-                                </view>
-                            </tabViewItem>
-                            <tabViewItem label="Login" identifier="2" id="lJS-nf-Bra">
-                                <view key="view" id="2O8-eR-8DS">
-                                    <rect key="frame" x="10" y="33" width="622" height="73"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="prt-8x-klq">
-                                            <rect key="frame" x="15" y="54" width="311" height="18"/>
-                                            <buttonCell key="cell" type="check" title="Automatically open Shortcuts when you log in" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="n0Z-ho-M2C">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="enableAutoStart:" target="-2" id="sd1-AU-O8X"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="prt-8x-klq" firstAttribute="leading" secondItem="2O8-eR-8DS" secondAttribute="leading" constant="17" id="Rt0-Yq-cZw"/>
-                                        <constraint firstItem="prt-8x-klq" firstAttribute="top" secondItem="2O8-eR-8DS" secondAttribute="top" constant="3" id="mIt-zF-7W1"/>
-                                    </constraints>
-                                </view>
-                            </tabViewItem>
-                        </tabViewItems>
-                    </tabView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jnh-GZ-BhU">
-                        <rect key="frame" x="71" y="15" width="37" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="0.0.0" id="Dtn-DN-ZNS">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Jnh-GZ-BhU" firstAttribute="baseline" secondItem="Vvb-7g-6hk" secondAttribute="baseline" id="8XU-s1-LFr"/>
-                    <constraint firstItem="7yt-u3-fER" firstAttribute="leading" secondItem="6" secondAttribute="leading" constant="20" symbolic="YES" id="GSE-UW-PG2"/>
                     <constraint firstAttribute="bottom" secondItem="Vvb-7g-6hk" secondAttribute="bottom" constant="12" id="GqE-7e-6R0"/>
-                    <constraint firstAttribute="bottom" secondItem="7yt-u3-fER" secondAttribute="bottom" constant="44" id="Opv-qL-BqT"/>
                     <constraint firstItem="Jnh-GZ-BhU" firstAttribute="baseline" secondItem="viB-Cc-5S0" secondAttribute="baseline" id="bLq-EP-PdH"/>
                     <constraint firstItem="Jnh-GZ-BhU" firstAttribute="leading" secondItem="viB-Cc-5S0" secondAttribute="trailing" constant="2" id="ble-IU-HSH"/>
-                    <constraint firstItem="7yt-u3-fER" firstAttribute="centerX" secondItem="Vvb-7g-6hk" secondAttribute="centerX" id="lD9-e7-Djb"/>
-                    <constraint firstItem="viB-Cc-5S0" firstAttribute="leading" secondItem="7yt-u3-fER" secondAttribute="leading" id="stX-fz-60g"/>
-                    <constraint firstAttribute="trailing" secondItem="7yt-u3-fER" secondAttribute="trailing" constant="20" symbolic="YES" id="tSz-Wl-YcF"/>
-                    <constraint firstItem="7yt-u3-fER" firstAttribute="top" secondItem="6" secondAttribute="top" constant="12" symbolic="YES" id="uRZ-RE-9Lt"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="139" y="146.5"/>
+            <point key="canvasLocation" x="68" y="182.5"/>
         </window>
+        <box autoresizesSubviews="NO" title="Box" borderType="line" id="Luj-cr-Xet">
+            <rect key="frame" x="0.0" y="0.0" width="177" height="114"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <view key="contentView">
+                <rect key="frame" x="1" y="1" width="175" height="98"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            </view>
+            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+        </box>
     </objects>
 </document>
