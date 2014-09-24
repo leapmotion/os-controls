@@ -128,7 +128,7 @@ GLShader now implements a dictionary for uniforms and attributes (name -> (locat
 GLShaderMatrices provides an interface for setting the expected matrix uniforms for shaders.
 Material is now an interface for setting the parameters of a particular material fragment shader.
 
-GLVertexBuffer
+GLVertexBuffer now implements the following:
 - Should somehow take a compile-time-specified list of vertex attributes and define
   a "vertex" structure which will contain data for rendering each vertex in a VBO.
 - Should present a strongly-typed interface for adding these attributes to an intermediate
@@ -136,9 +136,11 @@ GLVertexBuffer
 - Should present a way to upload the intermediate vertex data to GL, and optionally
   clear the intermediate data.
 - Should present a way to modify the intermediate vertex data.
-- Should present a way to request to modify the uploaded data.
 - Should have methods for indicating to GL that this VBO should be enabled (see PrimitiveGeometry::Draw),
   and that it should be disabled.
+
+GLVertexBuffer probably needs more work on the following:
+- Should present a way to request to modify the uploaded data.
 
 GLMesh<DIM>
 - These are particular instances of GLVertexBuffer implemented for the following vertex attribs:
@@ -157,4 +159,164 @@ GLMesh<DIM>
   * Assigning UV coordinates
   * Generating particular geometric primitives (e.g. spheres, cylinders, etc)
   * Specifying which other attributes should be on a vertex.
+
+#### 2014.09.23 - Notes for GL component
+
+- Namespacing: Use Lm (Leap Motion) namespace for everything, and Gl for OpenGL stuff.
+  e.g. Lm::Gl::Shader, Lm::Gl::Texture2.
+
+- There are two detail-levels of GL components.  One is the granular, consisting of abstractions
+  of separate OpenGL concepts.  The other is sort of "package level".  There are two package-level
+  GL components, which I'll make up names for because they don't exist tangibly at this moment in time.
+  * GLCoreComponent (better name needed) -- abstractions of OpenGL concepts; no external library
+    requirements besides OpenGL and Glew.
+  * GLResourceLoaders (better name needed) -- "extras" which use other external libraries (e.g. FreeImage)
+  * GLEverything (better name needed) -- is a phony target that depends on GLCoreComponent and GLResourceLoaders.
+
+  The granular components making up GLCoreComponent are:
+  * GLCompatibility
+    ~ gl_glext_glu.h -- uses Glew to include GL headers -- should rename to GLHeaders.h
+    ~ GLError.h -- for flexible GL error checking -- could go in a different component.
+  * GLTexture2 (depends on C++11)
+    ~ GLTexture2Params -- persistent parameters for GLTexture2 (e.g. width, height, target, etc)
+    ~ GLTexture2PixelData -- interface for specifying pixel data for loading/saving into/from GLTexture2
+    ~ GLTexture2 -- Handle to OpenGL texture object
+  * FrameBufferObject
+    ~ FrameBufferObject
+    ~ RenderBuffer
+  * GLBuffer
+    ~ GLBuffer -- abstracts the concept of an OpenGL buffer object
+  * GLVertexBuffer (depends on C++11)
+    ~ GLVertexAttribute -- abstracts the concept of an OpenGL vertex attribute
+    ~ GLVertexBuffer -- abstracts the concept of an OpenGL vertex buffer object
+  * GLController
+    ~ GLController -- Was originally intended to be a frontend for non-redundantly controlling GL state,
+                      but became a very lightweight set of "bookends" for rendering an OpenGL frame.
+                      This class should either be deleted, or filled out into its original design.
+  * GLMatrices (depends on EigenTypes)
+    ~ ModelView -- Basically replaces the deprecated fixed-function pipeline regarding the GL_MODEL_VIEW matrix stack.
+    ~ Projection -- Same, but for GL_PROJECTION
+    I personally would like to tighten up the design on these, and ideally abstract away the dependence on Eigen.
+  * GLShader (depends on C++11, ScopeGuard)
+    ~ GLShader -- abstracts the concept of a GLSL shader program (vertex and fragment).  Do we want
+                  to support geometry shaders?
+    ~ GLShaderBindingScopeGuard -- an object which implements the "scope guard" for binding/unbinding shaders.
+                                   This class is not strictly necessary, but is a convenience.
+  * GLMaterial (depends on Color, EigenTypes)
+    ~ GLMaterial -- provides a C++ interface for a particular fragment shader that we have written.  A lot of design
+                    would should be done on this one, because it effectively implements a limited model of a 3D
+                    material, but is being used in Primitives for what really should be 2D materials.  Thus some
+                    notion of 2D and 3D materials should be designed.  Ideally we could devise an abstraction
+                    for providing C++ interfaces to shaders in a more flexible way (to deal with the presence/lack
+                    of particularly-named shader uniforms, etc).
+    ~ GLShaderMatrices -- provides C++ interface for the matrix uniforms necessary to replace the fixed-function
+                          pipeline deprecated in OpenGL 3.0 and removed in 3.1.  This is reasonably abstract
+                          enough to not depend on hard-coded shader uniforms.
+
+  Component dependencies:
+  * EigenTypes (depends on Eigen).
+  * C++11 (compile flags for C++11 support).
+  * ScopeGuard (provides the "scope guard" pattern).
+  * Color (color class(es) -- in a branch I have an expanded set of classes RGB<T> and RGBA<T> which define
+    rich color operations).  Could/should be GLColor.
+
+  There is a set of GL components that have additional library dependencies which I view as "extras", which make
+  up the hypothetical "GLResourceLoaders" package-level component.  These are:
+  * GLTexture2FreeImage -- provides a FreeImage-based loader for GLTexture2.  Depends on the FreeImage library.
+  * GLTexture2Loader -- provides a ResourceLoader-based loader for GLTexture2 which uses GLTexture2FreeImage.
+  * GLShaderLoader -- provides a ResourceLoader-based loader for GLShader from vertex/fragment shader source.
+
+  The "loader" components use Resource, ResourceManager, and Singleton, which may not be dependencies we want to
+  provide.  Ideally we could abstract dependence on these so that implementations that use Resource,
+  ResourceManager, and Singleton could be implemented easily in particular applications that have made a positive
+  choice to use them.  Other solutions, e.g. using Autowiring, should be just as easy to implement using the
+  proposed abstractions.
+
+  The existing GLShaderLoader could be broken up into 1) a class that reads the vertex/fragment shader source from
+  disk and creates a GLShader and 2) the existing ResourceLoader<GLShader> which would then just be a
+  ResourceLoader frontend for the loader in part 1.  Then the part 1 loader could be a part of the GLCoreComponents
+  component.
+
+- There are a few "non GL" component dependencies (EigenTypes, C++11, ScopeGuard, Color) that should be
+  subsumed by or removed from the GL component, so that it has no other dependencies.  Notes on each:
+  * EigenTypes -- with a careful design, templates could be used to abstract away explicit dependence on
+    Eigen, and instead provide an option "Eigen add-on" which defines Eigen-specific template instantiations
+    of the relevant types, along with the dependence on the external Eigen library.
+  * C++11 -- this is a simple set of compiler flags, and doesn't constitute a nontrivial dependence.
+  * ScopeGuard -- this is a single, templatized class that could easily be incorporated into the GL component.
+  * Color -- this could (should) be made into a first-class GL component, as it provides very nice abstractions
+    of many color concepts in OpenGL.
+
+- I would like to abstract away the use of Eigen using carefully designed templates.  Then there can be typedefs
+  for the "Eigen versions" of each these which transparently replace the existing Eigen-based classes.  I
+  suggest using a _t suffix for template classes.  This has the convenient feature that within some C++ scope,
+  one can make a typedef for a particular template instantiation like the following:
+
+    template <typename T> SomeClass_t;
+
+    ...
+
+    {
+      typedef SomeClass_t<float> SomeClass;
+      ...
+    }
+
+- GLColor component (code exists on components/color branch)
+  * Implements a rich set of color component operations in various underlying types that could be 
+  * Currently there are RGB<T> and RGBA<T> color types which support the following types for T:
+    ~ uint8_t (range is [0,2^8-1])
+    ~ uint16_t (range is [0,2^16-1])
+    ~ uint32_t (range is [0,2^32-1])
+    ~ uint64_t (range is [0,2^64-1], though the implementations of some of the color component operations
+      involve conversion to long double, which isn't guaranteed to be an 80-bit floating point type, the
+      63(+1) bit mantissa of which is necessary for some operations) -- this type is not really necessary though.
+    ~ float (range is [0,1])
+    ~ double (range is [0,1])
+    ~ long double (range is [0,1]) -- this type is not really necessary though.
+  * I'm considering abstracting these component types into something like the following:
+
+      template <typename UnderlyingType, uint64_t MAX> class ColorComponent;
+
+    which would represent a value in the range [0,MAX] using UnderlyingType to represent it.  This has
+    two advantages:
+    ~ It allows the color component operations to be more strongly typed, have safer operations/conversions,
+      and carry semantic meaning around by virtue of the "ColorComponent" type name.
+    ~ Abstracts away implementation details and leaves mostly just the color component operations in
+      what the user must consider.
+
+  * I'm considering also supplying a template parameter to RGB<T> and RGBA<T> to determine the order
+    of the components within the memory layout, as this is a consideration in pixel-loading operations
+    (e.g. in FreeImage and OpenGL texture-loading).
+  * I want to add the following types to provide strongly-typed classes for different color spaces:
+    ~ HSV<T> -- hue, saturation, value -- has the technical problem that hue is usually represented
+      with a "degree" value in [0,360], but this goes against the color components' semantic of using
+      an entire dynamic range (be it [0,255] for uint8_t, or [0,1] for float, etc).  Background context:
+      the map from HSV -> RGB is a piecewise-linear map which splits the "hue" component up into 6
+      subintervals of equal length.  While the normal max hue value 360 is divisible by 360, none of
+      the color components' max values (e.g. uint8_t(255), uint16_t(65535), float(1), etc) are exactly
+      divisible by 6.
+
+      There are two solutions to this problem:
+      1. This could be handled by mapping the dynamic range of the type onto [0,360], and not
+         worrying about the fact that the 360 degrees don't split up perfectly in this scheme.
+      2. Using a type that isn't a ColorComponent for the hue component.  The complications here
+         would be the fact that uint8_t doesn't extend to 360, so it couldn't be used for the
+         hue, so HSV<uint8_t> wouldn't really make sense.
+    ~ HSVA<T> -- HSV<T> with an alpha channel.
+    ~ Luminance<T> -- representing lightness values -- come up with a better name?
+    ~ LuminanceAlpha<T> -- representing lightness and alpha values -- come up with a better name?
+    ~ <some two-color-component type> -- FreeImage, for example, supports a "complex" pixel type.
+    ~ CMYK<T> -- this is a common color space used in print (color pigment) -- this may not be called for.
+    ~ CMYKA<T> -- CMYK<T> with an alpha channel.
+  * There are a bunch of sub-byte-component color types in OpenGL (e.g. GL_UNSIGNED_BYTE_3_3_2,
+    GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV,
+    GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1,
+    GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV,
+    GL_UNSIGNED_INT_10_10_10_2, and GL_UNSIGNED_INT_2_10_10_10_REV) which would require nontrivial
+    [un]packing to do operations on, and would natively correspond to a memory layout for these
+    pixel formats.  Accounting for these may complicate the design too much to bother with them.
+
+
+
+
 
