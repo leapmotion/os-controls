@@ -316,6 +316,109 @@ GLMesh<DIM>
     [un]packing to do operations on, and would natively correspond to a memory layout for these
     pixel formats.  Accounting for these may complicate the design too much to bother with them.
 
+#### 2014.09.23 - Notes from GL Component meeting
+
+- Get rid of GLController
+- GLShaderLoader should not go in (because of the dependency on Resource/Singleton/ResourceManager)
+- GLTexture2Loader should not go in (because of the dependency on Resource/Singleton/ResourceManager)
+- Make GLMesh replace PrimitiveGeometry
+- Abstract version of GLMaterial which has a run-time initialization specification of
+  the uniform names/types, which does verification of types and so forth.
+- Perhaps ModelView should just be an AffineTransform class which has no stack functionality,
+  because SceneGraph has property stack functionality
+- Perhaps Projection could be replaced with Camera and its use in SceneGraph.
+- Abstracting the choice of Eigen out of the GL component
+- GLShaderBindingScopeGuard is for thread safety but we may not need it
+- Geometry shader is deemed not necessary right now
+- Cube map -- worthwhile (code in Freeform) but low priority
+- Pixel buffer objects may be a faster way to transfer pixels from GPU to CPU (low priority)
+- GL reflection/traits -- useful but low priority
+- Color space: RGB and RGBA -- and later once use cases are taken care of -- HSV, HSVA
+- GLMesh
+- Unit tests (this depends on SDLController or whatever is needed to create a GL context;
+  could also make an interface for that purpose).
+
+##### Design criteria
+
+- GLCoreComponent should have example apps that do nontrivial rendering/demonstration.
+  This provides an argument for including SceneGraph, Camera, Projection into GLCoreComponent
+
+##### Other Components library considerations
+
+- come up with a better resource system design
+- Primitives looks like it could become its own package (with SceneGraph?)
+- There may be a call for an agnostic abstraction for SDLController and SFMLController -- Pal in XRB
+- Make RenderEngine component with Primitives -- and PrimitiveBase should probably be refactored out into Renderable.
+
+##### Legal
+
+- Need to start the open-sourcing process
+
+##### Random notes
+
+- Valve's GL debugging tool -- we probably want to benchmark/profile our library at least a little,
+  so that we're not unwittingly releasing a slow piece of crap.
+
+#### Prioritized list of considerations for GL component
+
+##### GL component high priority
+
+- Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
+  convention.  Some possible choices are:
+  (1) Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this)
+  (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
+      there is a separate Shutdown/Destroy method
+      destruction releases the resource (GLBuffer does this).
+  (3) Construct with acquired resource (as in (1)) or construct as "invalid/empty",
+      there is a [Re]Initialize method to [re]acquire a resource
+      there is a Shutdown method
+      destruction releases the resource.
+  Number (3) is probably the most flexible, because it doesn't require destroying and reconstructing
+  to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
+  Then again, we probably don't want to make that architectural choice for people, and want our
+  classes to be usable in many different paradigms.
+- Make the directory structure of the components repo into the following, where an X indicates a change.
+
+  * components/                             -- root directory of repo -- this exists already
+  * components/library/                   X -- new root directory of the Components library
+  * components/library/CMakeLists.txt     X -- this is where you'd point cmake to build the Components library
+  * components/library/source/            X -- this is where the existing components/source/ directory would go
+  * components/example_apps/                -- directory containing all example apps -- this exists already.
+
+  I think having a "library" subdir of components is clearer, because then it reads
+  "components library", which is what it is.  Then the source code for the library
+  is in the "source" subdirectory of "library", which is also what that is.
+- Namespace Leap::GL::
+- Directory structure to reflect the namespace:
+  e.g. components/library/source/Leap/GL/Abc.h
+- Get rid of GLController, as it does almost nothing, and its original intended design (to
+  track OpenGL server state and prevent redundant server state changes) is contrary to one
+  of the main design principles of the Components lib (drop-in capability).
+- Create GLMesh and factor out of PrimitiveGeometry.
+- Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
+  initialization of the material at runtime (parallel to the concept of shaders being compiled
+  and linked at runtime).
+- Add SceneGraph and Camera.  Keep Projection [matrix], get rid of ModelView (because its stack
+  is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
+- Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
+  This will require some prototyping and code review.
+- Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
+  otherwise get rid of it.
+- Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)
+- Unit tests (this depends on SDLController or whatever is needed to create a GL context;
+  could also make an interface for that purpose -- perhaps that "make me a GL context" interface
+  would be useful in the GL core component?).
+- Full, Doxygen-based documentation.
+
+##### GL component low priority
+
+- Geometry shaders maybe some day.
+- Cube map (a lot of code is in Freeform)
+- Pixel buffer objects (could be a way to do faster pixel transfers from GPU to CPU)
+- GLTraits / reflection
+- Color -- HSV<T> and HSVA<T>
+
+
 
 
 
