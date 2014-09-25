@@ -15,36 +15,21 @@
     [_statusItem setHighlightMode:YES];
 
     NSMenu* statusMenu = [[NSMenu alloc] initWithTitle:@""];
-    _mediaControlsMenu = [[NSMenuItem alloc] initWithTitle:@"Enable Media Controls"
-                                                    action:@selector(onMediaControls:)
-                                             keyEquivalent:@""];
-    _windowSelectionMenu = [[NSMenuItem alloc] initWithTitle:@"Enable Application Switcher"
-                                                      action:@selector(onWindowSelection:)
-                                               keyEquivalent:@""];
-    _scrollingMenu = [[NSMenuItem alloc] initWithTitle:@"Enable Scrolling"
-                                                action:@selector(onScrolling:)
-                                         keyEquivalent:@""];
     NSMenuItem* helpMenu = [[NSMenuItem alloc] initWithTitle:@"Help..."
                                                       action:@selector(onHelp:)
+                                               keyEquivalent:@""];
+    NSMenuItem* prefMenu = [[NSMenuItem alloc] initWithTitle:@"Preferences..."
+                                                      action:@selector(onPreferences:)
                                                keyEquivalent:@""];
     NSMenuItem* quitMenu = [[NSMenuItem alloc] initWithTitle:@"Quit"
                                                       action:@selector(onQuit:)
                                                keyEquivalent:@""];
-    [_mediaControlsMenu setState:NSOnState];
-    [_windowSelectionMenu setState:NSOnState];
-    [_scrollingMenu setState:NSOnState];
-
-    [_mediaControlsMenu setTarget:self];
-    [_windowSelectionMenu setTarget:self];
-    [_scrollingMenu setTarget:self];
     [helpMenu setTarget:self];
+    [prefMenu setTarget:self];
     [quitMenu setTarget:self];
 
     [statusMenu addItem:helpMenu];
-    [statusMenu addItem:[NSMenuItem separatorItem]];
-    [statusMenu addItem:_mediaControlsMenu];
-    [statusMenu addItem:_windowSelectionMenu];
-    [statusMenu addItem:_scrollingMenu];
+    [statusMenu addItem:prefMenu];
     [statusMenu addItem:[NSMenuItem separatorItem]];
     [statusMenu addItem:quitMenu];
 
@@ -53,73 +38,24 @@
   return self;
 }
 
-- (void)configChanged:(NSString*)name state:(BOOL)state
-{
-  if ([name isEqualToString:@"enableMedia"]) {
-    [_mediaControlsMenu setState:(state ? NSOnState : NSOffState)];
-  } else if ([name isEqualToString:@"enableWindowSelection"]) {
-    [_windowSelectionMenu setState:(state ? NSOnState : NSOffState)];
-  } else if ([name isEqualToString:@"enableScroll"]) {
-    [_scrollingMenu setState:(state ? NSOnState : NSOffState)];
-  }
-}
-
-- (void)onMediaControls:(id)sender
-{
-  NSInteger state = [_mediaControlsMenu state];
-  if (state == NSOffState) {
-    state = NSOnState;
-  } else if (state == NSOnState) {
-    state = NSOffState;
-  } else {
-    return;
-  }
-  [_mediaControlsMenu setState:state];
-  AutowiredFast<NativeUI> nativeUI;
-  if (nativeUI) {
-    nativeUI->OnSettingChanged("enableMedia", (state == NSOnState));
-  }
-}
-
-- (void)onWindowSelection:(id)sender
-{
-  NSInteger state = [_windowSelectionMenu state];
-  if (state == NSOffState) {
-    state = NSOnState;
-  } else if (state == NSOnState) {
-    state = NSOffState;
-  } else {
-    return;
-  }
-  [_windowSelectionMenu setState:state];
-  AutowiredFast<NativeUI> nativeUI;
-  if (nativeUI) {
-    nativeUI->OnSettingChanged("enableWindowSelection", (state == NSOnState));
-  }
-}
-
-- (void)onScrolling:(id)sender
-{
-  NSInteger state = [_scrollingMenu state];
-  if (state == NSOffState) {
-    state = NSOnState;
-  } else if (state == NSOnState) {
-    state = NSOffState;
-  } else {
-    return;
-  }
-  [_scrollingMenu setState:state];
-  AutowiredFast<NativeUI> nativeUI;
-  if (nativeUI) {
-    nativeUI->OnSettingChanged("enableScroll", (state == NSOnState));
-  }
-}
-
 - (void)onHelp:(id)sender
 {
   AutowiredFast<NativeUI> nativeUI;
   if (nativeUI) {
     nativeUI->OnShowHtmlHelp("main");
+  }
+}
+
+- (void)onPreferences:(id)sender
+{
+  @autoreleasepool {
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSPreferencePanesDirectory, NSUserDomainMask, YES);
+    NSString* userPrefPanePath = [paths objectAtIndex:0];
+    // If we can't get the directory to the user's preference pane directory, give up
+    if (userPrefPanePath == nil) {
+      return;
+    }
+    [[NSWorkspace sharedWorkspace] openFile:[userPrefPanePath stringByAppendingString:@"/Shortcuts.prefPane"]];
   }
 }
 
