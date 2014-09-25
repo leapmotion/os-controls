@@ -729,28 +729,6 @@ export(
 )
 
 ###################################################################################################
-# Here are the build rules for the overall library
-###################################################################################################
-
-# NOTE: these are not being compiled in because they currently have too many unmet dependencies
-# and require a nontrivial amount of integration work.
-# Please keep these alphabetized.
-set(NON_COMPONENTIZED_CODE
-    OculusVR.cpp
-    OculusVR.h
-    # SimGL.cpp # has other dependencies
-    # SimGL.h
-    Texture.cpp
-    Texture.h
-    UtilGL.cpp
-    UtilGL.h
-    Utilities.h
-)
-
-# TODO: make some cmake messages that complain about files in the non-componentized-code directory,
-# otherwise it could become a dumping ground like MathUtil or Utility.
-
-###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
