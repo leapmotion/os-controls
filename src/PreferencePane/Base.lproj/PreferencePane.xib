@@ -50,7 +50,7 @@
                                         <rect key="frame" x="1" y="1" width="264" height="109"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
-                                            <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KZg-b0-K7D">
+                                            <button translatesAutoresizingMaskIntoConstraints="NO" id="KZg-b0-K7D">
                                                 <rect key="frame" x="23" y="71" width="163" height="18"/>
                                                 <buttonCell key="cell" type="check" title="Enable Media Controls" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3xc-dV-LzW">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -60,7 +60,7 @@
                                                     <action selector="enableMediaControlsCheckbox:" target="-2" id="iur-uY-uch"/>
                                                 </connections>
                                             </button>
-                                            <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mWC-4H-nvy">
+                                            <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mWC-4H-nvy">
                                                 <rect key="frame" x="23" y="49" width="196" height="18"/>
                                                 <buttonCell key="cell" type="check" title="Enable Application Switcher" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="gCf-hR-Cvd">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -70,7 +70,7 @@
                                                     <action selector="enableApplicationSwitcherCheckbox:" target="-2" id="bB3-NS-bWU"/>
                                                 </connections>
                                             </button>
-                                            <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kUV-wY-ESH">
+                                            <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kUV-wY-ESH">
                                                 <rect key="frame" x="23" y="27" width="123" height="18"/>
                                                 <buttonCell key="cell" type="check" title="Enable Scrolling" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="4yP-uB-2CU">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -84,7 +84,11 @@
                                     </view>
                                     <constraints>
                                         <constraint firstItem="KZg-b0-K7D" firstAttribute="leading" secondItem="kUV-wY-ESH" secondAttribute="leading" id="3DG-hh-rk4"/>
+                                        <constraint firstAttribute="trailing" secondItem="KZg-b0-K7D" secondAttribute="trailing" constant="78" id="6H9-Cb-7ZS"/>
                                         <constraint firstItem="mWC-4H-nvy" firstAttribute="top" secondItem="KZg-b0-K7D" secondAttribute="bottom" constant="6" symbolic="YES" id="7Pi-Qz-VsQ"/>
+                                        <constraint firstItem="KZg-b0-K7D" firstAttribute="top" secondItem="wuq-Rh-7bu" secondAttribute="top" constant="37" id="K2o-bB-fPr"/>
+                                        <constraint firstAttribute="bottom" secondItem="KZg-b0-K7D" secondAttribute="bottom" constant="70" id="dyE-bR-Qiz"/>
+                                        <constraint firstItem="KZg-b0-K7D" firstAttribute="leading" secondItem="wuq-Rh-7bu" secondAttribute="leading" constant="23" id="pBq-a0-Ptz"/>
                                         <constraint firstItem="mWC-4H-nvy" firstAttribute="leading" secondItem="kUV-wY-ESH" secondAttribute="leading" id="pyN-uj-Zf6"/>
                                         <constraint firstItem="KZg-b0-K7D" firstAttribute="leading" secondItem="mWC-4H-nvy" secondAttribute="leading" id="t4A-wL-Hl5"/>
                                         <constraint firstItem="kUV-wY-ESH" firstAttribute="top" secondItem="mWC-4H-nvy" secondAttribute="bottom" constant="6" symbolic="YES" id="w4a-YE-3IJ"/>
@@ -150,14 +154,13 @@
                             </subviews>
                         </view>
                         <constraints>
-                            <constraint firstItem="lWo-qQ-r30" firstAttribute="top" secondItem="wuq-Rh-7bu" secondAttribute="bottom" constant="15" id="62L-SJ-Spv"/>
                             <constraint firstItem="9br-nf-bY1" firstAttribute="top" secondItem="Q7z-ha-F39" secondAttribute="top" id="8yz-GR-3wI"/>
-                            <constraint firstItem="lWo-qQ-r30" firstAttribute="leading" secondItem="kUV-wY-ESH" secondAttribute="leading" id="9EO-yF-Y0t"/>
-                            <constraint firstItem="YJs-qg-ybx" firstAttribute="leading" secondItem="wuq-Rh-7bu" secondAttribute="trailing" constant="35" id="Apu-RK-QcQ"/>
+                            <constraint firstItem="lWo-qQ-r30" firstAttribute="leading" secondItem="YJs-qg-ybx" secondAttribute="leading" id="F2T-2f-JF1"/>
                             <constraint firstItem="YJs-qg-ybx" firstAttribute="centerX" secondItem="1Qz-tf-TdN" secondAttribute="centerX" id="XCP-3t-jAh"/>
                             <constraint firstItem="9br-nf-bY1" firstAttribute="baseline" secondItem="Q7z-ha-F39" secondAttribute="baseline" id="Yiy-LF-HS3"/>
                             <constraint firstItem="YJs-qg-ybx" firstAttribute="top" secondItem="1Qz-tf-TdN" secondAttribute="bottom" constant="8" symbolic="YES" id="YsD-Gl-RUV"/>
                             <constraint firstItem="9br-nf-bY1" firstAttribute="top" secondItem="YJs-qg-ybx" secondAttribute="bottom" constant="2" id="mCe-Hz-sze"/>
+                            <constraint firstAttribute="bottom" secondItem="lWo-qQ-r30" secondAttribute="bottom" constant="50" id="qeV-s5-NvN"/>
                         </constraints>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
