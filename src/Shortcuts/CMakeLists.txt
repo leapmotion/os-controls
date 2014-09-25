@@ -150,7 +150,7 @@ if(APPLE)
       COMMENT "Compiling src/Shortcuts/${xib}"
     )
   endforeach()
-  add_custom_command(TARGET Shortcuts POST_BUILD
+  add_custom_command(TARGET Shortcuts PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory \"$<TARGET_FILE_DIR:ShortcutsPreferences>/../..\" \"$<TARGET_FILE_DIR:Shortcuts>/Shortcuts.prefPane\"
     COMMENT "Copying Shortcuts.prefPane into Shortcuts bundle"
   )
