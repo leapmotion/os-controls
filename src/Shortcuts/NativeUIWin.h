@@ -1,6 +1,8 @@
 #pragma once
+#define NOMINMAX
 #include "NativeUI.h"
 #include <msclr/marshal_cppstd.h>
+#include <algorithm>
 
 struct NativeUI;
 
@@ -36,12 +38,32 @@ namespace Shortcuts {
 
     static size_t s_nativeUIInitCount = 0;
     NativeUI& callbacks;
-  private: System::Windows::Forms::CheckBox^  mediaCheckBox;
+
   public:
 
+
+
+  private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator1;
+  private: System::Windows::Forms::CheckBox^  mediaCheckBox;
   private: System::Windows::Forms::CheckBox^  exposeCheckBox;
   private: System::Windows::Forms::CheckBox^  scrollCheckBox;
-  private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator1;
+  private: System::Windows::Forms::GroupBox^  box_featureSelection;
+
+
+  private: System::Windows::Forms::TrackBar^  scrollSensitivityBar;
+
+  private: System::Windows::Forms::Label^  label_scrollSensitivity;
+
+  private: System::Windows::Forms::TableLayoutPanel^  tableLayoutPanel1;
+  private: System::Windows::Forms::Button^  button_ok;
+
+  private: System::Windows::Forms::Label^  label_version;
+  private: System::Windows::Forms::CheckBox^  startupCheckBox;
+
+
+
+
+
   public:
 
 
@@ -67,6 +89,7 @@ namespace Shortcuts {
         std::string str = ctxt.marshal_as<std::string>(configFile);
         callbacks.SetUserConfigFile(str);
         callbacks.RequestConfigs();
+        s_nativeUI->startupCheckBox->Checked = callbacks.GetLaunchOnStartup();
       }
         
     }
@@ -97,11 +120,27 @@ namespace Shortcuts {
       }
     }
 
+    static void ConfigChanged(const std::string& var, double value) {
+      if(!s_nativeUI)
+        return;
+        
+      if (var == "scrollSensitivity") {
+        const int intvalue = std::max(s_nativeUI->scrollSensitivityBar->Minimum, std::min(s_nativeUI->scrollSensitivityBar->Maximum, static_cast<int>(value)));
+        s_nativeUI->scrollSensitivityBar->Value = intvalue;
+      }
+    }
+    
     static void ShowToolbarMessage(const char* title, const char* message) {
       if (!s_nativeUI)
         return;
 
       s_nativeUI->notificationIcon->ShowBalloonTip(10000, gcnew String(title), gcnew String(message), Windows::Forms::ToolTipIcon::Warning);
+    }
+
+    static void StartupChanged(bool value) {
+      if (!s_nativeUI)
+        return;
+      s_nativeUI->startupCheckBox->Checked = value;
     }
 
 	protected:
@@ -127,126 +166,31 @@ namespace Shortcuts {
 		void InitializeComponent(void)
 		{
       this->components = (gcnew System::ComponentModel::Container());
-      System::Windows::Forms::TableLayoutPanel^  tableLayoutPanel1;
-      System::Windows::Forms::Button^  okButton;
-      System::Windows::Forms::Button^  cancelButton;
-      System::Windows::Forms::TableLayoutPanel^  tableLayoutPanel2;
       System::Windows::Forms::ContextMenuStrip^  notificationMenu;
       System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
-      System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
       System::Windows::Forms::ToolStripMenuItem^  helpToolStripMenuItem;
+      System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+      this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
+      this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
       this->mediaCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->exposeCheckBox = (gcnew System::Windows::Forms::CheckBox());
       this->scrollCheckBox = (gcnew System::Windows::Forms::CheckBox());
-      this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
-      this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
-      tableLayoutPanel1 = (gcnew System::Windows::Forms::TableLayoutPanel());
-      okButton = (gcnew System::Windows::Forms::Button());
-      cancelButton = (gcnew System::Windows::Forms::Button());
-      tableLayoutPanel2 = (gcnew System::Windows::Forms::TableLayoutPanel());
+      this->box_featureSelection = (gcnew System::Windows::Forms::GroupBox());
+      this->scrollSensitivityBar = (gcnew System::Windows::Forms::TrackBar());
+      this->label_scrollSensitivity = (gcnew System::Windows::Forms::Label());
+      this->tableLayoutPanel1 = (gcnew System::Windows::Forms::TableLayoutPanel());
+      this->button_ok = (gcnew System::Windows::Forms::Button());
+      this->label_version = (gcnew System::Windows::Forms::Label());
+      this->startupCheckBox = (gcnew System::Windows::Forms::CheckBox());
       notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
       configToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-      exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       helpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-      tableLayoutPanel1->SuspendLayout();
-      tableLayoutPanel2->SuspendLayout();
+      exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       notificationMenu->SuspendLayout();
+      this->box_featureSelection->SuspendLayout();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->scrollSensitivityBar))->BeginInit();
+      this->tableLayoutPanel1->SuspendLayout();
       this->SuspendLayout();
-      // 
-      // tableLayoutPanel1
-      // 
-      tableLayoutPanel1->ColumnCount = 3;
-      tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 100)));
-      tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute, 80)));
-      tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute, 80)));
-      tableLayoutPanel1->Controls->Add(okButton, 1, 1);
-      tableLayoutPanel1->Controls->Add(cancelButton, 2, 1);
-      tableLayoutPanel1->Controls->Add(tableLayoutPanel2, 0, 0);
-      tableLayoutPanel1->Dock = System::Windows::Forms::DockStyle::Fill;
-      tableLayoutPanel1->Location = System::Drawing::Point(0, 0);
-      tableLayoutPanel1->Name = L"tableLayoutPanel1";
-      tableLayoutPanel1->RowCount = 2;
-      tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 100)));
-      tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 31)));
-      tableLayoutPanel1->Size = System::Drawing::Size(257, 137);
-      tableLayoutPanel1->TabIndex = 1;
-      // 
-      // okButton
-      // 
-      okButton->DialogResult = System::Windows::Forms::DialogResult::OK;
-      okButton->Location = System::Drawing::Point(100, 109);
-      okButton->Name = L"okButton";
-      okButton->Size = System::Drawing::Size(74, 23);
-      okButton->TabIndex = 0;
-      okButton->Text = L"OK";
-      okButton->UseVisualStyleBackColor = true;
-      okButton->Click += gcnew System::EventHandler(this, &NativeUIWin::okButton_Click);
-      // 
-      // cancelButton
-      // 
-      cancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-      cancelButton->Location = System::Drawing::Point(180, 109);
-      cancelButton->Name = L"cancelButton";
-      cancelButton->Size = System::Drawing::Size(74, 23);
-      cancelButton->TabIndex = 1;
-      cancelButton->Text = L"Cancel";
-      cancelButton->UseVisualStyleBackColor = true;
-      cancelButton->Click += gcnew System::EventHandler(this, &NativeUIWin::cancelButton_Click);
-      // 
-      // tableLayoutPanel2
-      // 
-      tableLayoutPanel2->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-      tableLayoutPanel2->ColumnCount = 1;
-      tableLayoutPanel1->SetColumnSpan(tableLayoutPanel2, 3);
-      tableLayoutPanel2->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
-      tableLayoutPanel2->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
-      tableLayoutPanel2->Controls->Add(this->mediaCheckBox, 0, 1);
-      tableLayoutPanel2->Controls->Add(this->exposeCheckBox, 1, 0);
-      tableLayoutPanel2->Controls->Add(this->scrollCheckBox, 0, 0);
-      tableLayoutPanel2->Dock = System::Windows::Forms::DockStyle::Top;
-      tableLayoutPanel2->Location = System::Drawing::Point(0, 0);
-      tableLayoutPanel2->Margin = System::Windows::Forms::Padding(0);
-      tableLayoutPanel2->Name = L"tableLayoutPanel2";
-      tableLayoutPanel2->Padding = System::Windows::Forms::Padding(0, 0, 0, 10);
-      tableLayoutPanel2->RowCount = 2;
-      tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
-      tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
-      tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-      tableLayoutPanel2->Size = System::Drawing::Size(257, 74);
-      tableLayoutPanel2->TabIndex = 2;
-      // 
-      // mediaCheckBox
-      // 
-      this->mediaCheckBox->AutoSize = true;
-      this->mediaCheckBox->Location = System::Drawing::Point(3, 47);
-      this->mediaCheckBox->Name = L"mediaCheckBox";
-      this->mediaCheckBox->Size = System::Drawing::Size(132, 14);
-      this->mediaCheckBox->TabIndex = 2;
-      this->mediaCheckBox->Text = L"Enable Media Controls";
-      this->mediaCheckBox->UseVisualStyleBackColor = true;
-      this->mediaCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::mediaCheckBox_CheckedChanged);
-      // 
-      // exposeCheckBox
-      // 
-      this->exposeCheckBox->AutoSize = true;
-      this->exposeCheckBox->Location = System::Drawing::Point(3, 25);
-      this->exposeCheckBox->Name = L"exposeCheckBox";
-      this->exposeCheckBox->Size = System::Drawing::Size(148, 16);
-      this->exposeCheckBox->TabIndex = 1;
-      this->exposeCheckBox->Text = L"Enable Application Switcher";
-      this->exposeCheckBox->UseVisualStyleBackColor = true;
-      this->exposeCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::exposeCheckBox_CheckedChanged);
-      // 
-      // scrollCheckBox
-      // 
-      this->scrollCheckBox->AutoSize = true;
-      this->scrollCheckBox->Location = System::Drawing::Point(3, 3);
-      this->scrollCheckBox->Name = L"scrollCheckBox";
-      this->scrollCheckBox->Size = System::Drawing::Size(102, 16);
-      this->scrollCheckBox->TabIndex = 0;
-      this->scrollCheckBox->Text = L"Enable Scrolling";
-      this->scrollCheckBox->UseVisualStyleBackColor = true;
-      this->scrollCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::scrollCheckBox_CheckedChanged);
       // 
       // notificationMenu
       // 
@@ -256,20 +200,32 @@ namespace Shortcuts {
       });
       notificationMenu->Name = L"contextMenuStrip1";
       notificationMenu->ShowImageMargin = false;
-      notificationMenu->Size = System::Drawing::Size(133, 48);
+      notificationMenu->Size = System::Drawing::Size(228, 118);
       // 
       // configToolStripMenuItem
       // 
       configToolStripMenuItem->Name = L"configToolStripMenuItem";
-      configToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      configToolStripMenuItem->Size = System::Drawing::Size(227, 36);
       configToolStripMenuItem->Text = L"&Configuration...";
       configToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::configToolStripMenuItem_Click);
+      // 
+      // helpToolStripMenuItem
+      // 
+      helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
+      helpToolStripMenuItem->Size = System::Drawing::Size(227, 36);
+      helpToolStripMenuItem->Text = L"&Help";
+      helpToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::helpToolStripMenuItem_Click);
+      // 
+      // toolStripSeparator1
+      // 
+      this->toolStripSeparator1->Name = L"toolStripSeparator1";
+      this->toolStripSeparator1->Size = System::Drawing::Size(224, 6);
       // 
       // exitToolStripMenuItem
       // 
       exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-      exitToolStripMenuItem->Size = System::Drawing::Size(132, 22);
-      exitToolStripMenuItem->Text = L"&Quit";
+      exitToolStripMenuItem->Size = System::Drawing::Size(227, 36);
+      exitToolStripMenuItem->Text = L"&Exit";
       exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
       // 
       // notificationIcon
@@ -278,37 +234,152 @@ namespace Shortcuts {
       this->notificationIcon->Text = L"Shortcuts";
       this->notificationIcon->Visible = true;
       // 
-      // helpToolStripMenuItem
+      // mediaCheckBox
       // 
-      helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
-      helpToolStripMenuItem->Size = System::Drawing::Size(132, 22);
-      helpToolStripMenuItem->Text = L"&Help";
-      helpToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::helpToolStripMenuItem_Click);
+      this->mediaCheckBox->AutoSize = true;
+      this->mediaCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
+      this->mediaCheckBox->Location = System::Drawing::Point(22, 149);
+      this->mediaCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->mediaCheckBox->Name = L"mediaCheckBox";
+      this->mediaCheckBox->Size = System::Drawing::Size(242, 29);
+      this->mediaCheckBox->TabIndex = 5;
+      this->mediaCheckBox->Text = L"Enable Media Controls";
+      this->mediaCheckBox->UseVisualStyleBackColor = true;
+      this->mediaCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::mediaCheckBox_CheckedChanged);
       // 
-      // toolStripSeparator1
+      // exposeCheckBox
       // 
-      this->toolStripSeparator1->Name = L"toolStripSeparator1";
-      this->toolStripSeparator1->Size = System::Drawing::Size(129, 6);
+      this->exposeCheckBox->AutoSize = true;
+      this->exposeCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
+      this->exposeCheckBox->Location = System::Drawing::Point(22, 98);
+      this->exposeCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->exposeCheckBox->Name = L"exposeCheckBox";
+      this->exposeCheckBox->Size = System::Drawing::Size(286, 29);
+      this->exposeCheckBox->TabIndex = 1;
+      this->exposeCheckBox->Text = L"Enable Application Switcher";
+      this->exposeCheckBox->UseVisualStyleBackColor = true;
+      this->exposeCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::exposeCheckBox_CheckedChanged);
+      // 
+      // scrollCheckBox
+      // 
+      this->scrollCheckBox->AutoSize = true;
+      this->scrollCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
+      this->scrollCheckBox->Location = System::Drawing::Point(22, 49);
+      this->scrollCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->scrollCheckBox->Name = L"scrollCheckBox";
+      this->scrollCheckBox->Size = System::Drawing::Size(185, 29);
+      this->scrollCheckBox->TabIndex = 3;
+      this->scrollCheckBox->Text = L"Enable Scrolling";
+      this->scrollCheckBox->UseVisualStyleBackColor = true;
+      this->scrollCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::scrollCheckBox_CheckedChanged);
+      // 
+      // box_featureSelection
+      // 
+      this->box_featureSelection->Controls->Add(this->exposeCheckBox);
+      this->box_featureSelection->Controls->Add(this->scrollCheckBox);
+      this->box_featureSelection->Controls->Add(this->mediaCheckBox);
+      this->box_featureSelection->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9));
+      this->box_featureSelection->Location = System::Drawing::Point(28, 25);
+      this->box_featureSelection->Name = L"box_featureSelection";
+      this->box_featureSelection->Size = System::Drawing::Size(338, 206);
+      this->box_featureSelection->TabIndex = 6;
+      this->box_featureSelection->TabStop = false;
+      this->box_featureSelection->Text = L"Feature Selection";
+      // 
+      // scrollSensitivityBar
+      // 
+      this->scrollSensitivityBar->LargeChange = 1;
+      this->scrollSensitivityBar->Location = System::Drawing::Point(3, 3);
+      this->scrollSensitivityBar->Maximum = 9;
+      this->scrollSensitivityBar->Minimum = 1;
+      this->scrollSensitivityBar->Name = L"scrollSensitivityBar";
+      this->scrollSensitivityBar->Size = System::Drawing::Size(398, 53);
+      this->scrollSensitivityBar->TabIndex = 6;
+      this->scrollSensitivityBar->Value = 5;
+      this->scrollSensitivityBar->MouseCaptureChanged += gcnew System::EventHandler(this, &NativeUIWin::trackBar1_MouseCaptureChanged);
+      // 
+      // label_scrollSensitivity
+      // 
+      this->label_scrollSensitivity->Anchor = System::Windows::Forms::AnchorStyles::Top;
+      this->label_scrollSensitivity->AutoSize = true;
+      this->label_scrollSensitivity->Location = System::Drawing::Point(117, 59);
+      this->label_scrollSensitivity->Name = L"label_scrollSensitivity";
+      this->label_scrollSensitivity->Size = System::Drawing::Size(170, 25);
+      this->label_scrollSensitivity->TabIndex = 7;
+      this->label_scrollSensitivity->Text = L"Scroll Sensitivity";
+      // 
+      // tableLayoutPanel1
+      // 
+      this->tableLayoutPanel1->ColumnCount = 1;
+      this->tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
+        50)));
+      this->tableLayoutPanel1->Controls->Add(this->scrollSensitivityBar, 0, 0);
+      this->tableLayoutPanel1->Controls->Add(this->label_scrollSensitivity, 0, 1);
+      this->tableLayoutPanel1->Location = System::Drawing::Point(395, 40);
+      this->tableLayoutPanel1->Name = L"tableLayoutPanel1";
+      this->tableLayoutPanel1->RowCount = 2;
+      this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
+      this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 36)));
+      this->tableLayoutPanel1->Size = System::Drawing::Size(404, 95);
+      this->tableLayoutPanel1->TabIndex = 8;
+      // 
+      // button_ok
+      // 
+      this->button_ok->Location = System::Drawing::Point(642, 228);
+      this->button_ok->Name = L"button_ok";
+      this->button_ok->Size = System::Drawing::Size(157, 61);
+      this->button_ok->TabIndex = 9;
+      this->button_ok->Text = L"Ok";
+      this->button_ok->UseVisualStyleBackColor = true;
+      this->button_ok->Click += gcnew System::EventHandler(this, &NativeUIWin::okButton_Click);
+      // 
+      // label_version
+      // 
+      this->label_version->AutoSize = true;
+      this->label_version->Location = System::Drawing::Point(395, 254);
+      this->label_version->Name = L"label_version";
+      this->label_version->Size = System::Drawing::Size(221, 25);
+      this->label_version->TabIndex = 10;
+      this->label_version->Text = L"Shortcuts version: 1.0";
+      // 
+      // startupCheckBox
+      // 
+      this->startupCheckBox->AutoSize = true;
+      this->startupCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
+      this->startupCheckBox->Location = System::Drawing::Point(50, 251);
+      this->startupCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->startupCheckBox->Name = L"startupCheckBox";
+      this->startupCheckBox->Size = System::Drawing::Size(292, 29);
+      this->startupCheckBox->TabIndex = 6;
+      this->startupCheckBox->Text = L"Launch Shortcuts on Startup";
+      this->startupCheckBox->UseVisualStyleBackColor = true;
+      this->startupCheckBox->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::startupCheckBox_CheckedChanged);
       // 
       // NativeUIWin
       // 
-      this->AcceptButton = okButton;
-      this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+      this->AutoScaleDimensions = System::Drawing::SizeF(12, 25);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
       this->AutoSize = true;
-      this->CancelButton = cancelButton;
-      this->ClientSize = System::Drawing::Size(257, 137);
-      this->Controls->Add(tableLayoutPanel1);
+      this->ClientSize = System::Drawing::Size(828, 311);
+      this->Controls->Add(this->startupCheckBox);
+      this->Controls->Add(this->label_version);
+      this->Controls->Add(this->button_ok);
+      this->Controls->Add(this->tableLayoutPanel1);
+      this->Controls->Add(this->box_featureSelection);
+      this->Margin = System::Windows::Forms::Padding(6);
       this->MaximizeBox = false;
       this->MinimizeBox = false;
       this->Name = L"NativeUIWin";
-      this->Text = L"Configuration";
+      this->Text = L"Shortcuts Configuration";
       this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &NativeUIWin::NativeUIWin_FormClosing);
-      tableLayoutPanel1->ResumeLayout(false);
-      tableLayoutPanel2->ResumeLayout(false);
-      tableLayoutPanel2->PerformLayout();
       notificationMenu->ResumeLayout(false);
+      this->box_featureSelection->ResumeLayout(false);
+      this->box_featureSelection->PerformLayout();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->scrollSensitivityBar))->EndInit();
+      this->tableLayoutPanel1->ResumeLayout(false);
+      this->tableLayoutPanel1->PerformLayout();
       this->ResumeLayout(false);
+      this->PerformLayout();
 
     }
 #pragma endregion
@@ -336,15 +407,15 @@ namespace Shortcuts {
       break;
     }
   }
-  void okButton_Click(Object^  sender, System::EventArgs^  e) {
+  System::Void okButton_Click(Object^  sender, System::EventArgs^  e) {
     callbacks.OnConfigUiHidden(false);
     Visible = false;
   }
-  void cancelButton_Click(Object^  sender, System::EventArgs^  e) {
+  System::Void cancelButton_Click(Object^  sender, System::EventArgs^  e) {
     callbacks.OnConfigUiHidden(true);
     Visible = false;
   }
-  void helpToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+  System::Void helpToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
     callbacks.OnShowHtmlHelp("main");
   }
 
@@ -358,6 +429,12 @@ namespace Shortcuts {
   
   System::Void mediaCheckBox_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
     callbacks.OnSettingChanged("enableMedia", mediaCheckBox->Checked);
+  }
+  System::Void trackBar1_MouseCaptureChanged(System::Object^  sender, System::EventArgs^  e) {
+    callbacks.OnSettingChanged("scrollSensitivity", (double)scrollSensitivityBar->Value);
+  }
+  System::Void startupCheckBox_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+    callbacks.OnStartupChanged(startupCheckBox->Checked);
   }
 };
 }
