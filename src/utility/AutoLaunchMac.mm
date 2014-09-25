@@ -36,8 +36,11 @@ AutoLaunchMac::~AutoLaunchMac()
 
 bool AutoLaunchMac::IsAutoLaunch()
 {
+  if (!m_lsRef) {
+    return false;
+  }
   bool isAutoLaunch = false;
-  const std::string appURL = GetAppURL();
+  const std::string appURL = getAppURL();
 
   CFArrayRef arrayRef = LSSharedFileListCopySnapshot(m_lsRef, nullptr);
   CFIndex count = CFArrayGetCount(arrayRef);
@@ -78,7 +81,7 @@ bool AutoLaunchMac::AddAutoLaunch()
   if (!m_lsRef) {
     return false;
   }
-  std::string url = GetAppURL();
+  std::string url = getAppURL();
   CFURLRef urlRef = CFURLCreateWithBytes(nullptr, (const UInt8*)(url.c_str()), (CFIndex)url.size(), kCFStringEncodingUTF8, nullptr);
   if (!urlRef) {
     return false;
@@ -96,8 +99,11 @@ bool AutoLaunchMac::AddAutoLaunch()
 
 bool AutoLaunchMac::RemoveAutoLaunch()
 {
+  if (!m_lsRef) {
+    return false;
+  }
   bool removedAutoLaunch = false;
-  const std::string appURL = GetAppURL();
+  const std::string appURL = getAppURL();
 
   CFArrayRef arrayRef = LSSharedFileListCopySnapshot(m_lsRef, nullptr);
   CFIndex count = CFArrayGetCount(arrayRef);
@@ -128,17 +134,18 @@ bool AutoLaunchMac::RemoveAutoLaunch()
   return removedAutoLaunch;
 }
 
-std::string AutoLaunchMac::GetAppPath()
-{
-  @autoreleasepool {
-    return std::string([[@"~/Applications/AirspaceApps/Shortcuts.app" stringByExpandingTildeInPath] UTF8String]);
-  }
-}
-
-std::string AutoLaunchMac::GetAppURL()
+std::string AutoLaunchMac::getAppURL()
 {
   @autoreleasepool {
     NSString* path = [@"~/Applications/AirspaceApps/Shortcuts.app" stringByExpandingTildeInPath];
+    NSBundle* bundle = [NSBundle bundleForClass:NSClassFromString(@"ComLeapMotionShortcutsPreferencePane")];
+    NSString* shortcutsPrefPanePath = [bundle bundlePath];
+    NSString* expectedEnd = @"/Shortcuts.app/Contents/MacOS/Shortcuts.prefPane";
+    NSUInteger length = shortcutsPrefPanePath.length;
+
+    if (length >= expectedEnd.length) {
+      path = [shortcutsPrefPanePath substringToIndex:(length - expectedEnd.length + 14)]; // (+ 14 => "/Shortcuts.app")
+    }
     NSString* resolvedPath = [[NSFileManager defaultManager] destinationOfSymbolicLinkAtPath:path error:nil];
     if (resolvedPath) {
       path = resolvedPath;

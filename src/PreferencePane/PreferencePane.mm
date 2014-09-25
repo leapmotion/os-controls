@@ -128,7 +128,19 @@ class ConfigHandler:
 - (IBAction)launchShortcuts:(id)sender
 {
   @autoreleasepool {
-    [[NSWorkspace sharedWorkspace] openFile:[@"~/Applications/AirspaceApps/Shortcuts.app" stringByExpandingTildeInPath]];
+    NSString* path = [@"~/Applications/AirspaceApps/Shortcuts.app" stringByExpandingTildeInPath];
+    NSString* shortcutsPrefPanePath = [[self bundle] bundlePath];
+    NSString* expectedEnd = @"/Shortcuts.app/Contents/MacOS/Shortcuts.prefPane";
+    NSUInteger length = shortcutsPrefPanePath.length;
+
+    if (length >= expectedEnd.length) {
+      path = [shortcutsPrefPanePath substringToIndex:(length - expectedEnd.length + 14)]; // (+ 14 => "/Shortcuts.app")
+    }
+    NSString* resolvedPath = [[NSFileManager defaultManager] destinationOfSymbolicLinkAtPath:path error:nil];
+    if (resolvedPath) {
+      path = resolvedPath;
+    }
+    [[NSWorkspace sharedWorkspace] openFile:path];
   }
 }
 
