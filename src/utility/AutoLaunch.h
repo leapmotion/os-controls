@@ -2,6 +2,12 @@
 #pragma once
 
 #include <string>
+#include <autowiring/ContextMember.h>
+#include <autowiring/Autowired.h>
+
+struct AutoLaunchEvent{
+  virtual void OnAutoLaunchChanged(bool newValue) = 0;
+};
 
 //Governs this application launching on startup
 class AutoLaunch:
@@ -21,4 +27,5 @@ public:
 protected:
   std::string m_appName;
   std::string m_commandLineOptions;
+  AutoFired<AutoLaunchEvent> m_event;
 };
