@@ -28,7 +28,9 @@ DropShadow::DropShadow() {
         tex_coord = tex_coord.cwiseProduct(TEXTURE_SCALE);
         // When norm is 0, the alpha should be 1.  When the norm is 1, the alpha should be 0.
         // When the norm is greater than 1, the alpha should be clamped to 0.
-        raw_pixels[y*params.Width()+x] = LuminanceAlpha{0.0f, std::max(0.0f, 1.0f-tex_coord.norm())};
+        // Otherwise, use the sqrt of radial distance to calculate the alpha
+        // Using the sqrt is not physically correct, but produces a smoother appearance (e.g., closer to how shadows appear on Mac)
+        raw_pixels[y*params.Width()+x] = LuminanceAlpha{0.0f, std::max(0.0f, 1.0f-std::sqrt(tex_coord.norm()))};
       }
     }
     
