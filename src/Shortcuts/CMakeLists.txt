@@ -111,6 +111,7 @@ if(WIN32)
   set_property(TARGET Shortcuts PROPERTY VS_GLOBAL_ROOTNAMESPACE Shortcuts)
   set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES})
 elseif(APPLE)
+  add_dependencies(Shortcuts ShortcutsPreferences)
   set_target_properties(Shortcuts PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Shortcuts/Shortcuts.plist.in)
 endif()
@@ -149,6 +150,10 @@ if(APPLE)
       COMMENT "Compiling src/Shortcuts/${xib}"
     )
   endforeach()
+  add_custom_command(TARGET Shortcuts PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory \"$<TARGET_FILE_DIR:ShortcutsPreferences>/../..\" \"$<TARGET_FILE_DIR:Shortcuts>/Shortcuts.prefPane\"
+    COMMENT "Copying Shortcuts.prefPane into Shortcuts bundle"
+  )
 endif()
 
 # Install commands for the Resources
