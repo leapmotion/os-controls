@@ -23,24 +23,14 @@
         <window title="&lt;&lt; do not localize >>" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" deferred="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="12" userLabel="ComLeapMotionShortcutsPreferencePane">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="176" y="715" width="525" height="226"/>
+            <rect key="contentRect" x="176" y="715" width="668" height="226"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1418"/>
             <value key="minSize" type="size" width="224.66399999999999" height="10"/>
             <view key="contentView" id="6">
-                <rect key="frame" x="0.0" y="0.0" width="525" height="226"/>
+                <rect key="frame" x="0.0" y="0.0" width="668" height="226"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vvb-7g-6hk">
-                        <rect key="frame" x="194" y="8" width="137" height="32"/>
-                        <buttonCell key="cell" type="push" title="Open Shortcuts" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5g-cB-agv">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                            <connections>
-                                <action selector="launchShortcuts:" target="-2" id="8pn-6j-cl2"/>
-                            </connections>
-                        </buttonCell>
-                    </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="viB-Cc-5S0">
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="viB-Cc-5S0">
                         <rect key="frame" x="18" y="17" width="55" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Version:" id="mwD-OG-swO">
                             <font key="font" metaFont="system"/>
@@ -49,13 +39,13 @@
                         </textFieldCell>
                     </textField>
                     <box autoresizesSubviews="NO" title="Box" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="OW3-Z6-156">
-                        <rect key="frame" x="17" y="46" width="491" height="162"/>
+                        <rect key="frame" x="17" y="46" width="634" height="162"/>
                         <view key="contentView">
-                            <rect key="frame" x="1" y="1" width="489" height="160"/>
+                            <rect key="frame" x="1" y="1" width="632" height="160"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <box autoresizesSubviews="NO" ambiguous="YES" misplaced="YES" title="Feature Selection" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="wuq-Rh-7bu">
-                                    <rect key="frame" x="24" y="44" width="230" height="98"/>
+                                    <rect key="frame" x="95" y="46" width="230" height="98"/>
                                     <view key="contentView">
                                         <rect key="frame" x="1" y="1" width="228" height="82"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -104,7 +94,7 @@
                                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </box>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1Qz-tf-TdN">
-                                    <rect key="frame" x="319" y="125" width="106" height="17"/>
+                                    <rect key="frame" x="390" y="127" width="106" height="17"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="102" id="M75-3e-2mz"/>
                                     </constraints>
@@ -115,7 +105,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Q7z-ha-F39">
-                                    <rect key="frame" x="437" y="74" width="28" height="17"/>
+                                    <rect key="frame" x="508" y="76" width="28" height="17"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="24" id="ume-FS-K26"/>
                                     </constraints>
@@ -126,14 +116,14 @@
                                     </textFieldCell>
                                 </textField>
                                 <slider verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YJs-qg-ybx">
-                                    <rect key="frame" x="284" y="92" width="176" height="27"/>
+                                    <rect key="frame" x="355" y="94" width="176" height="27"/>
                                     <sliderCell key="cell" state="on" alignment="left" minValue="1" maxValue="9" doubleValue="5" tickMarkPosition="below" numberOfTickMarks="9" allowsTickMarkValuesOnly="YES" sliderType="linear" id="cVD-Ul-bqP"/>
                                     <connections>
                                         <action selector="onUserSensitivtyChanged:" target="-2" id="uIY-zm-51g"/>
                                     </connections>
                                 </slider>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9br-nf-bY1">
-                                    <rect key="frame" x="282" y="74" width="26" height="17"/>
+                                    <rect key="frame" x="353" y="76" width="26" height="17"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="17" id="Eaw-vs-VRc"/>
                                         <constraint firstAttribute="width" constant="22" id="x6v-mH-xHT"/>
@@ -145,7 +135,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lWo-qQ-r30">
-                                    <rect key="frame" x="42" y="17" width="174" height="18"/>
+                                    <rect key="frame" x="113" y="19" width="174" height="18"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="14" id="imm-Zf-ERU"/>
                                     </constraints>
@@ -171,7 +161,7 @@
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jnh-GZ-BhU">
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jnh-GZ-BhU">
                         <rect key="frame" x="77" y="17" width="37" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="0.0.0" id="Dtn-DN-ZNS">
                             <font key="font" metaFont="system"/>
@@ -179,11 +169,19 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vvb-7g-6hk">
+                        <rect key="frame" x="266" y="7" width="137" height="32"/>
+                        <buttonCell key="cell" type="push" title="Open Shortcuts" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5g-cB-agv">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <connections>
+                                <action selector="launchShortcuts:" target="-2" id="8pn-6j-cl2"/>
+                            </connections>
+                        </buttonCell>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Vvb-7g-6hk" firstAttribute="centerY" secondItem="Jnh-GZ-BhU" secondAttribute="centerY" id="3cu-Gl-RGt"/>
-                    <constraint firstItem="Vvb-7g-6hk" firstAttribute="leading" secondItem="Jnh-GZ-BhU" secondAttribute="trailing" constant="89" id="BTc-L1-7vy"/>
-                    <constraint firstItem="Vvb-7g-6hk" firstAttribute="top" secondItem="OW3-Z6-156" secondAttribute="bottom" constant="14" id="HwK-7f-CYP"/>
                     <constraint firstItem="Vvb-7g-6hk" firstAttribute="centerX" secondItem="OW3-Z6-156" secondAttribute="centerX" id="SU1-J3-z87"/>
                     <constraint firstItem="Jnh-GZ-BhU" firstAttribute="baseline" secondItem="viB-Cc-5S0" secondAttribute="baseline" id="bLq-EP-PdH"/>
                     <constraint firstItem="Jnh-GZ-BhU" firstAttribute="leading" secondItem="viB-Cc-5S0" secondAttribute="trailing" constant="2" id="ble-IU-HSH"/>
@@ -193,7 +191,7 @@
                     <constraint firstAttribute="trailing" secondItem="OW3-Z6-156" secondAttribute="trailing" constant="20" symbolic="YES" id="qTG-7F-FuO"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="67.5" y="180"/>
+            <point key="canvasLocation" x="67" y="180"/>
         </window>
         <box autoresizesSubviews="NO" title="Box" borderType="line" id="Luj-cr-Xet">
             <rect key="frame" x="0.0" y="0.0" width="591" height="122"/>
