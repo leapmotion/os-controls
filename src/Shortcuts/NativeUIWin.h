@@ -1,6 +1,7 @@
 #pragma once
 #define NOMINMAX
 #include "NativeUI.h"
+#include "Version.h"
 #include <msclr/marshal_cppstd.h>
 #include <algorithm>
 
@@ -34,6 +35,8 @@ namespace Shortcuts {
 
       System::Drawing::Bitmap^ trayBmp = (System::Drawing::Bitmap^) rm->GetObject("icon_16x16");
       this->notificationIcon->Icon = System::Drawing::Icon::FromHandle(trayBmp->GetHicon());
+
+      this->label_version->Text = String::Concat(L"Shortcuts version:", Shortcuts_WVERSION);
 		}
 
     static size_t s_nativeUIInitCount = 0;
@@ -340,7 +343,7 @@ namespace Shortcuts {
       this->label_version->Name = L"label_version";
       this->label_version->Size = System::Drawing::Size(221, 25);
       this->label_version->TabIndex = 10;
-      this->label_version->Text = L"Shortcuts version: 1.0";
+      this->label_version->Text = L"Shortcuts version:";
       // 
       // startupCheckBox
       // 
