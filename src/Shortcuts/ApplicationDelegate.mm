@@ -45,18 +45,17 @@
   ctxt->NotifyWhenAutowired<Config>([self] {
     AutowiredFast<Config> cfg;
     if (cfg) {
-      std::string path = "./";
+      std::string cfgPath = "./";
       @autoreleasepool {
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-        NSString *applicationSupportDirectory = [paths objectAtIndex:0];
-        const char* c_str = [applicationSupportDirectory UTF8String];
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        const char* c_str = [[paths objectAtIndex:0] UTF8String];
         if (c_str) {
-          path = std::string(c_str);
-          path += "/Leap Motion/";
+          cfgPath = std::string(c_str);
+          cfgPath += "/Leap Motion/";
         }
       }
-      path += "Shortcuts.json";
-      cfg->SetPrimaryFile(path);
+      cfgPath += "Shortcuts.json";
+      cfg->SetPrimaryFile(cfgPath);
       cfg->RebroadcastConfig();
 
       if (cfg->Get<bool>("showHelpOnStart")) {
@@ -65,6 +64,43 @@
       }
     }
   });
+
+  // Check and possibly update the link to the Shortcuts preference pane
+  @autoreleasepool {
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSPreferencePanesDirectory, NSUserDomainMask, YES);
+    NSString* userPrefPanePath = [paths objectAtIndex:0];
+    // If we can't get the directory to the user's preference pane directory, give up
+    if (userPrefPanePath == nil) {
+      return;
+    }
+    userPrefPanePath = [userPrefPanePath stringByAppendingString:@"/Shortcuts.prefPane"];
+
+    NSBundle* bundle = [NSBundle mainBundle];
+    NSString* shortcutsPrefPanePath = [bundle bundlePath];
+    // If we can't get the path to this app bundle, give up
+    if (shortcutsPrefPanePath == nil) {
+      return;
+    }
+    shortcutsPrefPanePath = [shortcutsPrefPanePath stringByAppendingString:@"/Contents/MacOS/Shortcuts.prefPane"];
+    NSString* shortcutsPrefPanePathExec =
+      [shortcutsPrefPanePath stringByAppendingString:@"/Contents/MacOS/ShortcutsPreferences"];
+
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    // If we can't find the Shortcuts preferences executable, give up
+    if (![fileManager fileExistsAtPath:shortcutsPrefPanePathExec]) {
+      return;
+    }
+
+    // See whether or not the Shortcuts preference pane is pointing to the expected instance
+    NSString* symbolicLinkPath = [fileManager destinationOfSymbolicLinkAtPath:userPrefPanePath error:nil];
+    if (symbolicLinkPath && [shortcutsPrefPanePath compare:symbolicLinkPath] == NSOrderedSame) {
+      return;
+    }
+    // Try to remove the old link (if it exists at all)
+    [fileManager removeItemAtPath:userPrefPanePath error:nil];
+    // Create a symbolic link to our Shortcuts preference pane app in the user's preference pane directory
+    [fileManager createSymbolicLinkAtPath:userPrefPanePath withDestinationPath:shortcutsPrefPanePath error:nil];
+  }
 }
 
 - (void)applicationDidHide:(NSNotification*)aNotification

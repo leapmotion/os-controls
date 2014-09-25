@@ -139,7 +139,7 @@ std::string AutoLaunchMac::GetAppURL()
 {
   @autoreleasepool {
     NSString* path = [@"~/Applications/AirspaceApps/Shortcuts.app" stringByExpandingTildeInPath];
-    NSString* resolvedPath = [[NSFileManager defaultManager] destinationOfSymbolicLinkAtPath:path error:nullptr];
+    NSString* resolvedPath = [[NSFileManager defaultManager] destinationOfSymbolicLinkAtPath:path error:nil];
     if (resolvedPath) {
       path = resolvedPath;
     }
