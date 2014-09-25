@@ -38,7 +38,10 @@ public:
   /// </returns>
   bool IsVisible(void) const override { return 0.001f < m_alphaMask.Current(); }
 
-  void SetHandData(const HandData& handData) { m_handData = handData; }
+  void SetHandData(const HandData& handData) {
+    m_prevHandData = m_handData;
+    m_handData = handData;
+  }
 
   /// <summary>
   /// Creates a new ExposeViewWindow for the specified OS window
@@ -148,6 +151,7 @@ private:
 
   // Hand data
   HandData m_handData;
+  HandData m_prevHandData;
 
   ForceVector m_forces;
   double m_layoutRadius;

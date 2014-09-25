@@ -40,7 +40,8 @@ public:
   Vector2 GetCalculatedLocation() const;
   
   void Disable() { m_state = State::DISABLED; }
-  void Enable() { m_state = State::ACTIVE; }
+  void EnableMediaView() { m_state = State::DISK; }
+  void EnableHandAndScroll() { m_state = State::HAND; }
   
   void EnableLocationOverride() { m_overrideInfluence = 1.0f; }
   void DisableLocationOverride() { m_overrideInfluence = 0.0f; }
@@ -49,7 +50,7 @@ public:
   // Implement Renderable
   void AnimationUpdate(const RenderFrame& frame);  // Handle all the visual updates that benefit from running on a graphics tick versus the input loop.
   void Render(const RenderFrame& frame) const override;
-  bool IsVisible() const override { return m_state == State::ACTIVE; }
+  bool IsVisible() const override { return m_state == State::DISK || m_state == State::HAND; }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -57,7 +58,8 @@ private:
   enum class State {
     INACTIVE,
     DISABLED,
-    ACTIVE
+    DISK,
+    HAND
   };
   
   const float MAX_CURSOR_SMOOTHING = 0.6f;
@@ -85,6 +87,7 @@ private:
   
   // The cursor that shows up when not scrolling
   std::shared_ptr<Disk> m_disk;
+  std::shared_ptr<HandCursor> m_handCursor;
   
   Autowired<OSWindowMonitor> m_osWindowMonitor;
   Autowired<Config> m_config;
@@ -95,6 +98,7 @@ private:
   float m_pinchStrength;
   Vector2 m_lastHandDeltas;
   Vector2 m_lastHandPosition;
+  Vector3 m_lastHandVelocity;
   
   ShortcutsState m_lastAppState;
   

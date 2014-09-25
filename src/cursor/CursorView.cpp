@@ -34,9 +34,11 @@ CursorView::CursorView() :
   m_pinchStrength(0.0f),
   m_lastHandDeltas(0,0),
   m_lastHandPosition(0,0),
+  m_lastHandVelocity(Vector3::Zero()),
   m_overrideX(0.0f),
   m_overrideY(0.0f),
-  m_overrideInfluence(0.0f)
+  m_overrideInfluence(0.0f),
+  m_handCursor(new HandCursor)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
   
@@ -83,6 +85,9 @@ CursorView::CursorView() :
   AutoCurrentContext()->AddTeardownListener([this](){
     RemoveFromParent();
   });
+
+  m_handCursor->InitChildren();
+  m_handCursor->SetDrawStyle(HandCursor::BLOB);
 }
 
 CursorView::~CursorView() {
@@ -102,6 +107,8 @@ void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, con
   static const float SCROLL_VELOCITY_MAX = 20.0f; // The high bound of scroll velcity for our visual feedback ( the handle moving up and down )
   static const float BODY_OFFSET_MAX = 100.0f; // The maximum distance the handle will move up or down along the cursor
   
+  m_handCursor->Update(hand);
+
   int velocitySign = 1;
   float velocityNorm = 0.0f;
   float goalBodyOffset = 0.0f;
@@ -121,10 +128,15 @@ void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, con
   switch(m_state) {
     case State::INACTIVE:
       if(appState != ShortcutsState::FINAL ) {
-        m_state = State::ACTIVE;
+        if (appState == ShortcutsState::MEDIA_MENU_FOCUSED) {
+          m_state = State::DISK;
+        } else {
+          m_state = State::HAND;
+        }
       }
       break;
-    case State::ACTIVE:
+    case State::DISK:
+    case State::HAND:
       if(appState == ShortcutsState::FINAL) {
         m_state = State::INACTIVE;
       }
@@ -137,7 +149,8 @@ void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, con
   
   //State Loops
   switch(m_state) {
-    case State::ACTIVE:
+    case State::DISK:
+    case State::HAND:
     case State::DISABLED:
     {
       m_pinchStrength = handData.pinchData.pinchStrength;
@@ -165,6 +178,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, con
       m_lastHandDeltas = Vector2(handData.locationData.dX, handData.locationData.dY);
 
       m_lastHandPosition = handData.locationData.screenPosition();
+      m_lastHandVelocity = hand.palmVelocity().toVector3<Vector3>();
       break;
     }
     case State::INACTIVE:
@@ -236,6 +250,7 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_diskAlpha.Update(static_cast<float>(frame.deltaT.count()));
   m_disk->LocalProperties().AlphaMask() = m_diskAlpha;
   
+  m_handCursor->LocalProperties().AlphaMask() = m_diskAlpha;
   
   // Snapped Scrolling Cursor Positioning
   m_scrollBody->Translation() = Vector3(m_scrollBodyOffset.x(), m_scrollBodyOffset.y()+ m_bodyOffset, 0.0f);
@@ -243,15 +258,21 @@ void CursorView::AnimationUpdate(const RenderFrame &frame) {
   m_scrollFingerLeft->Translation() = Vector3(m_scrollFingerLeftOffset.x() + m_fingerSpread, m_scrollFingerLeftOffset.y() + m_bodyOffset, 0.0f);
   m_scrollFingerRight->Translation() = Vector3(m_scrollFingerRightOffset.x() - m_fingerSpread, m_scrollFingerRightOffset.y() + m_bodyOffset, 0.0f);
   m_disabledCursor->Translation() = Vector3(m_disabledCursorOffset.x(), m_disabledCursorOffset.y(), 0.0f);
+   
+  const Matrix3x3 stretchTransform = PrimitiveBase::SquashStretchTransform(m_lastHandVelocity.cwiseProduct(Vector3(1, -1, 0)), Vector3::UnitZ());
+  m_disk->LinearTransformation() = stretchTransform;
 }
 
 void CursorView::Render(const RenderFrame& frame) const {
   switch ( m_state ) {
-    case State::ACTIVE:
+    case State::HAND:
       PrimitiveBase::DrawSceneGraph(*m_scrollLine, frame.renderState);
       PrimitiveBase::DrawSceneGraph(*m_scrollBody, frame.renderState);
       PrimitiveBase::DrawSceneGraph(*m_scrollFingerLeft, frame.renderState);
       PrimitiveBase::DrawSceneGraph(*m_scrollFingerRight, frame.renderState);
+      PrimitiveBase::DrawSceneGraph(*m_handCursor, frame.renderState);
+      break;
+    case State::DISK:
       PrimitiveBase::DrawSceneGraph(*m_disk, frame.renderState);
       break;
     case State::DISABLED:
