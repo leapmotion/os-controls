@@ -48,6 +48,8 @@ ExposeView::ExposeView() :
   m_selectionOutlineActive->Material().SetDiffuseLightColor(selectionOutlineActiveColor);
   m_selectionOutlineActive->Material().SetAmbientLightColor(selectionOutlineActiveColor);
   m_selectionOutlineActive->Material().SetAmbientLightingProportion(1.0f);
+
+  memset(&m_prevHandData, 0, sizeof(m_prevHandData));
 }
 
 ExposeView::~ExposeView() {
@@ -204,8 +206,11 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
     window->m_forceDelta.Update(static_cast<float>(dt.count()));
     const Vector3 newPosition = window->m_position.Current() + m_alphaMask.Current()*window->m_grabDelta.Value() + m_alphaMask.Current()*window->m_forceDelta.Value();
     const Vector3 delta = newPosition - window->m_prevPosition;
+    const Vector3 vel = delta / dt.count();
+    window->m_velocity.SetGoal(vel);
+    window->m_velocity.Update(static_cast<float>(dt.count()));
     window->m_prevPosition = newPosition;
-    img->LinearTransformation() = (actualScale * Matrix3x3::Identity()) * PrimitiveBase::SquashStretchTransform(2.0*delta, Vector3::UnitZ());
+    img->LinearTransformation() = (actualScale * Matrix3x3::Identity()) * PrimitiveBase::SquashStretchTransform(0.03*window->m_velocity.Value(), Vector3::UnitZ());
     img->Translation() = newPosition;
 
     // set window opacity smoothly
@@ -284,6 +289,12 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
 #endif
   static Vector2 prevHandPos = handPos;
 
+  Vector3 displacement = Vector3::Zero();
+  const Vector2 screenDeltaPos = m_handData.locationData.screenPosition() - m_prevHandData.locationData.screenPosition();
+  const double leapDeltaTime = m_handData.timeVisible - m_prevHandData.timeVisible;
+  
+  displacement.head<2>() = dt.count() * (screenDeltaPos / leapDeltaTime);
+
   std::shared_ptr<ExposeViewWindow> closestWindow;
   double closestDistSq = DBL_MAX;
   const double distSqThreshPixels = 100;
@@ -323,8 +334,6 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     if (!m_ignoreInteraction && window == closestWindow && closestDistSq < distSqThreshPixels) {
       window->m_hover.SetGoal(1.0f);
       window->m_activation.SetGoal(activation * window->m_hover.Value());
-      Vector3 displacement = Vector3::Zero();
-      displacement.head<2>() = handPos - prevHandPos;
       window->m_grabDelta.SetSmoothStrength(0.5f);
       window->m_grabDelta.SetGoal(activation*(window->m_grabDelta.Goal() + displacement));
 
@@ -360,18 +369,8 @@ void ExposeView::updateActivations(std::chrono::duration<double> dt) {
     maxSelection = std::max(maxSelection, window->m_selection.Value());
   }
 
-#if 0
-  const Vector4f regionColor = maxSelection*selectionRegionActiveColor.Data() + (1.0f - maxSelection)*selectionRegionColor.Data();
-  const Vector4f outlineColor = maxSelection*selectionOutlineActiveColor.Data() + (1.0f - maxSelection)*selectionOutlineColor.Data();
-  
-  m_selectionRegion->Material().SetDiffuseLightColor(regionColor);
-  m_selectionRegion->Material().SetAmbientLightColor(regionColor);
-  m_selectionOutline->Material().SetDiffuseLightColor(outlineColor);
-  m_selectionOutline->Material().SetAmbientLightColor(outlineColor);
-#else
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
   m_selectionOutlineActive->LocalProperties().AlphaMask() = m_alphaMask.Current() * maxSelection;
-#endif
 
   if (m_ignoreInteraction && (m_selectionTime - m_time) > ExposeViewWindow::VIEW_ANIMATION_TIME) {
     m_ignoreInteraction = false;

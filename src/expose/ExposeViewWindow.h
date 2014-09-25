@@ -42,6 +42,7 @@ public:
   Smoothed<float> m_scale;
   Smoothed<Vector3> m_grabDelta;
   Smoothed<Vector3> m_forceDelta;
+  Smoothed<Vector3> m_velocity;
 
   // Smooth animations for hover and activation
   Smoothed<float> m_hover;
