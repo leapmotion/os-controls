@@ -43,6 +43,10 @@ bool AutoLaunchWin::IsAutoLaunch() {
 }
 
 bool AutoLaunchWin::SetAutoLaunch(bool shouldLaunch) {
+  //early out if it's already set.
+  const bool isLaunchSet = IsAutoLaunch();
+  if (isLaunchSet == shouldLaunch)
+    return true;
 
   HKEY hKey;
   LONG openRes = RegOpenKeyExW(HKEY_CURRENT_USER, s_RegKey, 0, KEY_ALL_ACCESS, &hKey);
@@ -64,5 +68,6 @@ bool AutoLaunchWin::SetAutoLaunch(bool shouldLaunch) {
   if (writeRes != ERROR_SUCCESS)
     return false;
 
+  m_event(&AutoLaunchEvent::OnAutoLaunchChanged)(shouldLaunch);
   return true;
 }

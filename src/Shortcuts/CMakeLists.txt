@@ -106,9 +106,9 @@ target_package(Shortcuts Leap REQUIRED)
 target_package(Shortcuts SFML 2.1 REQUIRED)
 
 if(WIN32)
-  set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+  set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib /MANIFESTUAC:NO")
   set_property(TARGET Shortcuts APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Data;System.Drawing;System.Windows.Forms;System.Xml")
-  set_target_properties(Shortcuts PROPERTIES VS_GLOBAL_ROOTNAMESPACE Shortcuts)
+  set_property(TARGET Shortcuts PROPERTY VS_GLOBAL_ROOTNAMESPACE Shortcuts)
   set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES})
 elseif(APPLE)
   set_target_properties(Shortcuts PROPERTIES
@@ -157,3 +157,6 @@ install(TARGETS Shortcuts
   BUNDLE DESTINATION "."
   RESOURCE DESTINATION "."
 )
+
+#post build script to add the manifest & sign the thing.
+install(SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/SignShortcuts.cmake)
