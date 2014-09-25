@@ -18,7 +18,6 @@ file(GLOB PreferencePane_STRINGS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.lproj/*.
 add_conditional_sources(PreferencePane_SOURCES "" GROUP_NAME "XIBs" "FILES" ${PreferencePane_XIBS} ${PreferencePane_STRINGS})
 
 add_library(ShortcutsPreferences SHARED ${PreferencePane_SOURCES})
-add_dependencies(ShortcutsPreferences Shortcuts)
 find_library(PREFERENCEPANES_FRAMEWORK PreferencePanes)
 find_library(APPKIT_FRAMEWORK AppKit)
 mark_as_advanced(PREFERENCEPANES_FRAMEWORK)
@@ -28,14 +27,9 @@ target_link_libraries(ShortcutsPreferences utility ${PREFERENCEPANES_FRAMEWORK} 
 #For version.h
 target_include_directories(ShortcutsPreferences PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-set(SHORTCUTS_PREFERENCES_CONTENTS ${CMAKE_BINARY_DIR}/bin/Shortcuts.app/Contents/MacOS/Shortcuts.prefPane/Contents)
+configure_file(ShortcutsPreferences.plist.in Info.plist @ONLY)
 
-add_custom_command(TARGET ShortcutsPreferences PRE_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${SHORTCUTS_PREFERENCES_CONTENTS}/Resources/
-)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ShortcutsPreferences.plist.in
-               ${SHORTCUTS_PREFERENCES_CONTENTS}/Info.plist @ONLY)
+set(SHORTCUTS_PREFERENCES_CONTENTS "Shortcuts.prefPane/Contents")
 
 set_target_properties(ShortcutsPreferences PROPERTIES PREFIX "" SUFFIX ""
                       COMPILE_FLAGS "-fobjc-arc ${SHARED_FLAGS}"
@@ -44,10 +38,15 @@ set_target_properties(ShortcutsPreferences PROPERTIES PREFIX "" SUFFIX ""
                       LIBRARY_OUTPUT_DIRECTORY_DEBUG ${SHORTCUTS_PREFERENCES_CONTENTS}/MacOS/
                       LIBRARY_OUTPUT_DIRECTORY_RELEASE ${SHORTCUTS_PREFERENCES_CONTENTS}/MacOS/)
 
+add_custom_command(TARGET ShortcutsPreferences PRE_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${SHORTCUTS_PREFERENCES_CONTENTS}/Resources/
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different "Info.plist" ${SHORTCUTS_PREFERENCES_CONTENTS}/
+)
+
 foreach(_resource ${PreferencePane_RESOURCES})
   get_filename_component(_resource ${_resource} ABSOLUTE)
   add_custom_command(TARGET ShortcutsPreferences POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" ${SHORTCUTS_PREFERENCES_CONTENTS}/Resources/
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_resource} ${SHORTCUTS_PREFERENCES_CONTENTS}/Resources/
   )
 endforeach()
 
@@ -57,8 +56,8 @@ foreach(_string ${PreferencePane_STRINGS})
   get_filename_component(_string ${_string} ABSOLUTE)
   set(_resources_locale ${SHORTCUTS_PREFERENCES_CONTENTS}/Resources/${_string_locale}/)
   add_custom_command(TARGET ShortcutsPreferences POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory \"${_resources_locale}\"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_string}\" \"${_resources_locale}/${_string_name}\"
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${_resources_locale}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_string} ${_resources_locale}/${_string_name}
   )
 endforeach()
 
@@ -68,9 +67,9 @@ foreach(_xib ${PreferencePane_XIBS})
   get_filename_component(_nib_name ${_xib} NAME_WE)
   set(_resources_nib ${SHORTCUTS_PREFERENCES_CONTENTS}/Resources/${_nib_path}/)
   add_custom_command(TARGET ShortcutsPreferences POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory \"${_resources_nib}\"
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${_resources_nib}
     COMMAND ${IBTOOL} --errors --warnings --notices --output-format human-readable-text --compile
-    \"${_resources_nib}${_nib_name}.nib\"
+    ${_resources_nib}${_nib_name}.nib
     ${CMAKE_CURRENT_SOURCE_DIR}/${_xib}
     COMMENT "Compiling src/PreferencePane/${_xib}"
   )
