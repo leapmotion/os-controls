@@ -25,6 +25,8 @@ protected:
 private:
   static const int NUM_FINGERS = 5;
   
+  // Computes a "bend amount" for this finger, between 0 (not bent) and 1 (very bent)
+  // When pinching, the thumb is forced to be bent
   float fingerBend(const Leap::Finger& finger) const;
   
   void formatFinger(const Leap::Finger& finger, float distance, bool isLeft = false);

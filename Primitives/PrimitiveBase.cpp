@@ -30,7 +30,7 @@ Matrix3x3 PrimitiveBase::SquashStretchTransform(const Vector3& velocity, const V
   }
   const Vector3 direction = velocity / speed;
 
-  // compute stretch and squash multipliers (area preserving)
+  // compute stretch and squash multipliers (volume preserving)
   const double stretch = 1.0 + std::min(1.0, speed / speedDenom);
   const double squash = std::sqrt(1.0 / stretch);
 
