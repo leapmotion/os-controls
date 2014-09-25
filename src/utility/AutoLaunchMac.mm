@@ -151,5 +151,6 @@ void AutoLaunchMac::loginItemsChanged(LSSharedFileListRef lsRef, void* context)
 {
   AutoLaunchMac* that = reinterpret_cast<AutoLaunchMac*>(context);
   if (that) {
+    // FIXME
   }
 }

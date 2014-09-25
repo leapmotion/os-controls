@@ -1,5 +1,6 @@
 #import "PreferencePane.h"
 #import "utility/Config.h"
+#import "utility/AutoLaunch.h"
 #import "../Shortcuts/Version.h"
 
 #import <Cocoa/Cocoa.h>
@@ -14,7 +15,11 @@ class ConfigHandler:
 
     void ConfigChanged(const std::string& config, const json11::Json& value) override {
       @autoreleasepool {
-        [m_preferencePane onChange:[NSString stringWithUTF8String:config.c_str()] withBool:(BOOL)value.bool_value()];
+        if (value.is_bool()) {
+          [m_preferencePane onChange:[NSString stringWithUTF8String:config.c_str()] withBool:(BOOL)value.bool_value()];
+        } else if (value.is_number()) {
+          [m_preferencePane onChange:[NSString stringWithUTF8String:config.c_str()] withNumber:value.number_value()];
+        }
       }
     }
 
@@ -41,8 +46,10 @@ class ConfigHandler:
   ctxt->Initiate();
   AutoConstruct<ConfigHandler> cfgHandler(self);
   AutoRequired<Config> cfg;
+  AutoRequired<AutoLaunch> autoLaunch;
   std::string path = "./";
   @autoreleasepool {
+    [_autoStartCheckbox setState:(autoLaunch->IsAutoLaunch() ? NSOnState : NSOffState)];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
     NSString *applicationSupportDirectory = [paths objectAtIndex:0];
     const char* c_str = [applicationSupportDirectory UTF8String];
@@ -66,36 +73,56 @@ class ConfigHandler:
   }
 }
 
+- (void)onChange:(NSString *)name withNumber:(double)value
+{
+  if ([name isEqualToString:@"scrollSensitivity"]) {
+    [_sensitivityBar setDoubleValue:value];
+  }
+}
+
 - (IBAction)enableMediaControlsCheckbox:(id)sender
 {
   AutowiredFast<Config> cfg;
-  if (cfg) {
-    cfg->Set("enableMedia", ([sender state] == NSOnState));
+  if (!cfg) {
+    return;
   }
+  cfg->Set("enableMedia", ([sender state] == NSOnState));
 }
 
 - (IBAction)enableApplicationSwitcherCheckbox:(id)sender
 {
   AutowiredFast<Config> cfg;
-  if (cfg) {
-    cfg->Set("enableWindowSelection", ([sender state] == NSOnState));
+  if (!cfg) {
+    return;
   }
+  cfg->Set("enableWindowSelection", ([sender state] == NSOnState));
 }
 
 - (IBAction)enableScrollingCheckbox:(id)sender
 {
   AutowiredFast<Config> cfg;
-  if (cfg) {
-    cfg->Set("enableScroll", ([sender state] == NSOnState));
+  if (!cfg) {
+    return;
   }
+  cfg->Set("enableScroll", ([sender state] == NSOnState));
 }
 
 - (IBAction)enableAutoStart:(id)sender
 {
+  AutowiredFast<AutoLaunch> autoLaunch;
+  if (!autoLaunch) {
+    return;
+  }
+  autoLaunch->SetAutoLaunch([sender state] == NSOnState);
 }
 
-- (IBAction)onUserSensitivtyChanged:(id)sender {
-  
+- (IBAction)onUserSensitivtyChanged:(id)sender
+{
+  AutowiredFast<Config> cfg;
+  if (!cfg) {
+    return;
+  }
+  cfg->Set("scrollSensitivity", [sender doubleValue]);
 }
 
 - (IBAction)launchShortcuts:(id)sender
