@@ -203,31 +203,31 @@ namespace Shortcuts {
       });
       notificationMenu->Name = L"contextMenuStrip1";
       notificationMenu->ShowImageMargin = false;
-      notificationMenu->Size = System::Drawing::Size(228, 118);
+      notificationMenu->Size = System::Drawing::Size(133, 76);
       // 
       // configToolStripMenuItem
       // 
       configToolStripMenuItem->Name = L"configToolStripMenuItem";
-      configToolStripMenuItem->Size = System::Drawing::Size(227, 36);
+      configToolStripMenuItem->Size = System::Drawing::Size(132, 22);
       configToolStripMenuItem->Text = L"&Configuration...";
       configToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::configToolStripMenuItem_Click);
       // 
       // helpToolStripMenuItem
       // 
       helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
-      helpToolStripMenuItem->Size = System::Drawing::Size(227, 36);
+      helpToolStripMenuItem->Size = System::Drawing::Size(132, 22);
       helpToolStripMenuItem->Text = L"&Help";
       helpToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::helpToolStripMenuItem_Click);
       // 
       // toolStripSeparator1
       // 
       this->toolStripSeparator1->Name = L"toolStripSeparator1";
-      this->toolStripSeparator1->Size = System::Drawing::Size(224, 6);
+      this->toolStripSeparator1->Size = System::Drawing::Size(129, 6);
       // 
       // exitToolStripMenuItem
       // 
       exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-      exitToolStripMenuItem->Size = System::Drawing::Size(227, 36);
+      exitToolStripMenuItem->Size = System::Drawing::Size(132, 22);
       exitToolStripMenuItem->Text = L"&Exit";
       exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
       // 
@@ -241,10 +241,9 @@ namespace Shortcuts {
       // 
       this->mediaCheckBox->AutoSize = true;
       this->mediaCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
-      this->mediaCheckBox->Location = System::Drawing::Point(22, 149);
-      this->mediaCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->mediaCheckBox->Location = System::Drawing::Point(11, 77);
       this->mediaCheckBox->Name = L"mediaCheckBox";
-      this->mediaCheckBox->Size = System::Drawing::Size(242, 29);
+      this->mediaCheckBox->Size = System::Drawing::Size(132, 17);
       this->mediaCheckBox->TabIndex = 5;
       this->mediaCheckBox->Text = L"Enable Media Controls";
       this->mediaCheckBox->UseVisualStyleBackColor = true;
@@ -254,10 +253,9 @@ namespace Shortcuts {
       // 
       this->exposeCheckBox->AutoSize = true;
       this->exposeCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
-      this->exposeCheckBox->Location = System::Drawing::Point(22, 98);
-      this->exposeCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->exposeCheckBox->Location = System::Drawing::Point(11, 51);
       this->exposeCheckBox->Name = L"exposeCheckBox";
-      this->exposeCheckBox->Size = System::Drawing::Size(286, 29);
+      this->exposeCheckBox->Size = System::Drawing::Size(156, 17);
       this->exposeCheckBox->TabIndex = 1;
       this->exposeCheckBox->Text = L"Enable Application Switcher";
       this->exposeCheckBox->UseVisualStyleBackColor = true;
@@ -267,10 +265,9 @@ namespace Shortcuts {
       // 
       this->scrollCheckBox->AutoSize = true;
       this->scrollCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
-      this->scrollCheckBox->Location = System::Drawing::Point(22, 49);
-      this->scrollCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->scrollCheckBox->Location = System::Drawing::Point(11, 25);
       this->scrollCheckBox->Name = L"scrollCheckBox";
-      this->scrollCheckBox->Size = System::Drawing::Size(185, 29);
+      this->scrollCheckBox->Size = System::Drawing::Size(101, 17);
       this->scrollCheckBox->TabIndex = 3;
       this->scrollCheckBox->Text = L"Enable Scrolling";
       this->scrollCheckBox->UseVisualStyleBackColor = true;
@@ -282,9 +279,11 @@ namespace Shortcuts {
       this->box_featureSelection->Controls->Add(this->scrollCheckBox);
       this->box_featureSelection->Controls->Add(this->mediaCheckBox);
       this->box_featureSelection->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9));
-      this->box_featureSelection->Location = System::Drawing::Point(28, 25);
+      this->box_featureSelection->Location = System::Drawing::Point(14, 13);
+      this->box_featureSelection->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
       this->box_featureSelection->Name = L"box_featureSelection";
-      this->box_featureSelection->Size = System::Drawing::Size(338, 206);
+      this->box_featureSelection->Padding = System::Windows::Forms::Padding(2, 2, 2, 2);
+      this->box_featureSelection->Size = System::Drawing::Size(169, 107);
       this->box_featureSelection->TabIndex = 6;
       this->box_featureSelection->TabStop = false;
       this->box_featureSelection->Text = L"Feature Selection";
@@ -292,11 +291,12 @@ namespace Shortcuts {
       // scrollSensitivityBar
       // 
       this->scrollSensitivityBar->LargeChange = 1;
-      this->scrollSensitivityBar->Location = System::Drawing::Point(3, 3);
+      this->scrollSensitivityBar->Location = System::Drawing::Point(2, 2);
+      this->scrollSensitivityBar->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
       this->scrollSensitivityBar->Maximum = 9;
       this->scrollSensitivityBar->Minimum = 1;
       this->scrollSensitivityBar->Name = L"scrollSensitivityBar";
-      this->scrollSensitivityBar->Size = System::Drawing::Size(398, 53);
+      this->scrollSensitivityBar->Size = System::Drawing::Size(198, 26);
       this->scrollSensitivityBar->TabIndex = 6;
       this->scrollSensitivityBar->Value = 5;
       this->scrollSensitivityBar->MouseCaptureChanged += gcnew System::EventHandler(this, &NativeUIWin::trackBar1_MouseCaptureChanged);
@@ -305,9 +305,10 @@ namespace Shortcuts {
       // 
       this->label_scrollSensitivity->Anchor = System::Windows::Forms::AnchorStyles::Top;
       this->label_scrollSensitivity->AutoSize = true;
-      this->label_scrollSensitivity->Location = System::Drawing::Point(117, 59);
+      this->label_scrollSensitivity->Location = System::Drawing::Point(59, 30);
+      this->label_scrollSensitivity->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
       this->label_scrollSensitivity->Name = L"label_scrollSensitivity";
-      this->label_scrollSensitivity->Size = System::Drawing::Size(170, 25);
+      this->label_scrollSensitivity->Size = System::Drawing::Size(83, 13);
       this->label_scrollSensitivity->TabIndex = 7;
       this->label_scrollSensitivity->Text = L"Scroll Sensitivity";
       // 
@@ -318,30 +319,33 @@ namespace Shortcuts {
         50)));
       this->tableLayoutPanel1->Controls->Add(this->scrollSensitivityBar, 0, 0);
       this->tableLayoutPanel1->Controls->Add(this->label_scrollSensitivity, 0, 1);
-      this->tableLayoutPanel1->Location = System::Drawing::Point(395, 40);
+      this->tableLayoutPanel1->Location = System::Drawing::Point(198, 21);
+      this->tableLayoutPanel1->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
       this->tableLayoutPanel1->Name = L"tableLayoutPanel1";
       this->tableLayoutPanel1->RowCount = 2;
       this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
-      this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 36)));
-      this->tableLayoutPanel1->Size = System::Drawing::Size(404, 95);
+      this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 19)));
+      this->tableLayoutPanel1->Size = System::Drawing::Size(202, 49);
       this->tableLayoutPanel1->TabIndex = 8;
       // 
       // button_ok
       // 
-      this->button_ok->Location = System::Drawing::Point(642, 228);
+      this->button_ok->Location = System::Drawing::Point(320, 126);
+      this->button_ok->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
       this->button_ok->Name = L"button_ok";
-      this->button_ok->Size = System::Drawing::Size(157, 61);
+      this->button_ok->Size = System::Drawing::Size(78, 24);
       this->button_ok->TabIndex = 9;
-      this->button_ok->Text = L"Ok";
+      this->button_ok->Text = L"Close";
       this->button_ok->UseVisualStyleBackColor = true;
       this->button_ok->Click += gcnew System::EventHandler(this, &NativeUIWin::okButton_Click);
       // 
       // label_version
       // 
       this->label_version->AutoSize = true;
-      this->label_version->Location = System::Drawing::Point(395, 254);
+      this->label_version->Location = System::Drawing::Point(198, 132);
+      this->label_version->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
       this->label_version->Name = L"label_version";
-      this->label_version->Size = System::Drawing::Size(221, 25);
+      this->label_version->Size = System::Drawing::Size(92, 13);
       this->label_version->TabIndex = 10;
       this->label_version->Text = L"Shortcuts version:";
       // 
@@ -349,10 +353,9 @@ namespace Shortcuts {
       // 
       this->startupCheckBox->AutoSize = true;
       this->startupCheckBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.5F));
-      this->startupCheckBox->Location = System::Drawing::Point(50, 251);
-      this->startupCheckBox->Margin = System::Windows::Forms::Padding(6);
+      this->startupCheckBox->Location = System::Drawing::Point(25, 131);
       this->startupCheckBox->Name = L"startupCheckBox";
-      this->startupCheckBox->Size = System::Drawing::Size(292, 29);
+      this->startupCheckBox->Size = System::Drawing::Size(160, 17);
       this->startupCheckBox->TabIndex = 6;
       this->startupCheckBox->Text = L"Launch Shortcuts on Startup";
       this->startupCheckBox->UseVisualStyleBackColor = true;
@@ -360,16 +363,15 @@ namespace Shortcuts {
       // 
       // NativeUIWin
       // 
-      this->AutoScaleDimensions = System::Drawing::SizeF(12, 25);
+      this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
       this->AutoSize = true;
-      this->ClientSize = System::Drawing::Size(828, 311);
+      this->ClientSize = System::Drawing::Size(414, 162);
       this->Controls->Add(this->startupCheckBox);
       this->Controls->Add(this->label_version);
       this->Controls->Add(this->button_ok);
       this->Controls->Add(this->tableLayoutPanel1);
       this->Controls->Add(this->box_featureSelection);
-      this->Margin = System::Windows::Forms::Padding(6);
       this->MaximizeBox = false;
       this->MinimizeBox = false;
       this->Name = L"NativeUIWin";
