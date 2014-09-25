@@ -56,15 +56,15 @@ TEST_F(SceneGraphNodeTest, PropertyDeltas) {
   e.setIdentity();
 
   a.scale(2.0f);
-  b.translate(Vector2f(1.0f, -3.0f));
+  b.translate(EigenTypes::Vector2f(1.0f, -3.0f));
   c.linear() << 0.0f, -1.0f,
                 1.0f,  0.0f;
   d.scale(0.25f);
-  d.translate(Vector2f(4.0f, 5.0f));
+  d.translate(EigenTypes::Vector2f(4.0f, 5.0f));
   e.linear() << 1.0f,  2.0f,
                 3.0f,  5.0f;
   e.scale(0.125f);
-  e.translate(Vector2f(0.0f, 3.0f));
+  e.translate(EigenTypes::Vector2f(0.0f, 3.0f));
 
   auto A = std::shared_ptr<Node>(new Node());
   A->LocalProperties().AffineTransform() = a;

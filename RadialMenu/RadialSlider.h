@@ -38,7 +38,7 @@ protected:
 
   double calculateValueRatio() const;
   double calculateValueAngle() const;
-  Vector3 calculateHandlePosition() const;
+  EigenTypes::Vector3 calculateHandlePosition() const;
 
   double m_MinValue;
   double m_MaxValue;
@@ -55,6 +55,6 @@ protected:
   RadialSliderEvent* m_Callback;
 
   double m_IconScale;
-  Vector3 m_IconOffset;
+  EigenTypes::Vector3 m_IconOffset;
   std::shared_ptr<SVGPrimitive> m_Icon;
 };

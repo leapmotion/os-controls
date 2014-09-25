@@ -25,7 +25,7 @@ public:
 
   void SetIcon(const std::shared_ptr<SVGPrimitive>& svgIcon);
 
-  bool Hit(const Vector2& pos, double& ratio) const;
+  bool Hit(const EigenTypes::Vector2& pos, double& ratio) const;
 
   double CurrentRadius() const;
 
@@ -46,7 +46,7 @@ protected:
   Color m_HoverColor;
 
   double m_IconScale;
-  Vector3 m_IconOffset;
+  EigenTypes::Vector3 m_IconOffset;
   std::shared_ptr<SVGPrimitive> m_Icon;
 
   RadialMenuItemEvent* m_Callback;
@@ -74,10 +74,10 @@ public:
   void SetNumItems(int num);
   const std::shared_ptr<RadialMenuItem>& GetItem(int i) const { return m_Items[i]; }
   std::shared_ptr<RadialMenuItem>& GetItem(int i) { return m_Items[i]; }
-  UpdateResult InteractWithCursor(const Vector3& cursor);
+  UpdateResult InteractWithCursor(const EigenTypes::Vector3& cursor);
   void InteractWithoutCursor();
   void UpdateItemActivation(float deltaTime);
-  HitResult ItemFromPoint(const Vector2& pos) const;
+  HitResult ItemFromPoint(const EigenTypes::Vector2& pos) const;
 protected:
   virtual void DrawContents(RenderState& renderState) const override;
   void updateItemLayout();

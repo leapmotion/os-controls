@@ -24,7 +24,7 @@ enum class VariableIs { REQUIRED, OPTIONAL_NO_WARN, OPTIONAL_BUT_WARN };
 /// @details Some of the code was initially taken from Jerry Coffin's answer at
 /// http://stackoverflow.com/questions/2795044/easy-framework-for-opengl-shaders-in-c-c
 /// Currently only the OpenGL 2.1 standard uniform types are supported (in particular, this
-/// is missing unsigned ints, unsigned int vectors, and a bunch of sampler types).
+/// is missing unsigned ints, unsigned int EigenTypes::Vectors, and a bunch of sampler types).
 ///
 /// Upon successful linking, the shader program will be queried for all its active uniforms
 /// and attributes, storing the relevant info (name, location, size, type) in a map which is

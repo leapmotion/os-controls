@@ -28,13 +28,13 @@ public:
   GLMaterial ();
 
   // Query material properties.
-  const Vector3f& LightPosition () const { return m_light_position; } // TODO: move this elsewhere -- it doesn't belong here
+  const EigenTypes::Vector3f& LightPosition () const { return m_light_position; } // TODO: move this elsewhere -- it doesn't belong here
   const Color& DiffuseLightColor () const { return m_diffuse_light_color; }
   const Color& AmbientLightColor () const { return m_ambient_light_color; }
   float AmbientLightingProportion () const { return m_ambient_lighting_proportion; }
 
   // Modifiers for the properties of a material.
-  void SetLightPosition (const Vector3f &p) { m_light_position = p; } // TODO: move this elsewhere -- it doesn't belong here
+  void SetLightPosition (const EigenTypes::Vector3f &p) { m_light_position = p; } // TODO: move this elsewhere -- it doesn't belong here
   void SetDiffuseLightColor (const Color &c) { m_diffuse_light_color = c; }
   void SetAmbientLightColor (const Color &c) { m_ambient_light_color = c; }
   void SetAmbientLightingProportion (float f) { m_ambient_lighting_proportion = f; }
@@ -47,7 +47,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
 
-  Vector3f m_light_position;
+  EigenTypes::Vector3f m_light_position;
   Color m_diffuse_light_color;
   Color m_ambient_light_color;
   float m_ambient_lighting_proportion;

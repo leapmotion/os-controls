@@ -25,7 +25,7 @@ void CheckShaderForUniforms (const GLShader &shader, BindFlags bind_flags);
 // All the matrix uniforms in the shader can be derived from the modelview and
 // projection matrices.  This method derives the necessary matrices and uploads
 // them into the uniforms for this shader.  The binding requirement 
-void UploadUniforms (const GLShader &shader, const Matrix4x4 &model_view, const Matrix4x4 &projection, BindFlags bind_flags);
+void UploadUniforms (const GLShader &shader, const EigenTypes::Matrix4x4 &model_view, const EigenTypes::Matrix4x4 &projection, BindFlags bind_flags);
 
 } // end of namespace GLShaderMatrices
 

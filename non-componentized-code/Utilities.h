@@ -7,7 +7,7 @@ static inline T SmootherStep(const T& x) {
   return x*x*x*(x*(x*6 - 15) + 10);
 }
 
-inline ci::Vec3f ToVec3f(const Vector3& vec) {
+inline ci::Vec3f ToVec3f(const EigenTypes::Vector3& vec) {
   return ci::Vec3f(static_cast<float>(vec.x()), static_cast<float>(vec.y()), static_cast<float>(vec.z()));
 }
 
@@ -62,8 +62,8 @@ private:
   ExponentialFilter<float> m_categories[N];
 };
 
-static Matrix4x4 RotationMatrix(const Vector3& axis, double angle) {
-  Matrix4x4 mat;
+static EigenTypes::Matrix4x4 RotationMatrix(const EigenTypes::Vector3& axis, double angle) {
+  EigenTypes::Matrix4x4 mat;
   const double c = std::cos(angle);
   const double s = std::sin(angle);
   const double C = (1 - c);
@@ -74,16 +74,16 @@ static Matrix4x4 RotationMatrix(const Vector3& axis, double angle) {
   return mat;
 }
 
-static Matrix4x4 TranslationMatrix(const Vector3& translation) {
-  Matrix4x4 mat = Matrix4x4::Identity();
+static EigenTypes::Matrix4x4 TranslationMatrix(const EigenTypes::Vector3& translation) {
+  EigenTypes::Matrix4x4 mat = EigenTypes::Matrix4x4::Identity();
   mat(0, 3) = translation[0];
   mat(1, 3) = translation[1];
   mat(2, 3) = translation[2];
   return mat;
 }
 
-static Matrix4x4 ScaleMatrix(const Vector3& scale) {
-  Matrix4x4 mat = Matrix4x4::Identity();
+static EigenTypes::Matrix4x4 ScaleMatrix(const EigenTypes::Vector3& scale) {
+  EigenTypes::Matrix4x4 mat = EigenTypes::Matrix4x4::Identity();
   mat(0, 0) = scale[0];
   mat(1, 1) = scale[1];
   mat(2, 2) = scale[2];

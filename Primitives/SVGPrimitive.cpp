@@ -133,8 +133,8 @@ void SVGPrimitive::Set(const std::string& svg)
         if (shape->bounds[3] > bounds[3]) { bounds[3] = shape->bounds[3]; }
       }
     }
-    m_Origin << static_cast<MATH_TYPE>(bounds[0]), static_cast<MATH_TYPE>(bounds[1]);
-    m_Size << static_cast<MATH_TYPE>(bounds[2] - bounds[0]), static_cast<MATH_TYPE>(bounds[3] - bounds[1]);
+    m_Origin << static_cast<EigenTypes::MATH_TYPE>(bounds[0]), static_cast<EigenTypes::MATH_TYPE>(bounds[1]);
+    m_Size << static_cast<EigenTypes::MATH_TYPE>(bounds[2] - bounds[0]), static_cast<EigenTypes::MATH_TYPE>(bounds[3] - bounds[1]);
     m_RecomputeGeometry = true;
   }
 }
@@ -208,8 +208,8 @@ void SVGPrimitive::RecomputeChildren() {
           std::vector<PrimitiveGeometry::Vertex>& vertices = geometry.Vertices();
           const auto& points = curve.Points();
           for (const auto& pt : points) {
-            const Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
-            vertices.push_back(PrimitiveGeometry::Vertex(point, Vector3f::UnitZ()));
+            const EigenTypes::Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
+            vertices.push_back(PrimitiveGeometry::Vertex(point, EigenTypes::Vector3f::UnitZ()));
           }
           geometry.UploadDataToBuffers();
           // Gather the strokes; they will be applied after the fill
@@ -237,12 +237,12 @@ void SVGPrimitive::RecomputeChildren() {
         genericShape->Material().SetAmbientLightingProportion(1.0f);
         for (auto& triangle : triangles) {
           assert(triangle.GetNumPoints() == 3);
-          const Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
-          const Vector3f point2(static_cast<float>(triangle[1].x), static_cast<float>(triangle[1].y), 0.0f);
-          const Vector3f point3(static_cast<float>(triangle[2].x), static_cast<float>(triangle[2].y), 0.0f);
-          geometry.PushTri(PrimitiveGeometry::Vertex(point1, Vector3f::UnitZ()), 
-                           PrimitiveGeometry::Vertex(point2, Vector3f::UnitZ()), 
-                           PrimitiveGeometry::Vertex(point3, Vector3f::UnitZ()));
+          const EigenTypes::Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
+          const EigenTypes::Vector3f point2(static_cast<float>(triangle[1].x), static_cast<float>(triangle[1].y), 0.0f);
+          const EigenTypes::Vector3f point3(static_cast<float>(triangle[2].x), static_cast<float>(triangle[2].y), 0.0f);
+          geometry.PushTri(PrimitiveGeometry::Vertex(point1, EigenTypes::Vector3f::UnitZ()), 
+                           PrimitiveGeometry::Vertex(point2, EigenTypes::Vector3f::UnitZ()), 
+                           PrimitiveGeometry::Vertex(point3, EigenTypes::Vector3f::UnitZ()));
         }
         geometry.UploadDataToBuffers();
         AddChild(genericShape);

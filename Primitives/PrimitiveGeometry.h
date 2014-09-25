@@ -24,7 +24,7 @@ public:
   class Vertex {
   public:
     
-    Vertex(const Vector3f& pos, const Vector3f& normal, const Vector2f& texCoord = Vector2f::Zero(), const Color &color = Color::White()) {
+    Vertex(const EigenTypes::Vector3f& pos, const EigenTypes::Vector3f& normal, const EigenTypes::Vector2f& texCoord = EigenTypes::Vector2f::Zero(), const Color &color = Color::White()) {
       p[0] =      pos[0]; p[1] =      pos[1];    p[2] = pos[2];
       n[0] =   normal[0]; n[1] =   normal[1]; n[2] = normal[2];
       t[0] = texCoord[0]; t[1] = texCoord[1];
@@ -66,15 +66,15 @@ public:
   static PrimitiveGeometry CreateUnitDisk(int resolution);
   static PrimitiveGeometry CreateUnitBox();
 
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
+  // Add a quad with the specified points, winding counterclockwise, with the given normal EigenTypes::Vector, adding
   // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushTri (const Vertex &p0, const Vertex &p1, const Vertex &p2);
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
+  // Add a quad with the specified points, winding counterclockwise, with the given normal EigenTypes::Vector, adding
   // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
-  void PushTri (const Vector3f &p0, const Vector3f &p1, const Vector3f &p2);
-  // Add a quad with the specified points, winding counterclockwise, with the given normal vector, adding
+  void PushTri (const EigenTypes::Vector3f &p0, const EigenTypes::Vector3f &p1, const EigenTypes::Vector3f &p2);
+  // Add a quad with the specified points, winding counterclockwise, with the given normal EigenTypes::Vector, adding
   // texture coordinates if requested.  This function assumes that the draw mode (see Draw) is GL_TRIANGLES.
-  void PushQuad (const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, const Vector3f &p3);
+  void PushQuad (const EigenTypes::Vector3f &p0, const EigenTypes::Vector3f &p1, const EigenTypes::Vector3f &p2, const EigenTypes::Vector3f &p3);
   
 private:
 

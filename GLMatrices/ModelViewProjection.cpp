@@ -1,12 +1,12 @@
 #include "ModelViewProjection.h"
 
-Projection::Projection() : m_matrix(Matrix4x4::Identity()) { }
+Projection::Projection() : m_matrix(EigenTypes::Matrix4x4::Identity()) { }
 
-const Matrix4x4& Projection::Matrix() const {
+const EigenTypes::Matrix4x4& Projection::Matrix() const {
   return m_matrix;
 }
 
-Matrix4x4& Projection::Matrix() {
+EigenTypes::Matrix4x4& Projection::Matrix() {
   return m_matrix;
 }
 
@@ -34,22 +34,22 @@ void Projection::Orthographic(double left, double bottom, double right, double t
                              0,                0,                      0,                                         1;
 }
 
-Vector2 Projection::Project(const Vector3& point) const {
-  Vector2 result = (m_matrix * Vector4(point.x(), point.y(), point.z(), 1.0)).head<2>();
+EigenTypes::Vector2 Projection::Project(const EigenTypes::Vector3& point) const {
+  EigenTypes::Vector2 result = (m_matrix * EigenTypes::Vector4(point.x(), point.y(), point.z(), 1.0)).head<2>();
   result.x() = (result.x() + 1)/2;
   result.y() = (result.y() + 1)/2;
   return result;
 }
 
 ModelView::ModelView() {
-  m_stack.push_back(Matrix4x4::Identity());
+  m_stack.push_back(EigenTypes::Matrix4x4::Identity());
 }
 
-const Matrix4x4& ModelView::Matrix() const {
+const EigenTypes::Matrix4x4& ModelView::Matrix() const {
   return m_stack.back();
 }
 
-Matrix4x4& ModelView::Matrix() {
+EigenTypes::Matrix4x4& ModelView::Matrix() {
   return m_stack.back();
 }
 
@@ -57,11 +57,11 @@ void ModelView::Reset() {
   m_stack.back().setIdentity();
 }
 
-void ModelView::LookAt(const Vector3& eye, const Vector3& center, const Vector3& up) {
-  Matrix4x4& mat = m_stack.back();
-  Vector3 z = (eye - center).normalized();
-  Vector3 y = up;
-  Vector3 x = y.cross(z).normalized();
+void ModelView::LookAt(const EigenTypes::Vector3& eye, const EigenTypes::Vector3& center, const EigenTypes::Vector3& up) {
+  EigenTypes::Matrix4x4& mat = m_stack.back();
+  EigenTypes::Vector3 z = (eye - center).normalized();
+  EigenTypes::Vector3 y = up;
+  EigenTypes::Vector3 x = y.cross(z).normalized();
   y = z.cross(x).normalized();
   mat.setIdentity();
   mat.col(0) << x, 0;
@@ -70,18 +70,18 @@ void ModelView::LookAt(const Vector3& eye, const Vector3& center, const Vector3&
   mat.col(3) << -x.dot(eye), -y.dot(eye), -z.dot(eye), 1.0;
 }
 
-void ModelView::Translate(const Vector3& translation) {
+void ModelView::Translate(const EigenTypes::Vector3& translation) {
   // TODO: replace with some utility function
-  Matrix4x4 mat = Matrix4x4::Identity();
+  EigenTypes::Matrix4x4 mat = EigenTypes::Matrix4x4::Identity();
   mat(0, 3) = translation[0];
   mat(1, 3) = translation[1];
   mat(2, 3) = translation[2];
   m_stack.back() *= mat;
 }
 
-void ModelView::Rotate(const Vector3& axis, double angleRadians) {
+void ModelView::Rotate(const EigenTypes::Vector3& axis, double angleRadians) {
   // TODO: replace with some utility function
-  Matrix4x4 mat;
+  EigenTypes::Matrix4x4 mat;
   const double c = std::cos(angleRadians);
   const double s = std::sin(angleRadians);
   const double C = (1 - c);
@@ -92,25 +92,25 @@ void ModelView::Rotate(const Vector3& axis, double angleRadians) {
   m_stack.back() *= mat;
 }
 
-void ModelView::Scale(const Vector3& scale) {
+void ModelView::Scale(const EigenTypes::Vector3& scale) {
   // TODO: replace with some utility function
-  Matrix4x4 mat = Matrix4x4::Identity();
+  EigenTypes::Matrix4x4 mat = EigenTypes::Matrix4x4::Identity();
   mat(0, 0) = scale[0];
   mat(1, 1) = scale[1];
   mat(2, 2) = scale[2];
   m_stack.back() *= mat;
 }
 
-void ModelView::Multiply(const Matrix4x4& transform) {
+void ModelView::Multiply(const EigenTypes::Matrix4x4& transform) {
   m_stack.back() *= transform;
 }
 
-void ModelView::Multiply(const Matrix3x3& transform) {
-  Matrix4x4 affine;
+void ModelView::Multiply(const EigenTypes::Matrix3x3& transform) {
+  EigenTypes::Matrix4x4 affine;
   affine.block<3,3>(0,0) = transform;
   affine.block<3,1>(0,3).setZero();
   affine.block<1,3>(3,0).setZero();
-  affine(3,3) = MATH_TYPE(1);
+  affine(3,3) = EigenTypes::MATH_TYPE(1);
   Multiply(affine);
 }
 
@@ -125,5 +125,5 @@ void ModelView::Pop() {
 
 void ModelView::Clear() {
   m_stack.clear();
-  m_stack.push_back(Matrix4x4::Identity());
+  m_stack.push_back(EigenTypes::Matrix4x4::Identity());
 }

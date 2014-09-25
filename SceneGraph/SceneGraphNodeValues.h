@@ -12,11 +12,11 @@
 //   [ L T ]
 //   [ 0 1 ]
 // where L is a DIMxDIM matrix representing the linear transformation and T is a DIMx1 matrix
-// (column vector) representing the translation.  The semantic is that this (DIM+1)x(DIM+1)
+// (column EigenTypes::Vector) representing the translation.  The semantic is that this (DIM+1)x(DIM+1)
 // matrix acts on
 //   [ X ]
 //   [ 1 ]
-// where X is a DIMx1 matrix (the vector being acted upon).  This is equivalent to the expression
+// where X is a DIMx1 matrix (the EigenTypes::Vector being acted upon).  This is equivalent to the expression
 //   L*X + T.
 // The DIMx(DIM+1) matrix [ L T ] is called the affine transformation, and if X' is the (DIM+1)x1
 // column matrix written above (the one with the 1 at the bottom), then the transformation acts

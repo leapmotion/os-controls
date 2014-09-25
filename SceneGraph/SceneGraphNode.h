@@ -301,7 +301,7 @@ public:
   //   // clear that this functionality is directly provided via Eigen::Transform).
 
   //   // The total transformation is first applying A and then applying B inverse.
-  //   // Because transforms act on the left of vectors, this ordering of the operands
+  //   // Because transforms act on the left of EigenTypes::Vectors, this ordering of the operands
   //   // (as B^{-1} * A) is necessary.
   //   return other_transform_stack.inverse(Eigen::Affine) * this_transform_stack;
   // }
@@ -361,7 +361,7 @@ private:
   // template<typename... _Args>
   // static void CallFunction(std::nullptr_t, _Args&&...) {}
   
-  // This populates a vector with the ancestors of this node, starting with this node,
+  // This populates a EigenTypes::Vector with the ancestors of this node, starting with this node,
   // then its parent, then its parent's parent, etc (i.e. this node, going toward the root).
   void AppendAncestors (std::vector<std::shared_ptr<const SceneGraphNode>> &ancestors) const {
     ancestors.emplace_back(shared_from_this());

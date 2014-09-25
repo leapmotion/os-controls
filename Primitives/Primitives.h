@@ -75,8 +75,8 @@ public:
   Box();
   virtual ~Box() { }
   
-  const Vector3& Size() const { return m_Size; }
-  void SetSize(const Vector3& size) { m_Size = size; }
+  const EigenTypes::Vector3& Size() const { return m_Size; }
+  void SetSize(const EigenTypes::Vector3& size) { m_Size = size; }
 
   virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
@@ -86,7 +86,7 @@ protected:
 
 private:
 
-  Vector3 m_Size;
+  EigenTypes::Vector3 m_Size;
 };
 
 class Disk : public PrimitiveBase {
@@ -115,8 +115,8 @@ public:
   RectanglePrim();
   virtual ~RectanglePrim() { }
   
-  const Vector2& Size() const { return m_Size; }
-  void SetSize(const Vector2& size) { m_Size = size; }
+  const EigenTypes::Vector2& Size() const { return m_Size; }
+  void SetSize(const EigenTypes::Vector2& size) { m_Size = size; }
 
   const std::shared_ptr<GLTexture2> &Texture () const { return m_texture; }
   void SetTexture (const std::shared_ptr<GLTexture2> &texture) { m_texture = texture; }
@@ -129,7 +129,7 @@ protected:
 
 private:
 
-  Vector2 m_Size;
+  EigenTypes::Vector2 m_Size;
   std::shared_ptr<GLTexture2> m_texture;
 };
 

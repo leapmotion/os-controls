@@ -16,7 +16,7 @@ void GLMaterial::CheckShaderForUniforms (const GLShader &shader) {
 GLMaterial::GLMaterial ()
   :
   // Use reasonable defaults for all the material properties.
-  m_light_position(Vector3f::Zero()),           // The light position is the origin.
+  m_light_position(EigenTypes::Vector3f::Zero()),           // The light position is the origin.
   m_diffuse_light_color(Color::White()),        // Sensible default color.
   m_ambient_light_color(Color::White()),        // Sensible default color.
   m_ambient_lighting_proportion(0.5f),          // Half the lighting comes from ambient light.

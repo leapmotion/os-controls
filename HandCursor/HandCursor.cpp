@@ -41,9 +41,9 @@ void HandCursor::Update(const Leap::Hand& hand) {
   const Leap::FingerList fingers = hand.fingers();
   for (int i=0; i<NUM_FINGERS; i++) {
     const Leap::Finger finger = fingers[i];
-    Vector3 fingerPosFlat = finger.tipPosition().toVector3<Vector3>();
+    EigenTypes::Vector3 fingerPosFlat = finger.tipPosition().toVector3<EigenTypes::Vector3>();
     fingerPosFlat.z() = 0;
-    Vector3 palmPosFlat = hand.palmPosition().toVector3<Vector3>();
+    EigenTypes::Vector3 palmPosFlat = hand.palmPosition().toVector3<EigenTypes::Vector3>();
     palmPosFlat.z() = 0;
     float bend = averageFingerBend(finger, 1, 2);
     
@@ -103,19 +103,19 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   if ( !isLeft ) {
     angle = static_cast<float>(M_PI - angle);
   }
-  Vector2 visualPosition(std::cos(angle), std::sin(angle));
+  EigenTypes::Vector2 visualPosition(std::cos(angle), std::sin(angle));
   
   float bendNorm = (bend - FINGER_REAL_BEND_MIN) / (FINGER_REAL_BEND_MAX - FINGER_REAL_BEND_MIN);
   bendNorm = 1.0f - std::min(1.0f, std::max(0.0f, bendNorm));
   float visualDist = FINGER_DISTANCE_MIN + (bendNorm*(FINGER_DISTANCE_MAX - FINGER_DISTANCE_MIN));
   
-  const Vector4f blend = (bendNorm * FINGER_COLOR_OUT.Data()) + ((1.0f-bendNorm) * FINGER_COLOR_IN.Data());
+  const EigenTypes::Vector4f blend = (bendNorm * FINGER_COLOR_OUT.Data()) + ((1.0f-bendNorm) * FINGER_COLOR_IN.Data());
   Color blendedColor(blend);
   
   visualPosition *= visualDist;
 
   std::shared_ptr<Disk> fingerVisual = m_Fingers[fingerIndex];
-  fingerVisual->Translation() = Vector3(visualPosition.x(), visualPosition.y(), fingerVisual->Translation().z());
+  fingerVisual->Translation() = EigenTypes::Vector3(visualPosition.x(), visualPosition.y(), fingerVisual->Translation().z());
   fingerVisual->SetRadius( FINGER_MIN_SIZE + (bendNorm * (FINGER_MAX_SIZE - FINGER_MIN_SIZE)) );
   
   fingerVisual->Material().SetAmbientLightColor(blendedColor);
@@ -137,8 +137,8 @@ float HandCursor::averageFingerBend(Leap::Finger finger, int startBone, int endB
   
   for(int i=startBone; i<endBone; i++) {
     //Angle from scalar product
-    Vector3 v1 = finger.bone(static_cast<Leap::Bone::Type>(i-1)).direction().toVector3<Vector3>();
-    Vector3 v2 = finger.bone(static_cast<Leap::Bone::Type>(i)).direction().toVector3<Vector3>();
+    EigenTypes::Vector3 v1 = finger.bone(static_cast<Leap::Bone::Type>(i-1)).direction().toVector3<EigenTypes::Vector3>();
+    EigenTypes::Vector3 v2 = finger.bone(static_cast<Leap::Bone::Type>(i)).direction().toVector3<EigenTypes::Vector3>();
     double dot = v1.dot(v2);
     double theta = std::acos(dot);
     sum += static_cast<float>(theta);

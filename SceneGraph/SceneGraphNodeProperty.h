@@ -79,7 +79,7 @@ public:
   //   - ApplyType::OPERATE indicates that the given property Q should be applied on the left
   //     or right of this property P, left/right is defined by the operate parameter.  The
   //     convention is that a property acts on the left of its ultimate operand (e.g. coordinate
-  //     transforms act on vectors, so for a coordinate transform T acting on on a vector V,
+  //     transforms act on EigenTypes::Vectors, so for a coordinate transform T acting on on a EigenTypes::Vector V,
   //     the action is defined to be T*V).
   //   - ApplyType::REPLACE simply replaces this property with the given one.  The operate
   //     parameter is not used.

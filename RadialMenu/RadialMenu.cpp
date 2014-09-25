@@ -19,23 +19,23 @@ void RadialMenuItem::InitChildren() {
 void RadialMenuItem::SetIcon(const std::shared_ptr<SVGPrimitive>& svgIcon) {
   m_Icon = svgIcon;
 
-  const Vector2& origin = m_Icon->Origin();
-  const Vector2& size = m_Icon->Size();
+  const EigenTypes::Vector2& origin = m_Icon->Origin();
+  const EigenTypes::Vector2& size = m_Icon->Size();
 
   static const double ICON_THICKNESS_RATIO = 0.6;
 
   m_IconScale = ICON_THICKNESS_RATIO * m_Thickness / size.norm();
-  m_Icon->LinearTransformation() = Vector3(m_IconScale, -m_IconScale, m_IconScale).asDiagonal() * m_Icon->LinearTransformation();
+  m_Icon->LinearTransformation() = EigenTypes::Vector3(m_IconScale, -m_IconScale, m_IconScale).asDiagonal() * m_Icon->LinearTransformation();
 
-  const Vector2 center = origin + size/2.0;
-  const Vector3 iconOffset;
-  m_IconOffset = m_IconScale * Vector3(-center.x(), center.y(), 0);
+  const EigenTypes::Vector2 center = origin + size/2.0;
+  const EigenTypes::Vector3 iconOffset;
+  m_IconOffset = m_IconScale * EigenTypes::Vector3(-center.x(), center.y(), 0);
 
   AddChild(m_Icon);
 }
 
-bool RadialMenuItem::Hit(const Vector2& pos, double& ratio) const {
-  const Vector2 radial = toRadialCoordinates(pos);
+bool RadialMenuItem::Hit(const EigenTypes::Vector2& pos, double& ratio) const {
+  const EigenTypes::Vector2 radial = toRadialCoordinates(pos);
   const double itemRadius = CurrentRadius();
   const double minRadius = itemRadius - m_Thickness / 2.0;
   const double maxRadius = std::numeric_limits<double>::max();//itemRadius + m_Thickness / 2.0;
@@ -90,7 +90,7 @@ void RadialMenuItem::DrawContents(RenderState& renderState) const {
   if (m_Icon) {
     const double iconPosX = radius * std::cos(halfWayAngle);
     const double iconPosY = radius * std::sin(halfWayAngle);
-    m_Icon->Translation() = Vector3(iconPosX, iconPosY, 0.1) + m_IconOffset;
+    m_Icon->Translation() = EigenTypes::Vector3(iconPosX, iconPosY, 0.1) + m_IconOffset;
   }
 }
 
@@ -99,7 +99,7 @@ Color RadialMenuItem::calculateColor() const {
     return Material().DiffuseLightColor();
   }
   const float activationFloat = static_cast<float>(m_Activation);
-  const Vector4f blended = activationFloat * m_ActivatedColor.Data() + (1.0f - activationFloat) * m_HoverColor.Data();
+  const EigenTypes::Vector4f blended = activationFloat * m_ActivatedColor.Data() + (1.0f - activationFloat) * m_HoverColor.Data();
   return Color(blended[0], blended[1], blended[2], blended[3]);
 }
 
@@ -143,7 +143,7 @@ void RadialMenu::SetNumItems(int num) {
   updateItemLayout();
 }
 
-RadialMenu::UpdateResult RadialMenu::InteractWithCursor(const Vector3& cursor) {
+RadialMenu::UpdateResult RadialMenu::InteractWithCursor(const EigenTypes::Vector3& cursor) {
   const HitResult hitResult = ItemFromPoint(cursor.head<2>());
   const int numItems = static_cast<int>(m_Items.size());
   const int& idx = hitResult.hitIdx;
@@ -178,7 +178,7 @@ void RadialMenu::UpdateItemActivation(float deltaTime) {
   }
 }
 
-RadialMenu::HitResult RadialMenu::ItemFromPoint(const Vector2& pos) const {
+RadialMenu::HitResult RadialMenu::ItemFromPoint(const EigenTypes::Vector2& pos) const {
   int hit = -1;
   double ratio = 0;
   const int numItems = static_cast<int>(m_Items.size());
@@ -212,7 +212,7 @@ void RadialMenu::updateItemLayout() {
     const double offsetX = offsetRadius * std::cos(halfWayAngle);
     const double offsetY = offsetRadius * std::sin(halfWayAngle);
 
-    item->Translation() = Vector3(offsetX, offsetY, 0.0);
+    item->Translation() = EigenTypes::Vector3(offsetX, offsetY, 0.0);
 
     curAngle += anglePerItem;
   }

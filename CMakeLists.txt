@@ -85,7 +85,7 @@ add_sublibrary(
     EXPLICIT_LIBRARY_DEPENDENCIES
         "Eigen 3.2.1"
     BRIEF_DOC_STRING
-        "Convenience typedefs for working with particular Eigen vector/matrix types."
+        "Convenience typedefs for working with particular Eigen EigenTypes::Vector/matrix types."
 )
 
 add_sublibrary(
