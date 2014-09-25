@@ -14,11 +14,11 @@ public:
   virtual bool IsAutoLaunch() override;
   virtual bool SetAutoLaunch(bool shouldLaunch) override;
 private:
-  bool AddAutoLaunch();
-  bool RemoveAutoLaunch();
+  LSSharedFileListRef m_lsRef;
+
+  bool addAutoLaunch();
+  bool removeAutoLaunch();
 
   static std::string getAppURL();
   static void loginItemsChanged(LSSharedFileListRef lsRef, void* context);
-
-  LSSharedFileListRef m_lsRef;
 };

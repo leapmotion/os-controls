@@ -73,10 +73,10 @@ bool AutoLaunchMac::IsAutoLaunch()
 
 bool AutoLaunchMac::SetAutoLaunch(bool shouldLaunch)
 {
-  return shouldLaunch ? AddAutoLaunch() : RemoveAutoLaunch();
+  return shouldLaunch ? addAutoLaunch() : removeAutoLaunch();
 }
 
-bool AutoLaunchMac::AddAutoLaunch()
+bool AutoLaunchMac::addAutoLaunch()
 {
   if (!m_lsRef) {
     return false;
@@ -97,7 +97,7 @@ bool AutoLaunchMac::AddAutoLaunch()
   return true;
 }
 
-bool AutoLaunchMac::RemoveAutoLaunch()
+bool AutoLaunchMac::removeAutoLaunch()
 {
   if (!m_lsRef) {
     return false;
@@ -158,6 +158,6 @@ void AutoLaunchMac::loginItemsChanged(LSSharedFileListRef lsRef, void* context)
 {
   AutoLaunchMac* that = reinterpret_cast<AutoLaunchMac*>(context);
   if (that) {
-    // FIXME
+    that->m_event(&AutoLaunchEvent::OnAutoLaunchChanged)(that->IsAutoLaunch());
   }
 }

@@ -8,7 +8,8 @@
 
 class ConfigHandler:
   public ContextMember,
-  public ConfigEvent
+  public ConfigEvent,
+  public AutoLaunchEvent
 {
   public:
     ConfigHandler(ComLeapMotionShortcutsPreferencePane* preferencePane) : m_preferencePane(preferencePane) {}
@@ -21,6 +22,10 @@ class ConfigHandler:
           [m_preferencePane onChange:[NSString stringWithUTF8String:config.c_str()] withNumber:value.number_value()];
         }
       }
+    }
+
+    void OnAutoLaunchChanged(bool newValue) {
+      [m_preferencePane onChangeAutoLaunch:(BOOL)newValue];
     }
 
   private:
@@ -78,6 +83,11 @@ class ConfigHandler:
   if ([name isEqualToString:@"scrollSensitivity"]) {
     [_sensitivityBar setDoubleValue:value];
   }
+}
+
+- (void)onChangeAutoLaunch:(BOOL)value
+{
+  [_autoStartCheckbox setState:(value ? NSOnState : NSOffState)];
 }
 
 - (IBAction)enableMediaControlsCheckbox:(id)sender

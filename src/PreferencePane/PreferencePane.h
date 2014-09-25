@@ -15,6 +15,7 @@
 - (void)mainViewDidLoad;
 - (void)onChange:(NSString *)name withBool:(BOOL)value;
 - (void)onChange:(NSString *)name withNumber:(double)value;
+- (void)onChangeAutoLaunch:(BOOL)value;
 
 - (IBAction)launchShortcuts:(id)sender;
 - (IBAction)enableMediaControlsCheckbox:(id)sender;
