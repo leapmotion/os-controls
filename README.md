@@ -418,6 +418,177 @@ GLMesh<DIM>
 - GLTraits / reflection
 - Color -- HSV<T> and HSVA<T>
 
+#### GL component closure notes
+
+The GL component is designed to provide abstractions of concepts in the OpenGL API.
+The purpose of this analysis is to determine a closed set of features/API for each
+abstraction, based on the OpenGL API.  E.g. glTexImage2D is affected by state that
+is controlled by glPixelStore* and glTexParameter*, and therefore the GLTexture2
+class must provide an API for using those capabilities in the abstraction.
+
+FrameBufferObject (rename to Leap::GL::FrameBuffer)
+- List of relevant GL calls
+  * glBindFramebuffer
+  * glBlitFramebuffer
+  * glDeleteFramebuffers
+  * glGenFramebuffers
+  * glCheckFramebufferStatus
+  * glFramebufferTexture2DEXT
+  * glFramebufferRenderbufferEXT
+  * TODO: examine API docs for closure
+- Associated glGet calls
+  * glGetIntegerv(GL_MAX_SAMPLES_EXT, ...)
+  * TODO: examine API docs for closure
+
+GLBuffer (rename to Leap::GL::Buffer)
+- List of relevant GL calls
+  * glGenBuffers
+  * glBindBuffer
+  * glBufferData
+  * glBufferSubData
+  * glMapBuffer
+  * glUnmapBuffer
+  * glDeleteBuffers
+  * TODO: examine API docs for closure
+- Associated glGet calls
+  * TODO: examine API docs for closure
+
+GLMaterial (rename to Leap::GL::Material)
+- This is an abstraction completely on top of GLShader, so it doesn't call OpenGL directly.
+- TODO: examine API docs for closure
+
+GLShaderMatrices (rename to Leap::GL::ShaderMatrices or perhaps to X, where X is to vertex shader
+where GLMaterial is to fragment shader).
+- This is an abstraction completely on top of GLShader, so it doesn't call OpenGL directly.
+- TODO: examine API docs for closure
+
+GLShader (rename to Leap::GL::Shader)
+- List of relevant GL calls
+  * glUseProgram
+  * glUniform*
+  * glMatrixUniform*
+  * glCreateProgram
+  * glAttachShader
+  * glLinkProgram
+  * glDeleteProgram
+  * glDeleteShader
+  * glCreateShader
+  * glShaderSource
+  * glCompileShader
+  * TODO: examine API docs for closure
+- Associated glGet calls
+  * glGetIntegerv(GL_CURRENT_PROGRAM, ...)
+  * glGetProgramiv(<program-handle>, GL_ACTIVE_UNIFORMS, ...)
+  * glGetProgramiv(<program-handle>, GL_ACTIVE_UNIFORM_MAX_LENGTH, ...)
+  * glGetActiveUniform
+  * glGetUniformLocation
+  * glGetProgramiv(<program-handle>, GL_ACTIVE_ATTRIBUTES, ...)
+  * glGetProgramiv(<program-handle>, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, ...)
+  * glGetActiveAttrib
+  * glGetAttribLocation
+  * glGetShaderiv(<shader-handle>, GL_COMPILE_STATUS, ...)
+  * glGetShaderiv(<shader-handle>, GL_INFO_LOG_LENGTH, ...)
+  * glGetShaderInfoLog
+  * TODO: examine API docs for closure
+
+GLTexture2 (rename to Leap::GL::Texture2)
+- List of relevant GL calls
+  * glBindTexture
+  * glPixelStore*
+  * glGenTextures
+  * glTexParameter*
+  * glTexImage2D
+  * glDeleteTextures
+  * glTexSubImage2D
+  * glGetTexImage (doesn't really count as a glGet call, since it's really heavyweight)
+  * TODO: examine API docs for closure
+- Associated glGet calls
+  * glGetIntegerv with pixel store parameter enums
+  * glGetTexLevelParameteriv (with e.g. GL_TEXTURE_INTERNAL_FORMAT)
+  * TODO: examine API docs for closure
+
+GLVertexAttribute (rename to Leap::GL::VertexAttribute)
+- List of relevant GL calls
+  * glEnableVertexAttribArray
+  * glVertexAttribPointer
+  * glDisableVertexAttribArray
+  * TODO: examine API docs for closure
+- Associated glGet calls
+  * TODO: examine API docs for closure
+
+GLVertexBuffer (rename to Leap::GL::VertexBuffer)
+- This is an abstraction completely on top of GLBuffer and GLVertexAttribute, so it doesn't call OpenGL directly.
+- TODO: examine API docs for closure
+
+RenderBuffer (rename to Leap::GL::RenderBuffer)
+- List of relevant GL calls
+  * glBindRenderbuffer
+  * glGenRenderbuffers
+  * glRenderbufferStorage
+  * glRenderbufferStorageMultisample
+  * TODO: examine API docs for closure
+- Associated glGet calls
+  * glGetIntegerv(GL_MAX_SAMPLES_EXT, ...)
+  * TODO: examine API docs for closure
+
+#### GL component resource conventions notes
+
+The purpose of this section is to come up with a uniform set of conventions for how
+OpenGL-based resources (e.g. textures, vertex buffers, etc) are created/destroyed/
+bound/unbound/reinitialized/shutdown such that it makes the fewest assumptions about
+how the objects are used (e.g. assuming that they are always constructed via new).
+
+The resource-based OpenGL concepts that we will provide abstractions for in the GL
+component are the following.
+    
+- Texture2
+- Shader
+- Buffer
+- VertexBuffer
+- Mesh
+- Material
+- FrameBuffer
+- RenderBuffer
+
+Some possibilities for resource conventions are the following.
+
+1.  Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this),
+    and if a failure occurs during resource acquisition (which is the same as construction), an
+    exception is thrown.
+2.  Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
+    there is a separate Shutdown/Destroy method
+    destruction releases the resource (GLBuffer does this).
+3.  Construct with acquired resource (as in (1)) or construct as "invalid/empty",
+    there is a [Re]Initialize method to [re]acquire a resource
+    there is a Shutdown method
+    destruction releases the resource.
+
+Number (1) is the most pure in a type-theoretic sense, because it makes impossible construction of
+an invalid/empty resource.  However not being able to shutdown/reinitialize a resource from an
+already-allocated object prevents certain use cases.
+
+Number (2) requires the most code to use, as construction does no initialization (resource acquisition).
+Having initialization be separate from construction can be useful for when acquiring the resource is
+impossible during the time of construction.
+
+Number (3) is probably the most flexible, because it doesn't require destroying and reconstructing
+to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
+Then again, we probably don't want to make that architectural choice for people, and want our
+classes to be usable in many different paradigms.  It should be possible to use the classes as
+local variables, as members, as objects allocated on the heap, via std::shared_ptr, etc.
+
+Each OpenGL resource has associated "bind"/"unbind" operations which affect the state of the OpenGL server
+and consequent drawing operations.
+
+A "scope guard" is a design pattern which uses RAII to guarantee that a bound resource is unbound no later
+than the end of the scope in which it's created.  This should be the standard way to bind/unbind resources.
+In fact, the resources' bind/unbind operations could be designed to require the use of a scope guard (use
+of a scope guard wouldn't be absolutely required -- there should be some way to do "manual" binding/
+unbinding).
+
+
+
+
 
 
 
