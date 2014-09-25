@@ -7,6 +7,26 @@ extern "C" {
 void ovrhmd_EnableHSWDisplaySDKRender(ovrHmd hmd, ovrBool enabled);
 }
 
+bool OculusVR::isDebug(){
+  if ( ! m_HMD ){
+    throw std::runtime_error("HMD is not initialized");
+  }
+  return m_Debug;
+}
+
+int OculusVR::GetHMDWidth(){
+  if ( ! m_HMD ){
+    throw std::runtime_error("HMD is not initialized");
+  }
+  return m_HMD->Resolution.w;
+}
+
+int OculusVR::GetHMDHeight(){
+  if ( ! m_HMD ){
+    throw std::runtime_error("HMD is not initialized");
+  }
+  return m_HMD->Resolution.h;
+}
 
 void OculusVR::InitGlew() {
   GLenum result = glewInit();
@@ -15,25 +35,30 @@ void OculusVR::InitGlew() {
   }
 }
 
-bool OculusVR::Init() {
-  glewInit();
-    
-  m_Debug = false;
-
+void OculusVR::InitHMD(){
   ovr_Initialize();
-
   m_HMD = ovrHmd_Create(0);
-
+    
   if (!m_HMD) {
     m_HMD = ovrHmd_CreateDebug(ovrHmd_DK1);
     if (!m_HMD) {
-      return false;
+      throw std::runtime_error("Cannot initialized the HMD device.");
     }
     m_Debug = true;
+  }else{
+    m_Debug = false;
+  }
+}
+
+bool OculusVR::Init() {
+  glewInit();
+  
+  if ( ! m_HMD ){
+    InitHMD();
   }
 
-  const int width = m_HMD->Resolution.w;
-  const int height = m_HMD->Resolution.h;
+  m_width = m_HMD->Resolution.w;
+  m_height = m_HMD->Resolution.h;
 
   ovrSizei recommendedTex0Size = ovrHmd_GetFovTextureSize(m_HMD, ovrEye_Left, m_HMD->DefaultEyeFov[0], 1.0f);
   ovrSizei recommendedTex1Size = ovrHmd_GetFovTextureSize(m_HMD, ovrEye_Right, m_HMD->DefaultEyeFov[1], 1.0f);
@@ -112,7 +137,7 @@ bool OculusVR::Init() {
   return true;
 }
 
-OculusVR::~OculusVR() {
+void OculusVR::Destroy() {
   glDeleteFramebuffers(1, &m_FrameBuffer);
   glDeleteTextures(1, &m_Texture);
   glDeleteRenderbuffers(1, &m_RenderBuffer);

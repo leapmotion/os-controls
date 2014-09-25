@@ -66,11 +66,17 @@ typedef union ovrGLTexture_s
 class OculusVR {
 
 public:
-
+  bool isDebug();
+  
+  int GetHMDWidth();
+  
+  int GetHMDHeight();
+  
   void InitGlew();
 
+  void InitHMD();
   bool Init();
-  ~OculusVR();
+  void Destroy();
 
   void BeginFrame();
   void EndFrame();
@@ -113,6 +119,9 @@ private:
 
   ovrHmd m_HMD;
   bool m_Debug;
+  
+  int m_width;
+  int m_height;
 
   GLuint m_FrameBuffer;
   GLuint m_Texture;
