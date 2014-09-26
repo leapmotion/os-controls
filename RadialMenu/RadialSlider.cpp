@@ -22,17 +22,17 @@ void RadialSlider::InitChildren() {
 void RadialSlider::SetIcon(const std::shared_ptr<SVGPrimitive>& svgIcon) {
   m_Icon = svgIcon;
 
-  const Vector2& origin = m_Icon->Origin();
-  const Vector2& size = m_Icon->Size();
+  const EigenTypes::Vector2& origin = m_Icon->Origin();
+  const EigenTypes::Vector2& size = m_Icon->Size();
 
   static const double ICON_RADIUS_RATIO = 0.5;
 
   m_IconScale = ICON_RADIUS_RATIO * m_Radius / size.norm();
-  m_Icon->LinearTransformation() = Vector3(m_IconScale, -m_IconScale, m_IconScale).asDiagonal() * m_Icon->LinearTransformation();
+  m_Icon->LinearTransformation() = EigenTypes::Vector3(m_IconScale, -m_IconScale, m_IconScale).asDiagonal() * m_Icon->LinearTransformation();
 
-  const Vector2 center = origin + size/2.0;
-  const Vector3 iconOffset;
-  m_IconOffset = m_IconScale * Vector3(-center.x(), center.y(), 0);
+  const EigenTypes::Vector2 center = origin + size/2.0;
+  const EigenTypes::Vector3 iconOffset;
+  m_IconOffset = m_IconScale * EigenTypes::Vector3(-center.x(), center.y(), 0);
 
   AddChild(m_Icon);
 }
@@ -55,21 +55,21 @@ void RadialSlider::DrawContents(RenderState& renderState) const {
   m_Fill->SetEndAngle(calculateValueAngle());
   m_Fill->SetInnerRadius(innerRad);
   m_Fill->SetOuterRadius(outerRad);
-  m_Fill->Translation() = 0.1*Vector3::UnitZ();
+  m_Fill->Translation() = 0.1*EigenTypes::Vector3::UnitZ();
 
-  const Vector3 handlePosition = calculateHandlePosition();
+  const EigenTypes::Vector3 handlePosition = calculateHandlePosition();
 
   m_Handle->Material().SetDiffuseLightColor(m_HandleColor);
   m_Handle->Material().SetAmbientLightColor(m_HandleColor);
   m_Handle->Material().SetAmbientLightingProportion(1.0f);
   m_Handle->SetRadius(m_Thickness * 1.2);
-  m_Handle->Translation() = handlePosition + 0.3*Vector3::UnitZ();
+  m_Handle->Translation() = handlePosition + 0.3*EigenTypes::Vector3::UnitZ();
 
   m_HandleOutline->Material().SetDiffuseLightColor(m_HandleOutlineColor);
   m_HandleOutline->Material().SetAmbientLightColor(m_HandleOutlineColor);
   m_HandleOutline->Material().SetAmbientLightingProportion(1.0f);
   m_HandleOutline->SetRadius(m_Thickness * 1.33);
-  m_HandleOutline->Translation() = handlePosition + 0.2*Vector3::UnitZ();
+  m_HandleOutline->Translation() = handlePosition + 0.2*EigenTypes::Vector3::UnitZ();
 
   if (m_Icon) {
     m_Icon->Translation() = m_IconOffset;
@@ -87,10 +87,10 @@ double RadialSlider::calculateValueAngle() const {
   return (1.0 - ratio) * (m_EndAngle - m_StartAngle) + m_StartAngle;
 }
 
-Vector3 RadialSlider::calculateHandlePosition() const {
+EigenTypes::Vector3 RadialSlider::calculateHandlePosition() const {
   const double angle = calculateValueAngle();
   const double handlePosX = m_Radius * std::cos(angle);
   const double handlePosY = m_Radius * std::sin(angle);
 
-  return Vector3(handlePosX, handlePosY, 0.0);
+  return EigenTypes::Vector3(handlePosX, handlePosY, 0.0);
 }

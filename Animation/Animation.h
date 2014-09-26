@@ -107,7 +107,7 @@ private:
 };
 
 // This is a simple smoothing utility class that will perform Poisson smoothing.
-// The class is templated and can be used with double, float, Vector3, or anything
+// The class is templated and can be used with double, float, EigenTypes::Vector3, or anything
 // that overloads addition and scalar multiplication.
 // When NUM_ITERATIONS is 1, the functionality is the same as exponential smoothing.
 // WARNING - Due to some vagarities of possion smoothing & floating point math,

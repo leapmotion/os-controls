@@ -13,16 +13,16 @@ public:
   Color(float r, float g, float b, float a = 1.0f) {
     m_data << r, g, b, a;
   }
-  Color(const Vector3& c) {
+  Color(const EigenTypes::Vector3& c) {
     m_data << static_cast<float>(c.x()), static_cast<float>(c.y()), static_cast<float>(c.z()), 1.0f;
   }
-  Color(const Vector3f& c) {
+  Color(const EigenTypes::Vector3f& c) {
     m_data << c, 1.0f;
   }
-  Color(const Vector4& c) {
+  Color(const EigenTypes::Vector4& c) {
     m_data << static_cast<float>(c.x()), static_cast<float>(c.y()), static_cast<float>(c.z()), static_cast<float>(c.w());
   }
-  Color(const Vector4f& c) {
+  Color(const EigenTypes::Vector4f& c) {
     m_data = c;
   }
   Color(const Color& other, float blend) {
@@ -44,7 +44,7 @@ public:
   float& G() { return m_data[1]; }
   float& B() { return m_data[2]; }
   float& A() { return m_data[3]; }
-  const Vector4f& Data() const { return m_data; }
+  const EigenTypes::Vector4f& Data() const { return m_data; }
 
   // HSV conversions
   void FromHSV(float h, float s, float v, float a = 1.0f);
@@ -67,5 +67,5 @@ public:
 
 private:
 
-  Vector4f m_data;
+  EigenTypes::Vector4f m_data;
 };

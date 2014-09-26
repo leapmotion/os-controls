@@ -9,7 +9,7 @@ void GenericShape::DrawContents(RenderState& renderState) const {
 Sphere::Sphere() : m_Radius(1) { }
 
 void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
-  model_view.Scale(Vector3::Constant(m_Radius));
+  model_view.Scale(EigenTypes::Vector3::Constant(m_Radius));
 }
 
 void Sphere::DrawContents(RenderState& renderState) const {
@@ -20,7 +20,7 @@ void Sphere::DrawContents(RenderState& renderState) const {
 Cylinder::Cylinder() : m_Radius(1), m_Height(1) { }
 
 void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
-  model_view.Scale(Vector3(m_Radius, m_Height, m_Radius));
+  model_view.Scale(EigenTypes::Vector3(m_Radius, m_Height, m_Radius));
 }
 
 void Cylinder::DrawContents(RenderState& renderState) const {
@@ -28,7 +28,7 @@ void Cylinder::DrawContents(RenderState& renderState) const {
   geom.Draw(Shader(), GL_TRIANGLES);
 }
 
-Box::Box() : m_Size(Vector3::Constant(1.0)) { }
+Box::Box() : m_Size(EigenTypes::Vector3::Constant(1.0)) { }
 
 void Box::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
   model_view.Scale(m_Size);
@@ -42,7 +42,7 @@ void Box::DrawContents(RenderState& renderState) const {
 Disk::Disk() : m_Radius(1) { }
 
 void Disk::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
-  model_view.Scale(Vector3::Constant(m_Radius));
+  model_view.Scale(EigenTypes::Vector3::Constant(m_Radius));
 }
 
 void Disk::DrawContents(RenderState& renderState) const {
@@ -53,7 +53,7 @@ void Disk::DrawContents(RenderState& renderState) const {
 RectanglePrim::RectanglePrim() : m_Size(1, 1) { }
 
 void RectanglePrim::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
-  model_view.Scale(Vector3(m_Size.x(), m_Size.y(), 1.0));
+  model_view.Scale(EigenTypes::Vector3(m_Size.x(), m_Size.y(), 1.0));
 }
 
 void RectanglePrim::DrawContents(RenderState& renderState) const {
@@ -83,7 +83,7 @@ ImagePrimitive::ImagePrimitive(const std::shared_ptr<GLTexture2> &texture) {
 
 void ImagePrimitive::SetScaleBasedOnTextureSize () {
   if(Texture())
-    SetSize(Vector2(Texture()->Params().Width(), Texture()->Params().Height()));
+    SetSize(EigenTypes::Vector2(Texture()->Params().Width(), Texture()->Params().Height()));
 }
 
 PartialDisk::PartialDisk() : m_RecomputeGeometry(true), m_InnerRadius(0.5), m_OuterRadius(1), m_StartAngle(0), m_EndAngle(2*M_PI) { }
@@ -116,16 +116,16 @@ void PartialDisk::RecomputeGeometry() const {
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
   const double sinStart = std::sin(m_StartAngle);
-  Vector3f prevInner(static_cast<float>(m_InnerRadius*cosStart), static_cast<float>(m_InnerRadius*sinStart), 0.0f);
-  Vector3f prevOuter(static_cast<float>(m_OuterRadius*cosStart), static_cast<float>(m_OuterRadius*sinStart), 0.0f);
+  EigenTypes::Vector3f prevInner(static_cast<float>(m_InnerRadius*cosStart), static_cast<float>(m_InnerRadius*sinStart), 0.0f);
+  EigenTypes::Vector3f prevOuter(static_cast<float>(m_OuterRadius*cosStart), static_cast<float>(m_OuterRadius*sinStart), 0.0f);
   for (int i=0; i<numSegments; i++) {
     curAngle += anglePerSegment;
 
     const double cosCur = std::cos(curAngle);
     const double sinCur = std::sin(curAngle);
 
-    const Vector3f curInner(static_cast<float>(m_InnerRadius*cosCur), static_cast<float>(m_InnerRadius*sinCur), 0.0f);
-    const Vector3f curOuter(static_cast<float>(m_OuterRadius*cosCur), static_cast<float>(m_OuterRadius*sinCur), 0.0f);
+    const EigenTypes::Vector3f curInner(static_cast<float>(m_InnerRadius*cosCur), static_cast<float>(m_InnerRadius*sinCur), 0.0f);
+    const EigenTypes::Vector3f curOuter(static_cast<float>(m_OuterRadius*cosCur), static_cast<float>(m_OuterRadius*sinCur), 0.0f);
 
     m_Geometry.PushTri(prevInner, prevOuter, curOuter);
     m_Geometry.PushTri(curOuter, curInner, prevInner);
@@ -162,8 +162,8 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
   const double sinStart = std::sin(m_StartAngle);
-  Vector3f prevInner(static_cast<float>(m_InnerRadius*cosStart), static_cast<float>(m_InnerRadius*sinStart), 0.0f);
-  Vector3f prevOuter(static_cast<float>(m_OuterRadius*cosStart), static_cast<float>(m_OuterRadius*sinStart), 0.0f);
+  EigenTypes::Vector3f prevInner(static_cast<float>(m_InnerRadius*cosStart), static_cast<float>(m_InnerRadius*sinStart), 0.0f);
+  EigenTypes::Vector3f prevOuter(static_cast<float>(m_OuterRadius*cosStart), static_cast<float>(m_OuterRadius*sinStart), 0.0f);
 
   bool haveStarted = false;
   bool havePassedMidpoint = false;
@@ -208,8 +208,8 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
     const double cosCur = std::cos(curAngle);
     const double sinCur = std::sin(curAngle);
 
-    const Vector3f curInner(static_cast<float>(innerRadius*cosCur), static_cast<float>(innerRadius*sinCur), 0.0f);
-    const Vector3f curOuter(static_cast<float>(outerRadius*cosCur), static_cast<float>(outerRadius*sinCur), 0.0f);
+    const EigenTypes::Vector3f curInner(static_cast<float>(innerRadius*cosCur), static_cast<float>(innerRadius*sinCur), 0.0f);
+    const EigenTypes::Vector3f curOuter(static_cast<float>(outerRadius*cosCur), static_cast<float>(outerRadius*sinCur), 0.0f);
 
     m_Geometry.PushTri(prevInner, prevOuter, curOuter);
     m_Geometry.PushTri(curOuter, curInner, prevInner);

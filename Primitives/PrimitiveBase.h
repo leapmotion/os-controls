@@ -14,14 +14,14 @@ class RenderState;
 
 // This is the base class for all 3D drawable, geometric primitives.  It inherits SceneGraphNode<...>
 // which provides the "scene graph" design pattern (see Wikipedia article on scene graph).
-class PrimitiveBase : public SceneGraphNode<ParticularSceneGraphNodeProperties<MATH_TYPE,3,float>> {
+class PrimitiveBase : public SceneGraphNode<ParticularSceneGraphNodeProperties<EigenTypes::MATH_TYPE,3,float>> {
 public:
   static void DrawSceneGraph(const PrimitiveBase &root, RenderState &render_state);
 
 public:
 
-  typedef ParticularSceneGraphNodeProperties<MATH_TYPE,3,float> Properties;
-  typedef SceneGraphNode<ParticularSceneGraphNodeProperties<MATH_TYPE,3,float>> Parent_SceneGraphNode;
+  typedef ParticularSceneGraphNodeProperties<EigenTypes::MATH_TYPE,3,float> Properties;
+  typedef SceneGraphNode<ParticularSceneGraphNodeProperties<EigenTypes::MATH_TYPE,3,float>> Parent_SceneGraphNode;
   typedef Properties::AffineTransformValue_::Transform Transform;
 
   PrimitiveBase();

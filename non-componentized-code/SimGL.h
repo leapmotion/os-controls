@@ -25,16 +25,16 @@
 class SimGL {
 public:
  
-  static void DrawCylinder(const Vector3& center, const Vector3& direction, double radius, double length, bool capped = false, bool wireFrame = false);
-  static void DrawCylinder(const Vector3& end, const Vector3& direction, double radius, bool capped = false, bool wireFrame = false);
+  static void DrawCylinder(const EigenTypes::Vector3& center, const EigenTypes::Vector3& direction, double radius, double length, bool capped = false, bool wireFrame = false);
+  static void DrawCylinder(const EigenTypes::Vector3& end, const EigenTypes::Vector3& direction, double radius, bool capped = false, bool wireFrame = false);
   static void DrawSphere(double radius);
   static void DrawRadialSolid(const RadialSolid& radialSolid);
-  static void DrawCapsule(const Capsule& capsule, bool drawEnd = true, const Matrix4x4& stretch = Matrix4x4::Identity());
+  static void DrawCapsule(const Capsule& capsule, bool drawEnd = true, const EigenTypes::Matrix4x4& stretch = EigenTypes::Matrix4x4::Identity());
   static void DrawBiCapsule(const BiCapsule& bicapsule, bool drawEnd=true);
   static void DrawRoundedRectangle(const RoundedRectangle& rectangle);
   static void DrawNoodle(const Noodle& noodle, int numArcSegments=40);
   static void DrawCapsoodle(const Capsoodle& capsoodle);
-  static void DrawSolidBox(const Vector3& center, const Vector3& size);
+  static void DrawSolidBox(const EigenTypes::Vector3& center, const EigenTypes::Vector3& size);
   static void DrawDevice(float width, float length, float height, float radius);
 
 private:

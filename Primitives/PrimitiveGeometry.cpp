@@ -135,14 +135,14 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSphere(int resolution) {
       const float r2 = std::cos(inc4);
 
       // form triangles and compute their vertices
-      const Vector3f v1(r1*x1, z1, r1*y1);
-      const Vector3f v2(r1*x2, z1, r1*y2);
-      const Vector3f v3(r2*x2, z2, r2*y2);
-      const Vector3f v4(r1*x1, z1, r1*y1);
-      const Vector3f v5(r2*x2, z2, r2*y2);
-      const Vector3f v6(r2*x1, z2, r2*y1);
+      const EigenTypes::Vector3f v1(r1*x1, z1, r1*y1);
+      const EigenTypes::Vector3f v2(r1*x2, z1, r1*y2);
+      const EigenTypes::Vector3f v3(r2*x2, z2, r2*y2);
+      const EigenTypes::Vector3f v4(r1*x1, z1, r1*y1);
+      const EigenTypes::Vector3f v5(r2*x2, z2, r2*y2);
+      const EigenTypes::Vector3f v6(r2*x1, z2, r2*y1);
 
-      auto SphereVertex = [](const Vector3f &v){ return Vertex(v, v.normalized()); };
+      auto SphereVertex = [](const EigenTypes::Vector3f &v){ return Vertex(v, v.normalized()); };
       geom.PushTri(SphereVertex(v1), SphereVertex(v2), SphereVertex(v3));
       geom.PushTri(SphereVertex(v4), SphereVertex(v5), SphereVertex(v6));
     }
@@ -173,13 +173,13 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitCylinder(int radialResolution, in
       const float h1 = h * verticalRes - 0.5f;
       const float h2 = (h+1) * verticalRes - 0.5f;
 
-      const Vector3f v1(c1, h1, s1);
-      const Vector3f v2(c1, h2, s1);
-      const Vector3f v3(c2, h1, s2);
-      const Vector3f v4(c2, h2, s2);
+      const EigenTypes::Vector3f v1(c1, h1, s1);
+      const EigenTypes::Vector3f v2(c1, h2, s1);
+      const EigenTypes::Vector3f v3(c2, h1, s2);
+      const EigenTypes::Vector3f v4(c2, h2, s2);
 
-      const Vector3f n1(c1, 0, s1);
-      const Vector3f n2(c2, 0, s2);
+      const EigenTypes::Vector3f n1(c1, 0, s1);
+      const EigenTypes::Vector3f n2(c2, 0, s2);
 
       geom.PushTri(Vertex(v1, n1), Vertex(v2, n1), Vertex(v3, n2));
       geom.PushTri(Vertex(v4, n2), Vertex(v3, n2), Vertex(v2, n1));
@@ -194,21 +194,21 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
   PrimitiveGeometry geom;
 
   static const GLfloat X = 0.5f;
-  static const Vector3f POSITIONS[4] = {
-    Vector3f(-X, -X, 0),
-    Vector3f( X, -X, 0),
-    Vector3f( X,  X, 0),
-    Vector3f(-X,  X, 0)
+  static const EigenTypes::Vector3f POSITIONS[4] = {
+    EigenTypes::Vector3f(-X, -X, 0),
+    EigenTypes::Vector3f( X, -X, 0),
+    EigenTypes::Vector3f( X,  X, 0),
+    EigenTypes::Vector3f(-X,  X, 0)
   };
-  static const Vector2f TEX_COORDS[4] = {
-    Vector2f(0, 0),
-    Vector2f(1, 0),
-    Vector2f(1, 1),
-    Vector2f(0, 1)
+  static const EigenTypes::Vector2f TEX_COORDS[4] = {
+    EigenTypes::Vector2f(0, 0),
+    EigenTypes::Vector2f(1, 0),
+    EigenTypes::Vector2f(1, 1),
+    EigenTypes::Vector2f(0, 1)
   };
   
   // all vertices have the same normal
-  const Vector3f normal(Vector3f::UnitZ());
+  const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
 
   geom.PushTri(Vertex(POSITIONS[0], normal, TEX_COORDS[0]),
                Vertex(POSITIONS[1], normal, TEX_COORDS[1]),
@@ -224,7 +224,7 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitSquare() {
 PrimitiveGeometry PrimitiveGeometry::CreateUnitDisk(int resolution) {
   PrimitiveGeometry geom;
 
-  const Vector3f center(Vector3f::Zero());
+  const EigenTypes::Vector3f center(EigenTypes::Vector3f::Zero());
 
   const float resFloat = static_cast<float>(resolution);
   const float twoPi = static_cast<float>(2.0 * M_PI);
@@ -238,8 +238,8 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitDisk(int resolution) {
     const float s1 = std::sin(inc1);
     const float s2 = std::sin(inc2);
 
-    const Vector3f p1(c1, s1, 0.0f);
-    const Vector3f p2(c2, s2, 0.0f);
+    const EigenTypes::Vector3f p1(c1, s1, 0.0f);
+    const EigenTypes::Vector3f p2(c2, s2, 0.0f);
 
     geom.PushTri(center, p1, p2);
   }
@@ -253,14 +253,14 @@ PrimitiveGeometry PrimitiveGeometry::CreateUnitBox() {
 
   // In order for this to be a unit box, its side lengths must be unit.
   const float x = 0.5f;
-  const Vector3f p000(-x, -x, -x);
-  const Vector3f p001(-x, -x,  x);
-  const Vector3f p010(-x,  x, -x);
-  const Vector3f p011(-x,  x,  x);
-  const Vector3f p100( x, -x, -x);
-  const Vector3f p101( x, -x,  x);
-  const Vector3f p110( x,  x, -x);
-  const Vector3f p111( x,  x,  x);
+  const EigenTypes::Vector3f p000(-x, -x, -x);
+  const EigenTypes::Vector3f p001(-x, -x,  x);
+  const EigenTypes::Vector3f p010(-x,  x, -x);
+  const EigenTypes::Vector3f p011(-x,  x,  x);
+  const EigenTypes::Vector3f p100( x, -x, -x);
+  const EigenTypes::Vector3f p101( x, -x,  x);
+  const EigenTypes::Vector3f p110( x,  x, -x);
+  const EigenTypes::Vector3f p111( x,  x,  x);
 
   geom.PushQuad(p010, p000, p001, p011);
   geom.PushQuad(p100, p110, p111, p101);
@@ -280,24 +280,24 @@ void PrimitiveGeometry::PushTri(const Vertex& p0, const Vertex& p1, const Vertex
   m_Vertices.push_back(p2);
 }
 
-void PrimitiveGeometry::PushTri(const Vector3f& p0, const Vector3f& p1, const Vector3f& p2) {
-  Vector3f normal((p2-p1).cross(p0-p1).normalized());
+void PrimitiveGeometry::PushTri(const EigenTypes::Vector3f& p0, const EigenTypes::Vector3f& p1, const EigenTypes::Vector3f& p2) {
+  EigenTypes::Vector3f normal((p2-p1).cross(p0-p1).normalized());
   PushTri(Vertex(p0, normal), Vertex(p1, normal), Vertex(p2, normal));
 }
 
-void PrimitiveGeometry::PushQuad(const Vector3f& p0, const Vector3f& p1, const Vector3f& p2, const Vector3f& p3) {
+void PrimitiveGeometry::PushQuad(const EigenTypes::Vector3f& p0, const EigenTypes::Vector3f& p1, const EigenTypes::Vector3f& p2, const EigenTypes::Vector3f& p3) {
   // The orientation is given by the counterclockwise traversal of the points using the right-hand rule.
 
-  static const Vector2f TEX_COORDS[4] = {
-    Vector2f(0.0f, 0.0f),
-    Vector2f(1.0f, 0.0f),
-    Vector2f(1.0f, 1.0f),
-    Vector2f(0.0f, 1.0f)
+  static const EigenTypes::Vector2f TEX_COORDS[4] = {
+    EigenTypes::Vector2f(0.0f, 0.0f),
+    EigenTypes::Vector2f(1.0f, 0.0f),
+    EigenTypes::Vector2f(1.0f, 1.0f),
+    EigenTypes::Vector2f(0.0f, 1.0f)
   };
 
   // Compute the normal for each triangle, where the quad is split up into 2 triangles, having its diagonal between points p0 and p2.
-  Vector3f n0((p2-p1).cross(p0-p1).normalized());
-  Vector3f n1((p3-p2).cross(p0-p2).normalized());
+  EigenTypes::Vector3f n0((p2-p1).cross(p0-p1).normalized());
+  EigenTypes::Vector3f n1((p3-p2).cross(p0-p2).normalized());
   
   PushTri(Vertex(p0, n0, TEX_COORDS[0]), Vertex(p1, n0, TEX_COORDS[1]), Vertex(p2, n0, TEX_COORDS[2]));
   PushTri(Vertex(p0, n1, TEX_COORDS[0]), Vertex(p2, n1, TEX_COORDS[2]), Vertex(p3, n1, TEX_COORDS[3]));

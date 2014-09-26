@@ -21,7 +21,7 @@ public:
 
 protected:
 
-  Vector2 toRadialCoordinates(const Vector2& pos) const;
+  EigenTypes::Vector2 toRadialCoordinates(const EigenTypes::Vector2& pos) const;
 
   double m_Thickness;
   double m_Radius;

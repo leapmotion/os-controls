@@ -135,7 +135,7 @@ void OculusVR::BeginEye(int idx) {
   const OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + m_FinalForward, m_FinalUp);
   //std::cout << "eye pos: " << toCinder(m_EyePose[eye].Position) << std::endl;
 
-  ovrVector3f viewAdjust = m_EyeRenderDesc[eye].ViewAdjust;
+  ovrEigenTypes::Vector3f viewAdjust = m_EyeRenderDesc[eye].ViewAdjust;
   viewAdjust.x *= 1000;
   viewAdjust.y *= 1000;
   viewAdjust.z *= 1000;
@@ -173,7 +173,7 @@ void OculusVR::DistortionMeshInit() {
     ovrDistortionMesh meshData;
     ovrHmd_CreateDistortionMesh(m_HMD, m_EyeRenderDesc[eyeNum].Eye, m_EyeRenderDesc[eyeNum].Fov, m_DistortionCaps, &meshData);
 
-    ovrHmd_GetRenderScaleAndOffset(m_EyeRenderDesc[eyeNum].Fov, m_RenderTargetSize, m_EyeRenderViewport[eyeNum], (ovrVector2f*)m_UVScaleOffset[eyeNum]);
+    ovrHmd_GetRenderScaleAndOffset(m_EyeRenderDesc[eyeNum].Fov, m_RenderTargetSize, m_EyeRenderViewport[eyeNum], (ovrEigenTypes::Vector2f*)m_UVScaleOffset[eyeNum]);
     m_NumVertices = meshData.VertexCount;
     m_NumIndices = meshData.IndexCount;
 

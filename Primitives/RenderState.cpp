@@ -5,7 +5,7 @@ RenderState::RenderState() { }
 void RenderState::UploadMatrices() {
   if (m_shader->HasUniform("normalMatrix")) {
     // upload normal matrix
-    const Matrix4x4 result = (m_ModelView.Matrix()).inverse().transpose();
+    const EigenTypes::Matrix4x4 result = (m_ModelView.Matrix()).inverse().transpose();
     glUniformMatrix4fv(m_shader->LocationOfUniform("normalMatrix"), 1, GL_FALSE, result.cast<float>().eval().data());
   }
 

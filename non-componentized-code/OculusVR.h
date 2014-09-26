@@ -118,7 +118,7 @@ inline ci::Matrix44f toCinder(const OVR::Matrix4f& ovrMat)
 inline ci::Quatf toCinder(const OVR::Quatf& ovrQuat){
   return ci::Quatf(ovrQuat.w, ovrQuat.x, ovrQuat.y, ovrQuat.z);
 }
-//! Converts OVR Vector3f to Cinder Vec3f
+//! Converts OVR EigenTypes::Vector3f to Cinder Vec3f
 inline ci::Vec3f toCinder(const OVR::Vector3f& ovrVec){
   return ci::Vec3f(ovrVec.x, ovrVec.y, ovrVec.z);
 }
@@ -126,12 +126,12 @@ inline ci::Area toCinder(const ovrRecti& rect) {
   return ci::Area(rect.Pos.x, rect.Pos.y, rect.Pos.x + rect.Size.w, rect.Pos.y + rect.Size.h);
 }
 
-inline Vector3 toVector3(const OVR::Vector3f& ovrVec) {
-  return Vector3(ovrVec.x, ovrVec.y, ovrVec.z);
+inline EigenTypes::Vector3 toVector3(const OVR::Vector3f& ovrVec) {
+  return EigenTypes::Vector3(ovrVec.x, ovrVec.y, ovrVec.z);
 }
 
-inline Matrix4x4 toMatrix4x4(const OVR::Matrix4f& ovrMat) {
-  Matrix4x4 result(Matrix4x4::Identity());
+inline EigenTypes::Matrix4x4 toMatrix4x4(const OVR::Matrix4f& ovrMat) {
+  EigenTypes::Matrix4x4 result(EigenTypes::Matrix4x4::Identity());
   result << ovrMat.M[0][0], ovrMat.M[0][1], ovrMat.M[0][2], ovrMat.M[0][3],
     ovrMat.M[1][0], ovrMat.M[1][1], ovrMat.M[1][2], ovrMat.M[1][3],
     ovrMat.M[2][0], ovrMat.M[2][1], ovrMat.M[2][2], ovrMat.M[2][3],
@@ -139,8 +139,8 @@ inline Matrix4x4 toMatrix4x4(const OVR::Matrix4f& ovrMat) {
   return result.transpose();
 }
 
-inline Matrix4x4 toMatrix4x4(const ci::Matrix44f& matrix) {
-  Matrix4x4 result(Matrix4x4::Identity());
+inline EigenTypes::Matrix4x4 toMatrix4x4(const ci::Matrix44f& matrix) {
+  EigenTypes::Matrix4x4 result(EigenTypes::Matrix4x4::Identity());
   result << matrix.at(0, 0), matrix.at(0, 1), matrix.at(0, 2), matrix.at(0, 3),
     matrix.at(1, 0), matrix.at(1, 1), matrix.at(1, 2), matrix.at(1, 3),
     matrix.at(2, 0), matrix.at(2, 1), matrix.at(2, 2), matrix.at(2, 3),

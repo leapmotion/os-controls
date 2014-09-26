@@ -18,7 +18,7 @@ void SimGL::DrawSphere(double radius) {
   glDisable(GL_LIGHTING);
 }
 
-void SimGL::DrawCylinder(const Vector3& center, const Vector3& direction, double radius, double length, bool capped, bool wireFrame) {
+void SimGL::DrawCylinder(const EigenTypes::Vector3& center, const EigenTypes::Vector3& direction, double radius, double length, bool capped, bool wireFrame) {
   AutoQuadric q;
   if (wireFrame) {
     gluQuadricDrawStyle(q.quadric, GLU_SILHOUETTE);
@@ -27,8 +27,8 @@ void SimGL::DrawCylinder(const Vector3& center, const Vector3& direction, double
     gluQuadricDrawStyle(q.quadric, GLU_FILL);
   }
   double angle;
-  Vector3 axis;
-  MathUtil::GetRotation(Vector3(0, 0, 1), direction, axis, angle);
+  EigenTypes::Vector3 axis;
+  MathUtil::GetRotation(EigenTypes::Vector3(0, 0, 1), direction, axis, angle);
   if (direction[2] < 0) {
     angle *= -1;
     angle += OCU_PI;
@@ -49,7 +49,7 @@ void SimGL::DrawCylinder(const Vector3& center, const Vector3& direction, double
   }
 }
 
-void SimGL::DrawCylinder(const Vector3& end, const Vector3& direction, double radius, bool capped, bool wireFrame) {
+void SimGL::DrawCylinder(const EigenTypes::Vector3& end, const EigenTypes::Vector3& direction, double radius, bool capped, bool wireFrame) {
   AutoQuadric q;
   if (wireFrame) {
     gluQuadricDrawStyle(q.quadric, GLU_SILHOUETTE);
@@ -59,8 +59,8 @@ void SimGL::DrawCylinder(const Vector3& end, const Vector3& direction, double ra
   }
   const double length = direction.norm();
   double angle;
-  Vector3 axis;
-  MathUtil::GetRotation(Vector3(0, 0, 1), direction/length, axis, angle);
+  EigenTypes::Vector3 axis;
+  MathUtil::GetRotation(EigenTypes::Vector3(0, 0, 1), direction/length, axis, angle);
   if (direction[2] < 0) {
     angle *= -1;
     angle += OCU_PI;
@@ -83,9 +83,9 @@ void SimGL::DrawCylinder(const Vector3& end, const Vector3& direction, double ra
 template<class RP>
 void DrawRadialPolygon(const RP& rp) {
   AutoQuadric q;
-  const Vector3& center = rp.center();
-  const Vector3& axis1 = rp.axis1();
-  const Vector3& axis2 = rp.axis2();
+  const EigenTypes::Vector3& center = rp.center();
+  const EigenTypes::Vector3& axis1 = rp.axis1();
+  const EigenTypes::Vector3& axis2 = rp.axis2();
   const double rpScale = axis1.norm();
   double radius = rp.radius() / rpScale;
 
@@ -93,8 +93,8 @@ void DrawRadialPolygon(const RP& rp) {
   glTranslated(center.x(), center.y(), center.z());
 
   //Calculate matrix transform
-  Vector3 normal = axis1.cross(axis2) / rpScale;
-  Matrix4x4 mat(Matrix4x4::Identity());
+  EigenTypes::Vector3 normal = axis1.cross(axis2) / rpScale;
+  EigenTypes::Matrix4x4 mat(EigenTypes::Matrix4x4::Identity());
   mat.block<3, 3>(0, 0) << axis1, axis2, normal;
   glMultMatrixd(mat.data());
 
@@ -103,25 +103,25 @@ void DrawRadialPolygon(const RP& rp) {
   glBegin(GL_TRIANGLE_FAN);
   glNormal3d(0, 0, 1);
   for (int i=0; i<RP::NumSides; i++) {
-    const Vector2& v = rp.vertex(i);
+    const EigenTypes::Vector2& v = rp.vertex(i);
     glVertex3d(v.x(), v.y(), radius);
   }
   glEnd();
   glBegin(GL_TRIANGLE_FAN);
   glNormal3d(0, 0, -1);
   for (int i=0; i<RP::NumSides; i++) {
-    const Vector2& v = rp.vertex(i);
+    const EigenTypes::Vector2& v = rp.vertex(i);
     glVertex3d(v.x(), v.y(), -radius);
   }
   glEnd();
 
   //Draw capsules
-  const Vector2* p = &rp.vertex(RP::NumSides - 1);
+  const EigenTypes::Vector2* p = &rp.vertex(RP::NumSides - 1);
   for (int i=0; i<RP::NumSides; i++) {
-    const Vector2& v = rp.vertex(i);
+    const EigenTypes::Vector2& v = rp.vertex(i);
     glPushMatrix();
     glTranslated(v.x(), v.y(), 0);
-    const Vector3 diff(p->x()-v.x(), p->y()-v.y(), 0);
+    const EigenTypes::Vector3 diff(p->x()-v.x(), p->y()-v.y(), 0);
     SimGL::DrawCylinder(diff*0.5, diff.normalized(), radius, diff.norm());
     glEnable(GL_LIGHTING);
     gluSphere(q.quadric, radius, NUM_CYLINDER_SIDES, NUM_CYLINDER_SIDES);
@@ -145,7 +145,7 @@ bool SimGL::Draw(const RadialSolid& radialSolid, Fn pfn, Args... args) {
 
 void SimGL::DrawRadialSolid(const RadialSolid& radialSolid) {
   // Do the first of the following sequence of operations:
-  Draw<Capsule>(radialSolid, &SimGL::DrawCapsule, true, Matrix4x4::Identity()) ||
+  Draw<Capsule>(radialSolid, &SimGL::DrawCapsule, true, EigenTypes::Matrix4x4::Identity()) ||
     Draw<RoundedRectangle>(radialSolid, &SimGL::DrawRoundedRectangle) ||
     Draw<Noodle>(radialSolid, &SimGL::DrawNoodle, 40) ||
     Draw<Capsoodle>(radialSolid, &SimGL::DrawCapsoodle) ||
@@ -164,16 +164,16 @@ void SimGL::DrawRadialSolid(const RadialSolid& radialSolid) {
   }
 }
 
-void SimGL::DrawCapsule(const Capsule& capsule, bool drawEnd, const Matrix4x4& stretch) {
+void SimGL::DrawCapsule(const Capsule& capsule, bool drawEnd, const EigenTypes::Matrix4x4& stretch) {
   AutoQuadric q;
-  const Vector3& direction = capsule.direction();
+  const EigenTypes::Vector3& direction = capsule.direction();
   const double radius = capsule.radius();
-  const Vector3 center = capsule.center();
+  const EigenTypes::Vector3 center = capsule.center();
   const double length = capsule.length();
   gluQuadricDrawStyle(q.quadric, GLU_FILL);
   double angle;
-  Vector3 axis;
-  MathUtil::GetRotation(Vector3(0, 0, 1), direction, axis, angle);
+  EigenTypes::Vector3 axis;
+  MathUtil::GetRotation(EigenTypes::Vector3(0, 0, 1), direction, axis, angle);
   if (direction[2] < 0) {
     angle *= -1;
     angle += OCU_PI;
@@ -196,8 +196,8 @@ void SimGL::DrawCapsule(const Capsule& capsule, bool drawEnd, const Matrix4x4& s
 
 void SimGL::DrawBiCapsule(const BiCapsule& bicapsule, bool drawEnd) {
   AutoQuadric q;
-  const Vector3& direction = bicapsule.direction();
-  const Vector3 center = bicapsule.center();
+  const EigenTypes::Vector3& direction = bicapsule.direction();
+  const EigenTypes::Vector3 center = bicapsule.center();
   const double length = bicapsule.length();
   const double r1 = bicapsule.radiusBig();
   const double r2 = bicapsule.radius();
@@ -210,8 +210,8 @@ void SimGL::DrawBiCapsule(const BiCapsule& bicapsule, bool drawEnd) {
 
   gluQuadricDrawStyle(q.quadric, GLU_FILL);
   double angle;
-  Vector3 axis;
-  MathUtil::GetRotation(Vector3(0, 0, 1), direction, axis, angle);
+  EigenTypes::Vector3 axis;
+  MathUtil::GetRotation(EigenTypes::Vector3(0, 0, 1), direction, axis, angle);
   if (direction[2] < 0) {
     angle *= -1;
     angle += OCU_PI;
@@ -238,19 +238,19 @@ void SimGL::DrawRoundedRectangle(const RoundedRectangle& rectangle) {
   AutoQuadric q;
   glEnable(GL_LIGHTING);
 
-  const Vector3& center = rectangle.center();
-  const Vector3& axis1 = rectangle.axis1();
-  const Vector3& axis2 = rectangle.axis2();
+  const EigenTypes::Vector3& center = rectangle.center();
+  const EigenTypes::Vector3& axis1 = rectangle.axis1();
+  const EigenTypes::Vector3& axis2 = rectangle.axis2();
   double radius = rectangle.radius();
 
   glPushMatrix();
   glTranslated(center.x(), center.y(), center.z());
 
   // calculate matrix transform
-  Vector3 normal = axis1.cross(axis2).normalized();
+  EigenTypes::Vector3 normal = axis1.cross(axis2).normalized();
   double aNorm = axis1.norm();
   double bNorm = axis2.norm();
-  Matrix4x4 mat(Matrix4x4::Identity());
+  EigenTypes::Matrix4x4 mat(EigenTypes::Matrix4x4::Identity());
   mat.block<3, 3>(0, 0) << axis1/aNorm, axis2/bNorm, normal;
   glMultMatrixd(mat.data());
 
@@ -303,15 +303,15 @@ void SimGL::DrawRoundedRectangle(const RoundedRectangle& rectangle) {
 void SimGL::DrawNoodle(const Noodle& noodle, int numArcSegments) {
   AutoQuadric q;
   glEnable(GL_LIGHTING);
-  const Vector3 normal = noodle.normal().normalized();
+  const EigenTypes::Vector3 normal = noodle.normal().normalized();
   const double arcAngle = noodle.arcAngle();
-  const Vector3& center = noodle.center();
+  const EigenTypes::Vector3& center = noodle.center();
   const double segmentRadius = noodle.radius();
   const double arcRadius = noodle.arcRadius();
-  const Vector3& sinAxis = noodle.sinAxis();
+  const EigenTypes::Vector3& sinAxis = noodle.sinAxis();
 
   // transform to proper position/orientation
-  Matrix4x4 basis(Matrix4x4::Identity());
+  EigenTypes::Matrix4x4 basis(EigenTypes::Matrix4x4::Identity());
   basis.block<3, 3>(0, 0) << normal, -normal.cross(sinAxis), sinAxis;
   glPushMatrix();
   glTranslated(center.x(), center.y(), center.z());
@@ -319,7 +319,7 @@ void SimGL::DrawNoodle(const Noodle& noodle, int numArcSegments) {
 
   // precompute points for a circular ring (only needs to be done once)
   static const int NUM_RADIAL_SEGMENTS = 20;
-  static Vector3 radialPoints[NUM_RADIAL_SEGMENTS];
+  static EigenTypes::Vector3 radialPoints[NUM_RADIAL_SEGMENTS];
   static bool radialComputed = false;
   if (!radialComputed) {
     double curRadialAngle = 0;
@@ -333,12 +333,12 @@ void SimGL::DrawNoodle(const Noodle& noodle, int numArcSegments) {
 
   // precompute rotation and translation based on the noodle parameters
   const double arcAngleInc = arcAngle/numArcSegments;
-  const Matrix3x3 nextMat = MathUtil::RotationMatrix(Vector3::UnitX(), arcAngleInc).block<3, 3>(0, 0);
-  const Vector3 arcVec(0, arcRadius, 0);
+  const EigenTypes::Matrix3x3 nextMat = MathUtil::RotationMatrix(EigenTypes::Vector3::UnitX(), arcAngleInc).block<3, 3>(0, 0);
+  const EigenTypes::Vector3 arcVec(0, arcRadius, 0);
 
   // precompute the points on the next ring
-  Vector3 nextPoints[NUM_RADIAL_SEGMENTS];
-  Vector3 nextNormals[NUM_RADIAL_SEGMENTS];
+  EigenTypes::Vector3 nextPoints[NUM_RADIAL_SEGMENTS];
+  EigenTypes::Vector3 nextNormals[NUM_RADIAL_SEGMENTS];
   for (int i=0; i<NUM_RADIAL_SEGMENTS; i++) {
     nextPoints[i] = nextMat*(segmentRadius*radialPoints[i] + arcVec) - arcVec;
     nextNormals[i] = nextMat*radialPoints[i];
@@ -351,7 +351,7 @@ void SimGL::DrawNoodle(const Noodle& noodle, int numArcSegments) {
   glPopMatrix();
 
   // draw partial torus
-  Vector3 curPos, curNormal;
+  EigenTypes::Vector3 curPos, curNormal;
   double curArcAngle = 0;
   for (int i=0; i<numArcSegments; i++) {
     double nextAngle = curArcAngle + arcAngleInc;
@@ -386,7 +386,7 @@ void SimGL::DrawNoodle(const Noodle& noodle, int numArcSegments) {
 }
 
 void SimGL::DrawCapsoodle(const Capsoodle& capsoodle) {
-  Matrix4x4 stretch = Matrix4x4::Identity();
+  EigenTypes::Matrix4x4 stretch = EigenTypes::Matrix4x4::Identity();
   for (int i=0; i<3; i++) {
     DrawCapsule(capsoodle.GetCapsule(i), i==2, stretch);
   }
@@ -398,8 +398,8 @@ void SimGL::DrawDevice(float width, float length, float height, float radius) {
 
   glPushMatrix();
 
-  DrawSolidBox(Vector3::Zero(), Vector3(length-2*radius, height, width));
-  DrawSolidBox(Vector3::Zero(), Vector3(length, height, width-2*radius));
+  DrawSolidBox(EigenTypes::Vector3::Zero(), EigenTypes::Vector3(length-2*radius, height, width));
+  DrawSolidBox(EigenTypes::Vector3::Zero(), EigenTypes::Vector3(length, height, width-2*radius));
   glRotated(90, 1, 0, 0);
 
   glPushMatrix();
@@ -437,7 +437,7 @@ void SimGL::DrawDevice(float width, float length, float height, float radius) {
   glPopMatrix();
 }
 
-void SimGL::DrawSolidBox(const Vector3& center, const Vector3& size) {
+void SimGL::DrawSolidBox(const EigenTypes::Vector3& center, const EigenTypes::Vector3& size) {
   glPushMatrix();
   glTranslated(center.x(), center.y(), center.z());
   glScaled(size.x(), size.y(), size.z());
