@@ -46,7 +46,10 @@ void SDLController::Shutdown () {
 }
 
 void SDLController::BeginRender () const {
-  // Do whatever needs to be done before rendering a frame.
+  // Make this the current GL context.  SDL_GL_MakeCurrent() returns 0 upon success
+  if (SDL_GL_MakeCurrent(m_SDL_Window, m_SDL_GLContext) != 0) {
+    throw std::runtime_error(SDL_GetError());
+  }
 }
 
 void SDLController::EndRender () const {
