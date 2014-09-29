@@ -6,6 +6,7 @@ set(utility_SOURCES
   Config.cpp
   ConfigEvent.h
   ExtendedStateMachine.h
+  ExceptionCrasher.h
   FileMonitor.h
   HandleUtilitiesWin.h
   Hysteresis.h
