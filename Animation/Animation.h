@@ -120,7 +120,11 @@ public:
 
   static const int NUM_ITERATIONS = _NUM_ITERATIONS;
 
-  Smoothed() : m_First(true), m_TargetFramerate(100.0f), m_SmoothStrength(0.8f) { }
+  Smoothed() : Smoothed(0) { }
+  Smoothed(const T& initialValue, float smoothStrength = 0.8f, float targetFramerate = 100.0f) :
+    m_Goal(initialValue), m_TargetFramerate(targetFramerate), m_SmoothStrength(smoothStrength) {
+    SetInitialValue(initialValue);
+  }
 
   // const getters
   operator T() const { return Value(); }
@@ -138,25 +142,16 @@ public:
 
   // main update function, must be called every frame
   void Update(float deltaTime) {
-    if (m_First || deltaTime < 0) {
-      for (int i=0; i<NUM_ITERATIONS; i++) {
-        m_Values[i] = m_Goal;
-      }
-      m_First = false;
-    } else {
-      const float dtExponent = deltaTime * m_TargetFramerate;
-      const float smooth = std::pow(m_SmoothStrength, dtExponent);
-      assert(smooth >= 0.0f && smooth <= 1.0f);
-      for (int i=0; i<NUM_ITERATIONS; i++) {
-        const T& prev = i == 0 ? m_Goal : m_Values[i-1];
-        m_Values[i] = smooth*m_Values[i] + (1.0f-smooth)*prev;
-      }
+    const float dtExponent = deltaTime * m_TargetFramerate;
+    const float smooth = std::pow(m_SmoothStrength, dtExponent);
+    assert(smooth >= 0.0f && smooth <= 1.0f);
+    for (int i=0; i<NUM_ITERATIONS; i++) {
+      const T& prev = i == 0 ? m_Goal : m_Values[i-1];
+      m_Values[i] = smooth*m_Values[i] + (1.0f-smooth)*prev;
     }
   }
 
 private:
-
-  bool m_First;
   T m_Values[NUM_ITERATIONS];
   T m_Goal;
   float m_TargetFramerate;
