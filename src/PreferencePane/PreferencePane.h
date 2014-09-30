@@ -9,6 +9,7 @@
 @property (unsafe_unretained) IBOutlet NSButton *applicationSwitcherCheckbox;
 @property (unsafe_unretained) IBOutlet NSButton *scrollingCheckbox;
 @property (unsafe_unretained) IBOutlet NSButton *autoStartCheckbox;
+@property (unsafe_unretained) IBOutlet NSButton *scrollDirectionCheckbox;
 @property (unsafe_unretained) IBOutlet NSSlider *sensitivityBar;
 
 - (id)initWithBundle:(NSBundle *)bundle;
@@ -22,6 +23,7 @@
 - (IBAction)enableApplicationSwitcherCheckbox:(id)sender;
 - (IBAction)enableScrollingCheckbox:(id)sender;
 - (IBAction)enableAutoStart:(id)sender;
+- (IBAction)enableReverseScroll:(id)sender;
 - (IBAction)onUserSensitivtyChanged:(id)sender;
 
 @end
