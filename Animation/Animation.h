@@ -32,8 +32,8 @@ namespace EasingFunctions{
 
 /// A class for animated parameters.
 /// Accepts an easing function, the default one being a simple linear easing.
-/// The importaint feature is that you can precicely control how long it will take
-/// the variable to reach it's goal, and once the goal is set all you have to do
+/// The important feature is that you can precicely control how long it will take
+/// the variable to reach its goal, and once the goal is set all you have to do
 /// is call the update function.  Setting a new goal while the animation is in progress
 /// will cause completion to reset to 0, and the value at the time of setting to be the
 /// new start value.  This makes it unsuitable for chasing behaviors where Set is called
@@ -121,8 +121,8 @@ private:
 // The class is templated and can be used with double, float, Vector3, or anything
 // that overloads addition and scalar multiplication.
 // When NUM_ITERATIONS is 1, the functionality is the same as exponential smoothing.
-// WARNING - Due to some vagarities of possion smoothing & floating point math,
-// This is not garunteed to ever actually reach the goal value, Xeno's Paradox style
+// WARNING - Due to some vagueries of Possion smoothing & floating point math,
+// This is not guaranteed to ever actually reach the goal value, Zeno's Paradox style
 template <class T, int _NUM_ITERATIONS = 5>
 class Smoothed {
 public:
