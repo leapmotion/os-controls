@@ -211,12 +211,10 @@ namespace Shortcuts {
       // 
       // pauseToolStripMenuItem
       // 
-      this->pauseToolStripMenuItem->Checked = true;
       this->pauseToolStripMenuItem->CheckOnClick = true;
-      this->pauseToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
       this->pauseToolStripMenuItem->ImageAlign = System::Drawing::ContentAlignment::MiddleLeft;
       this->pauseToolStripMenuItem->Name = L"pauseToolStripMenuItem";
-      this->pauseToolStripMenuItem->Size = System::Drawing::Size(133, 22);
+      this->pauseToolStripMenuItem->Size = System::Drawing::Size(158, 22);
       this->pauseToolStripMenuItem->Text = L"Pause Shortcuts";
       this->pauseToolStripMenuItem->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::pauseToolStripMenuItem_CheckedChanged);
       // 
