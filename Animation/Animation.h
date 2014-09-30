@@ -109,12 +109,12 @@ private:
 };
 
 #ifdef __GNUC__
-#define DEPRECATED_FUNCTION(func) func __attribute__ ((deprecated))
+#define DEPRECATED_FUNC __attribute__((deprecated))
 #elif defined(_MSC_VER)
-#define DEPRECATED_FUNCTION(func) __declspec(deprecated) func
+#define DEPRECATED_FUNC __declspec(deprecated)
 #else
-#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
-#define DEPRECATED_FUNCTION(func) func
+#pragma message("WARNING: You need to implement DEPRECATED_FUNC for this compiler")
+#define DEPRECATED_FUNC
 #endif
 
 // This is a simple smoothing utility class that will perform Poisson smoothing.
@@ -151,13 +151,11 @@ public:
   }
   void SetSmoothStrength(float smooth) { m_SmoothStrength = smooth; }
 
-  DEPRECATED(
-      void SetInitialValue(const T& value) {
-      for (int i=0; i<NUM_ITERATIONS; i++) {
-        m_Values[i] = value;
-      }
+  DEPRECATED_FUNC void SetInitialValue(const T& value) {
+    for (int i=0; i<NUM_ITERATIONS; i++) {
+      m_Values[i] = value;
     }
-  )
+  }
 
   // main update function, must be called every frame
   void Update(float deltaTime) {
