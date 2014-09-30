@@ -143,7 +143,7 @@ public:
   }
 
   void SetInitialValue(const T& value) {
-#pragma warning "SetInitalValue is Depricated!"
+#pragma message("Warning: Smoothed<T>::SetInitalValue is Depricated!")
     for (int i=0; i<NUM_ITERATIONS; i++) {
       m_Values[i] = value;
     }
