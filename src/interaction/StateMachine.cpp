@@ -279,22 +279,22 @@ void StateMachine::OnHandVanished() {
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
   
-  float scrollSmoothing = (fabs(m_handDelta.y()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING);
+  float scrollSmoothing = static_cast<float>((fabs(m_handDelta.y()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING));
   scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
   scrollSmoothing = 1 - scrollSmoothing;
   scrollSmoothing *= scrollConfigs::MAX_SCROLL_SMOOTHING;
   
   m_handDeltaMM_Y.SetSmoothStrength(scrollSmoothing);
   
-  scrollSmoothing = (fabs(m_handDelta.x()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING);
+  scrollSmoothing = static_cast<float>((fabs(m_handDelta.x()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING));
   scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
   scrollSmoothing = 1 - scrollSmoothing;
   scrollSmoothing *= scrollConfigs::MAX_SCROLL_SMOOTHING;
   
   m_handDeltaMM_X.SetSmoothStrength(scrollSmoothing);
   
-  m_handDeltaMM_X.SetGoal(m_handDelta.x());
-  m_handDeltaMM_Y.SetGoal(m_handDelta.y());
+  m_handDeltaMM_X.SetGoal(static_cast<float>(m_handDelta.x()));
+  m_handDeltaMM_Y.SetGoal(static_cast<float>(m_handDelta.y()));
   
   smoothedDeltaX.Update(static_cast<float>(deltaT.count()));
   smoothedDeltaY.Update(static_cast<float>(deltaT.count()));
@@ -317,9 +317,9 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   else if ( m_state == ShortcutsState::SCROLLING)
   {
     double configSensativity = m_config->Get<double>("scrollSensitivity");
-    float scrollSensitivityNormal = (configSensativity - 1) / (9 - 1);
+    float scrollSensitivityNormal = static_cast<float>(configSensativity - 1) / (9 - 1);
     scrollSensitivityNormal = std::min(1.0f, std::max(0.0f, scrollSensitivityNormal));
-    float scrollSensitivity = 0.25 + (scrollSensitivityNormal * (10 - 0.25));
+    float scrollSensitivity = 0.25f + static_cast<float>(scrollSensitivityNormal * (10 - 0.25f));
     m_scrollOperation->ScrollBy(0.0f, m_handDeltaMM_Y.Value() * scrollSensitivity * m_ppmm);
   }
 

@@ -40,8 +40,8 @@ void HandActivationRecognizer::AutoFilter(const Leap::Hand &hand, const FrameTim
     }
   }
   
-  handPinch.pinchDeltaPerSecond = (handPinch.pinchStrength - m_lastPinchStrength) / (frameTime.deltaTime / 1000000.0);
-  handGrab.grabDeltaPerSecond = (handGrab.grabStrength - m_lastGrabStrength) / (frameTime.deltaTime / 1000000.0);
+  handPinch.pinchDeltaPerSecond = (handPinch.pinchStrength - m_lastPinchStrength) / (frameTime.deltaTime / 1000000.0f);
+  handGrab.grabDeltaPerSecond = (handGrab.grabStrength - m_lastGrabStrength) / (frameTime.deltaTime / 1000000.0f);
   
   m_wasPinching = handPinch.isPinching;
   m_wasGrabbing = handGrab.isGrabbing;
@@ -66,7 +66,7 @@ float HandActivationRecognizer::getCustomPinchStrength(const Leap::Hand& hand) c
   }
   
   if ( index != Leap::Finger::invalid() && thumb != Leap::Finger::invalid() ) {
-    float distance = (index.tipPosition().toVector3<Vector3>() - thumb.tipPosition().toVector3<Vector3>()).norm();
+    float distance = static_cast<float>((index.tipPosition().toVector3<Vector3>() - thumb.tipPosition().toVector3<Vector3>()).norm());
     float norm = (distance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
     norm = std::min(1.0f, std::max(0.0f, norm));
     norm = 1 - norm;
