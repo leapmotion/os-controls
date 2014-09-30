@@ -10,6 +10,7 @@ set(osinterface_SOURCES
   MakesRenderWindowFullScreen.cpp
   MediaInterface.h
   MediaInterface.cpp
+  PauseInteractionEvent.h
   VolumeLevelChecker.h
   VolumeLevelChecker.cpp
   OSApp.h

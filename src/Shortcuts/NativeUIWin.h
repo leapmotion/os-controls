@@ -62,6 +62,8 @@ namespace Shortcuts {
 
   private: System::Windows::Forms::Label^  label_version;
   private: System::Windows::Forms::CheckBox^  startupCheckBox;
+  private: System::Windows::Forms::ToolStripMenuItem^  pauseToolStripMenuItem;
+
 
 
 
@@ -173,6 +175,7 @@ namespace Shortcuts {
       System::Windows::Forms::ToolStripMenuItem^  configToolStripMenuItem;
       System::Windows::Forms::ToolStripMenuItem^  helpToolStripMenuItem;
       System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+      this->pauseToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
       this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
       this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
       this->mediaCheckBox = (gcnew System::Windows::Forms::CheckBox());
@@ -197,37 +200,48 @@ namespace Shortcuts {
       // 
       // notificationMenu
       // 
-      notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
-        configToolStripMenuItem,
-          helpToolStripMenuItem, this->toolStripSeparator1, exitToolStripMenuItem
+      notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
+        this->pauseToolStripMenuItem,
+          configToolStripMenuItem, helpToolStripMenuItem, this->toolStripSeparator1, exitToolStripMenuItem
       });
       notificationMenu->Name = L"contextMenuStrip1";
       notificationMenu->ShowImageMargin = false;
-      notificationMenu->Size = System::Drawing::Size(133, 76);
+      notificationMenu->Size = System::Drawing::Size(134, 120);
+      // 
+      // pauseToolStripMenuItem
+      // 
+      this->pauseToolStripMenuItem->Checked = true;
+      this->pauseToolStripMenuItem->CheckOnClick = true;
+      this->pauseToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
+      this->pauseToolStripMenuItem->ImageAlign = System::Drawing::ContentAlignment::MiddleLeft;
+      this->pauseToolStripMenuItem->Name = L"pauseToolStripMenuItem";
+      this->pauseToolStripMenuItem->Size = System::Drawing::Size(133, 22);
+      this->pauseToolStripMenuItem->Text = L"Pause Shortcuts";
+      this->pauseToolStripMenuItem->CheckedChanged += gcnew System::EventHandler(this, &NativeUIWin::pauseToolStripMenuItem_CheckedChanged);
       // 
       // configToolStripMenuItem
       // 
       configToolStripMenuItem->Name = L"configToolStripMenuItem";
-      configToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      configToolStripMenuItem->Size = System::Drawing::Size(133, 22);
       configToolStripMenuItem->Text = L"&Configuration...";
       configToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::configToolStripMenuItem_Click);
       // 
       // helpToolStripMenuItem
       // 
       helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
-      helpToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      helpToolStripMenuItem->Size = System::Drawing::Size(133, 22);
       helpToolStripMenuItem->Text = L"&Help";
       helpToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::helpToolStripMenuItem_Click);
       // 
       // toolStripSeparator1
       // 
       this->toolStripSeparator1->Name = L"toolStripSeparator1";
-      this->toolStripSeparator1->Size = System::Drawing::Size(129, 6);
+      this->toolStripSeparator1->Size = System::Drawing::Size(130, 6);
       // 
       // exitToolStripMenuItem
       // 
       exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-      exitToolStripMenuItem->Size = System::Drawing::Size(132, 22);
+      exitToolStripMenuItem->Size = System::Drawing::Size(133, 22);
       exitToolStripMenuItem->Text = L"&Exit";
       exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
       // 
@@ -277,9 +291,9 @@ namespace Shortcuts {
       this->box_featureSelection->Controls->Add(this->mediaCheckBox);
       this->box_featureSelection->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9));
       this->box_featureSelection->Location = System::Drawing::Point(14, 13);
-      this->box_featureSelection->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
+      this->box_featureSelection->Margin = System::Windows::Forms::Padding(2);
       this->box_featureSelection->Name = L"box_featureSelection";
-      this->box_featureSelection->Padding = System::Windows::Forms::Padding(2, 2, 2, 2);
+      this->box_featureSelection->Padding = System::Windows::Forms::Padding(2);
       this->box_featureSelection->Size = System::Drawing::Size(190, 105);
       this->box_featureSelection->TabIndex = 6;
       this->box_featureSelection->TabStop = false;
@@ -289,7 +303,7 @@ namespace Shortcuts {
       // 
       this->scrollSensitivityBar->LargeChange = 1;
       this->scrollSensitivityBar->Location = System::Drawing::Point(2, 2);
-      this->scrollSensitivityBar->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
+      this->scrollSensitivityBar->Margin = System::Windows::Forms::Padding(2);
       this->scrollSensitivityBar->Maximum = 9;
       this->scrollSensitivityBar->Minimum = 1;
       this->scrollSensitivityBar->Name = L"scrollSensitivityBar";
@@ -317,7 +331,7 @@ namespace Shortcuts {
       this->tableLayoutPanel1->Controls->Add(this->scrollSensitivityBar, 0, 0);
       this->tableLayoutPanel1->Controls->Add(this->label_scrollSensitivity, 0, 1);
       this->tableLayoutPanel1->Location = System::Drawing::Point(220, 21);
-      this->tableLayoutPanel1->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
+      this->tableLayoutPanel1->Margin = System::Windows::Forms::Padding(2);
       this->tableLayoutPanel1->Name = L"tableLayoutPanel1";
       this->tableLayoutPanel1->RowCount = 2;
       this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
@@ -328,7 +342,7 @@ namespace Shortcuts {
       // button_ok
       // 
       this->button_ok->Location = System::Drawing::Point(387, 121);
-      this->button_ok->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
+      this->button_ok->Margin = System::Windows::Forms::Padding(2);
       this->button_ok->Name = L"button_ok";
       this->button_ok->Size = System::Drawing::Size(69, 24);
       this->button_ok->TabIndex = 9;
@@ -438,5 +452,9 @@ namespace Shortcuts {
   System::Void startupCheckBox_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
     callbacks.OnStartupChanged(startupCheckBox->Checked);
   }
+  System::Void pauseToolStripMenuItem_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+    callbacks.OnPauseInteraction(pauseToolStripMenuItem->Checked);
+  }
+
 };
 }

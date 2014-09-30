@@ -1,7 +1,8 @@
 #pragma once
+#include "PauseInteractionEvent.h"
+
 #include <autowiring/ContextMember.h>
 #include <Leap.h>
-
 class OSVirtualScreen;
 class FrameFragmenter;
 class LeapInputListener;
@@ -11,16 +12,21 @@ class LeapInputListener;
 /// </summary>
 class LeapInput:
   public ContextMember,
+  public PauseInteractionEvent,
   Leap::Listener
 {
 public:
   LeapInput(void);
   ~LeapInput(void);
 
+  // PauseInteractionEvent overrides:
+  void PauseChanged(bool paused) override;
+
 private:
   AutoRequired<Leap::Controller> m_controller;
   Autowired<OSVirtualScreen> m_virtualScreen;
   bool m_isAcceptingInput;
+  bool m_isPaused;
 
   // Event raised when a leap frame comes in
   AutoFired<LeapInputListener> m_listener;

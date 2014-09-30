@@ -6,7 +6,8 @@
 
 LeapInput::LeapInput(void):
   ContextMember("LeapInput"),
-  m_isAcceptingInput(false)
+  m_isAcceptingInput(false),
+  m_isPaused(false)
 {
   m_controller->addListener(*this);
 }
@@ -18,7 +19,7 @@ LeapInput::~LeapInput(void)
 
 bool LeapInput::AcceptInput(void) const {
   // Ignore input when the screen saver is running
-  return m_virtualScreen && !m_virtualScreen->IsScreenSaverActive();
+  return m_virtualScreen && !m_virtualScreen->IsScreenSaverActive() && !m_isPaused;
 }
 
 void LeapInput::AbortInput(void) {
@@ -26,6 +27,13 @@ void LeapInput::AbortInput(void) {
   CurrentContextPusher pshr(this->GetContext());
   // Send an invalid frame to abort any interactions using the Leap input
   m_listener(&LeapInputListener::OnLeapFrame)(Leap::Frame::invalid());
+}
+
+void LeapInput::PauseChanged(bool paused) {
+  if (paused && !m_isPaused)
+    AbortInput();
+   
+  m_isPaused = paused;
 }
 
 void LeapInput::onServiceConnect(const Leap::Controller& controller) {

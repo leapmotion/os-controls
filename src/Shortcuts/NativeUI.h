@@ -73,6 +73,11 @@ struct NativeUI:
   void OnStartupChanged(bool value);
 
   /// <summary>
+  /// Invoked when we enable or disable interaction
+  /// </summary>
+  void OnPauseInteraction(bool value);
+
+  /// <summary>
   /// Used to query what the launch on startup setting is
   /// </summary>
   bool GetLaunchOnStartup();

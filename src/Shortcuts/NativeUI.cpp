@@ -2,6 +2,7 @@
 #include "NativeUI.h"
 #include "Shortcuts.h"
 #include "osinterface/HtmlPageLauncher.h"
+#include "osinterface/PauseInteractionEvent.h"
 #include "utility/AutoLaunch.h"
 #include "utility/Config.h"
 
@@ -39,7 +40,6 @@ void NativeUI::SetUserConfigFile(const std::string& file)
     AutowiredFast<Config> cfg;
     cfg->SetPrimaryFile(file);
   });
-
 }
 
 void NativeUI::OnSettingChanged(const std::string& var, bool state)
@@ -65,6 +65,11 @@ void NativeUI::OnStartupChanged(bool value) {
   if (!launch)
     return;
   launch->SetAutoLaunch(value);
+}
+
+void NativeUI::OnPauseInteraction(bool value) {
+  AutoFired<PauseInteractionEvent> toggleEvent;
+  toggleEvent(&PauseInteractionEvent::PauseChanged)(value);
 }
 
 bool NativeUI::GetLaunchOnStartup() {
