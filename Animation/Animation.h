@@ -129,7 +129,7 @@ public:
 
   static const int NUM_ITERATIONS = _NUM_ITERATIONS;
 
-  Smoothed() : Smoothed(0) { }
+  Smoothed() : Smoothed(T()) { }
   Smoothed(const T& initialValue, float smoothStrength = 0.8f, float targetFramerate = 100.0f) :
     m_TargetFramerate(targetFramerate), m_SmoothStrength(smoothStrength) {
     SetImmediate(initialValue);
