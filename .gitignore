@@ -38,3 +38,4 @@ bin/platforms/*
 *.autosave
 *.aps
 src/Shortcuts/Version.h
+install/*
