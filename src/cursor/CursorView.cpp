@@ -39,6 +39,7 @@ CursorView::CursorView() :
   m_overrideY(0.0f),
   m_overrideInfluence(0.0f),
   m_handCursor(new HandCursor),
+  m_bodyOffset(0.0f),
   m_x(0.0f,0.0f),
   m_y(0.0f,0.0f),
   m_bodyAlpha(0.0f,0.3f),
