@@ -34,6 +34,7 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_FadeTime(0.4),
   m_CurrentTime(0.0),
   m_LastStateChangeTime(0.0),
+  m_interactionIsLocked(false),
   m_distanceFadeCap(1.0f),
   m_ghostCursorAlpha(0.0f,0.6f),
   m_volumeViewAlpha(0.0f,0.6f)
@@ -227,17 +228,19 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
 
 void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 menuOffset) {
   Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
-  RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition, m_selectedItem);
-  if ( m_state == State::ACTIVE ) {
-    m_selectedItem = updateResult.updateIdx;
-  }
-  
-  if(updateResult.curActivation >= 0.95 && m_state == State::ACTIVE) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
-    //Selection Made Transition
-    resolveSelection(updateResult.updateIdx);
-    //doActiveToLockedTasks();
-    m_state = State::LOCKED;
-    m_LastStateChangeTime = m_CurrentTime;
+  if ( !m_interactionIsLocked ) {
+    RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition, m_selectedItem);
+    if ( m_state == State::ACTIVE ) {
+      m_selectedItem = updateResult.updateIdx;
+    }
+    
+    if(updateResult.curActivation >= 0.95 && m_state == State::ACTIVE) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
+      //Selection Made Transition
+      resolveSelection(updateResult.updateIdx);
+      //doActiveToLockedTasks();
+      m_state = State::LOCKED;
+      m_LastStateChangeTime = m_CurrentTime;
+    }
   }
 }
 
@@ -250,6 +253,7 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
   if ( offsetNormalFactor > 0.0 ) {
     if ( m_state != State::LOCKED ) {
       m_state = State::LOCKED;
+      m_interactionIsLocked = true;
       m_LastStateChangeTime = m_CurrentTime;
     }
     Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
@@ -259,6 +263,7 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
       float deltaPixelsInVolume = static_cast<float>(deltaPixels.x()) / m_volumeSlider->Width();
       m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
       m_volumeSlider->Activate();
+      
     }
     else {
       m_volumeSlider->Deactivate();
@@ -269,6 +274,7 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
     if ( m_state != State::ACTIVE && leapPosition.norm() <  ACTIVATION_RADIUS - 20.0f) {
       m_state = State::ACTIVE;
       m_LastStateChangeTime = m_CurrentTime;
+      m_interactionIsLocked = false;
     }
     m_volumeSlider->Deactivate();
   }
