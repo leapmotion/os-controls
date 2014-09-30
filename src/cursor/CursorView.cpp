@@ -38,22 +38,13 @@ CursorView::CursorView() :
   m_overrideX(0.0f),
   m_overrideY(0.0f),
   m_overrideInfluence(0.0f),
-  m_handCursor(new HandCursor)
+  m_handCursor(new HandCursor),
+  m_x(0.0f,0.0f),
+  m_y(0.0f,0.0f),
+  m_bodyAlpha(0.0f,0.3f),
+  m_diskAlpha(0.0f,0.5f)
 {
   const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
-  
-  // Initialize Smoothed member variables.
-  m_bodyOffset.SetInitialValue(0.0f);
-  m_bodyOffset.SetSmoothStrength(0.8f);
-  
-  m_x.SetSmoothStrength(0.0f);
-  m_y.SetSmoothStrength(0.0f);
-  
-  m_bodyAlpha.SetSmoothStrength(0.3f);
-  m_bodyAlpha.SetInitialValue(0.0f);
-  
-  m_diskAlpha.SetSmoothStrength(0.5f);
-  m_diskAlpha.SetInitialValue(0.0f);
   
   //Initialize Disk Cursor
   m_disk->SetRadius(20.0f);
@@ -182,8 +173,7 @@ void CursorView::AutoFilter(const Leap::Hand& hand, ShortcutsState appState, con
       break;
     }
     case State::INACTIVE:
-      m_bodyOffset.SetInitialValue(0.0f);
-      m_bodyOffset.SetGoal(0.0f);
+      m_bodyOffset.SetImmediate(0.0f);
     default:
       break;
   }

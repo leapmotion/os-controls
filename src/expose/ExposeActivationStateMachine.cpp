@@ -16,14 +16,10 @@ ExposeActivationStateMachine::ExposeActivationStateMachine() :
   m_goalStrip(new RectanglePrim()),
   m_pusherBar(new RectanglePrim()),
   m_exposeIcon(new SVGPrimitive()),
-  m_armed(false)
+  m_armed(false),
+  m_goalBottomY(0.0f,0.7f),
+  m_pusherBottomY(0.0f, 0.7f)
 {
-  m_goalBottomY.SetInitialValue(0.0f);
-  m_pusherBottomY.SetInitialValue(0.0f);
-  
-  m_goalBottomY.SetSmoothStrength(0.7f);
-  m_pusherBottomY.SetSmoothStrength(0.7f);
-  
   m_goalStrip->Material().SetDiffuseLightColor(GOAL_COLOR);
   m_goalStrip->Material().SetAmbientLightColor(GOAL_COLOR);
   m_goalStrip->Material().SetAmbientLightingProportion(1.0f);
@@ -86,10 +82,8 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
   // State Loops
   switch (m_state) {
     case State::INACTIVE:
-      m_goalBottomY.SetInitialValue(0.0f);
-      m_pusherBottomY.SetInitialValue(0.0f);
-      m_goalBottomY.SetGoal(0.0f);
-      m_pusherBottomY.SetGoal(0.0f);
+      m_goalBottomY.SetImmediate(0.0f);
+      m_pusherBottomY.SetImmediate(0.0f);
       break;
     case State::ACTIVE:
     {
@@ -99,8 +93,7 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
       Color blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
       if ( diffPercent > 0 ) {
         if ( m_armed ) {
-          m_pusherBottomY.SetInitialValue( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
-          m_pusherBottomY.SetGoal( std::min(handData.locationData.y, PUSHER_BOTTOM_Y) );
+          m_pusherBottomY.SetImmediate(std::min(handData.locationData.y, PUSHER_BOTTOM_Y));
         }
       }
       else {
