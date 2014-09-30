@@ -3,10 +3,9 @@
 
 HandRollRecognizer::HandRollRecognizer(void):
   m_hasLast(false),
-  m_lastRoll(0.0)
+  m_lastRoll(0.0),
+  m_deltaRoll(0.0f,0.99f)
 {
-  m_deltaRoll.SetInitialValue(0.0f);
-  m_deltaRoll.SetSmoothStrength(0.99f);
 }
 
 HandRollRecognizer::~HandRollRecognizer(void)
@@ -29,7 +28,7 @@ void HandRollRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& fra
 
   // Zeroize theta if we don't have a prior roll value
   if(!m_hasLast) {
-    m_deltaRoll.SetInitialValue(0.0);
+    m_deltaRoll.SetImmediate(0.0);
     m_hasLast = true;
   }
   

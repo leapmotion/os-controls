@@ -21,19 +21,12 @@ StateMachine::StateMachine(void) :
   m_lastScrollReleaseTimestep(0.0f),
   m_smoothedHandDeltas(0,0),
   m_ppmm(96.0f/25.4f),
-  m_scrollOperation(nullptr)
+  m_scrollOperation(nullptr),
+  smoothedDeltaX(0.0f,0.3f),
+  smoothedDeltaY(0.0f,0.3f),
+  m_handDeltaMM_X(0.0f,0.3f),
+  m_handDeltaMM_Y(0.0f,0.3f)
 {
-  // Smoothed pixel deltas for movement
-  smoothedDeltaX.SetInitialValue(0.0f);
-  smoothedDeltaY.SetInitialValue(0.0f);
-  smoothedDeltaX.SetSmoothStrength(0.3f);
-  smoothedDeltaY.SetSmoothStrength(0.3f);
-  
-  // Smoothed mm deltas for scrolling
-  m_handDeltaMM_X.SetInitialValue(0.0f);
-  m_handDeltaMM_X.SetSmoothStrength(0.3f);
-  m_handDeltaMM_Y.SetInitialValue(0.0f);
-  m_handDeltaMM_Y.SetSmoothStrength(0.3f);
 }
 
 StateMachine::~StateMachine(void)

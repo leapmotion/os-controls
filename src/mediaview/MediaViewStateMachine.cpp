@@ -36,15 +36,10 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_CurrentTime(0.0),
   m_LastStateChangeTime(0.0),
   m_interactionIsVolumeLocked(false),
-  m_distanceFadeCap(1.0f)
+  m_distanceFadeCap(1.0f),
+  m_ghostCursorAlpha(0.0f,0.6f),
+  m_volumeViewAlpha(0.0f,0.6f)
 {
-  // Initialize Smoothed Values
-  m_ghostCursorAlpha.SetInitialValue(0.0f);
-  m_ghostCursorAlpha.SetSmoothStrength(0.6f);
-  
-  m_volumeViewAlpha.SetInitialValue(0.0f);
-  m_volumeViewAlpha.SetSmoothStrength(0.6f);
-  
   // Initialize Ghost Curosr
   m_ghostCursor->SetRadius(20.0f);
   m_ghostCursor->Material().SetDiffuseLightColor(GHOST_CURSOR_COLOR);

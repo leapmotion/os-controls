@@ -27,8 +27,6 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_forceDelta(Vector3::Zero(), 0.75f),
   m_velocity(Vector3::Zero(), 0.65f)
 {
-  m_position.SetImmediate(Vector3::Zero());
-  m_position.Set(Vector3::Zero());
 }
 
 ExposeViewWindow::~ExposeViewWindow(void) {}
