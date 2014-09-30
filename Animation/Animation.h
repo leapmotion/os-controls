@@ -122,8 +122,8 @@ public:
 
   Smoothed() : Smoothed(0) { }
   Smoothed(const T& initialValue, float smoothStrength = 0.8f, float targetFramerate = 100.0f) :
-    m_Goal(initialValue), m_TargetFramerate(targetFramerate), m_SmoothStrength(smoothStrength) {
-    SetInitialValue(initialValue);
+    m_TargetFramerate(targetFramerate), m_SmoothStrength(smoothStrength) {
+    SetGoalAndValue(initialValue);
   }
 
   // const getters
@@ -134,7 +134,16 @@ public:
   // setters to control animation
   void SetGoal(const T& goal) { m_Goal = goal; }
   void SetSmoothStrength(float smooth) { m_SmoothStrength = smooth; }
+  // sets the goal and value to the same number
+  void SetGoalAndValue(const T& value) {
+    m_Goal = value;
+    for (int i = 0; i<NUM_ITERATIONS; i++) {
+      m_Values[i] = value;
+    }
+  }
+
   void SetInitialValue(const T& value) {
+#pragma warning "SetInitalValue is Depricated!"
     for (int i=0; i<NUM_ITERATIONS; i++) {
       m_Values[i] = value;
     }
