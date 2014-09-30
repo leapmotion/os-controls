@@ -205,8 +205,9 @@ namespace Shortcuts {
           configToolStripMenuItem, helpToolStripMenuItem, this->toolStripSeparator1, exitToolStripMenuItem
       });
       notificationMenu->Name = L"contextMenuStrip1";
+      notificationMenu->ShowCheckMargin = true;
       notificationMenu->ShowImageMargin = false;
-      notificationMenu->Size = System::Drawing::Size(134, 120);
+      notificationMenu->Size = System::Drawing::Size(159, 120);
       // 
       // pauseToolStripMenuItem
       // 
