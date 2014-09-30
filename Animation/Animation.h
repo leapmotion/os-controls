@@ -129,7 +129,7 @@ public:
 
   static const int NUM_ITERATIONS = _NUM_ITERATIONS;
 
-  Smoothed() : Smoothed(T()) { }
+  //No default constructor so that we can avoid nasty uninitialized memory problems
   Smoothed(const T& initialValue, float smoothStrength = 0.8f, float targetFramerate = 100.0f) :
     m_TargetFramerate(targetFramerate), m_SmoothStrength(smoothStrength) {
     SetImmediate(initialValue);
