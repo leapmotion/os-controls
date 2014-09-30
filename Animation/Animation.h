@@ -109,12 +109,12 @@ private:
 };
 
 #ifdef __GNUC__
-#define DEPRECATED(func) func __attribute__ ((deprecated))
+#define DEPRECATED_FUNCTION(func) func __attribute__ ((deprecated))
 #elif defined(_MSC_VER)
-#define DEPRECATED(func) __declspec(deprecated) func
+#define DEPRECATED_FUNCTION(func) __declspec(deprecated) func
 #else
 #pragma message("WARNING: You need to implement DEPRECATED for this compiler")
-#define DEPRECATED(func) func
+#define DEPRECATED_FUNCTION(func) func
 #endif
 
 // This is a simple smoothing utility class that will perform Poisson smoothing.
