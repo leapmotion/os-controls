@@ -108,6 +108,15 @@ private:
   EasingFunction m_easing;
 };
 
+#ifdef __GNUC__
+#define DEPRECATED(func) func __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+#define DEPRECATED(func) __declspec(deprecated) func
+#else
+#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+#define DEPRECATED(func) func
+#endif
+
 // This is a simple smoothing utility class that will perform Poisson smoothing.
 // The class is templated and can be used with double, float, Vector3, or anything
 // that overloads addition and scalar multiplication.
@@ -142,12 +151,13 @@ public:
     }
   }
 
-  void SetInitialValue(const T& value) {
-#pragma message("Warning: Smoothed<T>::SetInitalValue is Depricated!")
-    for (int i=0; i<NUM_ITERATIONS; i++) {
-      m_Values[i] = value;
+  DEPRECATED(
+      void SetInitialValue(const T& value) {
+      for (int i=0; i<NUM_ITERATIONS; i++) {
+        m_Values[i] = value;
+      }
     }
-  }
+  )
 
   // main update function, must be called every frame
   void Update(float deltaTime) {
