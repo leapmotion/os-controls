@@ -21,15 +21,20 @@
     NSMenuItem* prefMenu = [[NSMenuItem alloc] initWithTitle:@"Preferences..."
                                                       action:@selector(onPreferences:)
                                                keyEquivalent:@""];
+    NSMenuItem* pauseMenu = [[NSMenuItem alloc] initWithTitle:@"Pause Shortcuts"
+                                                       action:@selector(onPause:)
+                                                keyEquivalent:@""];
     NSMenuItem* quitMenu = [[NSMenuItem alloc] initWithTitle:@"Quit"
                                                       action:@selector(onQuit:)
                                                keyEquivalent:@""];
+    [pauseMenu setTarget:self];
     [helpMenu setTarget:self];
     [prefMenu setTarget:self];
     [quitMenu setTarget:self];
-
+    
     [statusMenu addItem:helpMenu];
     [statusMenu addItem:prefMenu];
+    [statusMenu addItem:pauseMenu];
     [statusMenu addItem:[NSMenuItem separatorItem]];
     [statusMenu addItem:quitMenu];
 
@@ -38,8 +43,21 @@
   return self;
 }
 
+- (void)onPause:(id)sender
+{
+  // Toggle state
+  [(NSMenuItem *)sender setState:([(NSMenuItem *)sender state]) == NSOnState ? NSOffState : NSOnState];
+  
+  AutowiredFast<NativeUI> nativeUI;
+  if (nativeUI) {
+    // Send pause command based on new state
+    nativeUI->OnPauseInteraction([(NSMenuItem *)sender state] == NSOnState );
+  }
+}
+
 - (void)onHelp:(id)sender
 {
+  
   AutowiredFast<NativeUI> nativeUI;
   if (nativeUI) {
     nativeUI->OnShowHtmlHelp("main");
