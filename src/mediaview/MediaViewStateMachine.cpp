@@ -27,24 +27,17 @@ const Color handleOutlineColor(0.505f, 0.831f, 0.114f, 0.75f);
 MediaViewStateMachine::MediaViewStateMachine() :
   m_radialMenu(new RadialMenu()),
   m_volumeSlider(new VolumeSliderView()),
-  m_ghostCursor(new Disk()),
   m_lastHandPose(HandPose::ZeroFingers),
   m_state(State::ARMED),
   m_cursorBufferzoneOffset(0,0,0),
   m_selectedItem(-1),
-  m_FadeTime(0.25),
+  m_FadeTime(0.4),
   m_CurrentTime(0.0),
   m_LastStateChangeTime(0.0),
-  m_interactionIsVolumeLocked(false),
   m_distanceFadeCap(1.0f),
   m_ghostCursorAlpha(0.0f,0.6f),
   m_volumeViewAlpha(0.0f,0.6f)
 {
-  // Initialize Ghost Curosr
-  m_ghostCursor->SetRadius(20.0f);
-  m_ghostCursor->Material().SetDiffuseLightColor(GHOST_CURSOR_COLOR);
-  m_ghostCursor->Material().SetAmbientLightColor(GHOST_CURSOR_COLOR);
-  m_ghostCursor->Material().SetAmbientLightingProportion(1.0f);
 
   // Radial Menu Initialization
   m_radialMenu->SetStartAngle(startAngle);
@@ -139,13 +132,28 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
         return;
       }
       if(shouldMenuDistanceKill()) {
-        doActiveToCompleteTasks();
-        m_state = State::COMPLETE;
+        doActiveToLockedTasks();
+        m_state = State::DISTANCE_KILLED;
         m_LastStateChangeTime = m_CurrentTime;
       }
       break;
-    case State::COMPLETE:
-      
+    case State::LOCKED:
+      if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
+        m_cursorView->EnableHandAndScroll();
+        m_cursorView->DisableLocationOverride();
+        m_cursorBufferzoneOffset = Vector3(0,0,0);
+        m_volumeViewAlpha.SetGoal(0.0f);
+        m_state = State::ARMED;
+        m_LastStateChangeTime = m_CurrentTime;
+        return;
+      }
+      if(shouldMenuDistanceKill()) {
+        doActiveToLockedTasks();
+        m_state = State::DISTANCE_KILLED;
+        m_LastStateChangeTime = m_CurrentTime;
+      }
+      break;
+    case State::DISTANCE_KILLED:
       if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->EnableHandAndScroll();
         m_cursorView->DisableLocationOverride();
@@ -174,12 +182,13 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
       m_radialMenu->InteractWithoutCursor();
       m_selectedItem = -1;
       break;
+    case State::LOCKED:
     case State::ACTIVE:
     {
       m_distanceFadeCap = calculateMenuAlphaFade();
       // The menu always thinks it's at (0,0) so we need to offset the cursor
       // coordinates by the location of the menu to give the proper space.
-      if ( !m_interactionIsVolumeLocked ) {
+      if ( m_state == State::ACTIVE || m_state == State::LOCKED) {
         doMenuUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), menuOffset);
       }
       doVolumeUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), Vector2(handData.locationData.dX, handData.locationData.dY), menuOffset);
@@ -218,14 +227,16 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
 
 void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 menuOffset) {
   Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
-  RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
-  m_selectedItem = updateResult.updateIdx;
-  if(updateResult.curActivation >= 0.95) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
+  RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition, m_selectedItem);
+  if ( m_state == State::ACTIVE ) {
+    m_selectedItem = updateResult.updateIdx;
+  }
+  
+  if(updateResult.curActivation >= 0.95 && m_state == State::ACTIVE) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
     //Selection Made Transition
     resolveSelection(updateResult.updateIdx);
-    doActiveToCompleteTasks();
-    m_cursorView->Disable();
-    m_state = State::COMPLETE;
+    //doActiveToLockedTasks();
+    m_state = State::LOCKED;
     m_LastStateChangeTime = m_CurrentTime;
   }
 }
@@ -237,10 +248,11 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
   double offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
   offsetNormalFactor = std::max(0.0, std::min(1.0, offsetNormalFactor));
   if ( offsetNormalFactor > 0.0 ) {
-    m_interactionIsVolumeLocked = true;
-    m_ghostCursorAlpha.SetGoal(GHOST_CURSOR_ALPHA);
+    if ( m_state != State::LOCKED ) {
+      m_state = State::LOCKED;
+      m_LastStateChangeTime = m_CurrentTime;
+    }
     Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
-    m_ghostCursor->Translation() = Vector3(m_goalCursorPosition.x(), m_goalCursorPosition.y(), 0.0f);
     m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
     
     if ( offsetNormalFactor >= 1.0 ) {
@@ -254,12 +266,11 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
   }
   else
   {
+    if ( m_state != State::ACTIVE && leapPosition.norm() <  ACTIVATION_RADIUS - 20.0f) {
+      m_state = State::ACTIVE;
+      m_LastStateChangeTime = m_CurrentTime;
+    }
     m_volumeSlider->Deactivate();
-    m_ghostCursorAlpha.SetGoal(0.0f);
-  }
-  
-  if ( leapPosition.norm() <=  MENU_RADIUS - (MENU_THICKNESS / 2.0f)) {
-    m_interactionIsVolumeLocked = false;
   }
 }
 
@@ -272,19 +283,31 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
   m_volumeSlider->Update(renderFrame);
   
   // Smoothed Value Updates
-  m_ghostCursorAlpha.Update(static_cast<float>(renderFrame.deltaT.count()));
   m_volumeViewAlpha.Update(static_cast<float>(renderFrame.deltaT.count()));
   
-  m_ghostCursor->LocalProperties().AlphaMask() = m_ghostCursorAlpha;
   m_volumeSlider->SetOpacity(m_volumeViewAlpha);
   
   float alphaMask = 0.0f;
   if (m_state == State::ACTIVE) {
     // fade in
     alphaMask = SmootherStep(std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
-  } else if (m_state == State::COMPLETE || m_state == State::ARMED) {
+    alphaMask = std::max(alphaMask, static_cast<float>(m_radialMenu->LocalProperties().AlphaMask()));
+    for (int i=0; i<numItems; i++) {
+      m_radialMenu->GetItem(i)->LocalProperties().AlphaMask() = 1.0f;
+    }
+  }
+  else if ( m_state == State::LOCKED ) {
+    alphaMask = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
+    alphaMask = std::max(alphaMask, 0.3f);
+
+    if (m_selectedItem >= 0) {
+      m_radialMenu->GetItem(m_selectedItem)->LocalProperties().AlphaMask() = 1.0f;
+    }
+  }
+  else if (m_state == State::ARMED || m_state == State::DISTANCE_KILLED) {
     // fade out
     alphaMask = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - m_LastStateChangeTime)/m_FadeTime)));
+    alphaMask = std::min(alphaMask, static_cast<float>(m_radialMenu->LocalProperties().AlphaMask()));
     if (m_selectedItem >= 0) {
       const float itemAlphaMask = SmootherStep(1.0f-std::min(1.0f, static_cast<float>((m_CurrentTime - 2*m_FadeTime - m_LastStateChangeTime)/m_FadeTime)));
       m_radialMenu->GetItem(m_selectedItem)->LocalProperties().AlphaMask() = itemAlphaMask;
@@ -295,6 +318,9 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
     }
   }
   
+  std::cout << "fadeCap: " << m_distanceFadeCap << std::endl;
+  std::cout << "alphaMask: " << alphaMask << std::endl;
+  
   alphaMask = std::min(alphaMask, m_distanceFadeCap);
   
   m_radialMenu->LocalProperties().AlphaMask() = alphaMask;
@@ -302,13 +328,10 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
 }
 
 void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
-  if (m_state == State::ACTIVE || m_state == State::COMPLETE) {
+  if (m_state == State::ACTIVE || m_state == State::LOCKED) {
     if ( m_lastHandPose == HandPose::OneFinger )
     {
       PrimitiveBase::DrawSceneGraph(*m_radialMenu, renderFrame.renderState);
-      if ( m_state == State::ACTIVE ) {
-        PrimitiveBase::DrawSceneGraph(*m_ghostCursor, renderFrame.renderState);
-      }
       PrimitiveBase::DrawSceneGraph(*m_volumeSlider, renderFrame.renderState);
     }
     else {
@@ -320,10 +343,8 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
 float MediaViewStateMachine::calculateMenuAlphaFade() {
   float retVal = 1.0f;
   Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
-  if ( diff.y() > VOLUME_LOCK_IN_Y) {
-    retVal = static_cast<float>((diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE));
-    retVal = 1.0f - std::min(1.0f, std::max(0.0f, retVal));
-  }
+  retVal = static_cast<float>((diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE));
+  retVal = 1.0f - std::min(1.0f, std::max(0.0f, retVal));
   
   return retVal;
 }
@@ -332,25 +353,21 @@ bool MediaViewStateMachine::shouldMenuDistanceKill() {
   bool retVal = false;
   
   Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
-  //std::cout << "diff.norm(): " << diff.norm() << std::endl;
-  if ( diff.y() > VOLUME_LOCK_IN_Y) {
-    if(diff.norm() > KILL_FADE_END_DISTANCE) {
-      retVal = true;
-    }
+  if(diff.norm() > KILL_FADE_END_DISTANCE) {
+    retVal = true;
   }
   return retVal;
 }
 
-void MediaViewStateMachine::doActiveToCompleteTasks() {
+void MediaViewStateMachine::doActiveToLockedTasks() {
   m_volumeViewAlpha.SetGoal(0.0f);
   m_cursorView->DisableLocationOverride();
   m_cursorBufferzoneOffset = Vector3(0,0,0);
 }
 
 void MediaViewStateMachine::resetMemberState() {
-  m_ghostCursorAlpha.SetGoal(0.0f);
   m_selectedItem = -1;
-  m_interactionIsVolumeLocked = false;
+  m_state = State::ARMED;
 }
 
 //TODO: Filter this data in the recognizer to smooth things out.
