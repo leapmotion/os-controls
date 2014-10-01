@@ -661,6 +661,31 @@ Both methods of delivering uniforms will use the same "packet type", so that the
 for specifying uniform values is contained within a single place, and not duplicated
 in GLShaderFrontend.
 
+#### Design notes for hooked GLController (different than existing/deprecated GLController)
+
+The goal is to provide a minimal but clear C++ interface to the GL state, caching 
+certain state variables with the purpose of minimizing number of GL calls.  A limited 
+set of function calls control the state, and some functions' effects depend on particular 
+state variables (e.g. glUniform*, controlling values for the currently loaded shader program).
+
+NOTE: One of the goals of the code created by this Components team is to create code that
+is highly modularized, having minimal dependency.  If a full state-tracking GL class were made,
+it would essentially be incompatible with anything that does "raw" GL calls, since this would
+modify the GL state without the knowledge of the C++ GL state object.
+
+If it were possible to "reroute" all GL calls through "our" functions (the corresponding methods
+called on the GL state singleton object), then no code would need to be changed for such a
+facility to be used, including that of library code, which should be considered a design
+criteria.  The advantage is then we would in principle be aware of and control all GL calls.
+The disadvantage is that what appear to be "plain old C function calls" then gain this new,
+mysterious, and possibly unexpected behavior.
+
+Some relevant info:
+
+Wrapping symbols via a linker step:
+http://stackoverflow.com/questions/13961774/gnu-gcc-ld-wrapping-a-call-to-symbol-with-caller-and-callee-defined-in-the-sam
+
+This technique could be used in other ways, such as replacing malloc/calloc/free.
 
 
 
