@@ -1,1 +1,1 @@
-{"enableWindowSelection": true, "enableMedia": true, "enableScroll": true, "showHelpOnStart": true, "scrollSensitivity": 5.0}
+{ "enableWindowSelection": true, "enableMedia": true, "enableScroll": true, "showHelpOnStart": true, "scrollSensitivity": 5.0, "reverseScroll": false }

@@ -109,7 +109,11 @@ if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib /MANIFESTUAC:NO")
   set_property(TARGET Shortcuts APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Data;System.Drawing;System.Windows.Forms;System.Xml")
   set_property(TARGET Shortcuts PROPERTY VS_GLOBAL_ROOTNAMESPACE Shortcuts)
-  set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES})
+
+  #Nessecary because apparantly generator expressions are not properly traversed recursively when retrieving properties.
+  get_target_property(_loc Leap::Leap IMPORTED_LOCATION)
+  set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES} ${_loc})
+
 elseif(APPLE)
   add_dependencies(Shortcuts ShortcutsPreferences)
   set_target_properties(Shortcuts PROPERTIES

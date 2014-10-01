@@ -75,6 +75,8 @@ class ConfigHandler:
     [_applicationSwitcherCheckbox setState:(value ? NSOnState : NSOffState)];
   } else if ([name isEqualToString:@"enableScroll"]) {
     [_scrollingCheckbox setState:(value ? NSOnState : NSOffState)];
+  } else if ([name isEqualToString:@"reverseScroll"]) {
+    [_scrollDirectionCheckbox setState:(value ? NSOnState : NSOffState)];
   }
 }
 
@@ -124,6 +126,15 @@ class ConfigHandler:
     return;
   }
   autoLaunch->SetAutoLaunch([sender state] == NSOnState);
+}
+
+- (IBAction)enableReverseScroll:(id)sender
+{
+  AutowiredFast<Config> cfg;
+  if (!cfg) {
+    return;
+  }
+  cfg->Set("reverseScroll", ([sender state] == NSOnState));
 }
 
 - (IBAction)onUserSensitivtyChanged:(id)sender

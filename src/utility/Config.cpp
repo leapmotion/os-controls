@@ -59,11 +59,15 @@ bool Config::Load(const std::string& filename, bool overwrite) {
     auto oldEntry = m_data.find(newEntry.first);
     if (oldEntry == m_data.end()){
       m_data[newEntry.first] = newEntry.second;
+      lock.unlock();
       m_events(&ConfigEvent::ConfigChanged)(newEntry.first, newEntry.second);
+      lock.lock();
     }
     else if (overwrite && newEntry.second != oldEntry->second) {
       oldEntry->second = newEntry.second;
+      lock.unlock();
       m_events(&ConfigEvent::ConfigChanged)(newEntry.first, newEntry.second);
+      lock.lock();
     }
   }
 

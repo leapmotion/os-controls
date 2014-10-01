@@ -320,7 +320,8 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     float scrollSensitivityNormal = static_cast<float>(configSensativity - 1) / (9 - 1);
     scrollSensitivityNormal = std::min(1.0f, std::max(0.0f, scrollSensitivityNormal));
     float scrollSensitivity = 0.25f + static_cast<float>(scrollSensitivityNormal * (10 - 0.25f));
-    m_scrollOperation->ScrollBy(0.0f, m_handDeltaMM_Y.Value() * scrollSensitivity * m_ppmm);
+    int scrollDirection = m_config->Get<bool>("reverseScroll") ? -1 : 1;
+    m_scrollOperation->ScrollBy(0.0f, m_handDeltaMM_Y.Value() * scrollDirection * scrollSensitivity * m_ppmm);
   }
 
   m_handDelta = Vector2(0, 0);
