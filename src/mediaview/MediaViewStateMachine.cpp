@@ -36,7 +36,6 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_LastStateChangeTime(0.0),
   m_interactionIsLocked(false),
   m_distanceFadeCap(1.0f),
-  m_ghostCursorAlpha(0.0f,0.6f),
   m_volumeViewAlpha(0.0f,0.6f)
 {
 
@@ -229,7 +228,7 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
 void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 menuOffset) {
   Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
   if ( !m_interactionIsLocked ) {
-    RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition, m_selectedItem);
+    RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
     if ( m_state == State::ACTIVE ) {
       m_selectedItem = updateResult.updateIdx;
     }
