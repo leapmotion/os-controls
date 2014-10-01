@@ -4,12 +4,10 @@
 IWindowScroller::IWindowScroller(void):
   m_scrollId(0),
   m_remainingMomentum(OSPointZero),
-  m_lastScrollTimePoint(std::chrono::steady_clock::now())
+  m_lastScrollTimePoint(std::chrono::steady_clock::now()),
+  m_VelocityX(0.0f,0.4f),
+  m_VelocityY(0.0f,0.4f)
 {
-  m_VelocityX.SetInitialValue(0.0f);
-  m_VelocityY.SetInitialValue(0.0f);
-  m_VelocityX.SetSmoothStrength(0.4f);
-  m_VelocityY.SetSmoothStrength(0.4f);
 }
 
 IWindowScroller::~IWindowScroller(void)
@@ -50,8 +48,8 @@ std::shared_ptr<IScrollOperation> IWindowScroller::BeginScroll(void) {
       std::lock_guard<std::mutex> lk(m_mutex);
       m_remainingMomentum.x = m_VelocityX.Value();
       m_remainingMomentum.y = m_VelocityY.Value();
-      m_VelocityX.SetInitialValue(0.0f);
-      m_VelocityY.SetInitialValue(0.0f);
+      m_VelocityX.SetImmediate(0.0f);
+      m_VelocityY.SetImmediate(0.0f);
       *this += std::chrono::microseconds(16667), [this, scrollId] { OnPerformMomentumScroll(scrollId); };
     }
   );

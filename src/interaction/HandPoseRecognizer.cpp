@@ -126,7 +126,7 @@ float HandPoseRecognizer::metaToDistalBend(Leap::Finger finger) const {
   
   double dot = v1.dot(v2);
   double theta = std::acos(dot);
-  return theta;
+  return static_cast<float>(theta);
 }
 
 float HandPoseRecognizer::averageFingerBend(Leap::Finger finger, int startBone, int endBone) const {

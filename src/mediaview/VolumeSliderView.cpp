@@ -12,11 +12,9 @@ VolumeSliderView::VolumeSliderView() :
   m_sliderNotchBodyInactive(new SVGPrimitive()),
   m_volumeIcon(new SVGPrimitive()),
   m_plusIcon(new SVGPrimitive()),
-  m_minusIcon(new SVGPrimitive())
+  m_minusIcon(new SVGPrimitive()),
+  m_activationAmount(0.0f,0.75f)
 {
-  m_activationAmount.SetInitialValue(0.0f);
-  m_activationAmount.SetSmoothStrength(0.75f);
-  
   // Setup SVGs
   Resource<TextFile> volumeNotchActiveFile("volume-notch-active.svg");
   Resource<TextFile> volumeNotchInactiveFile("volume-notch-inactive.svg");

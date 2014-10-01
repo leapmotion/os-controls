@@ -3,20 +3,14 @@
 
 ScrollRecognizer::ScrollRecognizer():
   m_prevTimestamp(0),
-  m_deltaTimeSeconds{std::chrono::milliseconds(10)}
+  m_deltaTimeSeconds{std::chrono::milliseconds(10)},
+  m_horizontalMovementRatio(1.0f,0.75f),
+  m_scrollVelocity(Vector3::Zero(),0.5f),
+  m_curScrollVelocity(Vector3::Zero()),
+  m_handVelocity(Vector3::Zero()),
+  m_handDirection(-Vector3::UnitZ()),
+  m_handNormal(-Vector3::UnitY())
 {
-  m_horizontalMovementRatio.SetSmoothStrength(0.75f);
-  m_horizontalMovementRatio.SetInitialValue(1.0f);
-
-  m_scrollVelocity.SetSmoothStrength(0.5f);
-  m_scrollVelocity.SetInitialValue(Vector3::Zero());
-
-  m_curScrollVelocity.setZero();
-
-  m_handVelocity.setZero();
-  m_handDirection = -Vector3::UnitZ();
-  m_handNormal = -Vector3::UnitY();
-
 }
 
 void ScrollRecognizer::AutoFilter(const Leap::Hand& hand, Scroll& scroll) {

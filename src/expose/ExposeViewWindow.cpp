@@ -17,50 +17,16 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_dropShadow(new DropShadow),
   m_highlight(new RectanglePrim),
   m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>),
-  m_prevPosition(Vector3::Zero())
+  m_prevPosition(Vector3::Zero()),
+  m_opacity(0.0f,0.825f),
+  m_scale(0.0f,0.825f),
+  m_activation(0.0f,0.3f),
+  m_hover(0.0f,0.5f),
+  m_selection(0.0f,0.5f),
+  m_grabDelta(Vector3::Zero(),0.25f),
+  m_forceDelta(Vector3::Zero(), 0.75f),
+  m_velocity(Vector3::Zero(), 0.65f)
 {
-  m_opacity.SetInitialValue(0.0f);
-  m_opacity.SetGoal(0.0f);
-  m_opacity.SetSmoothStrength(0.825f);
-  m_opacity.Update(0.0f);
-
-  m_position.SetImmediate(Vector3::Zero());
-  m_position.Set(Vector3::Zero());
-
-  m_scale.SetInitialValue(0.0f);
-  m_scale.SetGoal(0.0f);
-  m_scale.SetSmoothStrength(0.825f);
-  m_scale.Update(0.0f);
-
-  m_activation.SetInitialValue(0.0f);
-  m_activation.SetGoal(0.0f);
-  m_activation.SetSmoothStrength(0.3f);
-  m_activation.Update(0.0f);
-
-  m_hover.SetInitialValue(0.0f);
-  m_hover.SetGoal(0.0f);
-  m_hover.SetSmoothStrength(0.5f);
-  m_hover.Update(0.0f);
-
-  m_selection.SetInitialValue(0.0f);
-  m_selection.SetGoal(0.0f);
-  m_selection.SetSmoothStrength(0.5f);
-  m_selection.Update(0.0f);
-
-  m_grabDelta.SetGoal(Vector3::Zero());
-  m_grabDelta.SetInitialValue(Vector3::Zero());
-  m_grabDelta.SetSmoothStrength(0.25f);
-  m_grabDelta.Update(0.0f);
-
-  m_forceDelta.SetGoal(Vector3::Zero());
-  m_forceDelta.SetInitialValue(Vector3::Zero());
-  m_forceDelta.SetSmoothStrength(0.75f);
-  m_forceDelta.Update(0.0f);
-
-  m_velocity.SetGoal(Vector3::Zero());
-  m_velocity.SetInitialValue(Vector3::Zero());
-  m_velocity.SetSmoothStrength(0.65f);
-  m_velocity.Update(0.0f);
 }
 
 ExposeViewWindow::~ExposeViewWindow(void) {}
@@ -107,36 +73,19 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
 void ExposeViewWindow::SetOpeningPosition() {
   m_closing = false;
 
-  m_opacity.SetInitialValue(1.0f);
-  m_opacity.SetGoal(1.0f);
-
-  m_opacity.Update(0.0f);
-
-  m_scale.SetGoal(1.0f);
-  m_scale.SetInitialValue(1.0f);
-  m_scale.Update(0.0f);
-
-  m_activation.SetGoal(0.0f);
-  m_activation.Update(0.0f);
-
-  m_hover.SetGoal(0.0f);
-  m_hover.Update(0.0f);
-
-  m_selection.SetGoal(0.0f);
-  m_selection.Update(0.0f);
-
-  m_grabDelta.SetGoal(Vector3::Zero());
-  m_grabDelta.Update(0.0f);
- 
-  m_forceDelta.SetGoal(Vector3::Zero());
-  m_forceDelta.Update(0.0f);
+  m_opacity.SetImmediate(1.0f);
+  m_scale.SetImmediate(1.0f);
+  m_activation.SetImmediate(0.0f);
+  m_hover.SetImmediate(0.0f);
+  m_selection.SetImmediate(0.0f);
+  m_grabDelta.SetImmediate(Vector3::Zero());
+  m_forceDelta.SetImmediate(Vector3::Zero());
 
   const Vector2 osPosition = GetOSPosition();
   const Vector3 center(osPosition.x(), osPosition.y(), 0.0);
 
 #if 0
-  m_position.SetInitialValue(center);
-  m_position.SetGoal(center);
+  m_position.SetGoalAndValue(center);
 #else
   const float randomTimeVariation = 0.15f;
 

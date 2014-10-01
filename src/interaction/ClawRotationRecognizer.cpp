@@ -2,11 +2,10 @@
 #include "ClawRotationRecognizer.h"
 #include <math.h>
 
-ClawRotationRecognizer::ClawRotationRecognizer()
+ClawRotationRecognizer::ClawRotationRecognizer() :
+  m_lastRot(0.0f,0.99f),
+  m_deltaRot(0.0f,0.99f)
 {
-  m_lastRot.SetInitialValue(0.0);
-  m_deltaRot.SetSmoothStrength(0.99f);
-  m_lastRot.SetSmoothStrength(0.99f);
 }
 
 ClawRotationRecognizer::~ClawRotationRecognizer() {
@@ -14,7 +13,6 @@ ClawRotationRecognizer::~ClawRotationRecognizer() {
 }
 
 void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, ClawRotation& clawRotation) {
-
   Leap::Finger middle = Leap::Finger::invalid();
   Leap::Finger thumb = Leap::Finger::invalid();
   
@@ -50,7 +48,7 @@ void ClawRotationRecognizer::AutoFilter(const Leap::Hand& hand, const FrameTime&
   
   // Zeroize theta if we don't have a prior roll value
   if(!m_hasLast) {
-    m_deltaRot.SetInitialValue(0.0);
+    m_deltaRot.SetImmediate(0.0);
     m_hasLast = true;
   }
   
