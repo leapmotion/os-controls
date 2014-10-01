@@ -42,6 +42,9 @@ also the CMakeLists.txt include directories.  Each component can even have its o
 - Add a "static std::string ResourceTypeName ()" method to ResourceLoader<T> which returns a
   std::string containing the name of T (e.g. ResourceLoader<GLShader>::ResourceTypeName() would
   return "GLShader").  This will be useful in ResourceManager messages.
+- Look into using FBOs for headless rendering for purposes of GL unit testing, etc., because this
+  may not require any windowing support, so e.g. headless GL unit tests wouldn't depend on
+  SDLController or SFMLController.
 
 #### 2014.08.15 - Proposal/Overview for Shader-based SVG rendering (Bezier-curve-only)
 
@@ -416,7 +419,7 @@ GLMesh<DIM>
 - Cube map (a lot of code is in Freeform)
 - Pixel buffer objects (could be a way to do faster pixel transfers from GPU to CPU)
 - GLTraits / reflection
-- Color -- HSV<T> and HSVA<T>
+- Color -- HSV<T>, HSVA<T>, sRGB<T>, sRGBA<T> (sRGB is a nonlinear analog to RGB)
 
 #### GL component closure notes
 
@@ -426,18 +429,46 @@ abstraction, based on the OpenGL API.  E.g. glTexImage2D is affected by state th
 is controlled by glPixelStore* and glTexParameter*, and therefore the GLTexture2
 class must provide an API for using those capabilities in the abstraction.
 
-FrameBufferObject (rename to Leap::GL::FrameBuffer)
-- List of relevant GL calls
+FrameBufferObject (rename to Leap::GL::Framebuffer) 
+- Related concepts
+  * pixel buffer object (interesting exerpt from the OpenGL wiki:
+    PBOs have nothing to do with Framebuffer Objects. Note the capitalization;
+    "framebuffer" is one word. FBOs are not buffer objects; PBOs are. FBOs are
+    about rendering to off-screen images; PBOs are about pixel transfers to/from
+    the user from/to images in OpenGL. They are not alike.)
+- List of relevant GL calls in existing code
   * glBindFramebuffer
   * glBlitFramebuffer
+  * glGenFramebuffers (Not in OpenGL 2.1, but is in OpenGL 3.3)
   * glDeleteFramebuffers
-  * glGenFramebuffers
   * glCheckFramebufferStatus
   * glFramebufferTexture2DEXT
   * glFramebufferRenderbufferEXT
+- List of other relevant GL calls
+  * glFramebufferRenderbuffer
+  * glFramebufferTexture (OpenGL 3.2)
+  * glFramebufferTexture1D
+  * glFramebufferTexture2D
+  * glFramebufferTexture3D
+  * glBlitFramebuffer
+  * glReadBuffer
+  * glDrawBuffer / glDrawBuffers
+  * glReadPixels (can optionally specify offset into pixel buffer object)
   * TODO: examine API docs for closure
+- Related calls
+  * glClear
+  * glClearColor
+  * glClearDepth
+  * glClearStencil
+  * glClearBuffer*
+  * glColorMask
+  * glDepthMask
+  * glStencilMask
+  * glClampColor
+  * glTexImage2DMultisample (OpenGL 3.2)
 - Associated glGet calls
   * glGetIntegerv(GL_MAX_SAMPLES_EXT, ...)
+  * glGetFramebufferAttachmentParameteriv
   * TODO: examine API docs for closure
 
 GLBuffer (rename to Leap::GL::Buffer)
@@ -586,9 +617,49 @@ In fact, the resources' bind/unbind operations could be designed to require the 
 of a scope guard wouldn't be absolutely required -- there should be some way to do "manual" binding/
 unbinding).
 
+#### Evaluation of existing C++ OpenGL wrapper libraries
 
+- OOGL    : https://github.com/Overv/OOGL
+  * Provides a small and lightweight set of C++ classes which wrap some common OpenGL
+    concepts, similar to the intended design of Leap's GL component, though not nearly
+    as extensive as ours.
+  * Is reasonably strongly typed, using different C++ enums for different functions
+    instead of GLenums.
+  * Appears to not be actively developed -- the last commit to the git repo was about a
+    year before the writing of this note, and the last substantial work on it was about
+    two years before the writing of this note.
+- OGLplus : http://oglplus.org/
+  * Very sophisticated C++ library wrapping OpenGL 3+.
+  * Template-heavy with a very involved design which makes its source code rather difficult
+    to read, though it is clearly very well-thought out.
+  * It's not clear if this is actually used in any projects, so its completeness is unknown.
+  * Is currently actively developed.
+- GLT     : http://www.nigels.com/glt/
+  * Provides a set of C++ classes to wrap much of the functionality provided by OpenGL
+  * Seems to be missing some key concepts, notably shaders.
+  * Is straightforward code, so it's relatively easy to read.
+  * Also appears to not be actively developed (last update was in 2012), and may have
+    existed since before 2003, which would explain why some concepts are missing.
 
+#### GLMaterial abstraction design notes
 
+Generally what is needed is a strongly-typed C++ frontend for setting uniforms in GLSL
+shaders.  GLShader is aware of what uniforms and attributes are present in the program,
+and what type each one is.
+
+Perhaps this concept should be called GLShaderFrontend.  GLShaderFrontend will expect
+particularly named/typed uniforms to be present in the currently bound shader, and has
+methods for setting those uniform values in a strongly typed way.  There are two methods
+for delivering uniform values:
+
+- Immediate mode -- the specified uniform values are set in the shader directly, without
+  storing the values.
+- Cached mode -- the GLShaderFrontend object can store values persistently, and those
+  values will be set in the shader in the "upload uniforms" operation.
+
+Both methods of delivering uniforms will use the same "packet type", so that the interface
+for specifying uniform values is contained within a single place, and not duplicated
+in GLShaderFrontend.
 
 
 
