@@ -28,7 +28,7 @@ public:
 
   void AnimationUpdate(const RenderFrame& renderFrame) override;
   void Render(const RenderFrame& renderFrame) const override;
-  bool IsVisible() const override { return m_state == State::ACTIVE || m_state == State::COMPLETE; }
+  bool IsVisible() const override { return m_state == State::ACTIVE || m_state == State::LOCKED; }
 
   void SetViewVolume(float volume);
   
@@ -37,17 +37,15 @@ private:
   const float ACTIVATION_RADIUS = MENU_RADIUS + 100.0f;
   const float MENU_THICKNESS = 100.0f;
   const Vector3 VOLUME_SLIDER_OFFSET = Vector3( 0.0f, 200.0f, 0.0f );
-  const Color GHOST_CURSOR_COLOR = Color( 0.505f, 0.831f, 0.114f );
-  const float GHOST_CURSOR_ALPHA = 0.3f;
   const float VOLUME_OFFSET_START_Y = 80.0f;
   const float VOLUME_LOCK_IN_Y = 180.0f;
   const float VOLUME_LOCK_X_OFFSET = 35.0f;
   const float KILL_FADE_START_DISTANCE = 320.0f;
-  const float KILL_FADE_END_DISTANCE = 375.0f;
+  const float KILL_FADE_END_DISTANCE = 420.0f;
   
   float calculateMenuAlphaFade();
   bool shouldMenuDistanceKill();
-  void doActiveToCompleteTasks();
+  void doActiveToLockedTasks();
   void resetMemberState();
   void doMenuUpdate(const Vector2& locationData, Vector2 menuOffset);
   void doVolumeUpdate(const Vector2& locationData, const Vector2& deltaPixels, Vector2 menuOffset);
@@ -69,20 +67,21 @@ private:
     // Taking user input, fading in, etc
     ACTIVE,
     
-    // The menu's selection action has been made.
-    // This instance of the interaction is done.
-    // Wait for animation to fade out.
-    COMPLETE,
+    // Don't take new input on the radial menu. Reset the menu.
+    LOCKED,
+    
+    // We've "distance killed" and don't want the menu to come
+    // back up until we've re-initialized
+    DISTANCE_KILLED,
     
     // Tear everything down.
+    // Watch it burn.
     FINAL
   };
   
   std::shared_ptr<RadialMenu> m_radialMenu;
   std::shared_ptr<VolumeSliderView> m_volumeSlider;
-  std::shared_ptr<Disk> m_ghostCursor;
-  
-  Smoothed<float> m_ghostCursorAlpha;
+
   Smoothed<float> m_volumeViewAlpha;
   
   HandPose m_lastHandPose;
@@ -113,6 +112,6 @@ private:
   double m_FadeTime;
   double m_CurrentTime;
   double m_LastStateChangeTime;
-  bool m_interactionIsVolumeLocked;
+  bool m_interactionIsLocked;
   float m_distanceFadeCap;
 };
