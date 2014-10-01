@@ -770,7 +770,7 @@ add_sublibrary(
     GTest
     EXCLUDE_FROM_ALL
     SOURCE_PATH
-        ../gtest-1.7.0/fused-src
+        External/GTest
     HEADERS
         gtest/gtest.h
     SOURCES
@@ -784,6 +784,7 @@ add_sublibrary(
 
 add_sublibrary(
     GLTestFramework
+    EXCLUDE_FROM_ALL
     SOURCE_PATH
         Test/GLTestFramework
     HEADERS
