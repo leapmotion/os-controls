@@ -25,6 +25,36 @@ public:
       node.Draw(render_state, global_properties);
     });
   }
+  // Computes a "squash and stretch" volume-preserving shearing matrix based on a velocity vector
+  // The speed denominator controls the shear strength such that a higher value gives less shear
+  // When the magnitude of the velocity is equal to speedDenom, the object will be twice as long
+  // See http://en.wikipedia.org/wiki/Squash_and_stretch and http://en.wikipedia.org/wiki/Shear_mapping
+  static Matrix3x3 SquashStretchTransform(const Vector3& velocity, const Vector3& viewDirection, double speedDenom = 900.0) {
+    // compute velocity magnitude and direction
+    const double speed = velocity.norm();
+    static const double EPSILON = 0.0001;
+    if (speedDenom < EPSILON || speed < EPSILON*speedDenom) {
+      return Matrix3x3::Identity();
+    }
+    const Vector3 direction = velocity / speed;
+
+    // compute stretch and squash multipliers (volume preserving)
+    const double stretch = 1.0 + std::min(1.0, speed / speedDenom);
+    const double squash = std::sqrt(1.0 / stretch);
+
+    // compute velocity basis and its inverse for rotation
+    Matrix3x3 velocityBasis(Matrix3x3::Identity());
+    velocityBasis.col(0) = direction;
+    velocityBasis.col(1) = direction.cross(viewDirection);
+    velocityBasis.col(2) = viewDirection;
+    const Matrix3x3 velocityBasisInv = velocityBasis.inverse();
+
+    // compute scale matrix for deformation
+    const Matrix3x3 scaleMatrix = Vector3(stretch, squash, squash).asDiagonal();
+
+    // undo rotation, deform, then rotate back
+    return velocityBasis * scaleMatrix * velocityBasisInv;
+  }
 
   typedef ParticularSceneGraphNodeProperties<MATH_TYPE,DIM,float> Properties;
   typedef SceneGraphNode<ParticularSceneGraphNodeProperties<MATH_TYPE,DIM,float>> Parent_SceneGraphNode;

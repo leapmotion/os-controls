@@ -12,6 +12,11 @@ set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
 
+if(NOT _resetoncesentinel)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install CACHE PATH "The friggin install prefix. geez" FORCE)
+    set(_resetoncesentinel ON CACHE INTERNAL "Sentinel value to detect if we should override the install prefix on initial configuration.")
+endif()
+
 # TODO: set a default value for CMAKE_INSTALL_PREFIX to something like
 # Components-versionnumber
 # TODO: also look into cpack (for making Mac frameworks, Windows NSIS stuff, deb files, etc.)
@@ -178,8 +183,8 @@ add_sublibrary(
     SOURCES
         FbxSceneLoader.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
         ResourceManager
-        SDLController
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
     BRIEF_DOC_STRING
@@ -555,8 +560,8 @@ endif()
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     option(MSVC_USE_MT "Build using static runtime instead of dynamic" OFF)
     if (MSVC_USE_MT)
-      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MT")
-      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+      string(REGEX REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+      string(REGEX REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
     endif()
 endif()
 
@@ -728,28 +733,6 @@ export(
 )
 
 ###################################################################################################
-# Here are the build rules for the overall library
-###################################################################################################
-
-# NOTE: these are not being compiled in because they currently have too many unmet dependencies
-# and require a nontrivial amount of integration work.
-# Please keep these alphabetized.
-set(NON_COMPONENTIZED_CODE
-    OculusVR.cpp
-    OculusVR.h
-    # SimGL.cpp # has other dependencies
-    # SimGL.h
-    Texture.cpp
-    Texture.h
-    UtilGL.cpp
-    UtilGL.h
-    Utilities.h
-)
-
-# TODO: make some cmake messages that complain about files in the non-componentized-code directory,
-# otherwise it could become a dumping ground like MathUtil or Utility.
-
-###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
@@ -906,6 +889,9 @@ foreach(_test ${_tests})
     list(APPEND Test_SOURCES ${_headers} ${_sources})
 endforeach()
 add_executable(Test ${Test_SOURCES})
+if (MSVC_USE_MT)
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:LIBCMT")
+endif()
 
 # Link each of the dependencies of each unit test components.  The reason for this
 # indirection is because the test sources must be specified directly in the call to

@@ -260,7 +260,7 @@ public:
     // TODO: somehow check that T_ is actually a POD containing only GLType_ components.
     assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR((
-      glUniformMatrix4fv(glGetUniformLocation(m_program_handle, name.c_str()), 1, matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(&matrix))
+      UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), 1, matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(&matrix))
     ));
   }
   // Sets the named uniform to the given std::vector of values each of which must be

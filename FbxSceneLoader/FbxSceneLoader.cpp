@@ -1,7 +1,5 @@
 #include "FbxSceneLoader.h"
 
-#include "SDLController.h"
-
 std::shared_ptr<FbxScene> ResourceLoader<FbxScene>::LoadResource (const std::string &name, ResourceManager<FbxScene> &calling_manager) {
   static FbxManager * gFbxManager = FbxManager::Create();
 

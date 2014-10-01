@@ -1,7 +1,14 @@
 #pragma once
 
 #include "SDL.h"
+#if __APPLE__ && __clang_major__ >= 6
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextern-c-compat"
+#endif
 #include "SDL_syswm.h"
+#if __APPLE__ && __clang_major__ >= 6
+#pragma GCC diagnostic pop
+#endif
 
 #include <string>
 
@@ -64,13 +71,15 @@ public:
 
   const SDLControllerParams& GetParams() const { return m_Params; }
   void ToggleFullscreen();
+  void ResizeWindow(int width, int height);
+  Uint32 GetWindowID();
 
 #if _WIN32
   HWND GetHWND() { return m_HWND; }
 #endif
 
 private:
-
+  
   void InitSDL();
   void ConfigureFrameBuffer();
   void ConfigureAntialiasing();

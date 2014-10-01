@@ -46,7 +46,10 @@ void SDLController::Shutdown () {
 }
 
 void SDLController::BeginRender () const {
-  // Do whatever needs to be done before rendering a frame.
+  // Make this the current GL context.  SDL_GL_MakeCurrent() returns 0 upon success
+  if (SDL_GL_MakeCurrent(m_SDL_Window, m_SDL_GLContext) != 0) {
+    throw std::runtime_error(SDL_GetError());
+  }
 }
 
 void SDLController::EndRender () const {
@@ -239,4 +242,18 @@ void SDLController::CleanUpInitializedResources() {
     m_SDL_Window = nullptr;
   }
   SDL_Quit();
+}
+
+void SDLController::ResizeWindow(int width, int height){
+  if (m_SDL_Window == nullptr) {
+    throw std::runtime_error("Error resizing SDL window");
+  }
+  SDL_SetWindowSize(m_SDL_Window, width, height);
+}
+
+Uint32 SDLController::GetWindowID(){
+  if (m_SDL_Window == nullptr) {
+    throw std::runtime_error("Error getting SDL window ID");
+  }
+  return SDL_GetWindowID(m_SDL_Window);
 }

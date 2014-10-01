@@ -1,14 +1,12 @@
 #include "RadialMenu.h"
 
-RadialMenuItem::RadialMenuItem() {
-  m_Callback = nullptr;
-  m_Wedge = std::shared_ptr<PartialDiskWithTriangle>(new PartialDiskWithTriangle());
-  m_Goal = std::shared_ptr<PartialDiskWithTriangle>(new PartialDiskWithTriangle());
-  m_Activation.SetGoal(0.0);
-  m_Activation.SetSmoothStrength(0.35f);
-  m_Activation.SetInitialValue(0.0);
-
-  m_Cooldown = false;
+RadialMenuItem::RadialMenuItem() :
+  m_Callback(nullptr),
+  m_Wedge(std::make_shared<PartialDiskWithTriangle>()),
+  m_Goal(std::make_shared<PartialDiskWithTriangle>()),
+  m_Activation(0.0, 0.35f),
+  m_Cooldown(false)
+{
 }
 
 void RadialMenuItem::InitChildren() {

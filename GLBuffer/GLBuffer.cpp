@@ -5,7 +5,9 @@
 GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0), m_SizeInBytes(0) { }
 
 GLBuffer::~GLBuffer() {
-  Destroy();
+  try {
+    Destroy();
+  } catch(...) {}
 }
 
 void GLBuffer::Create(GLenum type) {

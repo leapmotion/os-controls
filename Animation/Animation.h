@@ -32,8 +32,8 @@ namespace EasingFunctions{
 
 /// A class for animated parameters.
 /// Accepts an easing function, the default one being a simple linear easing.
-/// The importaint feature is that you can precicely control how long it will take
-/// the variable to reach it's goal, and once the goal is set all you have to do
+/// The important feature is that you can precicely control how long it will take
+/// the variable to reach its goal, and once the goal is set all you have to do
 /// is call the update function.  Setting a new goal while the animation is in progress
 /// will cause completion to reset to 0, and the value at the time of setting to be the
 /// new start value.  This makes it unsuitable for chasing behaviors where Set is called
@@ -56,6 +56,8 @@ public:
 
   const T& Current() const { return m_current; }
   const T& Goal() const { return m_goal; }
+
+  double Completion() const { return m_completion; }
 
   void SetEasingFunction(const EasingFunction& func) {
     m_easing = func;
@@ -106,19 +108,32 @@ private:
   EasingFunction m_easing;
 };
 
+#ifdef __GNUC__
+#define DEPRECATED_FUNC __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define DEPRECATED_FUNC __declspec(deprecated)
+#else
+#pragma message("WARNING: You need to implement DEPRECATED_FUNC for this compiler")
+#define DEPRECATED_FUNC
+#endif
+
 // This is a simple smoothing utility class that will perform Poisson smoothing.
 // The class is templated and can be used with double, float, Vector3, or anything
 // that overloads addition and scalar multiplication.
 // When NUM_ITERATIONS is 1, the functionality is the same as exponential smoothing.
-// WARNING - Due to some vagarities of possion smoothing & floating point math,
-// This is not garunteed to ever actually reach the goal value, Xeno's Paradox style
+// WARNING - Due to some vagueries of Possion smoothing & floating point math,
+// This is not guaranteed to ever actually reach the goal value, Zeno's Paradox style
 template <class T, int _NUM_ITERATIONS = 5>
 class Smoothed {
 public:
 
   static const int NUM_ITERATIONS = _NUM_ITERATIONS;
 
-  Smoothed() : m_First(true), m_TargetFramerate(100.0f), m_SmoothStrength(0.8f) { }
+  //No default constructor so that we can avoid nasty uninitialized memory problems
+  Smoothed(const T& initialValue, float smoothStrength = 0.8f, float targetFramerate = 100.0f) :
+    m_TargetFramerate(targetFramerate), m_SmoothStrength(smoothStrength) {
+    SetImmediate(initialValue);
+  }
 
   // const getters
   operator T() const { return Value(); }
@@ -127,8 +142,16 @@ public:
 
   // setters to control animation
   void SetGoal(const T& goal) { m_Goal = goal; }
+  // sets the goal and value to the same number
+  void SetImmediate(const T& value) {
+    m_Goal = value;
+    for (int i = 0; i<NUM_ITERATIONS; i++) {
+      m_Values[i] = value;
+    }
+  }
   void SetSmoothStrength(float smooth) { m_SmoothStrength = smooth; }
-  void SetInitialValue(const T& value) {
+
+  DEPRECATED_FUNC void SetInitialValue(const T& value) {
     for (int i=0; i<NUM_ITERATIONS; i++) {
       m_Values[i] = value;
     }
@@ -136,25 +159,16 @@ public:
 
   // main update function, must be called every frame
   void Update(float deltaTime) {
-    if (m_First || deltaTime < 0) {
-      for (int i=0; i<NUM_ITERATIONS; i++) {
-        m_Values[i] = m_Goal;
-      }
-      m_First = false;
-    } else {
-      const float dtExponent = deltaTime * m_TargetFramerate;
-      const float smooth = std::pow(m_SmoothStrength, dtExponent);
-      assert(smooth >= 0.0f && smooth <= 1.0f);
-      for (int i=0; i<NUM_ITERATIONS; i++) {
-        const T& prev = i == 0 ? m_Goal : m_Values[i-1];
-        m_Values[i] = smooth*m_Values[i] + (1.0f-smooth)*prev;
-      }
+    const float dtExponent = deltaTime * m_TargetFramerate;
+    const float smooth = std::pow(m_SmoothStrength, dtExponent);
+    assert(smooth >= 0.0f && smooth <= 1.0f);
+    for (int i=0; i<NUM_ITERATIONS; i++) {
+      const T& prev = i == 0 ? m_Goal : m_Values[i-1];
+      m_Values[i] = smooth*m_Values[i] + (1.0f-smooth)*prev;
     }
   }
 
 private:
-
-  bool m_First;
   T m_Values[NUM_ITERATIONS];
   T m_Goal;
   float m_TargetFramerate;
