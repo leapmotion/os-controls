@@ -38,7 +38,7 @@ public:
 
   // The necessary parameters that have reasonable defaults which are defined here.
   static const GLenum DEFAULT_TARGET          = GL_TEXTURE_2D;
-  static const GLint  DEFAULT_INTERNAL_FORMAT = GL_RGBA8;
+  static const GLenum DEFAULT_INTERNAL_FORMAT = GL_RGBA8;
 
   // Construct a texture params object with the given paramers.
   // The target, format (format), type (type), internal_format parameters
@@ -71,9 +71,11 @@ public:
   bool HasTexParameterf (GLenum pname) const { return m_tex_parameter_f.find(pname) != m_tex_parameter_f.end(); }
   GLfloat TexParameterf (GLenum pname) const;
   const GLTexParameterfMap &TexParameterfMap () const { return m_tex_parameter_f; }
+  void ClearTexParameterfMap () { m_tex_parameter_f.clear(); }
   bool HasTexParameteri (GLenum pname) const { return m_tex_parameter_i.find(pname) != m_tex_parameter_i.end(); }
   GLint TexParameteri (GLenum pname) const;
   const GLTexParameteriMap &TexParameteriMap () const { return m_tex_parameter_i; }
+  void ClearTexParameteriMap () { m_tex_parameter_i.clear(); }
 
   // Modifiers for glTexImage2D properties.
 

@@ -5,10 +5,17 @@ cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSIO
 ###################################################################################################
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
-project(Components VERSION 0.1)
+project(Components VERSION 0.3)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
+
+if(NOT _resetoncesentinel)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install CACHE PATH "The friggin install prefix. geez" FORCE)
+    set(_resetoncesentinel ON CACHE INTERNAL "Sentinel value to detect if we should override the install prefix on initial configuration.")
+endif()
 
 # TODO: set a default value for CMAKE_INSTALL_PREFIX to something like
 # Components-versionnumber
@@ -176,8 +183,8 @@ add_sublibrary(
     SOURCES
         FbxSceneLoader.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
         ResourceManager
-        SDLController
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
     BRIEF_DOC_STRING
@@ -226,6 +233,19 @@ add_sublibrary(
         GLCompatibility
     BRIEF_DOC_STRING
         "A fast GPU buffer object for OpenGL geometry."
+)
+
+add_sublibrary(
+    GLVertexBuffer
+    HEADERS
+        GLVertexAttribute.h
+        GLVertexBuffer.h
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+        GLBuffer
+        GLCompatibility
+    BRIEF_DOC_STRING
+        "An encapsulation of the OpenGL vertex buffer object concept."
 )
 
 add_sublibrary(
@@ -414,16 +434,20 @@ add_sublibrary(
 add_sublibrary(
     Primitives
     HEADERS
+        DropShadow.h
         PrimitiveBase.h
         PrimitiveGeometry.h
         Primitives.h
         RenderState.h
         SVGPrimitive.h
+        TexturedFrame.h
     SOURCES
+        DropShadow.cpp
         PrimitiveBase.cpp
         PrimitiveGeometry.cpp
         Primitives.cpp
         SVGPrimitive.cpp
+        TexturedFrame.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLBuffer
@@ -431,6 +455,7 @@ add_sublibrary(
         GLMatrices
         GLShaderLoader
         GLTexture2
+        GLVertexBuffer
         NanoSVG
         PolyPartition
         Resource
@@ -709,28 +734,6 @@ export(
 )
 
 ###################################################################################################
-# Here are the build rules for the overall library
-###################################################################################################
-
-# NOTE: these are not being compiled in because they currently have too many unmet dependencies
-# and require a nontrivial amount of integration work.
-# Please keep these alphabetized.
-set(NON_COMPONENTIZED_CODE
-    OculusVR.cpp
-    OculusVR.h
-    # SimGL.cpp # has other dependencies
-    # SimGL.h
-    Texture.cpp
-    Texture.h
-    UtilGL.cpp
-    UtilGL.h
-    Utilities.h
-)
-
-# TODO: make some cmake messages that complain about files in the non-componentized-code directory,
-# otherwise it could become a dumping ground like MathUtil or Utility.
-
-###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
@@ -767,7 +770,7 @@ add_sublibrary(
     GTest
     EXCLUDE_FROM_ALL
     SOURCE_PATH
-        ../gtest-1.7.0/fused-src
+        External/GTest
     HEADERS
         gtest/gtest.h
     SOURCES
@@ -781,6 +784,7 @@ add_sublibrary(
 
 add_sublibrary(
     GLTestFramework
+    EXCLUDE_FROM_ALL
     SOURCE_PATH
         Test/GLTestFramework
     HEADERS

@@ -75,19 +75,19 @@ public:
   /// @details This calls ResourceLoader<T>::LoadResource, which should throw
   /// ResourceExceptionOfType<T> upon error.
   std::shared_ptr<T> Get (const std::string &name) {
-    std::cout << "ResourceManager::Get(\"" << name << "\"); ... ";
+    //std::cout << "ResourceManager::Get(\"" << name << "\"); ... ";
     typename ResourceMap::iterator resource_it = m_resources.find(name);
     if (resource_it != m_resources.end()) {
-      std::cout << "the resource was loaded already -- returning that one.\n";
+      //std::cout << "the resource was loaded already -- returning that one.\n";
       return resource_it->second;
     }
 
-    std::cout << "the resource was not already loaded -- loading it.\n";
+    //std::cout << "the resource was not already loaded -- loading it.\n";
     static_assert(ResourceLoader<T>::exists, "ResourceLoader<T> not defined -- template-specialize it to define");
     std::shared_ptr<T> resource;
 
     resource = ResourceLoader<T>::LoadResource(name, *this);
-    std::cout << "ResourceManager::Get(\"" << name << "\"); loaded successfully.\n";
+    //std::cout << "ResourceManager::Get(\"" << name << "\"); loaded successfully.\n";
     AddResource(name, resource);
     return resource;
   }

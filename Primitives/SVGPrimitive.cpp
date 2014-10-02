@@ -205,11 +205,14 @@ void SVGPrimitive::RecomputeChildren() {
           genericShape->Material().SetDiffuseLightColor(color);
           genericShape->Material().SetAmbientLightColor(color);
           genericShape->Material().SetAmbientLightingProportion(1.0f);
-          std::vector<PrimitiveGeometry::Vertex>& vertices = geometry.Vertices();
+          std::vector<PrimitiveGeometry::VertexAttributes>& vertices = geometry.Vertices();
           const auto& points = curve.Points();
+          Vector3f normal(Vector3f::UnitZ());
           for (const auto& pt : points) {
             const EigenTypes::Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
-            vertices.push_back(PrimitiveGeometry::Vertex(point, EigenTypes::Vector3f::UnitZ()));
+            // The arguments to PrimitiveGeometry::VertexAttributes must be actual vector
+            // types, and not Eigen expression templates (e.g. Vector3f::UnitZ()).
+            vertices.emplace_back(PrimitiveGeometry::MakeVertexAttributes(point, normal));
           }
           geometry.UploadDataToBuffers();
           // Gather the strokes; they will be applied after the fill
@@ -240,9 +243,9 @@ void SVGPrimitive::RecomputeChildren() {
           const EigenTypes::Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
           const EigenTypes::Vector3f point2(static_cast<float>(triangle[1].x), static_cast<float>(triangle[1].y), 0.0f);
           const EigenTypes::Vector3f point3(static_cast<float>(triangle[2].x), static_cast<float>(triangle[2].y), 0.0f);
-          geometry.PushTri(PrimitiveGeometry::Vertex(point1, EigenTypes::Vector3f::UnitZ()), 
-                           PrimitiveGeometry::Vertex(point2, EigenTypes::Vector3f::UnitZ()), 
-                           PrimitiveGeometry::Vertex(point3, EigenTypes::Vector3f::UnitZ()));
+          geometry.PushTri(PrimitiveGeometry::MakeVertexAttributes(point1, Vector3f::UnitZ()), 
+                           PrimitiveGeometry::MakeVertexAttributes(point2, Vector3f::UnitZ()), 
+                           PrimitiveGeometry::MakeVertexAttributes(point3, Vector3f::UnitZ()));
         }
         geometry.UploadDataToBuffers();
         AddChild(genericShape);

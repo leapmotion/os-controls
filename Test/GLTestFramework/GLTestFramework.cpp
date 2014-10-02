@@ -14,9 +14,15 @@ GLTestFramework::~GLTestFramework () { }
 void GLTestFramework::SetUp () {
   m_SDLController.Initialize(m_SDLControllerParams);
   m_GLController.Initialize();
+  
+  m_SDLController.BeginRender();
+  m_GLController.BeginRender();
 }
 
 void GLTestFramework::TearDown () {
+  m_GLController.EndRender();
+  m_SDLController.EndRender();
+  
   // Shut down the created things in reverse order
   m_GLController.Shutdown();
   m_SDLController.Shutdown();
