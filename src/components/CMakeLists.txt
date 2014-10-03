@@ -1,50 +1,5 @@
-cmake_minimum_required(VERSION 3.0) # I had problems if I only specified "VERSION 3".
-
-###################################################################################################
-# High-level project definitions
-###################################################################################################
-
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
-project(Components VERSION 0.3)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
-
-if(NOT _resetoncesentinel)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install CACHE PATH "The friggin install prefix. geez" FORCE)
-    set(_resetoncesentinel ON CACHE INTERNAL "Sentinel value to detect if we should override the install prefix on initial configuration.")
-endif()
-
-# TODO: set a default value for CMAKE_INSTALL_PREFIX to something like
-# Components-versionnumber
-# TODO: also look into cpack (for making Mac frameworks, Windows NSIS stuff, deb files, etc.)
-
-###################################################################################################
-
-# Module path and module includes
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)                # For AddSublibrary.cmake
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")   # For most other cmake modules
-
 include(VerboseMessage)
-###################################################################################################
-# We use an EXTERNAL_LIBRARY_DIR variable as a hint to where all the libraries can be found.
-# This is an optional means to not have to specify each library's root dir directly.
-###################################################################################################
-
-find_path(EXTERNAL_LIBRARY_DIR "glew-1.9.0" HINTS /opt/local/Libraries PATHS $ENV{PATH} $ENV{EXTERNAL_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-# TODO: Make EXTERNAL_LIBRARY_DIR detection optional, since users may not have their libraries
-# installed the same way we (Leap) do.
-if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
-    message(STATUS "External Library Directory not found, please specify a folder to look for external libraries")
-    return()
-endif()
-
-# CMAKE_PREFIX_PATH is the path used for searching by FIND_XXX(), with appropriate suffixes added.
-# EXTERNAL_LIBRARY_DIR is a hint for all the find_library calls.
-list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 
 ###################################################################################################
 # Sublibrary definitions
@@ -579,15 +534,6 @@ endif()
 # projects that link this library.
 ###################################################################################################
 
-# TODO: We could build both static and shared libraries.  There will be a name collision in
-# the library target, which we can resolve using
-# http://datainfer.wordpress.com/2013/10/24/make-both-static-and-shared-libraries-in-one-build-with-cmake/
-# However I haven't implemented this directly because there is a different name collision
-# problem in multiple calls to target_package to specify dependencies (e.g. on Eigen).
-
-# TODO: could/should this be a target property?
-option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
-
 add_library(Components INTERFACE)
 
 ###################################################################################################
@@ -699,7 +645,7 @@ install(
 # Generate the file ComponentsConfig.cmake that will be installed with the `make install` steps.
 # NOTE: This is distinct from the ComponentsConfig.cmake file that will be generated in
 # ${PROJECT_BINARY_DIR} by the export command below.
-configure_file(${CMAKE_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake @ONLY)
 # Install rule for the ComponentsConfig.cmake file just generated.  It goes in the root directory
 # of the installation, and is the file that cmake looks for and uses in find_package.
 install(
@@ -708,7 +654,7 @@ install(
 )
 # Generate the version configuration file.  This is the preferred method for indicating the presence
 # of a library and conveying version information to the find_package cmake command.
-configure_file(${CMAKE_SOURCE_DIR}/cmake/GenericConfigVersion.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenericConfigVersion.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake @ONLY)
 # Install rule for the version configuration file.  It should go in the root dir of the install.
 install(
     FILES ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake
@@ -722,7 +668,7 @@ install(
 ###################################################################################################
 
 # Generate the file ComponentsConfig.cmake that will be generated in the build dir by the build.
-configure_file(${CMAKE_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfig.cmake @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfig.cmake @ONLY)
 # Generate the file which defines all the targets of this project.
 export(
     TARGETS
