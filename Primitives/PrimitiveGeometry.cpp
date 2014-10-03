@@ -235,7 +235,7 @@ void PrimitiveGeometry::PushTri(const VertexAttributes& p0, const VertexAttribut
 }
 
 void PrimitiveGeometry::PushTri(const EigenTypes::Vector3f& p0, const EigenTypes::Vector3f& p1, const EigenTypes::Vector3f& p2) {
-  Vector3f normal((p2-p1).cross(p0-p1).normalized());
+  EigenTypes::Vector3f normal((p2-p1).cross(p0-p1).normalized());
   PushTri(MakeVertexAttributes(p0, normal), MakeVertexAttributes(p1, normal), MakeVertexAttributes(p2, normal));
 }
 

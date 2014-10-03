@@ -4,7 +4,7 @@
 // #include "GLTexture2.h"
 
 TexturedFrame::TexturedFrame() {
-  SetBasisRectangleSize(Vector2(1.0, 1.0));
+  SetBasisRectangleSize(EigenTypes::Vector2(1.0, 1.0));
 
   // Offsets for inner rectangle.
   SetRectangleEdgeOffset(Rectangle::INNER, RectangleEdge::TOP,    0.0);
@@ -38,7 +38,7 @@ TexturedFrame::TexturedFrame() {
 
 TexturedFrame::~TexturedFrame() { }
 
-void TexturedFrame::SetBasisRectangleSize(const Vector2& size) {
+void TexturedFrame::SetBasisRectangleSize(const EigenTypes::Vector2& size) {
   if (m_basis_rectangle_size != size) {
     m_basis_rectangle_size = size;
     m_recompute_geometry = true;
@@ -135,8 +135,8 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
     }
   }
 
-  static const Vector3f NORMAL = Vector3f::UnitZ();
-  static const Vector4f COLOR = Vector4f::Constant(1.0f);
+  static const EigenTypes::Vector3f NORMAL = EigenTypes::Vector3f::UnitZ();
+  static const EigenTypes::Vector4f COLOR = EigenTypes::Vector4f::Constant(1.0f);
   // The spatial layout of the vertices is:
   //    [0][3]    [1][3]    [2][3]    [3][3]
   //    [0][2]    [1][2]    [2][2]    [3][2]
@@ -145,9 +145,9 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
   PrimitiveGeometry::VertexAttributes vertex_attributes[4][4];
   for (size_t u = 0; u < 4; ++u) {
     for (size_t v = 0; v < 4; ++v) {
-      vertex_attributes[u][v] = std::make_tuple(Vector3f(static_cast<float>(rectangle_edge[0][u]), static_cast<float>(rectangle_edge[1][v]), 0.0f),
+      vertex_attributes[u][v] = std::make_tuple(EigenTypes::Vector3f(static_cast<float>(rectangle_edge[0][u]), static_cast<float>(rectangle_edge[1][v]), 0.0f),
                                                 NORMAL,
-                                                Vector2f(rectangle_edge_texture_coordinate[0][u], rectangle_edge_texture_coordinate[1][v]),
+                                                EigenTypes::Vector2f(rectangle_edge_texture_coordinate[0][u], rectangle_edge_texture_coordinate[1][v]),
                                                 COLOR);
     }
   }

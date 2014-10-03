@@ -22,7 +22,7 @@ public:
   // The speed denominator controls the shear strength such that a higher value gives less shear
   // When the magnitude of the velocity is equal to speedDenom, the object will be twice as long
   // See http://en.wikipedia.org/wiki/Squash_and_stretch and http://en.wikipedia.org/wiki/Shear_mapping
-  static Matrix3x3 SquashStretchTransform(const Vector3& velocity, const Vector3& viewDirection, double speedDenom = 900.0);
+  static EigenTypes::Matrix3x3 SquashStretchTransform(const EigenTypes::Vector3& velocity, const EigenTypes::Vector3& viewDirection, double speedDenom = 900.0);
 
 public:
 

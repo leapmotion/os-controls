@@ -6,7 +6,20 @@
 #include <map>
 #include <set>
 
+namespace Eigen {
+  // standard library containers
+  template<typename _T>
+  using vector = std::vector<_T, Eigen::aligned_allocator<_T>>;
+
+  template<typename _T, typename _C = std::less<_T>>
+  using set = std::set<_T, _C, Eigen::aligned_allocator<_T>>;
+
+  template<typename _K, typename _V, typename _C = std::less<_K>>
+  using map = std::map<_K, _V, _C, Eigen::aligned_allocator<std::pair<_K, _V>>>;
+} // end of namespace Eigen
+
 namespace EigenTypes {
+
 // NOTE: The use of Eigen::DontAlign removes the guarantee that the statically-sized
 // Eigen matrix/vector types will be aligned to 16-byte memory boundaries and therefore
 // the corresponding matrix/vector operations aren't guaranteed to be vectorized.
@@ -42,28 +55,15 @@ typedef Eigen::Matrix<MATH_TYPE, Eigen::Dynamic, 1> VectorD;
 typedef Eigen::Matrix<float, 2, 1, Eigen::DontAlign> Vector2f;
 typedef Eigen::Matrix<float, 3, 1, Eigen::DontAlign> Vector3f;
 typedef Eigen::Matrix<float, 4, 1, Eigen::DontAlign> Vector4f;
-}
 
-namespace Eigen{
-  // standard library containers
-  template<typename _T>
-  using vector = std::vector<_T, Eigen::aligned_allocator<_T>>;
-
-  template<typename _T, typename _C = std::less<_T>>
-  using set = std::set<_T, _C, Eigen::aligned_allocator<_T>>;
-
-  template<typename _K, typename _V, typename _C = std::less<_K>>
-  using map = std::map<_K, _V, _C, Eigen::aligned_allocator<std::pair<_K, _V>>>;
-}
-
-namespace EigenTypes {
 //legacy typedefs
 typedef Eigen::vector<Vector2> stdvectorV2;
 typedef Eigen::vector<Vector3> stdvectorV3;
 typedef Eigen::vector<Vector2f> stdvectorV2f;
 typedef Eigen::vector<Vector3f> stdvectorV3f;
 typedef Eigen::vector<Vector4f> stdvectorV4f;
-}
+
+} // end of namespace EigenTypes
 
 //Marshaling functions
 //NOTE:I really, really tried to make this a template function, but got stuck in template hell and did not

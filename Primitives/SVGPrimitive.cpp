@@ -12,7 +12,7 @@
 class Curve {
   public:
     struct Bezier {
-      Eigen::Vector2f b[4];
+      EigenTypes::Vector2f b[4];
     };
 
     Curve(float tolerance = 1.0f);
@@ -66,7 +66,7 @@ void Curve::Append(const Bezier& bezier) {
 }
 
 void Curve::Subdivide(const Bezier& bezier, Bezier& left, Bezier& right) {
-  const Eigen::Vector2f middle = 0.5f*(bezier.b[1] + bezier.b[2]);
+  const EigenTypes::Vector2f middle = 0.5f*(bezier.b[1] + bezier.b[2]);
   left.b[0] = bezier.b[0];
   left.b[1] = 0.5f*(bezier.b[0] + bezier.b[1]);
   left.b[2] = 0.5f*(left.b[1] + middle);
@@ -77,8 +77,8 @@ void Curve::Subdivide(const Bezier& bezier, Bezier& left, Bezier& right) {
 }
 
 bool Curve::IsSufficientlyFlat(const Bezier& bezier) {
-  Eigen::Vector2f u = 3.0f*bezier.b[1] - 2.0f*bezier.b[0] - bezier.b[3];
-  Eigen::Vector2f v = 3.0f*bezier.b[2] - 2.0f*bezier.b[3] - bezier.b[0];
+  EigenTypes::Vector2f u = 3.0f*bezier.b[1] - 2.0f*bezier.b[0] - bezier.b[3];
+  EigenTypes::Vector2f v = 3.0f*bezier.b[2] - 2.0f*bezier.b[3] - bezier.b[0];
   return (u.cwiseProduct(u).cwiseMax(v.cwiseProduct(v)).sum() < m_tolerance);
 }
 
@@ -207,11 +207,11 @@ void SVGPrimitive::RecomputeChildren() {
           genericShape->Material().SetAmbientLightingProportion(1.0f);
           std::vector<PrimitiveGeometry::VertexAttributes>& vertices = geometry.Vertices();
           const auto& points = curve.Points();
-          Vector3f normal(Vector3f::UnitZ());
+          EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
           for (const auto& pt : points) {
             const EigenTypes::Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
             // The arguments to PrimitiveGeometry::VertexAttributes must be actual vector
-            // types, and not Eigen expression templates (e.g. Vector3f::UnitZ()).
+            // types, and not Eigen expression templates (e.g. EigenTypes::Vector3f::UnitZ()).
             vertices.emplace_back(PrimitiveGeometry::MakeVertexAttributes(point, normal));
           }
           geometry.UploadDataToBuffers();
@@ -243,9 +243,9 @@ void SVGPrimitive::RecomputeChildren() {
           const EigenTypes::Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
           const EigenTypes::Vector3f point2(static_cast<float>(triangle[1].x), static_cast<float>(triangle[1].y), 0.0f);
           const EigenTypes::Vector3f point3(static_cast<float>(triangle[2].x), static_cast<float>(triangle[2].y), 0.0f);
-          geometry.PushTri(PrimitiveGeometry::MakeVertexAttributes(point1, Vector3f::UnitZ()), 
-                           PrimitiveGeometry::MakeVertexAttributes(point2, Vector3f::UnitZ()), 
-                           PrimitiveGeometry::MakeVertexAttributes(point3, Vector3f::UnitZ()));
+          geometry.PushTri(PrimitiveGeometry::MakeVertexAttributes(point1, EigenTypes::Vector3f::UnitZ()), 
+                           PrimitiveGeometry::MakeVertexAttributes(point2, EigenTypes::Vector3f::UnitZ()), 
+                           PrimitiveGeometry::MakeVertexAttributes(point3, EigenTypes::Vector3f::UnitZ()));
         }
         geometry.UploadDataToBuffers();
         AddChild(genericShape);

@@ -83,16 +83,16 @@ void HandCursor::Update(const Leap::Hand& hand) {
   m_PalmOutline->SetStartAngle(0.0f);
   m_PalmOutline->SetEndAngle(2*M_PI);
 
-  static const Vector3 DROP_SHADOW_OFFSET(2, 3, 0);
+  static const EigenTypes::Vector3 DROP_SHADOW_OFFSET(2, 3, 0);
   const double DROP_SHADOW_RADIUS = 3.5*palmRadius;
   static const float DROP_SHADOW_OPACITY = 0.4f;
   m_PalmDropShadow->Translation() = DROP_SHADOW_OFFSET;
-  m_PalmDropShadow->SetBasisRectangleSize(Vector2::Zero());
+  m_PalmDropShadow->SetBasisRectangleSize(EigenTypes::Vector2::Zero());
   m_PalmDropShadow->SetShadowRadius(DROP_SHADOW_RADIUS);
   m_PalmDropShadow->LocalProperties().AlphaMask() = DROP_SHADOW_OPACITY;
 
-  const Vector3 palmVel = hand.palmVelocity().toVector3<Vector3>().cwiseProduct(Vector3(1, -1, 0));
-  LinearTransformation() = PrimitiveBase::SquashStretchTransform(palmVel, Vector3::UnitZ());
+  const EigenTypes::Vector3 palmVel = hand.palmVelocity().toVector3<EigenTypes::Vector3>().cwiseProduct(EigenTypes::Vector3(1, -1, 0));
+  LinearTransformation() = PrimitiveBase::SquashStretchTransform(palmVel, EigenTypes::Vector3::UnitZ());
 }
 
 void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLeft) {
@@ -143,11 +143,11 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
 
   std::shared_ptr<DropShadow>& fingerDropShadow = m_FingerDropShadows[fingerIndex];
 
-  static const Vector3 DROP_SHADOW_OFFSET(2, 3, 0);
+  static const EigenTypes::Vector3 DROP_SHADOW_OFFSET(2, 3, 0);
   const double DROP_SHADOW_RADIUS = 3.5*fingerRadius;
   static const float DROP_SHADOW_OPACITY = 0.4f;
   fingerDropShadow->Translation() = fingerTranslation + DROP_SHADOW_OFFSET;
-  fingerDropShadow->SetBasisRectangleSize(Vector2::Zero());
+  fingerDropShadow->SetBasisRectangleSize(EigenTypes::Vector2::Zero());
   fingerDropShadow->SetShadowRadius(DROP_SHADOW_RADIUS);
   fingerDropShadow->LocalProperties().AlphaMask() = DROP_SHADOW_OPACITY;
 }

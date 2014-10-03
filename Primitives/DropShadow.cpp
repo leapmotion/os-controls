@@ -19,12 +19,12 @@ DropShadow::DropShadow() {
     
     struct LuminanceAlpha { float luminance, alpha; };
     GLTexture2PixelDataStorage<LuminanceAlpha> pixel_data(GL_LUMINANCE_ALPHA, GL_FLOAT, params.Width()*params.Height());
-    static const Vector2f TEXTURE_ORIGIN(0.5f*float(params.Width()-1), 0.5f*float(params.Height()-1));
-    static const Vector2f TEXTURE_SCALE(1.0f/TEXTURE_ORIGIN(0), 1.0f/TEXTURE_ORIGIN(1));
+    static const EigenTypes::Vector2f TEXTURE_ORIGIN(0.5f*float(params.Width()-1), 0.5f*float(params.Height()-1));
+    static const EigenTypes::Vector2f TEXTURE_SCALE(1.0f/TEXTURE_ORIGIN(0), 1.0f/TEXTURE_ORIGIN(1));
     std::vector<LuminanceAlpha> &raw_pixels = pixel_data.RawPixels();
     for (GLsizei y = 0; y < params.Height(); ++y) {
       for (GLsizei x = 0; x < params.Width(); ++x) {
-        Vector2f tex_coord(Vector2f(x,y) - TEXTURE_ORIGIN);
+        EigenTypes::Vector2f tex_coord(EigenTypes::Vector2f(x,y) - TEXTURE_ORIGIN);
         tex_coord = tex_coord.cwiseProduct(TEXTURE_SCALE);
         // When norm is 0, the alpha should be 1.  When the norm is 1, the alpha should be 0.
         // When the norm is greater than 1, the alpha should be clamped to 0.

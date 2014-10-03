@@ -27,7 +27,7 @@ void UploadUniforms (const GLShader &shader, const EigenTypes::Matrix4x4 &model_
 
   GLShaderBindingScopeGuard bso(shader, bind_flags); // binds shader now if necessary, unbinds upon end of scope if necessary.
   
-  // The use of COLUMN_MAJOR is because our Eigen-based EigenTypes::Matrix4x4f typedef uses column-major data storage.
+  // The use of COLUMN_MAJOR is because our Eigen-based Matrix4x4f typedef uses column-major data storage.
   shader.SetUniformMatrixf<4,4>("projection_times_model_view_matrix", projection_times_model_view_matrix, COLUMN_MAJOR);
   shader.SetUniformMatrixf<4,4>("model_view_matrix", model_view_matrix, COLUMN_MAJOR);
   shader.SetUniformMatrixf<4,4>("normal_matrix", normal_matrix, COLUMN_MAJOR);

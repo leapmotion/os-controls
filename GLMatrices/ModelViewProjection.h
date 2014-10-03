@@ -26,7 +26,7 @@ public:
   void Rotate(const EigenTypes::Vector3& axis, double angleRadians);
   void Scale(const EigenTypes::Vector3& scale);
   void Multiply(const EigenTypes::Matrix4x4& transform);
-  // This takes a EigenTypes::Matrix3x3 M and uses it to Multiply by the block 4x4 matrix:
+  // This takes a Matrix3x3 M and uses it to Multiply by the block 4x4 matrix:
   //   [ M 0 ]
   //   [ 0 1 ]
   void Multiply(const EigenTypes::Matrix3x3& transform);

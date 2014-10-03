@@ -92,13 +92,13 @@ public:
   TexturedFrame ();
   virtual ~TexturedFrame();
   
-  const Vector2 &BasisRectangleSize () const { return m_basis_rectangle_size; }
+  const EigenTypes::Vector2 &BasisRectangleSize () const { return m_basis_rectangle_size; }
   double RectangleEdgeOffset (Rectangle rect, RectangleEdge edge) const { return m_rectangle_edge_offset[static_cast<size_t>(rect)][static_cast<size_t>(edge)]; }
   float RectangleEdgeTextureCoordinate (Rectangle rect, RectangleEdge edge) const { return m_rectangle_edge_texture_coordinate[static_cast<size_t>(rect)][static_cast<size_t>(edge)]; }
   const std::shared_ptr<GLTexture2> &Texture () const { return m_texture; }
   
   // The rectangle will be centered at the origin, and will extend half of each size component in each direction.
-  void SetBasisRectangleSize (const Vector2 &size);
+  void SetBasisRectangleSize (const EigenTypes::Vector2 &size);
   // The inner (resp. outer) rectangles' edges will extend in (resp. out) from the basis rectangle
   // by the given offset.  Offsets are clamped to be nonnegative, so any negative value specified
   // here will be interpreted as zero.
@@ -122,7 +122,7 @@ private:
   static const size_t RECTANGLE_EDGE_COUNT = 4;
   static const size_t CELL_COUNT = 9;
 
-  Vector2 m_basis_rectangle_size;
+  EigenTypes::Vector2 m_basis_rectangle_size;
   double m_rectangle_edge_offset[RECTANGLE_COUNT][RECTANGLE_EDGE_COUNT];
   float m_rectangle_edge_texture_coordinate[RECTANGLE_COUNT][RECTANGLE_EDGE_COUNT];
   std::shared_ptr<GLTexture2> m_texture;

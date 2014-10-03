@@ -58,7 +58,7 @@ public:
   // function assumes that the draw mode (see Draw) is GL_TRIANGLES.
   void PushQuad (const EigenTypes::Vector3f &p0, const EigenTypes::Vector3f &p1, const EigenTypes::Vector3f &p2, const EigenTypes::Vector3f &p3);
   
-  static VertexAttributes MakeVertexAttributes (const Vector3f &position, const Vector3f &normal, const Vector2f &tex_coord = Vector2f::Zero(), const Color &color = Color::White()) {
+  static VertexAttributes MakeVertexAttributes (const EigenTypes::Vector3f &position, const EigenTypes::Vector3f &normal, const EigenTypes::Vector2f &tex_coord = EigenTypes::Vector2f::Zero(), const Color &color = Color::White()) {
     return VertexAttributes(position, normal, tex_coord, color);
   }
 
