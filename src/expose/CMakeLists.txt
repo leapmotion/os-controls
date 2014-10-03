@@ -27,6 +27,6 @@ target_link_libraries(expose Autowiring utility)
 target_package(expose SFML 2.1 REQUIRED)
 target_package(expose Leap REQUIRED)
 
-target_link_components(expose Animation Primitives SceneGraph RadialMenu Resource GLShader GLShaderLoader HandCursor)
+target_link_libraries(expose Animation Primitives SceneGraph RadialMenu Resource GLShader GLShaderLoader HandCursor)
 
 add_subdirectory(testharness)

@@ -83,7 +83,7 @@ target_link_libraries(osinterface Autowiring utility)
 target_package(osinterface SFML 2.1 REQUIRED)
 target_package(osinterface Leap REQUIRED)
 
-target_link_components(osinterface Primitives Animation)
+target_link_libraries(osinterface Primitives Animation)
 
 if(APPLE)
   find_library(FOUNDATION_FRAMEWORK Foundation)
