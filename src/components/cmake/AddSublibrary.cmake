@@ -253,6 +253,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_is_interface_only FALSE)
         add_library(${_sublibrary_target_name} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
         # This is the scope specifier for use in the target_* functions called on this target.
+        set_target_properties(${_sublibrary_target_name} PROPERTIES FOLDER Components)
         set(_target_scope PUBLIC)
     endif()
 
