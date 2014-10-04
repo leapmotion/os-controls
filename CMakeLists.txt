@@ -145,6 +145,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Ma
 endif()
 add_sublibrary(
     SDLController
+    COMPILE_OPTIONS
+        "-Wno-extern-c-compat" # this is a temporary hack
     HEADERS
         SDLController.h
     SOURCES
