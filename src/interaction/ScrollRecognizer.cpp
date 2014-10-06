@@ -5,11 +5,11 @@ ScrollRecognizer::ScrollRecognizer():
   m_prevTimestamp(0),
   m_deltaTimeSeconds{std::chrono::milliseconds(10)},
   m_horizontalMovementRatio(1.0f,0.75f),
-  m_scrollVelocity(Vector3::Zero(),0.5f),
-  m_curScrollVelocity(Vector3::Zero()),
-  m_handVelocity(Vector3::Zero()),
-  m_handDirection(-Vector3::UnitZ()),
-  m_handNormal(-Vector3::UnitY())
+  m_scrollVelocity(EigenTypes::Vector3::Zero(),0.5f),
+  m_curScrollVelocity(EigenTypes::Vector3::Zero()),
+  m_handVelocity(EigenTypes::Vector3::Zero()),
+  m_handDirection(-EigenTypes::Vector3::UnitZ()),
+  m_handNormal(-EigenTypes::Vector3::UnitY())
 {
 }
 
@@ -32,13 +32,13 @@ void ScrollRecognizer::ExtractFrameData() {
   m_prevTimestamp = curTimestamp;
 
   // retrieve hand data
-  m_handVelocity = m_hand.palmVelocity().toVector3<Vector3>();
-  m_handDirection = m_hand.direction().toVector3<Vector3>();
-  m_handNormal = m_hand.palmNormal().toVector3<Vector3>();
+  m_handVelocity = m_hand.palmVelocity().toVector3<EigenTypes::Vector3>();
+  m_handDirection = m_hand.direction().toVector3<EigenTypes::Vector3>();
+  m_handNormal = m_hand.palmNormal().toVector3<EigenTypes::Vector3>();
 }
 
 void ScrollRecognizer::UpdateHorizontalMovementRatio() {
-  const Vector3 normVelocity = m_handVelocity.normalized();
+  const EigenTypes::Vector3 normVelocity = m_handVelocity.normalized();
   const float ratio = static_cast<float>(normVelocity.x()*normVelocity.x() + normVelocity.y()*normVelocity.y());
   m_horizontalMovementRatio.SetGoal(ratio);
   m_horizontalMovementRatio.Update(m_deltaTimeSeconds.count());
@@ -50,9 +50,9 @@ float ScrollRecognizer::ComputeWarmupMultiplier() const {
   return (warmupRatio * warmupRatio);
 }
 
-Vector3 ScrollRecognizer::ComputeRoundedHandVelocity() const {
+EigenTypes::Vector3 ScrollRecognizer::ComputeRoundedHandVelocity() const {
   const float ratio = m_horizontalMovementRatio.Value();
-  return Vector3(ratio*m_handVelocity.x(), ratio*m_handVelocity.y(), (1.0-ratio)*m_handVelocity.z());
+  return EigenTypes::Vector3(ratio*m_handVelocity.x(), ratio*m_handVelocity.y(), (1.0-ratio)*m_handVelocity.z());
 }
 
 void ScrollRecognizer::UpdateScrollVelocity() {
@@ -60,7 +60,7 @@ void ScrollRecognizer::UpdateScrollVelocity() {
   static const float SPEED_UP_SMOOTH = 0.4f;
   static const float SLOW_DOWN_SMOOTH = 0.7f;
 
-  const Vector3 prevScrollVelocity = m_scrollVelocity.Value();
+  const EigenTypes::Vector3 prevScrollVelocity = m_scrollVelocity.Value();
 
   const float curSmooth = m_curScrollVelocity.squaredNorm() > prevScrollVelocity.squaredNorm() ? SPEED_UP_SMOOTH : SLOW_DOWN_SMOOTH;
   m_scrollVelocity.SetSmoothStrength(curSmooth);
@@ -71,7 +71,7 @@ void ScrollRecognizer::UpdateScrollVelocity() {
 void ScrollRecognizer::AccumulateScrollFromFingers() {
   m_curScrollVelocity.setZero();
 
-  const Vector3 roundedVelocity = ComputeRoundedHandVelocity();
+  const EigenTypes::Vector3 roundedVelocity = ComputeRoundedHandVelocity();
 
   for(const Leap::Finger& finger : m_hand.fingers()) {
     if (!finger.isExtended()) {
@@ -79,9 +79,9 @@ void ScrollRecognizer::AccumulateScrollFromFingers() {
       continue;
     }
 
-    const Vector3 direction = finger.direction().toVector3<Vector3>();
-    const Vector3 velocity = finger.tipVelocity().toVector3<Vector3>();
-    const Vector3 normVelocity = velocity.normalized();
+    const EigenTypes::Vector3 direction = finger.direction().toVector3<EigenTypes::Vector3>();
+    const EigenTypes::Vector3 velocity = finger.tipVelocity().toVector3<EigenTypes::Vector3>();
+    const EigenTypes::Vector3 normVelocity = velocity.normalized();
 
     const double velocityDotHandNormal = std::abs(normVelocity.dot(m_handNormal));
     const double directionDotHandDirection = direction.dot(m_handDirection);
@@ -93,7 +93,7 @@ void ScrollRecognizer::AccumulateScrollFromFingers() {
   m_curScrollVelocity *= ComputeWarmupMultiplier();
 }
 
-float ScrollRecognizer::DeadZoneMultiplier(const Vector3& velocity) {
+float ScrollRecognizer::DeadZoneMultiplier(const EigenTypes::Vector3& velocity) {
   static const float LOW_WATERMARK = 200.0f; // multiplier is 0 below this
   static const float HIGH_WATERMARK = 500.0f; // multiplier is 1 above this
   const float ratio = static_cast<float>(velocity.norm() - LOW_WATERMARK) / (HIGH_WATERMARK - LOW_WATERMARK);

@@ -16,16 +16,16 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
   m_texture(new ImagePrimitive),
   m_dropShadow(new DropShadow),
   m_highlight(new RectanglePrim),
-  m_position(Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<Vector3>),
-  m_prevPosition(Vector3::Zero()),
+  m_position(EigenTypes::Vector3::Zero(), VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<EigenTypes::Vector3>),
+  m_prevPosition(EigenTypes::Vector3::Zero()),
   m_opacity(0.0f,0.825f),
   m_scale(0.0f,0.825f),
   m_activation(0.0f,0.3f),
   m_hover(0.0f,0.5f),
   m_selection(0.0f,0.5f),
-  m_grabDelta(Vector3::Zero(),0.25f),
-  m_forceDelta(Vector3::Zero(), 0.75f),
-  m_velocity(Vector3::Zero(), 0.65f)
+  m_grabDelta(EigenTypes::Vector3::Zero(),0.25f),
+  m_forceDelta(EigenTypes::Vector3::Zero(), 0.75f),
+  m_velocity(EigenTypes::Vector3::Zero(), 0.65f)
 {
 }
 
@@ -36,7 +36,7 @@ void ExposeViewWindow::UpdateTexture(void) {
 }
 
 void ExposeViewWindow::Render(const RenderFrame& frame) const {
-  static const Vector3 DROP_SHADOW_OFFSET(3, 5, 0);
+  static const EigenTypes::Vector3 DROP_SHADOW_OFFSET(3, 5, 0);
   static const double DROP_SHADOW_RADIUS = 50.0;
   static const float DROP_SHADOW_OPACITY = 0.4f;
 #if __APPLE__
@@ -54,13 +54,13 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
 
   static const double HIGHLIGHT_WIDTH = 50.0;
   m_highlight->LocalProperties().AlphaMask() = m_activation.Value();
-  const Vector3f highlightRGB(0.505f, 0.831f, 0.114f);
+  const EigenTypes::Vector3f highlightRGB(0.505f, 0.831f, 0.114f);
   Color highlightColor(highlightRGB);
   m_highlight->Material().SetDiffuseLightColor(highlightColor);
   m_highlight->Material().SetAmbientLightColor(highlightColor);
   m_highlight->Material().SetAmbientLightingProportion(1.0f);
-  Vector2 size = m_texture->Size();
-  size += Vector2::Constant(HIGHLIGHT_WIDTH);
+  EigenTypes::Vector2 size = m_texture->Size();
+  size += EigenTypes::Vector2::Constant(HIGHLIGHT_WIDTH);
   m_highlight->SetSize(size);
   m_highlight->Translation() = m_texture->Translation();
   m_highlight->LinearTransformation() = m_texture->LinearTransformation();
@@ -78,11 +78,11 @@ void ExposeViewWindow::SetOpeningPosition() {
   m_activation.SetImmediate(0.0f);
   m_hover.SetImmediate(0.0f);
   m_selection.SetImmediate(0.0f);
-  m_grabDelta.SetImmediate(Vector3::Zero());
-  m_forceDelta.SetImmediate(Vector3::Zero());
+  m_grabDelta.SetImmediate(EigenTypes::Vector3::Zero());
+  m_forceDelta.SetImmediate(EigenTypes::Vector3::Zero());
 
-  const Vector2 osPosition = GetOSPosition();
-  const Vector3 center(osPosition.x(), osPosition.y(), 0.0);
+  const EigenTypes::Vector2 osPosition = GetOSPosition();
+  const EigenTypes::Vector3 center(osPosition.x(), osPosition.y(), 0.0);
 
 #if 0
   m_position.SetGoalAndValue(center);
@@ -106,12 +106,12 @@ void ExposeViewWindow::SetClosingPosition() {
 
   m_selection.SetGoal(0.0f);
 
-  m_grabDelta.SetGoal(Vector3::Zero());
+  m_grabDelta.SetGoal(EigenTypes::Vector3::Zero());
 
-  m_forceDelta.SetGoal(Vector3::Zero());
+  m_forceDelta.SetGoal(EigenTypes::Vector3::Zero());
 
-  const Vector2 osPosition = GetOSPosition();
-  const Vector3 center(osPosition.x(), osPosition.y(), 0.0);
+  const EigenTypes::Vector2 osPosition = GetOSPosition();
+  const EigenTypes::Vector3 center(osPosition.x(), osPosition.y(), 0.0);
 
 #if 0
   m_position.SetGoal(center);
@@ -121,13 +121,13 @@ void ExposeViewWindow::SetClosingPosition() {
 #endif
 }
 
-Vector2 ExposeViewWindow::GetOSPosition() const {
+EigenTypes::Vector2 ExposeViewWindow::GetOSPosition() const {
   const OSPoint pos = m_osWindow->GetPosition();
   const OSSize size = m_osWindow->GetSize();
-  return Vector2(pos.x + 0.5*size.width, pos.y + 0.5*size.height);
+  return EigenTypes::Vector2(pos.x + 0.5*size.width, pos.y + 0.5*size.height);
 }
 
-Vector2 ExposeViewWindow::GetOSSize() const {
+EigenTypes::Vector2 ExposeViewWindow::GetOSSize() const {
   const OSSize size = m_osWindow->GetSize();
-  return Vector2(size.width, size.height);
+  return EigenTypes::Vector2(size.width, size.height);
 }

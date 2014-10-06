@@ -25,7 +25,7 @@ RenderEngine::RenderEngine() :
   m_shader = Resource<GLShader>("material");
 
   // set light position
-  const Vector3f lightPos(0, 10, 10);
+  const EigenTypes::Vector3f lightPos(0, 10, 10);
   m_shader->Bind();
   m_shader->SetUniformf("lightPosition", lightPos);
   m_shader->Unbind();
@@ -72,7 +72,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
       auto& mv = frame.renderState.GetModelView();
       mv.Push();
 
-      mv.Translate(Vector3{renderable->position.x, renderable->position.y, 0.0});
+      mv.Translate(EigenTypes::Vector3{renderable->position.x, renderable->position.y, 0.0});
       renderable->Render(frame);
       mv.Pop();
     }
