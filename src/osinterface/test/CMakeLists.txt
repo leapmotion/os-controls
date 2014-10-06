@@ -25,6 +25,9 @@ add_mac_sources(
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" osinterfacetest_SRCS)
 add_executable(osinterfacetest ${osinterfacetest_SRCS})
+
+set_property(TARGET osinterfacetest PROPERTY FOLDER "Shortcuts Projects")
+
 target_link_libraries(osinterfacetest osinterface AutoTesting)
 target_include_directories(osinterfacetest PUBLIC ..)
 

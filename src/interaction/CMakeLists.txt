@@ -30,6 +30,8 @@ set(interaction_SOURCES
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
 
+set_property(TARGET interaction PROPERTY FOLDER "Shortcuts Projects")
+
 target_link_libraries(interaction Autowiring cursor expose mediaview uievents)
 
 target_package(interaction SFML 2.1 REQUIRED)

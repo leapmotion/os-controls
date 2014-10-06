@@ -840,6 +840,8 @@ foreach(_test ${_tests})
     list(APPEND Test_SOURCES ${_headers} ${_sources})
 endforeach()
 add_executable(Test ${Test_SOURCES})
+set_property(TARGET Test PROPERTY FOLDER "Components")
+
 if (MSVC_USE_MT)
   set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:LIBCMT")
 endif()
