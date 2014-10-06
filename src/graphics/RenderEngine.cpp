@@ -2,6 +2,7 @@
 #include "RenderEngine.h"
 #include "RenderFrame.h"
 #include "osinterface/OSVirtualScreen.h"
+#include "osinterface/MakesRenderWindowFullScreen.h"
 #include <GL/glew.h>
 #include "GLShader.h"
 #include "GLShaderLoader.h"
@@ -87,6 +88,10 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
 
   m_rw->setActive(false);
 
+  // Show the overlay window if we are rendering, hide it if we aren't
+  if (m_makesRenderWindowFullScreen && m_makesRenderWindowFullScreen->IsVisible() != m_drewFrame) {
+    m_makesRenderWindowFullScreen->SetVisible(m_drewFrame);
+  }
   if (!m_drewFrame) {
     // if we haven't drawn anything, sleep for a bit (otherwise this loop occurs too quickly)
     std::this_thread::sleep_for(std::chrono::milliseconds(100));

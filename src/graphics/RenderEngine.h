@@ -13,6 +13,7 @@
 
 class GLShader;
 class OSVirtualScreen;
+class MakesRenderWindowFullScreen;
 
 //Tracks & dispatches update & render calls to a SceneGraph. Intended for use
 //with RenderEngineNodes, but will also support PrimitiveBase children.  Eventually
@@ -39,10 +40,10 @@ public:
 
 private:
   Autowired<OSVirtualScreen> m_virtualScreen;
+  Autowired<MakesRenderWindowFullScreen> m_makesRenderWindowFullScreen;
   Autowired<sf::RenderWindow> m_rw;
 
   bool m_drewFrame;
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
 };
-

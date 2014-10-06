@@ -22,7 +22,7 @@ void NativeWindow::MakeTransparent(const Handle& handle) {
   // http://www.opengl.org/wiki/OpenGL_Type -- GLint is necessarily 32 bit,
   // so we can use a fixed int type without including any GL headers here.
   int32_t opacity = 0;
-  [context setValues : &opacity forParameter : NSOpenGLCPSurfaceOpacity];
+  [context setValues:&opacity forParameter:NSOpenGLCPSurfaceOpacity];
 
   // Set window properties.
   [window setOpaque : NO];
