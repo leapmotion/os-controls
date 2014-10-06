@@ -97,11 +97,13 @@ add_sublibrary(
 # on Apple platforms.  It should be ignored on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
     set(_maybe_MakeTransparent_Apple_mm "MakeTransparent_Apple.mm")
+    set(_SDLController_flags "-Wno-extern-c-compat" ) # this is a temporary hack
 endif()
+
 add_sublibrary(
     SDLController
     COMPILE_OPTIONS
-        "-Wno-extern-c-compat" # this is a temporary hack
+        ${_SDLController_flags}
     HEADERS
         SDLController.h
     SOURCES
