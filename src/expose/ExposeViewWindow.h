@@ -27,8 +27,8 @@ public:
 
   void SetOpeningPosition();
   void SetClosingPosition();
-  Vector2 GetOSPosition() const;
-  Vector2 GetOSSize() const;
+  EigenTypes::Vector2 GetOSPosition() const;
+  EigenTypes::Vector2 GetOSSize() const;
 
   float GetScale() const {
     return m_scale.Value();
@@ -38,18 +38,18 @@ public:
 
   // Smooth animations for opacity and position
   Smoothed<float> m_opacity;
-  Animated<Vector3> m_position;
+  Animated<EigenTypes::Vector3> m_position;
   Smoothed<float> m_scale;
-  Smoothed<Vector3> m_grabDelta;
-  Smoothed<Vector3> m_forceDelta;
-  Smoothed<Vector3> m_velocity;
+  Smoothed<EigenTypes::Vector3> m_grabDelta;
+  Smoothed<EigenTypes::Vector3> m_forceDelta;
+  Smoothed<EigenTypes::Vector3> m_velocity;
 
   // Smooth animations for hover and activation
   Smoothed<float> m_hover;
   Smoothed<float> m_activation;
   Smoothed<float> m_selection;
 
-  Vector3 m_prevPosition;
+  EigenTypes::Vector3 m_prevPosition;
 
 private:
   // Texture for this window

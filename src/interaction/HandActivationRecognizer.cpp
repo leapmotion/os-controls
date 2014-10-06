@@ -66,7 +66,7 @@ float HandActivationRecognizer::getCustomPinchStrength(const Leap::Hand& hand) c
   }
   
   if ( index != Leap::Finger::invalid() && thumb != Leap::Finger::invalid() ) {
-    float distance = static_cast<float>((index.tipPosition().toVector3<Vector3>() - thumb.tipPosition().toVector3<Vector3>()).norm());
+    float distance = static_cast<float>((index.tipPosition().toVector3<EigenTypes::Vector3>() - thumb.tipPosition().toVector3<EigenTypes::Vector3>()).norm());
     float norm = (distance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
     norm = std::min(1.0f, std::max(0.0f, norm));
     norm = 1 - norm;

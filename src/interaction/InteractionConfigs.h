@@ -10,8 +10,8 @@
 #include "EigenTypes.h"
 
 namespace config {
-  const Vector3 m_leapMin(-120.0f,290.0f,-30.0f);
-  const Vector3 m_leapMax(120.0f,450.0f,30.0f);
+  const EigenTypes::Vector3 m_leapMin(-120.0f,290.0f,-30.0f);
+  const EigenTypes::Vector3 m_leapMax(120.0f,450.0f,30.0f);
 }
 
 namespace mediaMenuConfigs {
@@ -51,5 +51,5 @@ namespace scrollConfigs {
   const float MAX_SCROLL_SMOOTHING = 0.6f;
   const float MM_DELTA_FOR_MIN_SMOOTHING = 1.0f;
   const float MM_DELTA_FOR_MAX_SMOOTHING = 0.0f;
-  
+
 }
