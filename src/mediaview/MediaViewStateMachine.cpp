@@ -45,7 +45,7 @@ MediaViewStateMachine::MediaViewStateMachine() :
   m_radialMenu->SetNumItems(numItems);
   m_radialMenu->SetRadius(MENU_RADIUS);
   m_radialMenu->SetThickness(MENU_THICKNESS);
-  
+
   for (int i=0; i<numItems; i++) {
     std::shared_ptr<RadialMenuItem>& item = m_radialMenu->GetItem(i);
     item->SetRadius(MENU_RADIUS);
@@ -57,24 +57,24 @@ MediaViewStateMachine::MediaViewStateMachine() :
     item->SetHoverColor(fillColor);
     item->SetActivatedColor(handleOutlineColor);
   }
-  
+
   // Setup SVGs for Radial Icons
   Resource<TextFile> nextIconFile("next-track-icon-extended-01.svg");
   Resource<TextFile> playPauseIconFile("play_pause-icon-extended-01.svg");
   Resource<TextFile> prevIconFile("prev-track-icon-extended-01.svg");
-  
+
   std::shared_ptr<SVGPrimitive> nextIcon(new SVGPrimitive());
   std::shared_ptr<SVGPrimitive> playPauseIcon(new SVGPrimitive());
   std::shared_ptr<SVGPrimitive> prevIcon(new SVGPrimitive());
-  
+
   nextIcon->Set(nextIconFile->Contents());
   playPauseIcon->Set(playPauseIconFile->Contents());
   prevIcon->Set(prevIconFile->Contents());
-  
+
   m_radialMenu->GetItem(0)->SetIcon(prevIcon);
   m_radialMenu->GetItem(1)->SetIcon(playPauseIcon);
   m_radialMenu->GetItem(2)->SetIcon(nextIcon);
-  
+
   // Initilize Volume Slider
   m_volumeSlider->SetWidth(220.0f);
   m_volumeSlider->SetHeight(10.0f);
@@ -90,19 +90,19 @@ void MediaViewStateMachine::AutoInit() {
 
 void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& handData, const FrameTime& frameTime) {
   const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
-  
+
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
-  
+
   m_goalCursorPosition = m_cursorView->GetCalculatedLocation() + ProjectVector(2, m_cursorBufferzoneOffset);
-  
+
   // State Transitions
   if (appState == ShortcutsState::FINAL && m_state != State::FINAL) {
     m_state = State::FINAL;
     return;
   }
-  
+
   m_lastHandPose = handData.handPose;
-  
+
   switch( m_state )
   {
     case State::ARMED:
@@ -232,7 +232,7 @@ void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 me
     if ( m_state == State::ACTIVE ) {
       m_selectedItem = updateResult.updateIdx;
     }
-    
+
     if(updateResult.curActivation >= 0.95 && m_state == State::ACTIVE) { // the component doesn't always return a 1.0 activation. Not 100% sure why.
       //Selection Made Transition
       resolveSelection(updateResult.updateIdx);
@@ -244,9 +244,9 @@ void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 me
 }
 
 void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Vector2& deltaPixels, Vector2 menuOffset) {
-  
+
   Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
-  
+
   double offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
   offsetNormalFactor = std::max(0.0, std::min(1.0, offsetNormalFactor));
   if ( offsetNormalFactor > 0.0 ) {
@@ -257,12 +257,12 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
     }
     Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
     m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
-    
+
     if ( offsetNormalFactor >= 1.0 ) {
       float deltaPixelsInVolume = static_cast<float>(deltaPixels.x()) / m_volumeSlider->Width();
       m_volumeSlider->NudgeVolumeLevel(deltaPixelsInVolume);
       m_volumeSlider->Activate();
-      
+
     }
     else {
       m_volumeSlider->Deactivate();
@@ -286,12 +286,12 @@ void MediaViewStateMachine::SetViewVolume(float volume) {
 void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
   //Upate volume slider
   m_volumeSlider->Update(renderFrame);
-  
+
   // Smoothed Value Updates
   m_volumeViewAlpha.Update(static_cast<float>(renderFrame.deltaT.count()));
-  
+
   m_volumeSlider->SetOpacity(m_volumeViewAlpha);
-  
+
   float alphaMask = 0.0f;
   if (m_state == State::ACTIVE) {
     // fade in
@@ -322,12 +322,8 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
       }
     }
   }
-  
-  std::cout << "fadeCap: " << m_distanceFadeCap << std::endl;
-  std::cout << "alphaMask: " << alphaMask << std::endl;
-  
   alphaMask = std::min(alphaMask, m_distanceFadeCap);
-  
+
   m_radialMenu->LocalProperties().AlphaMask() = alphaMask;
   m_volumeSlider->LocalProperties().AlphaMask() = alphaMask;
 }
@@ -340,7 +336,7 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
       PrimitiveBase::DrawSceneGraph(*m_volumeSlider, renderFrame.renderState);
     }
     else {
-      
+
     }
   }
 }
@@ -350,13 +346,13 @@ float MediaViewStateMachine::calculateMenuAlphaFade() {
   Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
   retVal = static_cast<float>((diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE));
   retVal = 1.0f - std::min(1.0f, std::max(0.0f, retVal));
-  
+
   return retVal;
 }
 
 bool MediaViewStateMachine::shouldMenuDistanceKill() {
   bool retVal = false;
-  
+
   Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
   if(diff.norm() > KILL_FADE_END_DISTANCE) {
     retVal = true;
@@ -382,20 +378,20 @@ float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
 
 Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const Vector2& screenPosition) {
   Vector3 retVal(0,0,0);
-  
+
   // Find our distance from the screen edge
   float xEdgeDistance = static_cast<float>(std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x()));
   float yEdgeDistance = static_cast<float>(std::min(screenPosition.y(), m_renderWindow->getSize().y - screenPosition.y()));
-  
+
   // Calculate any offset needed
   float xOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - xEdgeDistance);
   float yOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - yEdgeDistance);
-  
+
   // Make sure the offset is in the proper direction based on cloest edge
   xOffset = (screenPosition.x() > m_renderWindow->getSize().x / 2.0) ? xOffset*-1 : xOffset;
   yOffset = (screenPosition.y() > m_renderWindow->getSize().y / 2.0) ? yOffset*-1 : yOffset;
-  
+
   retVal = Vector3( xOffset, yOffset, 0.0f );
-  
+
   return retVal;
 }
