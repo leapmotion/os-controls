@@ -81,14 +81,14 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // General cleanup
   m_shader->Unbind();
 
-  if (drewThisFrame || m_drewFrame) {
-    // Update the window
-    m_rw->display();
-  } else {
-    // if we haven't drawn anything, sleep for a bit (otherwise this loop occurs too quickly)
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
+  // Update the window
+  m_rw->display(); // Always update the display, even if we are just erasing
   m_drewFrame = drewThisFrame;
 
   m_rw->setActive(false);
+
+  if (!m_drewFrame) {
+    // if we haven't drawn anything, sleep for a bit (otherwise this loop occurs too quickly)
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
 }
