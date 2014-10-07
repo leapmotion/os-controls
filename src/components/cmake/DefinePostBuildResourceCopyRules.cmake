@@ -22,6 +22,7 @@ function(define_post_build_resource_copy_rules)
         ABSOLUTE_PATH_RESOURCES
         TARGETS
     )
+    include(CMakeParseArguments)
     cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
     
     if(NOT _arg_TARGET)
