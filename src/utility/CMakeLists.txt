@@ -44,7 +44,8 @@ add_mac_sources(utility_SOURCES
 )
 
 add_library(utility ${utility_SOURCES})
-target_link_libraries(utility Autowiring json11 )
+set_property(TARGET utility PROPERTY FOLDER "Common")
+target_link_libraries(utility Autowiring json11)
 
 if(MSVC)
   target_link_libraries(utility shlwapi)

@@ -79,7 +79,7 @@ add_mac_sources(
 )
 
 add_library(osinterface ${osinterface_SOURCES})
-set_property(TARGET osinterface PROPERTY FOLDER "Shortcuts Projects")
+set_property(TARGET osinterface PROPERTY FOLDER "Common")
 
 target_link_libraries(osinterface Autowiring utility)
 target_package(osinterface SFML 2.1 REQUIRED)

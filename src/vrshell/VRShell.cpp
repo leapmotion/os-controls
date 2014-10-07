@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "VRShell.h"
 #include "utility/PlatformInitializer.h"
+#include "osinterface/MakesRenderWindowFullScreen.h"
+#include "OculusVR.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
@@ -20,9 +22,13 @@ int main(int argc, char **argv)
     AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(1, 1),
-      "Shortcuts", sf::Style::None,
+      "VRShell", sf::Style::None,
       *contextSettings
     );
+    AutoRequired<MakesRenderWindowFullScreen>();
+    AutoConstruct<OculusVR> hmdInterface;
+    hmdInterface->SetHWND(mw->getSystemHandle());
+    hmdInterface->Init();
 
     // Run as fast as possible:
     mw->setFramerateLimit(120);

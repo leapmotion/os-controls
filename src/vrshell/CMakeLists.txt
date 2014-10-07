@@ -23,6 +23,7 @@ target_link_libraries(VRShell PUBLIC
   Autowiring 
   GLShaderLoader 
   OculusVR 
+  osinterface
   Primitives 
   SFMLController 
   utility
