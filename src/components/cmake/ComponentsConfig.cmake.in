@@ -10,6 +10,8 @@ include(ComponentsExport)
 
 include(CMakeFindDependencyMacro) # For find_dependency
 include(CMakeParseArguments)
+# This file is not self-contained, because it requires having the VerboseMessage cmake module
+# in the CMAKE_MODULE_PATH.  TODO: Fix this non-self-containment.
 include(VerboseMessage)
 
 set(_added_sublibraries "@ADDED_SUBLIBRARIES@")

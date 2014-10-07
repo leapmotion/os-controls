@@ -17,5 +17,8 @@ foreach(subdirectory ${all_subdirectories})
   endif()
 endforeach()
 
+add_subdirectory("components/example_apps/Stub")
+# add_subdirectory("components/example_apps/BasicShapes")
+
 set(FILES_TO_TRANSLATE ${FILES_TO_TRANSLATE} PARENT_SCOPE)
 
