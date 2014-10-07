@@ -12,8 +12,9 @@ ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRShell_SOURCES)
 set(VRShell_EXEFLAGS "")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
   set(VRShell_EXEFLAGS "MACOSX_BUNDLE")
+elseif(WIN32)
+  set(VRShell_EXEFLAGS WIN32)
 endif()
-
 
 add_executable(VRShell ${VRShell_EXEFLAGS} ${VRShell_SOURCES} ${VRShell_RESOURCES})
 set_property(TARGET VRShell PROPERTY FOLDER "VRShell")
