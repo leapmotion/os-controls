@@ -23,15 +23,15 @@ if(_this_is_standalone_project)
     # TODO: Make EXTERNAL_LIBRARY_DIR detection optional, since users may not have their libraries
     # installed the same way we (Leap) do.
     if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
-        message(STATUS "External Library Directory not found, please specify a folder to look for external libraries")
-        return()
+        message(STATUS "External Library Directory not found, optionally specify a folder to look for external libraries")
+    else()
+        # CMAKE_PREFIX_PATH is the path used for searching by FIND_XXX(), with appropriate suffixes added.
+        # EXTERNAL_LIBRARY_DIR is a hint for all the find_library calls.
+        list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
     endif()
 
-    # CMAKE_PREFIX_PATH is the path used for searching by FIND_XXX(), with appropriate suffixes added.
-    # EXTERNAL_LIBRARY_DIR is a hint for all the find_library calls.
-    list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
 else()
-    set(Components_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+    set(Components_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../library")
 endif()
 
 ###################################################################################################
