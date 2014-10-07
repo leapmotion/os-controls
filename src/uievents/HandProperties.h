@@ -15,19 +15,19 @@ struct HandLocation {
   float dmmX;
   float dmmY;
 
-  Vector2 screenPosition() const {
-    return Vector2(x, y);
+  EigenTypes::Vector2 screenPosition() const {
+    return EigenTypes::Vector2(x, y);
   }
-  
-  Vector2 screenDeltaPos() const {
-    return Vector2(dX, dY);
+
+  EigenTypes::Vector2 screenDeltaPos() const {
+    return EigenTypes::Vector2(dX, dY);
   }
-  
-  Vector2 leapPosition() const  {
-    return Vector2(mmX, mmY);
+
+  EigenTypes::Vector2 leapPosition() const  {
+    return EigenTypes::Vector2(mmX, mmY);
   }
-  
-  Vector2 leapDeltaPosition() const {
-    return Vector2(dmmX, dmmY);
+
+  EigenTypes::Vector2 leapDeltaPosition() const {
+    return EigenTypes::Vector2(dmmX, dmmY);
   }
 };

@@ -8,9 +8,9 @@
 
 class CoordinateUtility {
 public:
-  Vector2 LeapToScreen(Leap::Vector leapCoords);
-  Vector3 LeapToScreenNormal(Leap::Vector leapCoords);
-  Vector2 ScreenNormalToScreenPixels(const Vector3& normalCoords);
+  EigenTypes::Vector2 LeapToScreen(Leap::Vector leapCoords);
+  EigenTypes::Vector3 LeapToScreenNormal(Leap::Vector leapCoords);
+  EigenTypes::Vector2 ScreenNormalToScreenPixels(const EigenTypes::Vector3& normalCoords);
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
   Autowired<sf::RenderWindow> m_window;

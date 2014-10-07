@@ -28,25 +28,25 @@ class CursorView :
 public:
   CursorView();
   ~CursorView();
-  
+
   void AutoInit();
-  
+
   void SetSize(float radius);
-  
+
   // Input logic
   void AutoFilter(const Leap::Hand& hand, ShortcutsState appState, const HandData& handData, const FrameTime& frameTime);
-  
+
   // Get where the cursor thinks it should be (this will be its position unless it is being overriden)
-  Vector2 GetCalculatedLocation() const;
-  
+  EigenTypes::Vector2 GetCalculatedLocation() const;
+
   void Disable() { m_state = State::DISABLED; }
   void EnableMediaView() { m_state = State::DISK; }
   void EnableHandAndScroll() { m_state = State::HAND; }
-  
+
   void EnableLocationOverride() { m_overrideInfluence = 1.0f; }
   void DisableLocationOverride() { m_overrideInfluence = 0.0f; }
-  void SetOverideLocation(const Vector2& offsetLocation);
-  
+  void SetOverideLocation(const EigenTypes::Vector2& offsetLocation);
+
   // Implement Renderable
   void AnimationUpdate(const RenderFrame& frame);  // Handle all the visual updates that benefit from running on a graphics tick versus the input loop.
   void Render(const RenderFrame& frame) const override;
@@ -61,47 +61,47 @@ private:
     DISK,
     HAND
   };
-  
+
   const float MAX_CURSOR_SMOOTHING = 0.6f;
-  
+
   //The mm delta that will result in a smoothing factor of 0.0 and MAX_CURSOR_SMOOTHING respectively
   const float DELTA_FOR_MIN_SMOOTHING = 15.0f;
   const float DELTA_FOR_MAX_SMOOTHING = 3.0f;
-  
+
   float calcPositionSmoothStrength(float handDeltaDistance) const;
-  Vector2 getWindowCenter(OSWindow& window);
-  
+  EigenTypes::Vector2 getWindowCenter(OSWindow& window);
+
   State m_state;
-  
-  Vector2 m_scrollBodyOffset;
-  Vector2 m_scrollLineOffset;
-  Vector2 m_scrollFingerLeftOffset;
-  Vector2 m_scrollFingerRightOffset;
-  Vector2 m_disabledCursorOffset;
-  
+
+  EigenTypes::Vector2 m_scrollBodyOffset;
+  EigenTypes::Vector2 m_scrollLineOffset;
+  EigenTypes::Vector2 m_scrollFingerLeftOffset;
+  EigenTypes::Vector2 m_scrollFingerRightOffset;
+  EigenTypes::Vector2 m_disabledCursorOffset;
+
   std::shared_ptr<SVGPrimitive> m_scrollBody;
   std::shared_ptr<SVGPrimitive> m_scrollLine;
   std::shared_ptr<SVGPrimitive> m_scrollFingerLeft;
   std::shared_ptr<SVGPrimitive> m_scrollFingerRight;
   std::shared_ptr<SVGPrimitive> m_disabledCursor;
-  
+
   // The cursor that shows up when not scrolling
   std::shared_ptr<Disk> m_disk;
   std::shared_ptr<HandCursor> m_handCursor;
-  
+
   Autowired<OSWindowMonitor> m_osWindowMonitor;
   Autowired<Config> m_config;
 
   std::shared_ptr<OSWindow> m_lastSelectedWindow;
-  
+
   float m_fingerSpread;
   float m_pinchStrength;
-  Vector2 m_lastHandDeltas;
-  Vector2 m_lastHandPosition;
-  Vector3 m_lastHandVelocity;
-  
+  EigenTypes::Vector2 m_lastHandDeltas;
+  EigenTypes::Vector2 m_lastHandPosition;
+  EigenTypes::Vector3 m_lastHandVelocity;
+
   ShortcutsState m_lastAppState;
-  
+
   Smoothed<float> m_bodyOffset;
   Smoothed<float> m_x;
   Smoothed<float> m_y;
@@ -110,6 +110,6 @@ private:
   float m_overrideInfluence; // how much do we follow the offset amount.
   Smoothed<float> m_bodyAlpha;
   Smoothed<float> m_diskAlpha;
-  
+
   Autowired<RenderEngine> m_renderEngine;
 };

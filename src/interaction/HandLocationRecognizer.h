@@ -19,6 +19,6 @@ public:
 private:
   AutoRequired<CoordinateUtility> m_coordinateUtility;
   bool isInitialized;
-  Vector2 lastPosition;
-  Vector2 lastLeapPosition;
+  EigenTypes::Vector2 lastPosition;
+  EigenTypes::Vector2 lastLeapPosition;
 };
