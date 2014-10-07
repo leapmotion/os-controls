@@ -75,6 +75,7 @@ if(_this_is_standalone_project)
     # needed by the specified components.
     target_link_components(Stub PUBLIC Application GLController GLShaderLoader GLTexture2Loader SDLController)
 else()
+    set_property(TARGET Stub PROPERTY FOLDER "Components Samples")
     target_link_libraries(Stub PUBLIC Application GLController GLShaderLoader GLTexture2Loader SDLController)
 endif()
 
