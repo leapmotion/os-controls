@@ -7,9 +7,9 @@
 #include "graphics/RenderFrame.h"
 
 ExposeGroup::ExposeGroup() :
-  m_center(Vector2::Zero()),
-  m_minBounds(Vector2::Zero()),
-  m_maxBounds(Vector2::Zero()),
+  m_center(EigenTypes::Vector2::Zero()),
+  m_minBounds(EigenTypes::Vector2::Zero()),
+  m_maxBounds(EigenTypes::Vector2::Zero()),
   m_dropShadow(new DropShadow)
 {
 }
@@ -21,8 +21,8 @@ void ExposeGroup::CalculateCenterAndBounds() {
   m_maxBounds.setConstant(-DBL_MAX);
   m_center.setZero();
   for (const std::shared_ptr<ExposeViewWindow>& window : m_groupMembers) {
-    const Vector2 windowSize = window->GetOSSize();
-    const Vector2 windowPos = window->GetOSPosition();// +0.5*windowSize;
+    const EigenTypes::Vector2 windowSize = window->GetOSSize();
+    const EigenTypes::Vector2 windowPos = window->GetOSPosition();// +0.5*windowSize;
     m_minBounds = m_minBounds.cwiseMin(windowPos - 0.5*windowSize);
     m_maxBounds = m_maxBounds.cwiseMax(windowPos + 0.5*windowSize);
     m_center += windowPos;
@@ -39,7 +39,7 @@ bool ExposeGroup::Intersects(const ExposeGroup& other) const {
   return true;
 }
 
-Vector2 ExposeGroup::MinMovementToResolveCollision(const ExposeGroup& other) const {
+EigenTypes::Vector2 ExposeGroup::MinMovementToResolveCollision(const ExposeGroup& other) const {
   const double diffX1 = other.m_maxBounds.x() - m_minBounds.x();
   const double diffX2 = m_maxBounds.x() - other.m_minBounds.x();
   const double diffY1 = other.m_maxBounds.y() - m_minBounds.y();
@@ -55,7 +55,7 @@ Vector2 ExposeGroup::MinMovementToResolveCollision(const ExposeGroup& other) con
     minY = diffY2;
   }
 
-  Vector2 result(Vector2::Zero());
+  EigenTypes::Vector2 result(EigenTypes::Vector2::Zero());
   if (std::abs(minX) < std::abs(minY)) {
     result.x() = minX;
   } else {
@@ -64,14 +64,14 @@ Vector2 ExposeGroup::MinMovementToResolveCollision(const ExposeGroup& other) con
   return result;
 }
 
-void ExposeGroup::Move(const Vector2& displacement) {
+void ExposeGroup::Move(const EigenTypes::Vector2& displacement) {
   m_center += displacement;
   m_minBounds += displacement;
   m_maxBounds += displacement;
 }
 
 void ExposeGroup::Render(const RenderFrame& frame) const {
-  static const Vector3 DROP_SHADOW_OFFSET(0, 0, 0);
+  static const EigenTypes::Vector3 DROP_SHADOW_OFFSET(0, 0, 0);
   static const double DROP_SHADOW_RADIUS = 150.0;
   static const float DROP_SHADOW_OPACITY = 0.35f;
   m_dropShadow->Translation() = m_icon->Translation() + DROP_SHADOW_OFFSET;

@@ -86,17 +86,17 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
         NSDictionary* windowBounds = [m_info objectForKey:(id)kCGWindowBounds];
         CGRectMakeWithDictionaryRepresentation(reinterpret_cast<CFDictionaryRef>(windowBounds), &bounds);
       }
-      const CGRect originalRect{0.0f, 0.0f,
-                                static_cast<CGFloat>(CGImageGetWidth(imageRef)),
-                                static_cast<CGFloat>(CGImageGetHeight(imageRef))};
+      const CGRect originalRect{{0.0f, 0.0f},
+                                {static_cast<CGFloat>(CGImageGetWidth(imageRef)),
+                                 static_cast<CGFloat>(CGImageGetHeight(imageRef))}};
       // Adjust the overlay offset based on window decorations
       const CGFloat dx = (originalRect.size.width - bounds.size.width)*0.5f;
       const CGFloat dy = (originalRect.size.height - bounds.size.height)*0.71f; // Approx. 71% is bottom decoration
       // Adjust the offset due to the draw-origin being the bottom-left corner, but the overlay-origin is top-left
-      const CGRect overlayRect{m_overlayOffset.x + dx,
-                               bounds.size.height - CGImageGetHeight(overlayImageRef) - m_overlayOffset.y + dy,
-                               static_cast<CGFloat>(CGImageGetWidth(overlayImageRef)),
-                               static_cast<CGFloat>(CGImageGetHeight(overlayImageRef))};
+      const CGRect overlayRect{{m_overlayOffset.x + dx,
+                                bounds.size.height - CGImageGetHeight(overlayImageRef) - m_overlayOffset.y + dy},
+                               {static_cast<CGFloat>(CGImageGetWidth(overlayImageRef)),
+                                static_cast<CGFloat>(CGImageGetHeight(overlayImageRef))}};
       CGContextRef contextRef =
           CGBitmapContextCreate(nullptr, CGImageGetWidth(imageRef), CGImageGetHeight(imageRef),
                                 8, 0, rgb, kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);

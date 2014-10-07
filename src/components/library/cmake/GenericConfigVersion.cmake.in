@@ -1,0 +1,20 @@
+# This file is the generic template for producing version-defining files used by cmake
+# to search for specific versions of a library.  It should be used as the input file
+# for configure_file, and the output filename should be ${PROJECT_NAME}ConfigVersion.cmake
+# (which in this case is @PROJECT_NAME@ConfigVersion.cmake) in the root directory of the
+# library.
+#
+# The contents of this file can be copied/pasted verbatim into any project.  Source:
+# http://www.cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file#The_FooBar.2FFooBarConfigVersion.cmake.in_file
+
+set(PACKAGE_VERSION "@PROJECT_VERSION@")
+
+# Check whether the requested PACKAGE_FIND_VERSION is compatible
+if("${PACKAGE_VERSION}" VERSION_LESS "${PACKAGE_FIND_VERSION}")
+  set(PACKAGE_VERSION_COMPATIBLE FALSE)
+else()
+  set(PACKAGE_VERSION_COMPATIBLE TRUE)
+  if ("${PACKAGE_VERSION}" VERSION_EQUAL "${PACKAGE_FIND_VERSION}")
+    set(PACKAGE_VERSION_EXACT TRUE)
+  endif()
+endif()

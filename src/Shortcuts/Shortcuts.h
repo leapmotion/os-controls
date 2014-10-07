@@ -17,8 +17,6 @@ namespace sf {
   class RenderWindow;
 }
 
-int Shortcuts_main(int argc, char **argv);
-
 class Shortcuts :
   public ExceptionFilter
 {

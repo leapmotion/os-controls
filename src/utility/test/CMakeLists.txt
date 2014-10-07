@@ -3,7 +3,7 @@ set(utilitytest_SRCS
   ConfigTest.cpp
   FileMonitorTest.h
   FileMonitorTest.cpp
-  HysteresisTEst.cpp
+  HysteresisTest.cpp
   LockablePropertyTest.cpp
 )
 

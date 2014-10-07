@@ -41,9 +41,9 @@ void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTi
   if(m_state == ShortcutsState::FINAL) {
     return;
   }
-  
+
   m_lastScrollReleaseTimestep += frameTime.deltaTime;
-  
+
   // Check for normal transitions depending on our current state.
   // Define possible State Transitions
   ShortcutsState desiredState = m_state;
@@ -59,15 +59,15 @@ void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTi
       //Don't do anything. Transitions from these states are event driven.
       break;
   }
-  
+
   if (m_state != desiredState) {
     m_desiredTransitions.push(desiredState);
   }
-  
+
   smoothedDeltaX.SetGoal(handData.locationData.dX);
   smoothedDeltaY.SetGoal(handData.locationData.dY);
-  
-  m_smoothedHandDeltas = Vector2(smoothedDeltaX, smoothedDeltaY);
+
+  m_smoothedHandDeltas = EigenTypes::Vector2(smoothedDeltaX, smoothedDeltaY);
 
   //Fill in our AutoFilter outputs (defaults)
   state = m_state;
@@ -78,7 +78,7 @@ void StateMachine::AutoFilter(const HandData& handData, const FrameTime& frameTi
   else if (m_scrollType == ScrollType::PINCH_SCROLL) {
     doPinchScroll(handData.scroll, handData.locationData, handData.pinchData);
   }
-  
+
   m_lastHandLocation = handData.locationData.screenPosition();
 }
 
@@ -87,7 +87,7 @@ ShortcutsState StateMachine::validateTransition(ShortcutsState to) const {
   const bool enableWS = m_config->Get<bool>("enableWindowSelection");
   const bool enableScroll = m_config->Get<bool>("enableScroll");
   const bool enableMedia = m_config->Get<bool>("enableMedia");
-  
+
   if (!enableMedia && to == ShortcutsState::MEDIA_MENU_FOCUSED)
     return m_state;
 
@@ -104,12 +104,12 @@ ShortcutsState StateMachine::validateTransition(ShortcutsState to) const {
     if (to == ShortcutsState::MEDIA_MENU_FOCUSED && m_smoothedHandDeltas.norm() > transitionConfigs::MAX_HAND_DELTA_FOR_POSE_TRANSITION ) {
       return m_state;
     }
-    
+
     if ( m_state == ShortcutsState::SCROLLING || m_lastScrollReleaseTimestep <= 1000000 || !pointIsOnScreen(m_lastHandLocation)) {
       return m_state;
     }
   }
-  
+
   return to;
 }
 
@@ -117,16 +117,16 @@ void StateMachine::performNextTransition() {
   if ( m_desiredTransitions.size() <= 0 ) {
     return;
   }
-  
+
   ShortcutsState desiredState = m_desiredTransitions.front();
   m_desiredTransitions.pop();
-  
+
   desiredState = validateTransition(desiredState);
-  
+
   if (m_state == desiredState) {
     return;
   }
-  
+
   if (desiredState == ShortcutsState::FINAL) {
     if (m_state == ShortcutsState::SCROLLING ) {
       m_scrollOperation.reset();
@@ -148,18 +148,18 @@ void StateMachine::performNextTransition() {
   m_state = desiredState;
 }
 
-bool StateMachine::pointIsOnScreen(const Vector2 &point) const {
+bool StateMachine::pointIsOnScreen(const EigenTypes::Vector2 &point) const {
   if ( !m_renderWindow ) { return false; }
-  
+
   bool retVal = false;
-  Vector2 renderWindowSize(m_renderWindow->getSize().x, m_renderWindow->getSize().y);
+  EigenTypes::Vector2 renderWindowSize(m_renderWindow->getSize().x, m_renderWindow->getSize().y);
   if (point.x() >= 0 &&
       point.x() <= renderWindowSize.x() &&
       point.y() >= 0 &&
       point.y() <= renderWindowSize.y()) {
     retVal = true;
   }
-  
+
   return retVal;
 }
 
@@ -174,12 +174,12 @@ ShortcutsState StateMachine::resolvePose(HandPose pose) const {
   }
 }
 
-bool StateMachine::initializeScroll(const Vector2& scrollLocation) {
+bool StateMachine::initializeScroll(const EigenTypes::Vector2& scrollLocation) {
   AutowiredFast<OSCursor> cursor;
   if (cursor) {
     auto screenPosition = scrollLocation;
     OSPoint point{ static_cast<float>(screenPosition.x()), static_cast<float>(screenPosition.y()) };
-    
+
     // Move cursor
     AutowiredFast<OSCursor> cursor;
     if (cursor) {
@@ -188,7 +188,7 @@ bool StateMachine::initializeScroll(const Vector2& scrollLocation) {
       // Make the application at the point become active
       NativeWindow::RaiseWindowAtPosition(point.x, point.y);
     }
-    
+
     // Update the pixels-per-inch for scrolling on this screen
     float ppi = 96.0f;
     AutowiredFast<OSVirtualScreen> virtualScreen;
@@ -197,7 +197,7 @@ bool StateMachine::initializeScroll(const Vector2& scrollLocation) {
       ppi = screen.PixelsPerInch();
     }
     m_ppmm = ppi / 25.4f;
-    
+
     m_scrollOperation = m_windowScroller->BeginScroll();
     if (m_scrollOperation) {
       return true;
@@ -210,7 +210,7 @@ void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLo
 
   const double deltaScrollMultiplier = 0.15;
   const double deltaScrollThreshold = 0.15;
-  Vector2 deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
+  EigenTypes::Vector2 deltaScroll = -deltaScrollMultiplier*scroll.m_deltaScrollMM.head<2>();
 
   switch (m_state) {
     case ShortcutsState::SCROLLING:
@@ -242,19 +242,19 @@ void StateMachine::doHandScroll(const Scroll& scroll, const HandLocation& handLo
 }
 
 void StateMachine::doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch) {
-  Vector2 deltaScroll = Vector2::Zero();
+  EigenTypes::Vector2 deltaScroll = EigenTypes::Vector2::Zero();
 
   if ( m_state == ShortcutsState::SCROLLING )
   {
     if (!pinch.isPinching) {
       m_desiredTransitions.push(ShortcutsState::BASE);
-      
+
       //Move to transition
       m_scrollOperation.reset();
       m_lastScrollReleaseTimestep = 0.0f;
       m_desiredTransitions.push(ShortcutsState::BASE);
     }
-    deltaScroll = Vector2{ handLocation.dmmX, handLocation.dmmY };
+    deltaScroll = EigenTypes::Vector2{ handLocation.dmmX, handLocation.dmmY };
   }
   else {
     if (pinch.isPinching && m_state == ShortcutsState::BASE) {
@@ -278,30 +278,30 @@ void StateMachine::OnHandVanished() {
 // Distpatch Loop
 void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   std::lock_guard<std::mutex> lk(m_lock);
-  
+
   float scrollSmoothing = static_cast<float>((fabs(m_handDelta.y()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING));
   scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
   scrollSmoothing = 1 - scrollSmoothing;
   scrollSmoothing *= scrollConfigs::MAX_SCROLL_SMOOTHING;
-  
+
   m_handDeltaMM_Y.SetSmoothStrength(scrollSmoothing);
-  
+
   scrollSmoothing = static_cast<float>((fabs(m_handDelta.x()) - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING) / (scrollConfigs::MM_DELTA_FOR_MIN_SMOOTHING - scrollConfigs::MM_DELTA_FOR_MAX_SMOOTHING));
   scrollSmoothing = std::min(1.0f, std::max(0.0f, scrollSmoothing));
   scrollSmoothing = 1 - scrollSmoothing;
   scrollSmoothing *= scrollConfigs::MAX_SCROLL_SMOOTHING;
-  
+
   m_handDeltaMM_X.SetSmoothStrength(scrollSmoothing);
-  
+
   m_handDeltaMM_X.SetGoal(static_cast<float>(m_handDelta.x()));
   m_handDeltaMM_Y.SetGoal(static_cast<float>(m_handDelta.y()));
-  
+
   smoothedDeltaX.Update(static_cast<float>(deltaT.count()));
   smoothedDeltaY.Update(static_cast<float>(deltaT.count()));
-  
+
   m_handDeltaMM_X.Update(static_cast<float>(deltaT.count()));
   m_handDeltaMM_Y.Update(static_cast<float>(deltaT.count()));
-  
+
   //Perform any transitions waiting in the transition queue
   while ( m_desiredTransitions.size() > 0 ) {
     performNextTransition();
@@ -310,7 +310,7 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
   if ( m_state == ShortcutsState::FINAL ) {
     // Shutdown the context
     m_context->SignalShutdown();
-    
+
     // Remove our own reference to the context
     m_context.reset();
   }
@@ -324,5 +324,5 @@ void StateMachine::Tick(std::chrono::duration<double> deltaT) {
     m_scrollOperation->ScrollBy(0.0f, m_handDeltaMM_Y.Value() * scrollDirection * scrollSensitivity * m_ppmm);
   }
 
-  m_handDelta = Vector2(0, 0);
+  m_handDelta = EigenTypes::Vector2(0, 0);
 }

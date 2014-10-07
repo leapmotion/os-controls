@@ -28,7 +28,7 @@ public:
   ~ExposeView(void);
 
   void AutoInit();
-  
+
   // RenderEngineNode overrides:
   void AnimationUpdate(const RenderFrame& frame) override;
   void Render(const RenderFrame& frame) const override;
@@ -78,19 +78,19 @@ public:
 
 private:
   struct Force {
-    Force(const Vector3& position, float strength, const std::shared_ptr<ExposeViewWindow>& wnd, float maxDist) :
+    Force(const EigenTypes::Vector3& position, float strength, const std::shared_ptr<ExposeViewWindow>& wnd, float maxDist) :
     m_position(position),
     m_strength(strength),
     m_window(wnd),
     m_maxDist(maxDist)
     {}
-    Vector3 ForceAt(const Vector3& position) const {
-      const Vector3 diff = position - m_position;
+    EigenTypes::Vector3 ForceAt(const EigenTypes::Vector3& position) const {
+      const EigenTypes::Vector3 diff = position - m_position;
       const double dist = diff.norm();
       const double distMult = 1.0 - SmootherStep(std::min(1.0, dist / m_maxDist));
       return m_strength * distMult * diff / dist;
     }
-    Vector3 m_position;
+    EigenTypes::Vector3 m_position;
     float m_strength;
     std::shared_ptr<ExposeViewWindow> m_window;
     float m_maxDist;
@@ -119,13 +119,13 @@ private:
 
   // Convert a radian angle and a pixel distance to a point.
   // Returns a tuple x,y
-  Vector2 radialCoordsToPoint(double angle, double distance);
-  
+  EigenTypes::Vector2 radialCoordsToPoint(double angle, double distance);
+
   void computeLayout();
 
   //Root node in the render tree
   Autowired<RenderEngine> m_rootNode;
-  
+
   //Events to send to controller
   AutoFired<ExposeViewEvents> m_exposeViewEvents;
 
@@ -139,7 +139,7 @@ private:
 
   // Alpha masking value for the entire view
   Animated<float> m_alphaMask;
-  
+
   // All windows currently known to this view:
   std::unordered_set<std::shared_ptr<ExposeViewWindow>> m_windows;
 
@@ -156,7 +156,7 @@ private:
   ForceVector m_forces;
   double m_layoutRadius;
   double m_selectionRadius;
-  Vector2 m_viewCenter;
+  EigenTypes::Vector2 m_viewCenter;
 
   std::shared_ptr<ExposeViewWindow> m_selectedWindow;
 

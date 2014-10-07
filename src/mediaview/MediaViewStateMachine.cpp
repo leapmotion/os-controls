@@ -89,7 +89,7 @@ void MediaViewStateMachine::AutoInit() {
 }
 
 void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& handData, const FrameTime& frameTime) {
-  const Vector2 menuOffset = m_radialMenu->Translation().head<2>();
+  const EigenTypes::Vector2 menuOffset = m_radialMenu->Translation().head<2>();
 
   m_CurrentTime += 1E-6 * frameTime.deltaTime;
 
@@ -110,7 +110,7 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
         m_cursorView->EnableMediaView();
         m_cursorBufferzoneOffset = calculateBufferZoneOffset(handData.locationData.screenPosition());
         m_cursorView->EnableLocationOverride();
-        m_radialMenu->Translation() = Vector3(handData.locationData.x, handData.locationData.y, 0.0) + m_cursorBufferzoneOffset;
+        m_radialMenu->Translation() = EigenTypes::Vector3(handData.locationData.x, handData.locationData.y, 0.0) + m_cursorBufferzoneOffset;
         m_volumeSlider->Translation() = m_radialMenu->Translation() + VOLUME_SLIDER_OFFSET;
         m_mediaViewEventListener(&MediaViewEventListener::OnInitializeVolume)();
         m_volumeViewAlpha.SetGoal(1.0f);
@@ -124,8 +124,8 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
         m_cursorView->EnableHandAndScroll();
         m_state = State::ARMED;
         m_cursorView->DisableLocationOverride();
-        m_cursorBufferzoneOffset = Vector3(0,0,0);
-        doMenuUpdate(Vector2(0.0f,0.0f), menuOffset);
+        m_cursorBufferzoneOffset = EigenTypes::Vector3(0,0,0);
+        doMenuUpdate(EigenTypes::Vector2(0.0f,0.0f), menuOffset);
         resetMemberState();
         m_volumeViewAlpha.SetGoal(0.0f);
         m_LastStateChangeTime = m_CurrentTime;
@@ -141,7 +141,7 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
       if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->EnableHandAndScroll();
         m_cursorView->DisableLocationOverride();
-        m_cursorBufferzoneOffset = Vector3(0,0,0);
+        m_cursorBufferzoneOffset = EigenTypes::Vector3(0,0,0);
         m_volumeViewAlpha.SetGoal(0.0f);
         m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
@@ -157,7 +157,7 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
       if(appState != ShortcutsState::MEDIA_MENU_FOCUSED) {
         m_cursorView->EnableHandAndScroll();
         m_cursorView->DisableLocationOverride();
-        m_cursorBufferzoneOffset = Vector3(0,0,0);
+        m_cursorBufferzoneOffset = EigenTypes::Vector3(0,0,0);
         m_volumeViewAlpha.SetGoal(0.0f);
         m_state = State::ARMED;
         m_LastStateChangeTime = m_CurrentTime;
@@ -177,7 +177,7 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
   switch (m_state) {
     case State::ARMED:
       // Make sure menu is "reset"
-      doMenuUpdate(Vector2(0.0f,0.0f), Vector2(0,0));
+      doMenuUpdate(EigenTypes::Vector2(0.0f,0.0f), EigenTypes::Vector2(0,0));
       // Wedge transparency is updated in AnimationUpdate loops
       m_radialMenu->InteractWithoutCursor();
       m_selectedItem = -1;
@@ -191,7 +191,7 @@ void MediaViewStateMachine::AutoFilter(ShortcutsState appState, const HandData& 
       if ( m_state == State::ACTIVE || m_state == State::LOCKED) {
         doMenuUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), menuOffset);
       }
-      doVolumeUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), Vector2(handData.locationData.dX, handData.locationData.dY), menuOffset);
+      doVolumeUpdate(handData.locationData.screenPosition() + ProjectVector(2, m_cursorBufferzoneOffset), EigenTypes::Vector2(handData.locationData.dX, handData.locationData.dY), menuOffset);
       m_cursorView->SetOverideLocation(m_goalCursorPosition);
       break;
     }
@@ -225,8 +225,8 @@ void MediaViewStateMachine::resolveSelection(int selectedID) {
   }
 }
 
-void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 menuOffset) {
-  Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
+void MediaViewStateMachine::doMenuUpdate(const EigenTypes::Vector2& locationData, EigenTypes::Vector2 menuOffset) {
+  EigenTypes::Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
   if ( !m_interactionIsLocked ) {
     RadialMenu::UpdateResult updateResult = m_radialMenu->InteractWithCursor(leapPosition);
     if ( m_state == State::ACTIVE ) {
@@ -243,9 +243,9 @@ void MediaViewStateMachine::doMenuUpdate(const Vector2& locationData, Vector2 me
   }
 }
 
-void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Vector2& deltaPixels, Vector2 menuOffset) {
+void MediaViewStateMachine::doVolumeUpdate(const EigenTypes::Vector2& locationData, const EigenTypes::Vector2& deltaPixels, EigenTypes::Vector2 menuOffset) {
 
-  Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
+  EigenTypes::Vector3 leapPosition(locationData.x() - menuOffset.x(), locationData.y() - menuOffset.y(), 0);
 
   double offsetNormalFactor = (leapPosition.y() - VOLUME_OFFSET_START_Y) / (VOLUME_LOCK_IN_Y - VOLUME_OFFSET_START_Y);
   offsetNormalFactor = std::max(0.0, std::min(1.0, offsetNormalFactor));
@@ -255,7 +255,7 @@ void MediaViewStateMachine::doVolumeUpdate(const Vector2& locationData, const Ve
       m_interactionIsLocked = true;
       m_LastStateChangeTime = m_CurrentTime;
     }
-    Vector2 goalPosition = Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
+    EigenTypes::Vector2 goalPosition = EigenTypes::Vector2(m_volumeSlider->Translation().x() + m_volumeSlider->GetNotchOffset().x() + VOLUME_LOCK_X_OFFSET, std::min(static_cast<float>(m_goalCursorPosition.y()), static_cast<float>(m_radialMenu->Translation().y() + VOLUME_LOCK_IN_Y)));
     m_goalCursorPosition += (offsetNormalFactor * (goalPosition - m_goalCursorPosition));
 
     if ( offsetNormalFactor >= 1.0 ) {
@@ -343,7 +343,7 @@ void MediaViewStateMachine::Render(const RenderFrame &renderFrame) const  {
 
 float MediaViewStateMachine::calculateMenuAlphaFade() {
   float retVal = 1.0f;
-  Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
+  EigenTypes::Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
   retVal = static_cast<float>((diff.norm() - KILL_FADE_START_DISTANCE) / (KILL_FADE_END_DISTANCE - KILL_FADE_START_DISTANCE));
   retVal = 1.0f - std::min(1.0f, std::max(0.0f, retVal));
 
@@ -353,7 +353,7 @@ float MediaViewStateMachine::calculateMenuAlphaFade() {
 bool MediaViewStateMachine::shouldMenuDistanceKill() {
   bool retVal = false;
 
-  Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
+  EigenTypes::Vector2 diff = m_goalCursorPosition - ProjectVector(2, m_radialMenu->Translation());
   if(diff.norm() > KILL_FADE_END_DISTANCE) {
     retVal = true;
   }
@@ -363,7 +363,7 @@ bool MediaViewStateMachine::shouldMenuDistanceKill() {
 void MediaViewStateMachine::doActiveToLockedTasks() {
   m_volumeViewAlpha.SetGoal(0.0f);
   m_cursorView->DisableLocationOverride();
-  m_cursorBufferzoneOffset = Vector3(0,0,0);
+  m_cursorBufferzoneOffset = EigenTypes::Vector3(0,0,0);
 }
 
 void MediaViewStateMachine::resetMemberState() {
@@ -376,8 +376,8 @@ float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
   return deltaHandRoll / static_cast<float>(3 * PI / 2.0f);
 }
 
-Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const Vector2& screenPosition) {
-  Vector3 retVal(0,0,0);
+EigenTypes::Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const EigenTypes::Vector2& screenPosition) {
+  EigenTypes::Vector3 retVal(0,0,0);
 
   // Find our distance from the screen edge
   float xEdgeDistance = static_cast<float>(std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x()));
@@ -391,7 +391,7 @@ Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const Vector2& screenPo
   xOffset = (screenPosition.x() > m_renderWindow->getSize().x / 2.0) ? xOffset*-1 : xOffset;
   yOffset = (screenPosition.y() > m_renderWindow->getSize().y / 2.0) ? yOffset*-1 : yOffset;
 
-  retVal = Vector3( xOffset, yOffset, 0.0f );
+  retVal = EigenTypes::Vector3( xOffset, yOffset, 0.0f );
 
   return retVal;
 }

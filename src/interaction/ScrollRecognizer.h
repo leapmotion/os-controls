@@ -5,7 +5,7 @@
 #include <chrono>
 
 struct Scroll {
-  Vector3 m_deltaScrollMM;
+  EigenTypes::Vector3 m_deltaScrollMM;
 };
 
 class ScrollRecognizer {
@@ -17,21 +17,21 @@ private:
   void ExtractFrameData();
   void UpdateHorizontalMovementRatio();
   float ComputeWarmupMultiplier() const;
-  Vector3 ComputeRoundedHandVelocity() const;
+  EigenTypes::Vector3 ComputeRoundedHandVelocity() const;
   void UpdateScrollVelocity();
   void AccumulateScrollFromFingers();
 
-  static float DeadZoneMultiplier(const Vector3& velocity);
+  static float DeadZoneMultiplier(const EigenTypes::Vector3& velocity);
 
   Smoothed<float> m_horizontalMovementRatio;
-  
-  Smoothed<Vector3> m_scrollVelocity;
-  Vector3 m_curScrollVelocity;
-  
+
+  Smoothed<EigenTypes::Vector3> m_scrollVelocity;
+  EigenTypes::Vector3 m_curScrollVelocity;
+
   Leap::Hand m_hand;
-  Vector3 m_handVelocity;
-  Vector3 m_handDirection;
-  Vector3 m_handNormal;
+  EigenTypes::Vector3 m_handVelocity;
+  EigenTypes::Vector3 m_handDirection;
+  EigenTypes::Vector3 m_handNormal;
 
   std::chrono::microseconds m_prevTimestamp;
   std::chrono::duration<float> m_deltaTimeSeconds;

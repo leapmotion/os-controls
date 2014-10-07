@@ -24,7 +24,7 @@ class Config;
 /// </summary>
 /// <remarks>
 /// This state machine has global knowledge of all interior components of the Shortcuts
-/// interaction system.  It is a top-level system, and 
+/// interaction system.  It is a top-level system, and
 /// </remarks>
 
 class StateMachine:
@@ -36,9 +36,9 @@ class StateMachine:
 public:
   StateMachine(void);
   ~StateMachine(void);
-  
+
   void AutoFilter(const HandData& handData, const FrameTime& frameTime, ShortcutsState& state);
-  
+
   void OnHandVanished() override;
   void RequestTransition(ShortcutsState requestedState) override;
 
@@ -51,11 +51,11 @@ private:
   ShortcutsState validateTransition(ShortcutsState to) const;
   void performNextTransition();
 
-  bool pointIsOnScreen(const Vector2& point) const;
+  bool pointIsOnScreen(const EigenTypes::Vector2& point) const;
 
   ShortcutsState resolvePose(HandPose pose) const;
-  
-  bool initializeScroll(const Vector2& scrollPosition); // returns if the initialization was sucessful
+
+  bool initializeScroll(const EigenTypes::Vector2& scrollPosition); // returns if the initialization was sucessful
   void doHandScroll(const Scroll& scroll, const HandLocation& handLocation);
   void doPinchScroll(const Scroll& scroll, const HandLocation& handLocation, const HandPinch& pinch);
 
@@ -63,27 +63,27 @@ private:
 
   ShortcutsState m_state;
   std::queue<ShortcutsState> m_desiredTransitions;
-  
+
   enum class ScrollType {
     HAND_SCROLL,
     PINCH_SCROLL
   };
   ScrollType m_scrollType;
 
-  Vector2 m_handDelta; //in millimeters
+  EigenTypes::Vector2 m_handDelta; //in millimeters
   Smoothed<float> m_handDeltaMM_Y;
   Smoothed<float> m_handDeltaMM_X;
-  Vector2 m_lastHandLocation; //in screen coordinates
+  EigenTypes::Vector2 m_lastHandLocation; //in screen coordinates
   const float SCROLL_SENSITIVITY = 1.3f * 96.0f / 25.4f;
   float m_lastScrollReleaseTimestep;
-  
+
   Smoothed<float> smoothedDeltaX;
   Smoothed<float> smoothedDeltaY;
-  Vector2 m_smoothedHandDeltas;
+  EigenTypes::Vector2 m_smoothedHandDeltas;
 
   // Pixels-per-millimeter for use with the current scroll operation
   float m_ppmm;
-  
+
   std::shared_ptr<IScrollOperation> m_scrollOperation;
 
   Autowired<CursorView> m_cursorView;
@@ -91,7 +91,7 @@ private:
   Autowired<sf::RenderWindow> m_renderWindow;
 
   Autowired<Config> m_config;
-  
+
   // Lets us store a pointer to our current context so we can keep it around.  This gives
   // us the ability to decide when we want to be evicted by just resetting this value.
   AutoCurrentContext m_context;
