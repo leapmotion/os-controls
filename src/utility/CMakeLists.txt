@@ -54,5 +54,5 @@ elseif(APPLE)
   target_link_libraries(utility ${CORESERVICES_FRAMEWORK})
 endif()
 
-target_link_components(utility Primitives)
+target_link_libraries(utility Primitives)
 add_subdirectory(test)
