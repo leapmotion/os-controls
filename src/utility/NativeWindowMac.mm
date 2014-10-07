@@ -63,9 +63,10 @@ void NativeWindow::RaiseWindowAtPosition(float x, float y) {
     if (!windowID) {
       return;
     }
-    const NSArray* windowArray =
-      (id)CFBridgingRelease(CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, windowID));
-    if ([windowArray count] <= 0) {
+    CFArrayRef windowInfo = CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, windowID);
+    bool isValid = [(__bridge id)windowInfo count] > 0;
+    CFRelease(windowInfo);
+    if (!isValid) {
       return;
     }
     // FIXME
