@@ -29,16 +29,9 @@ void ErrorDialogs::RaiseErrorMessages()
       }
     }
 
-    if (isEmbedded) {
-      ui->ShowToolbarMessage("Leap Motion Controller disconnected",
-        "No Leap Motion Controller detected.\n"
-        "Turn on your Leap Motion Controller to continue using Shortcuts.");
-    }
-    else {
-      ui->ShowToolbarMessage("Leap Motion Controller disconnected",
-        "No Leap Motion Controller detected.\n"
-        "Plug in a Leap Motion Controller to continue using Shortcuts.");
-    }
+    ui->ShowToolbarMessage("Leap Motion Controller disconnected",
+      "Leap Motion Controller not detected.\n"
+      "Plug in a Leap Motion Controller to continue using Shortcuts.");
   }
   else if ((controller->policyFlags() & Leap::Controller::POLICY_BACKGROUND_FRAMES) == 0) {
     ui->ShowToolbarMessage("Background apps not enabled",
