@@ -13,8 +13,6 @@ if(_this_is_standalone_project)
 
     set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-
     ###################################################################################################
     # We use an EXTERNAL_LIBRARY_DIR variable as a hint to where all the libraries can be found.
     # This is an optional means to not have to specify each library's root dir directly.
@@ -32,6 +30,8 @@ if(_this_is_standalone_project)
     # CMAKE_PREFIX_PATH is the path used for searching by FIND_XXX(), with appropriate suffixes added.
     # EXTERNAL_LIBRARY_DIR is a hint for all the find_library calls.
     list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
+else()
+    set(Components_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 endif()
 
 ###################################################################################################
