@@ -4,13 +4,14 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-MakesRenderWindowFullScreen::MakesRenderWindowFullScreen(void) {
+MakesRenderWindowFullScreen::MakesRenderWindowFullScreen(void) : m_isVisible(true) {
   *this += [this] { AdjustDesktopWindow(); };
 }
+
 MakesRenderWindowFullScreen::~MakesRenderWindowFullScreen(void) {}
 
 void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
-  if(!m_mw || !m_virtualScreen || !m_contextSettings)
+  if (!m_mw || !m_virtualScreen || !m_contextSettings)
     return;
 
   const sf::Vector2i olPosition = m_mw->getPosition();
@@ -24,10 +25,10 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   //behind you.
   const sf::Vector2u newSize{static_cast<uint32_t>(bounds.size.width+1), static_cast<uint32_t>(bounds.size.height+1)};
 #else
-  const sf::Vector2u newSize{ static_cast<uint32_t>(bounds.size.width), static_cast<uint32_t>(bounds.size.height) };
+  const sf::Vector2u newSize{static_cast<uint32_t>(bounds.size.width), static_cast<uint32_t>(bounds.size.height)};
 #endif
 
-  if(oldSize != newSize) {
+  if (oldSize != newSize) {
     m_mw->create(sf::VideoMode(newSize.x, newSize.y, 32), "Shortcuts", sf::Style::None, *m_contextSettings);
   }
   m_mw->setVisible(false);
@@ -45,5 +46,15 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
   NativeWindow::MakeTransparent(handle);
   NativeWindow::MakeAlwaysOnTop(handle);
   NativeWindow::AllowInput(handle, false);
+  // There are problems with properly hiding and showing SFML windows. Therefore, for now,
+  // always make the window visible after adjusting the window.
   m_mw->setVisible(true);
+  m_isVisible = true;
+}
+
+void MakesRenderWindowFullScreen::SetVisible(bool visible) {
+  if (m_isVisible != visible) {
+    m_isVisible = visible;
+    m_mw->setVisible(m_isVisible);
+  }
 }

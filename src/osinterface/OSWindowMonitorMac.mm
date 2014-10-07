@@ -37,9 +37,9 @@ void OSWindowMonitorMac::Scan() {
   lk.unlock();
 
   @autoreleasepool {
-    NSArray* windowArray =
-        (id)CFBridgingRelease(CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly |
-                                                         kCGWindowListExcludeDesktopElements, kCGNullWindowID));
+    CFArrayRef windowInfo = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly |
+                                                       kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    NSArray* windowArray = (__bridge id)windowInfo;
     // Loop through the windows
     for (NSDictionary* entry in windowArray) {
       // Do additional filtering of windows
@@ -112,6 +112,7 @@ void OSWindowMonitorMac::Scan() {
       }
       overlayWindowID = 0;
     }
+    CFRelease(windowInfo);
   }
   // If we can account for all of the previously seen windows, there is no need to check for destroyed windows.
   if (previousCount == 0) {

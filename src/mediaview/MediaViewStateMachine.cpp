@@ -322,10 +322,6 @@ void MediaViewStateMachine::AnimationUpdate(const RenderFrame &renderFrame) {
       }
     }
   }
-
-  std::cout << "fadeCap: " << m_distanceFadeCap << std::endl;
-  std::cout << "alphaMask: " << alphaMask << std::endl;
-
   alphaMask = std::min(alphaMask, m_distanceFadeCap);
 
   m_radialMenu->LocalProperties().AlphaMask() = alphaMask;

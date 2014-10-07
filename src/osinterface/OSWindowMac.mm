@@ -55,9 +55,10 @@ bool OSWindowMac::SetOverlayWindow(CGWindowID overlayWindowID, const CGPoint& ov
 
 bool OSWindowMac::IsValid(void) {
   @autoreleasepool {
-    NSArray* windowArray =
-        (id)CFBridgingRelease(CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, m_windowID));
-    return ([windowArray count] > 0);
+    CFArrayRef windowInfo = CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, m_windowID);
+    bool isValid = [(__bridge id)windowInfo count] > 0;
+    CFRelease(windowInfo);
+    return isValid;
   }
 }
 

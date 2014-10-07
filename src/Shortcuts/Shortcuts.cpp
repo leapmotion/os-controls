@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
   PlatformInitializer init;
   AutoCurrentContext ctxt;
-  
+
   ctxt->Initiate();
   AutoRequired<Config> config; //do this just after the native ui is created so it gets the OnSettingChanged events.
   AutoRequired<AutoLaunch> autoLaunch;
@@ -68,6 +68,7 @@ int main(int argc, char **argv)
     // Run as fast as possible:
     mw->setFramerateLimit(120);
     mw->setVerticalSyncEnabled(false);
+    mw->setVisible(false);
 
     // Handoff to the main loop:
     shortcuts->Main();
