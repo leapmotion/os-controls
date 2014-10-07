@@ -62,6 +62,7 @@ if(APPLE)
   )
 endif()
 
+ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" Shortcuts_SOURCES)
 add_conditional_sources(Shortcuts_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${Shortcuts_RESOURCES})
 
 if(WIN32)
