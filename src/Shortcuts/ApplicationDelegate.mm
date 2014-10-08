@@ -29,6 +29,8 @@
   if (_isInitialized) {
     return;
   }
+  _isInitialized = YES;
+
   // Hide ourselves from the Dock. Unfortunately, this causes our application
   // to hide as well. See our workaround for that problem in the
   // applicationDidHide: method below
@@ -37,33 +39,6 @@
   if ([app activationPolicy] != NSApplicationActivationPolicyAccessory) {
     [app setActivationPolicy:NSApplicationActivationPolicyProhibited];
   }
-  _menubarController = [[MenubarController alloc] init];
-  _isInitialized = YES;
-
-  // Load config settings
-  AutoCurrentContext ctxt;
-  ctxt->NotifyWhenAutowired<Config>([self] {
-    AutowiredFast<Config> cfg;
-    if (cfg) {
-      std::string cfgPath = "./";
-      @autoreleasepool {
-        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-        const char* c_str = [[paths objectAtIndex:0] UTF8String];
-        if (c_str) {
-          cfgPath = std::string(c_str);
-          cfgPath += "/Leap Motion/";
-        }
-      }
-      cfgPath += "Shortcuts.json";
-      cfg->SetPrimaryFile(cfgPath);
-      cfg->RebroadcastConfig();
-
-      if (cfg->Get<bool>("showHelpOnStart")) {
-        [_menubarController onHelp:nil];
-        cfg->Set("showHelpOnStart", false);
-      }
-    }
-  });
 
   // Check and possibly update the link to the Shortcuts preference pane
   @autoreleasepool {
@@ -101,6 +76,38 @@
     // Create a symbolic link to our Shortcuts preference pane app in the user's preference pane directory
     [fileManager createSymbolicLinkAtPath:userPrefPanePath withDestinationPath:shortcutsPrefPanePath error:nil];
   }
+}
+
+- (void)addStatusItem
+{
+  if (_menubarController) {
+    return;
+  }
+  _menubarController = [[MenubarController alloc] init];
+  // Load config settings
+  AutoCurrentContext ctxt;
+  ctxt->NotifyWhenAutowired<Config>([self] {
+    AutowiredFast<Config> cfg;
+    if (cfg) {
+      std::string cfgPath = "./";
+      @autoreleasepool {
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        const char* c_str = [[paths objectAtIndex:0] UTF8String];
+        if (c_str) {
+          cfgPath = std::string(c_str);
+          cfgPath += "/Leap Motion/";
+        }
+      }
+      cfgPath += "Shortcuts.json";
+      cfg->SetPrimaryFile(cfgPath);
+      cfg->RebroadcastConfig();
+
+      if (cfg->Get<bool>("showHelpOnStart")) {
+        [_menubarController onHelp:nil];
+        cfg->Set("showHelpOnStart", false);
+      }
+    }
+  });
 }
 
 - (void)applicationDidHide:(NSNotification*)aNotification

@@ -8,8 +8,12 @@
 #include <Foundation/NSUserNotification.h>
 #include <autowiring/autowiring.h>
 
-void NativeUI::ShowUI() {
+NativeUI::NativeUI() {
   [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:[NSApplication sharedApplication] topLevelObjects:nil];
+}
+
+void NativeUI::ShowUI() {
+  [[NSApp delegate] addStatusItem];
 }
 
 void NativeUI::DestroyUI() {

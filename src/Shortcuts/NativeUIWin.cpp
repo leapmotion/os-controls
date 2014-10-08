@@ -3,6 +3,9 @@
 
 using namespace Shortcuts;
 
+NativeUI::NativeUI() {
+}
+
 void NativeUI::ShowUI() {
   NativeUIWin::AddTrayIcon(*this);
 }
