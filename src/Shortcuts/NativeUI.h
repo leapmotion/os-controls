@@ -5,6 +5,8 @@ struct NativeUI:
   public ContextMember,
   public ConfigEvent
 {
+  NativeUI(void);
+
   /// <summary>
   /// Registers the system tray icon with the system to allow user interaction
   /// </summary>

@@ -9,4 +9,6 @@
 
 @property (nonatomic, readonly) MenubarController* menubarController;
 
+- (void)addStatusItem;
+
 @end
