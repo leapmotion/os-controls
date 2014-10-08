@@ -67,11 +67,11 @@ class OculusVR {
 
 public:
   bool isDebug();
-  
+
   int GetHMDWidth();
-  
+
   int GetHMDHeight();
-  
+
   void InitGlew();
 
   void InitHMD();
@@ -82,7 +82,7 @@ public:
   void EndFrame();
 
   void DismissHealthWarning();
-  
+
   const ovrRecti& EyeViewport(int eye) const {
     return m_EyeRenderViewport[eye];
   }
@@ -106,22 +106,28 @@ public:
   ovrHmd& GetHMD() {
     return m_HMD;
   }
-  
+
   void GetFramebufferStatus(GLenum status);
 
-#if _WIN32
-  void SetHWND(const HWND& hwnd) {
-    m_HWND = hwnd;
-  }
+#if defined(OVR_OS_WIN32)
+  typedef HWND WindowHandle;
+#elif defined(OVR_OS_MAC)
+  typedef void* WindowHandle; // NSWindow
+#elif defined(OVR_OS_LINUX)
+  typedef Window WindowHandle;
 #endif
+
+  void SetWindow(const WindowHandle& window) {
+    m_Window = window;
+  }
 
 private:
 
   void Shutdown();
 
-  ovrHmd m_HMD = NULL;
+  ovrHmd m_HMD = nullptr;
   bool m_Debug;
-  
+
   int m_width;
   int m_height;
 
@@ -140,8 +146,5 @@ private:
   OVR::Vector3f m_EyePosition[2];
   OVR::Matrix4f m_EyeRotation[2];
 
-#if _WIN32
-  HWND m_HWND;
-#endif
-
+  WindowHandle m_Window;
 };

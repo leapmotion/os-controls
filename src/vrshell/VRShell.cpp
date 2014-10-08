@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 {
   PlatformInitializer init;
   AutoCurrentContext ctxt;
-  
+
   ctxt->Initiate();
 
   try {
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     );
     AutoRequired<MakesRenderWindowFullScreen>();
     AutoConstruct<OculusVR> hmdInterface;
-    hmdInterface->SetHWND(mw->getSystemHandle());
+    hmdInterface->SetWindow(mw->getSystemHandle());
     hmdInterface->Init();
 
     // Run as fast as possible:

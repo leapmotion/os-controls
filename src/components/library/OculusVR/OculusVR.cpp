@@ -38,7 +38,7 @@ void OculusVR::InitGlew() {
 void OculusVR::InitHMD(){
   ovr_Initialize();
   m_HMD = ovrHmd_Create(0);
-    
+
   if (!m_HMD) {
     m_HMD = ovrHmd_CreateDebug(ovrHmd_DK1);
     if (!m_HMD) {
@@ -52,7 +52,7 @@ void OculusVR::InitHMD(){
 
 bool OculusVR::Init() {
   glewInit();
-  
+
   if ( ! m_HMD ){
     InitHMD();
   }
@@ -114,19 +114,22 @@ bool OculusVR::Init() {
   cfg.OGL.Header.RTSize.h = m_HMD->Resolution.h;
   cfg.OGL.Header.Multisample = 1;
 
-#if _WIN32
   if (!(m_HMD->HmdCaps & ovrHmdCap_ExtendDesktop)) {
-    ovrHmd_AttachToWindow(m_HMD, m_HWND, NULL, NULL);
+    ovrHmd_AttachToWindow(m_HMD, m_Window, nullptr, nullptr);
   }
 
-  cfg.OGL.Window = m_HWND;
-  cfg.OGL.DC = NULL;
+#if defined(OVR_OS_WIN32)
+  cfg.OGL.Window = m_Window;
+  cfg.OGL.DC = nullptr;
+#elif defined(OVR_OS_LINUX)
+  cfg.OGL.Disp = nullptr;
+  cfg.OGL.Win = m_Window;
 #endif
- 
+
   ovrHmd_ConfigureRendering(m_HMD, &cfg.Config, ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive, eyeFov, m_EyeRenderDesc);
 
   // Internally, the above line calls glewInit(), which generates a GL_INVALID_ENUM error inside of it. We will make a
-  // glGetError() call to clear out the phony error; otherwise the next gl function we call will appear to fail. Raffi, I'm 
+  // glGetError() call to clear out the phony error; otherwise the next gl function we call will appear to fail. Raffi, I'm
   // not sure if your glewInit() changes in develop resolves this? If so, this might not be needed anymore.
   glGetError();
 
@@ -145,7 +148,7 @@ void OculusVR::Destroy() {
 
 void OculusVR::BeginFrame() {
   ovrFrameTiming frameTiming = ovrHmd_BeginFrame(m_HMD, 0);
-  
+
   static OVR::Vector3f HeadPos(0.0f, 1.6f, -5.0f);
   HeadPos.y = ovrHmd_GetFloat(m_HMD, OVR_KEY_EYE_HEIGHT, HeadPos.y);
 
@@ -184,35 +187,35 @@ void OculusVR::GetFramebufferStatus(GLenum status){
     case GL_FRAMEBUFFER_COMPLETE:
       printf(" :: GL_FRAMEBUFFER_COMPLETE in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_UNDEFINED:
       printf(" :: GL_FRAMEBUFFER_UNDEFINED in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
       printf(" :: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
       printf(" :: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
       printf(" :: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
       printf(" :: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_UNSUPPORTED:
       printf(" :: GL_FRAMEBUFFER_UNSUPPORTED in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
       printf(" :: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE in %i\n", status);
       break;
-      
+
     case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
       printf(" :: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS in %i\n", status);
       break;
