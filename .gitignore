@@ -39,3 +39,6 @@ bin/platforms/*
 *.aps
 src/Shortcuts/Version.h
 install/*
+ComponentsConfig.cmake
+ComponentsConfigVersion.cmake
+src/components/library/cmake/ComponentsExport.cmake

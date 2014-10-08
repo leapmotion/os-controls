@@ -22,7 +22,7 @@ void NativeWindow::MakeTransparent(const Handle& handle) {
   // http://www.opengl.org/wiki/OpenGL_Type -- GLint is necessarily 32 bit,
   // so we can use a fixed int type without including any GL headers here.
   int32_t opacity = 0;
-  [context setValues : &opacity forParameter : NSOpenGLCPSurfaceOpacity];
+  [context setValues:&opacity forParameter:NSOpenGLCPSurfaceOpacity];
 
   // Set window properties.
   [window setOpaque : NO];
@@ -63,9 +63,10 @@ void NativeWindow::RaiseWindowAtPosition(float x, float y) {
     if (!windowID) {
       return;
     }
-    const NSArray* windowArray =
-      (id)CFBridgingRelease(CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, windowID));
-    if ([windowArray count] <= 0) {
+    CFArrayRef windowInfo = CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, windowID);
+    bool isValid = [(__bridge id)windowInfo count] > 0;
+    CFRelease(windowInfo);
+    if (!isValid) {
       return;
     }
     // FIXME
