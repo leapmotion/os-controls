@@ -1,4 +1,5 @@
 #import "ApplicationDelegate.h"
+#import "SBSystemPreferences.h"
 #import "utility/Config.h"
 
 #import <autowiring/autowiring.h>
@@ -30,6 +31,39 @@
     return;
   }
   _isInitialized = YES;
+
+  // Validate that Accessibility is enabled for this application
+  if (!AXIsProcessTrusted()) {
+    @autoreleasepool {
+      if (AXIsProcessTrustedWithOptions != nullptr) { // OS X >= 10.9
+        NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt:@NO};
+        AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
+
+        NSAlert* alert = [NSAlert alertWithMessageText:@"Authorization Required"
+                                         defaultButton:@"Open System Preferences"
+                                       alternateButton:nil
+                                           otherButton:@"Remind Me Later"
+                             informativeTextWithFormat:@"Shortcuts needs to be authorized to use accessibility features in order to reliably raise application windows.\n\n"
+                                                        "This can be done by enabling Shortcuts in System Preferences > Security & Privacy > Privacy > Accessibilty.\n\n"
+                                                        "The lock in the lower-left corner of the pane must be unlocked to make changes.\n"];
+        switch ([alert runModal]) {
+          case NSAlertDefaultReturn:
+            {
+              SBSystemPreferencesApplication *prefs = [SBApplication applicationWithBundleIdentifier:@"com.apple.systempreferences"];
+              SBSystemPreferencesPane *pane = [[prefs panes] objectWithID:@"com.apple.preference.security"];
+              SBSystemPreferencesAnchor *anchor = [[pane anchors] objectWithName:@"Privacy_Accessibility"];
+              [anchor reveal];
+              [prefs activate];
+            }
+            break;
+          default:
+            break;
+        }
+      } else { // OS X < 10.9
+        // FIXME
+      }
+    }
+  }
 
   // Hide ourselves from the Dock. Unfortunately, this causes our application
   // to hide as well. See our workaround for that problem in the

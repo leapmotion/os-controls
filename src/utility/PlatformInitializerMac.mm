@@ -44,32 +44,9 @@ PlatformInitializer::PlatformInitializer(void)
   //
   method_setImplementation(class_getInstanceMethod(NSClassFromString(@"SFOpenGLView"), @selector(isOpaque)),
                            imp_implementationWithBlock(^BOOL(id self, id arg) { return NO; }));
-
-  if (!AXIsProcessTrusted()) {
-    AuthorizationRef authRef;
-    OSStatus status = AuthorizationCreate(nullptr, kAuthorizationEmptyEnvironment,
-                                          kAuthorizationFlagDefaults, &authRef);
-    if (status != errAuthorizationSuccess) {
-      exit(1);
-    }
-    const char* sqlite3 = "/usr/bin/sqlite3";
-    const char* args[] = {
-      "/Library/Application Support/com.apple.TCC/TCC.db",
-      "UPDATE access SET allowed=1, prompt_count=1 WHERE client='com.leapmotion.oscontrols';",
-      nullptr
-    };
-    // Deprecated function as of Mac OS X 10.7, but still the cleanest solution
-    status = AuthorizationExecuteWithPrivileges(authRef, sqlite3, kAuthorizationFlagDefaults,
-                                                (char*const*)args, nullptr);
-    AuthorizationFree(authRef, kAuthorizationFlagDestroyRights);
-    if (status != errAuthorizationSuccess)  {
-      exit(1);
-    }
-  }
 }
 
 PlatformInitializer::~PlatformInitializer(void)
 {
 
 }
-

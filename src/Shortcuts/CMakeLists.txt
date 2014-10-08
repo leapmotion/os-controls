@@ -51,6 +51,7 @@ add_mac_sources(
   MenubarController.h
   MenubarController.mm
   NativeUIMac.mm
+  SBSystemPreferences.h
 )
 
 if(APPLE)
@@ -119,6 +120,9 @@ if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES} $<$<CONFIG:DEBUG>:${_loc_debug}>$<$<CONFIG:RELEASE>:${_loc_release}>)
 
 elseif(APPLE)
+  find_library(SCRIPTING_BRIDGE_FRAMEWORK ScriptingBridge)
+  mark_as_advanced(SCRIPTING_BRIDGE_FRAMEWORK)
+  target_link_libraries(Shortcuts ${SCRIPTING_BRIDGE_FRAMEWORK})
   add_dependencies(Shortcuts ShortcutsPreferences)
   set_target_properties(Shortcuts PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Shortcuts/Shortcuts.plist.in)
