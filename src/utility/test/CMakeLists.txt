@@ -9,6 +9,8 @@ set(utilitytest_SRCS
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" utilitytest_SRCS)
 add_executable(utilitytest ${utilitytest_SRCS})
+set_property(TARGET utilitytest PROPERTY FOLDER "Tests")
+
 find_package(Boost REQUIRED COMPONENTS filesystem)
 target_link_libraries(utilitytest ${Boost_LIBRARIES})
 target_include_directories(utilitytest PUBLIC ${Boost_INCLUDE_DIR})
