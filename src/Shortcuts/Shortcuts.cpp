@@ -41,11 +41,7 @@ int main(int argc, char **argv)
     AutoRequired<HtmlPageLauncher>(); //needs to exist before the native ui so we can launch the help page on startup.
     AutoRequired<NativeUI> nativeUI;
 
-    // Register the tray icon early in the process, before we spend a bunch of time doing everything else
-    nativeUI->ShowUI();
-    auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
     AutoRequired<ErrorDialogs>();
-
     AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<RenderEngine> render;
     AutoRequired<Shortcuts> shortcuts;
@@ -64,6 +60,12 @@ int main(int argc, char **argv)
       "Shortcuts", sf::Style::None,
       *contextSettings
     );
+
+    // Register the tray icon at this point, we don't want to do it earlier because
+    // a lot of stuff is happening during setup that might prevent us from being
+    // responsive.
+    nativeUI->ShowUI();
+    auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
 
     // Run as fast as possible:
     mw->setFramerateLimit(120);
