@@ -119,7 +119,12 @@ if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES} $<$<CONFIG:DEBUG>:${_loc_debug}>$<$<CONFIG:RELEASE>:${_loc_release}>)
 
 elseif(APPLE)
-  add_dependencies(Shortcuts ShortcutsPreferences)
+  find_library(SERVICE_MANAGEMENT_FRAMEWORK ServiceManagement)
+  find_library(SECURITY_FRAMEWORK Security)
+  mark_as_advanced(SERVICE_MANAGEMENT_FRAMEWORK)
+  mark_as_advanced(SECURITY_FRAMEWORK)
+  target_link_libraries(Shortcuts ${SERVICE_MANAGEMENT_FRAMEWORK} ${SECURITY_FRAMEWORK})
+  add_dependencies(Shortcuts ShortcutsPreferences ShortcutsHelper)
   set_target_properties(Shortcuts PROPERTIES
                         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Shortcuts/Shortcuts.plist.in)
 endif()
@@ -161,6 +166,10 @@ if(APPLE)
   add_custom_command(TARGET Shortcuts PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory \"$<TARGET_FILE_DIR:ShortcutsPreferences>/../..\" \"$<TARGET_FILE_DIR:Shortcuts>/Shortcuts.prefPane\"
     COMMENT "Copying Shortcuts.prefPane into Shortcuts bundle"
+  )
+  add_custom_command(TARGET Shortcuts PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different \"$<TARGET_FILE_DIR:ShortcutsHelper>/ShortcutsHelper\" \"$<TARGET_FILE_DIR:Shortcuts>/\"
+    COMMENT "Copying ShortcutsHelper into Shortcuts bundle"
   )
 endif()
 

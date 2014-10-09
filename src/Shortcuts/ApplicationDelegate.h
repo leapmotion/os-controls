@@ -9,6 +9,7 @@
 
 @property (nonatomic, readonly) MenubarController* menubarController;
 
+- (void)validateAccessibility;
 - (void)addStatusItem;
 
 @end
