@@ -1,8 +1,8 @@
 #import "ApplicationDelegate.h"
-#import "SBSystemPreferences.h"
 #import "utility/Config.h"
 
 #import <autowiring/autowiring.h>
+#import <ServiceManagement/ServiceManagement.h>
 
 @implementation ApplicationDelegate
 
@@ -31,39 +31,6 @@
     return;
   }
   _isInitialized = YES;
-
-  // Validate that Accessibility is enabled for this application
-  if (!AXIsProcessTrusted()) {
-    @autoreleasepool {
-      if (AXIsProcessTrustedWithOptions != nullptr) { // OS X >= 10.9
-        NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt:@NO};
-        AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
-
-        NSAlert* alert = [NSAlert alertWithMessageText:@"Authorization Required"
-                                         defaultButton:@"Open System Preferences"
-                                       alternateButton:nil
-                                           otherButton:@"Remind Me Later"
-                             informativeTextWithFormat:@"Shortcuts needs to be authorized to use accessibility features in order to reliably raise application windows.\n\n"
-                                                        "This can be done by enabling Shortcuts in System Preferences > Security & Privacy > Privacy > Accessibilty.\n\n"
-                                                        "The lock in the lower-left corner of the pane must be unlocked to make changes.\n"];
-        switch ([alert runModal]) {
-          case NSAlertDefaultReturn:
-            {
-              SBSystemPreferencesApplication *prefs = [SBApplication applicationWithBundleIdentifier:@"com.apple.systempreferences"];
-              SBSystemPreferencesPane *pane = [[prefs panes] objectWithID:@"com.apple.preference.security"];
-              SBSystemPreferencesAnchor *anchor = [[pane anchors] objectWithName:@"Privacy_Accessibility"];
-              [anchor reveal];
-              [prefs activate];
-            }
-            break;
-          default:
-            break;
-        }
-      } else { // OS X < 10.9
-        // FIXME
-      }
-    }
-  }
 
   // Hide ourselves from the Dock. Unfortunately, this causes our application
   // to hide as well. See our workaround for that problem in the
@@ -112,11 +79,73 @@
   }
 }
 
+- (void)validateAccessibility
+{
+  if (!AXIsProcessTrustedWithOptions) {
+    return; // Don't force on Accessibilty pre-OS X 10.9
+  }
+  if (!AXIsProcessTrusted()) {
+    @autoreleasepool {
+      NSBundle* bundle = [NSBundle mainBundle];
+      NSString* shortcutsHelperPath = [bundle bundlePath];
+      if (shortcutsHelperPath == nil) {
+        return;
+      }
+      shortcutsHelperPath = [shortcutsHelperPath stringByAppendingString:@"/Contents/MacOS/ShortcutsHelper"];
+      AuthorizationRef authorizationRef;
+      OSStatus status = AuthorizationCreate(nullptr, kAuthorizationEmptyEnvironment,
+                                            kAuthorizationFlagDefaults, &authorizationRef);
+      if (status == errAuthorizationSuccess) {
+        AuthorizationItem right = {kAuthorizationRightExecute, 0, nullptr, 0};
+        AuthorizationRights rights = {1, &right};
+        AuthorizationFlags flags = kAuthorizationFlagDefaults |
+                                   kAuthorizationFlagInteractionAllowed |
+                                   kAuthorizationFlagPreAuthorize |
+                                   kAuthorizationFlagExtendRights;
+
+        // Show our application icon in the Authorization popup
+        const char* prompt = "Shortcuts would like to control this computer using accessibilty features.";
+        NSString* src =
+          [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/Contents/MacOS/Shortcuts.prefPane/Contents/Resources/ShortcutsPreferences.tiff"];
+        NSString *dst = [NSString stringWithFormat:@"/tmp/ShortcutsAuth-%@.tiff", [[NSProcessInfo processInfo] globallyUniqueString]];
+        [[NSFileManager defaultManager] copyItemAtPath:src toPath:dst error:nil];
+        const char* iconPath = [dst UTF8String];
+        AuthorizationItem authItems[2];
+        UInt32 numAuthItems = 0;
+
+        authItems[numAuthItems++] = {kAuthorizationEnvironmentPrompt, std::strlen(prompt), (void*)prompt, 0};
+        if (iconPath) {
+          authItems[numAuthItems++] = {kAuthorizationEnvironmentIcon, std::strlen(iconPath), (void*)iconPath, 0};
+        };
+        AuthorizationEnvironment authEnvironment = {numAuthItems, authItems};
+
+        status = AuthorizationCopyRights(authorizationRef, &rights, &authEnvironment, flags, nullptr);
+        if (status == errAuthorizationSuccess) {
+          NSString* label = @"com.leapmotion.ShortcutsHelper";
+          NSDictionary* job = @{@"Label":label, @"Program":shortcutsHelperPath, @"RunAtLoad":@YES};
+          CFErrorRef errorRef = nullptr;
+
+          SMJobRemove(kSMDomainSystemLaunchd, (CFStringRef)label, authorizationRef, false, nullptr);
+          SMJobSubmit(kSMDomainSystemLaunchd, (CFDictionaryRef)job, authorizationRef, nullptr);
+        } else {
+          // Tell the user that they need to update the System Preferences themselves -- FIXME
+        }
+        AuthorizationFree(authorizationRef, kAuthorizationFlagDestroyRights);
+        [[NSFileManager defaultManager] removeItemAtPath:dst error:nil];
+      }
+    }
+  }
+}
+
 - (void)addStatusItem
 {
   if (_menubarController) {
     return;
   }
+
+  // Validate that Accessibility is enabled for this application
+  [self validateAccessibility];
+
   _menubarController = [[MenubarController alloc] init];
   // Load config settings
   AutoCurrentContext ctxt;

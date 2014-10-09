@@ -13,12 +13,12 @@ PlatformInitializer::PlatformInitializer(void)
   // Change the current directory to be that of the either the executable or,
   // preferably, the Resources directory if the executable is within an
   // application bundle.
-  char exec_path[PATH_MAX] = {0};
-  uint32_t pathSize = sizeof(exec_path);
-  if (!_NSGetExecutablePath(exec_path, &pathSize)) {
-    char fullpath[PATH_MAX] = {0};
-    if (realpath(exec_path, fullpath)) {
-      std::string path(fullpath);
+  char execPath[PATH_MAX+1] = {0};
+  uint32_t pathSize = sizeof(execPath);
+  if (!_NSGetExecutablePath(execPath, &pathSize)) {
+    char fullPath[PATH_MAX+1] = {0};
+    if (realpath(execPath, fullPath)) {
+      std::string path(fullPath);
       size_t pos = path.find_last_of('/');
 
       if (pos != std::string::npos) {
