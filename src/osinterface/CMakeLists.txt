@@ -1,6 +1,8 @@
 set(osinterface_SOURCES
   AudioVolumeInterface.h
   AudioVolumeInterface.cpp
+  CompositionEngine.h
+  CompositionEngine.cpp
   HtmlPageLauncher.h
   HtmlPageLauncher.cpp
   LeapInput.h
@@ -36,6 +38,8 @@ add_windows_sources(
   osinterface_SOURCES
   AudioVolumeInterfaceWin.h
   AudioVolumeInterfaceWin.cpp
+  CompositionEngineWin.h
+  CompositionEngineWin.cpp
   HtmlPageLauncherWin.h
   HtmlPageLauncherWin.cpp
   MediaInterfaceWin.h
