@@ -78,16 +78,17 @@ main(int argc, char* argv[])
     static std::string whereClause =
       " WHERE service='kTCCServiceAccessibility' AND client='com.leapmotion.Shortcuts' AND client_type='0'";
 
-    auto isAllowedResponse = db.Query("SELECT allowed FROM access" + whereClause);
-    const size_t numEntries = isAllowedResponse.size();
+    auto response = db.Query("SELECT allowed,prompt_count FROM access" + whereClause);
+    const size_t numEntries = response.size();
     bool resetEntries = true;
 
     if (numEntries == 1) {
-      auto row = isAllowedResponse[0];
-      if (row.size() == 1) {
+      auto row = response[0];
+      if (row.size() == 2) {
         auto isAllowed = row[0];
-        if (isAllowed != "1") {
-          db.Query("UPDATE access SET allowed=1" + whereClause);
+        auto promptCount = row[1];
+        if (isAllowed != "1" || promptCount == "0") {
+          db.Query("UPDATE access SET allowed=1,prompt_count=1,csreq=NULL" + whereClause);
         }
         resetEntries = false;
       }
