@@ -84,7 +84,14 @@
   if (!AXIsProcessTrustedWithOptions) {
     return; // Don't force on Accessibilty pre-OS X 10.9
   }
-  if (!AXIsProcessTrusted()) {
+  AutowiredFast<Config> cfg;
+  int showAuthCount = cfg->GetOrCreate("showAuthCount", 0);
+
+  if (AXIsProcessTrusted()) {
+    if (showAuthCount > 0) {
+      cfg->Set("showAuthCount", 0);
+    }
+  } else if (showAuthCount < 3) {
     @autoreleasepool {
       NSBundle* bundle = [NSBundle mainBundle];
       NSString* shortcutsHelperPath = [bundle bundlePath];
@@ -134,6 +141,7 @@
         [[NSFileManager defaultManager] removeItemAtPath:dst error:nil];
       }
     }
+    cfg->Set("showAuthCount", ++showAuthCount);
   }
 }
 
@@ -146,31 +154,15 @@
   // Validate that Accessibility is enabled for this application
   [self validateAccessibility];
 
+  // Create the status item
   _menubarController = [[MenubarController alloc] init];
-  // Load config settings
-  AutoCurrentContext ctxt;
-  ctxt->NotifyWhenAutowired<Config>([self] {
-    AutowiredFast<Config> cfg;
-    if (cfg) {
-      std::string cfgPath = "./";
-      @autoreleasepool {
-        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-        const char* c_str = [[paths objectAtIndex:0] UTF8String];
-        if (c_str) {
-          cfgPath = std::string(c_str);
-          cfgPath += "/Leap Motion/";
-        }
-      }
-      cfgPath += "Shortcuts.json";
-      cfg->SetPrimaryFile(cfgPath);
-      cfg->RebroadcastConfig();
 
-      if (cfg->Get<bool>("showHelpOnStart")) {
-        [_menubarController onHelp:nil];
-        cfg->Set("showHelpOnStart", false);
-      }
-    }
-  });
+  // Determine if we need to show help or not
+  AutowiredFast<Config> cfg;
+  if (cfg->Get<bool>("showHelpOnStart")) {
+    [_menubarController onHelp:nil];
+    cfg->Set("showHelpOnStart", false);
+  }
 }
 
 - (void)applicationDidHide:(NSNotification*)aNotification
