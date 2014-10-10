@@ -196,6 +196,33 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
 
+TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
+  std::shared_ptr<GLTexture2> texture;
+  
+  // Generate a texture procedurally.
+  {
+    GLsizei width = 200;
+    GLsizei height = 120;
+    GLTexture2Params params(width, height, GL_LUMINANCE);
+    params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
+    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    GLTexture2PixelDataStorage<uint8_t> pixel_data(GL_RED, GL_UNSIGNED_BYTE, width*height);
+    GenerateLuminancePixels(pixel_data, width, height);
+    texture = std::make_shared<GLTexture2>(params, pixel_data);
+  }
+
+  RenderTexturedRectangle(*texture);
+  // Finish the frame before delaying. 
+  m_GLController.EndRender();
+  m_SDLController.EndRender();
+  
+  SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
+}
+
 TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
   std::shared_ptr<GLTexture2> texture;
   
