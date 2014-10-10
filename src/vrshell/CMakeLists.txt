@@ -21,14 +21,18 @@ endif()
 add_executable(VRShell ${VRShell_EXEFLAGS} ${VRShell_SOURCES} ${VRShell_RESOURCES})
 set_property(TARGET VRShell PROPERTY FOLDER "VRShell")
 
+
 target_link_libraries(VRShell PUBLIC
   Autowiring 
   GLShaderLoader 
   OculusVR 
+  graphics
   osinterface
   Primitives 
-  SFMLController 
+  SFMLController
+  GLTexture2Loader
   utility
+  FreeImage::FreeImage
 )
 
 if(WIN32)

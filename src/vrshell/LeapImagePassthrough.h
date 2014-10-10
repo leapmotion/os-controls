@@ -28,6 +28,6 @@ private:
   Autowired<RenderEngine> m_renderEngine;
   std::shared_ptr<GLTexture2> m_texture;
   RectanglePrim m_rect;
-  char m_txdatatmp[640 * 480];
+  uint8_t m_txdatatmp[640 * 480];
 };
 
