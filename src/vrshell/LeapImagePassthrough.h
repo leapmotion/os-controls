@@ -6,6 +6,7 @@
 #include "graphics\RenderEngine.h"
 #include "Primitives.h"
 
+class LeapInput;
 namespace Leap {
   class Controller;
 };
@@ -24,7 +25,9 @@ public:
   void Render(const RenderFrame& frame) const override;
 
 private:
+  AutoRequired<LeapInput> m_leap;
   AutoRequired<Leap::Controller> m_controller;
+
   Autowired<RenderEngine> m_renderEngine;
   std::shared_ptr<GLTexture2> m_texture;
   RectanglePrim m_rect;

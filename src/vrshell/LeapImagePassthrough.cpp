@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "LeapImagePassthrough.h"
 #include "Leap.h"
+#include "osinterface/LeapInput.h"
 #include "graphics\RenderFrame.h"
 #include "GLShaderMatrices.h"
 
 LeapImagePassthrough::LeapImagePassthrough() {
+  m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
 
   for (int i = 0; i < 640 * 480; i++) {
     m_txdatatmp[i] = i % 255;
@@ -12,7 +14,6 @@ LeapImagePassthrough::LeapImagePassthrough() {
 
   m_rect.SetSize(EigenTypes::Vector2(640, 480));
   m_rect.Translation() = EigenTypes::Vector3(320, 240, 0);
-  m_rect.Material().SetDiffuseLightColor(Color::Blue());
   m_rect.Material().SetAmbientLightColor(Color::Green());
   m_rect.Material().SetAmbientLightingProportion(1.0f);
 }
@@ -27,7 +28,6 @@ void LeapImagePassthrough::AutoInit() {
 
 void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
   auto leapFrame = m_controller->frame();
-
   auto images = leapFrame.images();
   
   if (images.count() == 0)
