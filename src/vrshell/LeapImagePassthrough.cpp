@@ -28,12 +28,12 @@ void LeapImagePassthrough::AutoInit() {
 
 void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
   auto leapFrame = m_controller->frame();
-  auto images = leapFrame.images();
+  const Leap::ImageList& images = leapFrame.images();
   
   if (images.count() == 0)
     return;
 
-  auto image = images[0];
+  const Leap::Image& image = images[0];
   if (!m_texture) {
     // Generate a texture procedurally.
     GLsizei width = image.width();
@@ -49,20 +49,13 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     m_rect.Material().SetUseTexture(true);
   }
   else {
-    GLTexture2PixelDataReference pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, image.data(), image.width() * image.height());
-    m_texture->UpdateTexture(pixel_data);
+    m_texture->Bind();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, image.width(), image.height(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.data());
   }
 }
 
 void LeapImagePassthrough::Render(const RenderFrame& frame) const {
-  glDisable(GL_LIGHTING);
-  glDisable(GL_DEPTH_TEST);
 
-  glClearColor(1.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  auto shader = Resource<GLShader>("material");
-  
   glEnable(GL_TEXTURE_2D);
   
   if( m_texture) 
