@@ -42,7 +42,7 @@
                                              name:NSWorkspaceDidWakeNotification
                                            object:nil];
     }
-    GLint interval = 1;
+    GLint interval = (m_owner->IsDoubleBuffered() ? 1 : 0);
     [[self openGLContext] setValues:&interval forParameter:NSOpenGLCPSwapInterval];
     [self prepareOpenGL];
     m_isShown = false;
@@ -117,15 +117,16 @@
 // RenderWindow
 //
 
-RenderWindow* RenderWindow::New(void) {
-  return new RenderWindowMac;
+RenderWindow* RenderWindow::New(bool isDoubleBuffered) {
+  return new RenderWindowMac(isDoubleBuffered);
 }
 
 //
 // RenderWindowMac
 //
 
-RenderWindowMac::RenderWindowMac(void):
+RenderWindowMac::RenderWindowMac(bool isDoubleBuffered):
+  RenderWindow(isDoubleBuffered),
   m_window(nullptr),
   m_mainDisplayHeight(CGDisplayPixelsHigh(CGMainDisplayID()))
 {
@@ -138,7 +139,7 @@ RenderWindowMac::RenderWindowMac(void):
     NSOpenGLPFAStencilSize, static_cast<NSOpenGLPixelFormatAttribute>(0),
     NSOpenGLPFAAlphaSize, static_cast<NSOpenGLPixelFormatAttribute>(8),
     NSOpenGLPFAClosestPolicy,
-    NSOpenGLPFADoubleBuffer,
+    (m_isDoubleBuffered ? NSOpenGLPFADoubleBuffer : static_cast<NSOpenGLPixelFormatAttribute>(0)),
     static_cast<NSOpenGLPixelFormatAttribute>(0)
   };
 
@@ -253,7 +254,11 @@ void RenderWindowMac::SetActive(bool active)
 void RenderWindowMac::Display(void)
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  [[window contentView] flushBuffer];
+  if (m_isDoubleBuffered) {
+    [[window contentView] flushBuffer];
+  } else {
+    ::glFlush();
+  }
 }
 
 void RenderWindowMac::OnScreenSizeChange(void)

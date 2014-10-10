@@ -5,7 +5,6 @@
 
 #include <ShlObj.h>
 #include <psapi.h>
-#pragma comment(lib, "psapi.lib")
 
 OSAppWin::OSAppWin(uint32_t pid) : OSApp(pid)
 {

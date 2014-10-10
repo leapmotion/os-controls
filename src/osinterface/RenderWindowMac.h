@@ -7,7 +7,7 @@ class RenderWindowMac :
   public OSVirtualScreenListener
 {
 public:
-  RenderWindowMac(void);
+  RenderWindowMac(bool isDoubleBuffered);
   virtual ~RenderWindowMac(void);
 
   virtual OSPoint Postion(void) const override;

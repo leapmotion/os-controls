@@ -1,28 +1,17 @@
-/*==================================================================================================================
-
-    Copyright (c) 2010 - 2013 Leap Motion. All rights reserved.
-
-  The intellectual and technical concepts contained herein are proprietary and confidential to Leap Motion, and are
-  protected by trade secret or copyright law. Dissemination of this information or reproduction of this material is
-  strictly forbidden unless prior written permission is obtained from Leap Motion.
-
-===================================================================================================================*/
 #include "stdafx.h"
-#include "LPWindowWin.h"
+#include "RenderWindowWin.h"
 
 #include <GL/gl.h>
 #include <dwmapi.h>
 
-#pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "dwmapi.lib")
-
-LPWindowWin::LPWindowWin(bool isTransparent, bool isDoubleBuffered) :
-  LPWindowBase(isTransparent, isDoubleBuffered), m_hWnd(nullptr)
+RenderWindowWin::RenderWindowWin(bool isDoubleBuffered):
+  RenderWindow(isDoubleBuffered),
+  m_hWnd(nullptr)
 {
   WNDCLASS wc      = {0};
   wc.style         = CS_OWNDC;
   wc.lpfnWndProc   = WndProc;
-  wc.lpszClassName = "LPWindowWin";
+  wc.lpszClassName = "RenderWindowWin";
   if (::RegisterClass(&wc)) {
     ::CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST |
                     (IsTransparent() ? WS_EX_NOACTIVATE | WS_EX_TRANSPARENT | WS_EX_LAYERED : 0),
@@ -31,20 +20,20 @@ LPWindowWin::LPWindowWin(bool isTransparent, bool isDoubleBuffered) :
   }
 }
 
-LPWindowWin::~LPWindowWin()
+RenderWindowWin::~RenderWindowWin()
 {
   ::SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)0);
-  Hide();
+  SetVisible(false);
   if (m_renderingContext) {
     ::wglMakeCurrent(nullptr, nullptr);
     ::wglDeleteContext(m_renderingContext);
     m_renderingContext = nullptr;
   }
   ::DestroyWindow(m_hWnd);
-  ::UnregisterClass("LPWindowWin", nullptr);
+  ::UnregisterClass("RenderWindowWin", nullptr);
 }
 
-int LPWindowWin::Create(HWND hWnd)
+int RenderWindowWin::Create(HWND hWnd)
 {
   ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
 
@@ -82,7 +71,7 @@ int LPWindowWin::Create(HWND hWnd)
   return 0;
 }
 
-LPPoint LPWindowWin::Postion() const
+LPPoint RenderWindowWin::Postion() const
 {
   RECT rect;
 
@@ -92,7 +81,7 @@ LPPoint LPWindowWin::Postion() const
   return LPPointZero;
 }
 
-LPSize LPWindowWin::Size() const
+LPSize RenderWindowWin::Size() const
 {
   RECT rect;
 
@@ -102,7 +91,7 @@ LPSize LPWindowWin::Size() const
   return LPSizeZero;
 }
 
-LPRect LPWindowWin::Rect() const
+LPRect RenderWindowWin::Rect() const
 {
   RECT rect;
 
@@ -113,21 +102,21 @@ LPRect LPWindowWin::Rect() const
   return LPRectZero;
 }
 
-void LPWindowWin::SetPosition(const LPPoint& position)
+void RenderWindowWin::SetPosition(const LPPoint& position)
 {
   if (m_hWnd) {
     ::SetWindowPos(m_hWnd, HWND_TOPMOST, static_cast<int>(position.x), static_cast<int>(position.y), 0, 0, SWP_NOSIZE);
   }
 }
 
-void LPWindowWin::SetSize(const LPSize& size)
+void RenderWindowWin::SetSize(const LPSize& size)
 {
   if (m_hWnd) {
     ::SetWindowPos(m_hWnd, HWND_TOPMOST, 0, 0, static_cast<int>(size.width), static_cast<int>(size.height), SWP_NOMOVE);
   }
 }
 
-void LPWindowWin::SetRect(const LPRect& rect)
+void RenderWindowWin::SetRect(const LPRect& rect)
 {
   if (m_hWnd) {
     ::SetWindowPos(m_hWnd, HWND_TOPMOST, static_cast<int>(rect.origin.x), static_cast<int>(rect.origin.y),
@@ -135,33 +124,28 @@ void LPWindowWin::SetRect(const LPRect& rect)
   }
 }
 
-void LPWindowWin::Show(bool show)
+void RenderWindowWin::SetVisible(bool visible)
 {
   if (m_hWnd) {
-    ::ShowWindow(m_hWnd, show ? SW_SHOW : SW_HIDE);
+    ::ShowWindow(m_hWnd, visible ? SW_SHOW : SW_HIDE);
   }
 }
 
-void LPWindowWin::Hide()
-{
-  Show(false);
-}
-
-void LPWindowWin::Redraw()
+void RenderWindowWin::Redraw()
 {
   if (m_hWnd) {
     ::RedrawWindow(m_hWnd, nullptr, nullptr, RDW_INTERNALPAINT);
   }
 }
 
-LRESULT CALLBACK LPWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK RenderWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch(message) {
   case WM_CREATE:
     {
       CREATESTRUCT* create = reinterpret_cast<CREATESTRUCT*>(lParam);
       if (create) {
-        LPWindowWin* that = reinterpret_cast<LPWindowWin*>(create->lpCreateParams);
+        RenderWindowWin* that = reinterpret_cast<RenderWindowWin*>(create->lpCreateParams);
         if (that) {
           return that->Create(hWnd);
         }
@@ -173,7 +157,7 @@ LRESULT CALLBACK LPWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
     break;
   case WM_SIZE:
     {
-      LPWindowWin* that = reinterpret_cast<LPWindowWin*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+      RenderWindowWin* that = reinterpret_cast<RenderWindowWin*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
       if (that) {
         LPFloat width =  static_cast<LPFloat>( lParam        & 0xFFFF);
         LPFloat height = static_cast<LPFloat>((lParam >> 16) & 0xFFFF);
@@ -184,7 +168,7 @@ LRESULT CALLBACK LPWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
     break;
   case WM_PAINT:
     {
-      LPWindowWin* that = reinterpret_cast<LPWindowWin*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+      RenderWindowWin* that = reinterpret_cast<RenderWindowWin*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
       if (that && that->m_renderingContext) {
         ::SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE); // Make sure that we are on top
         PAINTSTRUCT ps;
@@ -212,4 +196,39 @@ LRESULT CALLBACK LPWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
     return ::DefWindowProc(hWnd, message, wParam, lParam);
   }
   return 0;
+}
+
+void NativeWindow::MakeTransparent(const Handle& window) {
+  if (!window) {
+    throw std::runtime_error("Error retrieving native window");
+  }
+
+  LONG flags = ::GetWindowLongA(window, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW;
+  ::SetWindowLongA(window, GWL_EXSTYLE, flags);
+  ::SetLayeredWindowAttributes(window, RGB(0, 0, 0), 255, LWA_ALPHA);
+
+  DWM_BLURBEHIND bb = { 0 };
+  bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+  bb.fEnable = true;
+  bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
+  ::DwmEnableBlurBehindWindow(window, &bb);
+}
+
+void NativeWindow::MakeAlwaysOnTop(const Handle& window) {
+  if(!window)
+    throw std::runtime_error("Error retrieving native window");
+
+  LONG flags = ::GetWindowLongA(window, GWL_EXSTYLE) | WS_EX_TOPMOST;
+  ::SetWindowLongA(window, GWL_EXSTYLE, flags);
+  ::SetWindowPos(window, HWND_TOPMOST,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
+}
+
+void NativeWindow::AllowInput(const Handle& window, bool allowInput) {
+  if (!window) {
+    throw std::runtime_error("Error retrieving native window");
+  }
+  const LONG prevStyle = ::GetWindowLongA(window, GWL_EXSTYLE);
+  const LONG modStyle = WS_EX_NOACTIVATE | WS_EX_TRANSPARENT;
+  const LONG style = allowInput ? (prevStyle & ~modStyle) : (prevStyle | modStyle);
+  ::SetWindowLongA(window, GWL_EXSTYLE, style);
 }

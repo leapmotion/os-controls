@@ -7,15 +7,18 @@ class RenderWindow :
   public ContextMember
 {
 public:
-  RenderWindow(void) : m_isTransparent(false), m_allowInput(true) {}
+  RenderWindow(bool isDoubleBuffered):
+    m_isDoubleBuffered(isDoubleBuffered), m_isTransparent(false), m_allowInput(true) {}
   virtual ~RenderWindow(void) {}
 
   RenderWindow(const RenderWindow&) = delete;
   RenderWindow& operator=(const RenderWindow&) = delete;
 
-  static RenderWindow* New(void);
+  static RenderWindow* New(bool isDoubleBuffered);
 
+  bool IsDoubleBuffered() const { return m_isDoubleBuffered; }
   bool IsTransparent() const { return m_isTransparent; }
+  bool DoesAllowInput() const {return m_allowInput; }
 
   virtual OSPoint Postion() const = 0;
   virtual OSSize Size() const = 0;
@@ -33,6 +36,7 @@ public:
   virtual void Display() = 0;
 
 protected:
+  const bool m_isDoubleBuffered;
   bool m_isTransparent;
   bool m_allowInput;
 };

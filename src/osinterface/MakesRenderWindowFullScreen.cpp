@@ -43,9 +43,14 @@ void MakesRenderWindowFullScreen::AdjustDesktopWindow(void) {
 #endif
   m_mw->setPosition(newPosition);
   const auto handle = m_mw->getSystemHandle();
+
+  #warning "REPLACE THIS FUNCTIONALITY"
+  #if 0
   NativeWindow::MakeTransparent(handle);
   NativeWindow::MakeAlwaysOnTop(handle);
   NativeWindow::AllowInput(handle, false);
+  #endif
+
   // There are problems with properly hiding and showing SFML windows. Therefore, for now,
   // always make the window visible after adjusting the window.
   m_mw->setVisible(true);

@@ -4,12 +4,13 @@
 #include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
-#include "utility/NativeWindow.h"
 #include "utility/SamplePrimitives.h"
+#include "osinterface/OSApp.h"
+#include "osinterface/OSVirtualScreen.h"
+#include "osinterface/OSWindow.h"
+#include "osinterface/RenderWindow.h"
+
 #include <SVGPrimitive.h>
-#include "OSInterface/OSApp.h"
-#include "OSInterface/OSVirtualScreen.h"
-#include "OSInterface/OSWindow.h"
 
 Color selectionRegionColor(1.0f, 1.0f, 1.0f, 0.15f);
 Color selectionOutlineColor(1.0f, 1.0f, 1.0f, 0.3f);
@@ -574,9 +575,9 @@ void ExposeView::StartView() {
   if (!m_closing) {
     return;
   }
-  AutowiredFast<sf::RenderWindow> mw;
+  AutowiredFast<RenderWindow> mw;
   if (mw) {
-    NativeWindow::AllowInput(mw->getSystemHandle(), true);
+    mw->AllowInput(true);
   }
   m_closing = false;
   m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
@@ -590,9 +591,9 @@ void ExposeView::CloseView() {
   if (m_closing) {
     return;
   }
-  AutowiredFast<sf::RenderWindow> mw;
+  AutowiredFast<RenderWindow> mw;
   if (mw) {
-    NativeWindow::AllowInput(mw->getSystemHandle(), false);
+    mw->AllowInput(false);
   }
   m_closing = true;
   m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);

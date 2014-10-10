@@ -103,6 +103,7 @@ if(APPLE)
 endif()
 
 if(MSVC)
+  target_link_libraries(osinterface opengl32 dwmapi psapi)
   set_property(TARGET osinterface APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
 endif()
 
