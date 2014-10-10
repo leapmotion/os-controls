@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "VRShell.h"
-#include "utility/PlatformInitializer.h"
-#include "osinterface/MakesRenderWindowFullScreen.h"
+
+#include "graphics/RenderEngine.h"
 #include "OculusVR.h"
+#include "osinterface/LeapInput.h"
+#include "osinterface/MakesRenderWindowFullScreen.h"
+#include "utility/PlatformInitializer.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
@@ -19,6 +22,9 @@ int main(int argc, char **argv)
     CurrentContextPusher pshr(shellCtxt);
 
     AutoRequired<VRShell> shell;
+    AutoRequired<OSVirtualScreen> virtualScreen;
+    AutoRequired<RenderEngine> render;
+    AutoRequired<LeapInput> input;
     AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(640, 480),
