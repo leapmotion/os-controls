@@ -1,4 +1,6 @@
 set(VRShell_SOURCES
+  LeapImagePassthrough.cpp
+  LeapImagePassthrough.h
   VRShell.h
   VRShell.cpp
 )
