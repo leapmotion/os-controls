@@ -6,6 +6,7 @@
 #include "osinterface/LeapInput.h"
 #include "osinterface/MakesRenderWindowFullScreen.h"
 #include "utility/PlatformInitializer.h"
+#include "LeapImagePassthrough.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
@@ -25,6 +26,8 @@ int main(int argc, char **argv)
     AutoRequired<OSVirtualScreen> virtualScreen;
     AutoRequired<RenderEngine> render;
     AutoRequired<LeapInput> input;
+    AutoRequired<LeapImagePassthrough>();
+
     AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
     AutoConstruct<sf::RenderWindow> mw(
       sf::VideoMode(640, 480),
