@@ -30,9 +30,7 @@ target_link_libraries(VRShell PUBLIC
   osinterface
   Primitives 
   SFMLController
-  GLTexture2Loader
   utility
-  FreeImage::FreeImage
 )
 
 if(WIN32)
