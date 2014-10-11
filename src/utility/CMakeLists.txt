@@ -56,4 +56,5 @@ elseif(APPLE)
 endif()
 
 target_link_libraries(utility Primitives)
+
 add_subdirectory(test)

@@ -52,7 +52,9 @@ int main(int argc, char **argv)
     AutoDesired<AudioVolumeInterface>();
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
-    AutoRequired<LeapInput>();
+    AutoRequired<LeapInput> leap;
+    leap->AddPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+
     AutoRequired<MakesRenderWindowFullScreen>();
     AutoRequired<OSWindowMonitor>();
     AutoConstruct<sf::RenderWindow> mw(

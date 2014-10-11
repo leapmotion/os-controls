@@ -166,17 +166,32 @@ bool OSWindowMac::GetFocus(void) {
   return false;
 }
 
+extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID*);
+
 void OSWindowMac::SetFocus(void) {
-  @autoreleasepool {
-    const pid_t pid = static_cast<pid_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
-    if (!pid) {
-      return;
-    }
-    if (m_app) {
-      //
-      // An AppleScript implementation
-      //
-      // First make the window the top-level window for the application
+  const pid_t pid = static_cast<pid_t>([[m_info objectForKey:(id)kCGWindowOwnerPID] intValue]);
+  if (!pid) {
+    return;
+  }
+  // First make the window the top-level window for the application
+  AXUIElementRef appRef = AXUIElementCreateApplication(pid);
+  if (appRef) {
+    CFArrayRef winRefs;
+    AXUIElementCopyAttributeValues(appRef, kAXWindowsAttribute, 0, 99999, &winRefs);
+    if (winRefs) {
+      for (auto i = 0; i < CFArrayGetCount(winRefs); i++) {
+        AXUIElementRef winRef = (AXUIElementRef)CFArrayGetValueAtIndex(winRefs, i);
+        CGWindowID winID = 0;
+        _AXUIElementGetWindow(winRef, &winID);
+        if (winID == m_windowID) {
+          AXUIElementPerformAction(winRef, kAXRaiseAction);
+          AXUIElementSetAttributeValue(winRef, kAXMainAttribute, kCFBooleanTrue);
+          break;
+        }
+      }
+      CFRelease(winRefs);
+    } else {
+      // Attempt to use AppleScript to raise the right window...
       std::ostringstream oss;
       oss << "tell application \"" << m_app->GetAppName() << "\"\n"
           << "\tset theWindow to window id " << m_windowID << "\n"
@@ -189,16 +204,18 @@ void OSWindowMac::SetFocus(void) {
           << "\tend tell\n"
           << "end tell\n";
       @try {
-        NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
-        NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
-        NSDictionary* errInfo = nullptr;
-        [as executeAndReturnError:&errInfo];
-        if (errInfo) {
-          NSLog(@"Warning: %@\n",errInfo);
+        @autoreleasepool {
+          NSString* script = [NSString stringWithUTF8String:oss.str().c_str()];
+          NSAppleScript* as = [[NSAppleScript alloc] initWithSource:script];
+          NSDictionary* errInfo = nullptr;
+          [as executeAndReturnError:&errInfo];
         }
       }
       @catch (NSException*) {}
     }
+    CFRelease(appRef);
+  }
+  @autoreleasepool {
     // Then bring the application to front
     [[NSRunningApplication runningApplicationWithProcessIdentifier:pid]
      activateWithOptions:NSApplicationActivateIgnoringOtherApps];

@@ -33,8 +33,8 @@ public:
   /// </summary>
   void SetPrimaryFile(const std::string& filename);
   const std::string& GetPrimaryFile() const { return m_fileName; }
-  
-  const std::string& GetDefaultFilename() const { 
+
+  const std::string& GetDefaultFilename() const {
     static const std::string name = CONFIG_DEFAULT_NAME;
     return name;
   }
@@ -65,6 +65,28 @@ public:
   T Get(const std::string& prop) const { }
 
   template<typename T>
+  T GetOrCreate(const std::string& prop, const T &val){
+    {
+      std::unique_lock<std::mutex> lock(m_mutex);
+
+      auto entry = m_data.find(prop);
+      if (entry == m_data.end()) {
+        m_data[prop] = json11::Json(val);
+
+        // Now make sure that we can see it
+        entry = m_data.find(prop);
+        if (entry == m_data.end())
+          throw std::runtime_error("Unable to create property: '" + prop + "'");
+
+        lock.unlock();
+        m_events(&ConfigEvent::ConfigChanged)(entry->first,entry->second);
+        Save(m_fileName);
+      }
+    }
+    return Get<T>(prop);
+  }
+
+  template<typename T>
   void Set(const std::string& prop, const T &val){
     {
       std::unique_lock<std::mutex> lock(m_mutex);
@@ -77,9 +99,9 @@ public:
       else
         m_data[prop] = json11::Json(val);
 
+      lock.unlock();
       m_events(&ConfigEvent::ConfigChanged)(entry->first,entry->second);
     }
-
     Save(m_fileName);
   }
 
@@ -108,7 +130,7 @@ private:
 
   json11::Json::object m_data;
   mutable std::mutex m_mutex;
-  
+
   void WatchFile(const std::string& filename);
 
   json11::Json::object::const_iterator GetInternal(const std::string& prop) const {
@@ -116,7 +138,7 @@ private:
 
     auto ref = m_data.find(prop);
     if (ref == m_data.end())
-      throw std::runtime_error("Could not find property:" + prop);
+      throw std::runtime_error("Could not find property: '" + prop + "'");
     return ref;
   }
 
@@ -128,7 +150,7 @@ template<>
 inline double Config::Get<double>(const std::string& prop) const {
   auto val = GetInternal(prop);
   if (!val->second.is_number())
-    throw std::runtime_error(prop + "Is not a number");
+    throw std::runtime_error("'" + prop + "' is not a number");
 
   return val->second.number_value();
 }
@@ -137,7 +159,7 @@ template<>
 inline float Config::Get<float>(const std::string& prop) const {
   auto val = GetInternal(prop);
   if (!val->second.is_number())
-    throw std::runtime_error(prop + "Is not a number");
+    throw std::runtime_error("'" + prop + "' is not a number");
 
   return static_cast<float>(val->second.number_value());
 }
@@ -146,7 +168,7 @@ template<>
 inline int Config::Get<int>(const std::string& prop) const {
   auto val = GetInternal(prop);
   if (!val->second.is_number())
-    throw std::runtime_error(prop + "Is not a number");
+    throw std::runtime_error("'" + prop + "' is not a number");
 
   return static_cast<int>(val->second.number_value());
 }
@@ -155,7 +177,7 @@ template<>
 inline bool Config::Get<bool>(const std::string& prop) const {
   auto val = GetInternal(prop);
   if (!val->second.is_bool())
-    throw std::runtime_error(prop + "Is not a bool");
+    throw std::runtime_error("'" + prop + "' is not a bool");
 
   return val->second.bool_value();
 }
@@ -164,7 +186,7 @@ template<>
 inline const std::string& Config::Get<const std::string&>(const std::string& prop) const {
   auto val = GetInternal(prop);
   if (!val->second.is_string())
-    throw std::runtime_error(prop + "Is not a string");
+    throw std::runtime_error("'" + prop + "' is not a string");
 
   return val->second.string_value();
 }
@@ -173,7 +195,7 @@ template<>
 inline const json11::Json::array& Config::Get<const json11::Json::array&>(const std::string& prop) const {
   auto val = GetInternal(prop);
   if (!val->second.is_array())
-    throw std::runtime_error(prop + "Is not an array");
+    throw std::runtime_error("'" + prop + "' is not an array");
 
   return val->second.array_items();
 }
@@ -182,7 +204,7 @@ template<>
 inline const json11::Json::object& Config::Get<const json11::Json::object&>(const std::string& prop) const {
   auto val = GetInternal(prop);
   if (!val->second.is_object())
-    throw std::runtime_error(prop + "Is not an object");
+    throw std::runtime_error("'" + prop + "' is not an object");
 
   return val->second.object_items();
 }
