@@ -6,8 +6,8 @@ set(VRShell_SOURCES
 )
 
 set(VRShell_RESOURCES
-  #lighting-frag.glsl
-  #lighting-vert.glsl
+  material-frag.glsl
+  matrix-transformed-vert.glsl
 )
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRShell_SOURCES)
 
