@@ -50,8 +50,8 @@ foreach(_resource ${VRShell_RESOURCES})
     get_target_property(_is_bundle VRShell MACOSX_BUNDLE)
     if(_is_bundle)
       add_custom_command(TARGET VRShell POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory \"$<TARGET_FILE_DIR:VRShell>/../Resources/\"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:VRShell>/../Resources/\"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:VRShell>/../Resources"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_resource}" "$<TARGET_FILE_DIR:VRShell>/../Resources"
       )
     endif()
   endif()
