@@ -20,7 +20,7 @@ endif()
 
 add_executable(VRShell ${VRShell_EXEFLAGS} ${VRShell_SOURCES} ${VRShell_RESOURCES})
 set_property(TARGET VRShell PROPERTY FOLDER "VRShell")
-
+target_imported_libraries(VRShell PUBLIC Leap::Leap)
 
 target_link_libraries(VRShell PUBLIC
   Autowiring 
@@ -36,12 +36,6 @@ target_link_libraries(VRShell PUBLIC
 if(WIN32)
   set_property(TARGET VRShell APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
   set_property(TARGET VRShell PROPERTY VS_GLOBAL_ROOTNAMESPACE VRShell)
-
-  #Nessecary because apparantly generator expressions are not properly traversed recursively when retrieving properties.
-  get_target_property(_loc_debug Leap::Leap IMPORTED_LOCATION_DEBUG)
-  get_target_property(_loc_release Leap::Leap IMPORTED_LOCATION_RELEASE)
-  set_property(TARGET Shortcuts APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES} $<$<CONFIG:DEBUG>:${_loc_debug}>$<$<CONFIG:RELEASE>:${_loc_release}>)
-
 elseif(APPLE)
 
 endif()
@@ -50,9 +44,6 @@ foreach(_resource ${VRShell_RESOURCES})
   if(WIN32)
     add_custom_command(TARGET VRShell POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:VRShell>\"
-    )
-    add_custom_command(TARGET VRShell POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" "${CMAKE_CURRENT_BINARY_DIR}"
     )
   elseif(APPLE)
     get_filename_component(_resource ${_resource} ABSOLUTE)
