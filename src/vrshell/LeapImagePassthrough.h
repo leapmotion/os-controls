@@ -1,9 +1,9 @@
 #pragma once
-#include "graphics\Renderable.h"
+#include "graphics/Renderable.h"
 #include "GLTexture2.h"
 #include "PrimitiveGeometry.h"
 #include "GLShader.h"
-#include "graphics\RenderEngine.h"
+#include "graphics/RenderEngine.h"
 #include "Primitives.h"
 
 class LeapInput;

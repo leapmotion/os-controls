@@ -2,7 +2,7 @@
 #include "LeapImagePassthrough.h"
 #include "Leap.h"
 #include "osinterface/LeapInput.h"
-#include "graphics\RenderFrame.h"
+#include "graphics/RenderFrame.h"
 #include "GLShaderMatrices.h"
 
 LeapImagePassthrough::LeapImagePassthrough() {
