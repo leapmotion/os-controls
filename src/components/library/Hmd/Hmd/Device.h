@@ -18,8 +18,7 @@ public:
   virtual void Shutdown () = 0;
 
   virtual const DeviceConfiguration &ActualConfiguration () const = 0;
-  virtual Pose<float> EyePosef (uint32_t eye_index) const = 0;
-  virtual Pose<double> EyePosed (uint32_t eye_index) const = 0;
+  virtual std::shared_ptr<Pose> EyePose (uint32_t eye_index) const = 0;
   virtual std::shared_ptr<SensorData> SensorReadings () const = 0;
 
   virtual void BeginFrame () const = 0; // TODO: should this be non-const?
