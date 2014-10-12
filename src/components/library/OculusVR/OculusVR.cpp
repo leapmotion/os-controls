@@ -42,7 +42,7 @@ void OculusVR::InitHMD(){
   if (!m_HMD) {
     m_HMD = ovrHmd_CreateDebug(ovrHmd_DK1);
     if (!m_HMD) {
-      throw std::runtime_error("Cannot initialized the HMD device.");
+      throw std::runtime_error("Cannot initialize the HMD device.");
     }
     m_Debug = true;
   }else{
@@ -126,7 +126,12 @@ bool OculusVR::Init() {
   cfg.OGL.Win = m_Window;
 #endif
 
-  ovrHmd_ConfigureRendering(m_HMD, &cfg.Config, ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive, eyeFov, m_EyeRenderDesc);
+  ovrHmd_ConfigureRendering(
+    m_HMD,
+    &cfg.Config,
+    ovrDistortionCap_Chromatic|ovrDistortionCap_Vignette|ovrDistortionCap_TimeWarp|ovrDistortionCap_Overdrive,
+    eyeFov,
+    m_EyeRenderDesc);
 
   // Internally, the above line calls glewInit(), which generates a GL_INVALID_ENUM error inside of it. We will make a
   // glGetError() call to clear out the phony error; otherwise the next gl function we call will appear to fail. Raffi, I'm
@@ -135,7 +140,10 @@ bool OculusVR::Init() {
 
   ovrHmd_SetEnabledCaps(m_HMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
 
-  ovrHmd_ConfigureTracking(m_HMD, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, 0);
+  ovrHmd_ConfigureTracking(
+    m_HMD,
+    ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection|ovrTrackingCap_Position,
+    0);
 
   return true;
 }
