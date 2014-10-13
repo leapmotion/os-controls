@@ -46,20 +46,15 @@ int main(int argc, char **argv)
     AutoRequired<RenderEngine> render;
     AutoRequired<Shortcuts> shortcuts;
     AutoRequired<FrameFragmenter> fragmenter;
-    AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
     AutoRequired<ExposeViewAccessManager> exposeView;
     AutoRequired<VolumeLevelChecker> volumeChecker;
     AutoDesired<AudioVolumeInterface>();
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
-    AutoRequired<MakesRenderWindowFullScreen>();
     AutoRequired<OSWindowMonitor>();
-    AutoConstruct<sf::RenderWindow> mw(
-      sf::VideoMode(1, 1),
-      "Shortcuts", sf::Style::None,
-      *contextSettings
-    );
+    AutoRequired<RenderWindow> renderWindow;
+    AutoRequired<MakesRenderWindowFullScreen>();
 
     // Register the tray icon at this point, we don't want to do it earlier because
     // a lot of stuff is happening during setup that might prevent us from being
@@ -67,10 +62,9 @@ int main(int argc, char **argv)
     nativeUI->ShowUI();
     auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
 
-    // Run as fast as possible:
-    mw->setFramerateLimit(120);
-    mw->setVerticalSyncEnabled(false);
-    mw->setVisible(false);
+    renderWindow->SetVSync(false);
+    renderWindow->AllowInput(false);
+    renderWindow->SetVisible(true);
 
     // Handoff to the main loop:
     shortcuts->Main();
@@ -90,31 +84,19 @@ Shortcuts::Shortcuts(void)
 Shortcuts::~Shortcuts(void) {}
 
 void Shortcuts::Main(void) {
+  Autowired<RenderWindow> renderWindow;
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
-    // Handle all events:
-    for(sf::Event evt; m_mw->pollEvent(evt);)
-      HandleEvent(evt);
-
+    renderWindow->ProcessEvents();
     // Broadcast update event to all interested parties:
     auto now = std::chrono::steady_clock::now();
     upd(&Updatable::Tick)(now - then);
     then = now;
   }
-  m_mw->close();
-}
-
-void Shortcuts::HandleEvent(const sf::Event& ev) const {
-  switch (ev.type) {
-  case sf::Event::Closed:
-    AutoCurrentContext()->SignalShutdown();
-    break;
-  default:
-    break;
-  }
+  renderWindow->SetVisible(false);
 }
 
 void Shortcuts::Filter(void) {

@@ -71,7 +71,7 @@ int RenderWindowWin::Create(HWND hWnd)
   return 0;
 }
 
-LPPoint RenderWindowWin::Postion() const
+LPPoint RenderWindowWin::GetPostion() const
 {
   RECT rect;
 
@@ -81,7 +81,7 @@ LPPoint RenderWindowWin::Postion() const
   return LPPointZero;
 }
 
-LPSize RenderWindowWin::Size() const
+LPSize RenderWindowWin::GetSize() const
 {
   RECT rect;
 
@@ -91,7 +91,7 @@ LPSize RenderWindowWin::Size() const
   return LPSizeZero;
 }
 
-LPRect RenderWindowWin::Rect() const
+LPRect RenderWindowWin::GetRect() const
 {
   RECT rect;
 
@@ -127,6 +127,7 @@ void RenderWindowWin::SetRect(const LPRect& rect)
 void RenderWindowWin::SetVisible(bool visible)
 {
   if (m_hWnd) {
+    m_isVisible = visible;
     ::ShowWindow(m_hWnd, visible ? SW_SHOW : SW_HIDE);
   }
 }

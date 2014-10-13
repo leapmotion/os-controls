@@ -1,4 +1,5 @@
 #include "RenderWindowMac.h"
+#include "RenderContextMac.h"
 
 #include <OpenGL/gl.h>
 #include <Cocoa/Cocoa.h>
@@ -9,26 +10,24 @@
 
 @interface RenderWindowOpenGLView : NSOpenGLView {
   bool m_isShown;
-  NSOpenGLContext* m_previousContext;
   RenderWindowMac* m_owner;
 }
--(id) initWithFrame:(NSRect)frame pixelFormat:(NSOpenGLPixelFormat*)format owner:(RenderWindowMac*)owner;
+-(id) initWithFrame:(NSRect)frame owner:(RenderWindowMac*)owner;
 -(void) dealloc;
 -(void) receiveSleepNotification:(NSNotification*)notification;
 -(void) receiveWakeNotification:(NSNotification*)notification;
--(void) updateContext;
--(void) setActive:(BOOL)isActive;
--(void) flushBuffer;
+-(void) update;
+-(void) updateContextSettings;
 -(BOOL) isOpaque;
 @end
 
 @implementation RenderWindowOpenGLView
--(id) initWithFrame:(NSRect)frame pixelFormat:(NSOpenGLPixelFormat*)format owner:(RenderWindowMac*)owner;
+-(id) initWithFrame:(NSRect)frame owner:(RenderWindowMac*)owner;
 {
   if (!owner) {
     return nil;
   }
-  self = [super initWithFrame:frame pixelFormat:format];
+  self = [super initWithFrame:frame];
   if (self) {
     @autoreleasepool {
       NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
@@ -42,8 +41,6 @@
                                              name:NSWorkspaceDidWakeNotification
                                            object:nil];
     }
-    GLint interval = (m_owner->IsDoubleBuffered() ? 1 : 0);
-    [[self openGLContext] setValues:&interval forParameter:NSOpenGLCPSwapInterval];
     [self prepareOpenGL];
     m_isShown = false;
     m_owner = owner;
@@ -56,6 +53,7 @@
   @autoreleasepool {
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
   }
+  [[self openGLContext] clearDrawable];
   [self clearGLContext];
   [super dealloc];
 }
@@ -75,36 +73,18 @@
   }
 }
 
--(void) updateContext
+-(void) update
+{
+  [[self openGLContext] update];
+}
+
+-(void) updateContextSettings
 {
   GLint opacity = m_owner->IsTransparent() ? 0 : 1;
-  [[self openGLContext] setValues:&opacity forParameter:NSOpenGLCPSurfaceOpacity];
-}
-
--(void) setActive:(BOOL)isActive
-{
-  if (isActive) {
-    if (m_previousContext == nil) {
-      m_previousContext = [NSOpenGLContext currentContext];
-      [[self openGLContext] makeCurrentContext];
-    } else {
-      // Unmatched setActive (this should never happen)-- FIXME
-    }
-  } else if (m_previousContext != nil) {
-    [m_previousContext makeCurrentContext];
-    m_previousContext = nil;
-  } else {
-    // Unmatched setActive (this should never happen)-- FIXME
-  }
-}
-
--(void) flushBuffer
-{
-  if (m_previousContext != nil)  {
-    [[self openGLContext] flushBuffer];
-  } else {
-    // Called when not active (this should never happen)-- FIXME
-  }
+  GLint interval = m_owner->UseVSync() ? 1 : 0;
+  NSOpenGLContext* context = [self openGLContext];
+  [context setValues:&opacity forParameter:NSOpenGLCPSurfaceOpacity];
+  [context setValues:&interval forParameter:NSOpenGLCPSwapInterval];
 }
 
 -(BOOL) isOpaque
@@ -117,45 +97,34 @@
 // RenderWindow
 //
 
-RenderWindow* RenderWindow::New(bool isDoubleBuffered) {
-  return new RenderWindowMac(isDoubleBuffered);
+RenderWindow* RenderWindow::New(void)
+{
+  return new RenderWindowMac;
 }
 
 //
 // RenderWindowMac
 //
 
-RenderWindowMac::RenderWindowMac(bool isDoubleBuffered):
-  RenderWindow(isDoubleBuffered),
+RenderWindowMac::RenderWindowMac(void):
+  m_renderContext(static_cast<RenderContextMac*>(RenderContext::New())),
   m_window(nullptr),
   m_mainDisplayHeight(CGDisplayPixelsHigh(CGMainDisplayID()))
 {
-  const NSOpenGLPixelFormatAttribute attrs[] = {
-    NSOpenGLPFAAccelerated,
-    NSOpenGLPFAMultisample,
-    NSOpenGLPFASampleBuffers, static_cast<NSOpenGLPixelFormatAttribute>(1),
-    NSOpenGLPFASamples, static_cast<NSOpenGLPixelFormatAttribute>(16),
-    NSOpenGLPFADepthSize, static_cast<NSOpenGLPixelFormatAttribute>(0),
-    NSOpenGLPFAStencilSize, static_cast<NSOpenGLPixelFormatAttribute>(0),
-    NSOpenGLPFAAlphaSize, static_cast<NSOpenGLPixelFormatAttribute>(8),
-    NSOpenGLPFAClosestPolicy,
-    (m_isDoubleBuffered ? NSOpenGLPFADoubleBuffer : static_cast<NSOpenGLPixelFormatAttribute>(0)),
-    static_cast<NSOpenGLPixelFormatAttribute>(0)
-  };
+  NSWindow* window = [[NSWindow alloc] initWithContentRect:AdjustCoordinates(NSMakeRect(0, 0, 1, 1))
+                                                 styleMask:NSBorderlessWindowMask
+                                                   backing:NSBackingStoreBuffered
+                                                     defer:NO];
 
-  NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-  RenderWindowOpenGLView *openGLView = [[RenderWindowOpenGLView alloc] initWithFrame:CGRectZero pixelFormat:pixelFormat owner:this];
-  NSWindow* window = [[NSWindow alloc] init];
-
+  RenderWindowOpenGLView *openGLView = [[RenderWindowOpenGLView alloc] initWithFrame:[window frame] owner:this];
   [window setContentView:openGLView];
+  NSOpenGLContext* context = reinterpret_cast<NSOpenGLContext*>(m_renderContext->GetNativeContext());
+  [openGLView setOpenGLContext:context];
+  [context setView:openGLView];
   [openGLView release];
-
-  AllowInput(m_allowInput);
-  SetTransparent(m_isTransparent);
 
   [window setHasShadow:NO];
   [window setHidesOnDeactivate:NO];
-  [window setStyleMask:NSBorderlessWindowMask];
   [window setBackgroundColor:[NSColor clearColor]];
   [window setBackingType:NSBackingStoreBuffered];
   [window setSharingType:NSWindowSharingNone];
@@ -164,9 +133,11 @@ RenderWindowMac::RenderWindowMac(bool isDoubleBuffered):
                                  NSWindowCollectionBehaviorStationary |
                                  NSWindowCollectionBehaviorFullScreenAuxiliary |
                                  NSWindowCollectionBehaviorIgnoresCycle)];
-  [pixelFormat release];
 
   m_window = reinterpret_cast<void*>(window);
+
+  SetTransparent(m_isTransparent);
+  AllowInput(m_allowInput);
 }
 
 RenderWindowMac::~RenderWindowMac()
@@ -176,31 +147,28 @@ RenderWindowMac::~RenderWindowMac()
   [window release];
 }
 
-OSPoint RenderWindowMac::Postion() const
+OSPoint RenderWindowMac::GetPostion() const
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  NSRect frame = [window frame];
-  return AdjustCoordinates(frame).origin;
+  return AdjustCoordinates([window frame]).origin;
 }
 
-OSSize RenderWindowMac::Size() const
+OSSize RenderWindowMac::GetSize() const
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  NSRect frame = [window frame];
-  return frame.size;
+  return [window frame].size;
 }
 
-OSRect RenderWindowMac::Rect() const
+OSRect RenderWindowMac::GetRect() const
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  NSRect frame = [window frame];
-  return AdjustCoordinates(frame);
+  return AdjustCoordinates([window frame]);
 }
 
 void RenderWindowMac::SetPosition(const OSPoint& position)
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  NSRect frame = [window frame];
+  NSRect frame = AdjustCoordinates([window frame]);
   frame.origin = position;
   [window setFrameOrigin:AdjustCoordinates(frame).origin];
 }
@@ -208,9 +176,9 @@ void RenderWindowMac::SetPosition(const OSPoint& position)
 void RenderWindowMac::SetSize(const OSSize& size)
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  NSRect frame = [window frame];
+  NSRect frame = AdjustCoordinates([window frame]);
   frame.size = size;
-  [window setFrame:frame display:NO];
+  [window setFrame:AdjustCoordinates(frame) display:NO];
 }
 
 void RenderWindowMac::SetRect(const OSRect& rect)
@@ -219,12 +187,19 @@ void RenderWindowMac::SetRect(const OSRect& rect)
   [window setFrame:AdjustCoordinates(rect) display:NO];
 }
 
+void RenderWindowMac::SetVSync(bool vsync)
+{
+  m_useVSync = vsync;
+  NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
+  [[window contentView] updateContextSettings];
+}
+
 void RenderWindowMac::SetTransparent(bool transparent)
 {
   m_isTransparent = transparent;
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
   [window setOpaque:!m_isTransparent];
-  [[window contentView] updateContext];
+  [[window contentView] updateContextSettings];
 }
 
 void RenderWindowMac::AllowInput(bool allowInput)
@@ -238,6 +213,7 @@ void RenderWindowMac::AllowInput(bool allowInput)
 void RenderWindowMac::SetVisible(bool visible)
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
+  m_isVisible = visible;
   if (visible) {
     [window orderFrontRegardless];
   } else {
@@ -247,17 +223,31 @@ void RenderWindowMac::SetVisible(bool visible)
 
 void RenderWindowMac::SetActive(bool active)
 {
-  NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  [[window contentView] setActive:(active ? YES : NO)];
+  if (!m_renderContext) {
+    return;
+  }
+  m_renderContext->SetActive(active);
 }
 
-void RenderWindowMac::Display(void)
+void RenderWindowMac::FlushBuffer(void)
 {
-  NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  if (m_isDoubleBuffered) {
-    [[window contentView] flushBuffer];
-  } else {
-    ::glFlush();
+  if (!m_renderContext) {
+    return;
+  }
+  m_renderContext->FlushBuffer();
+}
+
+void RenderWindowMac::ProcessEvents(void)
+{
+  NSEvent* event = nil;
+
+  @autoreleasepool {
+    while ((event = [NSApp nextEventMatchingMask:NSAnyEventMask
+                                       untilDate:[NSDate distantPast]
+                                          inMode:NSDefaultRunLoopMode
+                                         dequeue:YES])) {
+      [NSApp sendEvent:event];
+    }
   }
 }
 

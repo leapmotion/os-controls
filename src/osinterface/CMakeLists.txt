@@ -27,6 +27,7 @@ set(osinterface_SOURCES
   OSWindowEvent.h
   OSWindowMonitor.h
   OSWindowMonitor.cpp
+  RenderContext.h
   RenderWindow.h
   ScrollOperation.h
   WindowScroller.h
@@ -52,6 +53,8 @@ add_windows_sources(
   OSWindowMonitorWin.cpp
   OSVirtualScreenWin.h
   OSVirtualScreenWin.cpp
+  RenderContextWin.h
+  RenderContextWin.cpp
   RenderWindowWin.h
   RenderWindowWin.cpp
   WindowScrollerWin.h
@@ -77,6 +80,8 @@ add_mac_sources(
   OSWindowMac.mm
   OSWindowMonitorMac.h
   OSWindowMonitorMac.mm
+  RenderContextMac.h
+  RenderContextMac.mm
   RenderWindowMac.h
   RenderWindowMac.mm
   WindowScrollerMac.h

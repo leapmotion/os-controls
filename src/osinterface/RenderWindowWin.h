@@ -13,9 +13,9 @@ public:
   RenderWindowWin(bool isDoubleBuffered);
   virtual ~RenderWindowWin(void);
 
-  virtual OSPoint Postion(void) const override;
-  virtual OSSize Size(void) const override;
-  virtual OSRect Rect(void) const override;
+  virtual OSPoint GetPostion(void) const override;
+  virtual OSSize GetSize(void) const override;
+  virtual OSRect GetRect(void) const override;
 
   virtual void SetPosition(const OSPoint& position) override;
   virtual void SetSize(const OSSize& size) override;
@@ -27,6 +27,8 @@ public:
 
   virtual void SetActive(bool active = true) override;
   virtual void Display(void) override;
+
+  virtual void ProcessEvents(void) override;
 
 private:
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

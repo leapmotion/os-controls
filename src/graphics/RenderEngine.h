@@ -1,19 +1,18 @@
 #pragma once
 #include "Renderable.h"
 #include "uievents/Updatable.h"
+#include "osinterface/RenderContext.h"
 
 //Components
 #include "RenderState.h"
 
 #include <autowiring/Autowired.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/GlResource.hpp>
 #include <chrono>
 #include <vector>
 
 class GLShader;
 class OSVirtualScreen;
-class MakesRenderWindowFullScreen;
+class RenderWindow;
 
 //Tracks & dispatches update & render calls to a SceneGraph. Intended for use
 //with RenderEngineNodes, but will also support PrimitiveBase children.  Eventually
@@ -23,7 +22,7 @@ class MakesRenderWindowFullScreen;
 class RenderEngine :
   public Updatable,
   public Renderable::ZOrderList,
-  public sf::GlResource
+  public RenderContextResource
 {
 public:
   RenderEngine();
@@ -40,8 +39,7 @@ public:
 
 private:
   Autowired<OSVirtualScreen> m_virtualScreen;
-  Autowired<MakesRenderWindowFullScreen> m_makesRenderWindowFullScreen;
-  Autowired<sf::RenderWindow> m_rw;
+  Autowired<RenderWindow> m_renderWindow;
 
   bool m_drewFrame;
   RenderState m_renderState;

@@ -1,11 +1,7 @@
 #pragma once
-#include "osinterface/OSVirtualScreen.h"
+#include "OSVirtualScreen.h"
+#include "RenderWindow.h"
 #include "uievents/Updatable.h"
-
-namespace sf {
-  class RenderWindow;
-  struct ContextSettings;
-}
 
 /// <summary>
 /// Implements an OpenGL window that attempts to track changes to the full-screen desktop
@@ -20,12 +16,11 @@ public:
   ~MakesRenderWindowFullScreen(void);
 
   void SetVisible(bool visible = true);
-  bool IsVisible(void) const { return m_isVisible; }
+  bool IsVisible(void) const;
 
 private:
   Autowired<OSVirtualScreen> m_virtualScreen;
-  Autowired<sf::ContextSettings> m_contextSettings;
-  Autowired<sf::RenderWindow> m_mw;
+  Autowired<RenderWindow> m_rw;
   bool m_isVisible;
 
   /// <summary>
