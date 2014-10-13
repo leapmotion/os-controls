@@ -487,6 +487,45 @@ add_sublibrary(
 )
 
 add_sublibrary(
+    Hmd
+    HEADERS
+        Leap/Hmd/Context.h
+        Leap/Hmd/Device.h
+        Leap/Hmd/DeviceCapabilities.h
+        Leap/Hmd/DeviceConfiguration.h
+        Leap/Hmd/Exception.h
+        Leap/Hmd/EyeConfiguration.h
+        Leap/Hmd/Pose.h
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11
+    BRIEF_DOC_STRING
+        "Provides a set of abstract interface C++ classes for head mounted displays."
+)
+
+add_sublibrary(
+    OculusRift
+    HEADERS
+        Leap/OculusRift/Context.h
+        Leap/OculusRift/Device.h
+        Leap/OculusRift/DeviceCapabilities.h
+        Leap/OculusRift/DeviceConfiguration.h
+        Leap/OculusRift/Exception.h
+        Leap/OculusRift/EyeConfiguration.h
+        Leap/OculusRift/Pose.h
+    SOURCES
+        Leap/OculusRift/Context.cpp
+        Leap/OculusRift/Device.cpp
+        Leap/OculusRift/Pose.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLCompatibility
+        Hmd
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "OculusSDK 0.4.1"
+    BRIEF_DOC_STRING
+        "Provides a Oculus Rift implementation of the Hmd interfaces."
+)
+
+add_sublibrary(
     OculusVR
     HEADERS
         OculusVR.h
