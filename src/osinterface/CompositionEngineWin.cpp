@@ -48,14 +48,6 @@ m_commitRequired(false)
 }
 
 CompositionEngineWin::~CompositionEngineWin() {
-  m_DCompDevice->Release();
-  m_DCompDevice = nullptr;
-
-  m_DXGIDevice->Release();
-  m_DXGIDevice = nullptr;
-  
-  m_D3D11Device->Release();
-  m_D3D11Device = nullptr;
 }
 
 void CompositionEngineWin::CommitChanges(){
@@ -78,18 +70,15 @@ m_visual(nullptr)
   if (!SUCCEEDED(hr))
     throw std::runtime_error("Error creating ScaleTransform");
 
+  IDCompositionTransform* transforms[2] = { m_rotateTransform, m_scaleTransform };
+
   //this relies on the transforms being contiguous in memory
-  hr = m_device->m_DCompDevice->CreateTransformGroup(reinterpret_cast<IDCompositionTransform**>(&m_rotateTransform), 2, &m_transformGroup);
+  hr = m_device->m_DCompDevice->CreateTransformGroup(transforms, 2, &m_transformGroup);
 
   m_visual->SetTransform(m_transformGroup);
 }
 
 ComposedViewWin::~ComposedViewWin() {
-  m_transformGroup->Release();
-  m_scaleTransform->Release();
-  m_rotateTransform->Release();
-
-  m_visual->Release();
 }
 
 void ComposedViewWin::SetContent(const WindowHandle& window){

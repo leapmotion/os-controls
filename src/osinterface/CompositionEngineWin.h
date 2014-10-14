@@ -3,6 +3,7 @@
 #include <autowiring/Autowired.h>
 #include <vector>
 
+#include "atlbase.h"
 struct ID3D11Device;
 struct IDXGIDevice;
 struct IDCompositionDevice;
@@ -29,9 +30,9 @@ public:
 private:
   bool m_commitRequired;
 
-  ID3D11Device* m_D3D11Device;
-  IDXGIDevice* m_DXGIDevice;
-  IDCompositionDevice* m_DCompDevice;
+  CComPtr<ID3D11Device> m_D3D11Device;
+  CComPtr<IDXGIDevice> m_DXGIDevice;
+  CComPtr<IDCompositionDevice> m_DCompDevice;
   friend class ComposedViewWin;
   friend class ComposedDisplayWin;
 };
@@ -45,7 +46,7 @@ public:
   void SetView(ComposedView* visual) override;
 
 private:
-  IDCompositionTarget* m_target;
+  CComPtr<IDCompositionTarget> m_target;
   CompositionEngineWin* m_engine;
 
   std::vector<ComposedView*> m_children;
@@ -70,11 +71,11 @@ private:
   friend class ComposedDisplayWin;
   CompositionEngineWin* m_device;
 
-  IDCompositionVisual* m_visual;
+  CComPtr<IDCompositionVisual> m_visual;
 
-  IDCompositionRotateTransform* m_rotateTransform;
-  IDCompositionScaleTransform* m_scaleTransform;
-  IDCompositionTransform* m_transformGroup;
+  CComPtr<IDCompositionRotateTransform> m_rotateTransform;
+  CComPtr<IDCompositionScaleTransform> m_scaleTransform;
+  CComPtr<IDCompositionTransform> m_transformGroup;
 
   std::vector<ComposedViewWin*> m_children;
 };
