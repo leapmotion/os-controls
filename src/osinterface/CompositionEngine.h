@@ -1,8 +1,9 @@
 #pragma once
 
 #include "OSWindowHandle.h"
-
-class CompositionEngine
+#include "autowiring/Object.h"
+class CompositionEngine :
+  public Object
 {
 public:
   virtual ~CompositionEngine() {}
@@ -13,7 +14,8 @@ public:
   virtual bool CommitRequired() const = 0;
 };
 
-class ComposedView
+class ComposedView :
+  public Object
 {
 public:
 
@@ -28,7 +30,8 @@ public:
   virtual void SetScale(float centerX, float centerY, float scaleX, float scaleY) = 0;
 };
 
-class ComposedDisplay
+class ComposedDisplay :
+  public Object
 {
 public:
   static ComposedDisplay* New(CompositionEngine* engine, WindowHandle* handle);
