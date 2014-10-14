@@ -2,6 +2,10 @@
 
 #include "OSWindowHandle.h"
 #include "autowiring/Object.h"
+
+class ComposedView;
+class ComposedDisplay;
+
 class CompositionEngine :
   public Object
 {
@@ -9,6 +13,9 @@ public:
   virtual ~CompositionEngine() {}
 
   static CompositionEngine* New(void);
+  
+  virtual ComposedView* CreateView() = 0;
+  virtual ComposedDisplay* CreateDisplay(WindowHandle handle) = 0;
 
   virtual void CommitChanges() = 0;
   virtual bool CommitRequired() const = 0;
@@ -18,9 +25,6 @@ class ComposedView :
   public Object
 {
 public:
-
-  static ComposedView* New(CompositionEngine* engine);
-  
   virtual ~ComposedView() {}
   virtual void SetContent(const WindowHandle& window) = 0;
   virtual void AddChild(ComposedView* view) = 0;
@@ -34,7 +38,5 @@ class ComposedDisplay :
   public Object
 {
 public:
-  static ComposedDisplay* New(CompositionEngine* engine, WindowHandle handle);
-
   virtual void SetView(ComposedView* view) = 0;
 };

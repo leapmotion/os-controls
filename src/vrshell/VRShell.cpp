@@ -73,8 +73,8 @@ void VRShell::Main(void) {
   window.create(sf::VideoMode::VideoMode(200, 200), "secondary window");
 
   Autowired<CompositionEngine> engine;
-  auto display = ComposedDisplay::New(engine.get(), window.getSystemHandle());
-  auto view = ComposedView::New(engine.get());
+  auto display = engine->CreateDisplay(window.getSystemHandle());
+  auto view = engine->CreateView();
 
   Autowired<sf::RenderWindow> mainWindow;
   view->SetContent(mainWindow->getSystemHandle());

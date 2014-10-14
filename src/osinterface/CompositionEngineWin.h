@@ -20,6 +20,9 @@ public:
   CompositionEngineWin();
   virtual ~CompositionEngineWin();
 
+  ComposedView* CreateView() override;
+  ComposedDisplay* CreateDisplay(WindowHandle handle) override;
+
   void CommitChanges() override;
   bool CommitRequired() const override{ return m_commitRequired; }
 
