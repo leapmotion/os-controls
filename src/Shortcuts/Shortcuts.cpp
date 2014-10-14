@@ -77,6 +77,13 @@ int main(int argc, char **argv)
   return 0;
 }
 
+#if _WIN32
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
+{
+  return main(__argc, __argv);
+}
+#endif
+
 Shortcuts::Shortcuts(void)
 {
 }
