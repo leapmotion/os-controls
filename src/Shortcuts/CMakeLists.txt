@@ -107,7 +107,6 @@ target_link_libraries(Shortcuts Autowiring utility interaction graphics osinterf
 target_include_directories(Shortcuts PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_package(Shortcuts Leap REQUIRED)
-target_package(Shortcuts SFML 2.1 REQUIRED)
 
 if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib /MANIFESTUAC:NO")

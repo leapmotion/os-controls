@@ -3,11 +3,11 @@ set(osinterface_SOURCES
   AudioVolumeInterface.cpp
   HtmlPageLauncher.h
   HtmlPageLauncher.cpp
+  KeepRenderWindowFullScreen.h
+  KeepRenderWindowFullScreen.cpp
   LeapInput.h
   LeapInput.cpp
   LeapInputListener.h
-  MakesRenderWindowFullScreen.h
-  MakesRenderWindowFullScreen.cpp
   MediaInterface.h
   MediaInterface.cpp
   VolumeLevelChecker.h
@@ -92,7 +92,6 @@ add_library(osinterface ${osinterface_SOURCES})
 set_property(TARGET osinterface PROPERTY FOLDER "Common")
 
 target_link_libraries(osinterface Autowiring utility)
-target_package(osinterface SFML 2.1 REQUIRED)
 target_package(osinterface Leap REQUIRED)
 
 target_link_libraries(osinterface Primitives Animation)

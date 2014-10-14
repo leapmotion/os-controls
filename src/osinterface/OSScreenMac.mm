@@ -108,8 +108,8 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
       params.SetInternalFormat(GL_RGBA8);
       params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
       texture = std::make_shared<GLTexture2>(params, pixelData);
       img->SetTexture(texture);

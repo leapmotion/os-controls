@@ -13,6 +13,8 @@ public:
   RenderWindowWin(bool isDoubleBuffered);
   virtual ~RenderWindowWin(void);
 
+  virtual void* GetSystemHandle() const { return m_hWnd; }
+
   virtual OSPoint GetPostion(void) const override;
   virtual OSSize GetSize(void) const override;
   virtual OSRect GetRect(void) const override;

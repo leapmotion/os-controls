@@ -9,7 +9,7 @@
 #include "osinterface/AudioVolumeInterface.h"
 #include "osinterface/HtmlPageLauncher.h"
 #include "osinterface/LeapInput.h"
-#include "osinterface/MakesRenderWindowFullScreen.h"
+#include "osinterface/KeepRenderWindowFullScreen.h"
 #include "osinterface/MediaInterface.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/OSWindowMonitor.h"
@@ -43,6 +43,7 @@ int main(int argc, char **argv)
 
     AutoRequired<ErrorDialogs>();
     AutoRequired<OSVirtualScreen> virtualScreen;
+    AutoRequired<RenderWindow> renderWindow;
     AutoRequired<RenderEngine> render;
     AutoRequired<Shortcuts> shortcuts;
     AutoRequired<FrameFragmenter> fragmenter;
@@ -53,8 +54,7 @@ int main(int argc, char **argv)
     AutoRequired<MediaInterface>();
     AutoRequired<LeapInput>();
     AutoRequired<OSWindowMonitor>();
-    AutoRequired<RenderWindow> renderWindow;
-    AutoRequired<MakesRenderWindowFullScreen>();
+    AutoRequired<KeepRenderWindowFullScreen>();
 
     // Register the tray icon at this point, we don't want to do it earlier because
     // a lot of stuff is happening during setup that might prevent us from being

@@ -20,12 +20,11 @@ add_executable(VRShell ${VRShell_EXEFLAGS} ${VRShell_SOURCES} ${VRShell_RESOURCE
 set_property(TARGET VRShell PROPERTY FOLDER "VRShell")
 
 target_link_libraries(VRShell PUBLIC
-  Autowiring 
-  GLShaderLoader 
-  OculusVR 
+  Autowiring
+  GLShaderLoader
+  OculusVR
   osinterface
-  Primitives 
-  SFMLController 
+  Primitives
   utility
 )
 
@@ -37,7 +36,9 @@ if(WIN32)
   get_target_property(_loc Leap::Leap IMPORTED_LOCATION)
   set_property(TARGET VRShell APPEND PROPERTY RESOURCE ${Shortcuts_RESOURCES} ${_loc})
 elseif(APPLE)
-
+  find_library(IOKIT_FRAMEWORK IOKit)
+  mark_as_advanced(IOKIT_FRAMEWORK)
+  target_link_libraries(VRShell PUBLIC ${IOKIT_FRAMEWORK})
 endif()
 
 foreach(_resource ${VRShell_RESOURCES})

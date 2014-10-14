@@ -23,6 +23,8 @@ public:
   bool IsVisible(void) const { return m_isVisible; }
   bool DoesAllowInput(void) const {return m_allowInput; }
 
+  virtual void* GetSystemHandle() const = 0;
+
   virtual OSPoint GetPostion(void) const = 0;
   virtual OSSize GetSize(void) const = 0;
   virtual OSRect GetRect(void) const = 0;

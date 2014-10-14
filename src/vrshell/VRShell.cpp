@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "VRShell.h"
 #include "utility/PlatformInitializer.h"
-#include "osinterface/MakesRenderWindowFullScreen.h"
+#include "osinterface/KeepRenderWindowFullScreen.h"
 #include "OculusVR.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
@@ -18,21 +18,15 @@ int main(int argc, char **argv)
     shellCtxt->Initiate();
     CurrentContextPusher pshr(shellCtxt);
 
+    AutoRequired<RenderWindow> renderWindow;
     AutoRequired<VRShell> shell;
-    AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
-    AutoConstruct<sf::RenderWindow> mw(
-      sf::VideoMode(1, 1),
-      "VRShell", sf::Style::None,
-      *contextSettings
-    );
-    AutoRequired<MakesRenderWindowFullScreen>();
+    AutoRequired<KeepRenderWindowFullScreen>();
     AutoConstruct<OculusVR> hmdInterface;
-    hmdInterface->SetWindow(mw->getSystemHandle());
+    hmdInterface->SetWindow(renderWindow->GetSystemHandle());
     hmdInterface->Init();
 
-    // Run as fast as possible:
-    mw->setFramerateLimit(120);
-    mw->setVerticalSyncEnabled(false);
+    renderWindow->SetVSync(false);
+    renderWindow->AllowInput(false);
 
     // Handoff to the main loop:
     shell->Main();
@@ -52,31 +46,19 @@ VRShell::VRShell(void)
 VRShell::~VRShell(void) {}
 
 void VRShell::Main(void) {
+  Autowired<RenderWindow> renderWindow;
   //AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
-    // Handle all events:
-    for(sf::Event evt; m_mw->pollEvent(evt);)
-      HandleEvent(evt);
-
+    renderWindow->ProcessEvents();
     // Broadcast update event to all interested parties:
     //auto now = std::chrono::steady_clock::now();
     //upd(&Updatable::Tick)(now - then);
     //then = now;
   }
-  m_mw->close();
-}
-
-void VRShell::HandleEvent(const sf::Event& ev) const {
-  switch (ev.type) {
-  case sf::Event::Closed:
-    AutoCurrentContext()->SignalShutdown();
-    break;
-  default:
-    break;
-  }
+  renderWindow->SetVisible(false);
 }
 
 void VRShell::Filter(void) {

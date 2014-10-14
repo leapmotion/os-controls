@@ -25,15 +25,15 @@ RenderContextMac::RenderContextMac(std::shared_ptr<RenderContextMac> rootContext
   m_rootWindow(nullptr)
 {
   const NSOpenGLPixelFormatAttribute attrs[] = {
-    NSOpenGLPFAAccelerated,
-    NSOpenGLPFAMultisample,
-    NSOpenGLPFASampleBuffers, static_cast<NSOpenGLPixelFormatAttribute>(1),
-    NSOpenGLPFASamples, static_cast<NSOpenGLPixelFormatAttribute>(16),
-    NSOpenGLPFADepthSize, static_cast<NSOpenGLPixelFormatAttribute>(0),
-    NSOpenGLPFAStencilSize, static_cast<NSOpenGLPixelFormatAttribute>(0),
-    NSOpenGLPFAAlphaSize, static_cast<NSOpenGLPixelFormatAttribute>(8),
     NSOpenGLPFAClosestPolicy,
     NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFAAlphaSize, static_cast<NSOpenGLPixelFormatAttribute>(8),
+    NSOpenGLPFADepthSize, static_cast<NSOpenGLPixelFormatAttribute>(0),
+    NSOpenGLPFAStencilSize, static_cast<NSOpenGLPixelFormatAttribute>(0),
+    m_rootRenderContext ? NSOpenGLPFAMultisample : static_cast<NSOpenGLPixelFormatAttribute>(0),
+    NSOpenGLPFASampleBuffers, static_cast<NSOpenGLPixelFormatAttribute>(1),
+    NSOpenGLPFASamples, static_cast<NSOpenGLPixelFormatAttribute>(16),
+    NSOpenGLPFAAccelerated,
     static_cast<NSOpenGLPixelFormatAttribute>(0)
   };
 
@@ -44,8 +44,10 @@ RenderContextMac::RenderContextMac(std::shared_ptr<RenderContextMac> rootContext
   [pixelFormat release];
   m_context = reinterpret_cast<void*>(context);
 
-  // If we are creating the root context, we need to create a window to accompany this context
-  if (!m_rootRenderContext) {
+  if (m_rootRenderContext) {
+    ::glEnable(GL_MULTISAMPLE_ARB);
+  } else {
+    // If we are creating the root context, we need to create a window to accompany this context
     NSWindow* rootWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
                                                        styleMask:NSBorderlessWindowMask
                                                          backing:NSBackingStoreBuffered

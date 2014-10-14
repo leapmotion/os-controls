@@ -24,7 +24,6 @@ add_library(expose ${expose_EXEFLAGS} ${expose_SOURCES})
 set_property(TARGET expose PROPERTY FOLDER "Shortcuts Projects")
 target_link_libraries(expose Autowiring utility)
 
-target_package(expose SFML 2.1 REQUIRED)
 target_package(expose Leap REQUIRED)
 
 target_link_libraries(expose Animation Primitives SceneGraph RadialMenu Resource GLShader GLShaderLoader HandCursor)

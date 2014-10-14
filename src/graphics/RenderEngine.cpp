@@ -41,23 +41,16 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // Active the window for OpenGL rendering
   m_renderWindow->SetActive(true);
 
-  ::glDrawBuffer(GL_BACK);
-  ::glEnable(GL_MULTISAMPLE_ARB);
-
   // Clear window
   ::glClearColor(0, 0, 0, 0);
   ::glClear(GL_COLOR_BUFFER_BIT);
 
   // Set the mode
-  ::glDisable(GL_CULL_FACE);
-  ::glDisable(GL_LIGHTING);
-  ::glDisable(GL_DEPTH_TEST);
-  ::glDisable(GL_ALPHA_TEST);
-  ::glEnable(GL_TEXTURE_2D);
   ::glEnable(GL_BLEND);
   ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
 
   const auto windowSize = m_renderWindow->GetSize();
+  ::glScissor(0, 0, windowSize.width, windowSize.height);
   ::glViewport(0, 0, windowSize.width, windowSize.height);
   m_renderState.GetProjection().Orthographic(0, windowSize.height, windowSize.width, 0, 1, -100);
   m_renderState.GetModelView().Clear();
