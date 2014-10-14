@@ -68,23 +68,6 @@ VRShell::~VRShell(void) {}
 void VRShell::Main(void) {
   AutoFired<Updatable> upd;
 
-  sf::Window window;
-  Autowired<sf::ContextSettings> contextSettings;
-  window.create(sf::VideoMode::VideoMode(200, 200), "secondary window");
-
-  Autowired<CompositionEngine> engine;
-  auto display = engine->CreateDisplay(window.getSystemHandle());
-  auto view = engine->CreateView();
-
-  Autowired<sf::RenderWindow> mainWindow;
-  view->SetContent(mainWindow->getSystemHandle());
-  view->SetScale(0.f, 0.f, .2f, .2f);
-  view->SetOffset(20, 20);
-  view->SetRotation(40, 40, 30);
-  display->SetView(view);
-  
-  engine->CommitChanges();
-
   // Dispatch events until told to quit:
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
@@ -97,6 +80,7 @@ void VRShell::Main(void) {
     upd(&Updatable::Tick)(now - then);
     then = now;
   }
+
   m_mw->close();
 }
 
