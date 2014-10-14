@@ -4,10 +4,11 @@
 #include <Primitives.h>
 #include <GLTexture2.h>
 #include <ShellScalingApi.h>
-#include <SFML/Graphics/Image.hpp>
 
 #include <fstream>
 #include <cmath>
+
+#include "FreeImage.h"
 
 HMODULE hshcore = LoadLibrary("shcore");
 auto g_GetDpiForMonitor = (decltype(GetDpiForMonitor)*) GetProcAddress(hshcore, "GetDpiForMonitor");
@@ -49,25 +50,33 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
   if (pathString.empty()) {
     return img;
   }
-  std::ifstream ifs(pathString.c_str(), std::ios::in | std::ios::binary);
-  std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-  ifs.close();
-  if (str.empty()) {
+
+  FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilenameU(pathString.c_str());
+  if (fif == FIF_UNKNOWN) {
+    fif = FreeImage_GetFIFFromFilenameU(pathString.c_str());
+  }
+  if (fif == FIF_UNKNOWN || !FreeImage_FIFSupportsReading(fif)) {
     return img;
   }
-  sf::Image image;
-  if (!image.loadFromMemory(str.data(), str.size())) {
+  FIBITMAP* dib = FreeImage_LoadU(fif, pathString.c_str(), 0);
+  if (!dib) {
     return img;
   }
-  str.clear();
-  const uint8_t* dstBytes = static_cast<const uint8_t*>(image.getPixelsPtr());
-  if (!dstBytes) {
+  { // We will just convert to 32-bits, as that is likely the format anyway
+    FIBITMAP* dib32 = FreeImage_ConvertTo32Bits(dib);
+    FreeImage_Unload(dib);
+    dib = dib32;
+  }
+  if (dib) {
     return img;
   }
-  const auto size = image.getSize();
-  const size_t width = static_cast<size_t>(size.x);
-  const size_t height = static_cast<size_t>(size.y);
-  const size_t totalBytes = width*height*4;
+
+  const size_t width = static_cast<size_t>(FreeImage_GetWidth(dib));
+  const size_t height = static_cast<size_t>(FreeImage_GetHeight(dib));
+  const size_t bytesPerRow = static_cast<size_t>(FreeImage_GetPitch(dib));
+  const size_t stride = bytesPerRow/4;
+  const size_t totalBytes = bytesPerRow*height;
+  const uint8_t* dstBytes = FreeImage_GetBits(dib);
 
   std::shared_ptr<GLTexture2> texture = img->Texture();
   if (texture) {
@@ -76,7 +85,9 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
       texture.reset();
     }
   }
+
   GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+  pixelData.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, stride);
   if (texture) {
     texture->UpdateTexture(pixelData);
   } else {
@@ -85,16 +96,15 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     params.SetInternalFormat(GL_RGBA8);
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     texture = std::make_shared<GLTexture2>(params, pixelData);
     img->SetTexture(texture);
     img->SetScaleBasedOnTextureSize();
   }
-  texture->Bind();
-  glGenerateMipmap(GL_TEXTURE_2D);
-  texture->Unbind();
+
+  FreeImage_Unload(dib);
 
   return img;
 }

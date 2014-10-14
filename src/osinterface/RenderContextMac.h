@@ -1,6 +1,5 @@
 #pragma once
 #include "RenderContext.h"
-#include "OSVirtualScreen.h"
 
 class RenderContextMac :
   public RenderContext

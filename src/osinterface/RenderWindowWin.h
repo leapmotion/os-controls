@@ -6,14 +6,18 @@
 #undef min
 #undef max
 
+#include <memory>
+
+class RenderContextWin;
+
 class RenderWindowWin :
   public RenderWindow
 {
 public:
-  RenderWindowWin(bool isDoubleBuffered);
+  RenderWindowWin(void);
   virtual ~RenderWindowWin(void);
 
-  virtual void* GetSystemHandle() const { return m_hWnd; }
+  virtual HWND GetSystemHandle() const override;
 
   virtual OSPoint GetPostion(void) const override;
   virtual OSSize GetSize(void) const override;
@@ -23,12 +27,13 @@ public:
   virtual void SetSize(const OSSize& size) override;
   virtual void SetRect(const OSRect& rect) override;
 
+  virtual void SetVSync(bool vsync = true) override;
   virtual void SetTransparent(bool transparent = true) override;
   virtual void AllowInput(bool allowInput = true) override;
   virtual void SetVisible(bool visible = true) override;
 
   virtual void SetActive(bool active = true) override;
-  virtual void Display(void) override;
+  virtual void FlushBuffer(void) override;
 
   virtual void ProcessEvents(void) override;
 
@@ -37,6 +42,5 @@ private:
 
   int Create(HWND hWnd);
 
-  HWND m_hWnd;
-  HGLRC m_renderingContext;
+  std::unique_ptr<RenderContextWin> m_renderContext;
 };

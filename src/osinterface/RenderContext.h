@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <memory>
 #include <mutex>
+#include <exception>
 
 class RenderContext
 {

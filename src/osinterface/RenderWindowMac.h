@@ -12,7 +12,7 @@ public:
   RenderWindowMac(void);
   virtual ~RenderWindowMac(void);
 
-  virtual void* GetSystemHandle() const { return m_window; }
+  virtual void* GetSystemHandle() const override { return m_window; }
 
   virtual OSPoint GetPostion(void) const override;
   virtual OSSize GetSize(void) const override;

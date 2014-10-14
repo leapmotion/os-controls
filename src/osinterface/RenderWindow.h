@@ -3,6 +3,13 @@
 
 #include <autowiring/autowiring.h>
 
+#if _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef min
+#undef max
+#endif
+
 class RenderContext;
 
 class RenderWindow :
@@ -23,7 +30,13 @@ public:
   bool IsVisible(void) const { return m_isVisible; }
   bool DoesAllowInput(void) const {return m_allowInput; }
 
-  virtual void* GetSystemHandle() const = 0;
+#if _WIN32
+  using WindowHandle = HWND;
+#elif __APPLE__
+  using WindowHandle = void*; // NSWindow
+#endif
+
+  virtual WindowHandle GetSystemHandle() const = 0;
 
   virtual OSPoint GetPostion(void) const = 0;
   virtual OSSize GetSize(void) const = 0;

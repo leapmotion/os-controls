@@ -93,6 +93,7 @@ set_property(TARGET osinterface PROPERTY FOLDER "Common")
 
 target_link_libraries(osinterface Autowiring utility)
 target_package(osinterface Leap REQUIRED)
+target_package(osinterface Glew REQUIRED)
 
 target_link_libraries(osinterface Primitives Animation)
 
@@ -108,6 +109,7 @@ endif()
 
 if(MSVC)
   target_link_libraries(osinterface opengl32 dwmapi psapi)
+  target_package(osinterface FreeImage REQUIRED)
   set_property(TARGET osinterface APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
 endif()
 
