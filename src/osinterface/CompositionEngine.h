@@ -34,7 +34,7 @@ class ComposedDisplay :
   public Object
 {
 public:
-  static ComposedDisplay* New(CompositionEngine* engine, WindowHandle* handle);
+  static ComposedDisplay* New(CompositionEngine* engine, WindowHandle handle);
 
   virtual void SetView(ComposedView* view) = 0;
 };

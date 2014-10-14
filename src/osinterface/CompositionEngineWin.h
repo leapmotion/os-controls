@@ -37,7 +37,7 @@ class ComposedDisplayWin :
   public ComposedDisplay
 {
 public:
-  ComposedDisplayWin(CompositionEngineWin* engine, WindowHandle* window);
+  ComposedDisplayWin(CompositionEngineWin* engine, WindowHandle window);
 
   void SetView(ComposedView* visual) override;
 

@@ -12,7 +12,7 @@ ComposedView* ComposedView::New(CompositionEngine* engine) {
   return new ComposedViewWin(winEngine);
 }
 
-ComposedDisplay* ComposedDisplay::New(CompositionEngine* engine, WindowHandle* handle){
+ComposedDisplay* ComposedDisplay::New(CompositionEngine* engine, WindowHandle handle){
   auto* winEngine = static_cast<CompositionEngineWin*>(engine);
   return new ComposedDisplayWin(winEngine, handle);
 }
@@ -136,11 +136,11 @@ void ComposedViewWin::SetScale(float centerX, float centerY, float scaleX, float
   m_device->m_commitRequired = true;
 }
 
-ComposedDisplayWin::ComposedDisplayWin(CompositionEngineWin* engine, HWND* window) :
+ComposedDisplayWin::ComposedDisplayWin(CompositionEngineWin* engine, WindowHandle window) :
   m_target(nullptr),
   m_engine(engine)
 {
-  HRESULT hr = m_engine->m_DCompDevice->CreateTargetForHwnd(*window, TRUE, &m_target);
+  HRESULT hr = m_engine->m_DCompDevice->CreateTargetForHwnd(window, TRUE, &m_target);
   if (!SUCCEEDED(hr))
     throw std::runtime_error("Failed to create target from HWND - " + hr);
 }
