@@ -1,6 +1,8 @@
 #include "Leap/OculusRift/Device.h"
 #include "Leap/OculusRift/Exception.h"
+#include "Leap/OculusRift/Pose.h"
 
+#include <cstddef>
 #include <iostream>
 #include <typeinfo>
 
@@ -44,6 +46,7 @@ namespace OculusRift {
 
 Device::Device ()
   : m_context(nullptr)
+  , m_device_configuration(nullptr)
   , m_hmd(nullptr)
   , m_is_debug(false)
   , m_FrameBuffer(0)
@@ -52,15 +55,16 @@ Device::Device ()
 { }
 
 Device::~Device () {
-  if (IsInitialized_Implementation()) {
+  if (IsInitialized_()) {
     std::cerr << "Warning: Leap::OculusRift::Device instance was not Shutdown() before destruction.\n";
+    OculusRift::Device::Shutdown();
   }
 }
 
-void Device::Initialize (Leap::Hmd::Context &context, const Leap::Hmd::DeviceConfiguration &requested_configuration) {
+void Device::Initialize (Hmd::Context &context) {
   // TODO: implement fancy shared-library-aware casting.
   try {
-    m_context = &dynamic_cast<Leap::OculusRift::Context &>(context);
+    m_context = &dynamic_cast<OculusRift::Context &>(context);
   } catch (const std::bad_cast &e) {
     throw Exception("Leap::Hmd::Context object passed in wasn't of the expected type Leap::OculusRift::Context");
   }
@@ -107,8 +111,19 @@ void Device::Initialize (Leap::Hmd::Context &context, const Leap::Hmd::DeviceCon
   glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
   glBindTexture(GL_TEXTURE_2D, m_Texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, render_target_size.w, render_target_size.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  if (false) {
+    // TODO: enable mipmap for this one -- though is that actually useful? -- are we rendering
+    // texel-to-pixel?  the answer is probably no, because there is a distortion mesh that is
+    // used to do the barrel distortion.
+    glGenerateMipmap(GL_TEXTURE_2D);
+    // TODO: will need to re-generate mipmaps for the texture once it's rendered to.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  } else {
+    // No mipmap necessary
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  }
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture, 0);
 
   glGenRenderbuffers(1, &m_RenderBuffer);
@@ -184,7 +199,24 @@ void Device::Initialize (Leap::Hmd::Context &context, const Leap::Hmd::DeviceCon
 
 
 
+  std::string device_identifier("Oculus Rift"); // TODO: real string with model and version info, etc.
+  uint32_t eye_count = ovrEye_Count; // TODO: real count read from the device (?)
+  std::vector<uint32_t> eye_render_order;
+  std::vector<OculusRift::EyeConfiguration> eye_configuration;
+  for (uint32_t eye_render_index = 0; eye_render_index < eye_count; ++eye_render_index) {
+    ovrEyeType eye_type = m_hmd->EyeRenderOrder[eye_render_index];
+    eye_render_order.emplace_back(eye_type);
+    eye_configuration.emplace_back(eye_type, m_hmd->DefaultEyeFov[eye_render_index]);
+  }
 
+  m_device_configuration =
+    new DeviceConfiguration(
+      *m_context,
+      *this,
+      device_identifier,
+      63.5f, // inter-pupillary distance
+      eye_render_order,
+      eye_configuration);
 
 
 
@@ -194,20 +226,35 @@ void Device::Initialize (Leap::Hmd::Context &context, const Leap::Hmd::DeviceCon
   assert(IsInitialized() && "programmer error -- a post-condition of Initialize() should be that IsInitialized() returns true.");
 }
 
-bool Device::IsInitialized () {
-  bool is_initialized = IsInitialized_Implementation();
+bool Device::IsInitialized () const {
+  bool is_initialized = IsInitialized_();
   if (is_initialized) {
-    assert(m_FrameBuffer != 0 && m_Texture != 0 && m_RenderBuffer != 0 && "GL resource handles are inconsistent");
+    assert(m_context != nullptr && 
+           m_device_configuration != nullptr &&
+           m_hmd != nullptr &&
+           m_FrameBuffer != 0 &&
+           m_Texture != 0 &&
+           m_RenderBuffer != 0 && "Resources were initialized inconsistently");
   } else {
-    assert(m_FrameBuffer == 0 && m_Texture == 0 && m_RenderBuffer == 0 && "GL resource handles are inconsistent");
+    assert(m_context == nullptr &&
+           m_device_configuration == nullptr &&
+           m_hmd == nullptr &&
+           m_FrameBuffer == 0 &&
+           m_Texture == 0 &&
+           m_RenderBuffer == 0 && "Resources were shutdown inconsistently");
   }
-  return IsInitialized_Implementation();
+  return IsInitialized_();
 }
 
 void Device::Shutdown () {
   if (!IsInitialized()) {
     return; // Nothing to do.
   }
+
+  m_context = nullptr; // We never owned the context to begin with.
+
+  delete m_device_configuration;
+  m_device_configuration = nullptr;
 
   assert(m_hmd != nullptr);
   ovrHmd_Destroy(m_hmd);
@@ -224,17 +271,11 @@ void Device::Shutdown () {
 }
 
 const OculusRift::DeviceConfiguration &Device::ActualConfiguration () const {
-  assert(false && "TODO: implement correct specification of configuration");
-  return m_configuration;
+  if (!IsInitialized())
+    throw Exception("Call to Device::ActualConfiguration is undefined unless Device::IsInitialized() returns true.", m_context, this);
+  assert(m_device_configuration != nullptr);
+  return *m_device_configuration;
 }
-
-std::shared_ptr<Hmd::Pose> Device::EyePose (uint32_t eye_index) const {
-  return std::shared_ptr<Hmd::Pose>(); // TODO
-}
-
-// std::shared_ptr<SensorData> Device::SensorReadings () const {
-
-// }
 
 void Device::BeginFrame () {
   ovrFrameTiming frameTiming = ovrHmd_BeginFrame(m_hmd, 0);
@@ -244,21 +285,47 @@ void Device::BeginFrame () {
 
   glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
 
-  for (int eye_index = 0; eye_index < ovrEye_Count; eye_index++) {
+  for (uint32_t eye_index = 0; eye_index < ovrEye_Count; ++eye_index) {
     ovrEyeType eye = m_hmd->EyeRenderOrder[eye_index];
-    m_EyeRenderPose[eye] = ovrHmd_GetEyePose(m_hmd, eye);
-    m_EyeProjection[eye] = ovrMatrix4f_Projection(m_EyeRenderDesc[eye].Fov, 0.1f, 10000.0f, true);
+    ovrPosef &EyePosef = m_CachedEyeRenderPoseForEndFrame[eye_index];
+    EyePosef = ovrHmd_GetEyePose(m_hmd, eye);
+    static_assert(sizeof(ovrPosef) == sizeof(OVR::Pose<float>), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
+    static_assert(offsetof(ovrPosef,Orientation) == offsetof(OVR::Pose<float>,Rotation), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
+    static_assert(offsetof(ovrPosef,Position) == offsetof(OVR::Pose<float>,Translation), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
+    // m_EyeRenderPose[eye] = OVR::Pose<double>(OVR::Pose<float>(OVR::Quat<float>(EyePosef.Orientation), OVR::Vector3<float>(EyePosef.Position)));
+    m_EyeRenderPose[eye] = OVR::Pose<double>(*reinterpret_cast<OVR::Pose<float> *>(&EyePosef));
+    // m_EyeProjection[eye] = ovrMatrix4f_Projection(m_EyeRenderDesc[eye].Fov, 0.1f, 10000.0f, true);
 
-    const OVR::Quatf orientation = m_EyeRenderPose[eye].Orientation;
-    const OVR::Vector3f world_eye_pos = m_EyeRenderPose[eye].Position;
-    const OVR::Vector3f view_adjust = m_EyeRenderDesc[eye].ViewAdjust;
-    m_EyeRotation[eye] = OVR::Matrix4f(orientation.Inverted());
-    m_EyeView[eye] = OVR::Matrix4f::Translation(view_adjust) * m_EyeRotation[eye] * OVR::Matrix4f::Translation(-world_eye_pos);// - HeadPos*/);
+    // const OVR::Quatf orientation = m_EyeRenderPose[eye].Orientation;
+    // const OVR::Vector3f world_eye_pos = m_EyeRenderPose[eye].Position;
+    // const OVR::Vector3f view_adjust = m_EyeRenderDesc[eye].ViewAdjust;
+    // m_EyeRotation[eye] = OVR::Matrix4f(orientation.Inverted());
+    // m_EyeView[eye] = OVR::Matrix4f::Translation(view_adjust) * m_EyeRotation[eye] * OVR::Matrix4f::Translation(-world_eye_pos);// - HeadPos*/);
   }
 }
 
-void Device::EndFrame () {
-  ovrHmd_EndFrame(m_hmd, m_EyeRenderPose, &m_EyeTexture[0].Texture);
+std::shared_ptr<Hmd::Pose> Device::EyePose (uint32_t eye_index) const {
+  return std::make_shared<OculusRift::Pose>(m_EyeRenderPose[eye_index]);
+}
+
+// std::shared_ptr<SensorData> Device::SensorReadings () const {
+
+// }
+
+void Device::BeginRenderingEye (uint32_t eye_index) const {
+  assert(eye_index < ovrEye_Count && "eye_index out of range."); // TODO: use Configuration-based eye count
+  // glGetError(); // Remove any phantom gl errors before they throw an exception
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  const ovrRecti &rect = m_EyeRenderViewport[eye_index];
+  glViewport(rect.Pos.x, rect.Pos.y, rect.Size.w, rect.Size.h);
+}
+
+void Device::EndRenderingEye (uint32_t eye_index) const {
+
+}
+
+void Device::EndFrame () {  
+  ovrHmd_EndFrame(m_hmd, m_CachedEyeRenderPoseForEndFrame, &m_EyeTexture[0].Texture);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

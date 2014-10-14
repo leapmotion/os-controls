@@ -2,12 +2,11 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 
 namespace Leap {
 namespace Hmd {
 
-// class EyeConfiguration;
+class EyeConfiguration;
 
 class DeviceConfiguration {
 public:
@@ -17,8 +16,8 @@ public:
   virtual std::string Identifier () const = 0;
   virtual float InterPupillaryDistance () const = 0;
   virtual uint32_t EyeCount () const = 0;
-  virtual std::vector<uint32_t> EyeRenderOrder () const = 0;
-  // virtual std::shared_ptr<Hmd::EyeConfiguration> EyeConfiguration (uint32_t eye_index) const = 0;
+  virtual uint32_t EyeRenderOrder (uint32_t eye_render_order_index) const = 0;
+  virtual const Hmd::EyeConfiguration &EyeConfiguration (uint32_t eye_index) const = 0;
 };
 
 } // end of namespace Hmd

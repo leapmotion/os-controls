@@ -5,7 +5,7 @@
 namespace Leap {
 namespace OculusRift {
 
-class Context : public Leap::Hmd::Context {
+class Context : public Hmd::Context {
 public:
 
   Context ();
