@@ -64,6 +64,8 @@ add_mac_sources(
   osinterface_SOURCES
   AudioVolumeInterfaceMac.h
   AudioVolumeInterfaceMac.cpp
+  CompositionEngineMac.h
+  CompositionEngineMac.cpp
   HtmlPageLauncherMac.h
   HtmlPageLauncherMac.mm
   MediaInterfaceMac.h
