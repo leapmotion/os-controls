@@ -2,11 +2,3 @@
 #include "CompositionEngine.h"
 
 
-CompositionEngine::CompositionEngine()
-{
-}
-
-
-CompositionEngine::~CompositionEngine()
-{
-}
