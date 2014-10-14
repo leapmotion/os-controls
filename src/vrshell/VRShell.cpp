@@ -10,6 +10,7 @@
 #include "osinterface/CompositionEngine.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
+#include <SFML/Window.hpp>
 
 int main(int argc, char **argv)
 {
@@ -66,6 +67,23 @@ VRShell::~VRShell(void) {}
 
 void VRShell::Main(void) {
   AutoFired<Updatable> upd;
+
+  sf::Window window;
+  Autowired<sf::ContextSettings> contextSettings;
+  window.create(sf::VideoMode::VideoMode(200, 200), "secondary window");
+
+  Autowired<CompositionEngine> engine;
+  auto display = ComposedDisplay::New(engine.get(), window.getSystemHandle());
+  auto view = ComposedView::New(engine.get());
+
+  Autowired<sf::RenderWindow> mainWindow;
+  view->SetContent(mainWindow->getSystemHandle());
+  view->SetScale(0.f, 0.f, .2f, .2f);
+  view->SetOffset(20, 20);
+  view->SetRotation(40, 40, 30);
+  display->SetView(view);
+  
+  engine->CommitChanges();
 
   // Dispatch events until told to quit:
   auto then = std::chrono::steady_clock::now();
