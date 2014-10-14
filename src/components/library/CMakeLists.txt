@@ -493,6 +493,7 @@ add_sublibrary(
         Leap/Hmd/Device.h
         Leap/Hmd/DeviceCapabilities.h
         Leap/Hmd/DeviceConfiguration.h
+        Leap/Hmd/IntermediateArray.h
         Leap/Hmd/Exception.h
         Leap/Hmd/EyeConfiguration.h
         Leap/Hmd/Pose.h
