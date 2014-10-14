@@ -8,6 +8,7 @@
 #include <fstream>
 #include <cmath>
 
+#define FREEIMAGE_LIB
 #include "FreeImage.h"
 
 HMODULE hshcore = LoadLibrary("shcore");
