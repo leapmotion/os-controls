@@ -17,7 +17,7 @@ class RenderWindow :
 {
 public:
   RenderWindow(void):
-    m_useVSync(true), m_isTransparent(true), m_isVisible(false), m_allowInput(true) {}
+    m_useVSync(true), m_isTransparent(true), m_isVisible(false) {}
   virtual ~RenderWindow(void) {}
 
   RenderWindow(const RenderWindow&) = delete;
@@ -28,7 +28,6 @@ public:
   bool UseVSync(void) const { return m_useVSync; }
   bool IsTransparent(void) const { return m_isTransparent; }
   bool IsVisible(void) const { return m_isVisible; }
-  bool DoesAllowInput(void) const {return m_allowInput; }
 
 #if _WIN32
   using WindowHandle = HWND;
@@ -49,7 +48,6 @@ public:
   virtual void SetVSync(bool vsync = true) = 0;
   virtual void SetTransparent(bool transparent = true) = 0;
   virtual void SetVisible(bool visible = true) = 0;
-  virtual void AllowInput(bool allowInput = true) = 0;
 
   virtual void SetActive(bool active = true) = 0;
   virtual void FlushBuffer(void) = 0;
@@ -60,5 +58,4 @@ protected:
   bool m_useVSync;
   bool m_isTransparent;
   bool m_isVisible;
-  bool m_allowInput;
 };

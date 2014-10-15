@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     hmdInterface->Init();
 
     renderWindow->SetVSync(false);
-    renderWindow->AllowInput(false);
+    renderWindow->SetTransparent(true);
 
     // Handoff to the main loop:
     shell->Main();

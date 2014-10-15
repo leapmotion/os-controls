@@ -15,24 +15,24 @@ public:
   RenderContext& operator=(const RenderContext&) = delete;
 
   /// <summary>
-  /// Make this current rendering context active or not.
+  /// Make this the active rendering context or not.
   /// </summary>
   virtual void SetActive(bool active = true) = 0;
 
   virtual void FlushBuffer(void) = 0;
 
   static bool IsShaderAvailable(void) {
-    std::shared_ptr<RenderContext> rootContext{std::move(GetRootContext())};
-    static std::once_flag s_flag;
-    std::call_once(s_flag, [] {
+    static const bool s_shaderAvailable = [] {
+      std::shared_ptr<RenderContext> rootContext{std::move(GetRootContext())};
       if (glewInit() != GLEW_OK) {
         throw std::runtime_error("Failed to initialize GLEW");
       }
-    });
-    return GLEW_ARB_shading_language_100 &&
-           GLEW_ARB_shader_objects       &&
-           GLEW_ARB_vertex_shader        &&
-           GLEW_ARB_fragment_shader;
+      return GLEW_ARB_shading_language_100 &&
+             GLEW_ARB_shader_objects       &&
+             GLEW_ARB_vertex_shader        &&
+             GLEW_ARB_fragment_shader;
+    }();
+    return s_shaderAvailable;
   }
 
 protected:

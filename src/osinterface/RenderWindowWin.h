@@ -29,7 +29,6 @@ public:
 
   virtual void SetVSync(bool vsync = true) override;
   virtual void SetTransparent(bool transparent = true) override;
-  virtual void AllowInput(bool allowInput = true) override;
   virtual void SetVisible(bool visible = true) override;
 
   virtual void SetActive(bool active = true) override;
@@ -38,9 +37,9 @@ public:
   virtual void ProcessEvents(void) override;
 
 private:
-  static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+  std::unique_ptr<RenderContextWin> m_renderContext;
 
   int Create(HWND hWnd);
 
-  std::unique_ptr<RenderContextWin> m_renderContext;
+  static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

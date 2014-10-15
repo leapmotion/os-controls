@@ -137,7 +137,6 @@ RenderWindowMac::RenderWindowMac(void):
   m_window = reinterpret_cast<void*>(window);
 
   SetTransparent(m_isTransparent);
-  AllowInput(m_allowInput);
 }
 
 RenderWindowMac::~RenderWindowMac()
@@ -198,16 +197,10 @@ void RenderWindowMac::SetTransparent(bool transparent)
 {
   m_isTransparent = transparent;
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  [window setOpaque:!m_isTransparent];
+  [window setOpaque:(m_isTransparent ? NO : YES)];
+  [window setAcceptsMouseMovedEvents:(m_isTransparent ? NO : YES)];
+  [window setIgnoresMouseEvents:(m_isTransparent ? YES : NO)];
   [[window contentView] updateContextSettings];
-}
-
-void RenderWindowMac::AllowInput(bool allowInput)
-{
-  m_allowInput = allowInput;
-  NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  [window setAcceptsMouseMovedEvents:(m_allowInput ? YES : NO)];
-  [window setIgnoresMouseEvents:(m_allowInput ? NO : YES)];
 }
 
 void RenderWindowMac::SetVisible(bool visible)

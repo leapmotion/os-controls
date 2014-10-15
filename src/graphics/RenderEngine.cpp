@@ -94,6 +94,9 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
 
   // Show the overlay window if we are rendering, hide it if we aren't
   if (m_renderWindow->IsVisible() != m_drewFrame) {
+    if (m_drewFrame) {
+      m_renderWindow->SetTransparent(true);
+    }
     m_renderWindow->SetVisible(m_drewFrame);
   }
   if (!m_drewFrame) {

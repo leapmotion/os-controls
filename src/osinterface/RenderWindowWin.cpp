@@ -13,16 +13,20 @@ RenderWindow* RenderWindow::New(void)
 
 RenderWindowWin::RenderWindowWin(void)
 {
-  WNDCLASS wc      = {0};
-  wc.style         = CS_OWNDC;
-  wc.lpfnWndProc   = WndProc;
-  wc.lpszClassName = "RenderWindowWin";
-  if (::RegisterClass(&wc)) {
-    ::CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST |
-                    (IsTransparent() ? WS_EX_NOACTIVATE | WS_EX_TRANSPARENT | WS_EX_LAYERED : 0),
-                     wc.lpszClassName, "", WS_VISIBLE | WS_POPUP,
-                     0, 0, 0, 0, nullptr, nullptr, nullptr, this);
+  static const LPCTSTR s_className = "RenderWindowWin";
+  static const ATOM s_wndClass = [] {
+    WNDCLASS wc      = {0};
+    wc.style         = CS_OWNDC;
+    wc.lpfnWndProc   = WndProc;
+    wc.lpszClassName = s_className;
+    return ::RegisterClass(&wc);
+  }();
+  if (!s_wndClass) {
+    throw std::runtime_error("Unable to register window class");
   }
+  ::CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE,
+                   s_className, "", WS_VISIBLE | WS_POPUP,
+                   0, 0, 0, 0, nullptr, nullptr, nullptr, this);
 }
 
 RenderWindowWin::~RenderWindowWin()
@@ -37,7 +41,6 @@ RenderWindowWin::~RenderWindowWin()
   SetVisible(false);
   ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)0);
   m_renderContext.reset();
-  ::UnregisterClass("RenderWindowWin", nullptr);
 }
 
 HWND RenderWindowWin::GetSystemHandle() const
@@ -49,10 +52,10 @@ int RenderWindowWin::Create(HWND hWnd)
 {
   ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
 
+  // The RenderContext holds on to the underlying window
   m_renderContext.reset(RenderContextWin::New(hWnd));
 
   SetTransparent(m_isTransparent);
-  AllowInput(m_allowInput);
 
   return 0;
 }
@@ -178,32 +181,21 @@ void RenderWindowWin::SetTransparent(bool transparent)
   }
   m_isTransparent = transparent;
 
-  LONG flags = ::GetWindowLongA(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW;
-  ::SetWindowLongA(hWnd, GWL_EXSTYLE, flags);
-  ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
-
-  DWM_BLURBEHIND bb = { 0 };
-  bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-  bb.fEnable = true;
-  bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
-  ::DwmEnableBlurBehindWindow(hWnd, &bb);
-}
-
-void RenderWindowWin::AllowInput(bool allowInput)
-{
-  if (!m_renderContext) {
-    return;
-  }
-  HWND hWnd = m_renderContext->m_hWnd;
-
-  if (!hWnd) {
-    return;
-  }
-  m_allowInput = allowInput;
   const LONG prevStyle = ::GetWindowLongA(hWnd, GWL_EXSTYLE);
-  const LONG modStyle = WS_EX_NOACTIVATE | WS_EX_TRANSPARENT;
-  const LONG style = m_allowInput ? (prevStyle & ~modStyle) : (prevStyle | modStyle);
+  const LONG modStyle = WS_EX_LAYERED | WS_EX_TRANSPARENT;
+  const LONG style = m_isTransparent ? (prevStyle | modStyle) : (prevStyle & ~modStyle);
   ::SetWindowLongA(hWnd, GWL_EXSTYLE, style);
+  if (m_isTransparent) {
+    ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
+  }
+  DWM_BLURBEHIND bb = {0};
+  bb.dwFlags = DWM_BB_ENABLE;
+  bb.fEnable = m_isTransparent;
+  if (m_isTransparent) {
+    bb.dwFlags |= DWM_BB_BLURREGION;
+    bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
+  }
+  ::DwmEnableBlurBehindWindow(hWnd, &bb);
 }
 
 void RenderWindowWin::SetVisible(bool visible)
@@ -217,7 +209,8 @@ void RenderWindowWin::SetVisible(bool visible)
     return;
   }
   m_isVisible = visible;
-  ::ShowWindow(hWnd, visible ? SW_SHOW : SW_HIDE);
+  ::ShowWindow(hWnd, m_isVisible ? SW_SHOW : SW_HIDE);
+  ::EnableWindow(hWnd, FALSE);
 }
 
 void RenderWindowWin::SetActive(bool active)

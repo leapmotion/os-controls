@@ -24,6 +24,7 @@ ExposeView::ExposeView() :
   m_viewCenter(EigenTypes::Vector2::Zero()),
   m_ignoreInteraction(true),
   m_closing(true),
+  m_makeWindowOpaque(false),
   m_time(0.0),
   m_selectionTime(0.0)
 {
@@ -93,6 +94,10 @@ void ExposeView::AnimationUpdate(const RenderFrame& frame) {
 
   for (const auto& renderable : m_orderedWindows)
     renderable->AnimationUpdate(frame);
+
+  if (m_makeWindowOpaque && !m_closing && m_alphaMask.Current() > 0.99999) {
+    makeWindowOpaque(true);
+  }
 }
 
 void ExposeView::Render(const RenderFrame& frame) const {
@@ -575,11 +580,8 @@ void ExposeView::StartView() {
   if (!m_closing) {
     return;
   }
-  AutowiredFast<RenderWindow> mw;
-  if (mw) {
-    mw->AllowInput(true);
-  }
   m_closing = false;
+  m_makeWindowOpaque = true;
   m_alphaMask.Set(1.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_ignoreInteraction = false;
   m_selectedWindow = nullptr;
@@ -591,12 +593,21 @@ void ExposeView::CloseView() {
   if (m_closing) {
     return;
   }
-  AutowiredFast<RenderWindow> mw;
-  if (mw) {
-    mw->AllowInput(false);
-  }
   m_closing = true;
+  m_makeWindowOpaque = false;
+  makeWindowOpaque(false);
   m_alphaMask.Set(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME);
   m_ignoreInteraction = true;
   endPositions();
+}
+
+void ExposeView::makeWindowOpaque(bool opaque)
+{
+  opaque = opaque && m_makeWindowOpaque && !m_closing;
+  m_makeWindowOpaque = false;
+
+  AutowiredFast<RenderWindow> renderWindow;
+  if (renderWindow) {
+    renderWindow->SetTransparent(!opaque);
+  }
 }

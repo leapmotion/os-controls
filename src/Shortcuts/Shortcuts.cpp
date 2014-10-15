@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
 
     renderWindow->SetVSync(false);
-    renderWindow->AllowInput(false);
+    renderWindow->SetTransparent(true);
     renderWindow->SetVisible(true);
 
     // Handoff to the main loop:

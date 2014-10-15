@@ -33,7 +33,7 @@ RenderContextWin::RenderContextWin(std::shared_ptr<RenderContextWin> rootContext
   if (hWnd) {
     m_hWnd = hWnd;
   } else {
-    m_hWnd = ::CreateWindowA("RenderContextWinRoot", "", WS_POPUP | WS_DISABLED, 0, 0, 1, 1,
+    m_hWnd = ::CreateWindowA("STATIC", "", WS_POPUP | WS_DISABLED, 0, 0, 1, 1,
                              nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
     if (!m_hWnd) {
       return;

@@ -24,7 +24,6 @@ public:
 
   virtual void SetVSync(bool vsync = true) override;
   virtual void SetTransparent(bool transparent = true) override;
-  virtual void AllowInput(bool allowInput = true) override;
   virtual void SetVisible(bool visible = true) override;
 
   virtual void SetActive(bool active = true) override;
