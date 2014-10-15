@@ -153,7 +153,6 @@ function(select_library_type namespace)
     else()
       set(${namespace}_LIBRARIES "${${namespace}_LIBRARIES}" "${${namespace}_SHARED_LIB}" PARENT_SCOPE)
     endif()
-
     set(${namespace}_LIBRARY "${${namespace}_SHARED_LIB}" PARENT_SCOPE)
     set(${namespace}_LIBRARY_TYPE "SHARED" PARENT_SCOPE)
   elseif(${namespace}_STATIC_LIB AND EXISTS "${${namespace}_STATIC_LIB}")
@@ -161,7 +160,6 @@ function(select_library_type namespace)
     set(${namespace}_LIBRARY "${${namespace}_STATIC_LIB}" PARENT_SCOPE)
     set(${namespace}_LIBRARY_TYPE "STATIC" PARENT_SCOPE)
   endif()
-
 endfunction()
 
 function(find_likely_dirs package dir_list_var path_list )
@@ -203,8 +201,9 @@ endfunction()
 # The actual find module begins here
 #############################
 if(NOT EXISTS SDL_ROOT_DIR)
-
-  set(_likely_dirs "")
+  if(NOT MSVC)
+    set(_likely_dirs "/usr")
+  endif()
 
   # NOTE: this could be done much more cleanly if we write a multiple-return-value find_file and find_path.
   # As it stands, cmake's find_file and find_path functions return at most one value, even if there are
@@ -269,11 +268,7 @@ if(NOT EXISTS SDL_ROOT_DIR)
       endif()
     endif()
   endforeach()
-  verbose_message("SDL_ROOT_DIR = ${SDL_ROOT_DIR}")
-  verbose_message("SDL_VERSION_STRING = ${SDL_VERSION_STRING}")
-  verbose_message("SDL_VERSION_MAJOR = ${SDL_VERSION_MAJOR}")
-  verbose_message("SDL_VERSION_MINOR = ${SDL_VERSION_MINOR}")
-  verbose_message("SDL_VERSION_PATCH = ${SDL_VERSION_PATCH}")
+  verbose_message_print_vars(SDL_ROOT_DIR SDL_VERSION_STRING SDL_VERSION_MAJOR SDL_VERSION_MINOR SDL_VERSION_PATCH)
   unset(_version_file CACHE)
   unset(_candidate_sdl2_root_dir CACHE)
 endif()
@@ -289,7 +284,6 @@ find_path(
         include/SDL
     NO_DEFAULT_PATH
 )
-verbose_message("SDL_INCLUDE_DIR = ${SDL_INCLUDE_DIR}")
 
 find_multitype_library(
   SDL_SHARED_LIB
@@ -298,10 +292,9 @@ find_multitype_library(
   NAMES
     SDL${SDL_VERSION_MAJOR}
   HINTS
-    $ENV{SDLDIR} ${SDL_ROOT_DIR}
+    ENV{SDLDIR} ${SDL_ROOT_DIR}
   PATH_SUFFIXES
     lib ${VC_LIB_PATH_SUFFIX}
-  NO_DEFAULT_PATH
 )
 
 select_library_type(SDL)
@@ -317,6 +310,8 @@ find_library(SDL_MAIN_LIBRARY
   PATHS
     /sw /opt/local /opt/csw /opt
 )
+
+verbose_message_print_vars(SDL_INCLUDE_DIR SDL_SHARED_LIB SDL_STATIC_LIB SDL_IMPORT_LIB SDL_MAIN_LIBRARY)
 
 if(NOT SDL_BUILDING_LIBRARY)
   list(APPEND SDL_LIBRARIES ${SDL_MAIN_LIBRARY})
