@@ -56,8 +56,8 @@ public:
   // Performs the value-specific operation, either on the left or the right.
   void Operate (const AffineTransformValue &operand, ::Operate operate) {
     switch (operate) {
-      case Operate::ON_LEFT:  *this = operand * *this; break;
-      case Operate::ON_RIGHT: *this = *this * operand; break;
+      case ::Operate::ON_LEFT:  *this = operand * *this; break;
+      case ::Operate::ON_RIGHT: *this = *this * operand; break;
     }
   }
   // This will invert the transform, returning true iff the inversion succeeded.
@@ -144,8 +144,8 @@ public:
   void Operate (const NameValue &operand, ::Operate operate) {
     std::string separator(m_name.empty() || operand.m_name.empty() ? "" : "/");
     switch (operate) {
-      case Operate::ON_LEFT:  m_name = operand.m_name + separator + m_name; break;
-      case Operate::ON_RIGHT: m_name += separator + operand.m_name;         break;
+      case ::Operate::ON_LEFT:  m_name = operand.m_name + separator + m_name; break;
+      case ::Operate::ON_RIGHT: m_name += separator + operand.m_name;         break;
     }
   }
   // TODO: ".." based inversion.

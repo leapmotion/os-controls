@@ -41,9 +41,9 @@
 // Example:
 //   Scene graph         Local name       Global name        Local alpha      Global alpha
 //       A                   "A"             "/A"                1.0              1.0
-//        \
-//         B                 "B"             "/A/B"              0.8              0.8
-//        /  
+//       |
+//       B                   "B"             "/A/B"              0.8              0.8
+//       |
 //       C                   "C"             "/A/B/C"            0.7              0.56
 //
 // The property "delta" from a node N's ancestor A to itself can be defined to be the application

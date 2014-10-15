@@ -43,7 +43,7 @@ public:
   NodeProperty ()
     :
     m_is_valid(true),
-    m_apply_type(ApplyType::OPERATE)
+    m_apply_type(::ApplyType::OPERATE)
   { }
 
   bool operator == (const NodeProperty &other) const {
