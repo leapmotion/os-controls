@@ -1,6 +1,8 @@
 set(osinterface_SOURCES
   AudioVolumeInterface.h
   AudioVolumeInterface.cpp
+  CompositionEngine.h
+  CompositionEngine.cpp
   HtmlPageLauncher.h
   HtmlPageLauncher.cpp
   LeapInput.h
@@ -25,6 +27,7 @@ set(osinterface_SOURCES
   OSWindow.h
   OSWindow.cpp
   OSWindowEvent.h
+  OSWindowHandle.h
   OSWindowMonitor.h
   OSWindowMonitor.cpp
   ScrollOperation.h
@@ -36,6 +39,8 @@ add_windows_sources(
   osinterface_SOURCES
   AudioVolumeInterfaceWin.h
   AudioVolumeInterfaceWin.cpp
+  CompositionEngineWin.h
+  CompositionEngineWin.cpp
   HtmlPageLauncherWin.h
   HtmlPageLauncherWin.cpp
   MediaInterfaceWin.h
@@ -59,6 +64,8 @@ add_mac_sources(
   osinterface_SOURCES
   AudioVolumeInterfaceMac.h
   AudioVolumeInterfaceMac.cpp
+  CompositionEngineMac.h
+  CompositionEngineMac.cpp
   HtmlPageLauncherMac.h
   HtmlPageLauncherMac.mm
   MediaInterfaceMac.h
@@ -81,11 +88,11 @@ add_mac_sources(
 add_library(osinterface ${osinterface_SOURCES})
 set_property(TARGET osinterface PROPERTY FOLDER "Common")
 
-target_link_libraries(osinterface Autowiring utility)
-target_package(osinterface SFML 2.1 REQUIRED)
-target_package(osinterface Leap REQUIRED)
+target_link_libraries(osinterface PUBLIC Autowiring utility)
+target_package(osinterface SFML 2.1 REQUIRED LINK_TYPE PUBLIC)
+target_package(osinterface Leap REQUIRED LINK_TYPE PUBLIC)
 
-target_link_libraries(osinterface Primitives Animation)
+target_link_libraries(osinterface PUBLIC Primitives Animation)
 
 if(APPLE)
   find_library(FOUNDATION_FRAMEWORK Foundation)
@@ -94,11 +101,12 @@ if(APPLE)
   mark_as_advanced(FOUNDATION_FRAMEWORK)
   mark_as_advanced(APPKIT_FRAMEWORK)
   mark_as_advanced(CORE_AUDIO_FRAMEWORK)
-  target_link_libraries(osinterface ${CORE_AUDIO_FRAMEWORK} ${APPKIT_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+  target_link_libraries(osinterface PUBLIC ${CORE_AUDIO_FRAMEWORK} ${APPKIT_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
 endif()
 
 if(MSVC)
   set_property(TARGET osinterface APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+  target_link_libraries(osinterface PUBLIC d3d11 dcomp) #used by CompositionEngineWin
 endif()
 
 add_subdirectory(test)
