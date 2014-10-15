@@ -14,6 +14,15 @@
 HMODULE hshcore = LoadLibrary("shcore");
 auto g_GetDpiForMonitor = (decltype(GetDpiForMonitor)*) GetProcAddress(hshcore, "GetDpiForMonitor");
 
+struct StaticFreeImageLoader {
+  StaticFreeImageLoader() {
+    FreeImage_Initialise(FALSE);
+  }
+  ~StaticFreeImageLoader() {
+    FreeImage_DeInitialise();
+  }
+};
+
 void OSScreen::Update()
 {
   MONITORINFOEX info;
@@ -52,25 +61,37 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     return img;
   }
 
+  static StaticFreeImageLoader s_fil;
+
+  FIBITMAP* dib = nullptr;
   FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilenameU(pathString.c_str());
-  if (fif == FIF_UNKNOWN) {
-    fif = FreeImage_GetFIFFromFilenameU(pathString.c_str());
+  if (fif != FIF_UNKNOWN) {
+    dib = FreeImage_LoadU(fif, pathString.c_str(), 0);
   }
-  if (fif == FIF_UNKNOWN || !FreeImage_FIFSupportsReading(fif)) {
-    return img;
-  }
-  FIBITMAP* dib = FreeImage_LoadU(fif, pathString.c_str(), 0);
   if (!dib) {
-    return img;
+    // Guess at a few image formats...
+    FREE_IMAGE_FORMAT search[] = {FIF_BMP, FIF_JPEG, FIF_PNG, FIF_TIFF, FIF_GIF, FIF_UNKNOWN};
+    int index = 0;
+    while ((fif = search[index]) != FIF_UNKNOWN) {
+      dib = FreeImage_LoadU(fif, pathString.c_str(), 0);
+      if (dib) {
+        break;
+      }
+      index++;
+    }
+    if (!dib) {
+      return img;
+    }
   }
   { // We will just convert to 32-bits, as that is likely the format anyway
     FIBITMAP* dib32 = FreeImage_ConvertTo32Bits(dib);
     FreeImage_Unload(dib);
     dib = dib32;
   }
-  if (dib) {
+  if (!dib) {
     return img;
   }
+  FreeImage_FlipVertical(dib); // For some reason, the image is flipped vertically without this
 
   const size_t width = static_cast<size_t>(FreeImage_GetWidth(dib));
   const size_t height = static_cast<size_t>(FreeImage_GetHeight(dib));
@@ -87,7 +108,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     }
   }
 
-  GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+  GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
   pixelData.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, stride);
   if (texture) {
     texture->UpdateTexture(pixelData);
