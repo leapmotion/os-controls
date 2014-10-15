@@ -54,6 +54,9 @@ endfunction()
 #   * REQUIRED -- Indicates that this sublibrary (and therefore all of its dependencies) is required
 #     by the build, and any failure to define its target and link dependencies should result in
 #     an error.  This flag will also be set if the global REQUIRE_${SUBLIBRARY_NAME} flag is set.
+#   * SYSTEM -- Causes the SYSTEM option to be specified in target_include_directories
+#     for this target.  This causes warnings caused by the included headers to be suppressed.
+#     See the GCC option -isystem for more details (for GCC in particular).
 # - Parameters taking a single argument:
 #   * BRIEF_DOC_STRING <string> -- A brief description of this sublibrary which should fit within
 #     one line (about 80 chars).
@@ -127,11 +130,13 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # Do the fancy map-style parsing of the arguments
     set(_options
         EXCLUDE_FROM_ALL
+        SYSTEM
         REQUIRED
     )
     set(_one_value_args
         SOURCE_PATH             # Optional specification of relative path to headers and sources.
         BRIEF_DOC_STRING        # A one-line, short (no more than about 80 chars) description of the sublibrary.
+
     )
     set(_multi_value_args
         HEADERS
@@ -163,6 +168,11 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_exclude_from_all "EXCLUDE_FROM_ALL")
     else()
         set(_exclude_from_all "")
+    endif()
+    if(_arg_SYSTEM)
+        set(_system "SYSTEM")
+    else()
+        set(_system "")
     endif()
 
     # Determine the directory for the sublibrary sources.
@@ -269,6 +279,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     if(_arg_HEADERS)
         target_include_directories(
             ${_sublibrary_target_name}
+            ${_system}
             ${_target_scope}
                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}>
                 $<INSTALL_INTERFACE:include/${_sublibrary_source_path}>)
