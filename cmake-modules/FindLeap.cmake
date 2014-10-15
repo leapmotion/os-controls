@@ -24,6 +24,8 @@ find_path(Leap_ROOT_DIR
                         LeapSDK)
 #we should check the version.txt file here...
 
+include(VerboseMessage)
+
 set(Leap_INCLUDE_DIR "${Leap_ROOT_DIR}/include")
 if(MSVC)
   find_library(Leap_IMPORT_LIB_RELEASE "Leap.lib" HINTS "${Leap_ROOT_DIR}/lib/x86")
@@ -37,7 +39,7 @@ if(MSVC)
                   Leap.dll #fallback on the release library if we must
             HINTS "${Leap_ROOT_DIR}/lib/x86")
   mark_as_advanced(Leap_IMPORT_LIB_RELEASE Leap_IMPORT_LIB_DEBUG)
-else()
+elseif(APPLE)
   if(USE_LIBCXX)
     set(_libdir ${Leap_ROOT_DIR}/lib/libc++)
   else()
@@ -51,8 +53,21 @@ else()
             NAMES libLeapd.dylib 
                   libLeap.dylib #fallback on the release library
             HINTS "${_libdir}")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  find_file(Leap_LIBRARY_RELEASE
+            NAMES libLeap.so
+            HINTS "${Leap_ROOT_DIR}/lib/x86"
+                  "${Leap_ROOT_DIR}/lib/x64"
+  )
+  find_file(Leap_LIBRARY_DEBUG
+            NAMES libLeapd.so
+                  libLeap.so #fallback on the release library if we must
+            HINTS "${Leap_ROOT_DIR}/lib/x86"
+                  "${Leap_ROOT_DIR}/lib/x64"
+  )
+else()
+  message(WARNING "FindLeap.cmake not implemented for this platform")
 endif()
-
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Leap DEFAULT_MSG Leap_ROOT_DIR Leap_INCLUDE_DIR Leap_LIBRARY_RELEASE Leap_LIBRARY_DEBUG)
