@@ -416,6 +416,7 @@ add_sublibrary(
 
 add_sublibrary(
     NanoSVG
+    SYSTEM # Indicates that this should be included via -isystem (thereby suppressing warnings).
     SOURCE_PATH
         External/NanoSVG
     HEADERS
@@ -428,6 +429,7 @@ add_sublibrary(
 
 add_sublibrary(
     PolyPartition
+    SYSTEM # Indicates that this should be included via -isystem (thereby suppressing warnings).
     SOURCE_PATH
         External/PolyPartition
     HEADERS
