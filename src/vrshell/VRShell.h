@@ -1,12 +1,12 @@
 #pragma once
 #include <autowiring/autowiring.h>
-#include <atomic>
 
 struct VRShellContext {};
 
 int VRShell_main(int argc, char **argv);
 
 class VRShell :
+  public DispatchQueue,
   public ExceptionFilter
 {
 public:
@@ -14,5 +14,5 @@ public:
   ~VRShell(void);
 
   void Main(void);
-  void Filter(void);
+  void Filter(void) override;
 };
