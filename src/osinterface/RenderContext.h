@@ -1,7 +1,6 @@
 #pragma once
 #include <GL/glew.h>
 #include <memory>
-#include <mutex>
 #include <exception>
 
 class RenderContext
@@ -41,10 +40,10 @@ protected:
 
   static std::shared_ptr<RenderContext> GetRootContext() {
     static std::shared_ptr<RenderContext> s_rootContext(Root());
-
     static const int s_glewInitialized = [] {
       return glewInit();
     }();
+    (void)s_glewInitialized;
     return s_rootContext;
   }
 
