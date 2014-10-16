@@ -58,7 +58,6 @@ if(APPLE)
     ${Shortcuts_RESOURCES}
     icons/AppIcon.icns
     icons/TrayIcon.tiff
-    icons/TrayIconInverted.tiff
   )
 endif()
 
