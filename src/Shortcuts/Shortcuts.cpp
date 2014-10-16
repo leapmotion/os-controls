@@ -52,9 +52,10 @@ int main(int argc, char **argv)
     AutoDesired<AudioVolumeInterface>();
     AutoRequired<IWindowScroller>();
     AutoRequired<MediaInterface>();
-    AutoRequired<LeapInput>();
     AutoRequired<OSWindowMonitor>();
     AutoRequired<KeepRenderWindowFullScreen>();
+    AutoRequired<LeapInput> leap;
+    leap->AddPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 
     // Register the tray icon at this point, we don't want to do it earlier because
     // a lot of stuff is happening during setup that might prevent us from being

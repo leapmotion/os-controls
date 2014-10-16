@@ -1,8 +1,14 @@
 #include "stdafx.h"
 #include "VRShell.h"
-#include "utility/PlatformInitializer.h"
-#include "osinterface/KeepRenderWindowFullScreen.h"
+
+#include "graphics/RenderEngine.h"
 #include "OculusVR.h"
+#include "osinterface/LeapInput.h"
+#include "utility/PlatformInitializer.h"
+#include "LeapImagePassthrough.h"
+#include "osinterface/RenderWindow.h"
+#include "osinterface/OSVirtualScreen.h"
+#include "osinterface/CompositionEngine.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
@@ -20,7 +26,13 @@ int main(int argc, char **argv)
 
     AutoRequired<RenderWindow> renderWindow;
     AutoRequired<VRShell> shell;
-    AutoRequired<KeepRenderWindowFullScreen>();
+    AutoRequired<OSVirtualScreen> virtualScreen;
+    AutoRequired<RenderEngine> render;
+    AutoRequired<LeapInput> input;
+    AutoRequired<CompositionEngine> composition;
+
+    AutoRequired<LeapImagePassthrough>();
+
     AutoConstruct<OculusVR> hmdInterface;
     hmdInterface->SetWindow(renderWindow->GetSystemHandle());
     hmdInterface->Init();
@@ -54,16 +66,16 @@ VRShell::~VRShell(void) {}
 
 void VRShell::Main(void) {
   Autowired<RenderWindow> renderWindow;
-  //AutoFired<Updatable> upd;
+  AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     renderWindow->ProcessEvents();
     // Broadcast update event to all interested parties:
-    //auto now = std::chrono::steady_clock::now();
-    //upd(&Updatable::Tick)(now - then);
-    //then = now;
+    auto now = std::chrono::steady_clock::now();
+    upd(&Updatable::Tick)(now - then);
+    then = now;
   }
   renderWindow->SetVisible(false);
 }

@@ -16,6 +16,11 @@ LeapInput::~LeapInput(void)
   m_controller->removeListener(*this);
 }
 
+void LeapInput::AddPolicy(Leap::Controller::PolicyFlag flag) {
+  m_policyFlags = (Leap::Controller::PolicyFlag)(m_policyFlags | flag);
+  m_controller->setPolicyFlags(m_policyFlags);
+}
+
 bool LeapInput::AcceptInput(void) const {
   // Ignore input when the screen saver is running
   return m_virtualScreen && !m_virtualScreen->IsScreenSaverActive();
@@ -29,7 +34,7 @@ void LeapInput::AbortInput(void) {
 }
 
 void LeapInput::onServiceConnect(const Leap::Controller& controller) {
-  controller.setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+  controller.setPolicyFlags(m_policyFlags);
 }
 
 void LeapInput::onDisconnect(const Leap::Controller& controller) {

@@ -134,9 +134,6 @@ foreach(_resource ${Shortcuts_RESOURCES})
     add_custom_command(TARGET Shortcuts POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:Shortcuts>\"
     )
-    add_custom_command(TARGET Shortcuts POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" "${CMAKE_CURRENT_BINARY_DIR}"
-    )
   elseif(APPLE)
     get_filename_component(_resource ${_resource} ABSOLUTE)
     get_target_property(_is_bundle Shortcuts MACOSX_BUNDLE)

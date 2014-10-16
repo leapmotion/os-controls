@@ -8,7 +8,6 @@ set(utility_SOURCES
   ExtendedStateMachine.h
   ExceptionCrasher.h
   FileMonitor.h
-  HandleUtilitiesWin.h
   Hysteresis.h
   Hysteresis.cpp
   HysteresisRange.h
@@ -26,6 +25,7 @@ add_windows_sources(utility_SOURCES
   AutoLaunchWin.cpp
   FileMonitorWin.h
   FileMonitorWin.cpp
+  HandleUtilitiesWin.h
   NativeWindowWin.cpp
   PlatformInitializerWin.h
   PlatformInitializerWin.cpp

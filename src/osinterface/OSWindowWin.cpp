@@ -6,6 +6,8 @@
 #include <Primitives.h>
 #include <GLTexture2.h>
 
+#include <dwmapi.h>
+
 OSWindowWin::OSWindowWin(HWND hwnd):
   hwnd{hwnd},
   m_phBitmapBits{nullptr}
@@ -162,10 +164,13 @@ OSSize OSWindowWin::GetSize(void) {
 }
 
 void OSWindowWin::Cloak(void) {
-
+  BOOL cloak = TRUE;
+  ::DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 }
 
 void OSWindowWin::Uncloak(void) {
+  BOOL cloak = FALSE;
+  ::DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 }
 
 bool OSWindowWin::IsVisible(void) const {

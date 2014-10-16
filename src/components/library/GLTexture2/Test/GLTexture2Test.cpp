@@ -116,7 +116,17 @@ class GLTexture2VisibleTest : public GLTestFramework_Visible { };
 
 struct RgbPixel { uint8_t r, g, b; };
 
-void GeneratePixels (GLTexture2PixelDataStorage<RgbPixel> &pixel_data, GLsizei width, GLsizei height) {
+void GenerateLuminancePixels (GLTexture2PixelDataStorage<uint8_t> &pixel_data, GLsizei width, GLsizei height) {
+  std::vector<uint8_t> &pixels = pixel_data.RawPixels();
+  // Make a simple pattern.
+  for (GLsizei v = 0; v < height; ++v) {
+    for (GLsizei u = 0; u < width; ++u) {
+      pixels[v*width+u] = uint8_t(u*v);
+    }
+  }
+}
+
+void GenerateRgbPixels (GLTexture2PixelDataStorage<RgbPixel> &pixel_data, GLsizei width, GLsizei height) {
   std::vector<RgbPixel> &pixels = pixel_data.RawPixels();
   // Make a simple bilinear gradient in green and blue.
   for (GLsizei v = 0; v < height; ++v) {
@@ -159,7 +169,61 @@ void RenderTexturedRectangle (const GLTexture2 &texture) {
   texture.Unbind();
 }
 
-TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated) {
+TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
+  std::shared_ptr<GLTexture2> texture;
+  
+  // Generate a texture procedurally.
+  {
+    GLsizei width = 200;
+    GLsizei height = 120;
+    GLTexture2Params params(width, height, GL_LUMINANCE);
+    params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
+    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    GLTexture2PixelDataStorage<uint8_t> pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, width*height);
+    GenerateLuminancePixels(pixel_data, width, height);
+    texture = std::make_shared<GLTexture2>(params, pixel_data);
+  }
+
+  RenderTexturedRectangle(*texture);
+  // Finish the frame before delaying. 
+  m_GLController.EndRender();
+  m_SDLController.EndRender();
+  
+  SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
+}
+
+TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
+  std::shared_ptr<GLTexture2> texture;
+  
+  // Generate a texture procedurally.
+  {
+    GLsizei width = 200;
+    GLsizei height = 120;
+    GLTexture2Params params(width, height, GL_LUMINANCE);
+    params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
+    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    GLTexture2PixelDataStorage<uint8_t> pixel_data(GL_RED, GL_UNSIGNED_BYTE, width*height);
+    GenerateLuminancePixels(pixel_data, width, height);
+    texture = std::make_shared<GLTexture2>(params, pixel_data);
+  }
+
+  RenderTexturedRectangle(*texture);
+  // Finish the frame before delaying. 
+  m_GLController.EndRender();
+  m_SDLController.EndRender();
+  
+  SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
+}
+
+TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
   std::shared_ptr<GLTexture2> texture;
   
   // Generate a texture procedurally.
@@ -174,7 +238,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated) {
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
     GLTexture2PixelDataStorage<RgbPixel> pixel_data(GL_RGB, GL_UNSIGNED_BYTE, width*height);
-    GeneratePixels(pixel_data, width, height);
+    GenerateRgbPixels(pixel_data, width, height);
     texture = std::make_shared<GLTexture2>(params, pixel_data);
   }
 
@@ -205,7 +269,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
     GLsizei pixel_data_width = 4;
     GLsizei pixel_data_height = 4;
     GLTexture2PixelDataStorage<RgbPixel> pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixel_data_width*pixel_data_height);
-    GeneratePixels(pixel_data, pixel_data_width, pixel_data_height);
+    GenerateRgbPixels(pixel_data, pixel_data_width, pixel_data_height);
     // This should specify the middle 2x2 subregion of pixels for the 2x2 texture.
     pixel_data.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, pixel_data_width);
     pixel_data.SetPixelStoreiParameter(GL_UNPACK_SKIP_PIXELS, 1);

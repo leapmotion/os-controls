@@ -17,6 +17,9 @@ public:
   LeapInput(void);
   ~LeapInput(void);
 
+  //Combined with the existing flags via |
+  void AddPolicy(Leap::Controller::PolicyFlag flag);
+
 private:
   AutoRequired<Leap::Controller> m_controller;
   Autowired<OSVirtualScreen> m_virtualScreen;
@@ -24,6 +27,8 @@ private:
 
   // Event raised when a leap frame comes in
   AutoFired<LeapInputListener> m_listener;
+
+  Leap::Controller::PolicyFlag m_policyFlags;
 
   // Determine whether or not to accept Leap input
   bool AcceptInput(void) const;
@@ -36,4 +41,6 @@ private:
   void onDisconnect(const Leap::Controller& controller) override;
   void onFocusLost(const Leap::Controller& controller) override;
   void onFrame(const Leap::Controller& controller) override;
+
+  
 };
