@@ -6,6 +6,8 @@
 #if __APPLE__
 #include <OpenGL/gl.h>
 #else
+#include <GL/glew.h>
+
 #include <GL/gl.h>
 #endif
 
