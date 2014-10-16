@@ -9,13 +9,11 @@ CompositionEngine* CompositionEngine::New() {
 }
 
 ComposedView* CompositionEngineWin::CreateView() {
-  auto* winEngine = static_cast<CompositionEngineWin*>(this);
-  return new ComposedViewWin(winEngine);
+  return new ComposedViewWin(this);
 }
 
 ComposedDisplay* CompositionEngineWin::CreateDisplay(WindowHandle handle){
-  auto* winEngine = static_cast<CompositionEngineWin*>(this);
-  return new ComposedDisplayWin(winEngine, handle);
+  return new ComposedDisplayWin(this, handle);
 }
 
 CompositionEngineWin::CompositionEngineWin() :
