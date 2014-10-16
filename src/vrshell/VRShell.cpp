@@ -1,8 +1,11 @@
 #include "stdafx.h"
-#include "VRShell.h"
-#include "utility/PlatformInitializer.h"
+
+#include "Leap/OculusRift/Context.h"
+#include "Leap/OculusRift/Device.h"
 #include "osinterface/MakesRenderWindowFullScreen.h"
-#include "OculusVR.h"
+#include "utility/PlatformInitializer.h"
+#include "VRShell.h"
+
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
@@ -26,9 +29,19 @@ int main(int argc, char **argv)
       *contextSettings
     );
     AutoRequired<MakesRenderWindowFullScreen>();
-    AutoConstruct<OculusVR> hmdInterface;
-    hmdInterface->SetWindow(mw->getSystemHandle());
-    hmdInterface->Init();
+
+    // Create the OculusRift::Context (non-device initialization/shutdown)
+    AutoConstruct<Leap::OculusRift::Context> oculus_rift_context;
+    oculus_rift_context->Initialize();
+    assert(oculus_rift_context->IsInitialized() && "TODO: handle error the real way");
+
+    // Create the OculusRift::Device (per-device initialization/shutdown)
+    AutoConstruct<Leap::OculusRift::Device> oculus_rift_device;
+    // NOTE: This SetWindow nonsense is going to be abstracted to be one parameter in a
+    // DeviceInitializationParameters interface in Leap::Hmd.
+    oculus_rift_device->SetWindow(mw->getSystemHandle());
+    oculus_rift_device->Initialize(*static_cast<Leap::Hmd::Context *>(oculus_rift_context));
+    assert(oculus_rift_device->IsInitialized() && "TODO: handle error the real way");
 
     // Run as fast as possible:
     mw->setFramerateLimit(120);
@@ -36,6 +49,9 @@ int main(int argc, char **argv)
 
     // Handoff to the main loop:
     shell->Main();
+
+    oculus_rift_device->Shutdown();
+    oculus_rift_context->Shutdown();
   }
   catch (std::exception& e) {
     std::cout << e.what() << std::endl;

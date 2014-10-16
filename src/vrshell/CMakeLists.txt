@@ -22,7 +22,7 @@ set_property(TARGET VRShell PROPERTY FOLDER "VRShell")
 target_link_libraries(VRShell PUBLIC
   Autowiring 
   GLShaderLoader 
-  OculusVR 
+  OculusRift
   osinterface
   Primitives 
   SFMLController 
