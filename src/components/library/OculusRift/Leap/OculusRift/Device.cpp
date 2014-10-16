@@ -270,6 +270,14 @@ void Device::Shutdown () {
   assert(!IsInitialized() && "programmer error -- a post-condition of Shutdown() should be that IsInitialized() returns false.");
 }
 
+const OculusRift::Context &Device::Context () const {
+  if (!IsInitialized()) {
+    throw Exception("Can't retrieve the Context from a Device that hasn't been Initialize()'d.");
+  }
+  assert(m_context != nullptr);
+  return *m_context;
+}
+
 const OculusRift::DeviceConfiguration &Device::ActualConfiguration () const {
   if (!IsInitialized())
     throw Exception("Call to Device::ActualConfiguration is undefined unless Device::IsInitialized() returns true.", m_context, this);
