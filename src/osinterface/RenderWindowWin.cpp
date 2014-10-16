@@ -24,7 +24,7 @@ RenderWindowWin::RenderWindowWin(void)
   if (!s_wndClass) {
     throw std::runtime_error("Unable to register window class");
   }
-  ::CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE,
+  ::CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED,
                    s_className, "", WS_VISIBLE | WS_POPUP,
                    0, 0, 0, 0, nullptr, nullptr, nullptr, this);
 }
@@ -51,6 +51,7 @@ HWND RenderWindowWin::GetSystemHandle() const
 int RenderWindowWin::Create(HWND hWnd)
 {
   ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
+  ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
 
   // The RenderContext holds on to the underlying window
   m_renderContext.reset(RenderContextWin::New(hWnd));
@@ -182,12 +183,9 @@ void RenderWindowWin::SetTransparent(bool transparent)
   m_isTransparent = transparent;
 
   const LONG prevStyle = ::GetWindowLongA(hWnd, GWL_EXSTYLE);
-  const LONG modStyle = WS_EX_LAYERED | WS_EX_TRANSPARENT;
+  const LONG modStyle = WS_EX_TRANSPARENT;
   const LONG style = m_isTransparent ? (prevStyle | modStyle) : (prevStyle & ~modStyle);
   ::SetWindowLongA(hWnd, GWL_EXSTYLE, style);
-  if (m_isTransparent) {
-    ::SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
-  }
   DWM_BLURBEHIND bb = {0};
   bb.dwFlags = DWM_BB_ENABLE;
   bb.fEnable = m_isTransparent;
