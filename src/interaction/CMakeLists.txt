@@ -34,7 +34,6 @@ set_property(TARGET interaction PROPERTY FOLDER "Shortcuts Projects")
 
 target_link_libraries(interaction Autowiring cursor expose mediaview uievents)
 
-target_package(interaction SFML 2.1 REQUIRED)
 target_package(interaction Eigen 3.2.1 REQUIRED)
 target_package(interaction Leap REQUIRED)
 

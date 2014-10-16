@@ -65,7 +65,7 @@ private:
   Smoothed<float> m_goalBottomY;
   Smoothed<float> m_pusherBottomY;
 
-  Autowired<sf::RenderWindow> m_renderWindow; // Grabbing this for layout purposes.
+  Autowired<RenderWindow> m_renderWindow; // Grabbing this for layout purposes.
   Autowired<RenderEngine> m_rootNode;
   AutoFired<ShortcutsStateChangeEvent> m_stateChangeEvent;
 };

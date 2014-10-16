@@ -10,8 +10,9 @@
   self = [super init];
   if (self != nil) {
     _statusItem = [[[NSStatusBar systemStatusBar] statusItemWithLength:24] retain];
-    [_statusItem setImage:[NSImage imageNamed:@"TrayIcon"]];
-    [_statusItem setAlternateImage:[NSImage imageNamed:@"TrayIconInverted"]];
+    NSImage* image = [NSImage imageNamed:@"TrayIcon"];
+    [image setTemplate:YES];
+    [_statusItem setImage:image];
     [_statusItem setHighlightMode:YES];
 
     NSMenu* statusMenu = [[NSMenu alloc] initWithTitle:@""];

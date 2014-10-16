@@ -1,5 +1,5 @@
 #pragma once
-
+#define FREEIMAGE_LIB
 #define _USE_MATH_DEFINES
 #include <cmath>
 

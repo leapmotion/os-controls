@@ -58,7 +58,6 @@ if(APPLE)
     ${Shortcuts_RESOURCES}
     icons/AppIcon.icns
     icons/TrayIcon.tiff
-    icons/TrayIconInverted.tiff
   )
 endif()
 
@@ -107,7 +106,6 @@ target_link_libraries(Shortcuts Autowiring utility interaction graphics osinterf
 target_include_directories(Shortcuts PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_package(Shortcuts Leap REQUIRED)
-target_package(Shortcuts SFML 2.1 REQUIRED)
 
 if(WIN32)
   set_property(TARGET Shortcuts APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib /MANIFESTUAC:NO")
@@ -134,9 +132,6 @@ foreach(_resource ${Shortcuts_RESOURCES})
   if(WIN32)
     add_custom_command(TARGET Shortcuts POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" \"$<TARGET_FILE_DIR:Shortcuts>\"
-    )
-    add_custom_command(TARGET Shortcuts POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different \"${_resource}\" "${CMAKE_CURRENT_BINARY_DIR}"
     )
   elseif(APPLE)
     get_filename_component(_resource ${_resource} ABSOLUTE)

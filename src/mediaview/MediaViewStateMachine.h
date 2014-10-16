@@ -90,7 +90,7 @@ private:
 
   // Refernce to the cursor so we can override its position
   Autowired<CursorView> m_cursorView;
-  Autowired<sf::RenderWindow> m_renderWindow;
+  Autowired<RenderWindow> m_renderWindow;
 
   // Events fired by this MediaView
   AutoFired<MediaViewEventListener> m_mediaViewEventListener;

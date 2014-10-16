@@ -76,9 +76,9 @@ OSVirtualScreenWin::~OSVirtualScreenWin()
 
 bool OSVirtualScreenWin::IsScreenSaverActive() const
 {
-  BOOL isActive = 0;
+  BOOL isActive = FALSE;
   SystemParametersInfo(SPI_GETSCREENSAVERRUNNING, 0, &isActive, 0);
-  return (bool)isActive;
+  return (isActive != FALSE);
 }
 
 std::vector<OSScreen> OSVirtualScreenWin::GetScreens() const

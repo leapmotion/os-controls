@@ -168,6 +168,7 @@ add_sublibrary(
         "A single point of control for init, shutdown, and general use of SDL."
 )
 
+set(SFML_STATIC_LIBRARIES ON) #required for proper linkage..
 add_sublibrary(
     SFMLController
     HEADERS
@@ -939,6 +940,7 @@ set(ComponentsTest_SOURCES "")
 foreach(_test ${_tests})
     get_target_property(_headers ${_test} INTERFACE_PATH_PREFIXED_HEADERS)
     get_target_property(_sources ${_test} INTERFACE_PATH_PREFIXED_SOURCES)
+    set_property(TARGET ${_test} PROPERTY FOLDER "Tests")
     list(APPEND ComponentsTest_SOURCES ${_headers} ${_sources})
 endforeach()
 add_executable(ComponentsTest ${ComponentsTest_SOURCES})

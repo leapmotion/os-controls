@@ -1,5 +1,6 @@
 #pragma once
 #include "OSGeometry.h"
+#include <autowiring/autowiring.h>
 
 class OSCursor:
   public ContextMember

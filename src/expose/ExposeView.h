@@ -131,6 +131,8 @@ private:
 
   bool addToExistingGroup(const std::shared_ptr<ExposeViewWindow>& window);
 
+  void makeWindowOpaque(bool opaque);
+
   std::shared_ptr<ExposeGroup> getGroupForWindow(const std::shared_ptr<ExposeViewWindow>& window) const;
 
   std::shared_ptr<ExposeGroup> createNewGroup(const std::shared_ptr<ExposeViewWindow>& window);
@@ -162,6 +164,7 @@ private:
 
   bool m_ignoreInteraction;
   bool m_closing;
+  bool m_makeWindowOpaque;
 
   std::shared_ptr<Disk> m_selectionRegion;
   std::shared_ptr<PartialDisk> m_selectionOutline;

@@ -1,6 +1,7 @@
 set(osinterfacetest_SRCS
   osinterfacetest.cpp
   AudioVolumeInterfaceTest.cpp
+  CompositionEngineTest.cpp
   MediaInterfaceTest.cpp
   HtmlPageLauncherTest.cpp
   OSCursorTest.cpp

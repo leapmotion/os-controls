@@ -1,7 +1,8 @@
 #include "stdafx.h"
+#include "MediaViewStateMachine.h"
+#include "osinterface/RenderWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
-#include "MediaViewStateMachine.h"
 #include "uievents/MediaViewEventListener.h"
 #include "uievents/ShortcutsDomain.h"
 #include "uievents/ShortcutsConfigs.h"
@@ -379,17 +380,19 @@ float MediaViewStateMachine::calculateVolumeDelta(float deltaHandRoll) {
 EigenTypes::Vector3 MediaViewStateMachine::calculateBufferZoneOffset(const EigenTypes::Vector2& screenPosition) {
   EigenTypes::Vector3 retVal(0,0,0);
 
+  const float windowWidth = m_renderWindow->GetSize().width;
+  const float windowHeight = m_renderWindow->GetSize().height;
   // Find our distance from the screen edge
-  float xEdgeDistance = static_cast<float>(std::min(screenPosition.x(), m_renderWindow->getSize().x - screenPosition.x()));
-  float yEdgeDistance = static_cast<float>(std::min(screenPosition.y(), m_renderWindow->getSize().y - screenPosition.y()));
+  float xEdgeDistance = static_cast<float>(std::min(screenPosition.x(), windowWidth - screenPosition.x()));
+  float yEdgeDistance = static_cast<float>(std::min(screenPosition.y(), windowHeight - screenPosition.y()));
 
   // Calculate any offset needed
   float xOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - xEdgeDistance);
   float yOffset = std::max(0.0f, mediaMenuConfigs::SCREEN_EDGE_BUFFER_DISTANCE - yEdgeDistance);
 
   // Make sure the offset is in the proper direction based on cloest edge
-  xOffset = (screenPosition.x() > m_renderWindow->getSize().x / 2.0) ? xOffset*-1 : xOffset;
-  yOffset = (screenPosition.y() > m_renderWindow->getSize().y / 2.0) ? yOffset*-1 : yOffset;
+  xOffset = (screenPosition.x() > windowWidth / 2.0) ? xOffset*-1 : xOffset;
+  yOffset = (screenPosition.y() > windowHeight / 2.0) ? yOffset*-1 : yOffset;
 
   retVal = EigenTypes::Vector3( xOffset, yOffset, 0.0f );
 

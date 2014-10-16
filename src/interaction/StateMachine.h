@@ -2,9 +2,9 @@
 #include "StateMachineContext.h"
 #include "HandLocationRecognizer.h"
 #include "HandPoseRecognizer.h"
-#include <SFML/Graphics/RenderWindow.hpp>
 #include "interaction/HandEventListener.h"
 #include "cursor/CursorView.h"
+#include "osinterface/RenderWindow.h"
 #include "osinterface/WindowScroller.h"
 #include "uievents/Updatable.h"
 #include "Animation.h"
@@ -88,7 +88,7 @@ private:
 
   Autowired<CursorView> m_cursorView;
   Autowired<IWindowScroller> m_windowScroller;
-  Autowired<sf::RenderWindow> m_renderWindow;
+  Autowired<RenderWindow> m_renderWindow;
 
   Autowired<Config> m_config;
 

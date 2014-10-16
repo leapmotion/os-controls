@@ -9,7 +9,6 @@
 #include "CoordinateUtility.h"
 #include "InteractionConfigs.h"
 
-
 float normalizeFloat(float val, float min, float max) {
   return (val - min) / (max - min);
 }
@@ -33,13 +32,13 @@ EigenTypes::Vector3 CoordinateUtility::LeapToScreenNormal(Leap::Vector leapCoord
 }
 
 EigenTypes::Vector2 CoordinateUtility::ScreenNormalToScreenPixels(const EigenTypes::Vector3& normalCoords) {
-  if(!m_window)
+  if(!m_renderWindow)
     return EigenTypes::Vector2(0,0); // If the screen doesn't exist yet, just say we're at (0,0). Ok to fail quiet.
 
-  const sf::Vector2u screenSize = m_window->getSize();
+  const auto screenSize = m_renderWindow->GetSize();
   EigenTypes::Vector2 retVal;
-  retVal.x() = normalCoords.x() * screenSize.x;
-  retVal.y() = normalCoords.y() * screenSize.y;
+  retVal.x() = normalCoords.x() * screenSize.width;
+  retVal.y() = normalCoords.y() * screenSize.height;
 
   return retVal;
 }
