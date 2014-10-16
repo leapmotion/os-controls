@@ -40,6 +40,20 @@ public:
   Device ();
   virtual ~Device ();
 
+#if defined(OVR_OS_WIN32)
+  typedef HWND WindowHandle;
+#elif defined(OVR_OS_MAC)
+  typedef void* WindowHandle; // NSWindow
+#elif defined(OVR_OS_LINUX)
+  typedef Window WindowHandle;
+#endif
+
+  // If this is to be called, it must be done before Initialize.
+  // NOTE: This is from OculusVR, and will likely not stay -- it will be abstracted into
+  // a DeviceInitializationParameters interface, of which there will be an OculusRift
+  // implementation.
+  void SetWindow (const WindowHandle &window_handle) { m_Window = window_handle; }
+
   // OpenGL must be initialized before this call is made, as this creates certain GL resources.
   virtual void Initialize (Hmd::Context &context) override;
   virtual bool IsInitialized () const override;
@@ -92,14 +106,6 @@ private:
 
   OVR::Vector3f m_EyePosition[2];
   OVR::Matrix4f m_EyeRotation[2];
-
-#if defined(OVR_OS_WIN32)
-  typedef HWND WindowHandle;
-#elif defined(OVR_OS_MAC)
-  typedef void* WindowHandle; // NSWindow
-#elif defined(OVR_OS_LINUX)
-  typedef Window WindowHandle;
-#endif
 
   WindowHandle m_Window;
 };
