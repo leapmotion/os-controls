@@ -32,15 +32,6 @@
   }
   _isInitialized = YES;
 
-  // Hide ourselves from the Dock. Unfortunately, this causes our application
-  // to hide as well. See our workaround for that problem in the
-  // applicationDidHide: method below
-  NSApplication* app = [NSApplication sharedApplication];
-  [app setActivationPolicy:NSApplicationActivationPolicyAccessory];
-  if ([app activationPolicy] != NSApplicationActivationPolicyAccessory) {
-    [app setActivationPolicy:NSApplicationActivationPolicyProhibited];
-  }
-
   // Check and possibly update the link to the Shortcuts preference pane
   @autoreleasepool {
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSPreferencePanesDirectory, NSUserDomainMask, YES);
@@ -126,11 +117,13 @@
         };
         AuthorizationEnvironment authEnvironment = {numAuthItems, authItems};
 
+        // Bring application to front so that the Authorization window has focus
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+
         status = AuthorizationCopyRights(authorizationRef, &rights, &authEnvironment, flags, nullptr);
         if (status == errAuthorizationSuccess) {
           NSString* label = @"com.leapmotion.ShortcutsHelper";
           NSDictionary* job = @{@"Label":label, @"Program":shortcutsHelperPath, @"RunAtLoad":@YES};
-          CFErrorRef errorRef = nullptr;
 
           SMJobRemove(kSMDomainSystemLaunchd, (CFStringRef)label, authorizationRef, false, nullptr);
           SMJobSubmit(kSMDomainSystemLaunchd, (CFDictionaryRef)job, authorizationRef, nullptr);
@@ -163,23 +156,6 @@
     [_menubarController onHelp:nil];
     cfg->Set("showHelpOnStart", false);
   }
-}
-
-- (void)applicationDidHide:(NSNotification*)aNotification
-{
-  // In the NativeWindow::MakeTransparent(), we call the -[NSWindow
-  // setHidesOnDeactivate:NO] method, which tells the window not to hide when
-  // the application deactivates. Unfortunately, that is too late, as we will
-  // have already been deactivated by the time that is acknowledged by the
-  // window manager. Because of our policy change earlier, the result is that
-  // the window hide. The workaround is that the first time we are told to
-  // hide, we will immediately ask to be unhidden.
-
-  if (_wasHidden) {
-    return;
-  }
-  [NSApp unhide:nil];
-  _wasHidden = true;
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication*)sender
