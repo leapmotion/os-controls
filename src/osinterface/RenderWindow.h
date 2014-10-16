@@ -17,7 +17,7 @@ class RenderWindow :
 {
 public:
   RenderWindow(void):
-    m_useVSync(true), m_isTransparent(true), m_isVisible(false) {}
+    m_useVSync(true), m_isTransparent(false), m_isVisible(false) {}
   virtual ~RenderWindow(void) {}
 
   RenderWindow(const RenderWindow&) = delete;
