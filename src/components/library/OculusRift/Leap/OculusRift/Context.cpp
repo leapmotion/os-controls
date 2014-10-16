@@ -14,6 +14,7 @@ Context::Context () :
 Context::~Context () {
   if (m_is_initialized) {
     std::cerr << "Warning: Leap::OculusRift::Context instance was not Shutdown() before destruction.\n";
+    Context::Shutdown();
   }
 }
 

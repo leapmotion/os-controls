@@ -57,7 +57,7 @@ Device::Device ()
 Device::~Device () {
   if (IsInitialized_()) {
     std::cerr << "Warning: Leap::OculusRift::Device instance was not Shutdown() before destruction.\n";
-    OculusRift::Device::Shutdown();
+    Device::Shutdown();
   }
 }
 
