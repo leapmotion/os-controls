@@ -177,13 +177,13 @@ void RenderWindowMac::SetSize(const OSSize& size)
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
   NSRect frame = AdjustCoordinates([window frame]);
   frame.size = size;
-  [window setFrame:AdjustCoordinates(frame) display:NO];
+  [window setFrame:AdjustCoordinates(frame) display:YES];
 }
 
 void RenderWindowMac::SetRect(const OSRect& rect)
 {
   NSWindow* window = reinterpret_cast<NSWindow*>(m_window);
-  [window setFrame:AdjustCoordinates(rect) display:NO];
+  [window setFrame:AdjustCoordinates(rect) display:YES];
 }
 
 void RenderWindowMac::SetVSync(bool vsync)
