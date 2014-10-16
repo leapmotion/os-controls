@@ -491,11 +491,11 @@ add_sublibrary(
     HEADERS
         Leap/Hmd/Context.h
         Leap/Hmd/Device.h
-        Leap/Hmd/DeviceCapabilities.h
         Leap/Hmd/DeviceConfiguration.h
-        Leap/Hmd/IntermediateArray.h
         Leap/Hmd/Exception.h
         Leap/Hmd/EyeConfiguration.h
+        Leap/Hmd/IntermediateArray.h
+        Leap/Hmd/MatrixComponentOrder.h
         Leap/Hmd/Pose.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
@@ -508,7 +508,6 @@ add_sublibrary(
     HEADERS
         Leap/OculusRift/Context.h
         Leap/OculusRift/Device.h
-        Leap/OculusRift/DeviceCapabilities.h
         Leap/OculusRift/DeviceConfiguration.h
         Leap/OculusRift/Exception.h
         Leap/OculusRift/EyeConfiguration.h
@@ -516,6 +515,8 @@ add_sublibrary(
     SOURCES
         Leap/OculusRift/Context.cpp
         Leap/OculusRift/Device.cpp
+        Leap/OculusRift/DeviceConfiguration.cpp
+        Leap/OculusRift/EyeConfiguration.cpp
         Leap/OculusRift/Pose.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLCompatibility

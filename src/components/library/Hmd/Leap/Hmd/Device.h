@@ -9,6 +9,41 @@ namespace Hmd {
 class Context;
 class DeviceConfiguration;
 
+#if 0
+TODO LATER
+
+enum class Capability { NOT_REQUESTED, REQUESTED_IF_PRESENT, REQUIRED };
+
+/// @brief Simple container for specifing device initialization parameters for use in Device::Initialize.
+/// @details The default constructor sets the parameters to reasonable defaults.
+/// There are several types of parameters:
+/// - Requests for capabilities; the default value is Capability::NOT_REQUESTED.  The value
+///   Capability::REQUESTED_IF_PRESENT indicates that the capability should be used if present
+///   but that the lack of said capability is not an error.  The value Capability::REQUIRED
+///   indicates that the capability must be present and that it is an initialization error
+///   otherwise.
+/// - Configuration values; numerical values.
+///   * InterPupillary Distance (IPD).
+///   * Eye FOVs.
+///   * Pixel density at eye view centers.
+class DeviceInitializationParameters {
+public:
+
+  /// @brief Constructs an object of this type with reasonable defaults.
+  /// @details Initializes the parameters to reasonable defaults, notably setting all
+  /// capability requests to Capability::NOT_REQUESTED.
+  DeviceInitializationParameters ();
+
+
+
+private:
+
+  bool m_RequestLowPersistence;
+  bool m_RequestDynamicPrediction;
+  bool m_RequestNoVSync;
+};
+#endif
+
 class Device {
 public:
 
@@ -45,7 +80,7 @@ public:
   virtual std::shared_ptr<Pose> EyePose (uint32_t eye_index) const = 0;
   // /// @brief Returns the current sensor readings of the HMD.
   // /// @details This method should only be called between BeginFrame() and EndFrame().
-  // virtual std::shared_ptr<SensorData> SensorReadings () const = 0;
+  // virtual std::shared_ptr<SensorData> SensorReadings () const = 0; // TODO
   virtual void BeginRenderingEye (uint32_t eye_index) const = 0;
   virtual void EndRenderingEye (uint32_t eye_index) const = 0;
   virtual void EndFrame () = 0;

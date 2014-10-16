@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Leap/Hmd/Exception.h"
+#include "Leap/OculusRift/Context.h"
+#include "Leap/OculusRift/Device.h"
 
 namespace Leap {
 namespace OculusRift {
-
-class Context;
-class Device;
 
 class Exception : public Hmd::Exception {
 public:
@@ -20,9 +19,9 @@ public:
   virtual ~Exception () { }
 
   virtual const char *what () const noexcept override { return m_message.c_str(); }
-  // Returns the Hmd::Context to which this Exception applies, or nullptr if not specified/defined.
+  // Returns the OculusRift::Context to which this Exception applies, or nullptr if not specified/defined.
   virtual const OculusRift::Context *Context () const override { return m_context; }
-  // Returns the Hmd::Device to which this Exception applies, or nullptr if not specified/defined.
+  // Returns the OculusRift::Device to which this Exception applies, or nullptr if not specified/defined.
   virtual const OculusRift::Device *Device () const override { return m_device; }
 
 private:

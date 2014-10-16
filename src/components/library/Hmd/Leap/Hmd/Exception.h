@@ -1,10 +1,10 @@
 #pragma once
 
-namespace Leap {
-namespace Hmd {
-
 #include <stdexcept>
 #include <string>
+
+namespace Leap {
+namespace Hmd {
 
 class Context;
 class Device;

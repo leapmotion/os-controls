@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IntermediateArray.h"
+#include "MatrixComponentOrder.h"
 #include <type_traits>
 
 namespace Leap {
@@ -10,7 +11,6 @@ template <std::size_t SIZE_>
 using DoubleArray = IntermediateArray<double,SIZE_>;
 
 enum class QuaternionNormalization { NOT_REQUIRED, REQUIRED };
-enum class MatrixComponentOrder { ROW_MAJOR, COLUMN_MAJOR };
 
 /// @brief Represents a position and orientation in 3-space.
 class Pose {

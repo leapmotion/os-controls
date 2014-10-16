@@ -25,8 +25,8 @@ DeviceConfiguration::DeviceConfiguration (
     error_string += " must specify a nonempty identifier;";
   if (m_inter_pupillary_distance < 0.0f)
     error_string += " must specify a nonnegative inter-pupillary distance;";
-  if (eye_render_order.size() != eye_configuration)
-    error_string += " eye_render_order and eye_configuration must have the same number of elements;"
+  if (eye_render_order.size() != eye_configuration.size())
+    error_string += " eye_render_order and eye_configuration must have the same number of elements;";
   for (auto i : m_eye_render_order)
     if (i >= m_eye_render_order.size()) {
       error_string += " eye_render_order contains eye indices that are out of range;";
@@ -36,7 +36,7 @@ DeviceConfiguration::DeviceConfiguration (
     throw Exception("Leap::OculusRift::DeviceConfiguration():" + error_string, &m_context, &m_device);
 }
 
-uint32_t OculusRift::EyeRenderOrder (uint32_t eye_render_index) const {
+uint32_t DeviceConfiguration::EyeRenderOrder (uint32_t eye_render_index) const {
   if (eye_render_index >= m_eye_render_order.size())
     throw Exception("Leap::OculusRift::EyeRenderOrder(): eye_render_index out of range.", &m_context, &m_device);
   return m_eye_render_order[eye_render_index];
