@@ -1,13 +1,13 @@
 #pragma once
+#include "osinterface/RenderContext.h"
 #include "Vector.h"
-#include <SFML/Window/GlResource.hpp>
 
 struct RenderFrame;
 
 /// <summary>
 /// One of a linked list of renderable entities
 /// </summary>
-class Renderable : public sf::GlResource
+class Renderable : public RenderContextResource
 {
 public:
   typedef std::list<std::shared_ptr<Renderable>> t_renderList;

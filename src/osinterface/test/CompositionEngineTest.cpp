@@ -1,28 +1,31 @@
 #include "stdafx.h"
 #include "CompositionEngine.h"
+#include "osinterface/RenderWindow.h"
 
-#include <SFML/Window.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-
-#include <SFML/Graphics.hpp>
 #include <chrono>
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/glew.h>
 
+#include <GL/gl.h>
+#endif
 
 class CompositionEngineTest :
   public testing::Test
 {};
 
 TEST_F(CompositionEngineTest, VerifyBasicVisual) {
-  sf::Window window1(sf::VideoMode(640, 480), "Window1");
-  window1.setPosition(sf::Vector2i(0, 0));
-  sf::RenderWindow window2(sf::VideoMode(640, 480), "Window2");
-  window2.setPosition(sf::Vector2i(700, 0));
+  std::shared_ptr<RenderWindow> window1(RenderWindow::New());
+  window1->SetRect({0, 0, 640, 480});
+  std::shared_ptr<RenderWindow> window2(RenderWindow::New());
+  window2->SetRect({0, 480, 640, 480});
 
   AutoRequired<CompositionEngine> engine;
-  auto display = engine->CreateDisplay(window1.getSystemHandle());
+  auto display = engine->CreateDisplay(window1->GetSystemHandle());
   auto view = engine->CreateView();
 
-  view->SetContent(window2.getSystemHandle());
+  view->SetContent(window2->GetSystemHandle());
   view->SetScale(0.f, 0.f, .2f, .2f);
   view->SetOffset(20, 20);
   view->SetRotation(40, 40, 30);
@@ -30,24 +33,52 @@ TEST_F(CompositionEngineTest, VerifyBasicVisual) {
 
   engine->CommitChanges();
 
-  sf::RectangleShape rect(sf::Vector2f(50, 100));
-  rect.setPosition(200, 200);
-  rect.setFillColor(sf::Color::Blue);
-  window2.setFramerateLimit(60);
+  window1->SetTransparent(false);
+  window1->SetVisible(true);
+  window2->SetTransparent(false);
+  window2->SetVSync(true);
+  window2->SetVisible(true);
+
+  window2->SetActive(true);
+  const auto windowSize = window2->GetSize();
+  const float ar = static_cast<float>(windowSize.width)/static_cast<float>(windowSize.height);
+  ::glViewport(0, 0, windowSize.width, windowSize.height);
+  ::glMatrixMode(GL_PROJECTION);
+  ::glLoadIdentity();
+  ::glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
+  window2->SetActive(false);
 
   auto start = std::chrono::steady_clock::now();
   float rotation = 0;
   while (std::chrono::steady_clock::now() - start < std::chrono::seconds(5)) {
-    for (sf::Event evt; window1.pollEvent(evt);) {
-    }
+    window1->ProcessEvents();
+    window2->ProcessEvents();
 
-    window2.clear();
-    window2.setActive();
-    rect.rotate(5.0f);
-    window2.draw(rect);
-    window2.display();
+    window2->SetActive(true);
+
+    ::glClearColor(0, 0, 0, 0);
+    ::glClear(GL_COLOR_BUFFER_BIT);
+
+    ::glEnable(GL_BLEND);
+    ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
+
+    ::glPushMatrix();
+    ::glRotatef(rotation, 0.0f, 0.0f, 1.0f);
+    ::glBegin(GL_QUADS);
+      ::glColor3d(1,0,0);
+      ::glVertex3f(-1,-1,-5);
+      ::glColor3d(1,1,0);
+      ::glVertex3f(1,-1,-5);
+      ::glColor3d(0,1,0);
+      ::glVertex3f(1,1,-5);
+      ::glColor3d(0,0,1);
+      ::glVertex3f(-1,1,-5);
+    ::glEnd();
+    ::glPopMatrix();
+
+    rotation += 4.0f;
+
+    window2->FlushBuffer();
+    window2->SetActive(false);
   }
-
-  window1.close();
-  window2.close();
 }

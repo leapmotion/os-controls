@@ -4,13 +4,24 @@
 #include <Primitives.h>
 #include <GLTexture2.h>
 #include <ShellScalingApi.h>
-#include <SFML/Graphics/Image.hpp>
 
 #include <fstream>
 #include <cmath>
 
+#define FREEIMAGE_LIB
+#include "FreeImage.h"
+
 HMODULE hshcore = LoadLibrary("shcore");
 auto g_GetDpiForMonitor = (decltype(GetDpiForMonitor)*) GetProcAddress(hshcore, "GetDpiForMonitor");
+
+struct StaticFreeImageLoader {
+  StaticFreeImageLoader() {
+    FreeImage_Initialise(FALSE);
+  }
+  ~StaticFreeImageLoader() {
+    FreeImage_DeInitialise();
+  }
+};
 
 void OSScreen::Update()
 {
@@ -49,25 +60,45 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
   if (pathString.empty()) {
     return img;
   }
-  std::ifstream ifs(pathString.c_str(), std::ios::in | std::ios::binary);
-  std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-  ifs.close();
-  if (str.empty()) {
+
+  static StaticFreeImageLoader s_fil;
+
+  FIBITMAP* dib = nullptr;
+  FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilenameU(pathString.c_str());
+  if (fif != FIF_UNKNOWN) {
+    dib = FreeImage_LoadU(fif, pathString.c_str(), 0);
+  }
+  if (!dib) {
+    // Guess at a few image formats...
+    FREE_IMAGE_FORMAT search[] = {FIF_BMP, FIF_JPEG, FIF_PNG, FIF_TIFF, FIF_GIF, FIF_UNKNOWN};
+    int index = 0;
+    while ((fif = search[index]) != FIF_UNKNOWN) {
+      dib = FreeImage_LoadU(fif, pathString.c_str(), 0);
+      if (dib) {
+        break;
+      }
+      index++;
+    }
+    if (!dib) {
+      return img;
+    }
+  }
+  { // We will just convert to 32-bits, as that is likely the format anyway
+    FIBITMAP* dib32 = FreeImage_ConvertTo32Bits(dib);
+    FreeImage_Unload(dib);
+    dib = dib32;
+  }
+  if (!dib) {
     return img;
   }
-  sf::Image image;
-  if (!image.loadFromMemory(str.data(), str.size())) {
-    return img;
-  }
-  str.clear();
-  const uint8_t* dstBytes = static_cast<const uint8_t*>(image.getPixelsPtr());
-  if (!dstBytes) {
-    return img;
-  }
-  const auto size = image.getSize();
-  const size_t width = static_cast<size_t>(size.x);
-  const size_t height = static_cast<size_t>(size.y);
-  const size_t totalBytes = width*height*4;
+  FreeImage_FlipVertical(dib); // For some reason, the image is flipped vertically without this
+
+  const size_t width = static_cast<size_t>(FreeImage_GetWidth(dib));
+  const size_t height = static_cast<size_t>(FreeImage_GetHeight(dib));
+  const size_t bytesPerRow = static_cast<size_t>(FreeImage_GetPitch(dib));
+  const size_t stride = bytesPerRow/4;
+  const size_t totalBytes = bytesPerRow*height;
+  const uint8_t* dstBytes = FreeImage_GetBits(dib);
 
   std::shared_ptr<GLTexture2> texture = img->Texture();
   if (texture) {
@@ -76,7 +107,9 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
       texture.reset();
     }
   }
-  GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+
+  GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+  pixelData.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, stride);
   if (texture) {
     texture->UpdateTexture(pixelData);
   } else {
@@ -86,15 +119,14 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     texture = std::make_shared<GLTexture2>(params, pixelData);
     img->SetTexture(texture);
     img->SetScaleBasedOnTextureSize();
   }
-  texture->Bind();
-  glGenerateMipmap(GL_TEXTURE_2D);
-  texture->Unbind();
+
+  FreeImage_Unload(dib);
 
   return img;
 }

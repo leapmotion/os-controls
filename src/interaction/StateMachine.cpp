@@ -152,7 +152,8 @@ bool StateMachine::pointIsOnScreen(const EigenTypes::Vector2 &point) const {
   if ( !m_renderWindow ) { return false; }
 
   bool retVal = false;
-  EigenTypes::Vector2 renderWindowSize(m_renderWindow->getSize().x, m_renderWindow->getSize().y);
+  const auto windowSize = m_renderWindow->GetSize();
+  EigenTypes::Vector2 renderWindowSize(windowSize.width, windowSize.height);
   if (point.x() >= 0 &&
       point.x() <= renderWindowSize.x() &&
       point.y() >= 0 &&

@@ -68,7 +68,7 @@ void TexturedFrame::DrawContents(RenderState& renderState) const {
   }
   
   RecomputeGeometryIfNecessary();
-  assert(!m_recompute_geometry);
+  // assert(!m_recompute_geometry);
 
   glEnable(GL_TEXTURE_2D);
   m_texture->Bind();

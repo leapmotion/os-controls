@@ -9,13 +9,11 @@ CompositionEngine* CompositionEngine::New() {
 }
 
 ComposedView* CompositionEngineWin::CreateView() {
-  auto* winEngine = static_cast<CompositionEngineWin*>(this);
-  return new ComposedViewWin(winEngine);
+  return new ComposedViewWin(this);
 }
 
 ComposedDisplay* CompositionEngineWin::CreateDisplay(WindowHandle handle){
-  auto* winEngine = static_cast<CompositionEngineWin*>(this);
-  return new ComposedDisplayWin(winEngine, handle);
+  return new ComposedDisplayWin(this, handle);
 }
 
 CompositionEngineWin::CompositionEngineWin() :
@@ -83,6 +81,13 @@ ComposedViewWin::~ComposedViewWin() {
 
 void ComposedViewWin::SetContent(const WindowHandle& window){
   IUnknown* pSurface = nullptr;
+
+  LONG style = ::GetWindowLong(window, GWL_EXSTYLE);
+  if ((style & WS_EX_LAYERED) == 0){
+    ::SetWindowLong(window, GWL_EXSTYLE, style | WS_EX_LAYERED);
+    ::SetLayeredWindowAttributes(window, RGB(0, 0, 0), 255, LWA_ALPHA);
+  }
+
   HRESULT hr = m_device->m_DCompDevice->CreateSurfaceFromHwnd(window,&pSurface);
 
   if (!SUCCEEDED(hr))

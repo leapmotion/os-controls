@@ -4,13 +4,13 @@
 #include "graphics/RenderEngine.h"
 #include "OculusVR.h"
 #include "osinterface/LeapInput.h"
-#include "osinterface/MakesRenderWindowFullScreen.h"
 #include "utility/PlatformInitializer.h"
 #include "LeapImagePassthrough.h"
+#include "osinterface/RenderWindow.h"
+#include "osinterface/OSVirtualScreen.h"
 #include "osinterface/CompositionEngine.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
-#include <SFML/Window.hpp>
 
 int main(int argc, char **argv)
 {
@@ -18,36 +18,9 @@ int main(int argc, char **argv)
   AutoCurrentContext ctxt;
 
   ctxt->Initiate();
+  AutoRequired<VRShell> shell;
 
   try {
-    AutoCreateContextT<VRShellContext> shellCtxt;
-    shellCtxt->Initiate();
-    CurrentContextPusher pshr(shellCtxt);
-
-    AutoRequired<VRShell> shell;
-    AutoRequired<OSVirtualScreen> virtualScreen;
-    AutoRequired<RenderEngine> render;
-    AutoRequired<LeapInput> input;
-    AutoRequired<CompositionEngine> composition;
-    
-    AutoConstruct<sf::ContextSettings> contextSettings(0, 0, 16);
-    AutoConstruct<sf::RenderWindow> mw(
-      sf::VideoMode(640, 480),
-      "VRShell", sf::Style::Titlebar,
-      *contextSettings
-    );
-
-    AutoRequired<LeapImagePassthrough>();
-
-    //AutoRequired<MakesRenderWindowFullScreen>();
-    AutoConstruct<OculusVR> hmdInterface;
-    hmdInterface->SetWindow(mw->getSystemHandle());
-    hmdInterface->Init();
-
-    // Run as fast as possible:
-    mw->setFramerateLimit(120);
-    mw->setVerticalSyncEnabled(false);
-
     // Handoff to the main loop:
     shell->Main();
   }
@@ -59,6 +32,13 @@ int main(int argc, char **argv)
   return 0;
 }
 
+#if _WIN32
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
+{
+  return main(__argc, __argv);
+}
+#endif
+
 VRShell::VRShell(void)
 {
 }
@@ -66,32 +46,46 @@ VRShell::VRShell(void)
 VRShell::~VRShell(void) {}
 
 void VRShell::Main(void) {
+  AutoCreateContextT<VRShellContext> shellCtxt;
+  shellCtxt->Initiate();
+  CurrentContextPusher pshr(shellCtxt);
+
+  AutoRequired<RenderWindow> renderWindow;
+  AutoRequired<OSVirtualScreen>();
+  AutoRequired<RenderEngine>();
+  AutoRequired<CompositionEngine>();
+
+  AutoConstruct<OculusVR> hmdInterface;
+  hmdInterface->SetWindow(renderWindow->GetSystemHandle());
+  hmdInterface->Init();
+
+  renderWindow->SetVSync(false);
+  renderWindow->SetSize({640, 480});
+  renderWindow->SetTransparent(false);
+  renderWindow->SetVisible(true);
+
+  // Defer starting any Leap handling until the window is ready
+  *this += [this] {
+    AutoRequired<LeapInput> leap;
+    AutoRequired<LeapImagePassthrough>();
+    leap->AddPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+  };
+
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
-    // Handle all events:
-    for(sf::Event evt; m_mw->pollEvent(evt);)
-      HandleEvent(evt);
-
+    // Handle OS events:
+    renderWindow->ProcessEvents();
+    // Handle autowiring events:
+    DispatchAllEvents();
     // Broadcast update event to all interested parties:
     auto now = std::chrono::steady_clock::now();
     upd(&Updatable::Tick)(now - then);
     then = now;
   }
-
-  m_mw->close();
-}
-
-void VRShell::HandleEvent(const sf::Event& ev) const {
-  switch (ev.type) {
-  case sf::Event::Closed:
-    AutoCurrentContext()->SignalShutdown();
-    break;
-  default:
-    break;
-  }
+  renderWindow->SetVisible(false);
 }
 
 void VRShell::Filter(void) {

@@ -2,7 +2,8 @@
 #include "RenderEngine.h"
 #include "RenderFrame.h"
 #include "osinterface/OSVirtualScreen.h"
-#include "osinterface/MakesRenderWindowFullScreen.h"
+#include "osinterface/RenderContext.h"
+#include "osinterface/RenderWindow.h"
 #include <GL/glew.h>
 #include "GLShader.h"
 #include "GLShaderLoader.h"
@@ -10,7 +11,6 @@
 #include "Resource.h"
 #include "PrimitiveBase.h"
 
-#include <SFML/Graphics/Shader.hpp>
 #include <vector>
 #include <memory>
 #include <algorithm>
@@ -20,8 +20,9 @@
 RenderEngine::RenderEngine() :
   m_drewFrame(false)
 {
-  if (!sf::Shader::isAvailable()) //This also calls glewInit for us
+  if (!RenderContext::IsShaderAvailable()) {
     throw std::runtime_error("Shaders are not supported!");
+  }
 
   m_shader = Resource<GLShader>("material");
 
@@ -38,23 +39,26 @@ RenderEngine::~RenderEngine()
 
 void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // Active the window for OpenGL rendering
-  m_rw->setActive();
+  m_renderWindow->SetActive(true);
 
   // Clear window
-  m_rw->clear(sf::Color::Transparent);
+  ::glClearColor(0, 0, 0, 0);
+  ::glClear(GL_COLOR_BUFFER_BIT);
 
-  //Set the mode
-  glEnable(GL_BLEND);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
+  // Set the mode
+  ::glEnable(GL_BLEND);
+  ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
 
-  const auto windowSize = m_rw->getSize();
-  m_renderState.GetProjection().Orthographic(0, windowSize.y, windowSize.x, 0, 1, -100);
+  const auto windowSize = m_renderWindow->GetSize();
+  ::glScissor(0, 0, windowSize.width, windowSize.height);
+  ::glViewport(0, 0, windowSize.width, windowSize.height);
+  m_renderState.GetProjection().Orthographic(0, windowSize.height, windowSize.width, 0, 1, -100);
   m_renderState.GetModelView().Clear();
 
   m_shader->Bind();
 
   // Have objects rendering into the specified window with the supplied change in time
-  RenderFrame frame = {m_rw, m_renderState, deltaT};
+  RenderFrame frame{m_renderWindow, m_renderState, deltaT};
 
   // AnimationUpdate all attached nodes
   for(const auto& renderable : *this)
@@ -83,14 +87,17 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   m_shader->Unbind();
 
   // Update the window
-  m_rw->display(); // Always update the display, even if we are just erasing
+  m_renderWindow->FlushBuffer(); // Always update the display, even if we are just erasing
   m_drewFrame = drewThisFrame;
 
-  m_rw->setActive(false);
+  m_renderWindow->SetActive(false);
 
   // Show the overlay window if we are rendering, hide it if we aren't
-  if (m_makesRenderWindowFullScreen && m_makesRenderWindowFullScreen->IsVisible() != m_drewFrame) {
-    m_makesRenderWindowFullScreen->SetVisible(m_drewFrame);
+  if (m_renderWindow->IsVisible() != m_drewFrame) {
+    if (m_drewFrame) {
+      m_renderWindow->SetTransparent(true);
+    }
+    m_renderWindow->SetVisible(m_drewFrame);
   }
   if (!m_drewFrame) {
     // if we haven't drawn anything, sleep for a bit (otherwise this loop occurs too quickly)

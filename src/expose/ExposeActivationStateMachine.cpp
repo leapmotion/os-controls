@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ExposeActivationStateMachine.h"
+#include "osinterface/RenderWindow.h"
 #include "graphics/RenderFrame.h"
 
 #include "GLShader.h"
@@ -135,10 +136,10 @@ void ExposeActivationStateMachine::AnimationUpdate(const RenderFrame &renderFram
   m_goalBottomY.Update(static_cast<float>(renderFrame.deltaT.count()));
   m_pusherBottomY.Update(static_cast<float>(renderFrame.deltaT.count()));
 
-  float barWidth = static_cast<float>(m_renderWindow->getSize().x);
+  float barWidth = m_renderWindow->GetSize().width;
   float goalStripY = m_goalBottomY - (GOAL_BOTTOM_Y/2.0f);
   float pusherStripY = m_pusherBottomY - (PUSHER_BOTTOM_Y/2.0f);
-  float screenMiddle = m_renderWindow->getSize().x/2.0f;
+  float screenMiddle = barWidth/2.0f;
 
   m_pusherBar->SetSize(EigenTypes::Vector2(barWidth, PUSHER_BOTTOM_Y));
   m_goalStrip->SetSize(EigenTypes::Vector2(barWidth, GOAL_BOTTOM_Y));

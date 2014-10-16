@@ -23,13 +23,12 @@ set_property(TARGET VRShell PROPERTY FOLDER "VRShell")
 target_imported_libraries(VRShell PUBLIC Leap::Leap)
 
 target_link_libraries(VRShell PUBLIC
-  Autowiring 
-  GLShaderLoader 
-  OculusVR 
+  Autowiring
+  GLShaderLoader
+  OculusVR
   graphics
   osinterface
-  Primitives 
-  SFMLController
+  Primitives
   utility
 )
 
@@ -37,7 +36,9 @@ if(WIN32)
   set_property(TARGET VRShell APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
   set_property(TARGET VRShell PROPERTY VS_GLOBAL_ROOTNAMESPACE VRShell)
 elseif(APPLE)
-
+  find_library(IOKIT_FRAMEWORK IOKit)
+  mark_as_advanced(IOKIT_FRAMEWORK)
+  target_link_libraries(VRShell PUBLIC ${IOKIT_FRAMEWORK})
 endif()
 
 foreach(_resource ${VRShell_RESOURCES})

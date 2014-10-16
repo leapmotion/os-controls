@@ -168,6 +168,7 @@ add_sublibrary(
         "A single point of control for init, shutdown, and general use of SDL."
 )
 
+set(SFML_STATIC_LIBRARIES ON) #required for proper linkage..
 add_sublibrary(
     SFMLController
     HEADERS
