@@ -17,9 +17,9 @@ class CompositionEngineTest :
 
 TEST_F(CompositionEngineTest, VerifyBasicVisual) {
   std::shared_ptr<RenderWindow> window1(RenderWindow::New());
-  window1->SetRect({{0, 0}, {640, 480}});
+  window1->SetRect({0, 0, 640, 480});
   std::shared_ptr<RenderWindow> window2(RenderWindow::New());
-  window2->SetRect({{0, 480}, {640, 480}});
+  window2->SetRect({0, 480, 640, 480});
 
   AutoRequired<CompositionEngine> engine;
   auto display = engine->CreateDisplay(window1->GetSystemHandle());
