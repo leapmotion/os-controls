@@ -24,9 +24,6 @@ public:
   static bool IsShaderAvailable(void) {
     static const bool s_shaderAvailable = [] {
       std::shared_ptr<RenderContext> rootContext{std::move(GetRootContext())};
-      if (glewInit() != GLEW_OK) {
-        throw std::runtime_error("Failed to initialize GLEW");
-      }
       return GLEW_ARB_shading_language_100 &&
              GLEW_ARB_shader_objects       &&
              GLEW_ARB_vertex_shader        &&
@@ -44,6 +41,10 @@ protected:
 
   static std::shared_ptr<RenderContext> GetRootContext() {
     static std::shared_ptr<RenderContext> s_rootContext(Root());
+
+    static const int s_glewInitialized = [] {
+      return glewInit();
+    }();
     return s_rootContext;
   }
 
