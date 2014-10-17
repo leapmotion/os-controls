@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Leap/Hmd/Context.h"
+#include "Leap/Hmd/IContext.h"
 
 namespace Leap {
 namespace OculusRift {

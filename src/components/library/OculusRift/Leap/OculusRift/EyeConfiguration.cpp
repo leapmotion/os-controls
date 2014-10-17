@@ -18,7 +18,7 @@ Hmd::EyeName EyeConfiguration::EyeName () const {
   switch (m_eye_type) {
     case ovrEye_Left: return Hmd::EyeName::LEFT;
     case ovrEye_Right: return Hmd::EyeName::RIGHT;
-    default: throw Exception("Invalid eye type.");
+    default: throw OculusRift::Exception("Invalid eye type.");
   }
 }
 

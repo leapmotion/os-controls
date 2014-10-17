@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Leap/Hmd/DeviceConfiguration.h"
+#include "Leap/Hmd/IDeviceConfiguration.h"
 #include "Leap/OculusRift/EyeConfiguration.h"
 
 #include <cstdint>

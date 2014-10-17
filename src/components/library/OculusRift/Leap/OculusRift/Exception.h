@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Leap/Hmd/Exception.h"
+#include "Leap/Hmd/IException.h"
 #include "Leap/OculusRift/Context.h"
 #include "Leap/OculusRift/Device.h"
 

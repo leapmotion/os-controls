@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Leap/Hmd/EyeConfiguration.h"
+#include "Leap/Hmd/IEyeConfiguration.h"
 #include "OVR.h"
 
 namespace Leap {

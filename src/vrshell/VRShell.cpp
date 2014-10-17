@@ -66,7 +66,7 @@ void VRShell::Main(void) {
   // NOTE: This SetWindow nonsense is going to be abstracted to be one parameter in a
   // DeviceInitializationParameters interface in Leap::Hmd.
   oculus_rift_device->SetWindow(renderWindow->GetSystemHandle());
-  oculus_rift_device->Initialize(*static_cast<Leap::Hmd::Context *>(oculus_rift_context));
+  oculus_rift_device->Initialize(*static_cast<Leap::Hmd::IContext *>(oculus_rift_context));
   assert(oculus_rift_device->IsInitialized() && "TODO: handle error the real way");
 
   renderWindow->SetVSync(false);

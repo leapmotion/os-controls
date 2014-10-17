@@ -490,14 +490,14 @@ add_sublibrary(
 add_sublibrary(
     Hmd
     HEADERS
-        Leap/Hmd/Context.h
-        Leap/Hmd/Device.h
-        Leap/Hmd/DeviceConfiguration.h
-        Leap/Hmd/Exception.h
-        Leap/Hmd/EyeConfiguration.h
+        Leap/Hmd/IContext.h
+        Leap/Hmd/IDevice.h
+        Leap/Hmd/IDeviceConfiguration.h
+        Leap/Hmd/IException.h
+        Leap/Hmd/IEyeConfiguration.h
         Leap/Hmd/IntermediateArray.h
         Leap/Hmd/MatrixComponentOrder.h
-        Leap/Hmd/Pose.h
+        Leap/Hmd/IPose.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
     BRIEF_DOC_STRING

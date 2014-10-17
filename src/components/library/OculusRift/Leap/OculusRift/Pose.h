@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Leap/Hmd/Pose.h"
+#include "Leap/Hmd/IPose.h"
 #include "OVR.h"
 
 namespace Leap {

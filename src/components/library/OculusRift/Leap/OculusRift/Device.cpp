@@ -61,12 +61,12 @@ Device::~Device () {
   }
 }
 
-void Device::Initialize (Hmd::Context &context) {
+void Device::Initialize (Hmd::IContext &context) {
   // TODO: implement fancy shared-library-aware casting.
   try {
     m_context = &dynamic_cast<OculusRift::Context &>(context);
   } catch (const std::bad_cast &e) {
-    throw Exception("Leap::Hmd::Context object passed in wasn't of the expected type Leap::OculusRift::Context");
+    throw Exception("Leap::Hmd::IContext object passed in wasn't of the expected type Leap::OculusRift::Context");
   }
 
   // Attempt to create the HMD device.
@@ -291,7 +291,7 @@ void Device::BeginFrame () {
   }
 }
 
-std::shared_ptr<Hmd::Pose> Device::EyePose (uint32_t eye_index) const {
+std::shared_ptr<Hmd::IPose> Device::EyePose (uint32_t eye_index) const {
   return std::make_shared<OculusRift::Pose>(m_EyeRenderPose[eye_index]);
 }
 

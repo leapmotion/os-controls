@@ -24,7 +24,7 @@ void Context::Initialize () {
   } else {
     // The return value of ovr_Initialize is not documented.  Looking at the source
     // of this function in SDK 0.4.1, it can only possibly return ovrBool(1).
-    // TODO: detect if/when this fails and throw a Leap::Hmd::Exception.
+    // TODO: detect if/when this fails and throw a Leap::Hmd::IException.
     ovr_Initialize();
     m_is_initialized = true;
   }

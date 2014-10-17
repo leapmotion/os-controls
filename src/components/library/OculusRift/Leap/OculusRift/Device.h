@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gl_glext_glu.h" // TODO: figure out how not to include this here.
-#include "Leap/Hmd/Device.h"
+#include "Leap/Hmd/IDevice.h"
 #include "Leap/OculusRift/Context.h"
 #include "Leap/OculusRift/DeviceConfiguration.h"
 #include "OVR.h"
@@ -55,25 +55,25 @@ public:
   void SetWindow (const WindowHandle &window_handle) { m_Window = window_handle; }
 
   // OpenGL must be initialized before this call is made, as this creates certain GL resources.
-  virtual void Initialize (Hmd::Context &context) override;
+  virtual void Initialize (Hmd::IContext &context) override;
   virtual bool IsInitialized () const override;
   virtual void Shutdown () override;
 
   /// @brief Returns the Context used to Initialize this Device.
   /// @details If IsInitialized is false, this method will throw an exception that is
-  /// a subclass of Hmd::Exception.
-  /// @note The return type is a subclass of the Hmd::Device interface method's return
-  /// type Hmd::Context.
+  /// a subclass of Hmd::IException.
+  /// @note The return type is a subclass of the Hmd::IDevice interface method's return
+  /// type Hmd::IContext.
   virtual const OculusRift::Context &Context () const override;
   /// @brief Returns the DeviceConfiguration which reflects the actual configuration state of the device.
   /// @details If IsInitialized is false, this method will throw an exception that is
-  /// a subclass of Hmd::Exception.
-  /// @note The return type is a subclass of the Hmd::Device interface method's return
-  /// type Hmd::DeviceConfiguration.
+  /// a subclass of Hmd::IException.
+  /// @note The return type is a subclass of the Hmd::IDevice interface method's return
+  /// type Hmd::IDeviceConfiguration.
   virtual const OculusRift::DeviceConfiguration &ActualConfiguration () const override;
 
   virtual void BeginFrame () override;
-  virtual std::shared_ptr<Hmd::Pose> EyePose (uint32_t eye_index) const override;
+  virtual std::shared_ptr<Hmd::IPose> EyePose (uint32_t eye_index) const override;
   // virtual std::shared_ptr<SensorData> SensorReadings () const override;
   virtual void BeginRenderingEye (uint32_t eye_index) const override;
   virtual void EndRenderingEye (uint32_t eye_index) const override;
