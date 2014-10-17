@@ -278,25 +278,13 @@ void Device::BeginFrame () {
     static_assert(sizeof(ovrPosef) == sizeof(OVR::Pose<float>), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
     static_assert(offsetof(ovrPosef,Orientation) == offsetof(OVR::Pose<float>,Rotation), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
     static_assert(offsetof(ovrPosef,Position) == offsetof(OVR::Pose<float>,Translation), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
-    // m_EyeRenderPose[eye] = OVR::Pose<double>(OVR::Pose<float>(OVR::Quat<float>(EyePosef.Orientation), OVR::Vector3<float>(EyePosef.Position)));
     m_EyeRenderPose[eye] = OVR::Pose<double>(*reinterpret_cast<OVR::Pose<float> *>(&EyePosef));
-    // m_EyeProjection[eye] = ovrMatrix4f_Projection(m_EyeRenderDesc[eye].Fov, 0.1f, 10000.0f, true);
-
-    // const OVR::Quatf orientation = m_EyeRenderPose[eye].Orientation;
-    // const OVR::Vector3f world_eye_pos = m_EyeRenderPose[eye].Position;
-    // const OVR::Vector3f view_adjust = m_EyeRenderDesc[eye].ViewAdjust;
-    // m_EyeRotation[eye] = OVR::Matrix4f(orientation.Inverted());
-    // m_EyeView[eye] = OVR::Matrix4f::Translation(view_adjust) * m_EyeRotation[eye] * OVR::Matrix4f::Translation(-world_eye_pos);// - HeadPos*/);
   }
 }
 
 std::shared_ptr<Hmd::IPose> Device::EyePose (uint32_t eye_index) const {
   return std::make_shared<OculusRift::Pose>(m_EyeRenderPose[eye_index]);
 }
-
-// std::shared_ptr<SensorData> Device::SensorReadings () const {
-
-// }
 
 void Device::BeginRenderingEye (uint32_t eye_index) const {
   assert(eye_index < ovrEye_Count && "eye_index out of range."); // TODO: use Configuration-based eye count
