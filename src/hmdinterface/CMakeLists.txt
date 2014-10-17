@@ -29,3 +29,5 @@ target_package(hmdinterface OculusSDK 0.4.1 REQUIRED LINK_TYPE PUBLIC)
 
 target_link_libraries(hmdinterface PUBLIC C++11 GLCompatibility)
 target_include_directories(hmdinterface PUBLIC .)
+
+add_subdirectory(test)
