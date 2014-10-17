@@ -85,18 +85,7 @@ void Device::Initialize (Hmd::Context &context) {
     m_is_debug = false;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
+  // Copied in from elsewhere
   ovrSizei recommended_tex_0_size = ovrHmd_GetFovTextureSize(m_hmd, ovrEye_Left, m_hmd->DefaultEyeFov[0], 1.0f);
   ovrSizei recommended_tex_1_size = ovrHmd_GetFovTextureSize(m_hmd, ovrEye_Right, m_hmd->DefaultEyeFov[1], 1.0f);
 
@@ -193,12 +182,7 @@ void Device::Initialize (Hmd::Context &context) {
     ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection|ovrTrackingCap_Position,
     0);
 
-
-
-
-
-
-
+  //End Copied in from elsewhere
   std::string device_identifier("Oculus Rift"); // TODO: real string with model and version info, etc.
   uint32_t eye_count = ovrEye_Count; // TODO: real count read from the device (?)
   std::vector<uint32_t> eye_render_order;
@@ -217,11 +201,6 @@ void Device::Initialize (Hmd::Context &context) {
       63.5f, // inter-pupillary distance
       eye_render_order,
       eye_configuration);
-
-
-
-
-
 
   assert(IsInitialized() && "programmer error -- a post-condition of Initialize() should be that IsInitialized() returns true.");
 }
