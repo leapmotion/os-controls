@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Leap/Hmd/IntermediateArray.h"
-#include "Leap/Hmd/MatrixComponentOrder.h"
+#include "IntermediateArray.h"
+#include "MatrixComponentOrder.h"
 
 namespace Leap {
 namespace Hmd {

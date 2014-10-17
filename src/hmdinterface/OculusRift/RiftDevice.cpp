@@ -1,6 +1,6 @@
-#include "Leap/OculusRift/Device.h"
-#include "Leap/OculusRift/Exception.h"
-#include "Leap/OculusRift/Pose.h"
+#include "RiftDevice.h"
+#include "RiftException.h"
+#include "RiftPose.h"
 
 #include <cstddef>
 #include <iostream>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Leap/Hmd/IPose.h"
+#include "IPose.h"
 #include <memory>
 
 namespace Leap {

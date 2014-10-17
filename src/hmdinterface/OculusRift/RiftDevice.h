@@ -1,9 +1,10 @@
 #pragma once
 
 #include "gl_glext_glu.h" // TODO: figure out how not to include this here.
-#include "Leap/Hmd/IDevice.h"
-#include "Leap/OculusRift/Context.h"
-#include "Leap/OculusRift/DeviceConfiguration.h"
+#include "IDevice.h"
+#include "OculusRift/RiftContext.h"
+#include "OculusRift/RiftDeviceConfiguration.h"
+
 #include "OVR.h"
 #include "OVR_Kernel.h"
 

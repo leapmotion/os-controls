@@ -1,4 +1,4 @@
-#include "Leap/OculusRift/Pose.h"
+#include "RiftPose.h"
 
 #include <cmath>
 

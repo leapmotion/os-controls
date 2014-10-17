@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Leap/Hmd/IException.h"
-#include "Leap/OculusRift/Context.h"
-#include "Leap/OculusRift/Device.h"
+#include "IException.h"
+#include "OculusRift/RiftContext.h"
+#include "OculusRift/RiftDevice.h"
 
 namespace Leap {
 namespace OculusRift {

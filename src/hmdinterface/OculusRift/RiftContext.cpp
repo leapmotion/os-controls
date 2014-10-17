@@ -1,4 +1,4 @@
-#include "Leap/OculusRift/Context.h"
+#include "RiftContext.h"
 #include "OVR.h"
 #include "OVR_Kernel.h"
 

@@ -1,5 +1,5 @@
-#include "Leap/OculusRift/Exception.h"
-#include "Leap/OculusRift/EyeConfiguration.h"
+#include "RiftException.h"
+#include "RiftEyeConfiguration.h"
 
 #include <cassert>
 
