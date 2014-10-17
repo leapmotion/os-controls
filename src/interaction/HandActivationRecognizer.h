@@ -3,8 +3,6 @@
 #include "TimeRecognizer.h"
 #include "interaction/interactionConfigs.h"
 
-enum class HandPose;
-
 struct HandPinch {
   bool isPinching;
   float pinchStrength;
