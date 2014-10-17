@@ -57,6 +57,9 @@ void VRShell::Main(void) {
   AutoRequired<CompositionEngine>();
 
   // Create the OculusRift::Context (non-device initialization/shutdown)
+  // This really needs to be done in a factory - we have no business knowing
+  // about the underlying implementation.  Doing so is counter to the entire point of
+  // having an abstract interface in the first place.
   AutoConstruct<OculusRift::Context> oculus_rift_context;
   oculus_rift_context->Initialize();
   assert(oculus_rift_context->IsInitialized() && "TODO: handle error the real way");

@@ -25,8 +25,8 @@ target_imported_libraries(VRShell PUBLIC Leap::Leap)
 target_link_libraries(VRShell PUBLIC
   Autowiring
   GLShaderLoader
-  OculusRift
   graphics
+  hmdinterface
   osinterface
   Primitives
   utility
