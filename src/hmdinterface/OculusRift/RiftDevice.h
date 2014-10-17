@@ -7,28 +7,7 @@
 
 #include "OVR.h"
 #include "OVR_Kernel.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// this is code copied from an apparently internal .h file in LibOVR (OVR_CAPI_GL.h),
-// and should probably be handled differently
-
-/// Used to pass GL eye texture data to ovrHmd_EndFrame.
-typedef struct ovrGLTextureData_s
-{
-  /// General device settings.
-  ovrTextureHeader Header;
-  /// The OpenGL name for this texture.
-  GLuint           TexId;
-} ovrGLTextureData;
-
-/// Contains OpenGL-specific texture information.
-typedef union ovrGLTexture_s
-{
-  /// General device settings.
-  ovrTexture       Texture;
-  /// OpenGL-specific settings.
-  ovrGLTextureData OGL;
-} ovrGLTexture;
+#include "OVR_CAPI_GL.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +58,7 @@ public:
   virtual void EndRenderingEye (uint32_t eye_index) const override;
   virtual void EndFrame () override;
 
+  ovrHmd m_hmd;
 private:
 
   // This is the implementation of IsInitialized (useful as a non-virtual method).
@@ -86,7 +66,7 @@ private:
 
   const OculusRift::Context *m_context;
   const OculusRift::DeviceConfiguration *m_device_configuration;
-  ovrHmd m_hmd;
+  
   bool m_is_debug;
   GLuint m_FrameBuffer;
   GLuint m_Texture;

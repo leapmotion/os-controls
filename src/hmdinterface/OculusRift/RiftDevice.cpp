@@ -6,38 +6,7 @@
 #include <iostream>
 #include <typeinfo>
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// this is code copied from an apparently internal .h file in LibOVR (OVR_CAPI_GL.h),
-// and should probably be handled differently
-
-/// Used to configure slave GL rendering (i.e. for devices created externally).
-typedef struct ovrGLConfigData_s
-{
-  /// General device settings.
-  ovrRenderAPIConfigHeader Header;
-
-#if defined(OVR_OS_WIN32)
-  /// The optional window handle. If unset, rendering will use the current window.
-  HWND Window;
-  /// The optional device context. If unset, rendering will use a new context.
-  HDC  DC;
-#elif defined(OVR_OS_LINUX)
-  /// The optional display. If unset, rendering will use the current display.
-  _XDisplay* Disp;
-  /// The optional window. If unset, rendering will use the current window.
-  Window     Win;
-#endif
-} ovrGLConfigData;
-
-/// Contains OpenGL-specific rendering information.
-union ovrGLConfig
-{
-  /// General device settings.
-  ovrRenderAPIConfig Config;
-  /// OpenGL-specific settings.
-  ovrGLConfigData    OGL;
-};
-
+#include "OVR_CAPI_GL.h"
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 

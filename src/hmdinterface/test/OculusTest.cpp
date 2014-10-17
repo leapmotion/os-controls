@@ -15,5 +15,12 @@ TEST_F(OculusTest, BasicSquare) {
   window1->SetVisible(true);
 
 
+
+    hmdDevice->BeginFrame();
+    for (int eyeIndex = 0; eyeIndex < 2; eyeIndex++) {
+      hmdDevice->BeginRenderingEye(eyeIndex);
+      glClearColor(0, 0, 1, 0);
+      glClear(GL_COLOR_BUFFER_BIT);
+      glFlush();
 }
 
