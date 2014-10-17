@@ -2,6 +2,7 @@ set(hmdinterface_SOURCES
   IContext.h
   IDevice.h
   IDeviceConfiguration.h
+  IEyeConfiguration.h
   IException.h
   IntermediateArray.h
   MatrixComponentOrder.h
