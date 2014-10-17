@@ -7,6 +7,10 @@ ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" hmdinterfacetest_SRCS)
 add_executable(hmdinterfacetest ${hmdinterfacetest_SRCS})
 set_property(TARGET hmdinterfacetest PROPERTY FOLDER "Tests")
 
+if(WIN32)
+  set_property(TARGET hmdinterfacetest APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+endif()
+
 target_link_libraries(hmdinterfacetest hmdinterface osinterface AutoTesting)
 target_include_directories(hmdinterfacetest PUBLIC ..)
 
