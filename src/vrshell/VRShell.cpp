@@ -2,8 +2,8 @@
 #include "VRShell.h"
 
 #include "graphics/RenderEngine.h"
-#include "Leap/OculusRift/Context.h"
-#include "Leap/OculusRift/Device.h"
+#include "hmdinterface/OculusRift/Context.h"
+#include "hmdinterface/OculusRift/Device.h"
 #include "osinterface/LeapInput.h"
 #include "utility/PlatformInitializer.h"
 #include "LeapImagePassthrough.h"
