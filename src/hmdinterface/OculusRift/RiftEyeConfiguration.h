@@ -3,7 +3,6 @@
 #include "IEyeConfiguration.h"
 #include "OVR.h"
 
-namespace Leap {
 namespace OculusRift {
 
 class EyeConfiguration : public Hmd::IEyeConfiguration {
@@ -22,4 +21,3 @@ private:
 };
 
 } // end of namespace OculusRift
-} // end of namespace Leap

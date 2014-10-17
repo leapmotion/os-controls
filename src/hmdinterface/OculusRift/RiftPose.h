@@ -3,7 +3,6 @@
 #include "IPose.h"
 #include "OVR.h"
 
-namespace Leap {
 namespace OculusRift {
 
 class Pose : public Hmd::IPose {
@@ -24,4 +23,3 @@ private:
 };
 
 } // end of namespace OculusRift
-} // end of namespace Leap

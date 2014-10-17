@@ -4,7 +4,6 @@
 
 #include <iostream>
 
-namespace Leap {
 namespace OculusRift {
 
 Context::Context () :
@@ -43,4 +42,3 @@ void Context::Shutdown () {
 }
 
 } // end of namespace OculusRift
-} // end of namespace Leap

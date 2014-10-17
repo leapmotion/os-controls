@@ -3,7 +3,6 @@
 
 #include <cassert>
 
-namespace Leap {
 namespace OculusRift {
 
 DeviceConfiguration::DeviceConfiguration (
@@ -49,5 +48,4 @@ const OculusRift::EyeConfiguration &DeviceConfiguration::EyeConfiguration (uint3
 }
 
 } // end of namespace OculusRift
-} // end of namespace Leap
 

@@ -1,6 +1,5 @@
 #pragma once
 
-namespace Leap {
 namespace Hmd {
 
 class IContext {
@@ -16,4 +15,3 @@ public:
 };
 
 } // end of namespace Hmd
-} // end of namespace Leap

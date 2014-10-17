@@ -32,7 +32,6 @@ typedef union ovrGLTexture_s
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace Leap {
 namespace OculusRift {
 
 class Device : public Hmd::IDevice {
@@ -112,4 +111,3 @@ private:
 };
 
 } // end of namespace OculusRift
-} // end of namespace Leap

@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace Leap {
 namespace Hmd {
 
 /// @brief This class is intended to be a greatest-common-divisor representation for vector/matrix values.
@@ -71,4 +70,3 @@ public:
 };
 
 } // end of namespace Hmd
-} // end of namespace Leap

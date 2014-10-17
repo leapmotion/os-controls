@@ -4,7 +4,6 @@
 #include "OculusRift/RiftContext.h"
 #include "OculusRift/RiftDevice.h"
 
-namespace Leap {
 namespace OculusRift {
 
 class Exception : public Hmd::IException {
@@ -33,4 +32,3 @@ private:
 
 
 } // end of namespace OculusRift
-} // end of namespace Leap

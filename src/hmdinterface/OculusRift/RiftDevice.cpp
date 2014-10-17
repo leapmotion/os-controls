@@ -41,7 +41,6 @@ union ovrGLConfig
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-namespace Leap {
 namespace OculusRift {
 
 Device::Device ()
@@ -317,4 +316,3 @@ void Device::EndFrame () {
 }
 
 } // end of namespace OculusRift
-} // end of namespace Leap

@@ -3,7 +3,6 @@
 
 #include <cassert>
 
-namespace Leap {
 namespace OculusRift {
 
 EyeConfiguration::EyeConfiguration (ovrEyeType eye_type, const ovrFovPort &fov_port)
@@ -38,4 +37,3 @@ Hmd::DoubleArray<4*4> EyeConfiguration::ProjectionMatrix (double near_clip, doub
 }
 
 } // end of namespace OculusRift
-} // end of namespace Leap

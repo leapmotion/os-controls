@@ -4,7 +4,6 @@
 #include "MatrixComponentOrder.h"
 #include <type_traits>
 
-namespace Leap {
 namespace Hmd {
 
 template <std::size_t SIZE_>
@@ -57,4 +56,3 @@ public:
 };
 
 } // end of namespace Hmd
-} // end of namespace Leap

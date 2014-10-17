@@ -2,7 +2,6 @@
 
 #include <cmath>
 
-namespace Leap {
 namespace OculusRift {
 
 /// @brief Convenience function for squaring an expression without evaluating it twice.
@@ -51,4 +50,3 @@ Hmd::DoubleArray<4*4> Pose::TotalMatrix (Hmd::MatrixComponentOrder matrix_compon
 }
 
 } // end of namespace OculusRift
-} // end of namespace Leap

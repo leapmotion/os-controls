@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <string>
 
-namespace Leap {
 namespace Hmd {
 
 class IEyeConfiguration;
@@ -22,4 +21,3 @@ public:
 };
 
 } // end of namespace Hmd
-} // end of namespace Leap

@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 
-namespace Leap {
 namespace OculusRift {
 
 class Context;
@@ -44,4 +43,3 @@ private:
 };
 
 } // end of namespace OculusRift
-} // end of namespace Leap

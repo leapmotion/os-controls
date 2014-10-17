@@ -2,7 +2,6 @@
 
 #include "IContext.h"
 
-namespace Leap {
 namespace OculusRift {
 
 class Context : public Hmd::IContext {
@@ -23,4 +22,3 @@ private:
 };
 
 } // end of namespace OculusRift
-} // end of namespace Leap
