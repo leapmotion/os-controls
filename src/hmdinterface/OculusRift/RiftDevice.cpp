@@ -65,7 +65,7 @@ void Device::Initialize (Hmd::IContext &context) {
   // TODO: implement fancy shared-library-aware casting.
   try {
     m_context = &dynamic_cast<OculusRift::Context &>(context);
-  } catch (const std::bad_cast &e) {
+  } catch (const std::bad_cast) {
     throw Exception("Leap::Hmd::IContext object passed in wasn't of the expected type Leap::OculusRift::Context");
   }
 

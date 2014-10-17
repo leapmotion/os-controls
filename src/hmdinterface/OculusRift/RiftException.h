@@ -18,7 +18,7 @@ public:
   { }
   virtual ~Exception () { }
 
-  virtual const char *what () const noexcept override { return m_message.c_str(); }
+  virtual const char *what () const override { return m_message.c_str(); }
   // Returns the OculusRift::Context to which this Exception applies, or nullptr if not specified/defined.
   virtual const OculusRift::Context *Context () const override { return m_context; }
   // Returns the OculusRift::Device to which this Exception applies, or nullptr if not specified/defined.
