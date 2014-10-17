@@ -13,10 +13,10 @@ using DoubleArray = IntermediateArray<double,SIZE_>;
 enum class QuaternionNormalization { NOT_REQUIRED, REQUIRED };
 
 /// @brief Represents a position and orientation in 3-space.
-class Pose {
+class IPose {
 public:
 
-  virtual ~Pose () { }
+  virtual ~IPose () { }
 
   /// @brief Returns the position.
   /// @details The ReinterpretAs<T_> and AlignmentAware_ReinterpretAs methods of DoubleArray

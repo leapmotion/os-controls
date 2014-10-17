@@ -7,7 +7,7 @@
 namespace Leap {
 namespace OculusRift {
 
-class Exception : public Hmd::Exception {
+class Exception : public Hmd::IException {
 public:
 
   Exception (const std::string &message, const OculusRift::Context *context = nullptr, const OculusRift::Device *device = nullptr)

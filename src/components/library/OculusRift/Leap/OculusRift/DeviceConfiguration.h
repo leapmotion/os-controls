@@ -13,7 +13,7 @@ namespace OculusRift {
 class Context;
 class Device;
 
-class DeviceConfiguration : public Hmd::DeviceConfiguration {
+class DeviceConfiguration : public Hmd::IDeviceConfiguration {
 public:
 
   DeviceConfiguration (

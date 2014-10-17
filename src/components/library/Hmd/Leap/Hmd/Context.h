@@ -3,10 +3,10 @@
 namespace Leap {
 namespace Hmd {
 
-class Context {
+class IContext {
 public:
 
-  virtual ~Context () { }
+  virtual ~IContext () { }
 
   virtual void Initialize () = 0;
   virtual bool IsInitialized () = 0;

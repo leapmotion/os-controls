@@ -6,18 +6,18 @@
 namespace Leap {
 namespace Hmd {
 
-class Context;
-class Device;
+class IContext;
+class IDevice;
 
-class Exception : std::exception {
+class IException : std::exception {
 public:
 
-  virtual ~Exception () { }
+  virtual ~IException() { }
 
-  // Returns the Hmd::Context to which this Exception applies, or nullptr if not specified/defined.
-  virtual const Hmd::Context *Context () const = 0;
-  // Returns the Hmd::Device to which this Exception applies, or nullptr if not specified/defined.
-  virtual const Hmd::Device *Device () const = 0;
+  // Returns the Hmd::IContext to which this Exception applies, or nullptr if not specified/defined.
+  virtual const Hmd::IContext *Context () const = 0;
+  // Returns the Hmd::IDevice to which this Exception applies, or nullptr if not specified/defined.
+  virtual const Hmd::IDevice *Device () const = 0;
 };
 
 } // end of namespace Hmd

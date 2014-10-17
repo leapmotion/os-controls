@@ -6,7 +6,7 @@
 namespace Leap {
 namespace OculusRift {
 
-class EyeConfiguration : public Hmd::EyeConfiguration {
+class EyeConfiguration : public Hmd::IEyeConfiguration {
 public:
 
   EyeConfiguration (ovrEyeType eye_type, const ovrFovPort &fov_port);

@@ -11,10 +11,10 @@ using DoubleArray = IntermediateArray<double,SIZE_>;
 
 enum class EyeName { LEFT, RIGHT };
 
-class EyeConfiguration {
+class IEyeConfiguration {
 public:
 
-  virtual ~EyeConfiguration () { }
+  virtual ~IEyeConfiguration () { }
 
   virtual Hmd::EyeName EyeName () const = 0;
   /// @brief Returns the projection matrix for this eye configuration.

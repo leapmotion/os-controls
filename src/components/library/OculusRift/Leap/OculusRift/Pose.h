@@ -6,7 +6,7 @@
 namespace Leap {
 namespace OculusRift {
 
-class Pose : public Hmd::Pose {
+class Pose : public Hmd::IPose {
 public:
 
   Pose (const OVR::Pose<float> &pose) : m_pose(pose) { }
