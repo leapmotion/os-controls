@@ -3,7 +3,6 @@
 #include "IntermediateArray.h"
 #include "MatrixComponentOrder.h"
 
-namespace Leap {
 namespace Hmd {
 
 enum class EyeName { LEFT, RIGHT };
@@ -23,4 +22,3 @@ public:
 };
 
 } // end of namespace Hmd
-} // end of namespace Leap

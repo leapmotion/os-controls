@@ -57,16 +57,16 @@ void VRShell::Main(void) {
   AutoRequired<CompositionEngine>();
 
   // Create the OculusRift::Context (non-device initialization/shutdown)
-  AutoConstruct<Leap::OculusRift::Context> oculus_rift_context;
+  AutoConstruct<OculusRift::Context> oculus_rift_context;
   oculus_rift_context->Initialize();
   assert(oculus_rift_context->IsInitialized() && "TODO: handle error the real way");
 
   // Create the OculusRift::Device (per-device initialization/shutdown)
-  AutoConstruct<Leap::OculusRift::Device> oculus_rift_device;
+  AutoConstruct<OculusRift::Device> oculus_rift_device;
   // NOTE: This SetWindow nonsense is going to be abstracted to be one parameter in a
   // DeviceInitializationParameters interface in Leap::Hmd.
   oculus_rift_device->SetWindow(renderWindow->GetSystemHandle());
-  oculus_rift_device->Initialize(*static_cast<Leap::Hmd::IContext *>(oculus_rift_context));
+  oculus_rift_device->Initialize(*static_cast<Hmd::IContext *>(oculus_rift_context));
   assert(oculus_rift_device->IsInitialized() && "TODO: handle error the real way");
 
   renderWindow->SetVSync(false);
