@@ -24,7 +24,7 @@ class HandPoseRecognizer {
 public:
   HandPoseRecognizer(void);
 
-  void AutoFilter(const Leap::Hand& frame, const FrameTime& frameTime, const HandPinch& handPinch, HandPose& handPose);
+  void AutoFilter(const Leap::Hand& hand, const FrameTime& frameTime, const HandPinch& handPinch, HandPose& handPose);
 private:
   bool isUpsideDown(Leap::Hand hand);
   bool isExtended(Leap::Finger finger, bool wasExtended = false) const;
