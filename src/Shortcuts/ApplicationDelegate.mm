@@ -25,7 +25,7 @@
   [super dealloc];
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification*)aNotification
+- (void)awakeFromNib
 {
   if (_isInitialized) {
     return;
