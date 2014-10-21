@@ -20,9 +20,7 @@ public:
     m_message(message),
     m_context(context),
     m_device(device)
-  {
-    std::cout << "OculusRift::Exception constructed\n";
-  }
+  { }
   virtual ~Exception () { }
 
   virtual const char *what () const LEAP_NOEXCEPT override { return m_message.c_str(); }
