@@ -8,7 +8,7 @@ set(graphics_SOURCES
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
 
-add_library(graphics ${graphics_EXEFLAGS} ${graphics_SOURCES})
+add_library(graphics ${graphics_SOURCES})
 
 set_property(TARGET graphics PROPERTY FOLDER "Common")
 
