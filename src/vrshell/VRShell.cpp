@@ -115,6 +115,8 @@ void VRShell::Main(void) {
   oldWindowView->SetContent(copyWindow->GetSystemHandle());
   leapImageView->SetContent(graphicsWindow->GetSystemHandle());
   leapImageView->SetScale(0, 0, width / graphicsWindow->GetSize().width, height / graphicsWindow->GetSize().height);
+  leapImageView->SetOffset(0, -height);
+  oldWindowView->SetOffset(0, 0);
   totalView->AddChild(oldWindowView.get());
   totalView->AddChild(leapImageView.get());
 
@@ -132,19 +134,36 @@ void VRShell::Main(void) {
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
-  
+  float offset = 0;
+  bool toggle = true;
+
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle OS events:
     mainWindow->ProcessEvents();
     graphicsWindow->ProcessEvents();
+    copyWindow->ProcessEvents();
 
-    //update the thumbnail
+    //update the thumbnail & dcomp stuff
+    if (toggle) {
+      offset += 8;
+    }
+    else {
+      offset -= 8;
+    }
+
+    offset = std::max(0.f, std::min(height, offset));
+    if (offset == 0 || offset == height)
+      toggle = !toggle;
+
+    leapImageView->SetOffset(0, -height + offset);
+    oldWindowView->SetOffset(0, offset);
 
     ::DwmUpdateThumbnailProperties(thumbnail, &properties);
+    compositionEngine->CommitChanges();
 
     // Handle autowiring events:
-    DispatchAllEvents();
+    this->DispatchAllEvents();
     // Broadcast update event to all interested parties:
     auto now = std::chrono::steady_clock::now();
     upd(&Updatable::Tick)(now - then);
