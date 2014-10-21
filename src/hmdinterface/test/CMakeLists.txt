@@ -11,7 +11,7 @@ if(WIN32)
   set_property(TARGET hmdinterfacetest APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
 endif()
 
-target_link_libraries(hmdinterfacetest hmdinterface osinterface AutoTesting)
+target_link_libraries(hmdinterfacetest hmdinterface SDLController AutoTesting)
 target_include_directories(hmdinterfacetest PUBLIC ..)
 
 # This is a unit test, let CMake know this
