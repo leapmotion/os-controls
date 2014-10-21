@@ -11,6 +11,8 @@ using DoubleArray = IntermediateArray<double,SIZE_>;
 
 enum class QuaternionNormalization { NOT_REQUIRED, REQUIRED };
 
+class IEyeConfiguration;
+
 /// @brief Represents a position and orientation in 3-space.
 class IPose {
 public:
@@ -47,6 +49,9 @@ public:
   /// to interpret the position as whatever type is desired (e.g. the double-valued 4x4 matrix
   /// type of your favorite linear algebra library).
   virtual DoubleArray<4*4> TotalMatrix (MatrixComponentOrder matrix_component_order) const = 0;
+  
+  // TODO document
+  virtual DoubleArray<4*4> ViewMatrix (MatrixComponentOrder matrix_component_order, const IEyeConfiguration &eye_configuration) const = 0;
 
   // These are really just sanity checks.
   static_assert(std::is_standard_layout<DoubleArray<3>>::value, "DoubleArray should be in standard layout.");

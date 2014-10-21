@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IEyeConfiguration.h"
 #include "IPose.h"
 #include "OVR.h"
 
@@ -16,6 +17,7 @@ public:
   virtual Hmd::DoubleArray<4> OrientationQuaternion (Hmd::QuaternionNormalization quaternion_normalization) const override;
   virtual Hmd::DoubleArray<3*3> OrientationMatrix (Hmd::MatrixComponentOrder matrix_component_order) const override;
   virtual Hmd::DoubleArray<4*4> TotalMatrix (Hmd::MatrixComponentOrder matrix_component_order) const override;
+  virtual Hmd::DoubleArray<4*4> ViewMatrix (Hmd::MatrixComponentOrder matrix_component_order, const Hmd::IEyeConfiguration &eye_configuration) const override;
 
 private:
 
