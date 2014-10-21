@@ -28,6 +28,10 @@ set_property(TARGET hmdinterface PROPERTY FOLDER "Common")
 target_package(hmdinterface OculusSDK 0.4.1 REQUIRED LINK_TYPE PUBLIC)
 
 target_link_libraries(hmdinterface PUBLIC C++11 GLCompatibility)
+if(APPLE)
+  find_library(IOKIT_FRAMEWORK IOKit)
+  target_link_libraries(hmdinterface PUBLIC ${IOKIT_FRAMEWORK})
+endif()
 target_include_directories(hmdinterface PUBLIC .)
 
 add_subdirectory(test)
