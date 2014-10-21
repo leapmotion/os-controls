@@ -191,11 +191,11 @@ void SDLController::InitGlew() {
 }
 
 void SDLController::ConfigureTransparentWindow() {
-  struct SDL_SysWMinfo sys_wm_info;
-  SDL_VERSION(&sys_wm_info.version);
+  SDL_SysWMinfo sys_wm_info;
 
   // Retrieve the window info.
-  if (!SDL_GetWindowWMInfo(m_SDL_Window, &sys_wm_info)) {
+  // if (!SDL_GetWindowWMInfo(m_SDL_Window, &sys_wm_info)) {
+  if (!GetWindowWMInfo(sys_wm_info)) {
     CleanUpInitializedResources();
     throw std::runtime_error("Error retrieving window WM info");
   }
@@ -246,14 +246,23 @@ void SDLController::CleanUpInitializedResources() {
 
 void SDLController::ResizeWindow(int width, int height){
   if (m_SDL_Window == nullptr) {
-    throw std::runtime_error("Error resizing SDL window");
+    throw std::runtime_error("SDLController object not initialized.");
   }
   SDL_SetWindowSize(m_SDL_Window, width, height);
 }
 
-Uint32 SDLController::GetWindowID(){
+Uint32 SDLController::GetWindowID() const {
   if (m_SDL_Window == nullptr) {
-    throw std::runtime_error("Error getting SDL window ID");
+    throw std::runtime_error("SDLController object not initialized.");
   }
   return SDL_GetWindowID(m_SDL_Window);
+}
+
+bool SDLController::GetWindowWMInfo (SDL_SysWMinfo &sys_wm_info) const {
+  if (m_SDL_Window == nullptr) {
+    throw std::runtime_error("SDLController object not initialized.");
+  }
+  SDL_VERSION(&sys_wm_info.version);
+  bool succeeded = SDL_GetWindowWMInfo(m_SDL_Window, &sys_wm_info) != 0;
+  return succeeded;
 }

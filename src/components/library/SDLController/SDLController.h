@@ -70,13 +70,16 @@ public:
   static std::string BasePath();
 
   const SDLControllerParams& GetParams() const { return m_Params; }
-  void ToggleFullscreen();
-  void ResizeWindow(int width, int height);
-  Uint32 GetWindowID();
+  Uint32 GetWindowID() const;
+  // Populates info with the platform-specific window manager info.  Returns true upon success, otherwise false.
+  bool GetWindowWMInfo (SDL_SysWMinfo &sys_wm_info) const;
 
 #if _WIN32
-  HWND GetHWND() { return m_HWND; }
+  HWND GetHWND () const { return m_HWND; }
 #endif
+
+  void ToggleFullscreen();
+  void ResizeWindow(int width, int height);
 
 private:
   
