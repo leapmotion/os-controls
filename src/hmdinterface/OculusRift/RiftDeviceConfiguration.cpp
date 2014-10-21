@@ -9,12 +9,20 @@ DeviceConfiguration::DeviceConfiguration (
   const OculusRift::Context &context,
   const OculusRift::Device &device,
   const std::string &identifier,
+  size_t display_width,
+  size_t display_height,
+  int window_position_x,
+  int window_position_y,
   float inter_pupillary_distance,
   const std::vector<uint32_t> &eye_render_order,
   const std::vector<OculusRift::EyeConfiguration> &eye_configuration)
   : m_context(context)
   , m_device(device)
   , m_identifier(identifier)
+  , m_display_width(display_width)
+  , m_display_height(display_height)
+  , m_window_position_x(window_position_x)
+  , m_window_position_y(window_position_y)
   , m_inter_pupillary_distance(inter_pupillary_distance)
   , m_eye_render_order(eye_render_order)
   , m_eye_configuration(eye_configuration)

@@ -71,7 +71,7 @@ public:
   /// @brief Returns the DeviceConfiguration which reflects the actual configuration state of the device.
   /// @details If IsInitialized is false, this method will throw an exception that is
   /// a subclass of Hmd::IException.
-  virtual const IDeviceConfiguration &ActualConfiguration () const = 0;
+  virtual const IDeviceConfiguration &Configuration () const = 0;
 
   virtual void BeginFrame () = 0;
   /// @brief Returns the Pose of the given eye for the current frame.

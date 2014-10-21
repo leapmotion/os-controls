@@ -1,3 +1,4 @@
+#include "GLError.h"
 #include "RiftDevice.h"
 #include "RiftException.h"
 #include "RiftPose.h"
@@ -7,6 +8,7 @@
 #include <typeinfo>
 
 #include "OVR_CAPI_GL.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -167,6 +169,10 @@ void Device::Initialize (Hmd::IContext &context) {
       *m_context,
       *this,
       device_identifier,
+      m_hmd->Resolution.w,
+      m_hmd->Resolution.h,
+      m_hmd->WindowsPos.x,
+      m_hmd->WindowsPos.y,
       63.5f, // inter-pupillary distance
       eye_render_order,
       eye_configuration);
@@ -218,6 +224,13 @@ void Device::Shutdown () {
   assert(!IsInitialized() && "programmer error -- a post-condition of Shutdown() should be that IsInitialized() returns false.");
 }
 
+void Device::DismissHealthWarning () {
+  if (!IsInitialized()) {
+    throw Exception("Can't dismiss the health warning on a Device that hasn't been Initialize()'d.");
+  }
+  ovrHmd_DismissHSWDisplay(m_hmd);
+}
+
 const OculusRift::Context &Device::Context () const {
   if (!IsInitialized()) {
     throw Exception("Can't retrieve the Context from a Device that hasn't been Initialize()'d.");
@@ -226,20 +239,15 @@ const OculusRift::Context &Device::Context () const {
   return *m_context;
 }
 
-const OculusRift::DeviceConfiguration &Device::ActualConfiguration () const {
+const OculusRift::DeviceConfiguration &Device::Configuration () const {
   if (!IsInitialized())
-    throw Exception("Call to Device::ActualConfiguration is undefined unless Device::IsInitialized() returns true.", m_context, this);
+    throw Exception("Call to Device::Configuration is undefined unless Device::IsInitialized() returns true.", m_context, this);
   assert(m_device_configuration != nullptr);
   return *m_device_configuration;
 }
 
 void Device::BeginFrame () {
   ovrFrameTiming frameTiming = ovrHmd_BeginFrame(m_hmd, 0);
-
-  // static OVR::Vector3f HeadPos(0.0f, 1.6f, -5.0f);
-  // HeadPos.y = ovrHmd_GetFloat(m_hmd, OVR_KEY_EYE_HEIGHT, HeadPos.y);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
 
   for (uint32_t eye_index = 0; eye_index < ovrEye_Count; ++eye_index) {
     ovrEyeType eye = m_hmd->EyeRenderOrder[eye_index];
@@ -251,8 +259,8 @@ void Device::BeginFrame () {
     m_EyeRenderPose[eye] = OVR::Pose<double>(*reinterpret_cast<OVR::Pose<float> *>(&EyePosef));
   }
 
-  // glGetError(); // Remove any phantom gl errors before they throw an exception
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
+  GLThrowUponError("glBindFramebuffer");
 }
 
 std::shared_ptr<Hmd::IPose> Device::EyePose (uint32_t eye_index) const {
@@ -269,7 +277,9 @@ void Device::EndRenderingEye (uint32_t eye_index) const {
 
 }
 
-void Device::EndFrame () {  
+void Device::EndFrame () {
+  // Note that ovrGLTexture is a union of ovrTexture and ovrGLTextureData, so this is using
+  // m_EyeTexture as type ovrTexture[2].
   ovrHmd_EndFrame(m_hmd, m_CachedEyeRenderPoseForEndFrame, &m_EyeTexture[0].Texture);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

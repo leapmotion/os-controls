@@ -23,50 +23,6 @@ typedef double TimeDelta; // TODO: change to std::chrono::duration once C++11 is
 class OculusTest : public testing::Test {};
 
 TEST_F(OculusTest, BasicSquare) {
-#if 0
-  // std::shared_ptr<RenderWindow> window1(RenderWindow::New());
-
-  // std::shared_ptr<OculusRift::Context> hmdContext;
-  // std::shared_ptr<OculusRift::Device> hmdDevice;
-
-  // hmdContext = std::make_shared<OculusRift::Context>();
-  // hmdDevice = std::make_shared<OculusRift::Device>();
-  // hmdContext->Initialize();
-  // hmdDevice->SetWindow(window1->GetSystemHandle());
-  // hmdDevice->Initialize(*hmdContext);
-
-  // const auto pos = hmdDevice->m_hmd->WindowsPos;
-  // const auto size = hmdDevice->m_hmd->Resolution;
-#if __APPLE__
-  // Apple doesn't have a constructor for CGRect that takes the position and size, so do this manually
-  OSRect r;
-  // r.origin.x = pos.x + 40;
-  // r.origin.y = pos.y + 40;
-  // r.size.width = size.w;
-  // r.size.height = size.h;
-  r.origin.x = 40;
-  r.origin.y = 40;
-  r.size.width = 640;
-  r.size.height = 480;
-  window1->SetRect(r);
-#else
-  // window1->SetRect(OSRect(pos.x, pos.y, size.w, size.h));
-  window1->SetRect(OSRect(40, 40, 640, 480));
-#endif
-
-  // window1->SetTransparent(true);
-  window1->SetVisible(true);
-#endif
-
-  SDLController sdl_controller;
-  {
-    SDLControllerParams params;
-    // params.fullscreen = true;
-    // params.
-    sdl_controller.Initialize(params);
-    // sdl_controller.ToggleFullscreen();
-  }
-
   std::shared_ptr<OculusRift::Context> hmdContext;
   std::shared_ptr<OculusRift::Device> hmdDevice;
 
@@ -74,7 +30,12 @@ TEST_F(OculusTest, BasicSquare) {
   hmdContext->Initialize();
 
   hmdDevice = std::make_shared<OculusRift::Device>();
+  SDLController sdl_controller;
   {
+    SDLControllerParams params;
+    params.windowFlags |= SDL_WINDOW_BORDERLESS;
+    sdl_controller.Initialize(params);
+
     SDL_SysWMinfo sys_wm_info;
     sdl_controller.GetWindowWMInfo(sys_wm_info);
 
@@ -88,11 +49,20 @@ TEST_F(OculusTest, BasicSquare) {
 
     hmdDevice->SetWindow(window);
     hmdDevice->Initialize(*hmdContext);
+
+    auto cfg = hmdDevice->Configuration();
+    sdl_controller.ResizeWindow(cfg.DisplayWidth(), cfg.DisplayHeight());
+    // For whatever reason, this seems to be necessary to get the Oculus stuff to render to the resized window.
+    sdl_controller.BeginRender();
+    sdl_controller.EndRender();
+    // Setting the window position is what puts the window into the correct position in an extended display.
+    std::cerr << "window pos : " << cfg.WindowPositionX() << ", " << cfg.WindowPositionY() << " (note: this may put the window off the primary display, onto the Oculus Rift's display)\n";
+    sdl_controller.RepositionWindow(cfg.WindowPositionX(), cfg.WindowPositionY());
   }
 
-  sdl_controller.ResizeWindow(hmdDevice->m_hmd->Resolution.w, hmdDevice->m_hmd->Resolution.h);
-
-  // ovrHmd_DismissHSWDisplay(hmdDevice->m_hmd);
+  // There is some fanciness in OVR land about not being able to dismiss until after some timeout.
+  // TODO: figure out how to dismiss it unconditionally.
+  hmdDevice->DismissHealthWarning();
 
   TimePoint previous_real_time(0.001 * SDL_GetTicks());
   do {
@@ -100,39 +70,62 @@ TEST_F(OculusTest, BasicSquare) {
     TimePoint current_real_time(0.001 * SDL_GetTicks());
     TimeDelta real_time_delta(current_real_time - previous_real_time);
 
-    sdl_controller.BeginRender();
+    // sdl_controller.BeginRender();
     hmdDevice->BeginFrame();
-    for (uint32_t eye_index = 0; eye_index < ovrEye_Count; ++eye_index) {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    for (uint32_t eye_render_index = 0; eye_render_index < ovrEye_Count; ++eye_render_index) {
+      uint32_t eye_index = hmdDevice->Configuration().EyeRenderOrder(eye_render_index);
       hmdDevice->BeginRenderingEye(eye_index);
 
       auto eye_pose = hmdDevice->EyePose(eye_index);
-      std::cerr << "eye pose : position = " << eye_pose->Position() << ", orientation = " << eye_pose->OrientationQuaternion(Hmd::QuaternionNormalization::NOT_REQUIRED) << '\n';
+      auto eye_configuration = hmdDevice->Configuration().EyeConfiguration(eye_index);
 
-      // render dummy geometry just as a test
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      // glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
       glDisable(GL_LIGHTING);
-      glEnable(GL_CULL_FACE);
+      glDisable(GL_CULL_FACE);
       glDisable(GL_TEXTURE_2D);
       glDisable(GL_DEPTH_TEST);
+      // glEnable(GL_BLEND);
+      // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-      static const GLuint VERTEX_COUNT = 4;
-      const GLfloat param = 0.1f * std::sin(2.0f*current_real_time) + 0.9f;
-      const GLfloat vertex_array[VERTEX_COUNT*2] = {
-        -param, -param,
-         param, -param,
-         param,  param,
-        -param,  param
-      };
+      // Set up the projection matrix for this eye.
+      glMatrixMode(GL_PROJECTION);
+      glLoadMatrixd(eye_configuration.ProjectionMatrix(0.1, 10000.0, Hmd::MatrixComponentOrder::COLUMN_MAJOR).data());
 
-      glColor3f(1.0f, 0.0f, 0.0f);
-      glVertexPointer(2, GL_FLOAT, 0, vertex_array);
-      glDrawArrays(GL_TRIANGLE_FAN, 0, VERTEX_COUNT);
+      // Set up the modelview matrix -- use the view matrix for this eye.
+      glMatrixMode(GL_MODELVIEW);
+      glLoadMatrixd(eye_pose->ViewMatrix(Hmd::MatrixComponentOrder::COLUMN_MAJOR, eye_configuration).data());
+
+      // Render a spherical grid centered at the viewpoint
+      {
+        const int divTheta = 22;
+        const int divPhi = 40;
+        const float radius = 10.0f;
+
+        Hmd::DoubleArray<3> eye_position(eye_pose->Position());
+        // std::cout << "eye " << eye_index << " position: " << eye_position << '\n';        
+        glTranslated(eye_position[0], eye_position[1], eye_position[2]);
+        glColor4f(0.2f, 0.6f, 1.0f, 0.5f);
+        glLineWidth(1.0f);
+        glBegin(GL_LINES);
+        for (int i = 0; i < divPhi; i++) {
+          float phi0 = (float)M_PI*(i/static_cast<float>(divPhi) - 0.5f);
+          float phi1 = (float)M_PI*((i + 1)/static_cast<float>(divPhi) - 0.5f);
+          for (int j = 0; j < divTheta; j++) {
+            float theta0 = 2*(float)M_PI*(j/static_cast<float>(divTheta));
+            float theta1 = 2*(float)M_PI*((j + 1)/static_cast<float>(divTheta));
+            glVertex3f(radius*cos(phi0)*cos(theta0), radius*sin(phi0), radius*cos(phi0)*sin(theta0));
+            glVertex3f(radius*cos(phi0)*cos(theta1), radius*sin(phi0), radius*cos(phi0)*sin(theta1));
+            glVertex3f(radius*cos(phi0)*cos(theta0), radius*sin(phi0), radius*cos(phi0)*sin(theta0));
+            glVertex3f(radius*cos(phi1)*cos(theta0), radius*sin(phi1), radius*cos(phi1)*sin(theta0));
+          }
+        }
+        glEnd();        
+      }
 
       hmdDevice->EndRenderingEye(eye_index);
     }
-    sdl_controller.EndRender();
+    // sdl_controller.EndRender();
     hmdDevice->EndFrame();
 
     // Save off the updated time for the next loop iteration.
@@ -143,56 +136,5 @@ TEST_F(OculusTest, BasicSquare) {
   hmdContext->Shutdown();
   // sdl_controller.ToggleFullscreen();
   sdl_controller.Shutdown();
-
-  #if 0
-  while (true) {
-    
-    window1->ProcessEvents();
-    // hmdDevice->BeginFrame();
-    // for (int eyeIndex = 0; eyeIndex < 2; eyeIndex++) {
-      // hmdDevice->BeginRenderingEye(eyeIndex);
-      window1->SetActive(true);
-
-      // ::glClearColor(0, 0, 0, 0);
-      // ::glClear(GL_COLOR_BUFFER_BIT);
-
-      // const float ar = static_cast<float>(size.w) / static_cast<float>(size.h);
-      const float ar = static_cast<float>(640) / static_cast<float>(480);
-      // ::glViewport(0, 0, size.w, size.h);
-      // ::glMatrixMode(GL_PROJECTION);
-      // ::glLoadIdentity();
-      // ::glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
-
-      // ::glEnable(GL_BLEND);
-      // ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
-
-      // ::glPushMatrix();
-      // ::glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-      // ::glBegin(GL_QUADS);
-      // ::glColor3d(1, 0, 0);
-      // ::glVertex3f(-1, -1, -5);
-      // ::glColor3d(1, 1, 0);
-      // ::glVertex3f(1, -1, -5);
-      // ::glColor3d(0, 1, 0);
-      // ::glVertex3f(1, 1, -5);
-      // ::glColor3d(0, 0, 1);
-      // ::glVertex3f(-1, 1, -5);
-      // ::glEnd();
-      // ::glPopMatrix();
-
-      rotation += 0.02f;
-      // hmdDevice->EndRenderingEye(eyeIndex);
-      // window1->SetActive(false);
-    // }
-    // hmdDevice->EndFrame();
-    window1->FlushBuffer();
-    
-
-    // static bool damnit = [hmdDevice]() {
-    //   ovrHmd_DismissHSWDisplay(hmdDevice->m_hmd);
-    //   return true;
-    // }();
-  }
-  #endif
 }
 
