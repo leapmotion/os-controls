@@ -5,9 +5,10 @@
 
 namespace OculusRift {
 
-EyeConfiguration::EyeConfiguration (ovrEyeType eye_type, const ovrFovPort &fov_port)
+EyeConfiguration::EyeConfiguration (ovrEyeType eye_type, const ovrFovPort &fov_port, const ovrEyeRenderDesc &eye_render_desc)
   : m_eye_type(eye_type)
   , m_fov_port(fov_port)
+  , m_eye_render_desc(eye_render_desc)
 {
   if (m_eye_type < 0 || m_eye_type >= ovrEye_Count)
     throw OculusRift::Exception("Invalid eye type.");
@@ -25,13 +26,13 @@ Hmd::DoubleArray<4*4> EyeConfiguration::ProjectionMatrix (double near_clip, doub
   // OVR is a little weird in that:
   // 1. It has a pretty good templatized C++ Matrix4 class but also a crappy C structure with identical layout.
   // 2. Going in between the C++ class and the C structure is not made very easy.
-  OVR::Matrix4<float> projection_matrix_f(ovrMatrix4f_Projection(m_fov_port, float(near_clip), float(far_clip), true));
+  OVR::Matrix4f projection_matrix_f(ovrMatrix4f_Projection(m_fov_port, float(near_clip), float(far_clip), true));
   // OVR stores matrices in row-major order, so only tranpose the matrix if column-major has been requested.
   if (matrix_component_order == Hmd::MatrixComponentOrder::COLUMN_MAJOR) {
     projection_matrix_f.Transpose();
   }
   // Convert the float matrix that we got from OVR to a double matrix.
-  OVR::Matrix4<double> projection_matrix_d(projection_matrix_f);
+  OVR::Matrix4d projection_matrix_d(projection_matrix_f);
   // This will memcpy the contents from projection_matrix_d.
   return Hmd::DoubleArray<4*4>(projection_matrix_d);
 }

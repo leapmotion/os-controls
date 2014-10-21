@@ -52,6 +52,7 @@ public:
   virtual const OculusRift::DeviceConfiguration &ActualConfiguration () const override;
 
   virtual void BeginFrame () override;
+  // Only accessible between BeginFrame and EndFrame
   virtual std::shared_ptr<Hmd::IPose> EyePose (uint32_t eye_index) const override;
   // virtual std::shared_ptr<SensorData> SensorReadings () const override;
   virtual void BeginRenderingEye (uint32_t eye_index) const override;
@@ -79,7 +80,6 @@ private:
   // Store the eye poses as OVR::Pose<double> because the relevant C++ classes
   // are actually useful instead of the lame C struct ovrPosef.
   OVR::Pose<double> m_EyeRenderPose[2];
-  ovrEyeRenderDesc m_EyeRenderDesc[2];
 
   OVR::Matrix4f m_EyeProjection[2];
   OVR::Matrix4f m_EyeView[2];

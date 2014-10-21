@@ -130,12 +130,13 @@ void Device::Initialize (Hmd::IContext &context) {
   cfg.OGL.Win = m_Window;
 #endif
 
+  ovrEyeRenderDesc EyeRenderDesc[2];
   ovrHmd_ConfigureRendering(
     m_hmd,
     &cfg.Config,
     ovrDistortionCap_Chromatic|ovrDistortionCap_Vignette|ovrDistortionCap_TimeWarp|ovrDistortionCap_Overdrive,
     eye_fov,
-    m_EyeRenderDesc);
+    EyeRenderDesc);
 
   // Internally, the above line calls glewInit(), which generates a GL_INVALID_ENUM error inside of it.
   // We will make a glGetError() call to clear out the phony error; otherwise the next gl function we
@@ -158,7 +159,7 @@ void Device::Initialize (Hmd::IContext &context) {
   for (uint32_t eye_render_index = 0; eye_render_index < eye_count; ++eye_render_index) {
     ovrEyeType eye_type = m_hmd->EyeRenderOrder[eye_render_index];
     eye_render_order.emplace_back(eye_type);
-    eye_configuration.emplace_back(eye_type, m_hmd->DefaultEyeFov[eye_render_index]);
+    eye_configuration.emplace_back(eye_type, m_hmd->DefaultEyeFov[eye_render_index], EyeRenderDesc[eye_render_index]);
   }
 
   m_device_configuration =
@@ -249,6 +250,9 @@ void Device::BeginFrame () {
     static_assert(offsetof(ovrPosef,Position) == offsetof(OVR::Pose<float>,Translation), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
     m_EyeRenderPose[eye] = OVR::Pose<double>(*reinterpret_cast<OVR::Pose<float> *>(&EyePosef));
   }
+
+  // glGetError(); // Remove any phantom gl errors before they throw an exception
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 }
 
 std::shared_ptr<Hmd::IPose> Device::EyePose (uint32_t eye_index) const {
@@ -257,8 +261,6 @@ std::shared_ptr<Hmd::IPose> Device::EyePose (uint32_t eye_index) const {
 
 void Device::BeginRenderingEye (uint32_t eye_index) const {
   assert(eye_index < ovrEye_Count && "eye_index out of range."); // TODO: use Configuration-based eye count
-  // glGetError(); // Remove any phantom gl errors before they throw an exception
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
   const ovrRecti &rect = m_EyeRenderViewport[eye_index];
   glViewport(rect.Pos.x, rect.Pos.y, rect.Size.w, rect.Size.h);
 }
