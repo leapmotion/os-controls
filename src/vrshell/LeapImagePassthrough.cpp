@@ -33,25 +33,25 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
   if (images.count() == 0)
     return;
 
-  const Leap::Image& image = images[0];
   if (!m_texture) {
     // Generate a texture procedurally.
-    GLsizei width = image.width();
-    GLsizei height = image.height();
+    GLsizei width = images[0].width() + images[1].width();
+    GLsizei height = images[0].height();
     GLTexture2Params params(width, height, GL_LUMINANCE);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    GLTexture2PixelDataReference pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, image.data(), width*height);
-    m_texture = std::make_shared<GLTexture2>(params, pixel_data);
+    m_texture = std::make_shared<GLTexture2>(params);
+
     m_rect.SetTexture(m_texture);
     m_rect.Material().SetUseTexture(true);
   }
-  else {
-    m_texture->Bind();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, image.width(), image.height(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.data());
-  }
+ 
+  m_texture->Bind();
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[0].width(), images[0].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[0].data());
+  glTexSubImage2D(GL_TEXTURE_2D, 0, images[0].width(), 0, images[1].width(), images[1].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[1].data());
+  m_texture->Unbind();
 }
 
 void LeapImagePassthrough::Render(const RenderFrame& frame) const {
