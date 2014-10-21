@@ -4,6 +4,19 @@
 #include "hmdinterface/OculusRift/RiftDevice.h"
 #include "SDLController.h"
 
+#include <iostream>
+
+template <typename Component_, std::size_t SIZE_>
+std::ostream &operator << (std::ostream &out, const Hmd::IntermediateArray<Component_,SIZE_> &array) {
+  out << '(';
+  static_assert(SIZE_ > 0, "Can't have a zero-sized IntermediateArray.");
+  for (size_t i = 0; i < SIZE_-1; ++i) {
+    out << array[i] << ',';
+  }
+  return out << array[SIZE_-1] << ')';
+}
+
+
 typedef double TimePoint; // TODO: change to std::chrono::time_point once C++11 is fully used.
 typedef double TimeDelta; // TODO: change to std::chrono::duration once C++11 is fully used.
 
@@ -91,6 +104,9 @@ TEST_F(OculusTest, BasicSquare) {
     hmdDevice->BeginFrame();
     for (uint32_t eye_index = 0; eye_index < ovrEye_Count; ++eye_index) {
       hmdDevice->BeginRenderingEye(eye_index);
+
+      auto eye_pose = hmdDevice->EyePose(eye_index);
+      std::cerr << "eye pose : position = " << eye_pose->Position() << ", orientation = " << eye_pose->OrientationQuaternion(Hmd::QuaternionNormalization::NOT_REQUIRED) << '\n';
 
       // render dummy geometry just as a test
       glEnableClientState(GL_VERTEX_ARRAY);
