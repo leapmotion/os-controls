@@ -80,6 +80,7 @@ public:
 
   void ToggleFullscreen();
   void ResizeWindow(int width, int height);
+  void RepositionWindow(int x, int y);
 
 private:
   

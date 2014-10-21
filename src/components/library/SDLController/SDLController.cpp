@@ -251,6 +251,13 @@ void SDLController::ResizeWindow(int width, int height){
   SDL_SetWindowSize(m_SDL_Window, width, height);
 }
 
+void SDLController::RepositionWindow(int x, int y){
+  if (m_SDL_Window == nullptr) {
+    throw std::runtime_error("SDLController object not initialized.");
+  }
+  SDL_SetWindowPosition(m_SDL_Window, x, y);
+}
+
 Uint32 SDLController::GetWindowID() const {
   if (m_SDL_Window == nullptr) {
     throw std::runtime_error("SDLController object not initialized.");
