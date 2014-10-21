@@ -13,6 +13,8 @@
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
+#include <dwmapi.h>
+
 int main(int argc, char **argv)
 {
   PlatformInitializer init;
@@ -51,32 +53,74 @@ void VRShell::Main(void) {
   shellCtxt->Initiate();
   CurrentContextPusher pshr(shellCtxt);
 
-  AutoRequired<RenderWindow> renderWindow;
-  AutoRequired<OSVirtualScreen>();
+  AutoRequired<RenderWindow> graphicsWindow;
+  std::unique_ptr<RenderWindow> copyWindow(RenderWindow::New());
+  std::unique_ptr<RenderWindow> mainWindow(RenderWindow::New());
+
+  AutoRequired<OSVirtualScreen> osScreens;
   AutoRequired<RenderEngine>();
-  AutoRequired<CompositionEngine>();
+  AutoRequired<CompositionEngine> compositionEngine;
 
   // Create the OculusRift::Context (non-device initialization/shutdown)
   // This really needs to be done in a factory - we have no business knowing
   // about the underlying implementation.  Doing so is counter to the entire point of
   // having an abstract interface in the first place.
-  AutoConstruct<OculusRift::Context> oculusRiftContext;
-  oculusRiftContext->Initialize();
-  assert(oculusRiftContext->IsInitialized() && "TODO: handle error the real way");
+  AutoRequired<OculusRift::Context> hmdContext;
+  AutoRequired<OculusRift::Device> hmdDevice;
+  mainWindow->SetActive(true);
 
-  // Create the OculusRift::Device (per-device initialization/shutdown)
-  AutoConstruct<OculusRift::Device> oculusRiftDevice;
+  hmdContext->Initialize();
+  hmdDevice->SetWindow(mainWindow->GetSystemHandle());
+  hmdDevice->Initialize(*static_cast<Hmd::IContext *>(hmdContext));
 
-  // NOTE: This SetWindow nonsense is going to be abstracted to be one parameter in a
-  // DeviceInitializationParameters interface in Leap::Hmd.
-  oculusRiftDevice->SetWindow(renderWindow->GetSystemHandle());
-  oculusRiftDevice->Initialize(*static_cast<Hmd::IContext *>(oculusRiftContext));
-  assert(oculusRiftDevice->IsInitialized() && "TODO: handle error the real way");
+  auto cfg = hmdDevice->Configuration();
 
-  renderWindow->SetVSync(false);
-  renderWindow->SetSize({640, 480});
-  renderWindow->SetTransparent(false);
-  renderWindow->SetVisible(true);
+  HWND oldWindow = WindowFromPoint({ cfg.WindowPositionX() + (cfg.DisplayWidth() / 2), cfg.WindowPositionY() + (cfg.DisplayHeight() / 2) });
+
+  graphicsWindow->SetRect({ 0, 0, 640, 480 });
+  graphicsWindow->SetVisible(true);
+
+  RECT winRect;
+  ::GetWindowRect(oldWindow, &winRect);
+  float width = winRect.right - winRect.left;
+  float height = winRect.bottom - winRect.top;
+  copyWindow->SetRect({ 0.f, 500.f, width, height });
+  copyWindow->SetVisible(true);
+
+
+  HTHUMBNAIL thumbnail;
+  ::DwmRegisterThumbnail(copyWindow->GetSystemHandle(), oldWindow, &thumbnail);
+
+  DWM_THUMBNAIL_PROPERTIES properties;
+  RECT dest = { 0, 0, width, height };
+  properties.fSourceClientAreaOnly = FALSE;
+  properties.fVisible = TRUE;
+  properties.opacity = (255 * 70) / 100;
+  properties.rcDestination = dest;
+  properties.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
+
+  mainWindow->SetRect(OSRect(cfg.WindowPositionX(), cfg.WindowPositionY(), cfg.DisplayWidth(), cfg.DisplayHeight()));
+  mainWindow->SetVSync(false);
+  mainWindow->SetTransparent(false);
+  mainWindow->SetVisible(true);
+
+  copyWindow->SetCloaked();
+  graphicsWindow->SetCloaked();
+
+  std::unique_ptr<ComposedDisplay> compDisplay(compositionEngine->CreateDisplay(mainWindow->GetSystemHandle()));
+  std::unique_ptr<ComposedView> oldWindowView(compositionEngine->CreateView());
+  std::unique_ptr<ComposedView> leapImageView(compositionEngine->CreateView());
+  std::unique_ptr<ComposedView> totalView(compositionEngine->CreateView());
+
+  oldWindowView->SetContent(copyWindow->GetSystemHandle());
+  leapImageView->SetContent(graphicsWindow->GetSystemHandle());
+  leapImageView->SetScale(0, 0, width / graphicsWindow->GetSize().width, height / graphicsWindow->GetSize().height);
+  totalView->AddChild(oldWindowView.get());
+  totalView->AddChild(leapImageView.get());
+
+  compDisplay->SetView(totalView.get());
+
+  compositionEngine->CommitChanges();
 
   // Defer starting any Leap handling until the window is ready
   *this += [this] {
@@ -88,10 +132,17 @@ void VRShell::Main(void) {
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
+  
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle OS events:
-    renderWindow->ProcessEvents();
+    mainWindow->ProcessEvents();
+    graphicsWindow->ProcessEvents();
+
+    //update the thumbnail
+
+    ::DwmUpdateThumbnailProperties(thumbnail, &properties);
+
     // Handle autowiring events:
     DispatchAllEvents();
     // Broadcast update event to all interested parties:
@@ -100,10 +151,11 @@ void VRShell::Main(void) {
     then = now;
   }
 
-  oculusRiftDevice->Shutdown();
-  oculusRiftContext->Shutdown();
+  hmdDevice->Shutdown();
+  hmdContext->Shutdown();
 
-  renderWindow->SetVisible(false);
+  mainWindow->SetVisible(false);
+  graphicsWindow->SetVisible(false);
 }
 
 void VRShell::Filter(void) {
