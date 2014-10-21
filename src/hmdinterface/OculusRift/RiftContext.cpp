@@ -36,6 +36,7 @@ bool Context::IsInitialized () {
 void Context::Shutdown () {
   if (m_is_initialized) {
     ovr_Shutdown();
+    m_is_initialized = false;
   } else {
     std::cerr << "Warning: Leap::OculusRift::Context instance was already shutdown upon calling Shutdown().\n";
   } 
