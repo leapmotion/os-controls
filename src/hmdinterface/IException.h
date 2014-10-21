@@ -8,7 +8,7 @@ namespace Hmd {
 class IContext;
 class IDevice;
 
-class IException : std::exception {
+class IException : public std::exception {
 public:
 
   virtual ~IException() { }
