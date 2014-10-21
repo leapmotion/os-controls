@@ -15,6 +15,8 @@ template <typename Component_, std::size_t SIZE_>
 class IntermediateArray : public std::array<Component_,SIZE_> {
 public:
 
+  static_assert(SIZE_ > 0, "Can't have a zero-sized IntermediateArray.");
+
   IntermediateArray () { }
   IntermediateArray (const std::array<Component_,SIZE_> &array) : std::array<Component_,SIZE_>(array) { }
   IntermediateArray (const IntermediateArray &array) : std::array<Component_,SIZE_>(array) { }
