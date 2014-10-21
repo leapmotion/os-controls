@@ -43,3 +43,6 @@ ComponentsConfig.cmake
 ComponentsConfigVersion.cmake
 src/components/library/cmake/ComponentsExport.cmake
 resources
+.DS_Store
+xcode
+
