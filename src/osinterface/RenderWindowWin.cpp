@@ -255,6 +255,12 @@ LRESULT CALLBACK RenderWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam
       }
     }
     return -1;
+  case WM_WINDOWPOSCHANGING:
+  {
+    WINDOWPOS* data = reinterpret_cast<WINDOWPOS*>(lParam);
+    data->hwndInsertAfter = HWND_TOPMOST;
+    return ::DefWindowProc(hWnd, message, wParam, lParam);
+  }
   case WM_ERASEBKGND:
   case WM_NCPAINT:
     break;
