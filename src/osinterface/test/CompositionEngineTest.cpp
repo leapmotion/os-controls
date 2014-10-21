@@ -96,6 +96,9 @@ TEST_F(CompositionEngineTest, VerifyMovingVisual)
   std::shared_ptr<RenderWindow> window3(RenderWindow::New());
   window3->SetRect({ 640, 0, 640, 480 });
 
+  window2->SetCloaked();
+  window3->SetCloaked();
+
   AutoRequired<CompositionEngine> engine;
   auto display = engine->CreateDisplay(window1->GetSystemHandle());
   auto mainView = engine->CreateView();
@@ -116,14 +119,6 @@ TEST_F(CompositionEngineTest, VerifyMovingVisual)
   display->SetView(mainView);
 
   engine->CommitChanges();
-
-  window1->SetTransparent(false);
-  window1->SetVisible(true);
-  window2->SetTransparent(false);
-  window2->SetVSync(true);
-  window2->SetVisible(true);
-  window3->SetVSync(true);
-  window3->SetTransparent(false);
 
   window2->SetActive(true);
   const auto windowSize = window2->GetSize();
@@ -180,6 +175,5 @@ TEST_F(CompositionEngineTest, VerifyMovingVisual)
     engine->CommitChanges();
     offset += 4;
     offset = std::min(offset, 480.0f);
-
   }
 }
