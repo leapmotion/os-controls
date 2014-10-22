@@ -158,16 +158,23 @@ void VRShell::Main(void) {
     graphicsWindow->ProcessEvents();
     copyWindow->ProcessEvents();
 
+    // Handle autowiring events:
+    this->DispatchAllEvents();
+
+    // Broadcast update event to all interested parties:
+    const auto now = std::chrono::steady_clock::now();
+    const auto delta = now - then;
+    then = now;
+
+    upd(&Updatable::Tick)(delta);
+
     //update the thumbnail & dcomp stuff
-    if (toggle) {
-      offset += 8;
-    }
-    else {
-      offset -= 8;
-    }
+    const double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(delta).count();
+    const double animDuration = 0.5;
+    offset += (height / animDuration) * seconds * (toggle ? 1 : -1);
 
     offset = std::max(0.f, std::min(height, offset));
-    if ( wipeListener->isWiping )
+    if (wipeListener->isWiping)
       toggle = wipeListener->lastDirection == SystemWipe::Direction::UP;
 
     leapImageView->SetOffset(0, -height + offset);
@@ -175,13 +182,6 @@ void VRShell::Main(void) {
 
     ::DwmUpdateThumbnailProperties(thumbnail, &properties);
     compositionEngine->CommitChanges();
-
-    // Handle autowiring events:
-    this->DispatchAllEvents();
-    // Broadcast update event to all interested parties:
-    auto now = std::chrono::steady_clock::now();
-    upd(&Updatable::Tick)(now - then);
-    then = now;
   }
 
   hmdDevice->Shutdown();
