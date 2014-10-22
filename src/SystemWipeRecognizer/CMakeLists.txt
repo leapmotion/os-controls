@@ -1,2 +1,2 @@
 add_executable(SystemWipeRecognizer main.cpp)
-target_link_libraries(SystemWipeRecognizer PUBLIC LeapListener)
+target_link_libraries(SystemWipeRecognizer PUBLIC EigenTypes LeapListener)
