@@ -1,15 +1,17 @@
 #include "stdafx.h"
 #include "VRShell.h"
 
+#include "LeapImagePassthrough.h"
 #include "graphics/RenderEngine.h"
 #include "hmdinterface/OculusRift/RiftContext.h"
 #include "hmdinterface/OculusRift/RiftDevice.h"
+#include "interaction/FrameFragmenter.h"
+#include "interaction/SystemWipeRecognizer.h"
 #include "osinterface/LeapInput.h"
-#include "utility/PlatformInitializer.h"
-#include "LeapImagePassthrough.h"
 #include "osinterface/RenderWindow.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/CompositionEngine.h"
+#include "utility/PlatformInitializer.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
@@ -48,6 +50,15 @@ VRShell::VRShell(void)
 
 VRShell::~VRShell(void) {}
 
+struct WipeListener{
+  void AutoFilter(const SystemWipe& wipe) {
+    isWiping = wipe.isWiping;
+    lastDirection = wipe.direction;
+  }
+  bool isWiping = false;
+  SystemWipe::Direction lastDirection = SystemWipe::Direction::DOWN;
+};
+
 void VRShell::Main(void) {
   AutoCreateContextT<VRShellContext> shellCtxt;
   shellCtxt->Initiate();
@@ -60,6 +71,9 @@ void VRShell::Main(void) {
   AutoRequired<OSVirtualScreen> osScreens;
   AutoRequired<RenderEngine>();
   AutoRequired<CompositionEngine> compositionEngine;
+  AutoRequired<RawFrameFragmenter> fragmenter;
+  AutoRequired<SystemWipeRecognizer> wipeRecognizer;
+  AutoRequired<WipeListener> wipeListener;
 
   // Create the OculusRift::Context (non-device initialization/shutdown)
   // This really needs to be done in a factory - we have no business knowing
@@ -135,7 +149,7 @@ void VRShell::Main(void) {
 
   // Dispatch events until told to quit:
   float offset = 0;
-  bool toggle = true;
+  bool toggle = false;
 
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
@@ -153,8 +167,8 @@ void VRShell::Main(void) {
     }
 
     offset = std::max(0.f, std::min(height, offset));
-    if ((offset == 0 || offset == height) && (std::chrono::steady_clock::now().time_since_epoch().count() % 1000) < 500 )
-      toggle = !toggle;
+    if ( wipeListener->isWiping )
+      toggle = wipeListener->lastDirection == SystemWipe::Direction::UP;
 
     leapImageView->SetOffset(0, -height + offset);
     oldWindowView->SetOffset(0, offset);

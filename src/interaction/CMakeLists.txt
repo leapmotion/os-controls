@@ -32,7 +32,7 @@ set(interaction_SOURCES
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
 
-set_property(TARGET interaction PROPERTY FOLDER "Shortcuts Projects")
+set_property(TARGET interaction PROPERTY FOLDER "Common")
 
 target_link_libraries(interaction Autowiring cursor expose mediaview uievents)
 

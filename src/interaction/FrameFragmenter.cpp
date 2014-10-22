@@ -69,3 +69,11 @@ void FrameFragmenter::OnLeapFrame(const Leap::Frame& frame) {
     hel(&HandEventListener::OnHandVanished)();
   }
 }
+
+void RawFrameFragmenter::OnLeapFrame(const Leap::Frame& frame){
+  // Decorate with a pointer to the hand.  If a decision must be made about whether to drive this
+  // context, it must be made at this point.
+  AutoRequired<AutoPacketFactory> factory(GetGlobalContext());
+  auto packet = factory->NewPacket();
+  packet->Decorate(frame);
+}
