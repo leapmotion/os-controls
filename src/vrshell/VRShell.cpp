@@ -153,7 +153,7 @@ void VRShell::Main(void) {
     }
 
     offset = std::max(0.f, std::min(height, offset));
-    if (offset == 0 || offset == height)
+    if ((offset == 0 || offset == height) && (std::chrono::steady_clock::now().time_since_epoch().count() % 1000) < 500 )
       toggle = !toggle;
 
     leapImageView->SetOffset(0, -height + offset);
