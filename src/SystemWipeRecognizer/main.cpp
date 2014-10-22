@@ -608,7 +608,7 @@ void SampleListener::onFrame(const Controller& controller) {
     //     float t = float(i) / (SAMPLE_COUNT-1);
     //     float b = mipmap.Sample(3,t) / max_brightness_approximation(t);
     //     // std::cerr << std::setw(3) << filtered_value(b) << ',';
-    //     std::cerr << (i == size_t(std::round(centroid*(SAMPLE_COUNT-1))) ? 'X' : '.');
+    //     std::cerr << (percent(mass) > 0 && i == size_t(std::round(centroid*(SAMPLE_COUNT-1))) ? 'X' : '.');
     // }
     // std::cerr << ", " << std::setw(3) << percent(mass) << "  " << std::setw(3) << percent(centroid) << '\n';
 
