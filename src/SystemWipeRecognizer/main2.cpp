@@ -39,11 +39,9 @@ void SampleListener::onFrame(const Controller& controller) {
     // std::cerr << "Frame available" << std::endl;
     SystemWipe system_wipe;
     m_recog.AutoFilter(controller.frame(), system_wipe);
-    // std::cerr << FORMAT_VALUE(system_wipe.isWiping);
-    // if (system_wipe.isWiping) {
-    //     std::cerr << ", " << FORMAT_VALUE(AsString(system_wipe.direction));
-    // }
-    // std::cerr << '\n';
+    if (system_wipe.isWiping) {
+        std::cerr << "system wipe occurred.  direction: " << FORMAT_VALUE(AsString(system_wipe.direction)) << '\n';
+    }
 }
 
 int main(int argc, char** argv) {

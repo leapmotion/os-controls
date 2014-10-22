@@ -238,7 +238,7 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
   } while (false)
 
 void SystemWipeRecognizer::WaitingForMassSignal (StateMachineEvent event) {
-    PRINT_STATEMACHINE_INFO(WaitingForMassSignal,event);
+    // PRINT_STATEMACHINE_INFO(WaitingForMassSignal,event);
     switch (event) {
         case StateMachineEvent::FRAME:
             if (m_current_mass >= 0.1f) {
@@ -249,13 +249,13 @@ void SystemWipeRecognizer::WaitingForMassSignal (StateMachineEvent event) {
 }
 
 void SystemWipeRecognizer::WaitingForHigherMassSignal (StateMachineEvent event) {
-    PRINT_STATEMACHINE_INFO(WaitingForHigherMassSignal,event);
+    // PRINT_STATEMACHINE_INFO(WaitingForHigherMassSignal,event);
     switch (event) {
         case StateMachineEvent::ENTER:
             m_centroid_signal_start_time = m_current_time;
             m_centroid_start_value = m_current_centroid;
             m_last_good_centroid_value = m_centroid_start_value;
-            std::cerr << FORMAT_VALUE(m_centroid_start_value) << "  \n";
+            // std::cerr << FORMAT_VALUE(m_centroid_start_value) << "  \n";
             return;
         case StateMachineEvent::FRAME:
             if (m_current_mass >= 0.3f) {
@@ -270,14 +270,14 @@ void SystemWipeRecognizer::WaitingForHigherMassSignal (StateMachineEvent event) 
 }
 
 void SystemWipeRecognizer::WaitingForCentroidDelta (StateMachineEvent event) {
-    PRINT_STATEMACHINE_INFO(WaitingForCentroidDelta,event);
+    // PRINT_STATEMACHINE_INFO(WaitingForCentroidDelta,event);
     switch (event) {
         case StateMachineEvent::FRAME: {
             if (m_current_mass < 0.1f) {
                 float delta = m_last_good_centroid_value - m_centroid_start_value;
-                std::cerr << FORMAT_VALUE(m_last_good_centroid_value) << ", " << FORMAT_VALUE(m_centroid_start_value) << ", " << FORMAT_VALUE(delta) << '\n';
+                // std::cerr << FORMAT_VALUE(m_last_good_centroid_value) << ", " << FORMAT_VALUE(m_centroid_start_value) << ", " << FORMAT_VALUE(delta) << '\n';
                 if (std::abs(delta) > 0.4f) {
-                    std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! centroid delta recognized -- " << (delta > 0.0f ? "DOWN" : "UP") << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+                    // std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! centroid delta recognized -- " << (delta > 0.0f ? "DOWN" : "UP") << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
                     m_system_wipe->isWiping = true;
                     m_system_wipe->direction = delta > 0.0f ? SystemWipe::Direction::UP : SystemWipe::Direction::DOWN;
                     m_timeout_end_time = m_current_time + 0.3;
@@ -294,7 +294,7 @@ void SystemWipeRecognizer::WaitingForCentroidDelta (StateMachineEvent event) {
 }
 
 void SystemWipeRecognizer::Timeout (StateMachineEvent event) {
-    PRINT_STATEMACHINE_INFO(Timeout,event);
+    // PRINT_STATEMACHINE_INFO(Timeout,event);
     switch (event) {
         case StateMachineEvent::FRAME:
             if (m_current_time >= m_timeout_end_time) {
