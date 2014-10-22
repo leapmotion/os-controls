@@ -4,6 +4,7 @@
 
 
 HandDataCombiner::HandDataCombiner() {
+  AutoRequired<SystemWipeRecognizer>();
   AutoRequired<HandLocationRecognizer>();
   AutoRequired<TimeRecognizer>();
   AutoRequired<HandPoseRecognizer>();
@@ -13,7 +14,8 @@ HandDataCombiner::HandDataCombiner() {
 }
 HandDataCombiner::~HandDataCombiner() { }
 
-void HandDataCombiner::AutoFilter(const HandLocation &handLocation, const HandPose &handPose, const HandRoll &handRoll, const HandPinch &handPinch, const HandGrab& handGrab, const Scroll& handScroll, const HandTime& handTime, HandData &handData) {
+void HandDataCombiner::AutoFilter(const SystemWipe &systemWipe, const HandLocation &handLocation, const HandPose &handPose, const HandRoll &handRoll, const HandPinch &handPinch, const HandGrab& handGrab, const Scroll& handScroll, const HandTime& handTime, HandData &handData) {
+  handData.systemWipe = systemWipe;
   handData.locationData = handLocation;
   handData.handPose = handPose;
   handData.rollData = handRoll;
