@@ -15,31 +15,20 @@ namespace OculusRift {
 
 class Device : public Hmd::IDevice {
 public:
-
-  Device ();
   virtual ~Device ();
-
-#if defined(OVR_OS_WIN32)
-  typedef HWND WindowHandle;
-#elif defined(OVR_OS_MAC)
-  typedef void* WindowHandle; // NSWindow
-#elif defined(OVR_OS_LINUX)
-  typedef Window WindowHandle;
-#endif
 
   // If this is to be called, it must be done before Initialize.
   // NOTE: This is from OculusVR, and will likely not stay -- it will be abstracted into
   // a DeviceInitializationParameters interface, of which there will be an OculusRift
   // implementation.
-  void SetWindow (const WindowHandle &window_handle) { m_Window = window_handle; }
+  void SetWindow (const WindowHandle &window_handle) override { m_Window = window_handle; }
 
   // OpenGL must be initialized before this call is made, as this creates certain GL resources.
-  virtual void Initialize (Hmd::IContext &context) override;
+  virtual void Initialize () override;
   virtual bool IsInitialized () const override;
   virtual void Shutdown () override;
 
-  // NOTE: This is Oculus Rift specific.
-  void DismissHealthWarning ();
+  void DismissHealthWarning () const override;
 
   /// @brief Returns the Context used to Initialize this Device.
   /// @details If IsInitialized is false, this method will throw an exception that is
@@ -63,6 +52,8 @@ public:
   virtual void EndFrame () override;
 
 private:
+  Device(const OculusRift::Context &context);
+  friend class Hmd::HmdFactory;
 
   // This is the implementation of IsInitialized (useful as a non-virtual method).
   bool IsInitialized_ () const { return m_hmd != nullptr; }

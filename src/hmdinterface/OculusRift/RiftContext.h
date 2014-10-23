@@ -6,8 +6,6 @@ namespace OculusRift {
 
 class Context : public Hmd::IContext {
 public:
-
-  Context ();
   virtual ~Context ();
 
   virtual void Initialize () override;
@@ -17,6 +15,8 @@ public:
   // TODO: enumeration of devices?
 
 private:
+  Context();
+  friend class ::Hmd::HmdFactory;
 
   bool m_is_initialized;
 };

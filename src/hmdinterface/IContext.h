@@ -2,6 +2,9 @@
 
 namespace Hmd {
 
+//A forward declaration useful to implementors
+class HmdFactory;
+
 class IContext {
 public:
 

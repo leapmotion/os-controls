@@ -2,8 +2,8 @@
 #include "VRShell.h"
 
 #include "graphics/RenderEngine.h"
-#include "hmdinterface/OculusRift/RiftContext.h"
-#include "hmdinterface/OculusRift/RiftDevice.h"
+#include "hmdinterface/HmdFactory.h"
+#include "hmdinterface/IDevice.h"
 #include "osinterface/LeapInput.h"
 #include "utility/PlatformInitializer.h"
 #include "LeapImagePassthrough.h"
@@ -60,18 +60,16 @@ void VRShell::Main(void) {
   // This really needs to be done in a factory - we have no business knowing
   // about the underlying implementation.  Doing so is counter to the entire point of
   // having an abstract interface in the first place.
-  AutoConstruct<OculusRift::Context> oculusRiftContext;
-  oculusRiftContext->Initialize();
-  assert(oculusRiftContext->IsInitialized() && "TODO: handle error the real way");
+  AutoRequired<Hmd::HmdFactory> hmdFactory;
 
   // Create the OculusRift::Device (per-device initialization/shutdown)
-  AutoConstruct<OculusRift::Device> oculusRiftDevice;
-
+  //Todo - make this have an autowiring compatible interface.
+  std::shared_ptr<Hmd::IDevice> hmdDevice(hmdFactory->CreateDevice());
   // NOTE: This SetWindow nonsense is going to be abstracted to be one parameter in a
   // DeviceInitializationParameters interface in Leap::Hmd.
-  oculusRiftDevice->SetWindow(renderWindow->GetSystemHandle());
-  oculusRiftDevice->Initialize(*static_cast<Hmd::IContext *>(oculusRiftContext));
-  assert(oculusRiftDevice->IsInitialized() && "TODO: handle error the real way");
+  hmdDevice->SetWindow(renderWindow->GetSystemHandle());
+  hmdDevice->Initialize();
+  assert(hmdDevice->IsInitialized() && "TODO: handle error the real way");
 
   renderWindow->SetVSync(false);
   renderWindow->SetSize({640, 480});
@@ -100,8 +98,7 @@ void VRShell::Main(void) {
     then = now;
   }
 
-  oculusRiftDevice->Shutdown();
-  oculusRiftContext->Shutdown();
+  hmdDevice->Shutdown();
 
   renderWindow->SetVisible(false);
 }
