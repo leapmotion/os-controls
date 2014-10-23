@@ -32,6 +32,7 @@ public:
   virtual void SetOffset(float x, float y) = 0;
   virtual void SetRotation(float centerX, float centerY, float degrees) = 0;
   virtual void SetScale(float centerX, float centerY, float scaleX, float scaleY) = 0;
+  virtual void SetClip(float x, float y, float width, float height) = 0;
 };
 
 class ComposedDisplay :
