@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "hmdinterface/OculusRift/RiftContext.h"
 #include "hmdinterface/OculusRift/RiftDevice.h"
+#include "osinterface/RenderWindow.h"
 #include "SDLController.h"
 
 #include <iostream>
@@ -136,5 +137,102 @@ TEST_F(OculusTest, BasicSquare) {
   hmdContext->Shutdown();
   // sdl_controller.ToggleFullscreen();
   sdl_controller.Shutdown();
+}
+
+
+TEST_F(OculusTest, BasicSquareRenderWindow) {
+  std::shared_ptr<OculusRift::Context> hmdContext;
+  std::shared_ptr<OculusRift::Device> hmdDevice;
+
+  hmdContext = std::make_shared<OculusRift::Context>();
+  hmdContext->Initialize();
+
+  hmdDevice = std::make_shared<OculusRift::Device>();
+  std::unique_ptr<RenderWindow> renderWindow = std::unique_ptr<RenderWindow>(RenderWindow::New());
+  renderWindow->SetActive(true);
+
+  hmdDevice->SetWindow(renderWindow->GetSystemHandle());
+  hmdDevice->Initialize(*hmdContext);
+  auto cfg = hmdDevice->Configuration();
+
+  renderWindow->SetSize(OSSize(cfg.DisplayWidth(), cfg.DisplayHeight()));
+
+  renderWindow->SetPosition(OSPoint(cfg.WindowPositionX(), cfg.WindowPositionY()));
+  renderWindow->ProcessEvents();
+  
+  // There is some fanciness in OVR land about not being able to dismiss until after some timeout.
+  // TODO: figure out how to dismiss it unconditionally.
+  hmdDevice->DismissHealthWarning();
+
+  TimePoint previous_real_time(0.001 * SDL_GetTicks());
+  while (true) {
+    renderWindow->ProcessEvents();
+    // TODO: compute the realtime using std::chrono::time_point and time deltas using std::chrono::duration
+    TimePoint current_real_time(0.001 * SDL_GetTicks());
+    TimeDelta real_time_delta(current_real_time - previous_real_time);
+
+    // sdl_controller.BeginRender();
+    hmdDevice->BeginFrame();
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for (uint32_t eye_render_index = 0; eye_render_index < ovrEye_Count; ++eye_render_index) {
+      uint32_t eye_index = hmdDevice->Configuration().EyeRenderOrder(eye_render_index);
+      hmdDevice->BeginRenderingEye(eye_index);
+
+      auto eye_pose = hmdDevice->EyePose(eye_index);
+      auto eye_configuration = hmdDevice->Configuration().EyeConfiguration(eye_index);
+
+      glDisable(GL_LIGHTING);
+      glDisable(GL_CULL_FACE);
+      glDisable(GL_TEXTURE_2D);
+      glDisable(GL_DEPTH_TEST);
+
+      // Set up the projection matrix for this eye.
+      glMatrixMode(GL_PROJECTION);
+      glLoadMatrixd(eye_configuration.ProjectionMatrix(0.1, 10000.0, Hmd::MatrixComponentOrder::COLUMN_MAJOR).data());
+
+      // Set up the modelview matrix -- use the view matrix for this eye.
+      glMatrixMode(GL_MODELVIEW);
+      glLoadMatrixd(eye_pose->ViewMatrix(Hmd::MatrixComponentOrder::COLUMN_MAJOR, eye_configuration).data());
+
+      // Render a spherical grid centered at the viewpoint
+      {
+        const int divTheta = 22;
+        const int divPhi = 40;
+        const float radius = 10.0f;
+
+        Hmd::DoubleArray<3> eye_position(eye_pose->Position());
+        // std::cout << "eye " << eye_index << " position: " << eye_position << '\n';        
+        glTranslated(eye_position[0], eye_position[1], eye_position[2]);
+        glColor4f(0.2f, 0.6f, 1.0f, 0.5f);
+        glLineWidth(1.0f);
+        glBegin(GL_LINES);
+        for (int i = 0; i < divPhi; i++) {
+          float phi0 = (float)M_PI*(i / static_cast<float>(divPhi)-0.5f);
+          float phi1 = (float)M_PI*((i + 1) / static_cast<float>(divPhi)-0.5f);
+          for (int j = 0; j < divTheta; j++) {
+            float theta0 = 2 * (float)M_PI*(j / static_cast<float>(divTheta));
+            float theta1 = 2 * (float)M_PI*((j + 1) / static_cast<float>(divTheta));
+            glVertex3f(radius*cos(phi0)*cos(theta0), radius*sin(phi0), radius*cos(phi0)*sin(theta0));
+            glVertex3f(radius*cos(phi0)*cos(theta1), radius*sin(phi0), radius*cos(phi0)*sin(theta1));
+            glVertex3f(radius*cos(phi0)*cos(theta0), radius*sin(phi0), radius*cos(phi0)*sin(theta0));
+            glVertex3f(radius*cos(phi1)*cos(theta0), radius*sin(phi1), radius*cos(phi1)*sin(theta0));
+          }
+        }
+        glEnd();
+      }
+
+      hmdDevice->EndRenderingEye(eye_index);
+    }
+    // sdl_controller.EndRender();
+
+    hmdDevice->EndFrame();
+    // Save off the updated time for the next loop iteration.
+    previous_real_time = current_real_time;
+  }
+
+  hmdDevice->Shutdown();
+  hmdContext->Shutdown();
 }
 
