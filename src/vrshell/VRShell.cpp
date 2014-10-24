@@ -53,7 +53,8 @@ VRShell::~VRShell(void) {}
 struct WipeListener{
   void AutoFilter(const SystemWipe& wipe) {
     isWiping = wipe.isWiping;
-    lastDirection = wipe.direction;
+    if ( isWiping )
+      lastDirection = wipe.direction;
   }
   bool isWiping = false;
   SystemWipe::Direction lastDirection = SystemWipe::Direction::DOWN;
@@ -65,7 +66,6 @@ void VRShell::Main(void) {
   CurrentContextPusher pshr(shellCtxt);
 
   AutoRequired<RenderWindow> graphicsWindow;
-  std::unique_ptr<RenderWindow> copyWindow(RenderWindow::New());
   std::unique_ptr<RenderWindow> mainWindow(RenderWindow::New());
 
   AutoRequired<OSVirtualScreen> osScreens;
@@ -87,55 +87,33 @@ void VRShell::Main(void) {
   hmdDevice->SetWindow(mainWindow->GetSystemHandle());
   hmdDevice->Initialize(*static_cast<Hmd::IContext *>(hmdContext));
 
-  auto cfg = hmdDevice->Configuration();
-
-  HWND oldWindow = WindowFromPoint({ cfg.WindowPositionX() + (cfg.DisplayWidth() / 2), cfg.WindowPositionY() + (cfg.DisplayHeight() / 2) });
+  const auto &hmdConfiguration = hmdDevice->Configuration();
 
   graphicsWindow->SetRect({ 0, 0, 640, 480 });
   graphicsWindow->SetVisible(true);
 
-  RECT winRect;
-  ::GetWindowRect(oldWindow, &winRect);
-  float width = winRect.right - winRect.left;
-  float height = winRect.bottom - winRect.top;
-  copyWindow->SetRect({ 0.f, 500.f, width, height });
-  copyWindow->SetVisible(true);
+  float screenWidth = hmdConfiguration.DisplayWidth();
+  float screenHeight = hmdConfiguration.DisplayHeight();
 
-
-  HTHUMBNAIL thumbnail;
-  ::DwmRegisterThumbnail(copyWindow->GetSystemHandle(), oldWindow, &thumbnail);
-
-  DWM_THUMBNAIL_PROPERTIES properties;
-  RECT dest = { 0, 0, width, height };
-  properties.fSourceClientAreaOnly = FALSE;
-  properties.fVisible = TRUE;
-  properties.opacity = (255 * 70) / 100;
-  properties.rcDestination = dest;
-  properties.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
-
-  mainWindow->SetRect(OSRect(cfg.WindowPositionX(), cfg.WindowPositionY(), cfg.DisplayWidth(), cfg.DisplayHeight()));
+  mainWindow->SetRect(OSRect(hmdConfiguration.WindowPositionX(), hmdConfiguration.WindowPositionY(), 
+                             hmdConfiguration.DisplayWidth(), hmdConfiguration.DisplayHeight()));
   mainWindow->SetVSync(false);
   mainWindow->SetTransparent(false);
   mainWindow->SetVisible(true);
 
-  copyWindow->SetCloaked();
   graphicsWindow->SetCloaked();
 
   std::unique_ptr<ComposedDisplay> compDisplay(compositionEngine->CreateDisplay(mainWindow->GetSystemHandle()));
-  std::unique_ptr<ComposedView> oldWindowView(compositionEngine->CreateView());
   std::unique_ptr<ComposedView> leapImageView(compositionEngine->CreateView());
   std::unique_ptr<ComposedView> totalView(compositionEngine->CreateView());
 
-  oldWindowView->SetContent(copyWindow->GetSystemHandle());
   leapImageView->SetContent(graphicsWindow->GetSystemHandle());
-  leapImageView->SetScale(0, 0, width / graphicsWindow->GetSize().width, height / graphicsWindow->GetSize().height);
-  leapImageView->SetOffset(0, -height);
-  oldWindowView->SetOffset(0, 0);
-  totalView->AddChild(oldWindowView.get());
+  leapImageView->SetScale(0, 0, screenWidth / graphicsWindow->GetSize().width, screenHeight / graphicsWindow->GetSize().height);
+  leapImageView->SetClip(0, 0, screenWidth, 0);
   totalView->AddChild(leapImageView.get());
 
   compDisplay->SetView(totalView.get());
-
+  
   compositionEngine->CommitChanges();
 
   // Defer starting any Leap handling until the window is ready
@@ -149,14 +127,12 @@ void VRShell::Main(void) {
 
   // Dispatch events until told to quit:
   float offset = 0;
-  bool toggle = false;
-
+  bool showingLeapPassthrough = false;
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle OS events:
     mainWindow->ProcessEvents();
     graphicsWindow->ProcessEvents();
-    copyWindow->ProcessEvents();
 
     // Handle autowiring events:
     this->DispatchAllEvents();
@@ -171,16 +147,34 @@ void VRShell::Main(void) {
     //update the thumbnail & dcomp stuff
     const double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(delta).count();
     const double animDuration = 0.5;
-    offset += (height / animDuration) * seconds * (toggle ? 1 : -1);
 
-    offset = std::max(0.f, std::min(height, offset));
-    if (wipeListener->isWiping)
-      toggle = wipeListener->lastDirection == SystemWipe::Direction::UP;
+    if (wipeListener->isWiping) {
+      showingLeapPassthrough = !showingLeapPassthrough;
+    }
 
-    leapImageView->SetOffset(0, -height + offset);
-    oldWindowView->SetOffset(0, offset);
+    if (showingLeapPassthrough) {
+      offset += (screenHeight / animDuration) * seconds;
+      offset = std::max(0.f, std::min(screenHeight, offset));
 
-    ::DwmUpdateThumbnailProperties(thumbnail, &properties);
+      if (wipeListener->lastDirection == SystemWipe::Direction::DOWN) {
+        leapImageView->SetClip(0, 0, screenWidth, offset);
+      }
+      else{
+        leapImageView->SetClip(0, screenHeight - offset, screenWidth, offset);
+      }
+    }
+    else {
+      offset -= (screenHeight / animDuration) * seconds;
+      offset = std::max(0.f, std::min(screenHeight, offset));
+
+      if (wipeListener->lastDirection == SystemWipe::Direction::DOWN) {
+        leapImageView->SetClip(0, screenHeight - offset, screenWidth, offset);
+      }
+      else {
+        leapImageView->SetClip(0, 0, screenWidth, offset);
+      }
+    }
+    
     compositionEngine->CommitChanges();
   }
 
