@@ -2,6 +2,8 @@
 #include "osinterface/RenderContext.h"
 #include "Vector.h"
 
+#include <list>
+
 struct RenderFrame;
 
 /// <summary>
