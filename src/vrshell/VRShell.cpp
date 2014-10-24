@@ -146,29 +146,30 @@ void VRShell::Main(void) {
 
     //update the thumbnail & dcomp stuff
     const double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(delta).count();
-    const double animDuration = 0.5;
+    const double animDuration = .7; //in seconds
 
     if (wipeListener->isWiping) {
       showingLeapPassthrough = !showingLeapPassthrough;
     }
 
+    const auto maxHeight = 480.f;
     if (showingLeapPassthrough) {
-      offset += (screenHeight / animDuration) * seconds;
-      offset = std::max(0.f, std::min(screenHeight, offset));
+      offset += (maxHeight / animDuration) * seconds;
+      offset = std::max(0.f, std::min(maxHeight, offset));
 
-      if (wipeListener->lastDirection == SystemWipe::Direction::DOWN) {
+      if (wipeListener->lastDirection == SystemWipe::Direction::UP) {
         leapImageView->SetClip(0, 0, screenWidth, offset);
       }
       else{
-        leapImageView->SetClip(0, screenHeight - offset, screenWidth, offset);
+        leapImageView->SetClip(0, maxHeight - offset, screenWidth, offset);
       }
     }
     else {
-      offset -= (screenHeight / animDuration) * seconds;
-      offset = std::max(0.f, std::min(screenHeight, offset));
+      offset -= (maxHeight / animDuration) * seconds;
+      offset = std::max(0.f, std::min(maxHeight, offset));
 
-      if (wipeListener->lastDirection == SystemWipe::Direction::DOWN) {
-        leapImageView->SetClip(0, screenHeight - offset, screenWidth, offset);
+      if (wipeListener->lastDirection == SystemWipe::Direction::UP) {
+        leapImageView->SetClip(0, maxHeight - offset, screenWidth, offset);
       }
       else {
         leapImageView->SetClip(0, 0, screenWidth, offset);
