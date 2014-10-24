@@ -16,7 +16,7 @@ LeapImagePassthrough::LeapImagePassthrough() {
 
   m_rect.SetSize(EigenTypes::Vector2(640, 480));
   m_rect.Translation() = EigenTypes::Vector3(320, 240, 0);
-  m_rect.Material().SetAmbientLightColor(Color::Green());
+  m_rect.Material().SetAmbientLightColor(Color::White());
   m_rect.Material().SetAmbientLightingProportion(1.0f);
 }
 
