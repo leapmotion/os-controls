@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "VRShell.h"
 
+#include "AROverlay.h"
 #include "LeapImagePassthrough.h"
 #include "graphics/RenderEngine.h"
 #include "hmdinterface/OculusRift/RiftContext.h"
@@ -50,30 +51,16 @@ VRShell::VRShell(void)
 
 VRShell::~VRShell(void) {}
 
-struct WipeListener{
-  void AutoFilter(const SystemWipe& wipe) {
-    isWiping = wipe.isWiping;
-    if ( isWiping )
-      lastDirection = wipe.direction;
-  }
-  bool isWiping = false;
-  SystemWipe::Direction lastDirection = SystemWipe::Direction::DOWN;
-};
-
 void VRShell::Main(void) {
   AutoCreateContextT<VRShellContext> shellCtxt;
   shellCtxt->Initiate();
   CurrentContextPusher pshr(shellCtxt);
 
-  AutoRequired<RenderWindow> graphicsWindow;
-  std::unique_ptr<RenderWindow> mainWindow(RenderWindow::New());
-
-  AutoRequired<OSVirtualScreen> osScreens;
+  AutoRequired<RenderWindow> renderEngineWindow;
   AutoRequired<RenderEngine>();
-  AutoRequired<CompositionEngine> compositionEngine;
+  AutoRequired<OSVirtualScreen>();
   AutoRequired<RawFrameFragmenter> fragmenter;
-  AutoRequired<SystemWipeRecognizer> wipeRecognizer;
-  AutoRequired<WipeListener> wipeListener;
+  AutoRequired<AROverlay> overlay;
 
   // Create the OculusRift::Context (non-device initialization/shutdown)
   // This really needs to be done in a factory - we have no business knowing
@@ -81,40 +68,20 @@ void VRShell::Main(void) {
   // having an abstract interface in the first place.
   AutoRequired<OculusRift::Context> hmdContext;
   AutoRequired<OculusRift::Device> hmdDevice;
-  mainWindow->SetActive(true);
 
   hmdContext->Initialize();
-  hmdDevice->SetWindow(mainWindow->GetSystemHandle());
+  hmdDevice->SetWindow(renderEngineWindow->GetSystemHandle());
   hmdDevice->Initialize(*static_cast<Hmd::IContext *>(hmdContext));
 
   const auto &hmdConfiguration = hmdDevice->Configuration();
 
-  graphicsWindow->SetRect({ 0, 0, 640, 480 });
-  graphicsWindow->SetVisible(true);
-
-  float screenWidth = hmdConfiguration.DisplayWidth();
-  float screenHeight = hmdConfiguration.DisplayHeight();
-
-  mainWindow->SetRect(OSRect(hmdConfiguration.WindowPositionX(), hmdConfiguration.WindowPositionY(), 
+  renderEngineWindow->SetRect(OSRect(hmdConfiguration.WindowPositionX(), hmdConfiguration.WindowPositionY(), 
                              hmdConfiguration.DisplayWidth(), hmdConfiguration.DisplayHeight()));
-  mainWindow->SetVSync(false);
-  mainWindow->SetTransparent(false);
-  mainWindow->SetVisible(true);
+  renderEngineWindow->SetVSync(false);
+  renderEngineWindow->SetTransparent(true);
+  renderEngineWindow->SetVisible(true);
 
-  graphicsWindow->SetCloaked();
-
-  std::unique_ptr<ComposedDisplay> compDisplay(compositionEngine->CreateDisplay(mainWindow->GetSystemHandle()));
-  std::unique_ptr<ComposedView> leapImageView(compositionEngine->CreateView());
-  std::unique_ptr<ComposedView> totalView(compositionEngine->CreateView());
-
-  leapImageView->SetContent(graphicsWindow->GetSystemHandle());
-  leapImageView->SetScale(0, 0, screenWidth / graphicsWindow->GetSize().width, screenHeight / graphicsWindow->GetSize().height);
-  leapImageView->SetClip(0, 0, screenWidth, 0);
-  totalView->AddChild(leapImageView.get());
-
-  compDisplay->SetView(totalView.get());
-  
-  compositionEngine->CommitChanges();
+  overlay->SetSourceWindow(*renderEngineWindow);
 
   // Defer starting any Leap handling until the window is ready
   *this += [this] {
@@ -131,8 +98,7 @@ void VRShell::Main(void) {
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle OS events:
-    mainWindow->ProcessEvents();
-    graphicsWindow->ProcessEvents();
+    renderEngineWindow->ProcessEvents();
 
     // Handle autowiring events:
     this->DispatchAllEvents();
@@ -143,47 +109,12 @@ void VRShell::Main(void) {
     then = now;
 
     upd(&Updatable::Tick)(delta);
-
-    //update the thumbnail & dcomp stuff
-    const double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(delta).count();
-    const double animDuration = .7; //in seconds
-
-    if (wipeListener->isWiping) {
-      showingLeapPassthrough = !showingLeapPassthrough;
-    }
-
-    const auto maxHeight = 480.f;
-    if (showingLeapPassthrough) {
-      offset += (maxHeight / animDuration) * seconds;
-      offset = std::max(0.f, std::min(maxHeight, offset));
-
-      if (wipeListener->lastDirection == SystemWipe::Direction::UP) {
-        leapImageView->SetClip(0, 0, screenWidth, offset);
-      }
-      else{
-        leapImageView->SetClip(0, maxHeight - offset, screenWidth, offset);
-      }
-    }
-    else {
-      offset -= (maxHeight / animDuration) * seconds;
-      offset = std::max(0.f, std::min(maxHeight, offset));
-
-      if (wipeListener->lastDirection == SystemWipe::Direction::UP) {
-        leapImageView->SetClip(0, maxHeight - offset, screenWidth, offset);
-      }
-      else {
-        leapImageView->SetClip(0, 0, screenWidth, offset);
-      }
-    }
-    
-    compositionEngine->CommitChanges();
   }
 
   hmdDevice->Shutdown();
   hmdContext->Shutdown();
 
-  mainWindow->SetVisible(false);
-  graphicsWindow->SetVisible(false);
+  renderEngineWindow->SetVisible(false);
 }
 
 void VRShell::Filter(void) {
