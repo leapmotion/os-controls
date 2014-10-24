@@ -116,6 +116,10 @@ public:
 
 private:
 
+  // Tuning parameters
+  static const size_t SAMPLE_COUNT = 10;
+  static const float BRIGHTNESS_ACTIVATION_THRESHOLD;
+
   enum class StateMachineEvent { ENTER, EXIT, FRAME };
 
   void WaitingForMassSignal (StateMachineEvent);
@@ -133,4 +137,7 @@ private:
   float m_current_centroid;
   float m_current_mass;
   SystemWipe *m_system_wipe;
+  float m_downsampled_brightness[SAMPLE_COUNT];
+  float m_max_downsampled_brightness[SAMPLE_COUNT];
+
 };

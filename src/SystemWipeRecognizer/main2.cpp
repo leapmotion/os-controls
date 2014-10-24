@@ -40,7 +40,7 @@ void SampleListener::onFrame(const Controller& controller) {
     SystemWipe system_wipe;
     m_recog.AutoFilter(controller.frame(), system_wipe);
     if (system_wipe.isWiping) {
-        std::cerr << "system wipe occurred.  direction: " << FORMAT_VALUE(AsString(system_wipe.direction)) << '\n';
+        std::cerr << "system wipe occurred.  direction: " << AsString(system_wipe.direction) << '\n';
     }
 }
 

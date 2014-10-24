@@ -15,29 +15,30 @@ template <typename T_, typename IndexType_ = size_t>
 class Linterp {
 public:
 
-  Linterp (T_ start, T_ end, IndexType_ count)
+  Linterp (T_ start, T_ end, IndexType_ sample_count)
     : m_start(start)
     , m_end(end)
-    , m_count_minus_one(count-1)
-    , m(0)
+    , m_sample_count_minus_one(sample_count-1)
+    , m_index(0)
   {
-    if (count < 2) {
-      throw std::invalid_argument("count must be at least 2.");
+    if (sample_count < 2) {
+      throw std::invalid_argument("sample_count must be at least 2.");
     }
   }
 
   operator T_ () const { return Value(); }
   T_ Value () const {
-    IndexType_ one_minus_m = m_count_minus_one - m;
-    return (one_minus_m*m_start + m*m_end)/m_count_minus_one;
+    IndexType_ index_complement = m_sample_count_minus_one - m_index;
+    return (index_complement*m_start + m_index*m_end)/m_sample_count_minus_one;
   }
+  const IndexType_ &Index () const { return m_index; }
   const T_ &Start () const { return m_start; }
   const T_ &End () const { return m_end; }
   const T_ &LowerBound () const { return (m_start < m_end) ? m_start : m_end; }
   const T_ &UpperBound () const { return (m_start >= m_end) ? m_start : m_end; }
 
-  bool IsNotAtEnd () const { return m <= m_count_minus_one; }
-  void operator ++ () { ++m; }
+  bool IsNotAtEnd () const { return m_index <= m_sample_count_minus_one; }
+  void operator ++ () { ++m_index; }
 
 private:
 
@@ -45,30 +46,24 @@ private:
   T_ m_start;
   T_ m_end;
   // Derived from the number of samples to interpolate over.
-  IndexType_ m_count_minus_one;
+  IndexType_ m_sample_count_minus_one;
   // Defines a value in the range [0,1], stored using the range [0,COUNT_-1].
-  IndexType_ m;
+  IndexType_ m_index;
 };
 
-template <typename T_>
-T_ Average (const std::vector<T_> &v) {
-    // The average of no elements is defined by convention to be zero.
-    if (v.size() == 0) {
-        return T_(0);
-    }
-    T_ weighted_average(0);
-    for (auto x : v) {
-        weighted_average += x;
-    }
-    return weighted_average / v.size();
-}
-
 } // end of namespace Internal
+
+// Tuning parameters
+//const size_t SystemWipeRecognizer::SAMPLE_COUNT = 10;
+const float SystemWipeRecognizer::BRIGHTNESS_ACTIVATION_THRESHOLD = 0.8f; // 0.8f works (value in original test)
 
 SystemWipeRecognizer::SystemWipeRecognizer ()
   : m_state_machine(*this, &SystemWipeRecognizer::WaitingForMassSignal)
   , m_current_time(0.0)
 {
+  for (size_t i = 0; i < SAMPLE_COUNT; ++i) {
+    m_max_downsampled_brightness[i] = 0.0f;
+  }
   m_state_machine.Initialize();
 }
 
@@ -92,55 +87,46 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
       return;
   }
 
-    // Sample each of the images along vertical lines
-    // std::vector<float> brightness;
-    {
-        assert(images[0].width() == images[1].width());
-        assert(images[0].height() == images[1].height());
-        size_t width = images[0].width();
-        size_t height = images[0].height();
-        assert(width > 0);
-        assert(height > 0);
-        m_brightness.clear();
-        m_brightness.reserve(height);
-        auto data0 = images[0].data();
-        auto data1 = images[1].data();
-        // Number of vertical lines to use
-        static const size_t HORIZONTAL_SAMPLE_COUNT = 10;
-        std::vector<float> row;
-        row.reserve(HORIZONTAL_SAMPLE_COUNT);
-        for (size_t y = 0; y < height; ++y) {
-            row.clear();
-            for (Internal::Linterp<size_t> x(0, width-1, HORIZONTAL_SAMPLE_COUNT); x.IsNotAtEnd(); ++x) {
-                size_t data_index = y*width + x;
-                row.push_back(std::max(data0[data_index],data1[data_index]) / 255.0f);
-            }
-            m_brightness.push_back(Internal::Average(row));
+  // Sample each of the images along vertical lines
+  {
+    assert(images[0].width() == images[1].width());
+    assert(images[0].height() == images[1].height());
+    size_t width = images[0].width();
+    size_t height = images[0].height();
+    assert(width > 0);
+    assert(height > 0);
+    m_brightness.clear();
+    m_brightness.reserve(height);
+    auto data0 = images[0].data();
+    auto data1 = images[1].data();
+    // Number of vertical lines to use
+    static const size_t HORIZONTAL_SAMPLE_COUNT = 10;
+
+    if (false) {
+      // compute average of row samples
+      for (size_t y = 0; y < height; ++y) {
+        float row_weighted_average = 0.0f;
+        for (Internal::Linterp<size_t> x(0, width-1, HORIZONTAL_SAMPLE_COUNT); x.IsNotAtEnd(); ++x) {
+          size_t data_index = y*width + x;
+          row_weighted_average += std::max(data0[data_index],data1[data_index]) / 255.0f;
         }
+        m_brightness.push_back(row_weighted_average / HORIZONTAL_SAMPLE_COUNT);
+      }
+    } else {
+      // compute max of row samples
+      for (size_t y = 0; y < height; ++y) {
+        float row_max = 0.0f;
+        for (Internal::Linterp<size_t> x(0, width-1, HORIZONTAL_SAMPLE_COUNT); x.IsNotAtEnd(); ++x) {
+          size_t data_index = y*width + x;
+          float brightness = std::max(data0[data_index],data1[data_index]) / 255.0f;
+          if (brightness > row_max) {
+            row_max = brightness;
+          }
+        }
+        m_brightness.push_back(row_max);
+      }
     }
-  // // Sample each of the images along vertical lines
-  // {
-  //     assert(images[0].width() == images[1].width());
-  //     assert(images[0].height() == images[1].height());
-  //     size_t width = images[0].width();
-  //     size_t height = images[0].height();
-  //     assert(width > 0);
-  //     assert(height > 0);
-  //     m_brightness.reserve(height);
-  //     auto data0 = images[0].data();
-  //     auto data1 = images[1].data();
-  //     // Number of vertical lines to use
-  //     static const size_t HORIZONTAL_SAMPLE_COUNT = 10;
-  //     float row_weighted_average;
-  //     for (size_t y = 0; y < height; ++y) {
-  //         row_weighted_average = 0.0f;
-  //         for (Internal::Linterp<size_t> x(0, width-1, HORIZONTAL_SAMPLE_COUNT); x.IsNotAtEnd(); ++x) {
-  //             size_t data_index = y*width + x;
-  //             row_weighted_average += std::max(data0[data_index],data1[data_index]) / 255.0f;
-  //         }
-  //         m_brightness.push_back(row_weighted_average / HORIZONTAL_SAMPLE_COUNT);
-  //     }
-  // }
+  }
 
   // Use a 6th order polynomial to approximate the maximum brightness curve for the
   // center vertical line for the camera.  This is used to normalize the brightness
@@ -150,15 +136,7 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
   auto max_brightness_approximation = [](float t) {
       assert(t >= 0.0f && t <= 1.0f);
       static const size_t POLYNOMIAL_ORDER = 6;
-      static const float POLYNOMIAL_COEFFICIENTS[POLYNOMIAL_ORDER+1] = {
-        0.509999999995f,
-        2.08500000785f,
-        -2.29200009331f,
-        -5.44499960929f,
-        17.5499992571f,
-        -17.819999345f,
-        5.83199978266f
-      };
+      static const float POLYNOMIAL_COEFFICIENTS[POLYNOMIAL_ORDER+1] = { 0.759765734259f, 1.99866765911f, -6.85648009151f, 11.15012094f, -8.86891604236f, 3.62432179126f, -1.107168802f };
       float power_of_t = 1.0f;
       float retval = 0.0f;
       for (size_t i = 0; i < POLYNOMIAL_ORDER+1; ++i) {
@@ -168,36 +146,40 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
       return retval;
   };
 
-  // m_current_centroid = 0.0f;
-  // m_current_mass = 0.0f;
-  // Internal::Linterp<float> t(0.0f, 1.0f, m_brightness.size());
-  // for (auto b : m_brightness) {
-  //   b /= max_brightness_approximation(t);
-  //   // float s = b;
-  //   float s = (b > 0.8f) ? 1 : 0;
-  //   m_current_mass += s;
-  //   m_current_centroid += s*t;
-  // }
-  // if (m_current_mass > std::numeric_limits<float>::epsilon()) {
-  //   m_current_centroid /= m_current_mass; // Divide centroid through by mass before adjusting mass by sample_count.
-  // }
-  // m_current_mass /= m_brightness.size();
+  // Populate m_downsampled_brightness.
+  {
+    assert(m_brightness.size() > SAMPLE_COUNT);
+    // std::cerr << FORMAT_VALUE(m_brightness.size()) << '\n';
+    Internal::Linterp<size_t> i(0, m_brightness.size(), SAMPLE_COUNT+1);
+    Internal::Linterp<size_t> next_i(i);
+    ++next_i;
+    Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT);
+    for ( ; t.IsNotAtEnd(); ++t, ++i, ++next_i) {
+      float &b = m_downsampled_brightness[t.Index()];
+      b = 0.0f;
+      for (size_t y = i; y < next_i; ++y) {
+        b += m_brightness[y];
+      }
+      // std::cerr << "    " << FORMAT_VALUE(t.Index()) << ", " << FORMAT_VALUE(next_i) << ", " << FORMAT_VALUE(i) << ", " << FORMAT_VALUE(next_i - i) << ", " << FORMAT_VALUE(b) << '\n';
+      b /= next_i - i; // divide through by the number of summed up samples to get average
+    }
+  }
 
-
-
-  Internal::Mipmap<float> mipmap(m_brightness);
+  // Update m_max_downsampled_brightness.
+  for (size_t i = 0; i < SAMPLE_COUNT; ++i) {
+    if (m_downsampled_brightness[i] > m_max_downsampled_brightness[i]) {
+      m_max_downsampled_brightness[i] = m_downsampled_brightness[i];
+    }
+  }
 
   // Number of samples uniformly distributed.  TODO: compute which mipmap level to use based on this.
   m_current_mass = 0.0f;
   m_current_centroid = 0.0f;
-  static const size_t SAMPLE_COUNT = 10;
-  // for (size_t i = 0; i < SAMPLE_COUNT; ++i) {
   for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
-    // float t = float(i) / (SAMPLE_COUNT-1);
-    float b = mipmap.Sample(3,t);
-    b /= max_brightness_approximation(t);
+    float b = m_downsampled_brightness[t.Index()];
+    // b /= max_brightness_approximation(t);
     // float s = b;
-    float s = (b > 0.8f) ? 1 : 0;
+    float s = (b > BRIGHTNESS_ACTIVATION_THRESHOLD) ? 1 : 0;
     m_current_mass += s;
     m_current_centroid += s*t;
   }
@@ -208,16 +190,20 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
 
   auto percent = [](float b) -> int { return int(100.0f*b); };
 
-  // // for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
-  // for (size_t i = 0; i < SAMPLE_COUNT; ++i) {
-  //   float t = float(i) / (SAMPLE_COUNT-1);
-  //   float b = mipmap.Sample(3,t) / max_brightness_approximation(t);
-  //   // std::cerr << std::setw(3) << filtered_value(b) << ',';
-  //   std::cerr << (percent(m_current_mass) > 0 && i == size_t(std::round(m_current_centroid*(SAMPLE_COUNT-1))) ? 'X' : '.');
-  // }
-  // std::cerr << ", " << std::setw(3) << percent(m_current_mass) << "  " << std::setw(3) << percent(m_current_centroid) << '\n';
-
-
+  for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    float b = m_downsampled_brightness[t.Index()];
+    std::cerr << std::setw(3) << percent(b) << ',';
+  }
+  std::cerr << "  ";
+  for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    float b = m_max_downsampled_brightness[t.Index()];
+    std::cerr << std::setw(3) << percent(b) << ',';
+  }
+  std::cerr << "  ";
+  for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    std::cerr << (percent(m_current_mass) > 0 && t.Index() == size_t(std::round(m_current_centroid*(SAMPLE_COUNT-1))) ? 'X' : '.');
+  }
+  std::cerr << ", " << std::setw(3) << percent(m_current_mass) << "  " << std::setw(3) << percent(m_current_centroid) << '\n';
 
   m_state_machine.Run(StateMachineEvent::FRAME);
 }
