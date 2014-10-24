@@ -57,6 +57,7 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
 
   const auto& windowSize = frame.renderWindow->GetSize();
   m_rect.SetSize({ windowSize.width, windowSize.height });
+  m_rect.Translation() = EigenTypes::Vector3(windowSize.width / 2, windowSize.height / 2, 0);
 }
 
 void LeapImagePassthrough::Render(const RenderFrame& frame) const {
