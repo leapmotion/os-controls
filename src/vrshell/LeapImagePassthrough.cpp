@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "LeapImagePassthrough.h"
 #include "Leap.h"
-#include "osinterface/LeapInput.h"
 #include "graphics/RenderFrame.h"
+#include "graphics/RenderEngine.h"
+#include "osinterface/LeapInput.h"
+#include "osinterface/RenderWindow.h"
 #include "GLShaderMatrices.h"
 
 LeapImagePassthrough::LeapImagePassthrough() {
@@ -52,6 +54,9 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[0].width(), images[0].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[0].data());
   glTexSubImage2D(GL_TEXTURE_2D, 0, images[0].width(), 0, images[1].width(), images[1].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[1].data());
   m_texture->Unbind();
+
+  const auto& windowSize = frame.renderWindow->GetSize();
+  m_rect.SetSize({ windowSize.width, windowSize.height });
 }
 
 void LeapImagePassthrough::Render(const RenderFrame& frame) const {
