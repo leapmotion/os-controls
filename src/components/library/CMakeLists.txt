@@ -74,6 +74,18 @@ add_sublibrary(
         "A phony target which just provides compiler options for enabling C++11."
 )
 
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+    set(_unicode_compiler_flags "/D UNICODE")
+endif()
+
+add_sublibrary(
+    Unicode
+    COMPILE_OPTIONS
+        ${_unicode_compiler_flags}
+    BRIEF_DOC_STRING
+        "A phony target which just provides compiler options for enabling Unicode support."
+)
+
 add_sublibrary(
     Application
     HEADERS
@@ -552,6 +564,37 @@ add_sublibrary(
         GLTexture2FreeImage
     BRIEF_DOC_STRING
         "Wrapper from file to GL texture."
+)
+
+add_sublibrary(
+    Rigging
+    HEADERS
+        AMeshSection.h
+        ModelIo.h
+        ModelSourceAssimp.h
+        ModelTargetSkinnedVboMesh.h
+        Node.h
+        Skeleton.h
+        SkinnedVboMesh.h
+    SOURCES
+        ModelIo.cpp
+        ModelSourceAssimp.cpp
+        ModelTargetSkinnedVboMesh.cpp
+        Node.cpp
+        Skeleton.cpp
+        SkinnedVboMesh.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
+        EigenTypes
+        Primitives
+        GLShader
+        GLTexture2Image
+        GLVertexBuffer
+        Unicode
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "Assimp 3.1.1"
+    BRIEF_DOC_STRING
+        "Mesh rigging, skinning, and deformation."
 )
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
