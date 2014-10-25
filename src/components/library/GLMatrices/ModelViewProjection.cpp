@@ -64,9 +64,9 @@ void ModelView::LookAt(const EigenTypes::Vector3& eye, const EigenTypes::Vector3
   EigenTypes::Vector3 x = y.cross(z).normalized();
   y = z.cross(x).normalized();
   mat.setIdentity();
-  mat.col(0) << x, 0;
-  mat.col(1) << y, 0;
-  mat.col(2) << z, 0;
+  mat.row(0) << x.transpose(), 0;
+  mat.row(1) << y.transpose(), 0;
+  mat.row(2) << z.transpose(), 0;
   mat.col(3) << -x.dot(eye), -y.dot(eye), -z.dot(eye), 1.0;
 }
 
