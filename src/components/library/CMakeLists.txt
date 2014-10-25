@@ -541,6 +541,18 @@ add_sublibrary(
         "Simple hand cursor representation."
 )
 
+add_sublibrary(
+    GLTexture2Image
+    HEADERS
+        GLTexture2Image.h
+    SOURCES
+        GLTexture2Image.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLTexture2
+        GLTexture2FreeImage
+    BRIEF_DOC_STRING
+        "Wrapper from file to GL texture."
+)
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
 ###################################################################################################
