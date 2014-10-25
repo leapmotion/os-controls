@@ -596,6 +596,20 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "Mesh rigging, skinning, and deformation."
 )
+
+add_sublibrary(
+    RiggedHand
+    HEADERS
+        RiggedHand.h
+    SOURCES
+        RiggedHand.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Rigging
+        LeapListener
+    BRIEF_DOC_STRING
+        "Realistic deformable hand from Leap API."
+)
+
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
 ###################################################################################################
