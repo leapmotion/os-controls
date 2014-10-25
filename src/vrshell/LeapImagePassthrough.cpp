@@ -62,10 +62,15 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[1].width(), images[1].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[1].data());
   m_texture[1]->Unbind();
 
+  
   const auto& windowSize = frame.renderWindow->GetSize();
+  const auto rectPos = EigenTypes::Vector3(windowSize.width / 2, windowSize.height / 2, 0);
+  const double conversionFactor = windowSize.width / images[0].width();
+  EigenTypes::Vector2 rectSize = { images[0].width() * conversionFactor, images[0].height() * conversionFactor };
+
   for (int i = 0; i < 2; i++) {
-    m_rect[i].SetSize({ windowSize.width, windowSize.height });
-    m_rect[i].Translation() = EigenTypes::Vector3(windowSize.width / 2, windowSize.height / 2, 0);
+    m_rect[i].Translation() = rectPos;
+    m_rect[i].SetSize(rectSize);
   }
 }
 
