@@ -57,6 +57,7 @@ void VRShell::Main(void) {
   CurrentContextPusher pshr(shellCtxt);
 
   AutoRequired<RenderWindow> renderEngineWindow;
+  renderEngineWindow->SetActive();
   AutoRequired<RenderEngine>();
   AutoRequired<OSVirtualScreen>();
   AutoRequired<RawFrameFragmenter> fragmenter;
@@ -78,7 +79,7 @@ void VRShell::Main(void) {
   renderEngineWindow->SetRect(OSRect(hmdConfiguration.WindowPositionX(), hmdConfiguration.WindowPositionY(), 
                              hmdConfiguration.DisplayWidth(), hmdConfiguration.DisplayHeight()));
   renderEngineWindow->SetVSync(false);
-  renderEngineWindow->SetTransparent(true);
+  renderEngineWindow->SetTransparent(false);
   renderEngineWindow->SetVisible(true);
 
   overlay->SetSourceWindow(*renderEngineWindow);
