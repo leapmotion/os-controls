@@ -14,10 +14,12 @@ LeapImagePassthrough::LeapImagePassthrough() {
     m_txdatatmp[i] = i % 255;
   }
 
-  m_rect.SetSize(EigenTypes::Vector2(640, 480));
-  m_rect.Translation() = EigenTypes::Vector3(320, 240, 0);
-  m_rect.Material().SetAmbientLightColor(Color::White());
-  m_rect.Material().SetAmbientLightingProportion(1.0f);
+  for (int i = 0; i < 2; i++) {
+    m_rect[i].SetSize(EigenTypes::Vector2(640, 480));
+    m_rect[i].Translation() = EigenTypes::Vector3(320, 240, 0);
+    m_rect[i].Material().SetAmbientLightColor(Color::White());
+    m_rect[i].Material().SetAmbientLightingProportion(1.0f);
+  }
 }
 
 LeapImagePassthrough::~LeapImagePassthrough()
@@ -35,40 +37,48 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
   if (images.count() == 0)
     return;
 
-  if (!m_texture) {
+  if (!m_texture[0]) {
     // Generate a texture procedurally.
-    GLsizei width = images[0].width() + images[1].width();
+    GLsizei width = images[0].width();
     GLsizei height = images[0].height();
     GLTexture2Params params(width, height, GL_LUMINANCE);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    m_texture = std::make_shared<GLTexture2>(params);
+    m_texture[0] = std::make_shared<GLTexture2>(params);
+    m_texture[1] = std::make_shared<GLTexture2>(params);
 
-    m_rect.SetTexture(m_texture);
-    m_rect.Material().SetUseTexture(true);
+    m_rect[0].SetTexture(m_texture[0]);
+    m_rect[1].SetTexture(m_texture[1]);
+    m_rect[0].Material().SetUseTexture(true);
+    m_rect[1].Material().SetUseTexture(true);
   }
  
-  m_texture->Bind();
+  m_texture[0]->Bind();
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[0].width(), images[0].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[0].data());
-  glTexSubImage2D(GL_TEXTURE_2D, 0, images[0].width(), 0, images[1].width(), images[1].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[1].data());
-  m_texture->Unbind();
+  m_texture[0]->Unbind();
+  m_texture[1]->Bind();
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[1].width(), images[1].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[1].data());
+  m_texture[1]->Unbind();
 
   const auto& windowSize = frame.renderWindow->GetSize();
-  m_rect.SetSize({ windowSize.width, windowSize.height });
-  m_rect.Translation() = EigenTypes::Vector3(windowSize.width / 2, windowSize.height / 2, 0);
+  for (int i = 0; i < 2; i++) {
+    m_rect[i].SetSize({ windowSize.width, windowSize.height });
+    m_rect[i].Translation() = EigenTypes::Vector3(windowSize.width / 2, windowSize.height / 2, 0);
+  }
 }
 
 void LeapImagePassthrough::Render(const RenderFrame& frame) const {
 
   glEnable(GL_TEXTURE_2D);
   
-  if( m_texture) 
-    m_texture->Bind();
+  auto& texture = m_texture[frame.eyeIndex];
+  if (texture)
+    texture->Bind();
 
-  PrimitiveBase::DrawSceneGraph(m_rect, frame.renderState);
+  PrimitiveBase::DrawSceneGraph(m_rect[frame.eyeIndex], frame.renderState);
 
-  if (m_texture)
-    m_texture->Unbind();
+  if (texture)
+    texture->Unbind();
 }
