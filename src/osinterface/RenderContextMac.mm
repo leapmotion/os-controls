@@ -47,6 +47,7 @@ RenderContextMac::RenderContextMac(std::shared_ptr<RenderContextMac> rootContext
   if (m_rootRenderContext) {
     ::glEnable(GL_MULTISAMPLE_ARB);
   } else {
+    [NSApplication sharedApplication];
     // If we are creating the root context, we need to create a window to accompany this context
     NSWindow* rootWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
                                                        styleMask:NSBorderlessWindowMask
