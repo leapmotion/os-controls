@@ -1,6 +1,8 @@
 #pragma once
 
 #include "IPose.h"
+#include "osinterface/OSWindowHandle.h"
+
 #include <memory>
 
 namespace Hmd {
@@ -53,7 +55,7 @@ public:
   /// indicated by throwing an exception that is a subclass of Hmd::IException.  If this method
   /// call succeeds, then IsInitialized() must return true until Shutdown() is called, at which
   /// point, IsInitialized() must return false.
-  virtual void Initialize (Hmd::IContext &context) = 0;
+  virtual void Initialize () = 0;
   /// @brief Returns true if and only if this object has been successfully initialized.
   /// @details This method must return false before Initialize() is successfully called,
   /// and must return false after Shutdown() is called.
@@ -64,7 +66,13 @@ public:
   /// effect.  In any case, IsInitialized() must return false after this method is called.
   virtual void Shutdown () = 0;
 
-  /// @brief Returns the Context used to Initialize this Device.
+  /// @brief Associate an os-window where rendering can happen
+  /// @details This method should generally be called before Initialize, although that
+  /// requirement may need to be relaxed as we support more HMD types.  This setting may
+  /// be moved into an initalizer struct at a later time.
+  virtual void SetWindow(const WindowHandle& window) = 0;
+
+  /// @brief Returns the Context used to create this Device.
   /// @details If IsInitialized is false, this method will throw an exception that is
   /// a subclass of Hmd::IException.
   virtual const Hmd::IContext &Context () const = 0;
@@ -73,16 +81,21 @@ public:
   /// a subclass of Hmd::IException.
   virtual const IDeviceConfiguration &Configuration () const = 0;
 
-  virtual void BeginFrame () = 0;
+  virtual void BeginFrame() = 0;
+  virtual void EndFrame() = 0;
+
   /// @brief Returns the Pose of the given eye for the current frame.
   /// @details This method should only be called between BeginFrame() and EndFrame().
   virtual std::shared_ptr<IPose> EyePose (uint32_t eye_index) const = 0;
+  
   // /// @brief Returns the current sensor readings of the HMD.
   // /// @details This method should only be called between BeginFrame() and EndFrame().
   // virtual std::shared_ptr<SensorData> SensorReadings () const = 0; // TODO
   virtual void BeginRenderingEye (uint32_t eye_index) const = 0;
   virtual void EndRenderingEye (uint32_t eye_index) const = 0;
-  virtual void EndFrame () = 0;
+  
+  virtual void DismissHealthWarning() const = 0;
+  
 };
 
 } // end of namespace Hmd

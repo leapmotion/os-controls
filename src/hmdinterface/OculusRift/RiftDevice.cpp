@@ -14,8 +14,8 @@
 
 namespace OculusRift {
 
-Device::Device ()
-  : m_context(nullptr)
+Device::Device (const OculusRift::Context& context)
+  : m_context(&context)
   , m_device_configuration(nullptr)
   , m_hmd(nullptr)
   , m_is_debug(false)
@@ -31,14 +31,7 @@ Device::~Device () {
   }
 }
 
-void Device::Initialize (Hmd::IContext &context) {
-  // TODO: implement fancy shared-library-aware casting.
-  try {
-    m_context = &dynamic_cast<OculusRift::Context &>(context);
-  } catch (const std::bad_cast) {
-    throw Exception("Leap::Hmd::IContext object passed in wasn't of the expected type Leap::OculusRift::Context");
-  }
-
+void Device::Initialize () {
   // Attempt to create the HMD device.
   // TODO: There's no documentation about the "index" parameter of ovrHmd_Create, if that
   // refers to one of potentially many Oculus Rift devices connected to the machine.  If
@@ -224,7 +217,7 @@ void Device::Shutdown () {
   assert(!IsInitialized() && "programmer error -- a post-condition of Shutdown() should be that IsInitialized() returns false.");
 }
 
-void Device::DismissHealthWarning () {
+void Device::DismissHealthWarning () const {
   if (!IsInitialized()) {
     throw Exception("Can't dismiss the health warning on a Device that hasn't been Initialize()'d.");
   }

@@ -5,8 +5,11 @@ set(hmdinterface_SOURCES
   IEyeConfiguration.h
   IException.h
   IntermediateArray.h
-  MatrixComponentOrder.h
   IPose.h
+  MatrixComponentOrder.h
+
+  HmdFactory.h
+  HmdFactory.cpp
 
   OculusRift/RiftContext.h
   OculusRift/RiftContext.cpp

@@ -1,7 +1,9 @@
 // Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.
 #include "stdafx.h"
-#include "hmdinterface/OculusRift/RiftContext.h"
-#include "hmdinterface/OculusRift/RiftDevice.h"
+#include "hmdinterface/HmdFactory.h"
+#include "hmdinterface/IDevice.h"
+#include "hmdinterface/IDeviceConfiguration.h"
+#include "hmdinterface/IEyeConfiguration.h"
 #include "osinterface/RenderWindow.h"
 #include "SDLController.h"
 
@@ -24,13 +26,10 @@ typedef double TimeDelta; // TODO: change to std::chrono::duration once C++11 is
 class OculusTest : public testing::Test {};
 
 TEST_F(OculusTest, BasicSquare) {
-  std::shared_ptr<OculusRift::Context> hmdContext;
-  std::shared_ptr<OculusRift::Device> hmdDevice;
-
-  hmdContext = std::make_shared<OculusRift::Context>();
-  hmdContext->Initialize();
-
-  hmdDevice = std::make_shared<OculusRift::Device>();
+  Hmd::HmdFactory factory;
+  
+  std::shared_ptr<Hmd::IDevice> hmdDevice(factory.CreateDevice());
+  
   SDLController sdl_controller;
   {
     SDLControllerParams params;
@@ -49,9 +48,9 @@ TEST_F(OculusTest, BasicSquare) {
   #endif
 
     hmdDevice->SetWindow(window);
-    hmdDevice->Initialize(*hmdContext);
+    hmdDevice->Initialize();
 
-    auto cfg = hmdDevice->Configuration();
+    auto &cfg = hmdDevice->Configuration();
     sdl_controller.ResizeWindow(cfg.DisplayWidth(), cfg.DisplayHeight());
     // For whatever reason, this seems to be necessary to get the Oculus stuff to render to the resized window.
     sdl_controller.BeginRender();
@@ -75,12 +74,12 @@ TEST_F(OculusTest, BasicSquare) {
     hmdDevice->BeginFrame();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    for (uint32_t eye_render_index = 0; eye_render_index < ovrEye_Count; ++eye_render_index) {
+    for (uint32_t eye_render_index = 0; eye_render_index < hmdDevice->Configuration().EyeCount(); ++eye_render_index) {
       uint32_t eye_index = hmdDevice->Configuration().EyeRenderOrder(eye_render_index);
       hmdDevice->BeginRenderingEye(eye_index);
 
       auto eye_pose = hmdDevice->EyePose(eye_index);
-      auto eye_configuration = hmdDevice->Configuration().EyeConfiguration(eye_index);
+      auto &eye_configuration = hmdDevice->Configuration().EyeConfiguration(eye_index);
 
       glDisable(GL_LIGHTING);
       glDisable(GL_CULL_FACE);
@@ -134,26 +133,21 @@ TEST_F(OculusTest, BasicSquare) {
   } while (!SDL_QuitRequested());
 
   hmdDevice->Shutdown();
-  hmdContext->Shutdown();
   // sdl_controller.ToggleFullscreen();
   sdl_controller.Shutdown();
 }
 
 
 TEST_F(OculusTest, BasicSquareRenderWindow) {
-  std::shared_ptr<OculusRift::Context> hmdContext;
-  std::shared_ptr<OculusRift::Device> hmdDevice;
+  Hmd::HmdFactory factory;
+  std::shared_ptr<Hmd::IDevice> hmdDevice(factory.CreateDevice());
 
-  hmdContext = std::make_shared<OculusRift::Context>();
-  hmdContext->Initialize();
-
-  hmdDevice = std::make_shared<OculusRift::Device>();
   std::unique_ptr<RenderWindow> renderWindow = std::unique_ptr<RenderWindow>(RenderWindow::New());
   renderWindow->SetActive(true);
 
   hmdDevice->SetWindow(renderWindow->GetSystemHandle());
-  hmdDevice->Initialize(*hmdContext);
-  auto cfg = hmdDevice->Configuration();
+  hmdDevice->Initialize();
+  auto &cfg = hmdDevice->Configuration();
 
   renderWindow->SetSize(OSSize(cfg.DisplayWidth(), cfg.DisplayHeight()));
 
@@ -176,12 +170,12 @@ TEST_F(OculusTest, BasicSquareRenderWindow) {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (uint32_t eye_render_index = 0; eye_render_index < ovrEye_Count; ++eye_render_index) {
+    for (uint32_t eye_render_index = 0; eye_render_index < hmdDevice->Configuration().EyeCount(); ++eye_render_index) {
       uint32_t eye_index = hmdDevice->Configuration().EyeRenderOrder(eye_render_index);
       hmdDevice->BeginRenderingEye(eye_index);
 
       auto eye_pose = hmdDevice->EyePose(eye_index);
-      auto eye_configuration = hmdDevice->Configuration().EyeConfiguration(eye_index);
+      auto &eye_configuration = hmdDevice->Configuration().EyeConfiguration(eye_index);
 
       glDisable(GL_LIGHTING);
       glDisable(GL_CULL_FACE);
@@ -233,6 +227,5 @@ TEST_F(OculusTest, BasicSquareRenderWindow) {
   }
 
   hmdDevice->Shutdown();
-  hmdContext->Shutdown();
 }
 

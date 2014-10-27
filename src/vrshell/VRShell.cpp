@@ -4,8 +4,9 @@
 #include "AROverlay.h"
 #include "LeapImagePassthrough.h"
 #include "graphics/RenderEngine.h"
-#include "hmdinterface/OculusRift/RiftContext.h"
-#include "hmdinterface/OculusRift/RiftDevice.h"
+#include "hmdinterface/HmdFactory.h"
+#include "hmdinterface/IDevice.h"
+#include "hmdinterface/IDeviceConfiguration.h"
 #include "interaction/FrameFragmenter.h"
 #include "interaction/SystemWipeRecognizer.h"
 #include "osinterface/LeapInput.h"
@@ -15,8 +16,6 @@
 #include "utility/PlatformInitializer.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
-
-#include <dwmapi.h>
 
 int main(int argc, char **argv)
 {
@@ -67,13 +66,14 @@ void VRShell::Main(void) {
   // This really needs to be done in a factory - we have no business knowing
   // about the underlying implementation.  Doing so is counter to the entire point of
   // having an abstract interface in the first place.
-  AutoRequired<OculusRift::Context> hmdContext;
-  AutoRequired<OculusRift::Device> hmdDevice;
+  AutoRequired<Hmd::HmdFactory> hmdFactory;
 
-  hmdContext->Initialize();
+  // Create the OculusRift::Device (per-device initialization/shutdown)
+  //Todo - make this have an autowiring compatible interface.
+  std::shared_ptr<Hmd::IDevice> hmdDevice(hmdFactory->CreateDevice());
   hmdDevice->SetWindow(renderEngineWindow->GetSystemHandle());
-  hmdDevice->Initialize(*static_cast<Hmd::IContext *>(hmdContext));
-
+  hmdDevice->Initialize();
+  
   const auto &hmdConfiguration = hmdDevice->Configuration();
 
   renderEngineWindow->SetRect(OSRect(hmdConfiguration.WindowPositionX(), hmdConfiguration.WindowPositionY(), 
@@ -94,26 +94,20 @@ void VRShell::Main(void) {
   AutoFired<Updatable> upd;
 
   // Dispatch events until told to quit:
-  float offset = 0;
-  bool showingLeapPassthrough = false;
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle OS events:
     renderEngineWindow->ProcessEvents();
 
     // Handle autowiring events:
-    this->DispatchAllEvents();
-
+    DispatchAllEvents();
     // Broadcast update event to all interested parties:
     const auto now = std::chrono::steady_clock::now();
-    const auto delta = now - then;
+    upd(&Updatable::Tick)(now - then);
     then = now;
-
-    upd(&Updatable::Tick)(delta);
   }
 
   hmdDevice->Shutdown();
-  hmdContext->Shutdown();
 
   renderEngineWindow->SetVisible(false);
 }
