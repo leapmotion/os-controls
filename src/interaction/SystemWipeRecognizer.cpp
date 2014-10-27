@@ -82,9 +82,6 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
       return;
   }
 
-  ComputeBrightness(frame.images());
-  ComputeDownsampledBrightness();
-
   // Use a 6th order polynomial to approximate the maximum brightness curve for the
   // center vertical line for the camera.  This is used to normalize the brightness
   // values thereby accounting for the non-uniform LED illumination.
@@ -93,7 +90,7 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
   auto max_brightness_approximation = [](float t) {
       assert(t >= 0.0f && t <= 1.0f);
       static const size_t POLYNOMIAL_ORDER = 6;
-      static const float POLYNOMIAL_COEFFICIENTS[POLYNOMIAL_ORDER+1] = { 0.759765734259f, 1.99866765911f, -6.85648009151f, 11.15012094f, -8.86891604236f, 3.62432179126f, -1.107168802f };
+      static const float POLYNOMIAL_COEFFICIENTS[POLYNOMIAL_ORDER+1] = { 0.538455f, 1.64043f, 10.0559f, -68.0226f, 145.586f, -133.89f, 44.6299f };
       float power_of_t = 1.0f;
       float retval = 0.0f;
       for (size_t i = 0; i < POLYNOMIAL_ORDER+1; ++i) {
@@ -102,6 +99,13 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
       }
       return retval;
   };
+
+  ComputeBrightness(frame.images());
+  ComputeDownsampledBrightness();
+  // Normalize the downsampled brightness based on the approximate max brightness function.
+  for (Internal::Linterp<float> t(0.0f, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    m_downsampled_brightness[t.Index()] /= max_brightness_approximation(t);
+  }
 
   // Update m_max_downsampled_brightness.
   for (size_t i = 0; i < SAMPLE_COUNT; ++i) {
@@ -114,9 +118,8 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
   {
     float centroid = 0.0f;
     float mass = 0.0f;
-    for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    for (Internal::Linterp<float> t(0.0f, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       float b = m_downsampled_brightness[t.Index()];
-      // b /= max_brightness_approximation(t);
       // float s = b;
       float s = (b > BRIGHTNESS_ACTIVATION_THRESHOLD) ? 1 : 0;
       centroid += s*t;
@@ -132,7 +135,7 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
   auto percent = [](float b) -> int { return int(100.0f*b); };
 
   if (true) {
-    for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    for (Internal::Linterp<float> t(0.0f, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       float b = m_downsampled_brightness[t.Index()];
       std::cerr << std::setw(3) << percent(b) << ',';
     }
@@ -145,7 +148,7 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
     size_t down_edge(std::round((SAMPLE_COUNT-1)*m_signal.DownEdge()));
     size_t centroid(std::round((SAMPLE_COUNT-1)*m_signal.Centroid()));
     std::cerr << "  ";
-    for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    for (Internal::Linterp<float> t(0.0f, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       // Print 3 characters to render:
       // - the up edge,
       // - the centroid.
