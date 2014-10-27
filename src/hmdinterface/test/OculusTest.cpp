@@ -74,7 +74,7 @@ TEST_F(OculusTest, BasicSquare) {
     hmdDevice->BeginFrame();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    for (uint32_t eye_render_index = 0; eye_render_index < 2; ++eye_render_index) {
+    for (uint32_t eye_render_index = 0; eye_render_index < hmdDevice->Configuration().EyeCount(); ++eye_render_index) {
       uint32_t eye_index = hmdDevice->Configuration().EyeRenderOrder(eye_render_index);
       hmdDevice->BeginRenderingEye(eye_index);
 
@@ -170,7 +170,7 @@ TEST_F(OculusTest, BasicSquareRenderWindow) {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (uint32_t eye_render_index = 0; eye_render_index < 2; ++eye_render_index) {
+    for (uint32_t eye_render_index = 0; eye_render_index < hmdDevice->Configuration().EyeCount(); ++eye_render_index) {
       uint32_t eye_index = hmdDevice->Configuration().EyeRenderOrder(eye_render_index);
       hmdDevice->BeginRenderingEye(eye_index);
 
