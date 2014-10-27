@@ -3,6 +3,7 @@
 #include "Leap.h"
 
 #include <autowiring/Autowired.h>
+#include <deque>
 #include <functional>
 
 namespace Internal {
@@ -62,6 +63,37 @@ private:
   StateMachineHandler m_requested_transition_state;
 };
 
+template <typename Data_>
+class History {
+public:
+
+  History (size_t max_sample_count) : m_max_sample_count(max_sample_count) { }
+
+  size_t SampleCount () const { return m_data.size(); }
+  size_t MaxSampleCount () const { return m_max_sample_count; }
+  // historical_sample_index is how far back into history to go.  Specifying 0 gives the most recent sample.
+  // An exception will be thrown if the index exceeds the number of samples.
+  const Data_ &operator [] (size_t historical_sample_index) const {
+    return m_data.at(historical_sample_index);
+  }
+
+  template <typename... Types_>
+  void RecordSample (Types_&&... args) {
+    assert(m_data.size() <= m_max_sample_count);
+    if (m_data.size() >= m_max_sample_count) {
+      m_data.pop_back();
+    }
+    m_data.emplace_front(args...);
+  }
+
+private:
+
+  // Max number of samples that will be stored.
+  size_t m_max_sample_count;
+  // The front is the most recent sample.
+  std::deque<Data_> m_data;
+};
+
 } // end of namespace Internal
 
 struct SystemWipe {
@@ -91,6 +123,7 @@ private:
   struct Signal {
     Signal () : m_centroid(0), m_mass(0) { }
     Signal (T_ centroid, T_ mass) : m_centroid(centroid), m_mass(mass) { }
+    bool operator == (const Signal &other) const { return m_centroid == other.m_centroid && m_mass == other.m_mass; }
     const T_ &Centroid () const { return m_centroid; }
     const T_ &Mass () const { return m_mass; }
     T_ UpEdge () const { return m_centroid - T_(0.5)*m_mass; }
@@ -107,6 +140,10 @@ private:
   void ComputeBrightness (const Leap::ImageList &images);
   // Populate m_downsampled_brightness.
   void ComputeDownsampledBrightness ();
+
+  // Convenience accessors
+  const Signal<float> &CurrentSignal () const { return m_signal_history[0]; }
+  Signal<float> CurrentSignalDelta () const { return m_signal_history[0] - m_signal_history[1]; }
 
   // Tuning parameters
 
@@ -136,7 +173,7 @@ private:
   float m_first_good_down_tracking_value;
   std::function<float(float)> m_progress_transform;
   float m_initial_tracking_value;
-  Signal<float> m_signal;
+  Internal::History<Signal<float>> m_signal_history;
   SystemWipe *m_system_wipe;
   SystemWipe::Direction m_wipe_direction;
   float m_downsampled_brightness[SAMPLE_COUNT];
