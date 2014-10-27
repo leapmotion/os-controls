@@ -15,6 +15,7 @@ namespace OculusRift {
 
 class Device : public Hmd::IDevice {
 public:
+  Device(const OculusRift::Context &context);
   virtual ~Device ();
 
   // If this is to be called, it must be done before Initialize.
@@ -52,8 +53,6 @@ public:
   virtual void EndFrame () override;
 
 private:
-  Device(const OculusRift::Context &context);
-  friend class Hmd::HmdFactory;
 
   // This is the implementation of IsInitialized (useful as a non-virtual method).
   bool IsInitialized_ () const { return m_hmd != nullptr; }
