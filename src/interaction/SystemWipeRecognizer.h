@@ -87,20 +87,32 @@ public:
 
 private:
 
+  template <typename T_>
+  struct Signal {
+    Signal () : m_centroid(0), m_mass(0) { }
+    Signal (T_ centroid, T_ mass) : m_centroid(centroid), m_mass(mass) { }
+    const T_ &Centroid () const { return m_centroid; }
+    const T_ &Mass () const { return m_mass; }
+    T_ UpEdge () const { return m_centroid - T_(0.5)*m_mass; }
+    T_ DownEdge () const { return m_centroid + T_(0.5)*m_mass; }
+    T_ TrackingValue (SystemWipe::Direction d) const { return d == SystemWipe::Direction::UP ? T_(1) - UpEdge() : DownEdge(); }
+    // This is here so that a discrete derivative is computable.
+    Signal operator - (const Signal &rhs) const { return Signal(m_centroid-rhs.m_centroid, m_mass-rhs.m_mass); }
+  private:
+    T_ m_centroid;
+    T_ m_mass;
+  };
+
   // Populates m_brightness.
   void ComputeBrightness (const Leap::ImageList &images);
   // Populate m_downsampled_brightness.
   void ComputeDownsampledBrightness ();
 
-  float UpEdge () const { return m_current_centroid - 0.5f*m_current_mass; }
-  float DownEdge () const { return m_current_centroid + 0.5f*m_current_mass; }
-  float TrackingValue (SystemWipe::Direction d) const { return d == SystemWipe::Direction::UP ? 1.0f - UpEdge() : DownEdge(); }
-
   // Tuning parameters
 
   // Number of samples to analyze in the gesture detection.  [Vertical strip(s) of] The original image(s)
   // will be downsampled to match this number.
-  static const size_t SAMPLE_COUNT = 20;
+  static const size_t SAMPLE_COUNT = 30;
   // Proportion of the total height of the images to use.  The sampled region will be centered vertically.
   static const float PROPORTION_OF_IMAGE_HEIGHT_TO_USE;
   // The imagine intensity which is considered "active" with respect to this gesture recognition.
@@ -113,7 +125,6 @@ private:
   void WaitingForAnyMassSignal (StateMachineEvent);
   void WaitingForMassActivationThreshold (StateMachineEvent);
   void RecognizingGesture (StateMachineEvent);
-  // void WaitingForSufficientDelta (StateMachineEvent);
   void Timeout (StateMachineEvent);
 
   Internal::StateMachine<SystemWipeRecognizer,StateMachineEvent,StateMachineEvent::ENTER,StateMachineEvent::EXIT> m_state_machine;
@@ -121,20 +132,11 @@ private:
   std::vector<float> m_brightness;
   double m_centroid_signal_start_time;
   double m_timeout_end_time;
-  // float m_up_edge_start_value;
-  // float m_centroid_start_value;
-  // float m_down_edge_start_value;
-  // float m_recognizing_gesture_direction;
   float m_first_good_up_tracking_value;
   float m_first_good_down_tracking_value;
   std::function<float(float)> m_progress_transform;
   float m_initial_tracking_value;
-  // float m_last_good_up_edge_value;
-  // float m_last_good_centroid_value;
-  // float m_last_good_down_edge_value;
-  // float m_max_progress;
-  float m_current_centroid;
-  float m_current_mass;
+  Signal<float> m_signal;
   SystemWipe *m_system_wipe;
   SystemWipe::Direction m_wipe_direction;
   float m_downsampled_brightness[SAMPLE_COUNT];

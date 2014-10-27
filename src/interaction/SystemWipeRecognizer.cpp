@@ -111,20 +111,23 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
   }
 
   // Number of samples uniformly distributed.  TODO: compute which mipmap level to use based on this.
-  m_current_mass = 0.0f;
-  m_current_centroid = 0.0f;
-  for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
-    float b = m_downsampled_brightness[t.Index()];
-    // b /= max_brightness_approximation(t);
-    // float s = b;
-    float s = (b > BRIGHTNESS_ACTIVATION_THRESHOLD) ? 1 : 0;
-    m_current_mass += s;
-    m_current_centroid += s*t;
+  {
+    float centroid = 0.0f;
+    float mass = 0.0f;
+    for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+      float b = m_downsampled_brightness[t.Index()];
+      // b /= max_brightness_approximation(t);
+      // float s = b;
+      float s = (b > BRIGHTNESS_ACTIVATION_THRESHOLD) ? 1 : 0;
+      centroid += s*t;
+      mass += s;
+    }
+    if (mass > std::numeric_limits<float>::epsilon()) {
+      centroid /= mass; // Divide centroid through by mass before adjusting mass by sample_count.
+    }
+    mass /= SAMPLE_COUNT;
+    m_signal = Signal<float>(centroid, mass);
   }
-  if (m_current_mass > std::numeric_limits<float>::epsilon()) {
-    m_current_centroid /= m_current_mass; // Divide centroid through by mass before adjusting mass by sample_count.
-  }
-  m_current_mass /= SAMPLE_COUNT;
 
   auto percent = [](float b) -> int { return int(100.0f*b); };
 
@@ -138,9 +141,9 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
     //   float b = m_max_downsampled_brightness[t.Index()];
     //   std::cerr << std::setw(3) << percent(b) << ',';
     // }
-    size_t up_edge(std::round((SAMPLE_COUNT-1)*UpEdge()));
-    size_t down_edge(std::round((SAMPLE_COUNT-1)*DownEdge()));
-    size_t centroid(std::round((SAMPLE_COUNT-1)*m_current_centroid));
+    size_t up_edge(std::round((SAMPLE_COUNT-1)*m_signal.UpEdge()));
+    size_t down_edge(std::round((SAMPLE_COUNT-1)*m_signal.DownEdge()));
+    size_t centroid(std::round((SAMPLE_COUNT-1)*m_signal.Centroid()));
     std::cerr << "  ";
     for (Internal::Linterp<float> t(0.0, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       // Print 3 characters to render:
@@ -157,8 +160,8 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
       std::cerr << (t.Index() == centroid  ? 'X' : underlying_char);
       std::cerr << (t.Index() == down_edge ? ']' : underlying_char);
     }
-    std::cerr << ", " << std::setw(3) << percent(m_current_mass);// << '\n';
-    // std::cerr << ", " << std::setw(3) << percent(m_current_mass) << "  " << std::setw(3) << percent(m_current_centroid) << '\n';
+    std::cerr << ", " << std::setw(3) << percent(m_signal.Mass());// << '\n';
+    // std::cerr << ", " << std::setw(3) << percent(m_signal.Mass()) << "  " << std::setw(3) << percent(m_signal.Centroid()) << '\n';
   }
 
   m_state_machine.Run(StateMachineEvent::FRAME);
@@ -241,7 +244,7 @@ void SystemWipeRecognizer::WaitingForAnyMassSignal (StateMachineEvent event) {
   PRINT_STATEMACHINE_INFO(WaitingForAnyMassSignal,event);
   switch (event) {
     case StateMachineEvent::FRAME:
-      if (m_current_mass >= 0.1f) {
+      if (m_signal.Mass() >= 0.1f) {
         SET_TRANSITION_REQUEST_AND_RETURN(WaitingForMassActivationThreshold);
       }
     default: return;
@@ -253,8 +256,8 @@ void SystemWipeRecognizer::WaitingForMassActivationThreshold (StateMachineEvent 
   switch (event) {
     case StateMachineEvent::ENTER:
       m_centroid_signal_start_time = m_current_time;
-      m_first_good_up_tracking_value = TrackingValue(SystemWipe::Direction::UP);
-      m_first_good_down_tracking_value = TrackingValue(SystemWipe::Direction::DOWN);
+      m_first_good_up_tracking_value = m_signal.TrackingValue(SystemWipe::Direction::UP);
+      m_first_good_down_tracking_value = m_signal.TrackingValue(SystemWipe::Direction::DOWN);
       // std::cerr << FORMAT_VALUE(m_centroid_start_value) << "  \n";
       // Intentionally fall through so that the frame logic in this state is processed.
     case StateMachineEvent::FRAME: {
@@ -263,15 +266,15 @@ void SystemWipeRecognizer::WaitingForMassActivationThreshold (StateMachineEvent 
       // upward.  Analogously, a down-wipe is defined to begin when the down edge is at the top
       // of the image, poised to proceed downward.  These conditions are mutually exclusive by
       // construction.
-      float up_tracking_value = TrackingValue(SystemWipe::Direction::UP);
-      float down_tracking_value = TrackingValue(SystemWipe::Direction::DOWN);
+      float up_tracking_value = m_signal.TrackingValue(SystemWipe::Direction::UP);
+      float down_tracking_value = m_signal.TrackingValue(SystemWipe::Direction::DOWN);
       // std::cerr << FORMAT_VALUE(up_tracking_value) << ", " << FORMAT_VALUE(down_tracking_value) << "  ";
       static const float WIPE_START_UPPER_BOUND = 0.5f; //0.8f - WIPE_END_DELTA_THRESHOLD;
-      bool detected_higher_mass_signal = m_current_mass >= 0.25f && (up_tracking_value <= WIPE_START_UPPER_BOUND || down_tracking_value <= WIPE_START_UPPER_BOUND);
+      bool detected_higher_mass_signal = m_signal.Mass() >= 0.25f && (up_tracking_value <= WIPE_START_UPPER_BOUND || down_tracking_value <= WIPE_START_UPPER_BOUND);
       if (detected_higher_mass_signal) {
         m_wipe_direction = down_tracking_value <= WIPE_START_UPPER_BOUND ? SystemWipe::Direction::DOWN : SystemWipe::Direction::UP;
         // float first_good_tracking_value = m_wipe_direction == SystemWipe::Direction::UP ? m_first_good_up_tracking_value : m_first_good_down_tracking_value;
-        // m_initial_tracking_value = std::min(TrackingValue(m_wipe_direction), first_good_tracking_value);
+        // m_initial_tracking_value = std::min(m_signal.TrackingValue(m_wipe_direction), first_good_tracking_value);
         SET_TRANSITION_REQUEST_AND_RETURN(RecognizingGesture);
       }
     }
@@ -284,9 +287,9 @@ void SystemWipeRecognizer::RecognizingGesture (StateMachineEvent event) {
   switch (event) {
     case StateMachineEvent::ENTER: {
       // float first_good_tracking_value = m_wipe_direction == SystemWipe::Direction::UP ? m_first_good_up_tracking_value : m_first_good_down_tracking_value;
-      // m_initial_tracking_value = std::min(TrackingValue(m_wipe_direction), first_good_tracking_value);
-      // m_initial_tracking_value = TrackingValue(m_wipe_direction);
-      float begin_tracking_value = TrackingValue(m_wipe_direction);
+      // m_initial_tracking_value = std::min(m_signal.TrackingValue(m_wipe_direction), first_good_tracking_value);
+      // m_initial_tracking_value = m_signal.TrackingValue(m_wipe_direction);
+      float begin_tracking_value = m_signal.TrackingValue(m_wipe_direction);
       float complete_tracking_value = begin_tracking_value + 0.75f*(1.0f - begin_tracking_value); // 70% of the way to the other edge.
       m_progress_transform = [begin_tracking_value, complete_tracking_value](float tracking_value) {
         // The range [begin_tracking_value, complete_tracking_value] shall map onto [0, 1].
@@ -304,14 +307,14 @@ void SystemWipeRecognizer::RecognizingGesture (StateMachineEvent event) {
       // 1. The mass dropping low enough (end without "gesture complete").
       // 2. The wipe gesture proceeding far enough across the screen to register (end with "gesture complete").
       // 3. The wipe regressing back across the screen enough to abort the gesture (end without "gesture complete").
-      if (m_current_mass < 0.1f) { // Case 1.
+      if (m_signal.Mass() < 0.1f) { // Case 1.
         SET_TRANSITION_REQUEST_AND_RETURN(WaitingForAnyMassSignal);
       }
-      // float tracking_value = TrackingValue(m_wipe_direction);
+      // float tracking_value = m_signal.TrackingValue(m_wipe_direction);
       // static const auto clamp = [](float x) { return std::min(std::max(0.0f, x), 1.0f); };
       m_system_wipe->status = SystemWipe::Status::UPDATE;
       m_system_wipe->direction = m_wipe_direction;
-      m_system_wipe->progress = m_progress_transform(TrackingValue(m_wipe_direction)); //clamp((tracking_value - m_initial_tracking_value) / WIPE_END_DELTA_THRESHOLD);
+      m_system_wipe->progress = m_progress_transform(m_signal.TrackingValue(m_wipe_direction)); //clamp((tracking_value - m_initial_tracking_value) / WIPE_END_DELTA_THRESHOLD);
       if (m_system_wipe->progress == 1.0f) { // Case 2.
         m_system_wipe->status = SystemWipe::Status::COMPLETE;
         SET_TRANSITION_REQUEST_AND_RETURN(Timeout);
@@ -321,49 +324,6 @@ void SystemWipeRecognizer::RecognizingGesture (StateMachineEvent event) {
     default: return;
   }
 }
-
-// void SystemWipeRecognizer::WaitingForSufficientDelta (StateMachineEvent event) {
-//   PRINT_STATEMACHINE_INFO(WaitingForSufficientDelta,event);
-//   switch (event) {
-//     case StateMachineEvent::ENTER: // Process frame upon entry by falling through.
-//     case StateMachineEvent::FRAME: {
-//       // float delta = m_last_good_centroid_value - m_centroid_start_value;
-//       // The up edge is tracking motion in the negative direction, so only record negative deltas.
-//       float up_edge_delta = std::abs(std::min(0.0f, m_last_good_up_edge_value - m_up_edge_start_value));
-//       // The down edge is tracking motion in the positive direction, so only record positive deltas.
-//       float down_edge_delta = std::abs(std::max(0.0f, m_last_good_down_edge_value - m_down_edge_start_value));
-
-//       // There are several ways for the gesture to end -- losing enough mass, or having
-//       // a large enough delta on either the up edge or the down edge.
-//       bool end_gesture = m_current_mass < 0.1f || up_edge_delta > WIPE_END_DELTA_THRESHOLD || down_edge_delta > WIPE_END_DELTA_THRESHOLD;      
-//       if (end_gesture) {
-//         // std::cerr << FORMAT_VALUE(m_last_good_centroid_value) << ", " << FORMAT_VALUE(m_centroid_start_value) << ", " << FORMAT_VALUE(delta) << '\n';
-//         // std::cerr << FORMAT_VALUE(up_edge_delta) << ", " << FORMAT_VALUE(down_edge_delta) << '\n';
-//         if (up_edge_delta > WIPE_END_DELTA_THRESHOLD) {
-//           // std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! centroid delta recognized -- " << (delta > 0.0f ? "DOWN" : "UP") << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-//           m_system_wipe->isWiping = true;
-//           m_system_wipe->direction = SystemWipe::Direction::UP; // The pixel indices go down in the image's up direction.
-//           m_timeout_end_time = m_current_time + 0.3;
-//           SET_TRANSITION_REQUEST_AND_RETURN(Timeout);
-//         } else if (down_edge_delta > WIPE_END_DELTA_THRESHOLD) {
-//           // std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! centroid delta recognized -- " << (delta > 0.0f ? "DOWN" : "UP") << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-//           m_system_wipe->isWiping = true;
-//           m_system_wipe->direction = SystemWipe::Direction::DOWN; // The pixel indices go up in the image's down direction.
-//           m_timeout_end_time = m_current_time + 0.3;
-//           SET_TRANSITION_REQUEST_AND_RETURN(Timeout);
-//         }
-//         // Not wiping.
-//         SET_TRANSITION_REQUEST_AND_RETURN(WaitingForAnyMassSignal);
-//       } else {
-//         m_last_good_up_edge_value = UpEdge();
-//         m_last_good_centroid_value = m_current_centroid;
-//         m_last_good_down_edge_value = DownEdge();
-//       }
-//       return;
-//     }
-//     default: return;
-//   }
-// }
 
 void SystemWipeRecognizer::Timeout (StateMachineEvent event) {
   PRINT_STATEMACHINE_INFO(Timeout,event);
