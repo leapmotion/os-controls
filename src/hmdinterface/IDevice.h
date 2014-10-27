@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include <autowiring/ContextMember.h>
+
 namespace Hmd {
 
 class IContext;
@@ -45,10 +47,14 @@ private:
 };
 #endif
 
-class IDevice {
+class IDevice : 
+  public ContextMember
+{
 public:
 
   virtual ~IDevice () { }
+
+  static IDevice* New();
 
   /// @brief Initialize this Device object.
   /// @details If this method call succeeds, then the initialization has succeeded.  Errors are

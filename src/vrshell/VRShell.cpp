@@ -69,8 +69,8 @@ void VRShell::Main(void) {
   AutoRequired<Hmd::HmdFactory> hmdFactory;
 
   // Create the OculusRift::Device (per-device initialization/shutdown)
-  //Todo - make this have an autowiring compatible interface.
-  std::shared_ptr<Hmd::IDevice> hmdDevice(hmdFactory->CreateDevice());
+  AutoRequired<Hmd::IDevice> hmdDevice;
+
   hmdDevice->SetWindow(renderEngineWindow->GetSystemHandle());
   hmdDevice->Initialize();
   
