@@ -22,13 +22,13 @@ namespace ai {
   //! Convert aiQuaternion to Eigen::Quaternionf.
   inline Eigen::Quaternionf get(const aiQuaternion &q);
   //! Convert aiMatrix4x4 to Eigen::Matrix4f.
-  inline Eigen::Matrix4f get(const aiMatrix4x4 &m);
+  inline Eigen::Matrix4f get(const aiMatrix4x4 &m, float scaleFactor);
   //! Convert aiColor4D to Color.
   inline Color get(const aiColor4D &c);
   //! Convert aiString to std::string.
   inline std::string get(const aiString &s);
   //! Extract vertex positions from an assimp mesh section.
-  std::vector<Eigen::Vector3f> getPositions(const aiMesh* aimesh);
+  std::vector<Eigen::Vector3f> getPositions(const aiMesh* aimesh, float scaleFactor);
   //! Extract vertex normals from an assimp mesh section.
   std::vector<Eigen::Vector3f> getNormals(const aiMesh* aimesh);
   //! Extract vertex texture coordinates from an assimp mesh section.
@@ -38,13 +38,14 @@ namespace ai {
   //! Extract material information (including textures) for a mesh section.
   model::MaterialInfo getTexture(const aiScene* aiscene, const aiMesh *aimesh, const std::string& modelPath, const std::string& rootPath = "");
   //! Extract skeletal bone weights for each vertex of an assimp mesh section.
-  std::vector<model::BoneWeights>	getBoneWeights(const aiMesh* aimesh, const model::Skeleton* skeleton);
+  std::vector<model::BoneWeights> getBoneWeights(const aiMesh* aimesh, const model::Skeleton* skeleton, float scaleFactor);
   //! Extract a mesh section's default transformation (use when there is no bones)
-  Eigen::Matrix4f getDefaultTransformation(const std::string& name, const aiScene* aiscene, model::Skeleton* skeleton);
+  Eigen::Matrix4f getDefaultTransformation(const std::string& name, const aiScene* aiscene, model::Skeleton* skeleton, float scaleFactor);
 
   //! Construct skeleton from assimp scene.
   std::shared_ptr<class model::Skeleton> getSkeleton(const aiScene* aiscene,
     bool hasAnimations,
+    float scaleFactor,
     const aiNode* root = nullptr);
   //! Traverse assimp nodes to find the aiNode with specified name.
   const aiNode* findMeshNode(const std::string& meshName,
@@ -72,7 +73,7 @@ namespace model {
     bool mHasSkeleton;
     bool mHasAnimations;
   public:
-    static ModelSourceAssimpRef	create(const std::string& modelPath, const std::string& rootAssetFolderPath = "");
+    static ModelSourceAssimpRef create(const std::string& modelPath, const std::string& rootAssetFolderPath, float scaleFactor);
 
     virtual size_t getNumSections() const override { return mSections.size(); }
     virtual size_t getNumVertices(int section = 0) const override { return mSections[section].mNumVertices; }
@@ -85,7 +86,7 @@ namespace model {
     virtual void load(ModelTarget *target) override;
 
   protected:
-    ModelSourceAssimp(const std::string& modelPath, const std::string& rootAssetFolderPath = "");
+    ModelSourceAssimp(const std::string& modelPath, const std::string& rootAssetFolderPath, float scaleFactor);
   private:
     //! Assimp importer instance which cannot be destroyed until the scene loading is complete.
     std::unique_ptr<Assimp::Importer> mImporter;
@@ -98,6 +99,8 @@ namespace model {
     std::string	mRootAssetFolderPath;
     //! Information extracted (upon class instantiation) from assimp about each model section
     std::vector<SectionInfo> mSections;
+
+    float mScaleFactor;
   };
 
 } //end namespace model

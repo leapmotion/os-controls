@@ -7,8 +7,25 @@
 #include <cmath>
 #include <assert.h>
 
+const float RiggedHand::UNIT_CONVERSION_SCALE_FACTOR = 10.0f; // FBX model is in cm, our units are mm
+
 RiggedHand::RiggedHand() {
+  mConfidence = 0.0f;
+  mTimeVisible = 0.0f;
+  mIsLeft = false;
+  mArmBasis.setIdentity();
+  mHandBasis.setIdentity();
+  mPalmWidth = 1.0f;
+  mLeapWristPosition.setZero();
+  for (int i=0; i<5; i++) {
+    for (int j=0; j<4; j++) {
+      mBoneBases[i][j].setIdentity();
+      mBoneLengths[i][j] = 1.0f;
+    }
+  }
+
   mPrevIsLeft = false;
+  mWristPosition.setZero();
   mElbowPos.setZero();
   mArmRotation.setIdentity();
   mWristRotation.setIdentity();
@@ -32,7 +49,7 @@ RiggedHand::RiggedHand() {
   mAmbient = 0.3f;
   mDiffuse = 0.65f;
   mInnerTransparency = 0.0f;
-  mLightPos = Eigen::Vector3f(0.0f, 100.0f, 50.0f);
+  mLightPos = Eigen::Vector3f(0.0f, 1000.0f, 500.0f);
 
   mGender = FEMALE;
   mSkinTone = MEDIUM;
@@ -40,7 +57,7 @@ RiggedHand::RiggedHand() {
   mPrevSkinTone = NUM_SKIN_TONES;
 
   mScaleMultiplier = 1.27f;
-  mTranslationOffset = Eigen::Vector3f(-0.3f, -0.2f, -1.4f);
+  mTranslationOffset = Eigen::Vector3f(-3.0f, -2.0f, -14.0f);
   mRotationOffset = Eigen::Quaternionf(1.0f, 0.01f, 0.02f, 0.01f);
 
   mForearmLength = 1.0f;
@@ -60,11 +77,73 @@ void RiggedHand::SetStyle(Gender gender, SkinTone tone) {
   mSkinTone = tone;
 }
 
-void RiggedHand::Update(const Leap::Hand& hand) {
-  mHand = hand;
+void RiggedHand::SetLeapHand(const Leap::Hand& hand) {
+  mConfidence = hand.confidence();
+  mTimeVisible = hand.timeVisible();
 
+  mIsLeft = hand.isLeft();
+  if (mIsLeft != mPrevIsLeft) {
+    mArmReorientation = computeArmReorientation(mIsLeft);
+    mWristReorientation = computeWristReorientation(mIsLeft);
+    mFingerReorientation = computeFingerReorientation(mIsLeft);
+    mPrevIsLeft = mIsLeft;
+  }
+
+  mArmBasis = toEigen(hand.arm().basis());
+  mHandBasis = toEigen(hand.basis());
+  mPalmWidth = hand.palmWidth();
+  mLeapWristPosition = hand.wristPosition().toVector3<Eigen::Vector3f>();
+
+  const Leap::FingerList fingers = hand.fingers();
+  for (int i=0; i<5; i++) {
+    const Leap::Finger finger = fingers[i];
+    for (int j=0; j<4; j++) {
+      const Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(j));
+      mBoneLengths[i][j] = bone.length();
+      mBoneBases[i][j] = toEigen(bone.basis());
+    }
+  }
+}
+
+void RiggedHand::SetConfidence(float confidence) {
+  mConfidence = confidence;
+}
+
+void RiggedHand::SetTimeVisible(float timeVisible) {
+  mTimeVisible = timeVisible;
+}
+
+void RiggedHand::SetIsLeft(bool isLeft) {
+  mIsLeft = isLeft;
+}
+
+void RiggedHand::SetArmBasis(const Eigen::Matrix3f& armBasis) {
+  mArmBasis = armBasis.cast<double>();
+}
+
+void RiggedHand::SetHandBasis(const Eigen::Matrix3f& handBasis) {
+  mHandBasis = handBasis.cast<double>();
+}
+
+void RiggedHand::SetPalmWidth(float palmWidth) {
+  mPalmWidth = palmWidth;
+}
+
+void RiggedHand::SetWristPosition(const Eigen::Vector3f& wristPosition) {
+  mLeapWristPosition = wristPosition;
+}
+
+void RiggedHand::SetBoneBasis(int fingerIdx, int boneIdx, const Eigen::Matrix3f& basis) {
+  mBoneBases[fingerIdx][boneIdx] = basis.cast<double>();
+}
+
+void RiggedHand::SetBoneLength(int fingerIdx, int boneIdx, float length) {
+  mBoneLengths[fingerIdx][boneIdx] = length;
+}
+
+void RiggedHand::UpdateRigAndSkin() {
   updateStyle();
-  updateLeapData();
+  updateIntermediateData();
 
   model::NodeRef armNode = getArmNode();
   model::NodeRef wristNode = getWristNode();
@@ -74,13 +153,8 @@ void RiggedHand::Update(const Leap::Hand& hand) {
   armNode->setRelativeScale(Eigen::Vector3f::Constant(mArmScale));
   wristNode->setRelativeRotation(mWristRotation.cast<float>());
 
-  const Leap::FingerList fingers = mHand.fingers();
-  for (int i=0; i<fingers.count(); i++) {
-    updateFinger(i);
-  }
-
-  const float confidenceMult = mDrawConfidence ? std::min(1.0f, mHand.confidence()) : 1.0f;
-  const float timeVisibleMult = std::min(1.0f, 0.5f * mHand.timeVisible());
+  const float confidenceMult = mDrawConfidence ? std::min(1.0f, mConfidence) : 1.0f;
+  const float timeVisibleMult = std::min(1.0f, 0.5f * mTimeVisible);
   mOpacity = confidenceMult * timeVisibleMult;
 
   mSkinnedVboHands->update();
@@ -91,8 +165,6 @@ void RiggedHand::MakeAdditionalModelViewTransformations(ModelView& model_view) c
 }
 
 void RiggedHand::DrawContents(RenderState& renderState) const {
-  glEnable(GL_TEXTURE_2D);
-
   std::vector<model::MeshVboSectionRef>& sections = mSkinnedVboHands->getSections();
   if (mEnableWireframe) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -193,8 +265,6 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
   if (mEnableWireframe) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
-
-  glDisable(GL_TEXTURE_2D);
 }
 
 void RiggedHand::updateStyle() {
@@ -216,43 +286,29 @@ void RiggedHand::updateStyle() {
   mPrevSkinTone = mSkinTone;
 }
 
-void RiggedHand::updateLeapData() {
-  const bool isLeft = mHand.isLeft();
+void RiggedHand::updateIntermediateData() {
+  const Eigen::Vector3f handDirection = mHandBasis.col(2).cast<float>();
 
-  if (isLeft != mPrevIsLeft) {
-    mArmReorientation = computeArmReorientation(isLeft);
-    mWristReorientation = computeWristReorientation(isLeft);
-    mFingerReorientation = computeFingerReorientation(isLeft);
-    mPrevIsLeft = isLeft;
-  }
+  mArmScale = mScaleMultiplier * mPalmWidth / 100;
 
-  const Eigen::Matrix3d armBasis = toEigen(mHand.arm().basis());
+  const Eigen::Vector3f wristPos = mLeapWristPosition - mArmScale*(mHandBasis.cast<float>()*mTranslationOffset);
 
-  const Eigen::Matrix3d handBasis = toEigen(mHand.basis());
-  const Eigen::Vector3f handDirection = handBasis.col(2).cast<float>();
-  const float palmWidth = mHand.palmWidth();
-
-  mArmScale = mScaleMultiplier * palmWidth / 100;
-
-  const Eigen::Vector3f handPos = 0.1f * mHand.palmPosition().toVector3<Eigen::Vector3f>();
-  const Eigen::Vector3f wristPos = 0.1f * mHand.wristPosition().toVector3<Eigen::Vector3f>() - mArmScale*(handBasis.cast<float>()*mTranslationOffset);
-
-  const Eigen::Vector3f forearmDir = -armBasis.col(2).cast<float>();
+  const Eigen::Vector3f forearmDir = -mArmBasis.col(2).cast<float>();
   const Eigen::Vector3f forearmDirNormalized = forearmDir.normalized();
   mElbowPos = wristPos - mForearmLength * forearmDirNormalized;
 
-  const Eigen::Quaterniond armQuat = toQuat(armBasis, mHand.isLeft());
+  const Eigen::Quaterniond armQuat = toQuat(mArmBasis, mIsLeft);
   Eigen::Quaterniond handednessQuat = armQuat;
-  if (isLeft) {
+  if (mIsLeft) {
     handednessQuat.y() *= -1.0;
     handednessQuat.z() *= -1.0;
   }
   mArmRotation = handednessQuat * mArmReorientation;
 
-  mHandRotation = toQuat(handBasis, mHand.isLeft());
+  mHandRotation = toQuat(mHandBasis, mIsLeft);
 
   Eigen::Quaterniond rotationOffset = mRotationOffset.cast<double>();
-  if (isLeft) {
+  if (mIsLeft) {
     rotationOffset.x() *= -1.0;
     rotationOffset.y() *= -1.0;
   }
@@ -260,32 +316,33 @@ void RiggedHand::updateLeapData() {
   mWristRotation = mWristReorientation * rotationOffset * armQuat.inverse() * mHandRotation;
   std::swap(mWristRotation.x(), mWristRotation.z());
   mWristRotation.x() *= -1;
-  if (!isLeft) {
+  if (!mIsLeft) {
     mWristRotation.y() *= -1;
     mWristRotation.z() *= -1;
   }
 
-  updateMeshMirroring(isLeft);
+  for (int i=0; i<5; i++) {
+    updateFinger(i);
+  }
+
+  updateMeshMirroring(mIsLeft);
 }
 
 void RiggedHand::updateFinger(int fingerIdx) {
-  const Leap::Finger finger = mHand.fingers()[fingerIdx];
-  const bool isLeft = mHand.isLeft();
   Eigen::Quaterniond prevQuat = mHandRotation * mFingerReorientation;
   for (int boneIdx=0; boneIdx<3; boneIdx++) {
-    const Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(boneIdx+1));
-    const Eigen::Matrix3d boneBasis = toEigen(bone.basis());
+    const Eigen::Matrix3d& boneBasis = mBoneBases[fingerIdx][boneIdx+1];
 
-    const Eigen::Quaterniond boneQuat = toQuat(boneBasis, isLeft) * mFingerReorientation;
+    const Eigen::Quaterniond boneQuat = toQuat(boneBasis, mIsLeft) * mFingerReorientation;
     model::NodeRef boneNode = getJointNode(fingerIdx, boneIdx);
     boneNode->setRelativeRotation((prevQuat.inverse() * boneQuat).cast<float>());
 
-    const int minBoneToAdjust = finger.type() == Leap::Finger::TYPE_THUMB ? 2 : 1;
+    const int minBoneToAdjust = fingerIdx == 0 ? 2 : 1;
     if (boneIdx >= minBoneToAdjust) {
-      Leap::Bone prevBone = finger.bone(static_cast<Leap::Bone::Type>(boneIdx));
+      //Leap::Bone prevBone = finger.bone(static_cast<Leap::Bone::Type>(boneIdx));
       Eigen::Vector3f relativePos = boneNode->getRelativePosition();
       const float relativePosLength = relativePos.norm();
-      relativePos = 0.1f * prevBone.length() * (relativePos / relativePosLength) / mArmScale;
+      relativePos = (UNIT_CONVERSION_SCALE_FACTOR / 10.0f) * mBoneLengths[fingerIdx][boneIdx] * (relativePos / relativePosLength) / mArmScale;
       boneNode->setRelativePosition(relativePos);
     }
 
@@ -314,37 +371,6 @@ void RiggedHand::updateMeshMirroring(bool left) {
     modelSection->setDefaultTransformation(transform);
     nailsSection->setDefaultTransformation(transform);
   }
-}
-
-void RiggedHand::drawLeapHand(const Leap::Hand& hand) const {
-  //if (mDrawLeap) {
-  //  ci::gl::pushMatrices();
-  //  glLineWidth(3.0f);
-  //  glColor3f(0.4f, 0.9f, 1);
-  //  for (int i=0; i<fingers.count(); i++) {
-  //    Leap::Finger finger = fingers[i];
-  //    ci::gl::drawSphere(0.1f * finger.tipPosition().toVector3<Eigen::Vector3f>(), 0.5f);
-  //    for (int j=0; j<4; j++) {
-  //      Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(j));
-  //      glBegin(GL_LINES);
-  //      Leap::Vector point1 = 0.1f * bone.prevJoint();
-  //      Leap::Vector point2 = 0.1f * bone.nextJoint();
-  //      glVertex3f(point1.x, point1.y, point1.z);
-  //      glVertex3f(point2.x, point2.y, point2.z);
-  //      glEnd();
-  //    }
-  //  }
-  //  ci::gl::drawSphere(0.1f * hand.wristPosition().toVector3<Eigen::Vector3f>(), 1.0f);
-  //  ci::gl::drawSphere(0.1f * hand.arm().elbowPosition().toVector3<Eigen::Vector3f>(), 1.0f);
-  //  glBegin(GL_LINES);
-  //  Leap::Vector point1 = 0.1f * hand.wristPosition();
-  //  Leap::Vector point2 = 0.1f * hand.arm().elbowPosition();
-  //  glVertex3f(point1.x, point1.y, point1.z);
-  //  glVertex3f(point2.x, point2.y, point2.z);
-  //  glEnd();
-  //  ci::gl::popMatrices();
-  //  glLineWidth(1.0f);
-  //}
 }
 
 model::NodeRef RiggedHand::getArmNode() const {
@@ -397,7 +423,6 @@ model::NodeRef RiggedHand::getJointNode(int fingerIdx, int boneIdx) const {
   return mSkinnedVboHands->getSkeleton()->getBone(boneName);
 }
 
-
 GLShaderRef RiggedHand::getHandsShader() {
   static GLShaderRef handsShader;
   if (handsShader == nullptr) {
@@ -411,12 +436,12 @@ model::SkinnedVboMeshRef RiggedHand::getMeshForGender(Gender gender) {
   static model::ModelSourceRef femaleMeshSource;
   if (gender == MALE) {
     if (maleMeshSource == nullptr) {
-      maleMeshSource = model::loadModel("Male_Rigged_Arm.FBX");
+      maleMeshSource = model::loadModel("Male_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
     }
     return model::SkinnedVboMesh::create(maleMeshSource, nullptr, getHandsShader());
   } else if (gender == FEMALE) {
     if (femaleMeshSource == nullptr) {
-      femaleMeshSource = model::loadModel("Female_Rigged_Arm.FBX");
+      femaleMeshSource = model::loadModel("Female_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
     }
     return model::SkinnedVboMesh::create(femaleMeshSource, nullptr, getHandsShader());
   } else {
@@ -496,7 +521,6 @@ Eigen::Quaterniond RiggedHand::lookRotation(const Eigen::Vector3d& lookAt, const
 Eigen::Quaterniond RiggedHand::toQuat(const Eigen::Matrix3d& basis, bool leftHanded) {
   Eigen::Matrix3d rightHanded = basis;
   if (leftHanded) {
-    //rightHanded.setColumn(2, -1.0f * rightHanded.getColumn(2));
     rightHanded.col(2) *= -1.0;
   }
   static const Eigen::Vector3d LEAP_UP = Eigen::Vector3d::UnitY();

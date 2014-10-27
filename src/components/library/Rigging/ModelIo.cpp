@@ -46,9 +46,9 @@ namespace model {
 
   void ModelTarget::loadDefaultTransformation(const Eigen::Matrix4f& transformation) { }
 
-  ModelSourceAssimpRef loadModel(const std::string& modelPath, const std::string& rootAssetFolderPath)
+  ModelSourceAssimpRef loadModel(const std::string& modelPath, const std::string& rootAssetFolderPath, float scaleFactor)
   {
-    return ModelSourceAssimp::create(modelPath, rootAssetFolderPath);
+    return ModelSourceAssimp::create(modelPath, rootAssetFolderPath, scaleFactor);
   }
 
   ModelIoException::ModelIoException(const std::string &message) throw()

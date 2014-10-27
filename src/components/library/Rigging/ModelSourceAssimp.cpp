@@ -35,12 +35,12 @@ namespace ai {
     return Eigen::Quaternionf(q.w, q.x, q.y, q.z);
   }
 
-  Eigen::Matrix4f get(const aiMatrix4x4 &m)
+  Eigen::Matrix4f get(const aiMatrix4x4 &m, float positionScaleFactor)
   {
     Eigen::Matrix4f result;
-    result << m.a1, m.a2, m.a3, m.a4,
-      m.b1, m.b2, m.b3, m.b4,
-      m.c1, m.c2, m.c3, m.c4,
+    result << m.a1, m.a2, m.a3, positionScaleFactor*m.a4,
+      m.b1, m.b2, m.b3, positionScaleFactor*m.b4,
+      m.c1, m.c2, m.c3, positionScaleFactor*m.c4,
       m.d1, m.d2, m.d3, m.d4;
     return result;
   }
@@ -55,11 +55,11 @@ namespace ai {
     return std::string(s.data);
   }
 
-  std::vector<Eigen::Vector3f> getPositions(const aiMesh* aimesh)
+  std::vector<Eigen::Vector3f> getPositions(const aiMesh* aimesh, float positionScaleFactor)
   {
     std::vector<Eigen::Vector3f> positions;
     for (unsigned int i=0; i < aimesh->mNumVertices; ++i) {
-      positions.push_back(ai::get(aimesh->mVertices[i]));
+      positions.push_back(positionScaleFactor * ai::get(aimesh->mVertices[i]));
     }
     return positions;
   }
@@ -138,7 +138,7 @@ namespace ai {
     return matInfo;
   }
 
-  std::vector<model::BoneWeights> getBoneWeights(const aiMesh* aimesh, const model::Skeleton* skeleton)
+  std::vector<model::BoneWeights> getBoneWeights(const aiMesh* aimesh, const model::Skeleton* skeleton, float scaleFactor)
   {
     std::vector<model::BoneWeights> boneWeights;
     unsigned int nbBones = aimesh->mNumBones;
@@ -154,7 +154,7 @@ namespace ai {
 
       // Set the bone offset matrix if it hasn't been already
       if (bone->getOffset() == nullptr) {
-        bone->setOffsetMatrix(ai::get(aimesh->mBones[b]->mOffsetMatrix));
+        bone->setOffsetMatrix(ai::get(aimesh->mBones[b]->mOffsetMatrix, scaleFactor));
       }
 
       // Add the bone weight information to the correct vertex index
@@ -188,6 +188,7 @@ namespace ai {
   model::NodeRef generateNodeHierarchy(model::Skeleton* skeleton,
     const aiNode* ainode,
     const std::unordered_set<std::string>& boneNames,
+    float scaleFactor,
     const std::shared_ptr<model::Node>& parent = nullptr,
     const Eigen::Matrix4f& derivedTrans = Eigen::Matrix4f::Identity(),
     int level = 0)
@@ -195,27 +196,27 @@ namespace ai {
     assert(ainode);
 
     Eigen::Matrix4f derivedTransformation(derivedTrans);
-    derivedTransformation *= ai::get(ainode->mTransformation);
+    derivedTransformation *= ai::get(ainode->mTransformation, scaleFactor);
     std::string name = ai::get(ainode->mName);
 
     // store transform
     aiVector3D position, scaling;
     aiQuaternion rotation;
     ainode->mTransformation.Decompose(scaling, rotation, position);
-    model::NodeRef node = model::NodeRef(new model::Node(ai::get(position), ai::get(rotation), ai::get(scaling), name, parent, level));
+    model::NodeRef node = model::NodeRef(new model::Node(scaleFactor * ai::get(position), ai::get(rotation), ai::get(scaling), name, parent, level));
 
     if (boneNames.count(name) > 0) {
       skeleton->addBone(name, node);
     }
 
     for (unsigned int c=0; c < ainode->mNumChildren; ++c) {
-      model::NodeRef child = generateNodeHierarchy(skeleton, ainode->mChildren[c], boneNames, node, derivedTransformation, level + 1);
+      model::NodeRef child = generateNodeHierarchy(skeleton, ainode->mChildren[c], boneNames, scaleFactor, node, derivedTransformation, level + 1);
       node->addChild(child);
     }
     return node;
   }
 
-  model::SkeletonRef getSkeleton(const aiScene* aiscene, bool hasAnimations, const aiNode* root)
+  model::SkeletonRef getSkeleton(const aiScene* aiscene, bool hasAnimations, float scaleFactor, const aiNode* root)
   {
     root = (root) ? root : aiscene->mRootNode;
 
@@ -229,7 +230,7 @@ namespace ai {
     }
 
     model::SkeletonRef skeleton = model::Skeleton::create();
-    skeleton->setRootNode(generateNodeHierarchy(skeleton.get(), root, boneNames));
+    skeleton->setRootNode(generateNodeHierarchy(skeleton.get(), root, boneNames, scaleFactor));
     return skeleton;
   }
 
@@ -241,8 +242,9 @@ namespace model {
   {
   }
 
-  ModelSourceAssimp::ModelSourceAssimp(const std::string& modelPath, const std::string& rootAssetFolderPath)
+  ModelSourceAssimp::ModelSourceAssimp(const std::string& modelPath, const std::string& rootAssetFolderPath, float scaleFactor)
   {
+    mScaleFactor = scaleFactor;
     mModelPath = modelPath;
     mRootAssetFolderPath = rootAssetFolderPath;
 
@@ -273,16 +275,16 @@ namespace model {
     }
   }
 
-  ModelSourceAssimpRef ModelSourceAssimp::create(const std::string& modelPath, const std::string& rootAssetFolderPath)
+  ModelSourceAssimpRef ModelSourceAssimp::create(const std::string& modelPath, const std::string& rootAssetFolderPath, float scaleFactor)
   {
-    return ModelSourceAssimpRef(new ModelSourceAssimp(modelPath, rootAssetFolderPath));
+    return ModelSourceAssimpRef(new ModelSourceAssimp(modelPath, rootAssetFolderPath, scaleFactor));
   }
 
   void ModelSourceAssimp::load(ModelTarget *target)
   {
     SkeletonRef skeleton = target->getSkeleton();
     if (mHasSkeleton && skeleton == nullptr) {
-      skeleton = ai::getSkeleton(mAiScene, mHasAnimations);
+      skeleton = ai::getSkeleton(mAiScene, mHasAnimations, mScaleFactor);
     }
 
     for (unsigned int i=0; i< mAiScene->mNumMeshes; ++i) {
@@ -294,7 +296,7 @@ namespace model {
       target->setActiveSection(i);
       target->loadName(name);
       target->loadIndices(ai::getIndices(aimesh));
-      target->loadVertexPositions(ai::getPositions(aimesh));
+      target->loadVertexPositions(ai::getPositions(aimesh, mScaleFactor));
 
       if (mSections[i].mHasNormals) {
         target->loadVertexNormals(ai::getNormals(aimesh));
@@ -307,11 +309,11 @@ namespace model {
 
       if (mSections[i].mHasSkeleton && skeleton) {
         target->loadSkeleton(skeleton);
-        target->loadBoneWeights(ai::getBoneWeights(aimesh, skeleton.get()));
+        target->loadBoneWeights(ai::getBoneWeights(aimesh, skeleton.get(), mScaleFactor));
       } else {
         const aiNode* ainode = ai::findMeshNode(name, mAiScene, mAiScene->mRootNode);
         if (ainode) {
-          target->loadDefaultTransformation(ai::get(ainode->mTransformation));
+          target->loadDefaultTransformation(ai::get(ainode->mTransformation, mScaleFactor));
         }
       }
     }

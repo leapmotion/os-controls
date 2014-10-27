@@ -21,7 +21,23 @@ public:
   enum SkinTone { DARK, MEDIUM, LIGHT, NUM_SKIN_TONES };
 
   void SetStyle(Gender gender, SkinTone tone);
-  void Update(const Leap::Hand& hand);
+
+  // option 1 - use Leap API hand to fill in needed fields
+  void SetLeapHand(const Leap::Hand& hand);
+
+  // option 2 - set all fields manually
+  void SetConfidence(float confidence);
+  void SetTimeVisible(float timeVisible);
+  void SetIsLeft(bool isLeft);
+  void SetArmBasis(const Eigen::Matrix3f& armBasis);
+  void SetHandBasis(const Eigen::Matrix3f& handBasis);
+  void SetPalmWidth(float palmWidth);
+  void SetWristPosition(const Eigen::Vector3f& wristPosition);
+  void SetBoneBasis(int fingerIdx, int boneIdx, const Eigen::Matrix3f& basis);
+  void SetBoneLength(int fingerIdx, int boneIdx, float length);
+
+  // after setting data from Leap or manual input, call Update to transfer data to rig/skin
+  void UpdateRigAndSkin();
 
   virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
 
@@ -36,10 +52,9 @@ private:
   enum TextureMap { DIFFUSE, NORMAL, SPECULAR, NUM_TEXTURE_MAPS };
 
   void updateStyle();
-  void updateLeapData();
+  void updateIntermediateData();
   void updateFinger(int fingerIdx);
   void updateMeshMirroring(bool left);
-  void drawLeapHand(const Leap::Hand& hand) const;
   model::NodeRef getArmNode() const;
   model::NodeRef getWristNode() const;
   model::NodeRef getJointNode(int fingerIdx, int boneIdx) const;
@@ -55,8 +70,19 @@ private:
   static Eigen::Quaterniond computeFingerReorientation(bool left);
 
   // data transferred from Leap to rig
-  Leap::Hand mHand;
+  float mConfidence;
+  float mTimeVisible;
+  bool mIsLeft;
+  Eigen::Matrix3d mArmBasis;
+  Eigen::Matrix3d mHandBasis;
+  float mPalmWidth;
+  Eigen::Vector3f mLeapWristPosition;
+  Eigen::Matrix3d mBoneBases[5][4];
+  float mBoneLengths[5][4];
+
+  // intermediate data computed from Leap data
   bool mPrevIsLeft;
+  Eigen::Vector3f mWristPosition;
   Eigen::Vector3f mElbowPos;
   Eigen::Quaterniond mArmRotation;
   Eigen::Quaterniond mWristRotation;
@@ -109,6 +135,9 @@ private:
 
   // hand shader
   GLShaderRef mHandsShader;
+
+  // convert units on loading
+  static const float UNIT_CONVERSION_SCALE_FACTOR; 
 };
 
 typedef std::shared_ptr<RiggedHand> RiggedHandRef;

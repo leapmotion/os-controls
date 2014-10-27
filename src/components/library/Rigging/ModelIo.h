@@ -90,7 +90,7 @@ namespace model {
     ModelTargetException(const std::string &message) throw() : ModelIoException("Target error:" + message) { };
   };
 
-  extern std::shared_ptr<class ModelSourceAssimp>	loadModel(const std::string& modelPath, const std::string& rootAssetFolderPath = "");
+  extern std::shared_ptr<class ModelSourceAssimp> loadModel(const std::string& modelPath, const std::string& rootAssetFolderPath, float scaleFactor);
 
   class ModelTarget {
   public:
