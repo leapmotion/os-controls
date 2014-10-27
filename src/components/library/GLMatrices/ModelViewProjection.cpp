@@ -12,10 +12,10 @@ EigenTypes::Matrix4x4& Projection::Matrix() {
 
 void Projection::Perspective(double left, double bottom, double right, double top, double nearClip, double farClip) {
   const double denom = 1/(nearClip - farClip);
-  m_matrix << 2/(right - left),                0, (right + left)/(right - left),                        0,
-                             0, 2/(top - bottom), (top + bottom)/(top - bottom),                        0,
-                             0,                0,    (farClip + nearClip)*denom, 2*farClip*nearClip*denom,
-                             0,                0,                            -1,                        0;
+  m_matrix << 2*nearClip/(right - left),                         0, (right + left)/(right - left),                        0,
+                                      0, 2*nearClip/(top - bottom), (top + bottom)/(top - bottom),                        0,
+                                      0,                         0,    (farClip + nearClip)*denom, 2*farClip*nearClip*denom,
+                                      0,                         0,                            -1,                        0;
 }
 
 void Projection::Perspective(double hFovRadians, double widthOverHeight, double nearClip, double farClip) {
