@@ -229,7 +229,7 @@ void RiggedHand::updateLeapData() {
   const Eigen::Matrix3d armBasis = toEigen(mHand.arm().basis());
 
   const Eigen::Matrix3d handBasis = toEigen(mHand.basis());
-  const Eigen::Vector3f handDirection = mHand.direction().toVector3<Eigen::Vector3f>();
+  const Eigen::Vector3f handDirection = handBasis.col(2).cast<float>();
   const float palmWidth = mHand.palmWidth();
 
   mArmScale = mScaleMultiplier * palmWidth / 100;
@@ -237,7 +237,7 @@ void RiggedHand::updateLeapData() {
   const Eigen::Vector3f handPos = 0.1f * mHand.palmPosition().toVector3<Eigen::Vector3f>();
   const Eigen::Vector3f wristPos = 0.1f * mHand.wristPosition().toVector3<Eigen::Vector3f>() - mArmScale*(handBasis.cast<float>()*mTranslationOffset);
 
-  const Eigen::Vector3f forearmDir = mHand.arm().direction().toVector3<Eigen::Vector3f>();
+  const Eigen::Vector3f forearmDir = -armBasis.col(2).cast<float>();
   const Eigen::Vector3f forearmDirNormalized = forearmDir.normalized();
   mElbowPos = wristPos - mForearmLength * forearmDirNormalized;
 
