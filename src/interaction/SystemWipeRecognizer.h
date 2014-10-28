@@ -137,12 +137,15 @@ private:
     T_ m_mass;
   };
 
-  // Populates m_brightness.
+  // Populates m_brightness and updates m_measured_max_brightness.
   void ComputeBrightness (const Leap::ImageList &images);
-  // Populate m_downsampled_brightness.
-  void ComputeDownsampledBrightness ();
 
   // Convenience accessors
+  static float ModeledMaxBrightness (float t);
+  std::function<float(float)> MeasuredMaxBrightness;
+  std::function<float(float)> Brightness;
+  float NormalizedBrightness (float t);
+  std::function<float(float)> ProgressTransform;
   const Signal<float> &CurrentSignal () const { return m_signal_history[0]; }
   Signal<float> CurrentSignalDelta () const { return m_signal_history[0] - m_signal_history[1]; }
 
@@ -150,13 +153,11 @@ private:
 
   // Number of samples to analyze in the gesture detection.  [Vertical strip(s) of] The original image(s)
   // will be downsampled to match this number.
-  static const size_t SAMPLE_COUNT = 30;
+  static const size_t SAMPLE_COUNT = 240;// 30;
   // Proportion of the total height of the images to use.  The sampled region will be centered vertically.
   static const float PROPORTION_OF_IMAGE_HEIGHT_TO_USE;
   // The imagine intensity which is considered "active" with respect to this gesture recognition.
   static const float BRIGHTNESS_ACTIVATION_THRESHOLD;
-  // The wipe distance necessary to complete the gesture, as a proportion of the viewable area.
-  static const float WIPE_END_DELTA_THRESHOLD;
 
   enum class StateMachineEvent { ENTER, EXIT, FRAME };
 
@@ -165,18 +166,17 @@ private:
   void RecognizingGesture (StateMachineEvent);
   void Timeout (StateMachineEvent);
 
+
   Internal::StateMachine<SystemWipeRecognizer,StateMachineEvent,StateMachineEvent::ENTER,StateMachineEvent::EXIT> m_state_machine;
   double m_current_time;
   std::vector<float> m_brightness;
+  std::vector<float> m_measured_max_brightness;
   double m_centroid_signal_start_time;
   double m_timeout_end_time;
   float m_first_good_up_tracking_value;
   float m_first_good_down_tracking_value;
-  std::function<float(float)> m_progress_transform;
   float m_initial_tracking_value;
   Internal::History<Signal<float>> m_signal_history;
   SystemWipe *m_system_wipe;
   SystemWipe::Direction m_wipe_direction;
-  float m_downsampled_brightness[SAMPLE_COUNT];
-  float m_max_downsampled_brightness[SAMPLE_COUNT];
 };
