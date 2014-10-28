@@ -32,6 +32,8 @@ private:
   bool m_shouldDisplayOverlay;
   SystemWipe m_lastWipe;
   SystemWipe::Direction m_wipeDirection;
+  std::chrono::steady_clock::time_point m_wipeStart;
+
   Animated<float> m_overlayOffset;
 
   std::unique_ptr<RenderWindow> m_overlayWindow;

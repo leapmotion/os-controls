@@ -4,7 +4,8 @@
 #include "hmdinterface/IDevice.h"
 #include "hmdinterface/IDeviceConfiguration.h"
 
-static const double animationDuration = .2; //in seconds
+static const double defaultAnimationDuration = .2; //in seconds
+static const double maxAnimationDuration = .6; //in seconds
 static const double gestureCompletionCoverage = 1.0 / 3.0; //% of screen covered when gesture is registered as complete - subjective
 
 AROverlay::AROverlay() :
@@ -71,20 +72,32 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
 
 //AutoFilter methods (to be informed of system wipe occuring
 void AROverlay::AutoFilter(const SystemWipe& wipe) {
-  if (wipe.status == SystemWipe::Status::BEGIN || wipe.status == SystemWipe::Status::ABORT) {
-    m_shouldDisplayOverlay = !m_shouldDisplayOverlay;
-    m_wipeDirection = wipe.direction;
+  m_lastWipe = wipe;
 
+
+  if (m_lastWipe.status == SystemWipe::Status::BEGIN || m_lastWipe.status == SystemWipe::Status::ABORT) {
+    m_shouldDisplayOverlay = !m_shouldDisplayOverlay;
     if (m_shouldDisplayOverlay) {
-      m_overlayOffset.Set(m_overlayWindow->GetSize().height, animationDuration);
+      m_overlayOffset.Set(m_overlayWindow->GetSize().height, defaultAnimationDuration);
     }
     else {
-      m_overlayOffset.Set(0, animationDuration);
+      m_overlayOffset.Set(0, defaultAnimationDuration);
     }
   }
-  else if (wipe.status == SystemWipe::Status::UPDATE) {
-    m_overlayOffset.SetCompletion(wipe.progress * gestureCompletionCoverage);
+
+  if (m_lastWipe.status == SystemWipe::Status::BEGIN) {
+    m_wipeDirection = m_lastWipe.direction;
+    m_wipeStart = std::chrono::steady_clock::now();
+  }
+  else if (m_lastWipe.status == SystemWipe::Status::UPDATE) {
+    m_overlayOffset.SetCompletion(m_lastWipe.progress * gestureCompletionCoverage);
+  }
+  else if (m_lastWipe.status == SystemWipe::Status::COMPLETE || m_lastWipe.status == SystemWipe::Status::ABORT) {
+    double wipeDuration = std::chrono::duration<double>(std::chrono::steady_clock::now() - m_wipeStart).count();
+    //If the gesture took Y seconds to cover X% of the screen, then covering the rest should take
+    // (1 - X) * (Y / X) seconds
+    const double remainingTime = (1 - gestureCompletionCoverage) * (wipeDuration / gestureCompletionCoverage);
+    m_overlayOffset.Set(m_overlayOffset.Goal(), std::min(remainingTime,maxAnimationDuration));
   }
 
-  m_lastWipe = wipe;
 }
