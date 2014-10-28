@@ -139,6 +139,7 @@ add_sublibrary(
     SOURCE_PATH
         LeapGLCore/Leap/GL
     HEADERS
+        ColorComponent.h
         FrameBufferObject.h
         gl_glext_glu.h
         GLBuffer.h
@@ -155,6 +156,8 @@ add_sublibrary(
         GLVertexBuffer.h
         ModelViewProjection.h
         RenderBuffer.h
+        RGB.h
+        RGBA.h
         SceneGraphNode.h
         SceneGraphNodeProperties.h
         SceneGraphNodeProperty.h
@@ -744,8 +747,11 @@ add_sublibrary(
     SOURCE_PATH
         LeapGLCore/Test
     SOURCES
+        ColorComponentTest.cpp
         GLShaderTest.cpp
         GLTexture2Test.cpp
+        RGBATest.cpp
+        RGBTest.cpp
         SceneGraphNodePropertiesTest.cpp
         SceneGraphNodeTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
