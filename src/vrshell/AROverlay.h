@@ -30,6 +30,7 @@ public:
   void AutoFilter(const SystemWipe& wipe);
 private:
   bool m_shouldDisplayOverlay;
+  SystemWipe m_lastWipe;
   SystemWipe::Direction m_wipeDirection;
   Animated<float> m_overlayOffset;
 

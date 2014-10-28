@@ -4,7 +4,7 @@
 #include "hmdinterface/IDevice.h"
 #include "hmdinterface/IDeviceConfiguration.h"
 
-static const double animationDuration = .4; //in seconds
+static const double animationDuration = .2; //in seconds
 
 AROverlay::AROverlay() :
 m_shouldDisplayOverlay(false),
@@ -41,12 +41,15 @@ void AROverlay::SetOverlayWindowRect(float x, float y, float width, float height
 void AROverlay::Tick(std::chrono::duration<double> deltaT) {
   m_overlayWindow->ProcessEvents();
 
-  m_overlayOffset.Update(deltaT.count());
   const auto screenWidth = m_overlayWindow->GetSize().width;
   const auto maxHeight = m_overlayWindow->GetSize().height;
 
+  //If we're not getting updates, finish the animation ourselves
+  if (m_lastWipe.status == SystemWipe::Status::NOT_ACTIVE && m_overlayOffset.Completion() != 1.0)
+    m_overlayOffset.Update(deltaT.count());
+
   if (m_shouldDisplayOverlay) {
-    if (m_wipeDirection == SystemWipe::Direction::UP) {
+    if (m_lastWipe.direction == SystemWipe::Direction::DOWN) {
       m_mainView->SetClip(0, 0, screenWidth, m_overlayOffset.Current());
     }
     else{
@@ -54,7 +57,7 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
     }
   }
   else {
-    if (m_wipeDirection == SystemWipe::Direction::UP) {
+    if (m_lastWipe.direction == SystemWipe::Direction::DOWN) {
       m_mainView->SetClip(0, maxHeight - m_overlayOffset.Current(), screenWidth, m_overlayOffset.Current());
     }
     else {
@@ -67,15 +70,20 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
 
 //AutoFilter methods (to be informed of system wipe occuring
 void AROverlay::AutoFilter(const SystemWipe& wipe) {
-  if (wipe.isWiping) {
+  if (wipe.status == SystemWipe::Status::BEGIN || wipe.status == SystemWipe::Status::ABORT) {
     m_shouldDisplayOverlay = !m_shouldDisplayOverlay;
     m_wipeDirection = wipe.direction;
 
     if (m_shouldDisplayOverlay) {
-      m_overlayOffset.Set(m_overlayWindow->GetSize().height, animationDuration);
+      m_overlayOffset.Set(m_overlayWindow->GetSize().height);
     }
     else {
-      m_overlayOffset.Set(0, animationDuration);
+      m_overlayOffset.Set(0);
     }
   }
+  else if (wipe.status == SystemWipe::Status::UPDATE) {
+    m_overlayOffset.SetCompletion(wipe.progress);
+  }
+
+  m_lastWipe = wipe;
 }
