@@ -49,7 +49,7 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
     m_overlayOffset.Update(deltaT.count());
 
   if (m_shouldDisplayOverlay) {
-    if (m_lastWipe.direction == SystemWipe::Direction::DOWN) {
+    if (m_wipeDirection == SystemWipe::Direction::DOWN) {
       m_mainView->SetClip(0, 0, screenWidth, m_overlayOffset.Current());
     }
     else{
@@ -57,7 +57,7 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
     }
   }
   else {
-    if (m_lastWipe.direction == SystemWipe::Direction::DOWN) {
+    if (m_wipeDirection == SystemWipe::Direction::DOWN) {
       m_mainView->SetClip(0, maxHeight - m_overlayOffset.Current(), screenWidth, m_overlayOffset.Current());
     }
     else {
