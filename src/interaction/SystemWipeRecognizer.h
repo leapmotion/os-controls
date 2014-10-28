@@ -98,7 +98,7 @@ private:
 
 struct SystemWipe {
   enum class Direction { UP, DOWN };
-  enum class Status { NOT_ACTIVE, BEGIN, UPDATE, COMPLETE };
+  enum class Status { NOT_ACTIVE, BEGIN, UPDATE, COMPLETE, ABORT };
 
   // Indicates if the gesture is not active, is beginning, is updating, or is complete.
   Status status;

@@ -41,6 +41,7 @@ std::string AsString (SystemWipe::Status s) {
         case SystemWipe::Status::BEGIN:      return "BEGIN";
         case SystemWipe::Status::UPDATE:     return "UPDATE";
         case SystemWipe::Status::COMPLETE:   return "COMPLETE";
+        case SystemWipe::Status::ABORT:      return "ABORT";
     }
 }
 

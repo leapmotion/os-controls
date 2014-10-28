@@ -201,9 +201,11 @@ void SystemWipeRecognizer::ComputeBrightness (const Leap::ImageList &images) {
   m_brightness.reserve(end_y - begin_y);
 
   // compute max of row samples
+  size_t h_low = 0; //(width-1)/5;
+  size_t h_high = width-1; //4*(width-1)/5;
   for (size_t y = begin_y; y < end_y; ++y) {
     uint8_t row_max = 0;
-    for (Internal::Linterp<size_t> x(0, width-1, HORIZONTAL_SAMPLE_COUNT); x.IsNotAtEnd(); ++x) {
+    for (Internal::Linterp<size_t> x(h_low, h_high, HORIZONTAL_SAMPLE_COUNT); x.IsNotAtEnd(); ++x) {
       size_t data_index = y*width + x;
       uint8_t brightness = std::max(data0[data_index],data1[data_index]);
       if (brightness > row_max) {
@@ -317,17 +319,19 @@ void SystemWipeRecognizer::RecognizingGesture (StateMachineEvent event) {
       return;
     }
     case StateMachineEvent::FRAME: {
+      m_system_wipe->direction = m_wipe_direction;
       // There are three ways for the recognition to end:
       // 1. The mass dropping low enough (end without "gesture complete").
       // 2. The wipe gesture proceeding far enough across the screen to register (end with "gesture complete").
       // 3. The wipe regressing back across the screen enough to abort the gesture (end without "gesture complete").
       if (CurrentSignal().Mass() < 0.1f) { // Case 1.
+        m_system_wipe->status = SystemWipe::Status::ABORT;
+        m_system_wipe->progress = 0.0f;
         SET_TRANSITION_REQUEST_AND_RETURN(WaitingForAnyMassSignal);
       }
       // float tracking_value = CurrentSignal().TrackingValue(m_wipe_direction);
       // static const auto clamp = [](float x) { return std::min(std::max(0.0f, x), 1.0f); };
       m_system_wipe->status = SystemWipe::Status::UPDATE;
-      m_system_wipe->direction = m_wipe_direction;
       m_system_wipe->progress = m_progress_transform(CurrentSignal().TrackingValue(m_wipe_direction)); //clamp((tracking_value - m_initial_tracking_value) / WIPE_END_DELTA_THRESHOLD);
       if (m_system_wipe->progress == 1.0f) { // Case 2.
         m_system_wipe->status = SystemWipe::Status::COMPLETE;
