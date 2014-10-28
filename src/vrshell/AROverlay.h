@@ -29,7 +29,8 @@ public:
   //AutoFilter methods (to be informed of system wipe occuring
   void AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame);
 private:
-  bool m_shouldDisplayOverlay;
+  bool shouldDisplayOverlay() { return m_overlayOffset.Goal() != 0; }
+
   bool m_wipeDisabled;
   SystemWipe m_lastWipe;
   SystemWipe::Direction m_wipeDirection;

@@ -9,7 +9,6 @@ static const double maxAnimationDuration = .6; //in seconds
 static const double gestureCompletionCoverage = 1.0 / 3.0; //% of screen covered when gesture is registered as complete - subjective
 
 AROverlay::AROverlay() :
-m_shouldDisplayOverlay(false),
 m_wipeDisabled(false),
 m_overlayOffset(),
 m_overlayWindow(RenderWindow::New())
@@ -52,7 +51,7 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
   if (m_lastWipe.status == SystemWipe::Status::NOT_ACTIVE && m_overlayOffset.Completion() != 1.0)
     m_overlayOffset.Update(deltaT.count());
 
-  if (m_shouldDisplayOverlay) {
+  if (shouldDisplayOverlay()) {
     if (m_wipeDirection == SystemWipe::Direction::DOWN) {
       m_mainView->SetClip(0, 0, screenWidth, m_overlayOffset.Current());
     }
@@ -93,13 +92,7 @@ void AROverlay::AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame) {
   }
 
   if (m_lastWipe.status == SystemWipe::Status::BEGIN || m_lastWipe.status == SystemWipe::Status::ABORT) {
-    m_shouldDisplayOverlay = !m_shouldDisplayOverlay;
-    if (m_shouldDisplayOverlay) {
-      m_overlayOffset.Set(m_overlayWindow->GetSize().height, defaultAnimationDuration);
-    }
-    else {
-      m_overlayOffset.Set(0, defaultAnimationDuration);
-    }
+    m_overlayOffset.Set(shouldDisplayOverlay() ? m_overlayWindow->GetSize().height : 0, defaultAnimationDuration);
   }
 
   if (m_lastWipe.status == SystemWipe::Status::BEGIN) {
