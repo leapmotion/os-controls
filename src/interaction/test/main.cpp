@@ -4,7 +4,7 @@
 #include <limits>
 #include <stdexcept>
 #include "Leap.h"
-#include "SystemWipeRecognizer.h"
+#include "interaction/SystemWipeRecognizer.h"
 
 using namespace Leap;
 
@@ -35,13 +35,24 @@ std::string AsString (SystemWipe::Direction d) {
     return d == SystemWipe::Direction::UP ? "UP" : "DOWN";
 }
 
+std::string AsString (SystemWipe::Status s) {
+    switch (s) { 
+        case SystemWipe::Status::NOT_ACTIVE: return "NOT_ACTIVE";
+        case SystemWipe::Status::BEGIN:      return "BEGIN";
+        case SystemWipe::Status::UPDATE:     return "UPDATE";
+        case SystemWipe::Status::COMPLETE:   return "COMPLETE";
+        case SystemWipe::Status::ABORT:      return "ABORT";
+    }
+}
+
 void SampleListener::onFrame(const Controller& controller) {
     // std::cerr << "Frame available" << std::endl;
     SystemWipe system_wipe;
     m_recog.AutoFilter(controller.frame(), system_wipe);
-    if (system_wipe.isWiping) {
-        std::cerr << "system wipe occurred.  direction: " << AsString(system_wipe.direction) << '\n';
+    if (system_wipe.status != SystemWipe::Status::NOT_ACTIVE) {
+        std::cerr << " -- system wipe reporting: " << std::setw(4) << AsString(system_wipe.direction) << ", " << std::setw(10) << AsString(system_wipe.status) << ", " << std::setw(3) << int(100*system_wipe.progress);// << '\n';
     }
+    std::cerr << '\n';
 }
 
 int main(int argc, char** argv) {
