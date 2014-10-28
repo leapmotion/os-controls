@@ -149,9 +149,9 @@ TEST_F(OculusTest, BasicSquareRenderWindow) {
   hmdDevice->Initialize();
   auto &cfg = hmdDevice->Configuration();
 
-  renderWindow->SetSize(OSSize(cfg.DisplayWidth(), cfg.DisplayHeight()));
+  renderWindow->SetSize(OSSize{CGFloat(cfg.DisplayWidth()), CGFloat(cfg.DisplayHeight())});
 
-  renderWindow->SetPosition(OSPoint(cfg.WindowPositionX(), cfg.WindowPositionY()));
+  renderWindow->SetPosition(OSPoint{CGFloat(cfg.WindowPositionX()), CGFloat(cfg.WindowPositionY())});
   renderWindow->ProcessEvents();
   
   // There is some fanciness in OVR land about not being able to dismiss until after some timeout.
