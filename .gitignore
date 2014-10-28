@@ -46,3 +46,6 @@ resources
 .DS_Store
 xcode
 
+
+src/components/install/*
+src/components/install_manifest.txt

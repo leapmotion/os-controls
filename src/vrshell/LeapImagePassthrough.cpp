@@ -10,10 +10,6 @@
 LeapImagePassthrough::LeapImagePassthrough() {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
 
-  for (int i = 0; i < 640 * 480; i++) {
-    m_txdatatmp[i] = i % 255;
-  }
-
   for (int i = 0; i < 2; i++) {
     m_rect[i].SetSize(EigenTypes::Vector2(640, 480));
     m_rect[i].Translation() = EigenTypes::Vector3(320, 240, 0);
