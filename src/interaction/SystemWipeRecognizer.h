@@ -128,7 +128,8 @@ private:
     const T_ &Mass () const { return m_mass; }
     T_ UpEdge () const { return m_centroid - T_(0.5)*m_mass; }
     T_ DownEdge () const { return m_centroid + T_(0.5)*m_mass; }
-    T_ TrackingValue (SystemWipe::Direction d) const { return d == SystemWipe::Direction::UP ? T_(1) - UpEdge() : DownEdge(); }
+    T_ TrackingValue (SystemWipe::Direction d) const { return d == SystemWipe::Direction::UP ? T_(1)-UpEdge() : DownEdge(); }
+    T_ TrackingVelocity (SystemWipe::Direction d) const { return d == SystemWipe::Direction::UP ? -UpEdge() : DownEdge(); }
     // This is here so that a discrete derivative is computable.
     Signal operator - (const Signal &rhs) const { return Signal(m_centroid-rhs.m_centroid, m_mass-rhs.m_mass); }
   private:

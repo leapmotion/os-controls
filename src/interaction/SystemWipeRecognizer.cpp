@@ -281,7 +281,10 @@ void SystemWipeRecognizer::WaitingForMassActivationThreshold (StateMachineEvent 
       float down_tracking_value = CurrentSignal().TrackingValue(SystemWipe::Direction::DOWN);
       // std::cerr << FORMAT_VALUE(up_tracking_value) << ", " << FORMAT_VALUE(down_tracking_value) << "  ";
       static const float WIPE_START_UPPER_BOUND = 0.5f; //0.8f - WIPE_END_DELTA_THRESHOLD;
-      bool detected_higher_mass_signal = CurrentSignal().Mass() >= 0.25f && (up_tracking_value <= WIPE_START_UPPER_BOUND || down_tracking_value <= WIPE_START_UPPER_BOUND);
+      bool detected_sufficient_mass = CurrentSignal().Mass() >= 0.25f;
+      bool up_edge_moving_up_from_bottom = up_tracking_value <= WIPE_START_UPPER_BOUND && CurrentSignalDelta().TrackingVelocity(SystemWipe::Direction::UP) >= 0.0f;
+      bool down_edge_moving_down_from_top = down_tracking_value <= WIPE_START_UPPER_BOUND && CurrentSignalDelta().TrackingVelocity(SystemWipe::Direction::DOWN) >= 0.0f;
+      bool detected_higher_mass_signal = detected_sufficient_mass && (up_edge_moving_up_from_bottom || down_edge_moving_down_from_top);
       if (detected_higher_mass_signal) {
         m_wipe_direction = down_tracking_value <= WIPE_START_UPPER_BOUND ? SystemWipe::Direction::DOWN : SystemWipe::Direction::UP;
         // float first_good_tracking_value = m_wipe_direction == SystemWipe::Direction::UP ? m_first_good_up_tracking_value : m_first_good_down_tracking_value;
