@@ -10,7 +10,7 @@ static const double gestureCompletionCoverage = 1.0 / 3.0; //% of screen covered
 
 AROverlay::AROverlay() :
 m_wipeDisabled(false),
-m_overlayOffset(),
+m_overlayOffset(0.f),
 m_overlayWindow(RenderWindow::New())
 {
   m_compDisplay.reset(m_compEngine->CreateDisplay(m_overlayWindow->GetSystemHandle()));
