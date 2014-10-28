@@ -2,7 +2,6 @@
 
 #include <cmath>
 
-#include "GLController.h"
 #include "GLShader.h"
 #include "GLShaderLoader.h"
 #include "GLTexture2.h"

@@ -143,7 +143,6 @@ add_sublibrary(
         FrameBufferObject.h
         gl_glext_glu.h
         GLBuffer.h
-        GLController.h
         GLError.h
         GLMaterial.h
         GLShader.h
@@ -166,7 +165,6 @@ add_sublibrary(
     SOURCES
         FrameBufferObject.cpp
         GLBuffer.cpp
-        GLController.cpp
         GLMaterial.cpp
         GLShader.cpp
         GLShaderMatrices.cpp

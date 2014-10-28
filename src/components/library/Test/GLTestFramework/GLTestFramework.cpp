@@ -1,3 +1,4 @@
+#include "GLHeaders.h"
 #include "GLTestFramework.h"
 
 // This class will initialize and shutdown a GL context (SDL based) respectively before and after running each test.
@@ -13,17 +14,26 @@ GLTestFramework::~GLTestFramework () { }
   
 void GLTestFramework::SetUp () {
   m_SDLController.Initialize(m_SDLControllerParams);
-  m_GLController.Initialize();
-  
+  InitializeGlew();
+
+  BeginFrame();
+}
+
+void GLTestFramework::BeginFrame () {
   m_SDLController.BeginRender();
-  m_GLController.BeginRender();
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // if using transparent window, clear alpha value must be 0
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void GLTestFramework::EndFrame () {
+  glFlush();
+  m_SDLController.EndRender();  
 }
 
 void GLTestFramework::TearDown () {
-  m_GLController.EndRender();
-  m_SDLController.EndRender();
-  
-  // Shut down the created things in reverse order
-  m_GLController.Shutdown();
+  EndFrame();
+
+  // Shut down the created things in reverse order.
+  // Nothing to do in shutting down Glew.
   m_SDLController.Shutdown();
 }

@@ -3,7 +3,6 @@
 #include <cmath>
 
 #include "GLBuffer.h"
-#include "GLController.h"
 #include "GLShader.h"
 #include "GLShaderLoader.h"
 #include "GLTexture2.h"

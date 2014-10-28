@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GLController.h"
 #include <gtest/gtest.h>
 #include "SDLController.h"
 
@@ -14,13 +13,14 @@ protected:
   virtual ~GLTestFramework ();
   
   virtual void SetUp () override;
+  virtual void BeginFrame ();
+  virtual void EndFrame ();
   virtual void TearDown () override;
 
 protected:
 
   SDLControllerParams m_SDLControllerParams;
   SDLController m_SDLController;
-  GLController m_GLController;
 };
 
 // For creating a GLTestFramework that renders to a visible window

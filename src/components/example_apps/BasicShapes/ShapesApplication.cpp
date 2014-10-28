@@ -4,7 +4,7 @@
 
 #define FREEIMAGE_LIB
 #include "FreeImage.h"
-#include "gl_glext_glu.h"
+#include "GLHeaders.h"
 // There is a really dumb compile error on Linux: "Eigen/src/Core/util/Constants.h:369:2:
 // error: #error The preprocessor symbol 'Success' is defined, possibly by the X11 header file X.h",
 // so this undef is necessary until we can figure out a better solution.
@@ -36,7 +36,7 @@ void ShapesApplication::Initialize() {
 
   m_applicationTime = TimePoint(0.0);         // Start the application time at zero.
   m_SFMLController.Initialize(params);        // This initializes everything SDL-related.
-  m_GLController.Initialize();                // This initializes the general GL state.
+  InitializeGlew();                           // This initializes the general GL state. -- NOTE: this might already be done by SFML
   FreeImage_Initialise();                     // Initialize FreeImage.
   InitializeApplicationLayers();              // Initialize the application layers (contents of the app).
 
@@ -46,7 +46,6 @@ void ShapesApplication::Initialize() {
 void ShapesApplication::Shutdown() {
   ShutdownApplicationLayers();                // Destroy the application layers, from top (last) to bottom (first).
   FreeImage_DeInitialise();                   // Shut down FreeImage.
-  m_GLController.Shutdown();                  // This shuts down the general GL state.
   m_SFMLController.Shutdown();                // This shuts down everything SDL-related.
 }
 
@@ -64,14 +63,18 @@ void ShapesApplication::Render(TimeDelta real_time_delta) const {
   assert(real_time_delta >= 0.0);
 
   m_SFMLController.BeginRender();
-  m_GLController.BeginRender();               // NOTE: ALL RENDERING should go between here and EndRender().
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // if using transparent window, clear alpha value must be 0
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // NOTE: ALL RENDERING should go between here and the ending marker
 
   for (auto it = m_applicationLayers.begin(); it != m_applicationLayers.end(); ++it) {
     RenderableEventHandler &layer = **it;
     layer.Render(real_time_delta);              // Render each application layer, from back to front.
   }
 
-  m_GLController.EndRender();                 // NOTE: ALL RENDERING should go between here and BeginRender().
+  // NOTE: ALL RENDERING should end by this ending marker.
+  glFlush();
   m_SFMLController.EndRender();
 }
 

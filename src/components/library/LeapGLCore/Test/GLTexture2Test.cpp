@@ -190,8 +190,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
 
   RenderTexturedRectangle(*texture);
   // Finish the frame before delaying. 
-  m_GLController.EndRender();
-  m_SDLController.EndRender();
+  EndFrame();
   
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
@@ -217,8 +216,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
 
   RenderTexturedRectangle(*texture);
   // Finish the frame before delaying. 
-  m_GLController.EndRender();
-  m_SDLController.EndRender();
+  EndFrame();
   
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
@@ -244,8 +242,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
 
   RenderTexturedRectangle(*texture);
   // Finish the frame before delaying. 
-  m_GLController.EndRender();
-  m_SDLController.EndRender();
+  EndFrame();
   
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
@@ -279,8 +276,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
 
   RenderTexturedRectangle(*texture);
   // Finish the frame before delaying. 
-  m_GLController.EndRender();
-  m_SDLController.EndRender();
+  EndFrame();
   
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }

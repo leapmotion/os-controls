@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GLController.h"
 #include "RenderableEventHandler.h"
 
 #include <memory>
