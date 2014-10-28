@@ -10,6 +10,7 @@ static const double gestureCompletionCoverage = 1.0 / 3.0; //% of screen covered
 
 AROverlay::AROverlay() :
 m_shouldDisplayOverlay(false),
+m_wipeDisabled(false),
 m_overlayOffset(),
 m_overlayWindow(RenderWindow::New())
 {
@@ -31,7 +32,8 @@ void AROverlay::SetSourceWindow(RenderWindow& window, bool copyDimensions) {
   window.SetCloaked();
   if (copyDimensions)
     m_overlayWindow->SetRect(window.GetRect());
-
+  m_overlayWindow->SetPosition({ 0, 0 });
+  m_overlayWindow->SetTransparent(true);
   m_compEngine->CommitChanges();
 }
 
@@ -71,9 +73,24 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
 }
 
 //AutoFilter methods (to be informed of system wipe occuring
-void AROverlay::AutoFilter(const SystemWipe& wipe) {
+void AROverlay::AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame) {
   m_lastWipe = wipe;
 
+  //Disable this behavior if we have recognized hands.
+  if (frame.hands().count() > 0) {
+    m_wipeDisabled = true;
+  }
+  else if (m_lastWipe.status == SystemWipe::Status::NOT_ACTIVE) {
+    //Only re-enable if the recognizer isn't in the middle of something..
+    m_wipeDisabled = false;
+  }
+
+  if (m_wipeDisabled) {
+    if (m_lastWipe.status == SystemWipe::Status::UPDATE)
+      m_lastWipe.status = SystemWipe::Status::ABORT;
+    else
+      m_lastWipe.status = SystemWipe::Status::NOT_ACTIVE;
+  }
 
   if (m_lastWipe.status == SystemWipe::Status::BEGIN || m_lastWipe.status == SystemWipe::Status::ABORT) {
     m_shouldDisplayOverlay = !m_shouldDisplayOverlay;

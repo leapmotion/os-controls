@@ -27,9 +27,10 @@ public:
   void Tick(std::chrono::duration<double> deltaT) override;
 
   //AutoFilter methods (to be informed of system wipe occuring
-  void AutoFilter(const SystemWipe& wipe);
+  void AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame);
 private:
   bool m_shouldDisplayOverlay;
+  bool m_wipeDisabled;
   SystemWipe m_lastWipe;
   SystemWipe::Direction m_wipeDirection;
   std::chrono::steady_clock::time_point m_wipeStart;
