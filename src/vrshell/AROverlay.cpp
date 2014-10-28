@@ -5,6 +5,7 @@
 #include "hmdinterface/IDeviceConfiguration.h"
 
 static const double animationDuration = .2; //in seconds
+static const double gestureCompletionCoverage = 1.0 / 3.0; //% of screen covered when gesture is registered as complete - subjective
 
 AROverlay::AROverlay() :
 m_shouldDisplayOverlay(false),
@@ -75,14 +76,14 @@ void AROverlay::AutoFilter(const SystemWipe& wipe) {
     m_wipeDirection = wipe.direction;
 
     if (m_shouldDisplayOverlay) {
-      m_overlayOffset.Set(m_overlayWindow->GetSize().height);
+      m_overlayOffset.Set(m_overlayWindow->GetSize().height, animationDuration);
     }
     else {
-      m_overlayOffset.Set(0);
+      m_overlayOffset.Set(0, animationDuration);
     }
   }
   else if (wipe.status == SystemWipe::Status::UPDATE) {
-    m_overlayOffset.SetCompletion(wipe.progress);
+    m_overlayOffset.SetCompletion(wipe.progress * gestureCompletionCoverage);
   }
 
   m_lastWipe = wipe;
