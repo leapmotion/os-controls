@@ -15,6 +15,7 @@ m_passthroughShader(Resource<GLShader>("passthrough"))
   for (int i = 0; i < 2; i++) {
     m_rect[i].SetSize(EigenTypes::Vector2(640, 480));
     m_rect[i].Translation() = EigenTypes::Vector3(320, 240, 0);
+    m_rect[i].SetShader(m_passthroughShader);
     m_rect[i].Material().SetAmbientLightColor(Color::White());
     m_rect[i].Material().SetAmbientLightingProportion(1.0f);
   }
@@ -46,11 +47,6 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
 
     m_texture[0] = std::make_shared<GLTexture2>(imageParams);
     m_texture[1] = std::make_shared<GLTexture2>(imageParams);
-
-    m_rect[0].SetTexture(m_texture[0]);
-    m_rect[1].SetTexture(m_texture[1]);
-    m_rect[0].Material().SetUseTexture(true);
-    m_rect[1].Material().SetUseTexture(true);
 
     GLTexture2Params distortionParams(64, 64, GL_RG32F);
     //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
@@ -85,15 +81,34 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void LeapImagePassthrough::Render(const RenderFrame& frame) const {
+  auto& texture = m_texture[frame.eyeIndex];
+  auto& distortion = m_distortion[frame.eyeIndex];
+  if (!texture || !distortion) { 
+    return;
+  }
 
   glEnable(GL_TEXTURE_2D);
+  m_passthroughShader->Bind();
   
-  auto& texture = m_texture[frame.eyeIndex];
-  if (texture)
-    texture->Bind();
+  glActiveTexture(GL_TEXTURE0 + 0);
+  texture->Bind();
+  glActiveTexture(GL_TEXTURE0 + 1);
+  distortion->Bind();
+
+  //const auto rectSize = m_rect[frame.eyeIndex].Size();
+  //sconst auto rectPos = m_rect[frame.eyeIndex].Translation();
+  GLShaderMatrices::UploadUniforms(*m_passthroughShader, frame.renderState.GetModelView().Matrix(), frame.renderState.GetProjection().Matrix(), BindFlags::NONE);
+
+  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), 0.125f, 0.125f);
+  glUniform2f(m_passthroughShader->LocationOfUniform("ray_offset"), 0.5f, 0.5f);
+  glUniform1i(m_passthroughShader->LocationOfUniform("texture"), 0);
+  glUniform1i(m_passthroughShader->LocationOfUniform("distortion"), 1);
+  glUniform1f(m_passthroughShader->LocationOfUniform("gamma"), 0.8f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("brightness"), 1.0f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("use_color"), false ? 1.0f : 0.0f);
 
   PrimitiveBase::DrawSceneGraph(m_rect[frame.eyeIndex], frame.renderState);
-
-  if (texture)
-    texture->Unbind();
+  texture->Unbind();
+  distortion->Unbind();
+  m_passthroughShader->Unbind();
 }
