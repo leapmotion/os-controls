@@ -13,5 +13,5 @@ add_library(mediaview ${mediaview_EXEFLAGS} ${mediaview_SOURCES})
 
 set_property(TARGET mediaview PROPERTY FOLDER "Shortcuts Projects")
 
-target_link_libraries(mediaview Autowiring graphics)
+target_link_libraries(mediaview Autowiring cursor graphics RadialMenu)
 
