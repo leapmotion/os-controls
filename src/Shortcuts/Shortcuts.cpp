@@ -85,7 +85,7 @@ void Shortcuts::Main(void) {
   nativeUI->ShowUI();
   auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
 
-  renderWindow->SetVSync(false);
+  renderWindow->SetVSync(true);
   renderWindow->SetTransparent(true);
   renderWindow->SetVisible(true);
 
