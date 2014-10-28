@@ -45,7 +45,6 @@ public:
   typedef std::function<void(T& current, const T& start, const T& goal, double percent)> EasingFunction;
 
   Animated(const EasingFunction& func = EasingFunctions::Linear<T>) : Animated(T()) {}
-  Animated(const T& initial, double duration) : Animated(initial, duration) {}
   Animated(const T& initial, double duration = 1.0, const EasingFunction& func = EasingFunctions::Linear<T>) :
     m_current(initial), m_start(initial), m_goal(initial), 
     m_duration(duration), m_completion(0.0), m_easing(func)
