@@ -51,23 +51,16 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
   if (m_lastWipe.status == SystemWipe::Status::NOT_ACTIVE && m_overlayOffset.Completion() != 1.0)
     m_overlayOffset.Update(deltaT.count());
 
-  if (shouldDisplayOverlay()) {
-    if (m_wipeDirection == SystemWipe::Direction::DOWN) {
-      m_mainView->SetClip(0, 0, screenWidth, m_overlayOffset.Current());
-    }
-    else{
-      m_mainView->SetClip(0, maxHeight - m_overlayOffset.Current(), screenWidth, m_overlayOffset.Current());
-    }
+  //If isDisplayingOverlay && m_wipeDirection == Down | !isDisplayingOverlay && m_wipeDirection == Up
+  // then the animation is playing from top to bottom
+  //If isDisplayingOverlay && m_WipeDirection == Up | !isDisplayingOverlay && m_wipedirection == Down
+  // then the animation is playing from the bottom up.
+  if (isDisplayingOverlay() == (m_wipeDirection == SystemWipe::Direction::DOWN)) {
+    m_mainView->SetClip(0, 0, screenWidth, m_overlayOffset.Current());
   }
   else {
-    if (m_wipeDirection == SystemWipe::Direction::DOWN) {
-      m_mainView->SetClip(0, maxHeight - m_overlayOffset.Current(), screenWidth, m_overlayOffset.Current());
-    }
-    else {
-      m_mainView->SetClip(0, 0, screenWidth, m_overlayOffset.Current());
-    }
+    m_mainView->SetClip(0, maxHeight - m_overlayOffset.Current(), screenWidth, m_overlayOffset.Current());
   }
-
   m_compEngine->CommitChanges();
 }
 
@@ -92,7 +85,8 @@ void AROverlay::AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame) {
   }
 
   if (m_lastWipe.status == SystemWipe::Status::BEGIN || m_lastWipe.status == SystemWipe::Status::ABORT) {
-    m_overlayOffset.Set(shouldDisplayOverlay() ? m_overlayWindow->GetSize().height : 0, defaultAnimationDuration);
+    const float newOverlayOffsetGoal = isDisplayingOverlay() ? 0 : m_overlayWindow->GetSize().height;
+    m_overlayOffset.Set(newOverlayOffsetGoal, defaultAnimationDuration);
   }
 
   if (m_lastWipe.status == SystemWipe::Status::BEGIN) {
