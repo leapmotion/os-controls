@@ -31,8 +31,7 @@ void AROverlay::SetSourceWindow(RenderWindow& window, bool copyDimensions) {
   window.SetCloaked();
   if (copyDimensions)
     m_overlayWindow->SetRect(window.GetRect());
-  m_overlayWindow->SetPosition({ 0, 0 });
-  m_overlayWindow->SetTransparent(true);
+
   m_compEngine->CommitChanges();
 }
 
