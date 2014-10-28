@@ -10,6 +10,8 @@ set(VRShell_SOURCES
 set(VRShell_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/shaders/material-frag.glsl
   ${CMAKE_SOURCE_DIR}/src/shaders/matrix-transformed-vert.glsl
+  ${CMAKE_SOURCE_DIR}/src/shaders/passthrough-frag.glsl
+  ${CMAKE_SOURCE_DIR}/src/shaders/passthrough-vert.glsl
 )
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRShell_SOURCES)
 
