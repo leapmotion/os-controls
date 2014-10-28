@@ -215,6 +215,18 @@ void RenderWindowWin::SetVisible(bool visible)
   ::EnableWindow(hWnd, FALSE);
 }
 
+void RenderWindowWin::SetCloaked(bool cloaked)
+{
+  if (!m_renderContext) {
+    return;
+  }
+  HWND hWnd = m_renderContext->m_hWnd;
+
+  m_isCloaked = cloaked;
+  BOOL cloak = m_isCloaked ? TRUE : FALSE;
+  ::DwmSetWindowAttribute(hWnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+}
+
 void RenderWindowWin::SetActive(bool active)
 {
   if (!m_renderContext) {

@@ -30,6 +30,7 @@ public:
   virtual void SetVSync(bool vsync = true) override;
   virtual void SetTransparent(bool transparent = true) override;
   virtual void SetVisible(bool visible = true) override;
+  virtual void SetCloaked(bool cloaked = true) override;
 
   virtual void SetActive(bool active = true) override;
   virtual void FlushBuffer(void) override;

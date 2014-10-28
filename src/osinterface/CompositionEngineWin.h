@@ -66,6 +66,7 @@ public:
   void SetOffset(float x, float y) override;
   void SetRotation(float centerX, float centerY, float degrees) override;
   void SetScale(float centerX, float centerY, float scaleX, float scaleY) override;
+  void SetClip(float x, float y, float width, float height) override;
 
 private:
   friend class ComposedDisplayWin;

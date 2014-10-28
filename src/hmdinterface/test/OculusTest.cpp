@@ -27,9 +27,9 @@ class OculusTest : public testing::Test {};
 
 TEST_F(OculusTest, BasicSquare) {
   Hmd::HmdFactory factory;
-  
+
   std::shared_ptr<Hmd::IDevice> hmdDevice(factory.CreateDevice());
-  
+
   SDLController sdl_controller;
   {
     SDLControllerParams params;
@@ -72,7 +72,7 @@ TEST_F(OculusTest, BasicSquare) {
 
     // sdl_controller.BeginRender();
     hmdDevice->BeginFrame();
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     for (uint32_t eye_render_index = 0; eye_render_index < hmdDevice->Configuration().EyeCount(); ++eye_render_index) {
       uint32_t eye_index = hmdDevice->Configuration().EyeRenderOrder(eye_render_index);
@@ -103,7 +103,7 @@ TEST_F(OculusTest, BasicSquare) {
         const float radius = 10.0f;
 
         Hmd::DoubleArray<3> eye_position(eye_pose->Position());
-        // std::cout << "eye " << eye_index << " position: " << eye_position << '\n';        
+        // std::cout << "eye " << eye_index << " position: " << eye_position << '\n';
         glTranslated(eye_position[0], eye_position[1], eye_position[2]);
         glColor4f(0.2f, 0.6f, 1.0f, 0.5f);
         glLineWidth(1.0f);
@@ -120,7 +120,7 @@ TEST_F(OculusTest, BasicSquare) {
             glVertex3f(radius*cos(phi1)*cos(theta0), radius*sin(phi1), radius*cos(phi1)*sin(theta0));
           }
         }
-        glEnd();        
+        glEnd();
       }
 
       hmdDevice->EndRenderingEye(eye_index);
@@ -149,11 +149,11 @@ TEST_F(OculusTest, BasicSquareRenderWindow) {
   hmdDevice->Initialize();
   auto &cfg = hmdDevice->Configuration();
 
-  renderWindow->SetSize(OSSize(cfg.DisplayWidth(), cfg.DisplayHeight()));
+  renderWindow->SetSize(OSSizeMake(cfg.DisplayWidth(), cfg.DisplayHeight()));
 
-  renderWindow->SetPosition(OSPoint(cfg.WindowPositionX(), cfg.WindowPositionY()));
+  renderWindow->SetPosition(OSPointMake(cfg.WindowPositionX(), cfg.WindowPositionY()));
   renderWindow->ProcessEvents();
-  
+
   // There is some fanciness in OVR land about not being able to dismiss until after some timeout.
   // TODO: figure out how to dismiss it unconditionally.
   hmdDevice->DismissHealthWarning();
@@ -197,7 +197,7 @@ TEST_F(OculusTest, BasicSquareRenderWindow) {
         const float radius = 10.0f;
 
         Hmd::DoubleArray<3> eye_position(eye_pose->Position());
-        // std::cout << "eye " << eye_index << " position: " << eye_position << '\n';        
+        // std::cout << "eye " << eye_index << " position: " << eye_position << '\n';
         glTranslated(eye_position[0], eye_position[1], eye_position[2]);
         glColor4f(0.2f, 0.6f, 1.0f, 0.5f);
         glLineWidth(1.0f);
@@ -228,4 +228,3 @@ TEST_F(OculusTest, BasicSquareRenderWindow) {
 
   hmdDevice->Shutdown();
 }
-

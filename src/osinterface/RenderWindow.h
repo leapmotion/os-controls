@@ -17,7 +17,7 @@ class RenderWindow :
 {
 public:
   RenderWindow(void):
-    m_useVSync(true), m_isTransparent(false), m_isVisible(false) {}
+    m_useVSync(true), m_isTransparent(false), m_isVisible(false), m_isCloaked(false) {}
   virtual ~RenderWindow(void) {}
 
   RenderWindow(const RenderWindow&) = delete;
@@ -48,6 +48,7 @@ public:
   virtual void SetVSync(bool vsync = true) = 0;
   virtual void SetTransparent(bool transparent = true) = 0;
   virtual void SetVisible(bool visible = true) = 0;
+  virtual void SetCloaked(bool cloaked = true) = 0;
 
   virtual void SetActive(bool active = true) = 0;
   virtual void FlushBuffer(void) = 0;
@@ -58,4 +59,5 @@ protected:
   bool m_useVSync;
   bool m_isTransparent;
   bool m_isVisible;
+  bool m_isCloaked;
 };

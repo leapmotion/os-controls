@@ -275,6 +275,7 @@ void Device::EndFrame () {
   // m_EyeTexture as type ovrTexture[2].
   ovrHmd_EndFrame(m_hmd, m_CachedEyeRenderPoseForEndFrame, &m_EyeTexture[0].Texture);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  DismissHealthWarning();
 }
 
 } // end of namespace OculusRift

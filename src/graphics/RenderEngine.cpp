@@ -4,6 +4,10 @@
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/RenderContext.h"
 #include "osinterface/RenderWindow.h"
+#include "hmdinterface/IDevice.h"
+#include "hmdinterface/IDeviceConfiguration.h"
+#include "hmdinterface/IEyeConfiguration.h"
+
 #include <GL/glew.h>
 #include "GLShader.h"
 #include "GLShaderLoader.h"
@@ -58,7 +62,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   m_shader->Bind();
 
   // Have objects rendering into the specified window with the supplied change in time
-  RenderFrame frame{m_renderWindow, m_renderState, deltaT};
+  RenderFrame frame{m_renderWindow, m_renderState, deltaT, 0};
 
   // AnimationUpdate all attached nodes
   for(const auto& renderable : *this)
@@ -68,19 +72,42 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
 
   // Only render objects when the screensaver is disabled
   if (m_virtualScreen && !m_virtualScreen->IsScreenSaverActive()) {
-    // Perform render operation in a second pass:
-    for(auto& renderable : *this) {
-      if (!renderable->IsVisible()) {
-        continue;
-      }
-      drewThisFrame = true;
-      auto& mv = frame.renderState.GetModelView();
-      mv.Push();
 
-      mv.Translate(EigenTypes::Vector3{renderable->position.x, renderable->position.y, 0.0});
-      renderable->Render(frame);
-      mv.Pop();
+    // Perform render operation in a second pass:
+    auto renderFunction = [this, &drewThisFrame, &frame](){
+      for (auto& renderable : *this) {
+        if (!renderable->IsVisible()) {
+          continue;
+        }
+        drewThisFrame = true;
+        auto& mv = frame.renderState.GetModelView();
+        mv.Push();
+
+        mv.Translate(EigenTypes::Vector3{ renderable->position.x, renderable->position.y, 0.0 });
+        renderable->Render(frame);
+        mv.Pop();
+      }
+    };
+
+    AutowiredFast<Hmd::IDevice> hmd;
+    if (hmd) {
+      hmd->BeginFrame();
+      const EigenTypes::Matrix4x4 projection = frame.renderState.GetProjection().Matrix();
+
+      for (int i = 0; i < hmd->Configuration().EyeCount(); i++) {
+        const int eyeIndex = hmd->Configuration().EyeRenderOrder(i);
+        frame.eyeIndex = eyeIndex;
+        hmd->BeginRenderingEye(eyeIndex);
+        
+        renderFunction();
+         
+        hmd->EndRenderingEye(eyeIndex);
+      }
+      hmd->EndFrame();
     }
+    else
+      renderFunction();
+    
   }
 
   // General cleanup

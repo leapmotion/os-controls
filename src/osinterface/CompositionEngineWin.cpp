@@ -131,6 +131,14 @@ void ComposedViewWin::SetScale(float centerX, float centerY, float scaleX, float
   m_device->m_commitRequired = true;
 }
 
+void ComposedViewWin::SetClip(float x, float y, float width, float height) {
+  D2D_RECT_F clipRect{ x, y , x + width, y + height };
+  m_visual->SetClip(clipRect);
+
+  m_device->m_commitRequired = true;
+}
+
+
 ComposedDisplayWin::ComposedDisplayWin(CompositionEngineWin* engine, WindowHandle window) :
   m_target(nullptr),
   m_engine(engine)

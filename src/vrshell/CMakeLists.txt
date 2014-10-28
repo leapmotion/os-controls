@@ -1,6 +1,8 @@
 set(VRShell_SOURCES
-  LeapImagePassthrough.cpp
+  AROverlay.h
+  AROverlay.cpp
   LeapImagePassthrough.h
+  LeapImagePassthrough.cpp
   VRShell.h
   VRShell.cpp
 )
@@ -27,6 +29,7 @@ target_link_libraries(VRShell PUBLIC
   GLShaderLoader
   graphics
   hmdinterface
+  interaction
   osinterface
   Primitives
   utility
