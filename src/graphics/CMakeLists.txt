@@ -16,4 +16,4 @@ target_link_libraries(graphics Autowiring)
 
 target_package(graphics Leap REQUIRED)
 
-target_link_libraries(graphics Animation Primitives SceneGraph Resource GLShader GLShaderLoader RadialMenu HandCursor)
+target_link_libraries(graphics Animation Primitives Resource GLShaderLoader RadialMenu HandCursor)

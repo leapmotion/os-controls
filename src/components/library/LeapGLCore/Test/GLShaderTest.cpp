@@ -1,6 +1,5 @@
 #include <iostream>
 #include "GLShader.h"
-#include "GLShaderLoader.h"
 #include "GLTestFramework.h"
 #include <gtest/gtest.h>
 

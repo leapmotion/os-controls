@@ -135,15 +135,55 @@ add_sublibrary(
 )
 
 add_sublibrary(
-    GLCompatibility
+    LeapGLCore
+    SOURCE_PATH
+        LeapGLCore/Leap/GL
     HEADERS
+        FrameBufferObject.h
         gl_glext_glu.h
-        GLError.h # This might really belong in a different component
+        GLBuffer.h
+        GLController.h
+        GLError.h
+        GLMaterial.h
+        GLShader.h
+        GLShaderBindingScopeGuard.h
+        GLShaderMatrices.h
+        GLTexture2.h
+        GLTexture2Params.h
+        GLTexture2PixelData.h
+        GLVertexAttribute.h
+        GLVertexBuffer.h
+        ModelViewProjection.h
+        RenderBuffer.h
+        SceneGraphNode.h
+        SceneGraphNodeProperties.h
+        SceneGraphNodeProperty.h
+        SceneGraphNodeValues.h
+        ScopeGuard.h
+    SOURCES
+        FrameBufferObject.cpp
+        GLBuffer.cpp
+        GLController.cpp
+        GLMaterial.cpp
+        GLShader.cpp
+        GLShaderMatrices.cpp
+        GLTexture2.cpp
+        GLTexture2Params.cpp
+        GLTexture2PixelData.cpp
+        ModelViewProjection.cpp
+        RenderBuffer.cpp
+    RESOURCES
+        material-frag.glsl
+        matrix-transformed-vert.glsl
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.
+        Color # TODO: LeapGL color
+        EigenTypes # TODO: get rid of Eigen dependency.
     EXPLICIT_LIBRARY_DEPENDENCIES
         "Glew 1.9.0"
         "OpenGL 2.1" # It is necessary to link GL after Glew on Linux.
     BRIEF_DOC_STRING
-        "A means for including OpenGL (and related) headers in a platform-agnostic way."
+        "The LeapGL core component provides C++ abstractions for most of the commonly used OpenGL concepts."
 )
 
 # NOTE: MakeTransparent_Apple.mm is an Objective-C++ source file which should only be compiled
@@ -161,7 +201,7 @@ add_sublibrary(
         ${_maybe_MakeTransparent_Apple_mm}
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11
-        GLCompatibility
+        LeapGLCore
     EXPLICIT_LIBRARY_DEPENDENCIES
         "SDL 2"
     BRIEF_DOC_STRING
@@ -199,129 +239,6 @@ add_sublibrary(
         "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
     BRIEF_DOC_STRING
         "ResourceManager-managed loading of FbxScene objects using the FBX SDK."
-)
-
-add_sublibrary(
-    GLTexture2
-    HEADERS
-        GLTexture2.h
-        GLTexture2Params.h
-        GLTexture2PixelData.h
-    SOURCES
-        GLTexture2.cpp
-        GLTexture2Params.cpp
-        GLTexture2PixelData.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        GLCompatibility
-    BRIEF_DOC_STRING
-        "A C++ class for managing 2D textures in OpenGL."
-)
-
-add_sublibrary(
-    FrameBufferObject
-    HEADERS
-        FrameBufferObject.h
-        RenderBuffer.h
-    SOURCES
-        FrameBufferObject.cpp
-        RenderBuffer.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLTexture2
-        GLCompatibility
-    BRIEF_DOC_STRING
-        "Render to an OpenGL render buffer or texture."
-)
-
-add_sublibrary(
-    GLBuffer
-    HEADERS
-        GLBuffer.h
-    SOURCES
-        GLBuffer.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLCompatibility
-    BRIEF_DOC_STRING
-        "A fast GPU buffer object for OpenGL geometry."
-)
-
-add_sublibrary(
-    GLVertexBuffer
-    HEADERS
-        GLVertexAttribute.h
-        GLVertexBuffer.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        GLBuffer
-        GLCompatibility
-    BRIEF_DOC_STRING
-        "An encapsulation of the OpenGL vertex buffer object concept."
-)
-
-add_sublibrary(
-    GLController
-    HEADERS
-        GLController.h
-    SOURCES
-        GLController.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLCompatibility
-    BRIEF_DOC_STRING
-        "A single point of control for usage of OpenGL."
-)
-
-add_sublibrary(
-    GLMatrices
-    HEADERS
-        ModelViewProjection.h
-    SOURCES
-        ModelViewProjection.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        EigenTypes
-    BRIEF_DOC_STRING
-        "Provides manipulation of modelview and projection matrices for usage in shaders."
-)
-
-add_sublibrary(
-    ScopeGuard
-    HEADERS
-        ScopeGuard.h
-    BRIEF_DOC_STRING
-        "A C++ class which provides the RAII-based 'scope guard' pattern."
-)
-
-add_sublibrary(
-    GLShader
-    HEADERS
-        GLShader.h
-        GLShaderBindingScopeGuard.h
-    SOURCES
-        GLShader.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        GLCompatibility
-        ScopeGuard
-    BRIEF_DOC_STRING
-        "A C++ class which manages GLSL-based shader programs."
-)
-
-add_sublibrary(
-    GLMaterial
-    HEADERS
-        GLMaterial.h
-        GLShaderMatrices.h
-    SOURCES
-        GLMaterial.cpp
-        GLShaderMatrices.cpp
-    RESOURCES
-        material-frag.glsl
-        matrix-transformed-vert.glsl
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        Color
-        EigenTypes
-        GLShader
-    BRIEF_DOC_STRING
-        "A C++ class which provides high-level management of a 'material' shader."
 )
 
 add_sublibrary(
@@ -367,7 +284,7 @@ add_sublibrary(
     HEADERS
         GLShaderLoader.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLShader
+        LeapGLCore
         Resource
         TextAndBinaryFileLoader
     BRIEF_DOC_STRING
@@ -381,7 +298,7 @@ add_sublibrary(
     SOURCES
         GLTexture2FreeImage.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLTexture2
+        LeapGLCore
     EXPLICIT_LIBRARY_DEPENDENCIES
         "FreeImage 3"
     BRIEF_DOC_STRING
@@ -399,20 +316,6 @@ add_sublibrary(
         ResourceManager
     BRIEF_DOC_STRING
         "Provides ResourceManager-managed loading of GLTexture2 objects using FreeImage."
-)
-
-add_sublibrary(
-    SceneGraph
-    HEADERS
-        SceneGraphNode.h
-        SceneGraphNodeProperties.h
-        SceneGraphNodeProperty.h
-        SceneGraphNodeValues.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        EigenTypes
-    BRIEF_DOC_STRING
-        "Provides a C++ baseclass which implements the 'scene graph' design pattern (see Wikipedia)."
 )
 
 add_sublibrary(
@@ -459,16 +362,11 @@ add_sublibrary(
         TexturedFrame.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
-        GLBuffer
-        GLMaterial
-        GLMatrices
         GLShaderLoader
-        GLTexture2
-        GLVertexBuffer
+        LeapGLCore
         NanoSVG
         PolyPartition
         Resource
-        SceneGraph
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )
@@ -495,7 +393,7 @@ add_sublibrary(
         OculusVR.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EigenTypes
-        GLCompatibility
+        LeapGLCore
     EXPLICIT_LIBRARY_DEPENDENCIES
         "OculusSDK"
     BRIEF_DOC_STRING
@@ -516,8 +414,7 @@ add_sublibrary(
         Color
         Animation
         EigenTypes
-        GLCompatibility
-        GLMaterial
+        LeapGLCore
         Primitives
     BRIEF_DOC_STRING
         "Provides abstract radial view classes."
@@ -533,8 +430,7 @@ add_sublibrary(
         Color
         Animation
         EigenTypes
-        GLCompatibility
-        GLMaterial
+        LeapGLCore
         LeapListener
         Primitives
     BRIEF_DOC_STRING
@@ -803,7 +699,6 @@ add_sublibrary(
     SOURCES
         GLTestFramework.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLController
         GTest
         SDLController
     BRIEF_DOC_STRING
@@ -844,44 +739,20 @@ add_sublibrary(
 )
 
 add_sublibrary(
-    GLShaderTest
+    LeapGLCoreTest
     EXCLUDE_FROM_ALL
     SOURCE_PATH
-        GLShader/Test
+        LeapGLCore/Test
     SOURCES
         GLShaderTest.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLShaderLoader
-        GLTestFramework
-    BRIEF_DOC_STRING
-        "Unit tests for the GLShader component."
-)
-
-add_sublibrary(
-    GLTexture2Test
-    SOURCE_PATH
-        GLTexture2/Test
-    SOURCES
         GLTexture2Test.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLTexture2
-        GLTestFramework
-    BRIEF_DOC_STRING
-        "Unit tests for the GLTexture2 component."
-)
-
-add_sublibrary(
-    SceneGraphTest
-    SOURCE_PATH
-        SceneGraph/Test
-    SOURCES
         SceneGraphNodePropertiesTest.cpp
         SceneGraphNodeTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GTest
-        SceneGraph
+        GLTestFramework
+        LeapGLCore
     BRIEF_DOC_STRING
-        "Unit tests for the GLTexture2 component."
+        "Unit tests for the LeapGLCore component."
 )
 
 set(_tests ${ADDED_SUBLIBRARIES})

@@ -26,6 +26,6 @@ target_link_libraries(expose Autowiring utility)
 
 target_package(expose Leap REQUIRED)
 
-target_link_libraries(expose Animation Primitives SceneGraph RadialMenu Resource GLShader GLShaderLoader HandCursor)
+target_link_libraries(expose Animation Primitives RadialMenu Resource GLShaderLoader HandCursor)
 
 add_subdirectory(testharness)
