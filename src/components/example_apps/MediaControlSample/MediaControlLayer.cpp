@@ -159,15 +159,16 @@ void MediaControlLayer::Update(TimeDelta real_time_delta) {
   m_PlaybackMenu.GetItem(1)->SetActivation(item2Activation);
   m_PlaybackMenu.GetItem(2)->SetActivation(item3Activation);
 #else
-  static const Vector3 LEAP_OFFSET(0, -200, 0);
+  static const EigenTypes::Vector3 LEAP_OFFSET(0, -200, 0);
   static const double LEAP_SCALE = 0.5;
   if (!frames.empty()) {
     Leap::Finger frontmostFinger = frames.back().fingers().frontmost();
-    const Vector3 fingerPos = frontmostFinger.tipPosition().toVector3<Vector3>() + LEAP_OFFSET;
+    const EigenTypes::Vector3 fingerPos = frontmostFinger.tipPosition().toVector3<EigenTypes::Vector3>() + LEAP_OFFSET;
     m_Cursor.Translation() = LEAP_SCALE * fingerPos;
     m_Cursor.Translation().z() = 0.0;
   }
-  m_PlaybackMenu.UpdateItemsFromCursor(m_Cursor.Translation(), static_cast<float>(real_time_delta));
+  assert(false && "this seems to be an API break from RadialMenu.  TODO: correct this.");
+  // m_PlaybackMenu.UpdateItemsFromCursor(m_Cursor.Translation(), static_cast<float>(real_time_delta));
 #endif
 }
 
@@ -186,9 +187,9 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   m_Renderer.GetProjection().Perspective(fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
-  const Vector3 eyePos = 100*Vector3::UnitZ(); // + 0.5*m_Cursor.Translation();
-  const Vector3 lookAtPoint = Vector3::Zero();
-  const Vector3 upVector = Vector3::UnitY();
+  const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ(); // + 0.5*m_Cursor.Translation();
+  const EigenTypes::Vector3 lookAtPoint = EigenTypes::Vector3::Zero();
+  const EigenTypes::Vector3 upVector = EigenTypes::Vector3::UnitY();
   //m_Renderer.SetShader(m_shader);
   m_Renderer.GetModelView().Reset();
   m_Renderer.GetModelView().LookAt(eyePos, lookAtPoint, upVector);
@@ -196,8 +197,8 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   m_shader->Bind();
 
   // set light position
-  const Vector3f desiredLightPos(0, 10, 10);
-  const Vector3f lightPos = desiredLightPos - eyePos.cast<float>();
+  const EigenTypes::Vector3f desiredLightPos(0, 10, 10);
+  const EigenTypes::Vector3f lightPos = desiredLightPos - eyePos.cast<float>();
   const int lightPosLoc = m_shader->LocationOfUniform("lightPosition");
   glUniform3f(lightPosLoc, lightPos[0], lightPos[1], lightPos[2]);
 

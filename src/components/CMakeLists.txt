@@ -46,4 +46,6 @@ endif()
 add_subdirectory(library)
 # The subdirectories containing the example apps.
 add_subdirectory(example_apps/BasicShapes)
+add_subdirectory(example_apps/MediaControlSample)
+add_subdirectory(example_apps/OculusSample)
 add_subdirectory(example_apps/Stub)
