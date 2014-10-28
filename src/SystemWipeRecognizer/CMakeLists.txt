@@ -1,3 +1,0 @@
-add_executable(SystemWipeRecognizer main.cpp)
-target_link_libraries(SystemWipeRecognizer PUBLIC interaction LeapListener)
-target_include_directories(SystemWipeRecognizer PUBLIC ../interaction)

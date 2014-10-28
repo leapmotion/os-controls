@@ -32,7 +32,7 @@ set(interaction_SOURCES
 
 add_library(interaction ${interaction_EXEFLAGS} ${interaction_SOURCES})
 
-set_property(TARGET interaction PROPERTY FOLDER "Shortcuts Projects")
+set_property(TARGET interaction PROPERTY FOLDER "Common")
 
 target_link_libraries(interaction Autowiring cursor expose mediaview uievents)
 
@@ -40,3 +40,5 @@ target_package(interaction Eigen 3.2.1 REQUIRED)
 target_package(interaction Leap REQUIRED)
 
 target_link_libraries(interaction EigenTypes Animation Primitives SceneGraph Resource GLShader GLShaderLoader RadialMenu HandCursor)
+
+add_subdirectory(test)

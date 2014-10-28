@@ -4,7 +4,7 @@
 #include <limits>
 #include <stdexcept>
 #include "Leap.h"
-#include "SystemWipeRecognizer.h"
+#include "interaction/SystemWipeRecognizer.h"
 
 using namespace Leap;
 
