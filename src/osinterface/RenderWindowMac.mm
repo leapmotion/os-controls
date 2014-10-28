@@ -214,6 +214,13 @@ void RenderWindowMac::SetVisible(bool visible)
   }
 }
 
+void RenderWindowMac::SetCloaked(bool cloaked)
+{
+  //Todo: do a proper implementation (though this might be sufficient)
+  m_cloaked = cloaked;
+  SetVisible(m_cloaked);
+}
+
 void RenderWindowMac::SetActive(bool active)
 {
   if (!m_renderContext) {

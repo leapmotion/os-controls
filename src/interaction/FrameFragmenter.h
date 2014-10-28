@@ -34,3 +34,10 @@ private:
   int m_activeHandID;
 };
 
+class RawFrameFragmenter :
+  public LeapInputListener
+{
+public:
+  
+  void OnLeapFrame(const Leap::Frame& frame) override;
+};

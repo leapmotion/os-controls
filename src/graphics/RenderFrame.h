@@ -12,4 +12,5 @@ struct RenderFrame
   std::shared_ptr<RenderWindow> renderWindow;
   RenderState& renderState;
   std::chrono::duration<double> deltaT;
+  int eyeIndex;
 };
