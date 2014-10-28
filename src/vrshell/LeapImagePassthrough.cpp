@@ -7,7 +7,9 @@
 #include "osinterface/RenderWindow.h"
 #include "GLShaderMatrices.h"
 
-LeapImagePassthrough::LeapImagePassthrough() {
+LeapImagePassthrough::LeapImagePassthrough() :
+m_passthroughShader(Resource<GLShader>("passthrough"))
+{
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
 
   for (int i = 0; i < 2; i++) {
@@ -37,28 +39,40 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     // Generate a texture procedurally.
     GLsizei width = images[0].width();
     GLsizei height = images[0].height();
-    GLTexture2Params params(width, height, GL_LUMINANCE);
-    params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
-    params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    GLTexture2Params imageParams(width, height, GL_LUMINANCE);
+    imageParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
+    imageParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    imageParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    m_texture[0] = std::make_shared<GLTexture2>(params);
-    m_texture[1] = std::make_shared<GLTexture2>(params);
+    m_texture[0] = std::make_shared<GLTexture2>(imageParams);
+    m_texture[1] = std::make_shared<GLTexture2>(imageParams);
 
     m_rect[0].SetTexture(m_texture[0]);
     m_rect[1].SetTexture(m_texture[1]);
     m_rect[0].Material().SetUseTexture(true);
     m_rect[1].Material().SetUseTexture(true);
+
+    GLTexture2Params distortionParams(64, 64, GL_RG32F);
+    //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
+    distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    distortionParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    distortionParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    m_distortion[0] = std::make_shared<GLTexture2>(distortionParams);
+    m_distortion[1] = std::make_shared<GLTexture2>(distortionParams);
   }
  
-  m_texture[0]->Bind();
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[0].width(), images[0].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[0].data());
-  m_texture[0]->Unbind();
-  m_texture[1]->Bind();
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[1].width(), images[1].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[1].data());
-  m_texture[1]->Unbind();
+  for (int i = 0; i < 2; i++) {
+    m_texture[i]->Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[i].width(), images[i].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[i].data());
+    m_texture[i]->Unbind();
+    
+    m_distortion[i]->Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 64, 64, GL_RG, GL_FLOAT, images[i].distortion());
+    m_distortion[i]->Unbind();
+  }
 
-  
   const auto& windowSize = frame.renderWindow->GetSize();
   const auto rectPos = EigenTypes::Vector3(windowSize.width / 2, windowSize.height / 2, 0);
   const double conversionFactor = windowSize.width / images[0].width();
