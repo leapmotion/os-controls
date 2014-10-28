@@ -80,14 +80,7 @@ void RiggedHand::SetStyle(Gender gender, SkinTone tone) {
 void RiggedHand::SetLeapHand(const Leap::Hand& hand) {
   mConfidence = hand.confidence();
   mTimeVisible = hand.timeVisible();
-
   mIsLeft = hand.isLeft();
-  if (mIsLeft != mPrevIsLeft) {
-    mArmReorientation = computeArmReorientation(mIsLeft);
-    mWristReorientation = computeWristReorientation(mIsLeft);
-    mFingerReorientation = computeFingerReorientation(mIsLeft);
-    mPrevIsLeft = mIsLeft;
-  }
 
   mArmBasis = toEigen(hand.arm().basis());
   mHandBasis = toEigen(hand.basis());
@@ -287,6 +280,13 @@ void RiggedHand::updateStyle() {
 }
 
 void RiggedHand::updateIntermediateData() {
+  if (mIsLeft != mPrevIsLeft) {
+    mArmReorientation = computeArmReorientation(mIsLeft);
+    mWristReorientation = computeWristReorientation(mIsLeft);
+    mFingerReorientation = computeFingerReorientation(mIsLeft);
+    mPrevIsLeft = mIsLeft;
+  }
+
   const Eigen::Vector3f handDirection = mHandBasis.col(2).cast<float>();
 
   mArmScale = mScaleMultiplier * mPalmWidth / 100;
