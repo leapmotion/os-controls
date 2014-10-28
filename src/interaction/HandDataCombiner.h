@@ -5,9 +5,11 @@
 #include "HandPoseRecognizer.h"
 #include "HandRollRecognizer.h"
 #include "ScrollRecognizer.h"
+#include "SystemWipeRecognizer.h"
 #include "TimeRecognizer.h"
 
 struct HandData {
+  SystemWipe systemWipe;
   HandLocation locationData;
   HandPose handPose;
   HandRoll rollData;
@@ -22,5 +24,5 @@ public:
   HandDataCombiner();
   ~HandDataCombiner();
   
-  void AutoFilter(const HandLocation& handLocation, const HandPose& handPose, const HandRoll& handRoll, const HandPinch& handPinch, const HandGrab& handGrab, const Scroll& handScroll, const HandTime& handTime, HandData& handData);
+  void AutoFilter(const SystemWipe &systemWipe, const HandLocation& handLocation, const HandPose& handPose, const HandRoll& handRoll, const HandPinch& handPinch, const HandGrab& handGrab, const Scroll& handScroll, const HandTime& handTime, HandData& handData);
 };
