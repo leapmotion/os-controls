@@ -11,7 +11,8 @@ RenderWindow* RenderWindow::New(void)
   return new RenderWindowWin;
 }
 
-RenderWindowWin::RenderWindowWin(void)
+RenderWindowWin::RenderWindowWin(void) :
+m_previouslyFocused(nullptr)
 {
   static const LPCTSTR s_className = "RenderWindowWin";
   static const ATOM s_wndClass = [] {
@@ -225,6 +226,21 @@ void RenderWindowWin::SetCloaked(bool cloaked)
   m_isCloaked = cloaked;
   BOOL cloak = m_isCloaked ? TRUE : FALSE;
   ::DwmSetWindowAttribute(hWnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+}
+
+void RenderWindowWin::SetKBFocus(bool focus) {
+  if (focus) {
+    m_previouslyFocused = GetFocus();
+    const auto oldStyle = ::GetWindowLong(GetSystemHandle(), GWL_EXSTYLE);
+    ::SetWindowLong(GetSystemHandle(), GWL_EXSTYLE, oldStyle & ~WS_EX_NOACTIVATE);
+    ::SetWindowPos(GetSystemHandle(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+  }
+  else {
+    const auto oldStyle = ::GetWindowLong(GetSystemHandle(), GWL_EXSTYLE);
+    ::SetWindowLong(GetSystemHandle(), GWL_EXSTYLE, oldStyle | WS_EX_NOACTIVATE);
+    ::SetWindowPos(m_previouslyFocused, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREPOSITION);
+    m_previouslyFocused = nullptr;
+  }
 }
 
 void RenderWindowWin::SetActive(bool active)
