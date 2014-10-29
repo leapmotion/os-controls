@@ -55,7 +55,10 @@ private:
 
 // Tuning parameters
 const float SystemWipeRecognizer::PROPORTION_OF_IMAGE_HEIGHT_TO_USE = 0.75f;
-const float SystemWipeRecognizer::BRIGHTNESS_ACTIVATION_THRESHOLD = 0.8f; // 0.8f works (value in original test)
+const float SystemWipeRecognizer::BRIGHTNESS_ACTIVATION_THRESHOLD = 1.0f; // 0.8f; // 0.8f works (value in original test)
+const float SystemWipeRecognizer::BEGINNING_MASS_ACTIVATION_THRESHOLD = 0.35f;
+const float SystemWipeRecognizer::PORTION_OF_REMAINDER_UNTIL_COMPLETE = 0.75f;
+const float SystemWipeRecognizer::TIMEOUT_DURATION = 0.5f;
 
 SystemWipeRecognizer::SystemWipeRecognizer ()
   : m_state_machine(*this, &SystemWipeRecognizer::WaitingForAnyMassSignal)
@@ -118,8 +121,16 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
   if (true) {
     static const size_t PRINT_SAMPLE_COUNT = 22;
 #if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
+    // Print measured max brightness.
     for (Internal::Linterp<float> t(0.0, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       float b = MeasuredMaxBrightness(t);
+      std::cerr << std::setw(3) << percent(b) << ',';
+    }
+    std::cerr << "  ";
+#else
+    // Print measured brightness.
+    for (Internal::Linterp<float> t(0.0, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+      float b = Brightness(t);
       std::cerr << std::setw(3) << percent(b) << ',';
     }
     std::cerr << "  ";
@@ -214,7 +225,10 @@ float SystemWipeRecognizer::ModeledMaxBrightness (float t) {
   // automatically determined again (this was determined in Sage math system).
   assert(t >= 0.0f && t <= 1.0f);
   static const size_t POLYNOMIAL_ORDER = 6;
-  static const float POLYNOMIAL_COEFFICIENTS[POLYNOMIAL_ORDER+1] = { 0.538455f, 1.64043f, 10.0559f, -68.0226f, 145.586f, -133.89f, 44.6299f };
+  // // This corresponds to the sample data: {39, 44, 50, 59, 69, 80, 88, 93, 97, 97, 97, 97, 97, 97, 93, 88, 80, 69, 59, 50, 44, 39}.
+  // static const float POLYNOMIAL_COEFFICIENTS[POLYNOMIAL_ORDER+1] = { 0.398743, -0.538661, 24.7952, -99.2513, 176.471, -152.215, 50.7382 };
+  // This corresponds to the sample data: {39, 44, 50, 59, 69, 80, 88, 93, 96, 96, 96, 96, 96, 96, 93, 88, 80, 69, 59, 50, 44, 39}.
+  static const float POLYNOMIAL_COEFFICIENTS[POLYNOMIAL_ORDER+1] = { 0.399369, -0.63521, 26.2851, -106.784, 192.103, -166.453, 55.4844 };
   float power_of_t = 1.0f;
   float retval = 0.0f;
   for (size_t i = 0; i < POLYNOMIAL_ORDER+1; ++i) {
@@ -277,7 +291,7 @@ void SystemWipeRecognizer::WaitingForMassActivationThreshold (StateMachineEvent 
       float up_tracking_value = CurrentSignal().TrackingValue(SystemWipe::Direction::UP);
       float down_tracking_value = CurrentSignal().TrackingValue(SystemWipe::Direction::DOWN);
       static const float WIPE_START_UPPER_BOUND = 0.5f;
-      bool detected_sufficient_mass = CurrentSignal().Mass() >= 0.25f;
+      bool detected_sufficient_mass = CurrentSignal().Mass() >= BEGINNING_MASS_ACTIVATION_THRESHOLD;
       bool up_edge_moving_up_from_bottom = up_tracking_value <= WIPE_START_UPPER_BOUND && CurrentSignalDelta().TrackingVelocity(SystemWipe::Direction::UP) >= 0.0f;
       bool down_edge_moving_down_from_top = down_tracking_value <= WIPE_START_UPPER_BOUND && CurrentSignalDelta().TrackingVelocity(SystemWipe::Direction::DOWN) >= 0.0f;
       bool detected_higher_mass_signal = detected_sufficient_mass && (up_edge_moving_up_from_bottom || down_edge_moving_down_from_top);
@@ -295,7 +309,7 @@ void SystemWipeRecognizer::RecognizingGesture (StateMachineEvent event) {
   switch (event) {
     case StateMachineEvent::ENTER: {
       float begin_tracking_value = CurrentSignal().TrackingValue(m_wipe_direction);
-      float complete_tracking_value = begin_tracking_value + 0.75f*(1.0f - begin_tracking_value); // 70% of the way to the other edge.
+      float complete_tracking_value = begin_tracking_value + PORTION_OF_REMAINDER_UNTIL_COMPLETE*(1.0f - begin_tracking_value); // 70% of the way to the other edge.
       ProgressTransform = [begin_tracking_value, complete_tracking_value](float tracking_value) {
         // The range [begin_tracking_value, complete_tracking_value] shall map onto [0, 1].
         float progress = (tracking_value - begin_tracking_value) / (complete_tracking_value - begin_tracking_value);
@@ -333,6 +347,9 @@ void SystemWipeRecognizer::RecognizingGesture (StateMachineEvent event) {
 void SystemWipeRecognizer::Timeout (StateMachineEvent event) {
   PRINT_STATEMACHINE_INFO(Timeout,event);
   switch (event) {
+    case StateMachineEvent::ENTER:
+      m_timeout_end_time = m_current_time + TIMEOUT_DURATION;
+      // Intentionally fall through.
     case StateMachineEvent::FRAME:
       if (m_current_time >= m_timeout_end_time) {
         SET_TRANSITION_REQUEST_AND_RETURN(WaitingForAnyMassSignal);
