@@ -94,6 +94,57 @@ private:
   std::deque<Data_> m_data;
 };
 
+template <typename T_, typename... OtherParams_>
+class PiecewiseLinearlyInterpolatedFunction : public std::vector<T_,OtherParams_...> {
+public:
+
+  PiecewiseLinearlyInterpolatedFunction (T_ start, T_ end) : m_start(start), m_end(end), m_domain_length(end - start) {
+    if (m_domain_length <= T_(0)) {
+      throw std::invalid_argument("start must be less than end -- must have a nonzero domain interval length.");
+    }
+  }
+
+  const T_ &Start () const { return m_start; }
+  const T_ &End () const { return m_end; }
+  const T_ &DomainLength () const { return m_domain_length; }
+
+  // Evaluate the function at the given parameter value.  param must be in the range [Start(), End()] (inclusive).
+  // There must be at least one sample element in this object (regarded as a vector).  If there is exactly one
+  // sample, then the function is defined to be constant, equal to that sample value.  Otherwise, the function
+  // is defined to be a piecewise linear function, interpolated between the vector's elements, which are interpreted
+  // as uniformly-spaced samples of the function this object represents.
+  T_ operator () (T_ param) const {
+    const std::vector<T_> &sample = *this;
+    if (sample.size() == 0) {
+      throw std::invalid_argument("Must provide a positive number of samples for function.");
+    } else if (sample.size() == 1) {
+      // If there is 1 sample, assume the function is constant.
+      return sample[0];
+    } else {
+      param -= m_start;
+      param /= m_domain_length;
+      if (param < T_(0) || param > T_(1)) {
+        throw std::domain_error("param out of range (must be between start and end)");
+      }
+      if (param == T_(1)) { // If param is exactly at the end, return the last sample.
+        return sample.back();
+      }
+      // Otherwise, linearly interpolate adjacent samples.
+      T_ fractional_index = param*(sample.size()-1);
+      size_t base_index = size_t(std::floor(fractional_index));
+      assert(base_index < sample.size()-1);
+      T_ fraction = std::fmod(fractional_index, T_(1));
+      return sample[base_index]*(T_(1)-fraction) + sample[base_index+1]*fraction;
+    }
+  }
+
+private:
+
+  T_ m_start;
+  T_ m_end;
+  T_ m_domain_length;
+};
+
 } // end of namespace Internal
 
 struct SystemWipe {
@@ -137,12 +188,19 @@ private:
     T_ m_mass;
   };
 
-  // Populates m_brightness.
+  // Populates m_brightness and updates m_measured_max_brightness.
   void ComputeBrightness (const Leap::ImageList &images);
-  // Populate m_downsampled_brightness.
-  void ComputeDownsampledBrightness ();
+
+#define LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS 0
 
   // Convenience accessors
+  static float ModeledMaxBrightness (float t);
+#if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
+  float MeasuredMaxBrightness (float t) const { return m_measured_max_brightness(t); }
+#endif
+  float Brightness (float t) const { return m_brightness(t); }
+  float NormalizedBrightness (float t);
+  std::function<float(float)> ProgressTransform;
   const Signal<float> &CurrentSignal () const { return m_signal_history[0]; }
   Signal<float> CurrentSignalDelta () const { return m_signal_history[0] - m_signal_history[1]; }
 
@@ -150,13 +208,13 @@ private:
 
   // Number of samples to analyze in the gesture detection.  [Vertical strip(s) of] The original image(s)
   // will be downsampled to match this number.
-  static const size_t SAMPLE_COUNT = 30;
+  static const size_t SAMPLE_COUNT = 500;// 30;
   // Proportion of the total height of the images to use.  The sampled region will be centered vertically.
   static const float PROPORTION_OF_IMAGE_HEIGHT_TO_USE;
   // The imagine intensity which is considered "active" with respect to this gesture recognition.
   static const float BRIGHTNESS_ACTIVATION_THRESHOLD;
-  // The wipe distance necessary to complete the gesture, as a proportion of the viewable area.
-  static const float WIPE_END_DELTA_THRESHOLD;
+
+  // State machine related -- the methods are states.
 
   enum class StateMachineEvent { ENTER, EXIT, FRAME };
 
@@ -166,17 +224,20 @@ private:
   void Timeout (StateMachineEvent);
 
   Internal::StateMachine<SystemWipeRecognizer,StateMachineEvent,StateMachineEvent::ENTER,StateMachineEvent::EXIT> m_state_machine;
+
+  // Non-state-machine member variables.
+
   double m_current_time;
-  std::vector<float> m_brightness;
+  Internal::PiecewiseLinearlyInterpolatedFunction<float> m_brightness;
+#if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
+  Internal::PiecewiseLinearlyInterpolatedFunction<float> m_measured_max_brightness;
+#endif
   double m_centroid_signal_start_time;
   double m_timeout_end_time;
   float m_first_good_up_tracking_value;
   float m_first_good_down_tracking_value;
-  std::function<float(float)> m_progress_transform;
   float m_initial_tracking_value;
   Internal::History<Signal<float>> m_signal_history;
   SystemWipe *m_system_wipe;
   SystemWipe::Direction m_wipe_direction;
-  float m_downsampled_brightness[SAMPLE_COUNT];
-  float m_max_downsampled_brightness[SAMPLE_COUNT];
 };
