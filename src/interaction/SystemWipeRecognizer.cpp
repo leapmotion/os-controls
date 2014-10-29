@@ -51,43 +51,6 @@ private:
   IndexType_ m_index;
 };
 
-// sample must live at least as long as the std::function returned by this function.
-template <typename T_>
-std::function<T_(T_)> LinearlyInterpolatedFunction (T_ start, T_ end, const std::vector<T_> &sample) {
-  T_ domain_length = end - start;
-  if (sample.size() == 0) {
-    throw std::invalid_argument("Must provide a positive number of samples for function.");
-  } else if (sample.size() == 1) {
-    if (domain_length != T_(0)) {
-      throw std::invalid_argument("If only one sample is given for function, then start must equal end.");
-    }
-  } else {
-    if (domain_length <= T_(0)) {
-      throw std::invalid_argument("If there are at least 2 samples for function, then start must be less than end.");
-    }
-  }
-  return [start, domain_length, &sample](T_ param) -> T_ {
-    assert(sample.size() > 0);
-    if (sample.size() == 1) {
-      return sample[0];
-    }
-    param -= start;
-    param /= domain_length;
-    if (param < T_(0) || param > T_(1)) {
-      throw std::domain_error("param out of range (must be between start and end)");
-    }
-    if (param == T_(1)) {
-      return sample.back();
-    }
-    T_ fractional_index = param*(sample.size()-1);
-    size_t base_index = size_t(std::floor(fractional_index));
-    assert(base_index < sample.size()-1);
-    T_ fraction = std::fmod(fractional_index, T_(1));
-    // Linearly interpolate between the adjacent samples.
-    return sample[base_index]*(T_(1)-fraction) + sample[base_index+1]*fraction;
-  };
-}
-
 } // end of namespace Internal
 
 // Tuning parameters
@@ -97,6 +60,10 @@ const float SystemWipeRecognizer::BRIGHTNESS_ACTIVATION_THRESHOLD = 0.8f; // 0.8
 SystemWipeRecognizer::SystemWipeRecognizer ()
   : m_state_machine(*this, &SystemWipeRecognizer::WaitingForAnyMassSignal)
   , m_current_time(0.0)
+#if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
+  , m_measured_max_brightness(0.0f, 1.0f) // This defines the interval over which the max brightness function is defined; [0,1].
+#endif
+  , m_brightness(0.0f, 1.0f)              // This defines the interval over which the brightness function is defined; [0,1].
   , m_signal_history(2) // Only need 2 samples -- current and previous.
 {
   m_state_machine.Start();
@@ -131,7 +98,6 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
     float mass = 0.0f;
     for (Internal::Linterp<float> t(0.0f, 1.0f, SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       float b = NormalizedBrightness(t);
-      // float b = m_downsampled_brightness[t.Index()];
       // float s = b;
       float s = (b > BRIGHTNESS_ACTIVATION_THRESHOLD) ? 1 : 0;
       centroid += s*t;
@@ -146,25 +112,21 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
 
   auto percent = [](float b) -> int { return int(100.0f*b); };
 
-#define PRINT_IMAGE_PROCESSING_INFO 1
+#define PRINT_IMAGE_PROCESSING_INFO 0
 
 #if PRINT_IMAGE_PROCESSING_INFO
   if (true) {
     static const size_t PRINT_SAMPLE_COUNT = 22;
-    // for (Internal::Linterp<float> t(0.0f, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
-    //   float b = NormalizedBrightness(t);
-    //   // float b = m_downsampled_brightness[t.Index()];
-    //   std::cerr << std::setw(3) << percent(b) << ',';
-    // }
-    // std::cerr << "  ";
+#if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
     for (Internal::Linterp<float> t(0.0, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       float b = MeasuredMaxBrightness(t);
       std::cerr << std::setw(3) << percent(b) << ',';
     }
+    std::cerr << "  ";
+#endif
     size_t up_edge(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().UpEdge()));
     size_t down_edge(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().DownEdge()));
     size_t centroid(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().Centroid()));
-    std::cerr << "  ";
     for (Internal::Linterp<float> t(0.0f, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
       // Print 3 characters to render:
       // - the up edge,
@@ -176,7 +138,6 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
       // Periods help indicate the extent of the graph, o indicates the
       // presence of an activated brightness sample.
       char underlying_char = NormalizedBrightness(t) > BRIGHTNESS_ACTIVATION_THRESHOLD ? 'o' : '.';
-      // char underlying_char = m_downsampled_brightness[t.Index()] > BRIGHTNESS_ACTIVATION_THRESHOLD ? 'o' : '.';
       std::cerr << (t.Index() == up_edge  ? '[' : underlying_char);
       std::cerr << (t.Index() == centroid  ? 'X' : underlying_char);
       std::cerr << (t.Index() == down_edge ? ']' : underlying_char);
@@ -210,15 +171,15 @@ void SystemWipeRecognizer::ComputeBrightness (const Leap::ImageList &images) {
   if (m_brightness.size() != end_y - begin_y) {
     m_brightness.reserve(end_y - begin_y);
     m_brightness.resize(end_y - begin_y);
-    Brightness = Internal::LinearlyInterpolatedFunction(0.0f, 1.0f, m_brightness);
   }
 
+#if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
   if (m_measured_max_brightness.size() != end_y - begin_y) {
     m_measured_max_brightness.reserve(end_y - begin_y);
     m_measured_max_brightness.clear();
     m_measured_max_brightness.resize(end_y - begin_y, 0.0f); // Reset all to zero.
-    MeasuredMaxBrightness = Internal::LinearlyInterpolatedFunction(0.0f, 1.0f, m_measured_max_brightness);
   }
+#endif
 
   // compute max of row samples
   size_t h_low = 0; //(width-1)/5;
@@ -234,9 +195,11 @@ void SystemWipeRecognizer::ComputeBrightness (const Leap::ImageList &images) {
     }
     float brightness = row_max / 255.0f;
     m_brightness[y - begin_y] = brightness; // Divide by 255.0f to normalize the range [0, 255] to [0.0f, 1.0f].
+#if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
     if (brightness > m_measured_max_brightness[y - begin_y]) {
       m_measured_max_brightness[y - begin_y] = brightness;
     }
+#endif
   }
 }
 
@@ -244,6 +207,9 @@ float SystemWipeRecognizer::ModeledMaxBrightness (float t) {
   // Use a 6th order polynomial to approximate the maximum brightness curve for the
   // center vertical line for the camera.  This is used to normalize the brightness
   // values thereby accounting for the non-uniform LED illumination.
+  // NOTE: This approximates a function that depends heavily on the particular algorithm
+  // used to determine the brightness values in m_brightness, so if ComputeBrightness
+  // is altered, this function should be updated.
   // TODO: Maybe make a calibration tool in C++ so that these values could be
   // automatically determined again (this was determined in Sage math system).
   assert(t >= 0.0f && t <= 1.0f);
