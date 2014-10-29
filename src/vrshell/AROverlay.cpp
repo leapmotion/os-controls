@@ -86,6 +86,9 @@ void AROverlay::AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame) {
   if (m_lastWipe.status == SystemWipe::Status::BEGIN || m_lastWipe.status == SystemWipe::Status::ABORT) {
     const float newOverlayOffsetGoal = isDisplayingOverlay() ? 0 : m_overlayWindow->GetSize().height;
     m_overlayOffset.Set(newOverlayOffsetGoal, defaultAnimationDuration);
+   
+    //Grab keyboard focus if the overlay is getting displayed!
+    m_overlayWindow->SetKBFocus(isDisplayingOverlay());
   }
 
   if (m_lastWipe.status == SystemWipe::Status::BEGIN) {
