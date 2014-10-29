@@ -93,7 +93,7 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
   glActiveTexture(GL_TEXTURE0 + 1);
   distortion->Bind();
 
-  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), 0.45f, -0.55f);
+  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), 0.40f, -0.450f);
   glUniform2f(m_passthroughShader->LocationOfUniform("ray_offset"), 0.5f, 0.5f);
   glUniform1i(m_passthroughShader->LocationOfUniform("texture"), 0);
   glUniform1i(m_passthroughShader->LocationOfUniform("distortion"), 1);
