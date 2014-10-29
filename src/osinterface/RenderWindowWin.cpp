@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderWindowWin.h"
 #include "RenderContextWin.h"
+#include "OSKeyboardEvent.h"
 
 #include <GL/wglew.h>
 #include <GL/gl.h>
@@ -283,6 +284,18 @@ LRESULT CALLBACK RenderWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam
       }
     }
     return -1;
+  case WM_KEYDOWN:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyDown)(wParam);
+    return ::DefWindowProc(hWnd, message, wParam, lParam);
+  }
+  case WM_KEYUP:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyUp)(wParam);
+    return ::DefWindowProc(hWnd, message, wParam, lParam);
+  }
   case WM_ERASEBKGND:
   case WM_NCPAINT:
     break;
