@@ -7,6 +7,12 @@ varying vec2 frag_ray;
 
 void main(void) {
   gl_Position = projection_times_model_view_matrix * vec4(position, 1.0);
-  vec2 ray = vec2(-position.x/position.z, -position.y/position.z);
+  vec2 ray;
+  if( position.z != 0) {
+    ray = vec2(-position.x/position.z, -position.y/position.z);
+  }
+  else {
+    ray = vec2(position.x, position.y);
+  }
   frag_ray = ray*ray_scale + ray_offset;
 }

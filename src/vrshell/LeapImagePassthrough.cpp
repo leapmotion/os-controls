@@ -95,19 +95,15 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
   glActiveTexture(GL_TEXTURE0 + 1);
   distortion->Bind();
 
-  //const auto rectSize = m_rect[frame.eyeIndex].Size();
-  //sconst auto rectPos = m_rect[frame.eyeIndex].Translation();
-  GLShaderMatrices::UploadUniforms(*m_passthroughShader, frame.renderState.GetModelView().Matrix(), frame.renderState.GetProjection().Matrix(), BindFlags::NONE);
-
-  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), 0.125f, 0.125f);
+  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), 0.35f, -0.35f);
   glUniform2f(m_passthroughShader->LocationOfUniform("ray_offset"), 0.5f, 0.5f);
   glUniform1i(m_passthroughShader->LocationOfUniform("texture"), 0);
   glUniform1i(m_passthroughShader->LocationOfUniform("distortion"), 1);
   glUniform1f(m_passthroughShader->LocationOfUniform("gamma"), 0.8f);
   glUniform1f(m_passthroughShader->LocationOfUniform("brightness"), 1.0f);
-  glUniform1f(m_passthroughShader->LocationOfUniform("use_color"), false ? 1.0f : 0.0f);
 
   PrimitiveBase::DrawSceneGraph(m_rect[frame.eyeIndex], frame.renderState);
+
   texture->Unbind();
   distortion->Unbind();
   m_passthroughShader->Unbind();
