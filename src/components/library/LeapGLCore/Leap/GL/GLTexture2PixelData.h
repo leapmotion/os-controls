@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
-#include <stdexcept>
+#include "Leap/GL/Texture2Exception.h"
 #include <map>
 #include <vector>
 
@@ -16,7 +16,8 @@ namespace Leap {
 namespace GL {
 
 // Base class for pixel data for use in all texel-loading operations in GLTexture2.
-// Subclasses provide storage of and reference to pixel data.
+// Subclasses provide storage of and reference to pixel data. The only exceptions that this
+// class explicitly throws derive from Leap::GL::Texture2Exception.
 class GLTexture2PixelData {
 public:
 
@@ -101,7 +102,7 @@ public:
     GLTexture2PixelDataReference(format, type, static_cast<const void *>(pixel_data.data()), pixel_data.size()*sizeof(Pixel_))
   {
     if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
-      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+      throw Texture2Exception("the size of the Pixel_ type doesn't match the values of format and type");
     }
   }
   // Construct this object with a readable and writeable pointer to the given std::vector.  Both ReadableRawData
@@ -112,7 +113,7 @@ public:
     GLTexture2PixelDataReference(format, type, static_cast<void *>(pixel_data.data()), pixel_data.size()*sizeof(Pixel_))
   {
     if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
-      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+      throw Texture2Exception("the size of the Pixel_ type doesn't match the values of format and type");
     }
   }
 
@@ -146,7 +147,7 @@ public:
     // TODO: checks for validity in the type and format arguments?
     // TODO: check that Pixel_ is a POD of some type, and somehow check it against format and type.
     if (ComponentsInFormat(format)*BytesInType(type) != sizeof(Pixel_)) {
-      throw std::invalid_argument("the size of the Pixel_ type doesn't match the values of format and type");
+      throw Texture2Exception("the size of the Pixel_ type doesn't match the values of format and type");
     }
   }
 
@@ -162,7 +163,7 @@ public:
   virtual const void *ReadableRawData () const override {
     // Ensure that the m_raw_pixels vector still has the correct size.
     if (m_raw_pixels.size() != m_raw_pixel_count) {
-      throw std::runtime_error("The vector containing the raw pixel data has been resized, which is a prohibited operation");
+      throw Texture2Exception("The vector containing the raw pixel data has been resized, which is a prohibited operation");
     }
     return static_cast<const void *>(m_raw_pixels.data());
   }
@@ -171,7 +172,7 @@ public:
   virtual void *WriteableRawData () override {
     // Ensure that the m_raw_pixels vector still has the correct size.
     if (m_raw_pixels.size() != m_raw_pixel_count) {
-      throw std::runtime_error("The vector containing the raw pixel data has been resized, which is a prohibited operation");
+      throw Texture2Exception("The vector containing the raw pixel data has been resized, which is a prohibited operation");
     }
     return static_cast<void *>(m_raw_pixels.data());
   }

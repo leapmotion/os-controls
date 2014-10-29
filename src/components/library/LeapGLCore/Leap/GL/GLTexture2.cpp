@@ -2,7 +2,6 @@
 
 #include "Leap/GL/GLError.h"
 #include <sstream>
-#include <stdexcept>
 
 namespace Leap {
 namespace GL {
@@ -52,7 +51,7 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
 {
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
-    throw std::invalid_argument("GLTexture2Params must specify positive width and height"); // TODO: should this requirement be removed?
+    throw Texture2Exception("GLTexture2Params must specify positive width and height"); // TODO: should this requirement be removed?
   }
   VerifyPixelDataOrThrow(pixel_data);
 
@@ -110,7 +109,7 @@ GLTexture2::~GLTexture2 () {
 void GLTexture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.ReadableRawData() == nullptr) {
-    throw std::invalid_argument("pixel_data object must be readable (return non-null pointer from ReadableRawData)");
+    throw Texture2Exception("pixel_data object must be readable (return non-null pointer from ReadableRawData)");
   }
 
   // Simply forward on to the subimage function.
@@ -144,7 +143,7 @@ void GLTexture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
 void GLTexture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.WriteableRawData() == nullptr) {
-    throw std::invalid_argument("pixel_data object must be writeable (return non-null pointer from WriteableRawData)");
+    throw Texture2Exception("pixel_data object must be writeable (return non-null pointer from WriteableRawData)");
   }
   
   Bind();
@@ -227,7 +226,7 @@ void GLTexture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) 
   size_t ending_pixel_index = starting_pixel_index + l*(m_params.Height()-1) + m_params.Width(); // The last row's data doesn't need to extend all the way to the theoretical next row.
   size_t sizeof_pixel = n*s;
   if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() < ending_pixel_index*sizeof_pixel) {
-    throw std::invalid_argument("there is insufficient pixel data for the given parameters");
+    throw Texture2Exception("there is insufficient pixel data for the given parameters");
   }
 }
 

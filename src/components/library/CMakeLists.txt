@@ -137,6 +137,7 @@ add_sublibrary(
     LeapGLCore
     HEADERS
         Leap/GL/ColorComponent.h
+        Leap/GL/Exception.h
         Leap/GL/FrameBufferObject.h
         Leap/GL/GLBuffer.h
         Leap/GL/GLError.h
@@ -159,6 +160,9 @@ add_sublibrary(
         Leap/GL/SceneGraphNodeProperty.h
         Leap/GL/SceneGraphNodeValues.h
         Leap/GL/ScopeGuard.h
+        Leap/GL/ShaderException.h
+        Leap/GL/Texture2Exception.h
+        Leap/GL/VertexBufferException.h
     SOURCES
         Leap/GL/FrameBufferObject.cpp
         Leap/GL/GLBuffer.cpp

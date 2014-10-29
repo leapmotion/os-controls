@@ -1,7 +1,5 @@
 #include "Leap/GL/GLTexture2PixelData.h"
 
-#include <stdexcept>
-
 namespace Leap {
 namespace GL {
 
@@ -36,7 +34,7 @@ size_t GLTexture2PixelData::ComponentsInFormat (GLenum format) {
     case GL_RGBA:
     case GL_BGRA:             return 4;
 
-    default: throw std::invalid_argument("invalid pixel format; must be one of GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL");
+    default: throw Texture2Exception("invalid pixel format; must be one of GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL");
   }
 }
 
@@ -67,7 +65,7 @@ size_t GLTexture2PixelData::BytesInType (GLenum type) {
     case GL_UNSIGNED_INT_10_10_10_2:
     case GL_UNSIGNED_INT_2_10_10_10_REV:  return 4;
       
-    default: throw std::invalid_argument("invalid pixel type; must be one of GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV.");
+    default: throw Texture2Exception("invalid pixel type; must be one of GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV.");
   }
 }
 
@@ -94,7 +92,7 @@ GLint GLTexture2PixelData::PixelStoreiParameter (GLenum pname) const {
   // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
   auto it = m_pixel_store_i_parameter.find(pname);
   if (it == m_pixel_store_i_parameter.end()) {
-    throw std::domain_error("specified GLint-valued PixelStorei parameter not found and/or specified");
+    throw Texture2Exception("specified GLint-valued PixelStorei parameter not found and/or specified");
   }
   return it->second;
 }
@@ -116,7 +114,7 @@ GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenu
   m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
 {
   if (readable_raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
-    throw std::invalid_argument("if readable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
+    throw Texture2Exception("if readable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
   }
   // TODO: checks for validity in the type and format arguments?
 }
@@ -129,7 +127,7 @@ GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenu
   m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
 {
   if (readable_and_writeable_raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
-    throw std::invalid_argument("if readable_and_writeable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
+    throw Texture2Exception("if readable_and_writeable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
   }
   // TODO: checks for validity in the type and format arguments?
 }

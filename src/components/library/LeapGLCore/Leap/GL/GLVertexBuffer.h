@@ -3,6 +3,7 @@
 #include "Leap/GL/GLHeaders.h"
 #include "Leap/GL/GLBuffer.h"
 #include "Leap/GL/GLVertexAttribute.h"
+#include "Leap/GL/VertexBufferException.h"
 
 #include <tuple>
 #include <type_traits>
@@ -52,6 +53,9 @@ namespace GL {
 // GL resource and upload the data to the GPU.  Unless the intermediate attributes
 // are going to be modified and re-uploaded, it is recommended to clear the
 // intermediate attributes after upload.
+//
+// The only exceptions that this class explicitly throws derive from
+// Leap::GL::VertexBufferException.
 template <typename... AttributeTypes>
 class GLVertexBuffer {
 public:
@@ -79,7 +83,7 @@ public:
       case GL_DYNAMIC_COPY:
         break; // Ok
       default:
-        throw std::invalid_argument("usage must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
+        throw VertexBufferException("usage must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
     }
   }
 
@@ -145,7 +149,7 @@ public:
   template <typename... LocationTypes>
   void Enable (const std::tuple<LocationTypes...> &attribute_locations) const {
     if (!m_gl_buffer.IsCreated()) {
-      throw std::runtime_error("can't Enable a GLVertexBuffer that hasn't had UploadIntermediateAttributes called on it");
+      throw VertexBufferException("can't Enable a GLVertexBuffer that hasn't had UploadIntermediateAttributes called on it");
     }
     m_gl_buffer.Bind();
     // Begin iterated binding of vertex attributes starting at the 0th one.

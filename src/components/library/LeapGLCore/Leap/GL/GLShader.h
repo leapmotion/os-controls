@@ -8,6 +8,7 @@
 
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 #include "Leap/GL/GLError.h"
+#include "Leap/GL/ShaderException.h"
 
 namespace Leap {
 namespace GL {
@@ -33,6 +34,8 @@ enum class VariableIs { REQUIRED, OPTIONAL_NO_WARN, OPTIONAL_BUT_WARN };
 /// and attributes, storing the relevant info (name, location, size, type) in a map which is
 /// indexed by name.  These maps can be accessed via the UniformInfoMap and AttributeInfoMap
 /// methods.
+///
+/// The only exceptions that this class explicitly throws derive from Leap::GL::ShaderException.
 class GLShader {
 public:
 
@@ -116,7 +119,7 @@ public:
   const VarInfo &UniformInfo (const std::string &name) const {
     VarInfoMap::const_iterator it = m_uniform_info_map.find(name);
     if (it == m_uniform_info_map.end()) {
-      throw std::domain_error("no uniform named \"" + name + "\" found in shader program");
+      throw ShaderException("no uniform named \"" + name + "\" found in shader program");
     }
     return it->second;
   }
@@ -128,7 +131,7 @@ public:
   const VarInfo &AttributeInfo (const std::string &name) const {
     VarInfoMap::const_iterator it = m_attribute_info_map.find(name);
     if (it == m_attribute_info_map.end()) {
-      throw std::domain_error("no attribute named \"" + name + "\" found in shader program");
+      throw ShaderException("no attribute named \"" + name + "\" found in shader program");
     }
     return it->second;
   }

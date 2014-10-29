@@ -2,9 +2,9 @@
 
 // This file contains functions useful in checking and handling OpenGL errors.
 
+#include "Leap/GL/Exception.h"
 #include "Leap/GL/GLHeaders.h"
 #include <iostream>
-#include <stdexcept>
 #include <string>
 
 // TODO: Make a function that replaces gluErrorString
@@ -33,7 +33,7 @@ inline std::string GLErrorMessage(GLenum error_code, const std::string &during) 
 inline void GLThrowUponError(const std::string& during) {
   GLenum error_code = glGetError();
   if (error_code != GL_NO_ERROR) {
-    throw std::runtime_error(GLErrorMessage(error_code, during));
+    throw Leap::GL::GLException(GLErrorMessage(error_code, during));
   }
 }
 

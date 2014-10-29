@@ -1,7 +1,6 @@
 #include "Leap/GL/GLShader.h"
 
-#include <iostream> // TEMP
-#include <stdexcept>
+// #include <iostream> // TEMP
 
 namespace Leap {
 namespace GL {
@@ -18,14 +17,14 @@ GLShader::VarInfo::VarInfo (const std::string &name, GLint location, GLint size,
   m_type(type)
 {
   if (m_name.empty()) {
-    throw std::invalid_argument("shader variable must have nonempty name");
+    throw ShaderException("shader variable must have nonempty name");
   }
   // I've commented this out because sometimes I get gl_ModelViewProjectionMatrixTranspose showing up at location -1.
 //   if (m_location < 0) {
-//     throw std::invalid_argument("shader variable \"" + name + "\" must have nonnegative location (index in variable list)");
+//     throw ShaderException("shader variable \"" + name + "\" must have nonnegative location (index in variable list)");
 //   }
   if (m_size <= 0) {
-    throw std::invalid_argument("shader variable must have positive size");
+    throw ShaderException("shader variable must have positive size");
   }
   // There is probably no way to reasonably check the validity of type that isn't
   // specifying a hardcoded list of acceptable values.
@@ -130,7 +129,7 @@ void GLShader::CheckForTypedUniform (const std::string &name, GLenum type, Varia
     switch (check_type) {
       case VariableIs::OPTIONAL_NO_WARN: break; // Fail silently.
       case VariableIs::OPTIONAL_BUT_WARN: std::cout << message << '\n'; break; // TODO: come up with a better way to report this.
-      case VariableIs::REQUIRED: throw std::runtime_error(message); break;
+      case VariableIs::REQUIRED: throw ShaderException(message); break;
     }
   }
 }
@@ -163,7 +162,7 @@ void GLShader::CheckForTypedAttribute (const std::string &name, GLenum type, Var
     switch (check_type) {
       case VariableIs::OPTIONAL_NO_WARN: break; // Fail silently.
       case VariableIs::OPTIONAL_BUT_WARN: std::cout << message << '\n'; break; // TODO: come up with a better way to report this.
-      case VariableIs::REQUIRED: throw std::runtime_error(message); break;
+      case VariableIs::REQUIRED: throw ShaderException(message); break;
     }
   }
 }
@@ -171,7 +170,7 @@ void GLShader::CheckForTypedAttribute (const std::string &name, GLenum type, Var
 const std::string &GLShader::VariableTypeString (GLenum type) {
   auto it = OPENGL_3_3_UNIFORM_TYPE_MAP.find(type);
   if (it == OPENGL_3_3_UNIFORM_TYPE_MAP.end()) {
-    throw std::invalid_argument("specified type is not a valid uniform type in OpenGL 3.3");
+    throw ShaderException("specified type is not a valid uniform type in OpenGL 3.3");
   }
   return it->second;
 }
@@ -193,7 +192,7 @@ GLuint GLShader::Compile (GLuint type, const std::string &source) {
     // Resize the log based on the actual length.
     log.resize(length);
     // std::cerr << "GL shader compile/link error: " << log << '\n';
-    throw std::logic_error(log);
+    throw ShaderException(log);
   }
   return shader;
 }

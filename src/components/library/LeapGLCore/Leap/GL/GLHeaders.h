@@ -22,13 +22,14 @@
 #endif
 
 #include <iostream>
+#include "Leap/GL/Exception.h"
 
 namespace Leap {
 namespace GL {
 
 inline void InitializeGlew () {
   if (glewInit() != GLEW_OK) {
-    throw std::runtime_error("Glew initialization failed");
+    throw Leap::GL::GLException("Glew initialization failed");
   }
   std::cerr << "GL_VERSION = \"" << glGetString(GL_VERSION) << "\"\n";       // TEMP
   std::cerr << "GL_RENDERER = \"" << glGetString(GL_RENDERER) << "\"\n";     // TEMP

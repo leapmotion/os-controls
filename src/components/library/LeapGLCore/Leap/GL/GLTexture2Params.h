@@ -3,6 +3,7 @@
 #include <map>
 
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
+#include "Leap/GL/Texture2Exception.h"
 
 // This is an invaluable resource: http://www.opengl.org/wiki/Common_Mistakes
 
@@ -33,6 +34,7 @@
 namespace Leap {
 namespace GL {
 
+// The only exceptions that this class explicitly throws derive from Leap::GL::Texture2Exception.
 class GLTexture2Params {
 public:
 

@@ -3,6 +3,7 @@
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 #include "Leap/GL/GLTexture2Params.h"
 #include "Leap/GL/GLTexture2PixelData.h"
+#include "Leap/GL/Texture2Exception.h"
 
 namespace Leap {
 namespace GL {
@@ -11,7 +12,8 @@ namespace GL {
 
 // This class wraps creation and use of 2-dimensional GL textures.  While the GLTexture2Params value
 // used to construct GLTexture2 is persistent (it is stored almost unmodified), the pixel_data is
-// not, and is only used to pass in data for texel-loading operations.
+// not, and is only used to pass in data for texel-loading operations.  The only exceptions that this
+// class explicitly throws derive from Leap::GL::Texture2Exception.
 class GLTexture2 {
 public:
   
