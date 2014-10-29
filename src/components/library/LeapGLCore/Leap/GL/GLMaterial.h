@@ -2,8 +2,8 @@
 
 #include "Color.h"
 #include "EigenTypes.h"
-#include "gl_glext_glu.h"
-#include "ScopeGuard.h"
+#include "Leap/GL/GLHeaders.h"
+#include "Leap/GL/ScopeGuard.h"
 
 namespace Leap {
 namespace GL {

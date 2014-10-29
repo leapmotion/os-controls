@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ColorComponent.h"
+#include "Leap/GL/ColorComponent.h"
 
 namespace Leap {
 namespace GL {

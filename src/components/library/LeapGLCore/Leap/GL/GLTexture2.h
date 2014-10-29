@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gl_glext_glu.h" // convenience header for cross-platform GL includes
-#include "GLTexture2Params.h"
-#include "GLTexture2PixelData.h"
+#include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
+#include "Leap/GL/GLTexture2Params.h"
+#include "Leap/GL/GLTexture2PixelData.h"
 
 namespace Leap {
 namespace GL {

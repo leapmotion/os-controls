@@ -1,7 +1,7 @@
-#include "GLMaterial.h"
+#include "Leap/GL/GLMaterial.h"
 
-#include "GLShader.h"
-#include "GLShaderBindingScopeGuard.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLShaderBindingScopeGuard.h"
 
 namespace Leap {
 namespace GL {

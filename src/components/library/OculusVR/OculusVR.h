@@ -1,9 +1,9 @@
 #pragma once
 
 #include "EigenTypes.h"
+#include "Leap/GL/GLHeaders.h"
 #include "OVR.h"
 #include "OVR_Kernel.h"
-#include <gl_glext_glu.h>
 
 /// Used to configure slave GL rendering (i.e. for devices created externally).
 typedef struct ovrGLConfigData_s

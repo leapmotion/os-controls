@@ -1,6 +1,6 @@
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 
-#include "GLError.h"
+#include "Leap/GL/GLError.h"
 #include <sstream>
 #include <stdexcept>
 

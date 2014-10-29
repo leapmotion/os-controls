@@ -5,8 +5,8 @@
 #include "osinterface/RenderContext.h"
 #include "osinterface/RenderWindow.h"
 #include <GL/glew.h>
-#include "GLShader.h"
 #include "GLShaderLoader.h"
+#include "Leap/GL/GLShader.h"
 
 #include "Resource.h"
 #include "PrimitiveBase.h"

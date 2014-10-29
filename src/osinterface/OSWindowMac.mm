@@ -4,7 +4,7 @@
 #include "OSAppManager.h"
 #include "OSApp.h"
 #include <Primitives.h>
-#include <GLTexture2.h>
+#include <Leap/GL/GLTexture2.h>
 
 #include <AppKit/NSWindow.h>
 #include <Foundation/NSArray.h>

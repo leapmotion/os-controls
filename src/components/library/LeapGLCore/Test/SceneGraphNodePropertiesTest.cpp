@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "SceneGraphNodeProperty.h"
-#include "SceneGraphNodeValues.h"
+#include "Leap/GL/SceneGraphNodeProperty.h"
+#include "Leap/GL/SceneGraphNodeValues.h"
 
 class SceneGraphNodePropertiesTest : public testing::Test { };
 

@@ -2,7 +2,7 @@
 
 #include "EigenTypes.h"
 #include <memory>
-#include "SceneGraphNodeProperties.h"
+#include "Leap/GL/SceneGraphNodeProperties.h"
 #include <unordered_set>
 
 // This class contains base functionality common to all primitives:

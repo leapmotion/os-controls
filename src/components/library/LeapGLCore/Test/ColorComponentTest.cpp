@@ -1,5 +1,5 @@
-#include "ColorComponent.h"
 #include <gtest/gtest.h>
+#include "Leap/GL/ColorComponent.h"
 #include <limits>
 
 class ColorComponentTest : public testing::Test { };

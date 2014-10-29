@@ -1,6 +1,6 @@
-#include "GLShaderMatrices.h"
+#include "Leap/GL/GLShaderMatrices.h"
 
-#include "GLShaderBindingScopeGuard.h"
+#include "Leap/GL/GLShaderBindingScopeGuard.h"
 #include <stdexcept>
 
 namespace Leap {

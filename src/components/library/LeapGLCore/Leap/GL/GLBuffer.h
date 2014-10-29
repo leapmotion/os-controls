@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl_glext_glu.h"
+#include "Leap/GL/GLHeaders.h"
 #include <string>
 
 namespace Leap {

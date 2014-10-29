@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "OSAppMac.h"
 #include <Primitives.h>
-#include <GLTexture2.h>
+#include <Leap/GL/GLTexture2.h>
 
 #include <AppKit/NSGraphicsContext.h>
 #include <AppKit/NSRunningApplication.h>

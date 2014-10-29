@@ -1,6 +1,6 @@
-#include "RenderBuffer.h"
+#include "Leap/GL/RenderBuffer.h"
 
-#include "GLError.h"
+#include "Leap/GL/GLError.h"
 
 namespace Leap {
 namespace GL {

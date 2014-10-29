@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "gl_glext_glu.h" // convenience header for cross-platform GL includes
-#include "GLError.h"
+#include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
+#include "Leap/GL/GLError.h"
 
 namespace Leap {
 namespace GL {

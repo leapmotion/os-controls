@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "OSAppWin.h"
 #include <Primitives.h>
-#include <GLTexture2.h>
+#include <Leap/GL/GLTexture2.h>
 
 #include <ShlObj.h>
 #include <psapi.h>

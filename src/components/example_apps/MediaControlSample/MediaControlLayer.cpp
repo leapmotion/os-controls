@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
 #include "GLTexture2Loader.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLTexture2.h"
 #include "Resource.h"
 
 const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);

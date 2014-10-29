@@ -1,5 +1,5 @@
-#include "RGB.h"
 #include <gtest/gtest.h>
+#include "Leap/GL/RGB.h"
 
 class RGBTest : public testing::Test { };
 

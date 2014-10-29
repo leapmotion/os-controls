@@ -1,11 +1,11 @@
 #pragma once
 #include "graphics/RenderEngine.h"
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
-#include "TextFile.h"
-#include "Resource.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLTexture2.h"
 #include "Primitives.h"
+#include "Resource.h"
+#include "TextFile.h"
 #include "uievents/MediaViewEventListener.h"
 #include <SVGPrimitive.h>
 #include <memory>

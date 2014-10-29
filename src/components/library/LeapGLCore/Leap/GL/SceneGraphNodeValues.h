@@ -3,7 +3,7 @@
 // #include <algorithm>
 #include <Eigen/Geometry>
 #include "EigenTypes.h"
-#include "SceneGraphNodeProperties.h"
+#include "Leap/GL/SceneGraphNodeProperties.h"
 #include <ostream>
 #include <sstream>
 #include <string>

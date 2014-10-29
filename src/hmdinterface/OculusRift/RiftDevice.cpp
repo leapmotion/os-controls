@@ -1,4 +1,4 @@
-#include "GLError.h"
+#include "Leap/GL/GLError.h"
 #include "RiftDevice.h"
 #include "RiftException.h"
 #include "RiftPose.h"

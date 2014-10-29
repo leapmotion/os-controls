@@ -9,11 +9,11 @@
 
 #include "Animation.h"
 #include "Color.h"
-#include "GLShader.h"
 #include "HandCursor.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/SceneGraphNode.h"
 #include "Primitives.h"
 #include "Resource.h"
-#include "SceneGraphNode.h"
 
 #include <string>
 #include <SVGPrimitive.h>

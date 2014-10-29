@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl_glext_glu.h" // convenience header for cross-platform GL includes
+#include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 #include <stdexcept>
 #include <map>
 #include <vector>

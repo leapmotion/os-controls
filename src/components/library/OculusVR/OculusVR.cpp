@@ -1,8 +1,6 @@
 #include "OculusVR.h"
 #include <algorithm>
 
-#include <GL/glew.h>
-
 extern "C" {
 void ovrhmd_EnableHSWDisplaySDKRender(ovrHmd hmd, ovrBool enabled);
 }

@@ -5,7 +5,7 @@
 #include "ExampleLayer.h"
 #define FREEIMAGE_LIB
 #include "FreeImage.h"
-#include "GLHeaders.h"
+#include "Leap/GL/GLHeaders.h"
 #include "ResourceManager.h"
 #include "Singleton.h"
 

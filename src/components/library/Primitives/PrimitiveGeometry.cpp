@@ -2,7 +2,7 @@
 
 #include <iostream> // TEMP
 
-#include "GLShader.h"
+#include "Leap/GL/GLShader.h"
 
 PrimitiveGeometry::PrimitiveGeometry()
   :

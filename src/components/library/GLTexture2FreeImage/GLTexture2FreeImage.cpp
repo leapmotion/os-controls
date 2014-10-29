@@ -2,7 +2,7 @@
 
 #define FREEIMAGE_LIB
 #include "FreeImage.h"
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 
 #include <cassert>
 

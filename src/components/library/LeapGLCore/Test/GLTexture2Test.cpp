@@ -1,7 +1,7 @@
 #include "GLTestFramework.h"
-#include "GLTexture2.h"
 #include <gtest/gtest.h>
 #include <iostream>
+#include "Leap/GL/GLTexture2.h"
 #include <memory>
 #include <vector>
 

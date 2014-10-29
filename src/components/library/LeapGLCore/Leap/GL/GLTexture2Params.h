@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "gl_glext_glu.h" // convenience header for cross-platform GL includes
+#include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 
 // This is an invaluable resource: http://www.opengl.org/wiki/Common_Mistakes
 

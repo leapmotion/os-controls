@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "OSScreen.h"
 #include <Primitives.h>
-#include <GLTexture2.h>
+#include <Leap/GL/GLTexture2.h>
 #include <ShellScalingApi.h>
 
 #include <fstream>

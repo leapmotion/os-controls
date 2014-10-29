@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GLShader.h"
-#include "ScopeGuard.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/ScopeGuard.h"
 
 namespace Leap {
 namespace GL {

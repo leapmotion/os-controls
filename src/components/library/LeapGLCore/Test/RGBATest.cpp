@@ -1,5 +1,5 @@
-#include "RGBA.h"
 #include <gtest/gtest.h>
+#include "Leap/GL/RGBA.h"
 
 class RGBATest : public testing::Test { };
 

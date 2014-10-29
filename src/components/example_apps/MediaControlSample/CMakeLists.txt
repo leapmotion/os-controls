@@ -96,7 +96,26 @@ define_post_build_resource_copy_rules(
         play_pause-icon-extended-01.svg
         prev-track-icon-extended-01.svg
         volume-icon-01.svg
-    ABSOLUTE_PATH_RESOURCES
-        ${Components_DIR}/LeapGLCore/Leap/GL/material-frag.glsl
-        ${Components_DIR}/LeapGLCore/Leap/GL/matrix-transformed-vert.glsl
 )
+
+if(_this_is_standalone_project)
+    define_post_build_resource_copy_rules(
+        TARGET
+            MediaControlSample
+        RELATIVE_PATH_BASE
+            ${EXECUTABLE_OUTPUT_PATH}
+        ABSOLUTE_PATH_RESOURCES
+            ${Components_DIR}/resources/material-frag.glsl
+            ${Components_DIR}/resources/matrix-transformed-vert.glsl
+    )
+else()
+    define_post_build_resource_copy_rules(
+        TARGET
+            MediaControlSample
+        RELATIVE_PATH_BASE
+            ${EXECUTABLE_OUTPUT_PATH}
+        ABSOLUTE_PATH_RESOURCES
+            ${Components_DIR}/LeapGLCore/Resources/material-frag.glsl
+            ${Components_DIR}/LeapGLCore/Resources/matrix-transformed-vert.glsl
+    )
+endif()

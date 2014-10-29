@@ -53,7 +53,6 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)                
 # src/components/library/cmake/ComponentsConfig.cmake.in is resolved.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake-modules") # For most other cmake modules
 
-
 ###################################################################################################
 # Sublibrary definitions
 ###################################################################################################
@@ -136,46 +135,44 @@ add_sublibrary(
 
 add_sublibrary(
     LeapGLCore
-    SOURCE_PATH
-        LeapGLCore/Leap/GL
     HEADERS
-        ColorComponent.h
-        FrameBufferObject.h
-        gl_glext_glu.h
-        GLBuffer.h
-        GLError.h
-        GLMaterial.h
-        GLShader.h
-        GLShaderBindingScopeGuard.h
-        GLShaderMatrices.h
-        GLTexture2.h
-        GLTexture2Params.h
-        GLTexture2PixelData.h
-        GLVertexAttribute.h
-        GLVertexBuffer.h
-        ModelViewProjection.h
-        RenderBuffer.h
-        RGB.h
-        RGBA.h
-        SceneGraphNode.h
-        SceneGraphNodeProperties.h
-        SceneGraphNodeProperty.h
-        SceneGraphNodeValues.h
-        ScopeGuard.h
+        Leap/GL/ColorComponent.h
+        Leap/GL/FrameBufferObject.h
+        Leap/GL/GLBuffer.h
+        Leap/GL/GLError.h
+        Leap/GL/GLHeaders.h
+        Leap/GL/GLMaterial.h
+        Leap/GL/GLShader.h
+        Leap/GL/GLShaderBindingScopeGuard.h
+        Leap/GL/GLShaderMatrices.h
+        Leap/GL/GLTexture2.h
+        Leap/GL/GLTexture2Params.h
+        Leap/GL/GLTexture2PixelData.h
+        Leap/GL/GLVertexAttribute.h
+        Leap/GL/GLVertexBuffer.h
+        Leap/GL/ModelViewProjection.h
+        Leap/GL/RenderBuffer.h
+        Leap/GL/RGB.h
+        Leap/GL/RGBA.h
+        Leap/GL/SceneGraphNode.h
+        Leap/GL/SceneGraphNodeProperties.h
+        Leap/GL/SceneGraphNodeProperty.h
+        Leap/GL/SceneGraphNodeValues.h
+        Leap/GL/ScopeGuard.h
     SOURCES
-        FrameBufferObject.cpp
-        GLBuffer.cpp
-        GLMaterial.cpp
-        GLShader.cpp
-        GLShaderMatrices.cpp
-        GLTexture2.cpp
-        GLTexture2Params.cpp
-        GLTexture2PixelData.cpp
-        ModelViewProjection.cpp
-        RenderBuffer.cpp
+        Leap/GL/FrameBufferObject.cpp
+        Leap/GL/GLBuffer.cpp
+        Leap/GL/GLMaterial.cpp
+        Leap/GL/GLShader.cpp
+        Leap/GL/GLShaderMatrices.cpp
+        Leap/GL/GLTexture2.cpp
+        Leap/GL/GLTexture2Params.cpp
+        Leap/GL/GLTexture2PixelData.cpp
+        Leap/GL/ModelViewProjection.cpp
+        Leap/GL/RenderBuffer.cpp
     RESOURCES
-        material-frag.glsl
-        matrix-transformed-vert.glsl
+        Resources/material-frag.glsl
+        Resources/matrix-transformed-vert.glsl
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.
         Color # TODO: LeapGL color

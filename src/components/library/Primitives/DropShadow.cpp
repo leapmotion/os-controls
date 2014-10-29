@@ -1,6 +1,6 @@
 #include "DropShadow.h"
 
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 
 std::shared_ptr<GLTexture2> DropShadow::ms_shadow_texture;
 

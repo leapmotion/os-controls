@@ -1,7 +1,7 @@
 #include "Primitives.h"
 
 #include <cassert>
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 
 void GenericShape::DrawContents(RenderState& renderState) const {
   m_geometry.Draw(Shader(), m_drawMode);

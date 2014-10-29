@@ -1,4 +1,4 @@
-#include "GLShader.h"
+#include "Leap/GL/GLShader.h"
 
 #include <iostream> // TEMP
 #include <stdexcept>

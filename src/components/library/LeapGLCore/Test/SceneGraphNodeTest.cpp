@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <ostream>
-#include "SceneGraphNode.h"
-#include "SceneGraphNodeValues.h"
+#include "Leap/GL/SceneGraphNode.h"
+#include "Leap/GL/SceneGraphNodeValues.h"
 
 // #define FORMAT_VALUE(x) #x << " = " << (x)
 

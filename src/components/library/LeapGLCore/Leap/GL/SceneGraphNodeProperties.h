@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SceneGraphNodeProperty.h"
+#include "Leap/GL/SceneGraphNodeProperty.h"
 #include <ostream>
 #include <sstream>
 #include <string>

@@ -1,7 +1,7 @@
 #include <iostream>
-#include "GLShader.h"
 #include "GLTestFramework.h"
 #include <gtest/gtest.h>
+#include "Leap/GL/GLShader.h"
 
 class GLShaderTest : public GLTestFramework_Headless { };
 

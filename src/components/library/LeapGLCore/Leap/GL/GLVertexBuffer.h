@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gl_glext_glu.h"
-#include "GLBuffer.h"
-#include "GLVertexAttribute.h"
+#include "Leap/GL/GLHeaders.h"
+#include "Leap/GL/GLBuffer.h"
+#include "Leap/GL/GLVertexAttribute.h"
 
 #include <tuple>
 #include <type_traits>

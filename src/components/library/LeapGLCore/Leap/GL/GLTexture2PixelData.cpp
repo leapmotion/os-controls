@@ -1,4 +1,4 @@
-#include "GLTexture2PixelData.h"
+#include "Leap/GL/GLTexture2PixelData.h"
 
 #include <stdexcept>
 

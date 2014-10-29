@@ -1,4 +1,4 @@
-#include "GLTexture2Params.h"
+#include "Leap/GL/GLTexture2Params.h"
 
 #include <stdexcept>
 

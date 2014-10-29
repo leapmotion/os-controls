@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "GLHeaders.h"
+#include "Leap/GL/GLHeaders.h"
 
 #if _WIN32
 #pragma comment(lib, "winmm.lib")

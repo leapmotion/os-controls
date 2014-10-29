@@ -3,11 +3,11 @@
 #include "osinterface/RenderWindow.h"
 #include "graphics/RenderFrame.h"
 
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
-#include "TextFile.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLTexture2.h"
 #include "Resource.h"
+#include "TextFile.h"
 #include <memory>
 
 #include "RenderState.h"

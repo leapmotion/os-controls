@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-#include "GLBuffer.h"
-#include "GLShader.h"
+#include "Leap/GL/GLBuffer.h"
+#include "Leap/GL/GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 #include "GLTexture2Loader.h"
 #include "Resource.h"
 

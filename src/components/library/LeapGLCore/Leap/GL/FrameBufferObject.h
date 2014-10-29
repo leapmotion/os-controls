@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl_glext_glu.h" // convenience header for cross-platform GL includes
+#include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 
 namespace Leap {
 namespace GL {

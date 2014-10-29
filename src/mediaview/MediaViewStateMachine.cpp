@@ -7,12 +7,12 @@
 #include "uievents/ShortcutsDomain.h"
 #include "uievents/ShortcutsConfigs.h"
 
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
-#include "TextFile.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLTexture2.h"
 #include "RenderState.h"
 #include "Resource.h"
+#include "TextFile.h"
 #include <memory>
 
 const static float PI = 3.14159265f;

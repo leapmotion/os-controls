@@ -2,7 +2,7 @@
 
 // This file contains functions useful in checking and handling OpenGL errors.
 
-#include "gl_glext_glu.h"
+#include "Leap/GL/GLHeaders.h"
 #include <iostream>
 #include <stdexcept>
 #include <string>

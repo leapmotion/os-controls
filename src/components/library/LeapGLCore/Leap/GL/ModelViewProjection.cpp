@@ -1,4 +1,4 @@
-#include "ModelViewProjection.h"
+#include "Leap/GL/ModelViewProjection.h"
 
 namespace Leap {
 namespace GL {

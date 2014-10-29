@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GLShader.h"
+#include "Leap/GL/GLShader.h"
 #include "Resource.h"
 #include "TextFileLoader.h"
 

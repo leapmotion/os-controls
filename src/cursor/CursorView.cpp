@@ -8,9 +8,9 @@
 #include "HandCursor.h"
 #include "interaction/interactionConfigs.h"
 
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLTexture2.h"
 #include "TextFile.h"
 #include "Resource.h"
 #include <memory>

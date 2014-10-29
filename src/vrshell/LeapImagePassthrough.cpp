@@ -3,7 +3,7 @@
 #include "Leap.h"
 #include "osinterface/LeapInput.h"
 #include "graphics/RenderFrame.h"
-#include "GLShaderMatrices.h"
+#include "Leap/GL/GLShaderMatrices.h"
 
 LeapImagePassthrough::LeapImagePassthrough() {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);

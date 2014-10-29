@@ -2,7 +2,7 @@
 
 #include "Primitives.h"
 
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 
 // Design notes for TexturedFrame
 // ------------------------------

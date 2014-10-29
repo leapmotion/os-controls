@@ -1,14 +1,14 @@
 #pragma once
 
-#include "GLMaterial.h"
-#include "GLShader.h"
-#include "GLShaderBindingScopeGuard.h"
 #include "GLShaderLoader.h"
-#include "GLShaderMatrices.h"
+#include "Leap/GL/GLMaterial.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLShaderBindingScopeGuard.h"
+#include "Leap/GL/GLShaderMatrices.h"
+#include "Leap/GL/SceneGraphNode.h"
+#include "Leap/GL/SceneGraphNodeValues.h"
 #include "RenderState.h"
 #include "Resource.h"
-#include "SceneGraphNode.h"
-#include "SceneGraphNodeValues.h"
 
 // This is the base class for drawable, geometric primitives.  It inherits SceneGraphNode<...>
 // which provides the "scene graph" design pattern (see Wikipedia article on scene graph),

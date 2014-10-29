@@ -1,4 +1,4 @@
-#include "GLHeaders.h"
+#include "Leap/GL/GLHeaders.h"
 #include "GLTestFramework.h"
 
 // This class will initialize and shutdown a GL context (SDL based) respectively before and after running each test.

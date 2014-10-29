@@ -1,7 +1,7 @@
 #include "GLTexture2Loader.h"
 
-#include "GLTexture2.h"
 #include "GLTexture2FreeImage.h"
+#include "Leap/GL/GLTexture2.h"
 
 #include <cassert>
 

@@ -1,8 +1,8 @@
-#include "FrameBufferObject.h"
+#include "Leap/GL/FrameBufferObject.h"
 
-#include "GLError.h"
-#include "GLTexture2.h"
-#include "RenderBuffer.h"
+#include "Leap/GL/GLError.h"
+#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/RenderBuffer.h"
 
 #include <assert.h>
 

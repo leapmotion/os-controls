@@ -2,8 +2,8 @@
 
 #include "Color.h"
 #include "EigenTypes.h"
-#include "GLBuffer.h"
-#include "GLVertexBuffer.h"
+#include "Leap/GL/GLBuffer.h"
+#include "Leap/GL/GLVertexBuffer.h"
 #include "RenderState.h"
 
 #include <map>

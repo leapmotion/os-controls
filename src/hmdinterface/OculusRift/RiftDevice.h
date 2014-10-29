@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gl_glext_glu.h" // TODO: figure out how not to include this here.
 #include "IDevice.h"
+#include "Leap/GL/GLHeaders.h" // TODO: figure out how not to include this here.
 #include "OculusRift/RiftContext.h"
 #include "OculusRift/RiftDeviceConfiguration.h"
 

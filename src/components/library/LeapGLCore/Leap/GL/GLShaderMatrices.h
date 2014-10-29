@@ -1,8 +1,8 @@
 #pragma once
 
 #include "EigenTypes.h"
-#include "GLShader.h"
-#include "ScopeGuard.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/ScopeGuard.h"
 
 // Presents an interface specifically tailored to shaders having matrix uniforms
 // with the following names:
