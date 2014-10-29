@@ -290,7 +290,19 @@ LRESULT CALLBACK RenderWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam
     event(&OSKeyboardEvent::KeyDown)(wParam);
     return ::DefWindowProc(hWnd, message, wParam, lParam);
   }
+  case WM_SYSKEYDOWN:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyDown)(wParam);
+    return ::DefWindowProc(hWnd, message, wParam, lParam);
+  }
   case WM_KEYUP:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyUp)(wParam);
+    return ::DefWindowProc(hWnd, message, wParam, lParam);
+  }
+  case WM_SYSKEYUP:
   {
     AutoFired<OSKeyboardEvent> event;
     event(&OSKeyboardEvent::KeyUp)(wParam);
