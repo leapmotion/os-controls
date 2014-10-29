@@ -71,12 +71,10 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
 
   const auto& windowSize = frame.renderWindow->GetSize();
   const auto rectPos = EigenTypes::Vector3(windowSize.width / 2, windowSize.height / 2, 0);
-  const double conversionFactor = windowSize.width / images[0].width();
-  EigenTypes::Vector2 rectSize = { images[0].width() * conversionFactor, images[0].height() * conversionFactor };
 
   for (int i = 0; i < 2; i++) {
     m_rect[i].Translation() = rectPos;
-    m_rect[i].SetSize(rectSize);
+    m_rect[i].SetSize({ windowSize.width, windowSize.height });
   }
 }
 
@@ -95,7 +93,7 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
   glActiveTexture(GL_TEXTURE0 + 1);
   distortion->Bind();
 
-  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), 0.35f, -0.35f);
+  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), 0.45f, -0.55f);
   glUniform2f(m_passthroughShader->LocationOfUniform("ray_offset"), 0.5f, 0.5f);
   glUniform1i(m_passthroughShader->LocationOfUniform("texture"), 0);
   glUniform1i(m_passthroughShader->LocationOfUniform("distortion"), 1);
