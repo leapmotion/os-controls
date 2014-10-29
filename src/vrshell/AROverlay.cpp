@@ -63,6 +63,17 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
   m_compEngine->CommitChanges();
 }
 
+void AROverlay::KeyDown(int keyCode) {
+  const static int EscapeKeyCode = 0x1B;
+  if (keyCode == EscapeKeyCode)
+    GetGlobalContext()->SignalShutdown();
+  else {
+    AutowiredFast<Hmd::IDevice> device;
+    if (device)
+      device->DismissHealthWarning();
+  }
+}
+
 //AutoFilter methods (to be informed of system wipe occuring
 void AROverlay::AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame) {
   m_lastWipe = wipe;

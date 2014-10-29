@@ -82,6 +82,7 @@ public:
   /// @details If IsInitialized is false, this method will throw an exception that is
   /// a subclass of Hmd::IException.
   virtual const Hmd::IContext &Context () const = 0;
+
   /// @brief Returns the DeviceConfiguration which reflects the actual configuration state of the device.
   /// @details If IsInitialized is false, this method will throw an exception that is
   /// a subclass of Hmd::IException.

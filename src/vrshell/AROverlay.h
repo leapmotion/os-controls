@@ -2,6 +2,7 @@
 #include "LeapImagePassthrough.h"
 #include "interaction/SystemWipeRecognizer.h"
 #include "osinterface/CompositionEngine.h"
+#include "osinterface/OSKeyboardEvent.h"
 #include "osinterface/RenderWindow.h"
 #include "uievents/Updatable.h"
 #include "Animation.h"
@@ -10,7 +11,8 @@
 
 //Takes a main window, hides it, and renders it as a fullscreen overlay
 class AROverlay :
-  public Updatable
+  public Updatable,
+  public OSKeyboardEvent
 {
 public:
   AROverlay();
@@ -25,6 +27,9 @@ public:
 
   //Updateable overrides
   void Tick(std::chrono::duration<double> deltaT) override;
+
+  //OSKeyboardEvent overrides
+  void KeyDown(int keycode) override;
 
   //AutoFilter methods (to be informed of system wipe occuring
   void AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame);
