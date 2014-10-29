@@ -2,7 +2,15 @@
 
 #include "ResourceManager.h"
 
+namespace Leap {
+namespace GL {
+
 class GLTexture2;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
 // TODO: maybe make a loader for GLTexture2Params, which would define "profiles" for
 // different classes of textures (e.g. non-mipmapped RGB textures, 16-bit cubemaps, etc),

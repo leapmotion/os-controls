@@ -4,6 +4,9 @@
 #include "GLTexture2Params.h"
 #include "GLTexture2PixelData.h"
 
+namespace Leap {
+namespace GL {
+
 // This is an invaluable resource: http://www.opengl.org/wiki/Common_Mistakes
 
 // This class wraps creation and use of 2-dimensional GL textures.  While the GLTexture2Params value
@@ -46,3 +49,8 @@ private:
   GLTexture2Params m_params;
   GLuint m_texture_name;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

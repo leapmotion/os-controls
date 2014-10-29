@@ -2,6 +2,9 @@
 
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 
+namespace Leap {
+namespace GL {
+
 class GLTexture2;
 class RenderBuffer;
 
@@ -98,3 +101,8 @@ protected:
   GLTexture2*           m_ColorTexture;
   GLTexture2*           m_DepthTexture;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

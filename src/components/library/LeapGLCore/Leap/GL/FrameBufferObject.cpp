@@ -6,6 +6,9 @@
 
 #include <assert.h>
 
+namespace Leap {
+namespace GL {
+
 // static
 
 FrameBufferObject* FrameBufferObject::Create(int width, int height, const Format& format)
@@ -205,3 +208,8 @@ bool FrameBufferObject::initDepth()
   
   return true;
 }
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

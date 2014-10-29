@@ -3,6 +3,9 @@
 #include "GLShader.h"
 #include "GLShaderBindingScopeGuard.h"
 
+namespace Leap {
+namespace GL {
+
 void GLMaterial::CheckShaderForUniforms (const GLShader &shader) {
   // Check for the required uniforms.  Any unmet requirement will cause an exception to be thrown.
   shader.CheckForTypedUniform("light_position", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
@@ -39,3 +42,8 @@ void GLMaterial::UploadUniforms (const GLShader &shader, float alpha_mask, BindF
   shader.SetUniformi("use_texture", m_use_texture);
   shader.SetUniformi("texture", m_texture_unit_index);
 }
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

@@ -2,6 +2,9 @@
 
 #include <stdexcept>
 
+namespace Leap {
+namespace GL {
+
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 // GLTexture2PixelData
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,3 +133,8 @@ GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenu
   }
   // TODO: checks for validity in the type and format arguments?
 }
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

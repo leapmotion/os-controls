@@ -4,7 +4,15 @@
 #include "PrimitiveGeometry.h"
 #include "RenderState.h"
 
+namespace Leap {
+namespace GL {
+
 class GLTexture2;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
 class GenericShape : public PrimitiveBase {
 public:

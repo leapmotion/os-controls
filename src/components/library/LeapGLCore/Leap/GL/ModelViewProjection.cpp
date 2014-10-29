@@ -1,5 +1,8 @@
 #include "ModelViewProjection.h"
 
+namespace Leap {
+namespace GL {
+
 Projection::Projection() : m_matrix(EigenTypes::Matrix4x4::Identity()) { }
 
 const EigenTypes::Matrix4x4& Projection::Matrix() const {
@@ -127,3 +130,8 @@ void ModelView::Clear() {
   m_stack.clear();
   m_stack.push_back(EigenTypes::Matrix4x4::Identity());
 }
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

@@ -2,6 +2,9 @@
 
 #include "GLError.h"
 
+namespace Leap {
+namespace GL {
+
 GLBuffer::GLBuffer() : m_BufferAddress(0), m_BufferType(0), m_SizeInBytes(0) { }
 
 GLBuffer::~GLBuffer() {
@@ -57,3 +60,8 @@ void GLBuffer::Destroy() {
     m_SizeInBytes = 0;
   }
 }
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

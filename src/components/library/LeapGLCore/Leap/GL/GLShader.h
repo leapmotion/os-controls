@@ -9,6 +9,9 @@
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 #include "GLError.h"
 
+namespace Leap {
+namespace GL {
+
 // helper metafunction for simplifying the uniform modifiers
 template <typename GLType_, size_t COMPONENT_COUNT_> struct UniformFunction { static const bool exists = false; };
 
@@ -325,3 +328,8 @@ template <> struct UniformMatrixFunction<4,2> { static const bool exists = true;
 template <> struct UniformMatrixFunction<4,3> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix4x3fv(location, count, transpose, value); } };
 template <> struct UniformMatrixFunction<4,4> { static const bool exists = true; static void eval (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { glUniformMatrix4fv(location, count, transpose, value); } };
 /// @endcond
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

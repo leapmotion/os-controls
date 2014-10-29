@@ -2,6 +2,9 @@
 
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 
+namespace Leap {
+namespace GL {
+
 /// <summary>
 /// The RenderBuffer class is a wrapper around the OpenGL Renderbuffer functionality
 /// </summary>
@@ -48,3 +51,8 @@ protected:
   GLuint                m_RenderBufferId;
   GLint                 m_Samples;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

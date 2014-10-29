@@ -2,6 +2,9 @@
 
 #include "EigenTypes.h"
 
+namespace Leap {
+namespace GL {
+
 class Projection {
 public:
   Projection();
@@ -36,3 +39,8 @@ public:
 private:
   std::vector<EigenTypes::Matrix4x4, Eigen::aligned_allocator<EigenTypes::Matrix4x4> > m_stack;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

@@ -3,6 +3,9 @@
 #include "ColorComponent.h"
 #include "RGB.h"
 
+namespace Leap {
+namespace GL {
+
 // TODO: template parameter for switching the order of the components, e.g. BGRA, which is a common
 // ordering on some machines.
 template <typename T>
@@ -145,3 +148,8 @@ private:
   RGB<T> m_rgb;
   ColorComponent<T> m_alpha;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

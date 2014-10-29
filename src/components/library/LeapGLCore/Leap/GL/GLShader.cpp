@@ -3,6 +3,9 @@
 #include <iostream> // TEMP
 #include <stdexcept>
 
+namespace Leap {
+namespace GL {
+
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 // GLShader::VarInfo
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,3 +291,8 @@ const std::map<GLenum,std::string> GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP{
   { GL_UNSIGNED_INT_SAMPLER_BUFFER, "usamplerBuffer" },
   { GL_UNSIGNED_INT_SAMPLER_2D_RECT, "usampler2DRect" },
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

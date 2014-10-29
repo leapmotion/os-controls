@@ -5,6 +5,9 @@
 #include <limits>
 #include <type_traits>
 
+namespace Leap {
+namespace GL {
+
 // TODO: move this Internal namespace into a separate file.
 
 // The contents of the Internal namespace are not intended to be used publicly, and provide
@@ -387,3 +390,8 @@ private:
 
   T m_value;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

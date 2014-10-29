@@ -8,6 +8,9 @@
 #include <sstream>
 #include <string>
 
+namespace Leap {
+namespace GL {
+
 // A Transform is a translation and a linear transformation, in the block matrix form
 //   [ L T ]
 //   [ 0 1 ]
@@ -206,3 +209,8 @@ public:
   // const NameValue_ &Name () const { return this->Body().Body().Head().Value(); }
   // NameValue_ &Name () { return this->Body().Body().Head().Value(); }
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

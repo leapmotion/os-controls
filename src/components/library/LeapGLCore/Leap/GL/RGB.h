@@ -2,6 +2,9 @@
 
 #include "ColorComponent.h"
 
+namespace Leap {
+namespace GL {
+
 // T is given as the template parameter to ColorComponent, and ColorComponent<T> is the type of
 // each of the R, G, B components in this class.
 // TODO: template parameter for switching the order of the components, e.g. BGR, which is a common
@@ -132,3 +135,8 @@ private:
 
   ColorComponent<T> m_data[COMPONENT_COUNT];
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

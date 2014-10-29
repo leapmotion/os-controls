@@ -30,6 +30,9 @@
 //   are specified by the application that uses this code, making this code version-
 //   agnostic.
 
+namespace Leap {
+namespace GL {
+
 class GLTexture2Params {
 public:
 
@@ -98,3 +101,7 @@ private:
   GLTexParameteriMap m_tex_parameter_i;
 };
 
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

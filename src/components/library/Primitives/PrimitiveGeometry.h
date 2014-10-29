@@ -9,7 +9,15 @@
 #include <map>
 #include <vector>
 
+namespace Leap {
+namespace GL {
+
 class GLShader;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
 // Convenience class for creating and managing GPU geometry.
 // Simple shapes can be created/uploaded automatically using the available factory functions.

@@ -76,6 +76,9 @@
 // - REPLACE:
 //   child's global property = child's local property
 
+namespace Leap {
+namespace GL {
+
 // see http://en.wikipedia.org/wiki/Scene_graph
 // The Properties type must have a default constructor that initializes all member
 // properties to their respective "identity" values.
@@ -384,3 +387,8 @@ private:
   // This is the set of all child nodes.
   ChildSet m_children;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

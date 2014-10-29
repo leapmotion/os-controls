@@ -2,6 +2,9 @@
 
 #include <stdexcept>
 
+namespace Leap {
+namespace GL {
+
 GLTexture2Params::GLTexture2Params (GLsizei width, GLsizei height, GLenum internal_format)
   :
   m_target(DEFAULT_TARGET),
@@ -39,3 +42,7 @@ void GLTexture2Params::SetTexParameteri (GLenum pname, GLint value) {
   m_tex_parameter_i[pname] = value;
 }
 
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

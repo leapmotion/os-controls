@@ -3,6 +3,9 @@
 #include "gl_glext_glu.h"
 #include <string>
 
+namespace Leap {
+namespace GL {
+
 // A C++ wrapper class for OpenGL buffer objects, of types e.g. GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER.
 class GLBuffer {
 
@@ -27,3 +30,8 @@ private:
   GLenum m_BufferType;
   GLsizeiptr m_SizeInBytes;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

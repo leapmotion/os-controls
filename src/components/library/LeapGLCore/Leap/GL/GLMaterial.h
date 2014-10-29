@@ -5,6 +5,9 @@
 #include "gl_glext_glu.h"
 #include "ScopeGuard.h"
 
+namespace Leap {
+namespace GL {
+
 class GLShader;
 
 // The Material class is a container for particular uniform values which can then be
@@ -54,3 +57,8 @@ private:
   bool m_use_texture;
   GLint m_texture_unit_index;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

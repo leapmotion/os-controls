@@ -2,8 +2,16 @@
 
 #include <string>
 
+namespace Leap {
+namespace GL {
+
 class GLTexture2;
 class GLTexture2Params;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
 // The only value that must be set in the passed-in GLTexture2Params is "target".
 // If it is desired to specify any TexParameter values, this must be done before

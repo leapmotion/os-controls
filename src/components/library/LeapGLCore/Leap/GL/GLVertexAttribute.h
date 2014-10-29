@@ -2,6 +2,9 @@
 
 #include "gl_glext_glu.h"
 
+namespace Leap {
+namespace GL {
+
 // This is a metafunction which defines the component type and component count
 // for the various shader attribute types.  TODO: figure out if there are others,
 // e.g. samplers, that can be shader attributes.
@@ -105,3 +108,8 @@ private:
 
   ComponentType m_components[COMPONENT_COUNT];
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

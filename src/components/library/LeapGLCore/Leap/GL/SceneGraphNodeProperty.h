@@ -4,6 +4,9 @@
 #include <sstream>
 #include <string>
 
+namespace Leap {
+namespace GL {
+
 // Defines how the NodeProperty::Apply method should work.
 enum class ApplyType : int { OPERATE = 0, REPLACE };
 
@@ -62,11 +65,11 @@ public:
   }
 
   bool IsValid () const { return m_is_valid; }
-  ::ApplyType ApplyType () const { return m_apply_type; }
+  Leap::GL::ApplyType ApplyType () const { return m_apply_type; }
   const ValueType &Value () const { return m_value; }
   ValueType &Value () { return m_value; }
 
-  void SetApplyType (::ApplyType apply_type) { m_apply_type = apply_type; }
+  void SetApplyType (Leap::GL::ApplyType apply_type) { m_apply_type = apply_type; }
   NodeProperty Inverse () const {
     NodeProperty retval(*this);
     retval.Invert();
@@ -85,15 +88,15 @@ public:
   //     parameter is not used.
   void Apply (const NodeProperty &other, Operate operate) {
     switch (other.m_apply_type) {
-      case ::ApplyType::OPERATE:
+      case Leap::GL::ApplyType::OPERATE:
         m_is_valid = m_is_valid && other.m_is_valid;
         if (m_is_valid) { // Don't bother operating if invalid.
           m_value.Operate(other.m_value, operate);
         }
         break;
-      case ::ApplyType::REPLACE:
+      case Leap::GL::ApplyType::REPLACE:
         m_is_valid = other.m_is_valid;
-        m_apply_type = ::ApplyType::REPLACE;
+        m_apply_type = Leap::GL::ApplyType::REPLACE;
         m_value = other.m_value;
         break;
     }
@@ -102,12 +105,12 @@ public:
   // on its value.  Inverting an ApplyType::REPLACE necessarily results in invalidation.
   void Invert () {
     switch (m_apply_type) {
-      case ::ApplyType::OPERATE:
+      case Leap::GL::ApplyType::OPERATE:
         if (m_is_valid) { // Don't bother inverting if already invalid.
           m_is_valid = m_value.Invert();
         }
         break;
-      case ::ApplyType::REPLACE:
+      case Leap::GL::ApplyType::REPLACE:
         m_is_valid = false; // There is no way to invert a replacement.
         break;
     }
@@ -130,7 +133,7 @@ public:
 private:
 
   bool m_is_valid;
-  ::ApplyType m_apply_type;
+  Leap::GL::ApplyType m_apply_type;
   ValueType m_value;
 
   static void ReplaceAllIn (std::string &s, const std::string &replace_me, const std::string &replacement) {
@@ -153,3 +156,7 @@ std::ostream &operator << (std::ostream &out, const NodeProperty<ValueType_> &pr
   return out << property.AsString();
 }
 
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

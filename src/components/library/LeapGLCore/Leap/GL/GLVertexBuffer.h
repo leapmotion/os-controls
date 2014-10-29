@@ -34,6 +34,8 @@
 // manages the data associated with each attribute and translates the C++-typed attributes
 // into the relevant GL enums and data.
 
+namespace Leap {
+namespace GL {
 
 // Encapsulates the concept of an OpenGL vertex buffer object.  A vertex buffer
 // object is an array of vertex attributes that are uploaded to the GPU for use
@@ -219,3 +221,8 @@ private:
   std::vector<Attributes> m_intermediate_attributes;
   mutable GLBuffer m_gl_buffer;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

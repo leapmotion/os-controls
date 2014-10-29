@@ -3,6 +3,8 @@
 #include "GLShaderBindingScopeGuard.h"
 #include <stdexcept>
 
+namespace Leap {
+namespace GL {
 namespace GLShaderMatrices {
 
 void CheckShaderForUniforms (const GLShader &shader, BindFlags bind_flags) {
@@ -34,3 +36,7 @@ void UploadUniforms (const GLShader &shader, const EigenTypes::Matrix4x4 &model_
 }
 
 } // end of namespace GLShaderMatrices
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

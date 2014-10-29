@@ -7,7 +7,15 @@
 
 #include <memory>
 
+namespace Leap {
+namespace GL {
+
 class GLShader;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
 // This is one "layer" of the application -- layers being rendered back to front.
 class AnimationLayer : public RenderableEventHandler {

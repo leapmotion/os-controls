@@ -392,9 +392,9 @@ GLMesh<DIM>
   "components library", which is what it is.  Then the source code for the library
   is in the "source" subdirectory of "library", which is also what that is.
 - Namespace Leap::GL::
-- Directory structure to reflect the namespace:
+x Directory structure to reflect the namespace:
   e.g. components/library/source/Leap/GL/Abc.h
-- Get rid of GLController, as it does almost nothing, and its original intended design (to
+x Get rid of GLController, as it does almost nothing, and its original intended design (to
   track OpenGL server state and prevent redundant server state changes) is contrary to one
   of the main design principles of the Components lib (drop-in capability).
 - Create GLMesh and factor out of PrimitiveGeometry.
@@ -405,9 +405,11 @@ GLMesh<DIM>
   is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
 - Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
   This will require some prototyping and code review.
-- Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
-  otherwise get rid of it.
-- Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)
+x Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
+  otherwise get rid of it.  It has been decided that exception safety, along with a uniformized
+  resource binding/unbinding convention is a good enough reason to have this.
+x Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)
+- All color unit tests should pass (some are currently disabled).
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;
   could also make an interface for that purpose -- perhaps that "make me a GL context" interface
   would be useful in the GL core component?).

@@ -23,6 +23,9 @@
 
 #include <iostream>
 
+namespace Leap {
+namespace GL {
+
 inline void InitializeGlew () {
   if (glewInit() != GLEW_OK) {
     throw std::runtime_error("Glew initialization failed");
@@ -32,3 +35,8 @@ inline void InitializeGlew () {
   std::cerr << "GL_VENDOR = \"" << glGetString(GL_VENDOR) << "\"\n";         // TEMP
   // std::cerr << "GL_EXTENSIONS = \"" << glGetString(GL_EXTENSIONS) << "\"\n"; // TEMP
 }
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

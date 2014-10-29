@@ -12,6 +12,9 @@
 // The OpenGL API website docs incorrectly formatted some of the formulas for glPixelStorei,
 // but the MSDN website had them correctly formatted: http://msdn.microsoft.com/en-us/library/windows/desktop/dd940385(v=vs.85).aspx
 
+namespace Leap {
+namespace GL {
+
 // Base class for pixel data for use in all texel-loading operations in GLTexture2.
 // Subclasses provide storage of and reference to pixel data.
 class GLTexture2PixelData {
@@ -179,3 +182,8 @@ private:
   size_t m_raw_pixel_count;
   std::vector<Pixel_> m_raw_pixels;
 };
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

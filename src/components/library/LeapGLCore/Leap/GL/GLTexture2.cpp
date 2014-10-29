@@ -4,6 +4,9 @@
 #include <sstream>
 #include <stdexcept>
 
+namespace Leap {
+namespace GL {
+
 // convenience macro for std::ostream style formatting expressions
 #define FORMAT(expr) static_cast<std::ostringstream &>(std::ostringstream().flush() << expr).str()
 
@@ -227,3 +230,8 @@ void GLTexture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) 
     throw std::invalid_argument("there is insufficient pixel data for the given parameters");
   }
 }
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

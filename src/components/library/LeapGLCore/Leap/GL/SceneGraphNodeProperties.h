@@ -5,6 +5,9 @@
 #include <sstream>
 #include <string>
 
+namespace Leap {
+namespace GL {
+
 // This is a tuple of SceneGraphNodeProperty types.
 template <typename Derived, typename... Properties_> class NodeProperties;
 
@@ -116,3 +119,7 @@ std::ostream &operator << (std::ostream &out, const NodeProperties<Derived,Prope
   return out << p.AsString();
 }
 
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

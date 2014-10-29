@@ -14,6 +14,9 @@
   #include <sstream>
 #endif
 
+namespace Leap {
+namespace GL {
+
 // Return 
 inline std::string GLErrorMessage(GLenum error_code, const std::string &during) {
   std::string error_message;
@@ -76,3 +79,8 @@ inline void GLClearError() {
     single_gl_call_statement; \
     GLClearError();
 #endif
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

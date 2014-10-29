@@ -11,6 +11,8 @@
 //   uniform mat4 normal_matrix
 // These quantities are derived from the model view matrix and the projection matrix.
 
+namespace Leap {
+namespace GL {
 namespace GLShaderMatrices {
   
 // The shader must have the following 4x4 matrix uniforms:
@@ -29,3 +31,7 @@ void UploadUniforms (const GLShader &shader, const EigenTypes::Matrix4x4 &model_
 
 } // end of namespace GLShaderMatrices
 
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
