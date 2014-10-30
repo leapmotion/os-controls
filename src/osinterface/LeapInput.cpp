@@ -53,6 +53,5 @@ void LeapInput::onFrame(const Leap::Controller& controller) {
     return;
   }
   m_isAcceptingInput = true;
-  CurrentContextPusher pshr(this->GetContext());
   m_listener(&LeapInputListener::OnLeapFrame)(controller.frame());
 }
