@@ -229,13 +229,33 @@ void RenderWindowWin::SetCloaked(bool cloaked)
   ::DwmSetWindowAttribute(hWnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 }
 
+//SetForegroundWindow and BringWindowToTop only work under certain conditions - see
+//http://www.shloemi.com/2012/09/solved-setforegroundwindow-win32-api-not-always-works/
+static void SetFocusWindowInternal(HWND hWnd) {
+  auto foreThread = GetWindowThreadProcessId(GetForegroundWindow(), nullptr);
+  auto appThread = GetCurrentThreadId();
+
+  if (foreThread != appThread)
+  {
+    AttachThreadInput(foreThread, appThread, true);
+    BringWindowToTop(GetForegroundWindow());
+    ShowWindow(hWnd, SW_SHOW);
+    AttachThreadInput(foreThread, appThread, false);
+  }
+  else
+  {
+    BringWindowToTop(hWnd);
+    ShowWindow(hWnd, SW_SHOW);
+  }
+}
+
 void RenderWindowWin::SetKBFocus(bool focus) {
   if (focus) {
     m_previouslyFocused = GetForegroundWindow();
-    SetForegroundWindow(GetSystemHandle());
+    SetFocusWindowInternal(GetSystemHandle());
   }
   else {
-    SetForegroundWindow(m_previouslyFocused);
+    SetFocusWindowInternal(m_previouslyFocused);
     m_previouslyFocused = nullptr;
   }
 }
