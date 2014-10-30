@@ -49,7 +49,6 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     m_texture[1] = std::make_shared<GLTexture2>(imageParams);
 
     GLTexture2Params distortionParams(64, 64, GL_RG32F);
-    //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     distortionParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -95,12 +94,13 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
 
   const float aspectRatio = 960.f/1140; //w/h
   const float rayscale = .27f;
-  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), rayscale, -rayscale/aspectRatio);
-  glUniform2f(m_passthroughShader->LocationOfUniform("ray_offset"), 0.5f, 0.5f);
-  glUniform1i(m_passthroughShader->LocationOfUniform("texture"), 0);
-  glUniform1i(m_passthroughShader->LocationOfUniform("distortion"), 1);
-  glUniform1f(m_passthroughShader->LocationOfUniform("gamma"), 0.8f);
-  glUniform1f(m_passthroughShader->LocationOfUniform("brightness"), 1.0f);
+
+  m_passthroughShader->SetUniformf("ray_scale", { rayscale, -rayscale / aspectRatio });
+  m_passthroughShader->SetUniformf("ray_offset", { 0.5f, 0.5f });
+  m_passthroughShader->SetUniformi("texture", 0);
+  m_passthroughShader->SetUniformi("distortion", 1);
+  m_passthroughShader->SetUniformf("gamma", 0.8f);
+  m_passthroughShader->SetUniformf("brightness", 1.0f);
 
   PrimitiveBase::DrawSceneGraph(m_rect[frame.eyeIndex], frame.renderState);
 
