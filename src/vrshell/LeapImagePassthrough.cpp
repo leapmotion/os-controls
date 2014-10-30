@@ -11,6 +11,7 @@ LeapImagePassthrough::LeapImagePassthrough() :
 m_passthroughShader(Resource<GLShader>("passthrough"))
 {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
+  m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(1 >> 15)); //POLICY_INCLUDE_ALL_FRAMES
 
   for (int i = 0; i < 2; i++) {
     m_rect[i].SetSize(EigenTypes::Vector2(640, 480));
