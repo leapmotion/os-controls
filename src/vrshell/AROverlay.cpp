@@ -11,7 +11,8 @@ static const double gestureCompletionCoverage = 1.0 / 3.0; //% of screen covered
 AROverlay::AROverlay() :
 m_wipeDisabled(false),
 m_overlayOffset(0.f),
-m_overlayWindow(RenderWindow::New())
+m_overlayWindow(RenderWindow::New()),
+m_hasGottenFocus(false)
 {
   m_compDisplay.reset(m_compEngine->CreateDisplay(m_overlayWindow->GetSystemHandle()));
   m_mainView.reset(m_compEngine->CreateView());
@@ -49,6 +50,15 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
   //If we're not getting updates, finish the animation ourselves
   if (m_lastWipe.status == SystemWipe::Status::NOT_ACTIVE && m_overlayOffset.Completion() != 1.0)
     m_overlayOffset.Update(deltaT.count());
+
+  if (!m_hasGottenFocus && isDisplayingOverlay()) {
+    m_overlayWindow->SetKBFocus();
+    m_hasGottenFocus = true;
+  }
+  else if (m_hasGottenFocus && !isDisplayingOverlay()) {
+    m_overlayWindow->SetKBFocus(false);
+    m_hasGottenFocus = false;
+  }
 
   //If isDisplayingOverlay && m_wipeDirection == Down | !isDisplayingOverlay && m_wipeDirection == Up
   // then the animation is playing from top to bottom
@@ -97,9 +107,6 @@ void AROverlay::AutoFilter(const SystemWipe& wipe, const Leap::Frame& frame) {
   if (m_lastWipe.status == SystemWipe::Status::BEGIN || m_lastWipe.status == SystemWipe::Status::ABORT) {
     const float newOverlayOffsetGoal = isDisplayingOverlay() ? 0 : m_overlayWindow->GetSize().height;
     m_overlayOffset.Set(newOverlayOffsetGoal, defaultAnimationDuration);
-   
-    //Grab keyboard focus if the overlay is getting displayed!
-    m_overlayWindow->SetKBFocus(isDisplayingOverlay());
   }
 
   if (m_lastWipe.status == SystemWipe::Status::BEGIN) {

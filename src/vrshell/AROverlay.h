@@ -42,6 +42,7 @@ private:
   std::chrono::steady_clock::time_point m_wipeStart;
 
   Animated<float> m_overlayOffset;
+  bool m_hasGottenFocus;
 
   std::unique_ptr<RenderWindow> m_overlayWindow;
   std::unique_ptr<ComposedDisplay> m_compDisplay;
