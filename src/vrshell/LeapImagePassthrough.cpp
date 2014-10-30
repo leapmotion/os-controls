@@ -12,8 +12,14 @@ enum PolicyFlagInternal {
   POLICY_NON_EXCLUSIVE = (1 << 23) /**< Allow background apps to also receive frames. */
 };
 
+static const float s_aspectRatio = 960.f / 1140; //w/h
+static const float s_rayscale = .27f;
+
+
 LeapImagePassthrough::LeapImagePassthrough() :
-m_passthroughShader(Resource<GLShader>("passthrough"))
+m_passthroughShader(Resource<GLShader>("passthrough")),
+m_fov({s_rayscale,s_rayscale}),
+m_aspectRatio(s_aspectRatio)
 {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
   m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(POLICY_INCLUDE_ALL_FRAMES));
@@ -56,7 +62,6 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     m_texture[1] = std::make_shared<GLTexture2>(imageParams);
 
     GLTexture2Params distortionParams(64, 64, GL_RG32F);
-    //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     distortionParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -100,9 +105,7 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
   glActiveTexture(GL_TEXTURE0 + 1);
   distortion->Bind();
 
-  const float aspectRatio = 960.f/1140; //w/h
-  const float rayscale = .27f;
-  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), rayscale, -rayscale/aspectRatio);
+  glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), m_fov.x(), -m_fov.y()/m_aspectRatio);
   glUniform2f(m_passthroughShader->LocationOfUniform("ray_offset"), 0.5f, 0.5f);
   glUniform1i(m_passthroughShader->LocationOfUniform("texture"), 0);
   glUniform1i(m_passthroughShader->LocationOfUniform("distortion"), 1);
@@ -114,4 +117,30 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
   texture->Unbind();
   distortion->Unbind();
   m_passthroughShader->Unbind();
+}
+
+void LeapImagePassthrough::KeyDown(int keycode) {
+  if (keycode == VK_UP) {
+    m_fov.y() += .01;
+  }
+  else if (keycode == VK_DOWN) {
+    m_fov.y() -= .01;
+  }
+  else if (keycode == VK_LEFT) {
+    m_fov.x() -= .01;
+  }
+  else if (keycode == VK_RIGHT) {
+    m_fov.x() += .01;
+  }
+  else if (keycode == 0x51) { //kb Q
+    m_aspectRatio += .01;
+  }
+  else if (keycode == 0x57) { //kb W
+    m_aspectRatio -= .01;
+  }
+  else if (keycode == 0x31) { //kb 1
+    m_aspectRatio = s_aspectRatio;
+    m_fov = { s_rayscale, s_rayscale };
+  }
+
 }
