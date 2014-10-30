@@ -221,6 +221,11 @@ void RenderWindowMac::SetCloaked(bool cloaked)
   SetVisible(m_isCloaked);
 }
 
+void RenderWindowMac::SetKBFocus(bool focus)
+{
+  //TODO: Implement me!
+}
+
 void RenderWindowMac::SetActive(bool active)
 {
   if (!m_renderContext) {

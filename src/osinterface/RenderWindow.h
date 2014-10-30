@@ -50,6 +50,9 @@ public:
   virtual void SetVisible(bool visible = true) = 0;
   virtual void SetCloaked(bool cloaked = true) = 0;
 
+  //if called with true, and then false, it must attempt to restore the previous focus
+  virtual void SetKBFocus(bool focus = true) = 0;
+
   virtual void SetActive(bool active = true) = 0;
   virtual void FlushBuffer(void) = 0;
 

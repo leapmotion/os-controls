@@ -27,6 +27,8 @@ public:
   virtual void SetVisible(bool visible = true) override;
   virtual void SetCloaked(bool cloaked = true) override;
 
+  virtual void SetKBFocus(bool focus = true) override;
+
   virtual void SetActive(bool active = true) override;
   virtual void FlushBuffer(void) override;
 
