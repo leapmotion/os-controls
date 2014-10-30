@@ -231,15 +231,11 @@ void RenderWindowWin::SetCloaked(bool cloaked)
 
 void RenderWindowWin::SetKBFocus(bool focus) {
   if (focus) {
-    m_previouslyFocused = GetFocus();
-    const auto oldStyle = ::GetWindowLong(GetSystemHandle(), GWL_EXSTYLE);
-    ::SetWindowLong(GetSystemHandle(), GWL_EXSTYLE, oldStyle & ~WS_EX_NOACTIVATE);
-    ::SetWindowPos(GetSystemHandle(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    m_previouslyFocused = GetForegroundWindow();
+    SetForegroundWindow(GetSystemHandle());
   }
   else {
-    const auto oldStyle = ::GetWindowLong(GetSystemHandle(), GWL_EXSTYLE);
-    ::SetWindowLong(GetSystemHandle(), GWL_EXSTYLE, oldStyle | WS_EX_NOACTIVATE);
-    ::SetWindowPos(m_previouslyFocused, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREPOSITION);
+    SetForegroundWindow(m_previouslyFocused);
     m_previouslyFocused = nullptr;
   }
 }
@@ -288,25 +284,25 @@ LRESULT CALLBACK RenderWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam
   {
     AutoFired<OSKeyboardEvent> event;
     event(&OSKeyboardEvent::KeyDown)(wParam);
-    return ::DefWindowProc(hWnd, message, wParam, lParam);
+    break;
   }
   case WM_SYSKEYDOWN:
   {
     AutoFired<OSKeyboardEvent> event;
     event(&OSKeyboardEvent::KeyDown)(wParam);
-    return ::DefWindowProc(hWnd, message, wParam, lParam);
+    break;
   }
   case WM_KEYUP:
   {
     AutoFired<OSKeyboardEvent> event;
     event(&OSKeyboardEvent::KeyUp)(wParam);
-    return ::DefWindowProc(hWnd, message, wParam, lParam);
+    break;
   }
   case WM_SYSKEYUP:
   {
     AutoFired<OSKeyboardEvent> event;
     event(&OSKeyboardEvent::KeyUp)(wParam);
-    return ::DefWindowProc(hWnd, message, wParam, lParam);
+    break;
   }
   case WM_ERASEBKGND:
   case WM_NCPAINT:
