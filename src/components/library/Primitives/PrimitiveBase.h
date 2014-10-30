@@ -71,6 +71,10 @@ public:
     }
     return *m_shader;
   }
+
+  //Must be compatible with the default material (ie, use the same names for the matrix inputs)
+  void SetShader(std::shared_ptr<GLShader> shader) { m_shader = shader; }
+
   const GLMaterial &Material () const { return m_material; }
   GLMaterial &Material () { return m_material; }
 
