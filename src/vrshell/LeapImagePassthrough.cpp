@@ -7,11 +7,17 @@
 #include "osinterface/RenderWindow.h"
 #include "GLShaderMatrices.h"
 
+enum PolicyFlagInternal {
+  POLICY_INCLUDE_ALL_FRAMES = (1 << 15), /**< Include native-app frames when receiving background frames. */
+  POLICY_NON_EXCLUSIVE = (1 << 23) /**< Allow background apps to also receive frames. */
+};
+
 LeapImagePassthrough::LeapImagePassthrough() :
 m_passthroughShader(Resource<GLShader>("passthrough"))
 {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
-  m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(1 >> 15)); //POLICY_INCLUDE_ALL_FRAMES
+  m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(POLICY_INCLUDE_ALL_FRAMES));
+  m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(POLICY_NON_EXCLUSIVE));
 
   for (int i = 0; i < 2; i++) {
     m_rect[i].SetSize(EigenTypes::Vector2(640, 480));
