@@ -1,8 +1,18 @@
+set(VRShell_VERSION_MAJOR "0")
+set(VRShell_VERSION_MINOR "1")
+set(VRShell_VERSION_PATCH "0")
+set(VRShell_VERSION "${VRShell_VERSION_MAJOR}.${VRShell_VERSION_MINOR}.${VRShell_VERSION_PATCH}")
+set(VRShell_APPNAME "Quick Switch")
+set(VRShell_APPDESC "Leap Motion Quick Switch")
+set(LEAP_COMPANY_NAME "Leap Motion")
+
 set(VRShell_SOURCES
   AROverlay.h
   AROverlay.cpp
   LeapImagePassthrough.h
   LeapImagePassthrough.cpp
+  Version.h.in
+  Version.h
   VRShell.h
   VRShell.cpp
 )
@@ -15,6 +25,8 @@ set(VRShell_RESOURCES
 )
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRShell_SOURCES)
 
+configure_file(Version.h.in Version.h)
+
 set(VRShell_EXEFLAGS "")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
   set(VRShell_EXEFLAGS "MACOSX_BUNDLE")
@@ -24,6 +36,10 @@ endif()
 
 add_executable(VRShell ${VRShell_EXEFLAGS} ${VRShell_SOURCES} ${VRShell_RESOURCES})
 set_property(TARGET VRShell PROPERTY FOLDER "VRShell")
+
+#For version.h
+target_include_directories(VRShell PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
 target_imported_libraries(VRShell PUBLIC Leap::Leap)
 
 target_link_libraries(VRShell PUBLIC
