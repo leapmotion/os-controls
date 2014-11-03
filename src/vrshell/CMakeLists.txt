@@ -25,6 +25,34 @@ set(VRShell_RESOURCES
 )
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRShell_SOURCES)
 
+set(VRShell_CLR_SOURCES
+  AssemblyInfo.cpp
+  NativeUIWin.resx #Required by CMake for the .h to be editable in the designer.
+  NativeUIWin.h
+  NativeUIWin.cpp
+)
+add_windows_sources(VRShell_SOURCES ${VRShell_CLR_SOURCES})
+
+#adding CLR support as described in:
+#http://www.cmake.org/pipermail/cmake/2010-June/037346.html
+
+if(WIN32)
+  set(old_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+  set(old_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
+  STRING(REPLACE "/EHsc" "/EHa" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+  STRING(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
+  foreach(VRShell_CLR_SOURCE ${VRShell_CLR_SOURCES})
+    get_filename_component(srcext ${VRShell_CLR_SOURCE} EXT)
+    if(${srcext} STREQUAL ".cpp")
+      set_source_files_properties(${VRShell_CLR_SOURCE} PROPERTIES COMPILE_FLAGS "/clr")
+    endif()
+  endforeach()
+endif()
+
+add_conditional_sources(VRShell_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${VRShell_RESOURCES})
+
 configure_file(Version.h.in Version.h)
 
 set(VRShell_EXEFLAGS "")
@@ -55,6 +83,7 @@ target_link_libraries(VRShell PUBLIC
 
 if(WIN32)
   set_property(TARGET VRShell APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
+  set_property(TARGET VRShell APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Data;System.Drawing;System.Windows.Forms;System.Xml")
   set_property(TARGET VRShell PROPERTY VS_GLOBAL_ROOTNAMESPACE VRShell)
 elseif(APPLE)
   find_library(IOKIT_FRAMEWORK IOKit)
