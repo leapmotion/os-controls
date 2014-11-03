@@ -11,7 +11,8 @@ static const double gestureCompletionCoverage = 1.0 / 3.0; //% of screen covered
 AROverlay::AROverlay() :
 m_wipeDisabled(false),
 m_overlayOffset(0.f),
-m_overlayWindow(RenderWindow::New())
+m_overlayWindow(RenderWindow::New()),
+m_hasGottenFocus(false)
 {
   m_compDisplay.reset(m_compEngine->CreateDisplay(m_overlayWindow->GetSystemHandle()));
   m_mainView.reset(m_compEngine->CreateView());
@@ -50,6 +51,15 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
   if (m_lastWipe.status == SystemWipe::Status::NOT_ACTIVE && m_overlayOffset.Completion() != 1.0)
     m_overlayOffset.Update(deltaT.count());
 
+  if (!m_hasGottenFocus && isDisplayingOverlay()) {
+    m_overlayWindow->SetKBFocus();
+    m_hasGottenFocus = true;
+  }
+  else if (m_hasGottenFocus && !isDisplayingOverlay()) {
+    m_overlayWindow->SetKBFocus(false);
+    m_hasGottenFocus = false;
+  }
+
   //If isDisplayingOverlay && m_wipeDirection == Down | !isDisplayingOverlay && m_wipeDirection == Up
   // then the animation is playing from top to bottom
   //If isDisplayingOverlay && m_WipeDirection == Up | !isDisplayingOverlay && m_wipedirection == Down
@@ -61,6 +71,17 @@ void AROverlay::Tick(std::chrono::duration<double> deltaT) {
     m_mainView->SetClip(0, maxHeight - m_overlayOffset.Current(), screenWidth, m_overlayOffset.Current());
   }
   m_compEngine->CommitChanges();
+}
+
+void AROverlay::KeyDown(int keyCode) {
+  const static int EscapeKeyCode = 0x1B;
+  if (keyCode == EscapeKeyCode)
+    GetGlobalContext()->SignalShutdown();
+  else {
+    AutowiredFast<Hmd::IDevice> device;
+    if (device)
+      device->DismissHealthWarning();
+  }
 }
 
 //AutoFilter methods (to be informed of system wipe occuring

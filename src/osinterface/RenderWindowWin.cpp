@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderWindowWin.h"
 #include "RenderContextWin.h"
+#include "OSKeyboardEvent.h"
 
 #include <GL/wglew.h>
 #include <GL/gl.h>
@@ -11,7 +12,8 @@ RenderWindow* RenderWindow::New(void)
   return new RenderWindowWin;
 }
 
-RenderWindowWin::RenderWindowWin(void)
+RenderWindowWin::RenderWindowWin(void) :
+m_previouslyFocused(nullptr)
 {
   static const LPCTSTR s_className = "RenderWindowWin";
   static const ATOM s_wndClass = [] {
@@ -227,6 +229,37 @@ void RenderWindowWin::SetCloaked(bool cloaked)
   ::DwmSetWindowAttribute(hWnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 }
 
+//SetForegroundWindow and BringWindowToTop only work under certain conditions - see
+//http://www.shloemi.com/2012/09/solved-setforegroundwindow-win32-api-not-always-works/
+static void SetFocusWindowInternal(HWND hWnd) {
+  auto foreThread = GetWindowThreadProcessId(GetForegroundWindow(), nullptr);
+  auto appThread = GetCurrentThreadId();
+
+  if (foreThread != appThread)
+  {
+    AttachThreadInput(foreThread, appThread, true);
+    BringWindowToTop(GetForegroundWindow());
+    ShowWindow(hWnd, SW_SHOW);
+    AttachThreadInput(foreThread, appThread, false);
+  }
+  else
+  {
+    BringWindowToTop(hWnd);
+    ShowWindow(hWnd, SW_SHOW);
+  }
+}
+
+void RenderWindowWin::SetKBFocus(bool focus) {
+  if (focus) {
+    m_previouslyFocused = GetForegroundWindow();
+    SetFocusWindowInternal(GetSystemHandle());
+  }
+  else {
+    SetFocusWindowInternal(m_previouslyFocused);
+    m_previouslyFocused = nullptr;
+  }
+}
+
 void RenderWindowWin::SetActive(bool active)
 {
   if (!m_renderContext) {
@@ -267,6 +300,30 @@ LRESULT CALLBACK RenderWindowWin::WndProc(HWND hWnd, UINT message, WPARAM wParam
       }
     }
     return -1;
+  case WM_KEYDOWN:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyDown)(wParam);
+    break;
+  }
+  case WM_SYSKEYDOWN:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyDown)(wParam);
+    break;
+  }
+  case WM_KEYUP:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyUp)(wParam);
+    break;
+  }
+  case WM_SYSKEYUP:
+  {
+    AutoFired<OSKeyboardEvent> event;
+    event(&OSKeyboardEvent::KeyUp)(wParam);
+    break;
+  }
   case WM_ERASEBKGND:
   case WM_NCPAINT:
     break;
