@@ -88,7 +88,9 @@ private:
   IFrameSupplier* m_FrameSupplier;
   
   std::thread m_MirrorThread;
+#if _WIN32
   HWND m_MirrorHWND;
+#endif
   bool m_ShowMirror;
 
   int m_Selected;

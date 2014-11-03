@@ -47,8 +47,6 @@ void VRIntroApp::InitMirror() {
   if (m_ShowMirror) {
     m_MirrorThread = std::thread(RunMirror, GetHwnd(), std::ref(m_MirrorHWND));
   }
-#else
-  SDL_Window_ID = app.GetWindowID();
 #endif
 }
 

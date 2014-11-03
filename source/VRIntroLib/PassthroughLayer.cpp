@@ -9,9 +9,9 @@
 
 PassthroughLayer::PassthroughLayer() :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/passthrough"),
-  m_image(GLTexture2Params(640, 240, GL_LUMINANCE), GLTexture2PixelDataReference(GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL, 0)),
-  m_colorimage(GLTexture2Params(672, 496, GL_RGBA), GLTexture2PixelDataReference(GL_RGBA, GL_UNSIGNED_BYTE, NULL, 0)),
-  m_distortion(GLTexture2Params(64, 64, GL_RG32F), GLTexture2PixelDataReference(GL_RG, GL_FLOAT, NULL, 0)),
+  m_image(GLTexture2Params(640, 240, GL_LUMINANCE), GLTexture2PixelDataEmpty()), // Specifying "empty" pixel data means that the
+  m_colorimage(GLTexture2Params(672, 496, GL_RGBA), GLTexture2PixelDataEmpty()), // texture memory will be allocated by OpenGL
+  m_distortion(GLTexture2Params(64, 64, GL_RG32F), GLTexture2PixelDataEmpty()),  // for us automatically.
   m_PopupShader(Resource<GLShader>("shaders/transparent")),
   m_PopupTexture(Resource<GLTexture2>("images/no_images.png")),
   m_Gamma(0.8f),
@@ -77,20 +77,22 @@ void PassthroughLayer::SetImage(const unsigned char* data, int width, int height
                  data);
     m_image.Unbind();
   } else {
-    m_image.UpdateTexture(data);
+    m_image.UpdateTexture(GLTexture2PixelDataReference(GL_LUMINANCE, GL_UNSIGNED_BYTE, data, sizeof(unsigned char)*width*height));
   }
   m_UseColor = false;
   m_HasData = true;
 }
 
 void PassthroughLayer::SetColorImage(const unsigned char* data) {
-  m_colorimage.UpdateTexture(data);
+  const auto &params = m_colorimage.Params();
+  m_colorimage.UpdateTexture(GLTexture2PixelDataReference(GL_RGBA, GL_UNSIGNED_BYTE, data, 4*sizeof(unsigned char)*params.Width()*params.Height()));
   m_UseColor = true;
   m_HasData = true;
 }
 
 void PassthroughLayer::SetDistortion(const float* data) {
-  m_distortion.UpdateTexture(data);
+  const auto &params = m_distortion.Params();
+  m_distortion.UpdateTexture(GLTexture2PixelDataReference(GL_RG, GL_FLOAT, data, 2*sizeof(float)*params.Width()*params.Height()));
 }
 
 void PassthroughLayer::Render(TimeDelta real_time_delta) const {
