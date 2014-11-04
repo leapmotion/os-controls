@@ -98,6 +98,7 @@ namespace VRShell {
       // 
       // notificationIcon
       // 
+      this->notificationIcon->ContextMenuStrip = this->notificationMenu;
       this->notificationIcon->Text = L"Quick Switch";
       this->notificationIcon->Visible = true;
       // 
