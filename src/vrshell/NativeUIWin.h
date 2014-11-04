@@ -23,7 +23,7 @@ namespace VRShell {
 		{
 			InitializeComponent();
 
-      ResourceManager^ rm = gcnew ResourceManager("VRShell.Resource", Assembly::GetExecutingAssembly());
+      ResourceManager^ rm = gcnew ResourceManager("VRShell.Resources", Assembly::GetExecutingAssembly());
       System::Drawing::Bitmap^ appBmp = (System::Drawing::Bitmap^) rm->GetObject("icon_512x512");
       this->Icon = System::Drawing::Icon::FromHandle(appBmp->GetHicon());
 

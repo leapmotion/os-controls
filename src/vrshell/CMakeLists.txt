@@ -58,8 +58,8 @@ endif()
 
 add_conditional_sources(VRShell_SOURCES "" GROUP_NAME "Resource Files" "FILES" 
   ${VRShell_RESOURCES}
-  icons/quickSwitch-icon.ico
-  icons/quickSwitch-512_512.png
+  icons/icon.ico
+  icons/icon_512x512.png
 )
 
 configure_file(Version.h.in Version.h)
