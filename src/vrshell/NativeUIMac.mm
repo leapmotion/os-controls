@@ -1,5 +1,4 @@
 #import "NativeUI.h"
-#import "utility/Config.h"
 
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSNibLoading.h>
@@ -7,22 +6,6 @@
 #import <autowiring/autowiring.h>
 
 NativeUI::NativeUI() {
-  // Set the primary config file
-  std::string cfgPath = "./";
-  @autoreleasepool {
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    const char* c_str = [[paths objectAtIndex:0] UTF8String];
-    if (c_str) {
-      cfgPath = std::string(c_str);
-      cfgPath += "/Leap Motion/";
-    }
-  }
-  cfgPath += "Shortcuts.json";
-
-  AutowiredFast<Config> cfg;
-  cfg->SetPrimaryFile(cfgPath);
-  cfg->RebroadcastConfig();
-
   [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:[NSApplication sharedApplication] topLevelObjects:nil];
 }
 
