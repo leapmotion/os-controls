@@ -32,6 +32,9 @@ set(VRShell_CLR_SOURCES
   NativeUIWin.resx #Required by CMake for the .h to be editable in the designer.
   NativeUIWin.h
   NativeUIWin.cpp
+  Resource.resx
+  Resource.rc
+  Resource.h
 )
 add_windows_sources(VRShell_SOURCES ${VRShell_CLR_SOURCES})
 
@@ -53,7 +56,11 @@ if(WIN32)
   endforeach()
 endif()
 
-add_conditional_sources(VRShell_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${VRShell_RESOURCES})
+add_conditional_sources(VRShell_SOURCES "" GROUP_NAME "Resource Files" "FILES" 
+  ${VRShell_RESOURCES}
+  icons/quickSwitch-icon.ico
+  icons/quickSwitch-512_512.png
+)
 
 configure_file(Version.h.in Version.h)
 
