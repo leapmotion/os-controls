@@ -1,3 +1,8 @@
+set(_this_is_standalone_project FALSE)
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}/source/VRIntroLib)
+    set(_this_is_standalone_project TRUE)
+endif()
+
 include(Common)
 
 set(VRIntroLib_SOURCES
@@ -46,19 +51,23 @@ add_mac_sources(
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRIntroLib_SOURCES)
 
-option(SHOW_CONSOLE "Display console window for debugging" OFF)
+option(VRIntro_SHOW_CONSOLE "Display console window for debugging" OFF)
 
 set(_add_executable_options "")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
     set(_add_executable_options "MACOSX_BUNDLE")
 endif()
 
-if(NOT SHOW_CONSOLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+if(NOT VRIntro_SHOW_CONSOLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     set(_add_executable_options WIN32)
 endif()
 
 add_library(VRIntroLib STATIC ${VRIntroLib_SOURCES})
-target_link_components(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
+if(_this_is_standalone_project)
+    target_link_components(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
+else()
+    target_link_libraries(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
+endif()
 target_package(VRIntroLib Eigen)
 
 if(WIN32)

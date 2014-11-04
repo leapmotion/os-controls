@@ -1,22 +1,29 @@
-cmake_minimum_required(VERSION 3.0)
+set(_this_is_standalone_project FALSE)
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+    set(_this_is_standalone_project TRUE)
+endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake-module")
+if(_this_is_standalone_project)
+    cmake_minimum_required(VERSION 3.0)
 
-project(VRIntro)
+    project(VRIntro)
+
+    # Set up our output directories to be in our root
+    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+    set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+endif()
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake-module")
 
 # External module includes
 include(ConditionalSources)
-
-# Set up our output directories to be in our root
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 # Run all of our project configuration steps
 add_subdirectory(source)
 
 # Include directory setup
-set(INCLUDE_INSTALL_DIR "${CMAKE_SOURCE_DIR}/source" CACHE PATH "Path to include files for VRIntro")
+set(INCLUDE_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source" CACHE PATH "Path to include files for VRIntro")
 
 # Let everyone know we're here
 include(CMakePackageConfigHelpers)
