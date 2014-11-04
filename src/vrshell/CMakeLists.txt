@@ -11,6 +11,8 @@ set(VRShell_SOURCES
   AROverlay.cpp
   LeapImagePassthrough.h
   LeapImagePassthrough.cpp
+  NativeUI.h
+  NativeUI.cpp
   Version.h.in
   Version.h
   VRShell.h
