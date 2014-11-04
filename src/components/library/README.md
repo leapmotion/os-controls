@@ -380,7 +380,7 @@ GLMesh<DIM>
   to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
   Then again, we probably don't want to make that architectural choice for people, and want our
   classes to be usable in many different paradigms.
-- Make the directory structure of the components repo into the following, where an X indicates a change.
+- DONE: Make the directory structure of the components repo into the following, where an X indicates a change.
 
   * components/                             -- root directory of repo -- this exists already
   * components/library/                   X -- new root directory of the Components library
@@ -391,7 +391,7 @@ GLMesh<DIM>
   I think having a "library" subdir of components is clearer, because then it reads
   "components library", which is what it is.  Then the source code for the library
   is in the "source" subdirectory of "library", which is also what that is.
-- Namespace Leap::GL::
+- DONE: Namespace Leap::GL::
 - DONE: Directory structure to reflect the namespace:
   e.g. components/library/source/Leap/GL/Abc.h
 - DONE: Get rid of GLController, as it does almost nothing, and its original intended design (to
@@ -620,6 +620,11 @@ In fact, the resources' bind/unbind operations could be designed to require the 
 of a scope guard wouldn't be absolutely required -- there should be some way to do "manual" binding/
 unbinding).
 
+Finally, in order to maximize flexibility, each resource class should ideally be populatable from existing,
+created-using-raw-OpenGL-calls resources.  For example, a 2D texture created in some other library that
+the user wants to control via GLTexture2 -- there should be a means to initialize a GLTexture2 using the
+existing texture handle and other parameters.
+
 #### Evaluation of existing C++ OpenGL wrapper libraries
 
 - OOGL    : https://github.com/Overv/OOGL
@@ -643,6 +648,48 @@ unbinding).
   * Is straightforward code, so it's relatively easy to read.
   * Also appears to not be actively developed (last update was in 2012), and may have
     existed since before 2003, which would explain why some concepts are missing.
+
+#### GLMesh design notes
+
+- Draw mode (e.g. GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_LINES, etc.).
+  GL_POINTS, GL_LINE_STRIP, GL_LINE_LOOP, GL_LINES, GL_LINE_STRIP_ADJACENCY, GL_LINES_ADJACENCY,
+  GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES, GL_TRIANGLE_STRIP_ADJACENCY and
+  GL_TRIANGLES_ADJACENCY.
+- Two modes for vertex specification (this would be a template parameter because it determines
+  the [non-]existence of intermediate vertex data):
+  * Indexed (uses glDrawElements) -- intermediate vertex data necessary, common vertices will
+    be collapsed when uploaded to vertex buffer.
+  * Direct (uses glDrawArrays) -- no intermediate vertex data necessary.
+- Should be able to specify what vertex attributes are present
+  * Position : required
+  * Normal   : optional (but this class should be aware of it)
+  * Others   : optional user-specified attributes, e.g. texture coordinates, color, etc.
+- The position and normal attributes have some dimension configurability.
+  * 3d position, 3d normal (normals defined to be normal to the surface)
+  * 2d position, 3d normal (normals defined to be the unit Z vector, normal to the XY plane)
+  * 2d position, 2d normal (the mesh would (could) represent the 1d boundary of a 2d region,
+    and the normals would be normal to that 1d boundary curve).  While this is mathematically
+    nice, it's probably the least useful in terms of graphics.
+- There should be methods for adding surface primitives
+  * Vertex
+  * Line
+  * Line strip vertex
+  * Triangle
+  * Triangle strip vertex
+  * Triangle fan vertex
+  * Quad (just adds 2 triangles) -- this may be difficult to design to play nicely with the
+    different triangles
+  * TODO: Figure out if there should be methods for GL_TRIANGLES_ADJACENCY and other adjacency
+    modes.
+- It might also be useful to be able to add vertices and indices manually, with no intermediate
+  vertex storage, e.g. loading a mesh from a file, where the vertex indices are precomputed.
+- Perhaps there should be a method which produces the induced wireframe for a mesh (or can
+  that be done with a shader?).
+
+Other random notes
+- Halfedge structure for storing meshes and determining adjacency.  This gives a consistent
+  and efficient way to represent oriented surfaces, and probably naturally generalizes to
+  arbitrary complexes.
 
 #### GLMaterial abstraction design notes
 
