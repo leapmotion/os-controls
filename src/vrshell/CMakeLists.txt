@@ -37,6 +37,7 @@ set(VRShell_CLR_SOURCES
   Resources.h
 )
 add_windows_sources(VRShell_SOURCES ${VRShell_CLR_SOURCES})
+add_mac_sources(VRShell_SOURCES NativeUIMac.mm)
 
 #adding CLR support as described in:
 #http://www.cmake.org/pipermail/cmake/2010-June/037346.html
