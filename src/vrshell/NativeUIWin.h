@@ -33,7 +33,11 @@ namespace VRShell {
 
     static size_t s_nativeUIInitCount = 0;
     NativeUI& m_callbacks;
-  private: System::Windows::Forms::NotifyIcon^  notificationIcon;
+    private: System::Windows::Forms::NotifyIcon^  notificationIcon;
+    private: System::Windows::Forms::ContextMenuStrip^  notificationMenu;
+    private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+
+
   public:
     static NativeUIWin^ s_nativeUI;
 
@@ -87,12 +91,29 @@ namespace VRShell {
 		{
       this->components = (gcnew System::ComponentModel::Container());
       this->notificationIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
+      this->notificationMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+      this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+      this->notificationMenu->SuspendLayout();
       this->SuspendLayout();
       // 
       // notificationIcon
       // 
       this->notificationIcon->Text = L"Quick Switch";
       this->notificationIcon->Visible = true;
+      // 
+      // notificationMenu
+      // 
+      this->notificationMenu->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->exitToolStripMenuItem });
+      this->notificationMenu->Name = L"notificationMenu";
+      this->notificationMenu->Size = System::Drawing::Size(93, 26);
+      this->notificationMenu->Text = L"Exit";
+      // 
+      // exitToolStripMenuItem
+      // 
+      this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
+      this->exitToolStripMenuItem->Size = System::Drawing::Size(92, 22);
+      this->exitToolStripMenuItem->Text = L"&Exit";
+      this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &NativeUIWin::exitToolStripMenuItem_Click);
       // 
       // NativeUIWin
       // 
@@ -101,9 +122,14 @@ namespace VRShell {
       this->ClientSize = System::Drawing::Size(284, 261);
       this->Name = L"NativeUIWin";
       this->Text = L"NativeUIWin";
+      this->notificationMenu->ResumeLayout(false);
       this->ResumeLayout(false);
 
     }
 #pragma endregion
-	};
+  private: System::Void exitToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+    m_callbacks.OnQuit();
+    Close();
+  }
+};
 }
