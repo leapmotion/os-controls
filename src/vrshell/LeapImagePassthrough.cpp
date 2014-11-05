@@ -102,8 +102,8 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
   const float aspectRatio = 960.f/1140; //w/h
   const float rayscale = .27f;
 
-  m_passthroughShader->SetUniformf("ray_scale", { rayscale, -rayscale / aspectRatio });
-  m_passthroughShader->SetUniformf("ray_offset", { 0.5f, 0.5f });
+  m_passthroughShader->SetUniformf("ray_scale", std::make_tuple( rayscale, -rayscale / aspectRatio ));
+  m_passthroughShader->SetUniformf("ray_offset", std::make_tuple(0.5f, 0.5f));
   m_passthroughShader->SetUniformi("texture", 0);
   m_passthroughShader->SetUniformi("distortion", 1);
   m_passthroughShader->SetUniformf("gamma", 0.8f);
