@@ -38,6 +38,34 @@
 namespace Leap {
 namespace GL {
 
+namespace Internal {
+
+// This strange function is used in a metaprogramming technique that I call "lifted C++",
+// where ordinary C++ functions are used within a decltype expression to extract the
+// return type.  The functions are never actually run -- all the computation is manifest
+// in the return types of the functions and the operations defined upon them.  Thus,
+// with some care, you get to use the full richness of ordinary C++ functions with
+// operator and function overloading at compile time.  The decltype "lifts" the ordinary
+// C++ code into the metaprogram.  Victor Dods
+template <typename T_>
+T_ TypeTheoreticConstruct () {
+  throw "Don't ever call this function -- only use it within a decltype expression.";
+}
+
+template <size_t COUNT_, typename Type_>
+struct UniformTuple {
+  // This is an example of "lifted C++".
+  typedef decltype(std::tuple_cat(TypeTheoreticConstruct<std::tuple<Type_>>(),
+                                  TypeTheoreticConstruct<typename UniformTuple<COUNT_-1,Type_>::T>())) T;
+};
+
+template <typename Type_>
+struct UniformTuple<0,Type_> {
+  typedef std::tuple<> T;
+};
+
+} // end of namespace Internal
+
 // Encapsulates the concept of an OpenGL vertex buffer object.  A vertex buffer
 // object is an array of vertex attributes that are uploaded to the GPU for use
 // in a vertex shader program.  The vertex attributes correspond to "attribute"
@@ -62,6 +90,7 @@ public:
 
   typedef std::tuple<AttributeTypes...> Attributes;
   static const size_t ATTRIBUTE_COUNT = std::tuple_size<Attributes>::value;
+  typedef typename Internal::UniformTuple<ATTRIBUTE_COUNT,GLint>::T UniformLocations;
 
   // The usage_pattern parameter specifies the expected usage pattern of the data store.
   // It must be one of: GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW,
@@ -146,8 +175,7 @@ public:
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
   // tuple argument attribute_locations must correspond exactly to Attributes
   // (which is a tuple of GLVertexAttribute types defined by this GLVertexBuffer).
-  template <typename... LocationTypes>
-  void Enable (const std::tuple<LocationTypes...> &attribute_locations) const {
+  void Enable (const UniformLocations &attribute_locations) const {
     if (!m_gl_buffer.IsCreated()) {
       throw VertexBufferException("can't Enable a GLVertexBuffer that hasn't had UploadIntermediateAttributes called on it");
     }
@@ -159,8 +187,7 @@ public:
   // This method calls glDisableVertexAttribArray on each of the vertex attributes
   // given valid locations (i.e. not equal to -1).  This method is analogous to the
   // Enable method.
-  template <typename... LocationTypes>
-  static void Disable (const std::tuple<LocationTypes...> &attribute_locations) {
+  static void Disable (const UniformLocations &attribute_locations) {
     // Begin iterated unbinding of vertex attributes starting at the 0th one.
     DisableAndIterate<0>(attribute_locations);
   }
@@ -168,13 +195,10 @@ public:
 private:
 
   // This is one iteration of the Enable method.  It calls the next iteration.
-  template <size_t INDEX, typename... LocationTypes>
+  template <size_t INDEX>
   static typename std::enable_if<(INDEX<ATTRIBUTE_COUNT),void>::type
-    EnableAndIterate (const std::tuple<LocationTypes...> &locations, size_t stride)
+    EnableAndIterate (const UniformLocations &locations, size_t stride)
   {
-    typedef std::tuple<LocationTypes...> Locations;
-    static_assert(std::tuple_size<Locations>::value == ATTRIBUTE_COUNT, "Must specify the same number of locations as attributes");
-    static_assert(std::is_same<typename std::tuple_element<INDEX,Locations>::type,GLint>::value, "May only specify GLint values for locations");
     // Get the INDEXth attribute type.
     typedef typename std::tuple_element<INDEX,Attributes>::type AttributeType;
     // Get the INDEXth location value.
@@ -189,21 +213,18 @@ private:
     EnableAndIterate<INDEX+1>(locations, stride);
   }
   // This is the end of the iteration in the Enable method.
-  template <size_t INDEX, typename... LocationTypes>
+  template <size_t INDEX>
   static typename std::enable_if<(INDEX>=ATTRIBUTE_COUNT),void>::type
-    EnableAndIterate (const std::tuple<LocationTypes...> &locations, size_t stride)
+    EnableAndIterate (const UniformLocations &locations, size_t stride)
   {
     // Iteration complete -- do nothing.
   }
 
   // This is one iteration of the Disable method.  It calls the next iteration.
-  template <size_t INDEX, typename... LocationTypes>
+  template <size_t INDEX>
   static typename std::enable_if<(INDEX<ATTRIBUTE_COUNT),void>::type
-    DisableAndIterate (const std::tuple<LocationTypes...> &locations)
+    DisableAndIterate (const UniformLocations &locations)
   {
-    typedef std::tuple<LocationTypes...> Locations;
-    static_assert(std::tuple_size<Locations>::value == ATTRIBUTE_COUNT, "Must specify the same number of locations as attributes");
-    static_assert(std::is_same<typename std::tuple_element<INDEX,Locations>::type,GLint>::value, "May only specify GLint values for locations");
     // Get the INDEXth attribute type.
     typedef typename std::tuple_element<INDEX,Attributes>::type AttributeType;
     // Get the INDEXth location value.
@@ -214,9 +235,9 @@ private:
     DisableAndIterate<INDEX+1>(locations);
   }
   // This is the end of the iteration in the Disable method.
-  template <size_t INDEX, typename... LocationTypes>
+  template <size_t INDEX>
   static typename std::enable_if<(INDEX>=ATTRIBUTE_COUNT),void>::type
-    DisableAndIterate (const std::tuple<LocationTypes...> &locations)
+    DisableAndIterate (const UniformLocations &locations)
   {
     // Iteration complete -- do nothing.
   }

@@ -165,7 +165,7 @@ private:
   void RecognizingGesture (StateMachineEvent);
   void Timeout (StateMachineEvent);
 
-  Internal::StateMachine<SystemWipeRecognizer,StateMachineEvent,StateMachineEvent::ENTER,StateMachineEvent::EXIT> m_state_machine;
+  ::Internal::StateMachine<SystemWipeRecognizer,StateMachineEvent,StateMachineEvent::ENTER,StateMachineEvent::EXIT> m_state_machine;
   double m_current_time;
   std::vector<float> m_brightness;
   double m_centroid_signal_start_time;
@@ -174,7 +174,7 @@ private:
   float m_first_good_down_tracking_value;
   std::function<float(float)> m_progress_transform;
   float m_initial_tracking_value;
-  Internal::History<Signal<float>> m_signal_history;
+  ::Internal::History<Signal<float>> m_signal_history;
   SystemWipe *m_system_wipe;
   SystemWipe::Direction m_wipe_direction;
   float m_downsampled_brightness[SAMPLE_COUNT];
