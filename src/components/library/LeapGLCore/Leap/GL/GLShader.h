@@ -208,27 +208,27 @@ public:
   // Uniform modifiers to specify arrays of data, where the array component has various
   // sizes (indicated by the number in the method name).
 
-  // Sets the named uniform to the given std::vector of GLint values.
+  // Sets the named uniform array to the given std::vector of GLint values.
   // This shader must be bound for this call to succeed.
-  void SetUniformi (const std::string &name, const std::vector<GLint> &array) const {
+  void SetUniformArrayi (const std::string &name, const std::vector<GLint> &array) const {
     assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
       glUniform1iv(LocationOfUniform(name), static_cast<GLsizei>(array.size()), array.data())
     );
   }
-  // Sets the named uniform to the given std::vector of GLfloat values.
+  // Sets the named uniform array to the given std::vector of GLfloat values.
   // This shader must be bound for this call to succeed.
-  void SetUniformf (const std::string &name, const std::vector<GLfloat> &array) const {
+  void SetUniformArrayf (const std::string &name, const std::vector<GLfloat> &array) const {
     assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
       glUniform1fv(LocationOfUniform(name), static_cast<GLsizei>(array.size()), array.data())
     );
   }
-  // Sets the named uniform to the given std::vector of values each of which must be
+  // Sets the named uniform array to the given std::vector of values each of which must be
   // a packed POD type consisting of exactly 1, 2, 3, or 4 GLint values.
   // This shader must be bound for this call to succeed.
   template <typename T_>
-  void SetUniformi (const std::string &name, const std::vector<T_> &array) const {
+  void SetUniformArrayi (const std::string &name, const std::vector<T_> &array) const {
     static_assert(sizeof(T_)%sizeof(GLint) == 0, "sizeof(T_) must be divisible by sizeof(GLint)");
     static_assert(UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::exists, "There is no known glUniform*iv function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLint components.
@@ -237,11 +237,11 @@ public:
       UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::eval(LocationOfUniform(name), array.size(), reinterpret_cast<const GLint *>(array.data()))
     ));
   }
-  // Sets the named uniform to the given std::vector of values each of which must be
+  // Sets the named uniform array to the given std::vector of values each of which must be
   // a packed POD type consisting of exactly 1, 2, 3, or 4 GLfloat values.
   // This shader must be bound for this call to succeed.
   template <typename T_>
-  void SetUniformf (const std::string &name, const std::vector<T_> &array) const {
+  void SetUniformArrayf (const std::string &name, const std::vector<T_> &array) const {
     static_assert(sizeof(T_)%sizeof(GLfloat) == 0, "sizeof(T_) must be divisible by sizeof(GLfloat)");
     static_assert(UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLfloat components.
@@ -269,14 +269,14 @@ public:
       UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), 1, matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(&matrix))
     ));
   }
-  // Sets the named uniform to the given std::vector of values each of which must be
+  // Sets the named uniform array to the given std::vector of values each of which must be
   // a packed POD type consisting of exactly ROWS_*COLUMNS_ GLfloat values.  The matrix
   // storage convention must be specified; either ROW_MAJOR or COLUMN_MAJOR.  Note that
   // the ROWS_ and COLUMNS_ template parameters can't be deduced from the argument,
   // so they must be explicitly declared.
   // This shader must be bound for this call to succeed.
   template <size_t ROWS_, size_t COLUMNS_, typename T_>
-  void SetUniformMatrixf (const std::string &name, const std::vector<T_> &array, MatrixStorageConvention matrix_storage_convention) const {
+  void SetUniformMatrixArrayf (const std::string &name, const std::vector<T_> &array, MatrixStorageConvention matrix_storage_convention) const {
     static_assert(UniformMatrixFunction<ROWS_,COLUMNS_>::exists, "There is no glUniformMatrix* function matching the requested ROWS_ and COLUMNS_");
     static_assert(sizeof(T_) == ROWS_*COLUMNS_*sizeof(GLfloat), "T_ must be a POD type having exactly ROWS_*COLUMNS_ components of type GLfloat");
     // TODO: somehow check that T_ is actually a POD containing only GLType_ components.
