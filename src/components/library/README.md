@@ -590,15 +590,15 @@ Some possibilities for resource conventions are the following.
     and if a failure occurs during resource acquisition (which is the same as construction), an
     exception is thrown.
 2.  Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
-    there is a separate Shutdown/Destroy method
+    there is a separate Release/Destroy method
     destruction releases the resource (GLBuffer does this).
 3.  Construct with acquired resource (as in (1)) or construct as "invalid/empty",
     there is a [Re]Initialize method to [re]acquire a resource
-    there is a Shutdown method
+    there is a Release method
     destruction releases the resource.
 
 Number (1) is the most pure in a type-theoretic sense, because it makes impossible construction of
-an invalid/empty resource.  However not being able to shutdown/reinitialize a resource from an
+an invalid/empty resource.  However not being able to release/reinitialize a resource from an
 already-allocated object prevents certain use cases.
 
 Number (2) requires the most code to use, as construction does no initialization (resource acquisition).
@@ -610,6 +610,13 @@ to change what resource something points to.  However, use of std::shared_ptr ma
 Then again, we probably don't want to make that architectural choice for people, and want our
 classes to be usable in many different paradigms.  It should be possible to use the classes as
 local variables, as members, as objects allocated on the heap, via std::shared_ptr, etc.
+
+There should (could?) be an Update method as well, which re-initializes the resource, and probably
+corresponds to a relatively lightweight operation (compared to releasing and re-initializing).  Perhaps
+this should be resource-specific, so no requirement is made on it.
+
+The Release method should take no arguments, so that it can be called without specific knowledge of
+what type the resource is.
 
 Each OpenGL resource has associated "bind"/"unbind" operations which affect the state of the OpenGL server
 and consequent drawing operations.

@@ -151,6 +151,8 @@ add_sublibrary(
         Leap/GL/GLTexture2PixelData.h
         Leap/GL/GLVertexAttribute.h
         Leap/GL/GLVertexBuffer.h
+        Leap/GL/Mesh.h
+        Leap/GL/MeshException.h
         Leap/GL/ModelViewProjection.h
         Leap/GL/RenderBuffer.h
         Leap/GL/RGB.h
