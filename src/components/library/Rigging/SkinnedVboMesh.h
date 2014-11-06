@@ -8,8 +8,6 @@
 #include <vector>
 #include <memory>
 
-typedef std::shared_ptr<GLShader> GLShaderRef;
-
 namespace model {
 
   typedef std::shared_ptr<class SkinnedVboMesh> SkinnedVboMeshRef;
