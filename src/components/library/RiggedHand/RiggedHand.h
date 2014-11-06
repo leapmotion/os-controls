@@ -41,6 +41,8 @@ public:
 
   virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
 
+  void SetShader(const GLShaderRef& shader) { mHandsShader = shader; };
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
@@ -108,7 +110,6 @@ private:
   float mAmbient;
   float mDiffuse;
   float mInnerTransparency;
-  Eigen::Vector3f	mLightPos;
 
   // rigged hand rendering
   Gender mGender;
@@ -134,7 +135,7 @@ private:
   Eigen::Quaterniond mFingerReorientation;
 
   // hand shader
-  GLShaderRef mHandsShader;
+  mutable GLShaderRef mHandsShader;
 
   // convert units on loading
   static const float UNIT_CONVERSION_SCALE_FACTOR; 

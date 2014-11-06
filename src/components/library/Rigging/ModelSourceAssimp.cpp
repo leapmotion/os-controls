@@ -68,7 +68,7 @@ namespace ai {
   {
     std::vector<Eigen::Vector3f> normals;
     for (unsigned int i=0; i < aimesh->mNumVertices; ++i) {
-      normals.push_back(ai::get(-aimesh->mNormals[i]));
+      normals.push_back(ai::get(aimesh->mNormals[i]));
     }
     return normals;
   }

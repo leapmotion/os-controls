@@ -41,15 +41,14 @@ RiggedHand::RiggedHand() {
 
   mUseNormalMap = true;
   mUseSpecularMap = true;
-  mUseRim = true;
+  mUseRim = false;
   mOpacity = 1.0f;
   mRimStart = 0.25f;
-  mSpecular = 0.1f;
-  mShininess = 6.0f;
-  mAmbient = 0.3f;
-  mDiffuse = 0.65f;
+  mSpecular = 0.5f;
+  mShininess = 5.0f;
+  mAmbient = 0.00f;
+  mDiffuse = 0.5f;
   mInnerTransparency = 0.0f;
-  mLightPos = Eigen::Vector3f(0.0f, 1000.0f, 500.0f);
 
   mGender = FEMALE;
   mSkinTone = MEDIUM;
@@ -64,8 +63,6 @@ RiggedHand::RiggedHand() {
   mArmReorientation = computeArmReorientation(mPrevIsLeft);
   mWristReorientation = computeWristReorientation(mPrevIsLeft);
   mFingerReorientation = computeFingerReorientation(mPrevIsLeft);
-
-  mHandsShader = getHandsShader();
 }
 
 RiggedHand::~RiggedHand() {
@@ -158,6 +155,10 @@ void RiggedHand::MakeAdditionalModelViewTransformations(ModelView& model_view) c
 }
 
 void RiggedHand::DrawContents(RenderState& renderState) const {
+  if (!mHandsShader) {
+    mHandsShader = getHandsShader();
+  }
+
   std::vector<model::MeshVboSectionRef>& sections = mSkinnedVboHands->getSections();
   if (mEnableWireframe) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -173,12 +174,9 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
     }
 
     if (mDrawMesh) {
-      glActiveTexture(GL_TEXTURE0);
-      mSkinTex->Bind();
-      glActiveTexture(GL_TEXTURE1);
-      mNormalTex->Bind();
-      glActiveTexture(GL_TEXTURE2);
-      mSpecularTex->Bind();
+      mSkinTex->Bind(0);
+      mNormalTex->Bind(1);
+      mSpecularTex->Bind(2);
       Color rimColor = mUseRim ? Color(0.075f, 0.1f, 0.125f, 1.0f) : Color::Black();
       Color specularColor = Color(mSpecular, mSpecular, mSpecular, 1.0f);
       Color ambientColor = Color(mAmbient, mAmbient, mAmbient, 1.0f);
@@ -186,14 +184,17 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
 
       mHandsShader->Bind();
 
-      const Eigen::Matrix4f modelView =  renderState.GetModelView().Matrix().cast<float>().eval();
-      mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("modelView", modelView, MatrixStorageConvention::COLUMN_MAJOR);
-      const Eigen::Matrix4f projection = renderState.GetProjection().Matrix().cast<float>().eval();
-      mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("projection", projection, MatrixStorageConvention::COLUMN_MAJOR);
-      const Eigen::Matrix4f normalMatrix = renderState.GetModelView().Matrix().inverse().transpose().cast<float>().eval();
-      mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("normalMatrix", normalMatrix, MatrixStorageConvention::COLUMN_MAJOR);
+      //const Eigen::Matrix4f modelView =  renderState.GetModelView().Matrix().cast<float>().eval();
+      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("modelView", modelView, MatrixStorageConvention::COLUMN_MAJOR);
+      //const Eigen::Matrix4f projection = renderState.GetProjection().Matrix().cast<float>().eval();
+      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("projection", projection, MatrixStorageConvention::COLUMN_MAJOR);
+      //const Eigen::Matrix4f normalMatrix = renderState.GetModelView().Matrix().inverse().transpose().cast<float>().eval();
+      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("normalMatrix", normalMatrix, MatrixStorageConvention::COLUMN_MAJOR);
+
+      GLShaderMatrices::UploadUniforms(*mHandsShader, renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
 
       mHandsShader->SetUniformi("isAnimated", section->isAnimated());
+      mHandsShader->SetUniformi("use_texture", 1);
       mHandsShader->SetUniformi("texture", 0);
       mHandsShader->SetUniformi("useNormalMap", mUseNormalMap);
       mHandsShader->SetUniformi("normalMap", 1);
@@ -205,10 +206,10 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       mHandsShader->SetUniformf("camPos", Eigen::Vector3f::Zero().eval());
       mHandsShader->SetUniformf("opacity", std::min(1.0f, 2.0f*mOpacity));
 
-      mHandsShader->SetUniformf("lightPos", mLightPos);
-      mHandsShader->SetUniformf("diffuse", diffuseColor);
+      mHandsShader->SetUniformf("diffuse_light_color", diffuseColor);
       mHandsShader->SetUniformf("specular", specularColor);
-      mHandsShader->SetUniformf("ambient", ambientColor);
+      mHandsShader->SetUniformf("ambient_light_color", ambientColor);
+      mHandsShader->SetUniformf("ambient_lighting_proportion", 0.0f);
       mHandsShader->SetUniformf("emission", Color::Black());
       mHandsShader->SetUniformf("shininess", mShininess);
 
@@ -222,7 +223,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
 
       const int positionAddr = mHandsShader->LocationOfAttribute("position");
       const int normalAddr = mHandsShader->LocationOfAttribute("normal");
-      const int texcoordAddr = mHandsShader->LocationOfAttribute("texcoord");
+      const int texcoordAddr = mHandsShader->LocationOfAttribute("tex_coord");
       const int boneWeightsAddr = mHandsShader->LocationOfAttribute("boneWeights");
       const int boneIndicesAddr = mHandsShader->LocationOfAttribute("boneIndices");
 
@@ -246,13 +247,8 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       renderState.GetModelView().Pop();
     }
 
-    glActiveTexture(GL_TEXTURE2);
     mSpecularTex->Unbind();
-
-    glActiveTexture(GL_TEXTURE1);
     mNormalTex->Unbind();
-
-    glActiveTexture(GL_TEXTURE0);
     mSkinTex->Unbind();
   }
   if (mEnableWireframe) {
