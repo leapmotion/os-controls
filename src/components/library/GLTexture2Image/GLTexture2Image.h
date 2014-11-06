@@ -13,7 +13,7 @@ class GLTexture2Image
 public:
   GLTexture2Image();
   
-  void Bind() const;
+  void Bind(int textureUnit = 0) const;
   
   void Clear();
   
@@ -40,6 +40,7 @@ protected:
   bool                            m_Loaded;
   std::string                     m_Path;
   std::shared_ptr<GLTexture2>     m_Texture;
+  mutable int                     m_TextureUnit;
 };
 
 typedef std::shared_ptr<GLTexture2Image> GLTexture2ImageRef;

@@ -10,13 +10,15 @@
 #include <assert.h>
 
 GLTexture2Image::GLTexture2Image()
-  : m_Loaded(false)
+  : m_Loaded(false), m_TextureUnit(0)
 {
 }
 
-void GLTexture2Image::Bind() const
+void GLTexture2Image::Bind(int textureUnit) const
 {
   assert(m_Loaded && m_Texture);
+  m_TextureUnit = textureUnit;
+  glActiveTexture(GL_TEXTURE0 + m_TextureUnit);
   m_Texture->Bind();
 }
 
@@ -121,5 +123,6 @@ void GLTexture2Image::SetPath(const std::string& path)
 void GLTexture2Image::Unbind() const
 {
   assert(m_Loaded && m_Texture);
-  m_Texture->Bind();
+  glActiveTexture(GL_TEXTURE0 + m_TextureUnit);
+  m_Texture->Unbind();
 }
