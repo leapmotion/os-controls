@@ -210,7 +210,6 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       mHandsShader->SetUniformf("specular", specularColor);
       mHandsShader->SetUniformf("ambient_light_color", ambientColor);
       mHandsShader->SetUniformf("ambient_lighting_proportion", 0.0f);
-      mHandsShader->SetUniformf("emission", Color::Black());
       mHandsShader->SetUniformf("shininess", mShininess);
 
       if (section->hasSkeleton()) {

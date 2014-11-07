@@ -41,7 +41,8 @@ public:
 
   virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
 
-  void SetShader(const GLShaderRef& shader) { mHandsShader = shader; };
+  void SetHandsShader(const GLShaderRef& shader) { mHandsShader = shader; };
+  GLShaderRef HandsShader() { return mHandsShader; };
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
