@@ -14,7 +14,6 @@ set(Shortcuts_APPNAME "OS Controls")
 set(Shortcuts_APPDESC "Leap Motion Shortcuts")
 set(LEAP_COMPANY_NAME "Leap Motion")
 
-set(APP_VERSION "${Shortcuts_VERSION}")
 set(APP_COPYRIGHT "Copyright © 2014 Leap Motion, Inc. All rights reserved.")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
