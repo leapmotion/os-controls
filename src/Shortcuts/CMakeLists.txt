@@ -98,7 +98,7 @@ configure_file(Version.h.in Version.h)
 
 add_executable(Shortcuts ${Shortcuts_EXEFLAGS} ${Shortcuts_SOURCES})
 
-set_property(TARGET Shortcuts PROPERTY FOLDER "Shortcuts Projects")
+set_property(TARGET Shortcuts PROPERTY FOLDER "Shortcuts")
 
 target_link_libraries(Shortcuts Autowiring utility interaction graphics osinterface expose)
 
