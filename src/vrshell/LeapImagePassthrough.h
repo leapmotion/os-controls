@@ -30,8 +30,10 @@ private:
 
   Autowired<RenderEngine> m_renderEngine;
   std::shared_ptr<GLTexture2> m_texture[2];
+  std::shared_ptr<GLTexture2> m_colorTexture[2];
   std::shared_ptr<GLTexture2> m_distortion[2];
   std::shared_ptr<GLShader> m_passthroughShader;
   RectanglePrim m_rect[2];
+  bool m_isDragonfly;
 };
 

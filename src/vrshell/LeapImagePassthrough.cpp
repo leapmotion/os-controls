@@ -13,7 +13,8 @@ enum PolicyFlagInternal {
 };
 
 LeapImagePassthrough::LeapImagePassthrough() :
-m_passthroughShader(Resource<GLShader>("passthrough"))
+m_passthroughShader(Resource<GLShader>("passthrough")),
+m_isDragonfly(false)
 {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
   m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(POLICY_INCLUDE_ALL_FRAMES));
@@ -47,6 +48,7 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     // Generate a texture procedurally.
     GLsizei width = images[0].width();
     GLsizei height = images[0].height();
+
     GLTexture2Params imageParams(width, height, GL_LUMINANCE);
     imageParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     imageParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -54,6 +56,14 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
 
     m_texture[0] = std::make_shared<GLTexture2>(imageParams);
     m_texture[1] = std::make_shared<GLTexture2>(imageParams);
+
+    GLTexture2Params colorParams(width/4, height, GL_RGBA);
+    colorParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
+    colorParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    colorParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    m_colorTexture[0] = std::make_shared<GLTexture2>(colorParams);
+    m_colorTexture[1] = std::make_shared<GLTexture2>(colorParams);
 
     GLTexture2Params distortionParams(64, 64, GL_RG32F);
     //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
@@ -67,9 +77,17 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
   }
  
   for (int i = 0; i < 2; i++) {
-    m_texture[i]->Bind();
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[i].width(), images[i].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[i].data());
-    m_texture[i]->Unbind();
+    if (images[i].width() == 640) {
+      m_texture[i]->Bind();
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[i].width() , images[i].height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, images[i].data());
+      m_texture[i]->Unbind();
+    }
+    else {
+      m_isDragonfly = true;
+      m_colorTexture[i]->Bind();
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, images[i].width() / 4, images[i].height(), GL_RGBA, GL_UNSIGNED_BYTE, images[i].data());
+      m_colorTexture[i]->Unbind();
+    }
     
     m_distortion[i]->Bind();
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 64, 64, GL_RG, GL_FLOAT, images[i].distortion());
@@ -86,7 +104,12 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
 }
 
 void LeapImagePassthrough::Render(const RenderFrame& frame) const {
-  auto& texture = m_texture[frame.eyeIndex];
+  std::shared_ptr<GLTexture2> texture = nullptr;
+  if (!m_isDragonfly)
+    texture = m_texture[frame.eyeIndex];
+  else
+    texture = m_colorTexture[frame.eyeIndex];
+
   auto& distortion = m_distortion[frame.eyeIndex];
   if (!texture || !distortion) { 
     return;
@@ -102,12 +125,17 @@ void LeapImagePassthrough::Render(const RenderFrame& frame) const {
 
   const float aspectRatio = 960.f/1140; //w/h
   const float rayscale = .27f;
+
   glUniform2f(m_passthroughShader->LocationOfUniform("ray_scale"), rayscale, -rayscale/aspectRatio);
   glUniform2f(m_passthroughShader->LocationOfUniform("ray_offset"), 0.5f, 0.5f);
   glUniform1i(m_passthroughShader->LocationOfUniform("texture"), 0);
   glUniform1i(m_passthroughShader->LocationOfUniform("distortion"), 1);
-  glUniform1f(m_passthroughShader->LocationOfUniform("gamma"), 0.8f);
-  glUniform1f(m_passthroughShader->LocationOfUniform("brightness"), 1.0f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("gamma"), 0.65f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("brightness"), m_isDragonfly ? 1.5f : 1.0f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("ir_mode"), 0.0f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("cripple_mode"), 0.0f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("stencil_mode"), 0.0f);
+  glUniform1f(m_passthroughShader->LocationOfUniform("use_color"), m_isDragonfly ? 1.0f : 0.0f);
 
   PrimitiveBase::DrawSceneGraph(m_rect[frame.eyeIndex], frame.renderState);
 
