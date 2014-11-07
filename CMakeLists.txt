@@ -6,12 +6,6 @@ set(CPACK_GENERATOR "ZIP")
 
 include(CPack)
 
-set(Shortcuts_VERSION_MAJOR "1")
-set(Shortcuts_VERSION_MINOR "0")
-set(Shortcuts_VERSION_PATCH "1")
-set(Shortcuts_VERSION "${Shortcuts_VERSION_MAJOR}.${Shortcuts_VERSION_MINOR}.${Shortcuts_VERSION_PATCH}")
-set(Shortcuts_APPNAME "OS Controls")
-set(Shortcuts_APPDESC "Leap Motion Shortcuts")
 set(LEAP_COMPANY_NAME "Leap Motion")
 
 set(APP_COPYRIGHT "Copyright © 2014 Leap Motion, Inc. All rights reserved.")

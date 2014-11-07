@@ -1,3 +1,10 @@
+set(Shortcuts_VERSION_MAJOR "1")
+set(Shortcuts_VERSION_MINOR "0")
+set(Shortcuts_VERSION_PATCH "1")
+set(Shortcuts_VERSION "${Shortcuts_VERSION_MAJOR}.${Shortcuts_VERSION_MINOR}.${Shortcuts_VERSION_PATCH}")
+set(Shortcuts_APPNAME "OS Controls")
+set(Shortcuts_APPDESC "Leap Motion Shortcuts")
+
 set(Shortcuts_SOURCES
   ErrorDialogs.h
   ErrorDialogs.cpp
