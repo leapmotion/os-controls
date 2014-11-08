@@ -95,7 +95,7 @@ void VRIntroApp::Initialize() {
   }
   
 #if _WIN32
-  m_Oculus.SetHWND(m_SDLController.GetHWND());
+  // m_Oculus.SetHWND(m_SDLController.GetHWND());
 #endif
   if (!m_Oculus.Init()) {
     throw std::runtime_error("Oculus initialization failed");
