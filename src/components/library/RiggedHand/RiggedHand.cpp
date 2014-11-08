@@ -421,7 +421,7 @@ model::NodeRef RiggedHand::getJointNode(int fingerIdx, int boneIdx) const {
 GLShaderRef RiggedHand::getHandsShader() {
   static GLShaderRef handsShader;
   if (handsShader == nullptr) {
-    handsShader = Resource<GLShader>("hands");
+    handsShader = Resource<GLShader>("lighting");
   }
   return handsShader;
 }

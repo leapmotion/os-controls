@@ -1,14 +1,17 @@
+#version 120
+
 const int MAXBONES = 92;
 
+uniform mat4 projection_times_model_view_matrix;
+uniform mat4 model_view_matrix;
+uniform mat4 normal_matrix;
+
+// attribute arrays
 attribute vec3 position;
 attribute vec3 normal;
-attribute vec2 texcoord;
+attribute vec2 tex_coord;
 attribute vec4 boneWeights;
 attribute vec4 boneIndices;
-
-uniform mat4 modelView;
-uniform mat4 projection;
-uniform mat4 normalMatrix;
 
 uniform bool isAnimated;
 uniform mat4 boneMatrices[MAXBONES];
@@ -17,7 +20,6 @@ uniform mat4 invTransposeMatrices[MAXBONES];
 varying vec3 outPosition;
 varying vec3 outNormal;
 varying vec2 outTexCoord;
-varying mat3 modelToCamera;
 
 void main()
 {	
@@ -36,10 +38,10 @@ void main()
 		pos.w = 1.0;
 		norm.w = 0.0;
 	}
-	outPosition = (modelView * pos).xyz;
-	outNormal = (normalMatrix * norm).xyz;
-  outTexCoord = texcoord;
+	outPosition = (model_view_matrix * pos).xyz;
+	outNormal = (normal_matrix * norm).xyz;
+  outTexCoord = tex_coord;
   outTexCoord.y = 1.0 - outTexCoord.y;
 
-	gl_Position = projection * modelView * pos;
+	gl_Position = projection_times_model_view_matrix * pos;
 }

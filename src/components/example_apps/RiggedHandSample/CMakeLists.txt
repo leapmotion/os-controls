@@ -91,8 +91,8 @@ define_post_build_resource_copy_rules(
     RELATIVE_PATH_BASE
         ${EXECUTABLE_OUTPUT_PATH}
     RELATIVE_PATH_RESOURCES
-        hands-frag.glsl
-        hands-vert.glsl
+        lighting-frag.glsl
+        lighting-vert.glsl
         Male_Rigged_Arm.FBX
         Male_Arm_DarkSkin_color.png
         Male_Arm_DarkSkin_normal.png

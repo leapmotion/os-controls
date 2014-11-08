@@ -47,14 +47,14 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   glEnable(GL_DEPTH_TEST);
 
   // set renderer projection matrix
-  const double fovRadians = (M_PI / 180.0) * 80;
+  const double fovRadians = (M_PI / 180.0) * 70;
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 10.0;
   const double farClip = 10000.0;
   m_Renderer.GetProjection().Perspective(fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
-  const EigenTypes::Vector3 eyePos = EigenTypes::Vector3(0.0f, 350.0f, 300.0f);
+  const EigenTypes::Vector3 eyePos = EigenTypes::Vector3(0.0f, 300.0f, 250.0f);
   const EigenTypes::Vector3 lookAtPoint = EigenTypes::Vector3(0.0f, 150.0f, 0.0f);
   const EigenTypes::Vector3 upVector = EigenTypes::Vector3::UnitY();
   
@@ -93,4 +93,28 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
     PrimitiveBase::DrawSceneGraph(*mRiggedHands[i], m_Renderer);
   }
   glDisable(GL_TEXTURE_2D);
+
+  for (size_t i=0; i<mRiggedHands.size(); i++) {
+    GLShaderRef shader = mRiggedHands[i]->HandsShader();
+    shader->Bind();
+
+    const float lightPos[] ={ -200, 200, -200, 200, 200, -200, 0, 100, 100 };
+    const float lightStrengths[] ={ 1.0f, 1.0f, 1.0f };
+
+    const int lightPos0 = shader->LocationOfUniform("lightPos[0]");
+    glUniform3fv(lightPos0, 3, lightPos);
+
+    const int lightStrengths0 = shader->LocationOfUniform("lightStrengths[0]");
+    glUniform1fv(lightStrengths0, 3, lightStrengths);
+
+    shader->SetUniformi("numLights", 3);
+    shader->SetUniformi("attenuate", 1);
+    shader->SetUniformi("depthImage", 0);
+    shader->SetUniformi("normalImage", 0);
+    shader->SetUniformi("flatImage", 0);
+    shader->SetUniformf("emission", Color::Black());
+    shader->SetUniformf("minDepthDist", static_cast<float>(300));
+    shader->SetUniformf("maxDepthDist", static_cast<float>(1000));
+    shader->Unbind();
+  }
 }
