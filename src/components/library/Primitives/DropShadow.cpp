@@ -68,7 +68,7 @@ void DropShadow::SetShadowRadius(double shadow_radius) {
     SetRectangleEdgeOffset(Rectangle::INNER, RectangleEdge::LEFT,   offset);
     SetRectangleEdgeOffset(Rectangle::INNER, RectangleEdge::BOTTOM, offset);
     
-    ForceRecomputeGeometry();
+    ForceRecomputeMesh();
   }
 }
 

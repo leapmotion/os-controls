@@ -3,8 +3,19 @@
 #include <cassert>
 #include "Leap/GL/GLTexture2.h"
 
+GenericShape::GenericShape(GLenum drawMode) {
+  m_mesh.SetDrawMode(drawMode);
+}
+
 void GenericShape::DrawContents(RenderState& renderState) const {
-  m_geometry.Draw(Shader(), m_drawMode);
+  const GLShader &shader = Shader();
+  auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                   shader.LocationOfAttribute("normal"),
+                                   shader.LocationOfAttribute("tex_coord"),
+                                   shader.LocationOfAttribute("color"));
+  m_mesh.Bind(locations);
+  m_mesh.Draw();
+  m_mesh.Unbind(locations);
 }
 
 Sphere::Sphere() : m_Radius(1) { }
@@ -14,13 +25,21 @@ void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) cons
 }
 
 void Sphere::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom;
-  static bool loaded = false;
-  if (!loaded) {
-    PrimitiveGeometry::CreateUnitSphere(30, geom);
-    loaded = true;
+  static PrimitiveGeometryMesh mesh;
+  if (!mesh.IsInitialized()) {
+    mesh.SetDrawMode(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitSphere(30, mesh);
+    mesh.Initialize();
+    assert(mesh.IsInitialized());
   }
-  geom.Draw(Shader(), GL_TRIANGLES);
+  const GLShader &shader = Shader();
+  auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                   shader.LocationOfAttribute("normal"),
+                                   shader.LocationOfAttribute("tex_coord"),
+                                   shader.LocationOfAttribute("color"));
+  mesh.Bind(locations);
+  mesh.Draw();
+  mesh.Unbind(locations);
 }
 
 Cylinder::Cylinder() : m_Radius(1), m_Height(1) { }
@@ -30,13 +49,21 @@ void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) co
 }
 
 void Cylinder::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom;
-  static bool loaded = false;
-  if (!loaded) {
-    PrimitiveGeometry::CreateUnitCylinder(50, 1, geom);
-    loaded = true;
+  static PrimitiveGeometryMesh mesh;
+  if (!mesh.IsInitialized()) {
+    mesh.SetDrawMode(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitCylinder(50, 1, mesh);
+    mesh.Initialize();
+    assert(mesh.IsInitialized());
   }
-  geom.Draw(Shader(), GL_TRIANGLES);
+  const GLShader &shader = Shader();
+  auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                   shader.LocationOfAttribute("normal"),
+                                   shader.LocationOfAttribute("tex_coord"),
+                                   shader.LocationOfAttribute("color"));
+  mesh.Bind(locations);
+  mesh.Draw();
+  mesh.Unbind(locations);
 }
 
 Box::Box() : m_Size(EigenTypes::Vector3::Constant(1.0)) { }
@@ -46,13 +73,21 @@ void Box::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
 }
 
 void Box::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom;
-  static bool loaded = false;
-  if (!loaded) {
-    PrimitiveGeometry::CreateUnitBox(geom);
-    loaded = true;
+  static PrimitiveGeometryMesh mesh;
+  if (!mesh.IsInitialized()) {
+    mesh.SetDrawMode(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitBox(mesh);
+    mesh.Initialize();
+    assert(mesh.IsInitialized());
   }
-  geom.Draw(Shader(), GL_TRIANGLES);
+  const GLShader &shader = Shader();
+  auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                   shader.LocationOfAttribute("normal"),
+                                   shader.LocationOfAttribute("tex_coord"),
+                                   shader.LocationOfAttribute("color"));
+  mesh.Bind(locations);
+  mesh.Draw();
+  mesh.Unbind(locations);
 }
 
 Disk::Disk() : m_Radius(1) { }
@@ -62,13 +97,21 @@ void Disk::MakeAdditionalModelViewTransformations (ModelView &model_view) const 
 }
 
 void Disk::DrawContents(RenderState& renderState) const {
-  static PrimitiveGeometry geom;
-  static bool loaded = false;
-  if (!loaded) {
-    PrimitiveGeometry::CreateUnitDisk(75, geom);
-    loaded = true;
+  static PrimitiveGeometryMesh mesh;
+  if (!mesh.IsInitialized()) {
+    mesh.SetDrawMode(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitDisk(75, mesh);
+    mesh.Initialize();
+    assert(mesh.IsInitialized());
   }
-  geom.Draw(Shader(), GL_TRIANGLES);
+  const GLShader &shader = Shader();
+  auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                   shader.LocationOfAttribute("normal"),
+                                   shader.LocationOfAttribute("tex_coord"),
+                                   shader.LocationOfAttribute("color"));
+  mesh.Bind(locations);
+  mesh.Draw();
+  mesh.Unbind(locations);
 }
 
 RectanglePrim::RectanglePrim() : m_Size(1, 1) { }
@@ -78,18 +121,29 @@ void RectanglePrim::MakeAdditionalModelViewTransformations (ModelView &model_vie
 }
 
 void RectanglePrim::DrawContents(RenderState& renderState) const {
+  static PrimitiveGeometryMesh mesh;
+  if (!mesh.IsInitialized()) {
+    mesh.SetDrawMode(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitSquare(mesh);
+    mesh.Initialize();
+    assert(mesh.IsInitialized());
+  }
+
   bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
   if (useTexture) {
     glEnable(GL_TEXTURE_2D);
     m_texture->Bind();
   }
-  static PrimitiveGeometry geom;
-  static bool loaded = false;
-  if (!loaded) {
-    PrimitiveGeometry::CreateUnitSquare(geom);
-    loaded = true;
+  {
+    const GLShader &shader = Shader();
+    auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                     shader.LocationOfAttribute("normal"),
+                                     shader.LocationOfAttribute("tex_coord"),
+                                     shader.LocationOfAttribute("color"));
+    mesh.Bind(locations);
+    mesh.Draw();
+    mesh.Unbind(locations);
   }
-  geom.Draw(Shader(), GL_TRIANGLES);
   if (useTexture) {
     glDisable(GL_TEXTURE_2D);
     m_texture->Unbind();
@@ -112,7 +166,7 @@ void ImagePrimitive::SetScaleBasedOnTextureSize () {
     SetSize(EigenTypes::Vector2(Texture()->Params().Width(), Texture()->Params().Height()));
 }
 
-PartialDisk::PartialDisk() : m_RecomputeGeometry(true), m_InnerRadius(0.5), m_OuterRadius(1), m_StartAngle(0), m_EndAngle(2*M_PI) { }
+PartialDisk::PartialDisk() : m_RecomputeMesh(true), m_InnerRadius(0.5), m_OuterRadius(1), m_StartAngle(0), m_EndAngle(2*M_PI) { }
 
 void PartialDisk::DrawContents(RenderState& renderState) const {
   if (m_InnerRadius >= m_OuterRadius || m_StartAngle >= m_EndAngle) {
@@ -120,14 +174,21 @@ void PartialDisk::DrawContents(RenderState& renderState) const {
     return;
   }
 
-  if (m_RecomputeGeometry) {
-    RecomputeGeometry();
+  if (m_RecomputeMesh) {
+    RecomputeMesh();
   }
 
-  m_Geometry.Draw(Shader(), GL_TRIANGLES);
+  const GLShader &shader = Shader();
+  auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                   shader.LocationOfAttribute("normal"),
+                                   shader.LocationOfAttribute("tex_coord"),
+                                   shader.LocationOfAttribute("color"));
+  m_mesh.Bind(locations);
+  m_mesh.Draw();
+  m_mesh.Unbind(locations);
 }
 
-void PartialDisk::RecomputeGeometry() const {
+void PartialDisk::RecomputeMesh() const {
   double sweepAngle = m_EndAngle - m_StartAngle;
   if (sweepAngle > 2*M_PI) {
     sweepAngle = 2*M_PI;
@@ -137,7 +198,15 @@ void PartialDisk::RecomputeGeometry() const {
   const int numSegments = static_cast<int>(sweepAngle / DESIRED_ANGLE_PER_SEGMENT) + 1;
   const double anglePerSegment = sweepAngle / numSegments;
 
-  m_Geometry.CleanUpBuffers();
+  m_mesh.Release();
+  m_mesh.SetDrawMode(GL_TRIANGLES);
+
+  auto PartialDiskVertex = [](const EigenTypes::Vector3f &p) {
+    const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
+    const EigenTypes::Vector2f tex_coords(EigenTypes::Vector2f::Zero());
+    const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
+    return PrimitiveGeometryMesh::VertexAttributes(p, normal, tex_coords, color);
+  };
 
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
@@ -153,16 +222,16 @@ void PartialDisk::RecomputeGeometry() const {
     const EigenTypes::Vector3f curInner(static_cast<float>(m_InnerRadius*cosCur), static_cast<float>(m_InnerRadius*sinCur), 0.0f);
     const EigenTypes::Vector3f curOuter(static_cast<float>(m_OuterRadius*cosCur), static_cast<float>(m_OuterRadius*sinCur), 0.0f);
 
-    m_Geometry.PushTri(prevInner, prevOuter, curOuter);
-    m_Geometry.PushTri(curOuter, curInner, prevInner);
+    m_mesh.PushTriangle(PartialDiskVertex(prevInner), PartialDiskVertex(prevOuter), PartialDiskVertex(curOuter));
+    m_mesh.PushTriangle(PartialDiskVertex(curOuter), PartialDiskVertex(curInner), PartialDiskVertex(prevInner));
 
     prevInner = curInner;
     prevOuter = curOuter;
   }
 
-  m_Geometry.UploadDataToBuffers();
-
-  m_RecomputeGeometry = false;
+  m_mesh.Initialize();
+  assert(m_mesh.IsInitialized());
+  m_RecomputeMesh = false;
 }
 
 PartialDiskWithTriangle::PartialDiskWithTriangle()
@@ -173,7 +242,7 @@ PartialDiskWithTriangle::PartialDiskWithTriangle()
   m_TriangleOffset(0.35)
 { }
 
-void PartialDiskWithTriangle::RecomputeGeometry() const {
+void PartialDiskWithTriangle::RecomputeMesh() const {
   double sweepAngle = m_EndAngle - m_StartAngle;
   if (sweepAngle > 2*M_PI) {
     sweepAngle = 2*M_PI;
@@ -183,7 +252,15 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
   int numSegments = static_cast<int>(sweepAngle / DESIRED_ANGLE_PER_SEGMENT) + 1;
   const double anglePerSegment = sweepAngle / numSegments;
 
-  m_Geometry.CleanUpBuffers();
+  m_mesh.Release();
+  m_mesh.SetDrawMode(GL_TRIANGLES);
+
+  auto PartialDiskVertex = [](const EigenTypes::Vector3f &p) {
+    const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
+    const EigenTypes::Vector2f tex_coords(EigenTypes::Vector2f::Zero());
+    const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
+    return PrimitiveGeometryMesh::VertexAttributes(p, normal, tex_coords, color);
+  };
 
   double curAngle = m_StartAngle;
   const double cosStart = std::cos(m_StartAngle);
@@ -237,14 +314,14 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
     const EigenTypes::Vector3f curInner(static_cast<float>(innerRadius*cosCur), static_cast<float>(innerRadius*sinCur), 0.0f);
     const EigenTypes::Vector3f curOuter(static_cast<float>(outerRadius*cosCur), static_cast<float>(outerRadius*sinCur), 0.0f);
 
-    m_Geometry.PushTri(prevInner, prevOuter, curOuter);
-    m_Geometry.PushTri(curOuter, curInner, prevInner);
+    m_mesh.PushTriangle(PartialDiskVertex(prevInner), PartialDiskVertex(prevOuter), PartialDiskVertex(curOuter));
+    m_mesh.PushTriangle(PartialDiskVertex(curOuter), PartialDiskVertex(curInner), PartialDiskVertex(prevInner));
 
     prevInner = curInner;
     prevOuter = curOuter;
   }
 
-  m_Geometry.UploadDataToBuffers();
-
-  m_RecomputeGeometry = false;
+  m_mesh.Initialize();
+  assert(m_mesh.IsInitialized());
+  m_RecomputeMesh = false;
 }

@@ -4,84 +4,21 @@
 
 #include "Leap/GL/GLShader.h"
 
-PrimitiveGeometry::PrimitiveGeometry()
-  :
-  m_VertexBuffer(GL_STATIC_DRAW),
-  m_NumIndices(0)
-{ }
-
-void PrimitiveGeometry::CleanUpBuffers() {
-  m_Vertices.clear();
-  m_VertexBuffer.ClearEverything();
-  m_NumIndices = 0;
-  if (m_IndexBuffer.IsCreated()) {
-    m_IndexBuffer.Destroy();
+void PrimitiveGeometry::PushUnitSphere(size_t resolution, PrimitiveGeometryMesh &mesh) {
+  if (mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsInitialized Mesh.");
   }
-}
-
-void PrimitiveGeometry::UploadDataToBuffers(ClearOption clear_option) {
-  // Eliminate duplicate vertices using a temporary map.
-  VertexIndexMap vertex_attributes_index_map;
-  std::vector<GLuint> indices;
-  // std::vector<VertexAttributes> unique_vertex_attributes;
-  std::vector<VertexAttributes> &unique_vertex_attributes = m_VertexBuffer.IntermediateAttributes();
-  // This loop will reduce m_Vertices down into unique_vertex_attributes.
-  for (auto it = m_Vertices.begin(); it != m_Vertices.end(); ++it) {
-    const VertexAttributes &vertex_attributes = *it;
-    auto mapped_vertex_attribute = vertex_attributes_index_map.find(vertex_attributes);
-    // If the current vertex is not in the vbo map already, add it.
-    if (mapped_vertex_attribute == vertex_attributes_index_map.end()) {
-      GLuint new_index = static_cast<GLuint>(vertex_attributes_index_map.size());
-      indices.push_back(new_index);
-      unique_vertex_attributes.push_back(vertex_attributes);
-      vertex_attributes_index_map[vertex_attributes] = new_index;
-    } else { // Otherwise, add the existing vertex's index.
-      indices.push_back(mapped_vertex_attribute->second);
-    }
+  if (mesh.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitSphere function requires mesh.DrawMode() to be GL_TRIANGLES.");
   }
 
-  if (clear_option == ClearOption::CLEAR_INTERMEDIATE_DATA) {
-    m_Vertices.clear();
-  }
-
-  m_VertexBuffer.UploadIntermediateAttributes();
-
-  m_NumIndices = static_cast<int>(indices.size());
-
-  m_IndexBuffer.Create(GL_ELEMENT_ARRAY_BUFFER);
-  m_IndexBuffer.Bind();
-  m_IndexBuffer.Allocate(static_cast<void*>(indices.data()), static_cast<int>(indices.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
-  m_IndexBuffer.Unbind();
-  
-  if (clear_option == ClearOption::CLEAR_INTERMEDIATE_DATA) {
-    m_VertexBuffer.ClearIntermediateAttributes();
-  }
-}
-
-void PrimitiveGeometry::Draw(const GLShader &bound_shader, GLenum drawMode) const {
-  auto locations = std::make_tuple(bound_shader.LocationOfAttribute("position"),
-                                   bound_shader.LocationOfAttribute("normal"),
-                                   bound_shader.LocationOfAttribute("tex_coord"),
-                                   bound_shader.LocationOfAttribute("color"));
-  // This calls glEnableVertexAttribArray and glVertexAttribPointer on the relevant things.
-  m_VertexBuffer.Enable(locations);
-
-  m_IndexBuffer.Bind();
-  GL_THROW_UPON_ERROR(glDrawElements(drawMode, m_NumIndices, GL_UNSIGNED_INT, 0));
-  m_IndexBuffer.Unbind();
-
-  // This calls glDisableVertexAttribArray on the relevant things.
-  m_VertexBuffer.Disable(locations);
-}
-
-void PrimitiveGeometry::CreateUnitSphere(int resolution, PrimitiveGeometry& geom) {
   const float resFloatW = static_cast<float>(2*resolution);
   const float resFloatH = static_cast<float>(resolution);
   const float pi = static_cast<float>(M_PI);
   const float twoPi = static_cast<float>(2.0 * M_PI);
 
-  for (int w=0; w<2*resolution; w++) {
-    for (int h=-resolution/2; h<resolution/2; h++) {
+  for (size_t w=0; w<2*resolution; w++) {
+    for (size_t h=-resolution/2; h<resolution/2; h++) {
       const float inc1 = (w/resFloatW) * twoPi;
       const float inc2 = ((w+1)/resFloatW) * twoPi;
       const float inc3 = (h/resFloatH) * pi;
@@ -109,22 +46,32 @@ void PrimitiveGeometry::CreateUnitSphere(int resolution, PrimitiveGeometry& geom
       const EigenTypes::Vector3f v5(r2*x2, z2, r2*y2);
       const EigenTypes::Vector3f v6(r2*x1, z2, r2*y1);
 
-      auto SphereVertex = [](const EigenTypes::Vector3f &v){ return MakeVertexAttributes(v, v.normalized()); };
-      geom.PushTri(SphereVertex(v1), SphereVertex(v2), SphereVertex(v3));
-      geom.PushTri(SphereVertex(v4), SphereVertex(v5), SphereVertex(v6));
+      auto SphereVertex = [](const EigenTypes::Vector3f &v) {
+        return PrimitiveGeometryMesh::VertexAttributes(v,                                 // position
+                                                       v.normalized(),                    // normal
+                                                       EigenTypes::Vector2f(0, 0),        // texture coordinate
+                                                       EigenTypes::Vector4f(1, 1, 1, 1)); // color (opaque white)
+      };
+      mesh.PushTriangle(SphereVertex(v1), SphereVertex(v2), SphereVertex(v3));
+      mesh.PushTriangle(SphereVertex(v4), SphereVertex(v5), SphereVertex(v6));
     }
   }
-
-  geom.UploadDataToBuffers();
 }
 
-void PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometry& geom) {
+void PrimitiveGeometry::PushUnitCylinder(size_t radialResolution, size_t verticalResolution, PrimitiveGeometryMesh &mesh) {
+  if (mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitCylinder on an IsInitialized Mesh.");
+  }
+  if (mesh.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitCylinder function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  }
+
   const float radialRes = 1.0f / static_cast<float>(radialResolution);
   const float verticalRes = 1.0f / static_cast<float>(verticalResolution);
   
   const float twoPi = static_cast<float>(2.0 * M_PI);
 
-  for (int w=0; w<radialResolution; w++) {
+  for (size_t w=0; w<radialResolution; w++) {
     const float inc1 = w * radialRes * twoPi;
     const float inc2 = (w+1) * radialRes * twoPi;
 
@@ -133,7 +80,7 @@ void PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalRes
     const float s1 = std::sin(inc1);
     const float s2 = std::sin(inc2);
 
-    for (int h=0; h<verticalResolution; h++) {
+    for (size_t h=0; h<verticalResolution; h++) {
       const float h1 = h * verticalRes - 0.5f;
       const float h2 = (h+1) * verticalRes - 0.5f;
 
@@ -145,15 +92,26 @@ void PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalRes
       const EigenTypes::Vector3f n1(c1, 0, s1);
       const EigenTypes::Vector3f n2(c2, 0, s2);
 
-      geom.PushTri(MakeVertexAttributes(v1, n1), MakeVertexAttributes(v2, n1), MakeVertexAttributes(v3, n2));
-      geom.PushTri(MakeVertexAttributes(v4, n2), MakeVertexAttributes(v3, n2), MakeVertexAttributes(v2, n1));
+      auto CylinderVertex = [](const EigenTypes::Vector3f &v, const EigenTypes::Vector3f &n) {
+        return PrimitiveGeometryMesh::VertexAttributes(v,                                 // position
+                                                       n,                                 // normal
+                                                       EigenTypes::Vector2f(0, 0),        // texture coordinate
+                                                       EigenTypes::Vector4f(1, 1, 1, 1)); // color (opaque white)
+      };
+      mesh.PushTriangle(CylinderVertex(v1, n1), CylinderVertex(v2, n1), CylinderVertex(v3, n2));
+      mesh.PushTriangle(CylinderVertex(v4, n2), CylinderVertex(v3, n2), CylinderVertex(v2, n1));
     }
   }
-
-  geom.UploadDataToBuffers();
 }
 
-void PrimitiveGeometry::CreateUnitSquare(PrimitiveGeometry& geom) {
+void PrimitiveGeometry::PushUnitSquare(PrimitiveGeometryMesh &mesh) {
+  if (mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSquare on an IsInitialized Mesh.");
+  }
+  if (mesh.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitSquare function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  }
+
   static const GLfloat X = 0.5f;
   static const EigenTypes::Vector3f POSITIONS[4] = {
     EigenTypes::Vector3f(-X, -X, 0),
@@ -170,18 +128,31 @@ void PrimitiveGeometry::CreateUnitSquare(PrimitiveGeometry& geom) {
   
   // all vertices have the same normal
   const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
+  const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
 
-  geom.PushTri(MakeVertexAttributes(POSITIONS[0], normal, TEX_COORDS[0]),
-               MakeVertexAttributes(POSITIONS[1], normal, TEX_COORDS[1]),
-               MakeVertexAttributes(POSITIONS[2], normal, TEX_COORDS[2]));
-  geom.PushTri(MakeVertexAttributes(POSITIONS[0], normal, TEX_COORDS[0]),
-               MakeVertexAttributes(POSITIONS[2], normal, TEX_COORDS[2]),
-               MakeVertexAttributes(POSITIONS[3], normal, TEX_COORDS[3]));
-
-  geom.UploadDataToBuffers();
+  mesh.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(POSITIONS[0], normal, TEX_COORDS[0], color),
+                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[1], normal, TEX_COORDS[1], color),
+                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[2], normal, TEX_COORDS[2], color));
+  mesh.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(POSITIONS[0], normal, TEX_COORDS[0], color),
+                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[2], normal, TEX_COORDS[2], color),
+                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[3], normal, TEX_COORDS[3], color));
 }
 
-void PrimitiveGeometry::CreateUnitDisk(int resolution, PrimitiveGeometry& geom) {
+void PrimitiveGeometry::PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &mesh) {
+  if (mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitDisk on an IsInitialized Mesh.");
+  }
+  if (mesh.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitDisk function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  }
+
+  auto UnitDiskVertex = [](const EigenTypes::Vector3f &p) {
+    const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
+    const EigenTypes::Vector2f tex_coords(EigenTypes::Vector2f::Zero());
+    const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
+    return PrimitiveGeometryMesh::VertexAttributes(p, normal, tex_coords, color);
+  };
+
   const EigenTypes::Vector3f center(EigenTypes::Vector3f::Zero());
 
   const float resFloat = static_cast<float>(resolution);
@@ -199,13 +170,32 @@ void PrimitiveGeometry::CreateUnitDisk(int resolution, PrimitiveGeometry& geom) 
     const EigenTypes::Vector3f p1(c1, s1, 0.0f);
     const EigenTypes::Vector3f p2(c2, s2, 0.0f);
 
-    geom.PushTri(center, p1, p2);
+    mesh.PushTriangle(UnitDiskVertex(center), UnitDiskVertex(p1), UnitDiskVertex(p2));
   }
-
-  geom.UploadDataToBuffers();
 }
 
-void PrimitiveGeometry::CreateUnitBox(PrimitiveGeometry& geom) {
+void PrimitiveGeometry::PushUnitBox(PrimitiveGeometryMesh &mesh) {
+  if (mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitBox on an IsInitialized Mesh.");
+  }
+  if (mesh.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitBox function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  }
+
+  auto PushUnitBoxQuad = [&mesh](const EigenTypes::Vector3f &p0,
+                                 const EigenTypes::Vector3f &p1,
+                                 const EigenTypes::Vector3f &p2,
+                                 const EigenTypes::Vector3f &p3)
+  {
+    const EigenTypes::Vector3f normal((p2-p1).cross(p0-p1).normalized());
+    const EigenTypes::Vector2f tex_coords(EigenTypes::Vector2f::Zero());
+    const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
+    mesh.PushQuad(PrimitiveGeometryMesh::VertexAttributes(p0, normal, tex_coords, color),
+                  PrimitiveGeometryMesh::VertexAttributes(p1, normal, tex_coords, color),
+                  PrimitiveGeometryMesh::VertexAttributes(p2, normal, tex_coords, color),
+                  PrimitiveGeometryMesh::VertexAttributes(p3, normal, tex_coords, color));
+  };
+
   // In order for this to be a unit box, its side lengths must be unit.
   const float x = 0.5f;
   const EigenTypes::Vector3f p000(-x, -x, -x);
@@ -217,53 +207,10 @@ void PrimitiveGeometry::CreateUnitBox(PrimitiveGeometry& geom) {
   const EigenTypes::Vector3f p110( x,  x, -x);
   const EigenTypes::Vector3f p111( x,  x,  x);
 
-  geom.PushQuad(p010, p000, p001, p011);
-  geom.PushQuad(p100, p110, p111, p101);
-  geom.PushQuad(p000, p100, p101, p001);
-  geom.PushQuad(p110, p010, p011, p111);
-  geom.PushQuad(p010, p110, p100, p000);
-  geom.PushQuad(p001, p101, p111, p011);
-  
-  geom.UploadDataToBuffers();
-}
-
-void PrimitiveGeometry::PushTri(const VertexAttributes& p0, const VertexAttributes& p1, const VertexAttributes& p2) {
-  // The orientation is given by the counterclockwise traversal of the points using the right-hand rule.
-  m_Vertices.push_back(p0);
-  m_Vertices.push_back(p1);
-  m_Vertices.push_back(p2);
-}
-
-void PrimitiveGeometry::PushTri(const EigenTypes::Vector3f& p0, const EigenTypes::Vector3f& p1, const EigenTypes::Vector3f& p2) {
-  EigenTypes::Vector3f normal((p2-p1).cross(p0-p1).normalized());
-  PushTri(MakeVertexAttributes(p0, normal), MakeVertexAttributes(p1, normal), MakeVertexAttributes(p2, normal));
-}
-
-void PrimitiveGeometry::PushQuad (const VertexAttributes &p0, const VertexAttributes &p1, const VertexAttributes &p2, const VertexAttributes &p3) {
-  // The orientation is given by the counterclockwise traversal of the points using the right-hand rule.
-  m_Vertices.push_back(p0);
-  m_Vertices.push_back(p1);
-  m_Vertices.push_back(p2);
-  
-  m_Vertices.push_back(p0);
-  m_Vertices.push_back(p2);
-  m_Vertices.push_back(p3);
-}
-
-void PrimitiveGeometry::PushQuad(const EigenTypes::Vector3f& p0, const EigenTypes::Vector3f& p1, const EigenTypes::Vector3f& p2, const EigenTypes::Vector3f& p3) {
-  // The orientation is given by the counterclockwise traversal of the points using the right-hand rule.
-
-  static const EigenTypes::Vector2f TEX_COORDS[4] = {
-    EigenTypes::Vector2f(0.0f, 0.0f),
-    EigenTypes::Vector2f(1.0f, 0.0f),
-    EigenTypes::Vector2f(1.0f, 1.0f),
-    EigenTypes::Vector2f(0.0f, 1.0f)
-  };
-
-  // Compute the normal for each triangle, where the quad is split up into 2 triangles, having its diagonal between points p0 and p2.
-  EigenTypes::Vector3f n0((p2-p1).cross(p0-p1).normalized());
-  EigenTypes::Vector3f n1((p3-p2).cross(p0-p2).normalized());
-  
-  PushTri(MakeVertexAttributes(p0, n0, TEX_COORDS[0]), MakeVertexAttributes(p1, n0, TEX_COORDS[1]), MakeVertexAttributes(p2, n0, TEX_COORDS[2]));
-  PushTri(MakeVertexAttributes(p0, n1, TEX_COORDS[0]), MakeVertexAttributes(p2, n1, TEX_COORDS[2]), MakeVertexAttributes(p3, n1, TEX_COORDS[3]));
+  PushUnitBoxQuad(p010, p000, p001, p011);
+  PushUnitBoxQuad(p100, p110, p111, p101);
+  PushUnitBoxQuad(p000, p100, p101, p001);
+  PushUnitBoxQuad(p110, p010, p011, p111);
+  PushUnitBoxQuad(p010, p110, p100, p000);
+  PushUnitBoxQuad(p001, p101, p111, p011);
 }

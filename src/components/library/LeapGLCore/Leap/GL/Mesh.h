@@ -18,13 +18,13 @@ class Mesh {
 public:
 
   typedef GLVertexBuffer<AttributeTypes...> VertexBuffer;
-  typedef VertexBuffer::Attributes VertAttrs;
-  typedef 
+  typedef typename VertexBuffer::Attributes VertexAttributes;
 
   // Constructs an empty mesh having no OpenGL resource usage or draw mode.  At the very least,
   // SetDrawMode and Initialize must be called for the resource to be acquired.
   Mesh ()
     : m_draw_mode(GL_INVALID_ENUM) // Uninitialized.
+    , m_vertex_buffer(GL_STATIC_DRAW)
     , m_index_count(0)
   { }
   // While each of the members will handle their own cleanup in their destructors, it's good to have
@@ -41,7 +41,7 @@ public:
     if (!m_intermediate_vertices.empty()) {
       throw MeshException("Changing the draw mode on an existing vertex array is not a well-defined operation.");
     }
-    switch (m_draw_mode) {
+    switch (draw_mode) {
       case GL_POINTS:
       case GL_LINE_STRIP:
       case GL_LINE_LOOP:
@@ -61,31 +61,31 @@ public:
   }
 
   bool IsInitialized () const {
-    assert(m_vertex_buffer.IsCreated() == m_index_buffer.IsCreated() && "m_vertex_buffer and m_index_buffer should either be created or uncreated at the same time.");
-    return m_vertex_buffer.IsCreated();
+    assert(m_vertex_buffer.IsInitialized() == m_index_buffer.IsCreated() && "m_vertex_buffer and m_index_buffer should either be IsInitialized or not IsInitialized at the same time.");
+    return m_vertex_buffer.IsInitialized();
   }
   // Once all the vertices are specified, calling this method computes the vertex index buffer
   // and uploads the unique-ified vertices and the indices to the GPU.  If successful, the mesh
   // is ready to be Bind()ed.
   // TODO: write about what GL operations actually happen.
   // TODO: add argument to specify if the non-GL internal state should be cleared.
-  void Initialize (ClearOption clear_option) {
+  void Initialize (ClearOption clear_option = ClearOption::CLEAR_INTERMEDIATE_DATA) {
     // TODO: move into the function which uses this.
     struct VertexAttributesCompare {
-      bool operator () (const VertAttrs &lhs, const VertAttrs &rhs) const {
-        return memcmp(reinterpret_cast<const void *>(&lhs), reinterpret_cast<const void *>(&rhs), sizeof(VertAttrs)) < 0;
+      bool operator () (const VertexAttributes &lhs, const VertexAttributes &rhs) const {
+        return memcmp(reinterpret_cast<const void *>(&lhs), reinterpret_cast<const void *>(&rhs), sizeof(VertexAttributes)) < 0;
       }
     };
-    typedef std::map<VertAttrs,GLuint,VertexAttributesCompare> VertexIndexMap;
+    typedef std::map<VertexAttributes,GLuint,VertexAttributesCompare> VertexIndexMap;
 
     // Eliminate duplicate vertices using a temporary map.
     VertexIndexMap vertex_attributes_index_map;
     std::vector<GLuint> indices;
-    // std::vector<VertAttrs> unique_vertex_attributes;
-    std::vector<VertAttrs> &unique_vertex_attributes = m_vertex_buffer.IntermediateAttributes();
+    // std::vector<VertexAttributes> unique_vertex_attributes;
+    std::vector<VertexAttributes> &unique_vertex_attributes = m_vertex_buffer.IntermediateAttributes();
     // This loop will reduce m_intermediate_vertices down into unique_vertex_attributes.
     for (auto it = m_intermediate_vertices.begin(); it != m_intermediate_vertices.end(); ++it) {
-      const VertAttrs &vertex_attributes = *it;
+      const VertexAttributes &vertex_attributes = *it;
       auto mapped_vertex_attribute = vertex_attributes_index_map.find(vertex_attributes);
       // If the current vertex is not in the vbo map already, add it.
       if (mapped_vertex_attribute == vertex_attributes_index_map.end()) {
@@ -111,16 +111,19 @@ public:
     // TODO: allow different usage patterns
     m_index_buffer.Allocate(static_cast<void*>(indices.data()), static_cast<int>(indices.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
     m_index_buffer.Unbind();
-    
-    if (clear_option == ClearOption::CLEAR_INTERMEDIATE_DATA) {
-      m_vertex_buffer.ClearIntermediateAttributes();
-    }
+
+    // For now, always clear the intermediate attributes, because the unique'ified vertices and index buffer will
+    // just be regenerated.  TODO: for meshes that just change attributes without changing indices, keeping this
+    // around could make it easier to regen.
+    m_vertex_buffer.ClearIntermediateAttributes();
   }
   // Releases any OpenGL resources used by this mesh.  The draw mode is preserved.
   // TODO: write about what GL operations actually happen.
   // TODO: add argument to specify if the rest of the internal state should be cleared.
-  void Release () {
-    m_intermediate_vertices.clear();
+  void Release (ClearOption clear_option = ClearOption::CLEAR_INTERMEDIATE_DATA) {
+    if (clear_option == ClearOption::CLEAR_INTERMEDIATE_DATA) {
+      m_intermediate_vertices.clear();
+    }
     m_vertex_buffer.ClearEverything();
     m_index_count = 0;
     if (m_index_buffer.IsCreated()) {
@@ -157,43 +160,50 @@ public:
     }
     m_index_buffer.Unbind();
     // This calls glDisableVertexAttribArray on the relevant things.
-    m_vertex_buffer.Disable(m_bound_attribute_locations);
+    m_vertex_buffer.Disable(attribute_locations);
   }
 
   // To be used for any draw mode -- the user is responsible for adding vertices using the convention
   // defined by the draw mode, and in particular is the only method allowable for adding vertices for
   // some draw modes.
-  void PushVertex (VertAttrs &&v) {
+  template <typename... Types_>
+  void PushVertex (Types_... args) {
     if (IsInitialized()) {
       throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
     }
-    m_intermediate_vertices.emplace_back(v);
+    m_intermediate_vertices.emplace_back(args...);
   }
   // To be used only when the draw mode is GL_LINES.  TODO: Figure out the appropriate constness/referenceness to use.
-  void PushLine (const std::tuple<VertAttrs&&,VertAttrs&&> &v) {
+  void PushLine (const VertexAttributes &v0,
+                 const VertexAttributes &v1) {
     if (IsInitialized()) {
       throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
     }
     if (m_draw_mode != GL_LINES) {
       throw MeshException("Mesh::PushLine is only defined if the draw mode is GL_LINES.");
     }
-    m_intermediate_vertices.emplace_back(std::get<0>(v));
-    m_intermediate_vertices.emplace_back(std::get<1>(v));
+    m_intermediate_vertices.emplace_back(v0);
+    m_intermediate_vertices.emplace_back(v1);
   }
   // To be used only when the draw mode is GL_TRIANGLES.
-  void PushTriangle (const std::tuple<VertAttrs&&,VertAttrs&&,VertAttrs&&> &v) {
+  void PushTriangle (const VertexAttributes &v0,
+                     const VertexAttributes &v1,
+                     const VertexAttributes &v2) {
     if (IsInitialized()) {
       throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
     }
     if (m_draw_mode != GL_TRIANGLES) {
       throw MeshException("Mesh::PushTriangle is only defined if the draw mode is GL_TRIANGLES.");
     }
-    m_intermediate_vertices.emplace_back(std::get<0>(v));
-    m_intermediate_vertices.emplace_back(std::get<1>(v));
-    m_intermediate_vertices.emplace_back(std::get<2>(v));
+    m_intermediate_vertices.emplace_back(v0);
+    m_intermediate_vertices.emplace_back(v1);
+    m_intermediate_vertices.emplace_back(v2);
   }
   // To be used only when the draw mode is GL_TRIANGLES.
-  void PushQuad (const std::tuple<VertAttrs&&,VertAttrs&&,VertAttrs&&,VertAttrs&&> &v) {
+  void PushQuad (const VertexAttributes &v0,
+                 const VertexAttributes &v1,
+                 const VertexAttributes &v2,
+                 const VertexAttributes &v3) {
     if (IsInitialized()) {
       throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
     }
@@ -201,51 +211,61 @@ public:
       throw MeshException("Mesh::PushQuad is only defined if the draw mode is GL_TRIANGLES.");
     }
     // Triangle 1
-    m_intermediate_vertices.emplace_back(std::get<0>(v));
-    m_intermediate_vertices.emplace_back(std::get<1>(v));
-    m_intermediate_vertices.emplace_back(std::get<2>(v));
+    m_intermediate_vertices.emplace_back(v0);
+    m_intermediate_vertices.emplace_back(v1);
+    m_intermediate_vertices.emplace_back(v2);
     // Triangle 2
-    m_intermediate_vertices.emplace_back(std::get<0>(v));
-    m_intermediate_vertices.emplace_back(std::get<2>(v));
-    m_intermediate_vertices.emplace_back(std::get<3>(v));
+    m_intermediate_vertices.emplace_back(v0);
+    m_intermediate_vertices.emplace_back(v2);
+    m_intermediate_vertices.emplace_back(v3);
   }
   // To be used only when the draw mode is GL_LINES_ADJACENCY.
-  void PushLineAdjacency (const std::tuple<VertAttrs&&,VertAttrs&&,VertAttrs&&,VertAttrs&&> &v) {
+  void PushLineAdjacency (const VertexAttributes &v0,
+                          const VertexAttributes &v1,
+                          const VertexAttributes &v2,
+                          const VertexAttributes &v3) {
     if (IsInitialized()) {
       throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
     }
     if (m_draw_mode != GL_LINES_ADJACENCY) {
       throw MeshException("Mesh::PushLineAdjacency is only defined if the draw mode is GL_LINES_ADJACENCY.");
     }
-    m_intermediate_vertices.emplace_back(std::get<0>(v));
-    m_intermediate_vertices.emplace_back(std::get<1>(v));
-    m_intermediate_vertices.emplace_back(std::get<2>(v));
-    m_intermediate_vertices.emplace_back(std::get<3>(v));
+    m_intermediate_vertices.emplace_back(v0);
+    m_intermediate_vertices.emplace_back(v1);
+    m_intermediate_vertices.emplace_back(v2);
+    m_intermediate_vertices.emplace_back(v3);
   }
   // To be used only when the draw mode is GL_TRIANGLES_ADJACENCY.
-  void PushTriangleAdjacency (const std::tuple<VertAttrs&&,VertAttrs&&,VertAttrs&&,VertAttrs&&,VertAttrs&&,VertAttrs&&> &v) {
+  void PushTriangleAdjacency (const VertexAttributes &v0,
+                              const VertexAttributes &v1,
+                              const VertexAttributes &v2,
+                              const VertexAttributes &v3,
+                              const VertexAttributes &v4,
+                              const VertexAttributes &v5) {
     if (IsInitialized()) {
       throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
     }
     if (m_draw_mode != GL_LINES) {
       throw MeshException("Mesh::PushTriangleAdjacency is only defined if the draw mode is GL_TRIANGLES_ADJACENCY.");
     }
-    m_intermediate_vertices.emplace_back(std::get<0>(v));
-    m_intermediate_vertices.emplace_back(std::get<1>(v));
-    m_intermediate_vertices.emplace_back(std::get<2>(v));
-    m_intermediate_vertices.emplace_back(std::get<3>(v));
-    m_intermediate_vertices.emplace_back(std::get<4>(v));
-    m_intermediate_vertices.emplace_back(std::get<5>(v));
+    m_intermediate_vertices.emplace_back(v0);
+    m_intermediate_vertices.emplace_back(v1);
+    m_intermediate_vertices.emplace_back(v2);
+    m_intermediate_vertices.emplace_back(v3);
+    m_intermediate_vertices.emplace_back(v4);
+    m_intermediate_vertices.emplace_back(v5);
   }
   // Gives direct access to the std::vector of intermediate vertices -- the data that will be
   // unique'ified to construct an indexed vertex buffer object and uploaded to the GPU.
-  std::vector<VertAttrs> &IntermediateVertices () { return m_intermediate_vertices; }
+  std::vector<VertexAttributes> &IntermediateVertices () { return m_intermediate_vertices; }
   // TODO: allow changing the m_vertex_buffer contents and re-uploading?
 
 private:
 
+  // The draw mode that will be used in Draw().
+  GLenum m_draw_mode;
   // This intermediate storage for vertex data as it is being generated, and may be cleared during upload.
-  std::vector<VertAttrs> m_intermediate_vertices;
+  std::vector<VertexAttributes> m_intermediate_vertices;
   // This is the vertex buffer object for uploaded vertex attribute data.
   VertexBuffer m_vertex_buffer;
   // This is the number of indices used to pass to glDrawElements when drawing the VBO.

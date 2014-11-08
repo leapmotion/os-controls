@@ -3,7 +3,6 @@
 #include "graphics/RenderEngine.h"
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLTexture2.h"
-#include "PrimitiveGeometry.h"
 #include "Primitives.h"
 
 class LeapInput;

@@ -17,11 +17,11 @@ using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been int
 class GenericShape : public PrimitiveBase {
 public:
 
-  GenericShape(GLenum drawMode = GL_TRIANGLES) : m_drawMode(drawMode) { }
+  GenericShape(GLenum drawMode = GL_TRIANGLES);
   virtual ~GenericShape () { }
 
   // Make sure to call UploadDataToBuffers on the geometry object before drawing.
-  PrimitiveGeometry &Geometry () { return m_geometry; }
+  PrimitiveGeometryMesh &Mesh () { return m_mesh; }
 
 protected:
 
@@ -29,8 +29,7 @@ protected:
 
 private:
 
-  mutable PrimitiveGeometry m_geometry;
-  GLenum m_drawMode;
+  mutable PrimitiveGeometryMesh m_mesh;
 };
 
 class Sphere : public PrimitiveBase {
@@ -162,7 +161,7 @@ public:
   double InnerRadius() const { return m_InnerRadius; }
   void SetInnerRadius(double innerRad) {
     if (m_InnerRadius != innerRad) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_InnerRadius = innerRad;
   }
@@ -170,7 +169,7 @@ public:
   double OuterRadius() const { return m_OuterRadius; }
   void SetOuterRadius(double outerRad) {
     if (m_OuterRadius != outerRad) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_OuterRadius = outerRad;
   }
@@ -178,7 +177,7 @@ public:
   double StartAngle() const { return m_StartAngle; }
   void SetStartAngle(double startAngleRadians) {
     if (m_StartAngle != startAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_StartAngle = startAngleRadians;
   }
@@ -186,7 +185,7 @@ public:
   double EndAngle() const { return m_EndAngle; }
   void SetEndAngle(double endAngleRadians) {
     if (m_EndAngle != endAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_EndAngle = endAngleRadians;
   }
@@ -197,12 +196,11 @@ protected:
 
 protected:
 
-  virtual void RecomputeGeometry() const;
+  virtual void RecomputeMesh() const;
 
   // cache the previously drawn geometry for speed if the primitive parameters are unchanged
-  mutable PrimitiveGeometry m_Geometry;
-
-  mutable bool m_RecomputeGeometry;
+  mutable PrimitiveGeometryMesh m_mesh;
+  mutable bool m_RecomputeMesh;
 
   double m_InnerRadius;
   double m_OuterRadius;
@@ -219,35 +217,35 @@ public:
 
   void SetTriangleSide(TriangleSide side) {
     if (m_TriangleSide != side) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TriangleSide = side;
   }
 
   void SetTrianglePosition(double pos) {
     if (m_TrianglePosition != pos) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TrianglePosition = pos;
   }
 
   void SetTriangleWidth(double width) {
     if (m_TriangleWidth != width) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TriangleWidth = width;
   }
 
   void SetTriangleOffset(double offset) {
     if (m_TriangleOffset != offset) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TriangleOffset = offset;
   }
 
 protected:
 
-  virtual void RecomputeGeometry() const override;
+  virtual void RecomputeMesh() const override;
 
   TriangleSide m_TriangleSide;
   double m_TrianglePosition;

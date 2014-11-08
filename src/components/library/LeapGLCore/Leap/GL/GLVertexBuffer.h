@@ -171,6 +171,7 @@ public:
     }
   }
 
+  bool IsInitialized () const { return m_gl_buffer.IsCreated(); }
   // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
   // tuple argument attribute_locations must correspond exactly to Attributes

@@ -26,5 +26,5 @@ private:
   NSVGimage* m_Image;
   EigenTypes::Vector2 m_Origin;
   EigenTypes::Vector2 m_Size;
-  bool m_RecomputeGeometry;
+  bool m_RecomputeMesh;
 };

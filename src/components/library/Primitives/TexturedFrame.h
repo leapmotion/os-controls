@@ -112,11 +112,11 @@ protected:
 
   virtual void DrawContents (RenderState& renderState) const override;
   
-  void ForceRecomputeGeometry () { m_recompute_geometry = true; }
+  void ForceRecomputeMesh () { m_recompute_mesh = true; }
 
 private:
   
-  void RecomputeGeometryIfNecessary () const;
+  void RecomputeMeshIfNecessary () const;
 
   static const size_t RECTANGLE_COUNT = 2;
   static const size_t RECTANGLE_EDGE_COUNT = 4;
@@ -126,6 +126,6 @@ private:
   double m_rectangle_edge_offset[RECTANGLE_COUNT][RECTANGLE_EDGE_COUNT];
   float m_rectangle_edge_texture_coordinate[RECTANGLE_COUNT][RECTANGLE_EDGE_COUNT];
   std::shared_ptr<GLTexture2> m_texture;
-  mutable bool m_recompute_geometry;
-  mutable PrimitiveGeometry m_geometry;
+  mutable bool m_recompute_mesh;
+  mutable PrimitiveGeometryMesh m_mesh;
 };
