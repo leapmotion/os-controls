@@ -56,7 +56,7 @@ RiggedHand::RiggedHand() {
   mPrevSkinTone = NUM_SKIN_TONES;
 
   mScaleMultiplier = 1.27f;
-  mTranslationOffset = 2.0f * Eigen::Vector3f(-3.0f, -2.0f, -14.0f);
+  mTranslationOffset = Eigen::Vector3f(-3.0f, -2.0f, -14.0f);
   mRotationOffset = Eigen::Quaternionf(1.0f, 0.01f, 0.02f, 0.01f);
 
   mForearmLength = 1.0f;
@@ -290,7 +290,7 @@ void RiggedHand::updateIntermediateData() {
 
   const Eigen::Vector3f forearmDir = -mArmBasis.col(2).cast<float>();
   const Eigen::Vector3f forearmDirNormalized = forearmDir.normalized();
-  mElbowPos = wristPos - mForearmLength * forearmDirNormalized;
+  mElbowPos = wristPos - mArmScale * mForearmLength * forearmDirNormalized;
 
   const Eigen::Quaterniond armQuat = toQuat(mArmBasis, mIsLeft);
   Eigen::Quaterniond handednessQuat = armQuat;
