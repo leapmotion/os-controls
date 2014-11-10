@@ -209,16 +209,6 @@ private:
   // Number of samples to analyze in the gesture detection.  [Vertical strip(s) of] The original image(s)
   // will be downsampled to match this number.
   static const size_t SAMPLE_COUNT = 500;// 30;
-  // Proportion of the total height of the images to use.  The sampled region will be centered vertically.
-  static const float PROPORTION_OF_IMAGE_HEIGHT_TO_USE;
-  // The imagine intensity which is considered "active" with respect to this gesture recognition.
-  static const float BRIGHTNESS_ACTIVATION_THRESHOLD;
-  // The threshold of mass to begin the gesture.
-  static const float BEGINNING_MASS_ACTIVATION_THRESHOLD;
-  // The proportion of the rest of the image to traverse in order to recognize a completion.
-  static const float PORTION_OF_REMAINDER_UNTIL_COMPLETE;
-  // The amount of time to wait for the cooldown period after a wipe was complete or abort.
-  static const float TIMEOUT_DURATION;
 
   // State machine related -- the methods are states.
 
