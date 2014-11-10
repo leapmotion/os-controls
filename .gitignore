@@ -49,3 +49,5 @@ xcode
 
 src/components/install/*
 src/components/install_manifest.txt
+
+src/vrshell/Version.h
