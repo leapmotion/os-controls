@@ -168,6 +168,8 @@ public:
 
   void AutoFilter(const Leap::Frame& frame, SystemWipe& systemWipe);
 
+  void PrintDevInfo (std::ostream &out) const;
+
 private:
 
   template <typename T_>
@@ -199,7 +201,7 @@ private:
   float MeasuredMaxBrightness (float t) const { return m_measured_max_brightness(t); }
 #endif
   float Brightness (float t) const { return m_brightness(t); }
-  float NormalizedBrightness (float t);
+  float NormalizedBrightness (float t) const;
   std::function<float(float)> ProgressTransform;
   const Signal<float> &CurrentSignal () const { return m_signal_history[0]; }
   Signal<float> CurrentSignalDelta () const { return m_signal_history[0] - m_signal_history[1]; }

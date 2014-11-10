@@ -114,51 +114,47 @@ void SystemWipeRecognizer::AutoFilter(const Leap::Frame& frame, SystemWipe& syst
     m_signal_history.RecordSample(centroid, mass);
   }
 
+  m_state_machine.Run(StateMachineEvent::FRAME);
+}
+
+void SystemWipeRecognizer::PrintDevInfo (std::ostream &out) const {
   auto percent = [](float b) -> int { return int(100.0f*b); };
 
-#define PRINT_IMAGE_PROCESSING_INFO 0
-
-#if PRINT_IMAGE_PROCESSING_INFO
-  if (true) {
-    static const size_t PRINT_SAMPLE_COUNT = 22;
+  static const size_t PRINT_SAMPLE_COUNT = 22;
 #if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
-    // Print measured max brightness.
-    for (Internal::Linterp<float> t(0.0, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
-      float b = MeasuredMaxBrightness(t);
-      std::cerr << std::setw(3) << percent(b) << ',';
-    }
-    std::cerr << "  ";
-#else
-    // Print measured brightness.
-    for (Internal::Linterp<float> t(0.0, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
-      float b = Brightness(t);
-      std::cerr << std::setw(3) << percent(b) << ',';
-    }
-    std::cerr << "  ";
-#endif
-    size_t up_edge(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().UpEdge()));
-    size_t down_edge(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().DownEdge()));
-    size_t centroid(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().Centroid()));
-    for (Internal::Linterp<float> t(0.0f, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
-      // Print 3 characters to render:
-      // - the up edge,
-      // - the centroid.
-      // - the down edge,
-      // This produces an ascii-graphic indicator of the form
-      // ......[ooooooooooooooooooooooooXoooooooooooooooooooooooo]...
-      //    up_edge                 centroid                down_edge
-      // Periods help indicate the extent of the graph, o indicates the
-      // presence of an activated brightness sample.
-      char underlying_char = NormalizedBrightness(t) > BRIGHTNESS_ACTIVATION_THRESHOLD ? 'o' : '.';
-      std::cerr << (t.Index() == up_edge  ? '[' : underlying_char);
-      std::cerr << (t.Index() == centroid  ? 'X' : underlying_char);
-      std::cerr << (t.Index() == down_edge ? ']' : underlying_char);
-    }
-    std::cerr << "  mass: " << std::setw(10) << CurrentSignal().Mass() << ", centroid = " << std::setw(10) << CurrentSignal().Centroid();
+  // Print measured max brightness.
+  for (Internal::Linterp<float> t(0.0, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    float b = MeasuredMaxBrightness(t);
+    out << std::setw(3) << percent(b) << ',';
   }
+  out << "  ";
+#else
+  // Print measured brightness.
+  for (Internal::Linterp<float> t(0.0, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    float b = Brightness(t);
+    out << std::setw(3) << percent(b) << ',';
+  }
+  out << "  ";
 #endif
-
-  m_state_machine.Run(StateMachineEvent::FRAME);
+  size_t up_edge(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().UpEdge()));
+  size_t down_edge(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().DownEdge()));
+  size_t centroid(std::round((PRINT_SAMPLE_COUNT-1)*CurrentSignal().Centroid()));
+  for (Internal::Linterp<float> t(0.0f, 1.0f, PRINT_SAMPLE_COUNT); t.IsNotAtEnd(); ++t) {
+    // Print 3 characters to render:
+    // - the up edge,
+    // - the centroid.
+    // - the down edge,
+    // This produces an ascii-graphic indicator of the form
+    // ......[ooooooooooooooooooooooooXoooooooooooooooooooooooo]...
+    //    up_edge                 centroid                down_edge
+    // Periods help indicate the extent of the graph, o indicates the
+    // presence of an activated brightness sample.
+    char underlying_char = NormalizedBrightness(t) > BRIGHTNESS_ACTIVATION_THRESHOLD ? 'o' : '.';
+    out << (t.Index() == up_edge  ? '[' : underlying_char);
+    out << (t.Index() == centroid  ? 'X' : underlying_char);
+    out << (t.Index() == down_edge ? ']' : underlying_char);
+  }
+  out << "  mass: " << std::setw(10) << CurrentSignal().Mass() << ", centroid = " << std::setw(10) << CurrentSignal().Centroid();
 }
 
 void SystemWipeRecognizer::ComputeBrightness (const Leap::ImageList &images) {
@@ -223,11 +219,11 @@ void SystemWipeRecognizer::ComputeBrightness (const Leap::ImageList &images) {
 
 float SystemWipeRecognizer::ModeledMaxBrightness (float t) {
   // Use a 6th order polynomial to approximate the maximum brightness curve for the
-  // center vertical line for the camera.  This is used to normalize the brightness
-  // values thereby accounting for the non-uniform LED illumination.
-  // NOTE: This approximates a function that depends heavily on the particular algorithm
-  // used to determine the brightness values in m_brightness, so if ComputeBrightness
-  // is altered, this function should be updated.
+  // computed 1D brightness image.  This is used to normalize the brightness values
+  // thereby accounting for the non-uniform LED illumination.  NOTE: This approximates
+  // a function that depends heavily on the particular algorithm used to determine
+  // the brightness values in m_brightness, so if ComputeBrightness is altered, this
+  // function must be updated for the overall algorithm to remain effective.
   // TODO: Maybe make a calibration tool in C++ so that these values could be
   // automatically determined again (this was determined in Sage math system).
   assert(t >= 0.0f && t <= 1.0f);
@@ -251,7 +247,7 @@ float SystemWipeRecognizer::ModeledMaxBrightness (float t) {
   return retval;
 }
 
-float SystemWipeRecognizer::NormalizedBrightness (float t) {
+float SystemWipeRecognizer::NormalizedBrightness (float t) const {
   return Brightness(t) / ModeledMaxBrightness(t);
 }
 
