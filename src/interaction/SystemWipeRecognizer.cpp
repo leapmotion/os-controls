@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include <iostream> // TEMP
+// #include <iostream> // TEMP
 #include <iomanip> // TEMP
 
 #define FORMAT_VALUE(x) #x << " = " << (x)
@@ -12,8 +12,8 @@
 // Tuning parameters
 static const float PROPORTION_OF_IMAGE_WIDTH_TO_USE = 0.9f;
 static const float PROPORTION_OF_IMAGE_HEIGHT_TO_USE = 0.75f;
-static const float BRIGHTNESS_ACTIVATION_THRESHOLD = 1.0f; // 0.8f; // 0.8f works (value in original test)
-static const float BEGINNING_MASS_ACTIVATION_THRESHOLD = 0.3f; // 0.35f;
+static const float BRIGHTNESS_ACTIVATION_THRESHOLD = 0.95f;
+static const float BEGINNING_MASS_ACTIVATION_THRESHOLD = 0.3f;
 static const float PORTION_OF_REMAINDER_UNTIL_COMPLETE = 0.75f;
 static const float TIMEOUT_DURATION = 0.5f;
 

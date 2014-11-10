@@ -5,6 +5,7 @@
 #include <autowiring/Autowired.h>
 #include <deque>
 #include <functional>
+#include <ostream>
 
 namespace Internal {
 
