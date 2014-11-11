@@ -39,7 +39,6 @@ if(_this_is_standalone_project)
         # EXTERNAL_LIBRARY_DIR is a hint for all the find_library calls.
         list(INSERT CMAKE_PREFIX_PATH 0 ${EXTERNAL_LIBRARY_DIR})
     endif()
-set_property(TARGET Test PROPERTY FOLDER "Tests")
 endif()
 
 # The subdirectory containing the Components library itself.
