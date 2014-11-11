@@ -55,9 +55,7 @@ RiggedHand::RiggedHand() {
   mPrevGender = NUM_GENDERS;
   mPrevSkinTone = NUM_SKIN_TONES;
 
-  mScaleMultiplier = 1.27f;
-  mTranslationOffset = Eigen::Vector3f(-3.0f, -2.0f, -14.0f);
-  mRotationOffset = Eigen::Quaternionf(1.0f, 0.01f, 0.02f, 0.01f);
+  setOffsetsForGender();
 
   mForearmLength = 1.0f;
   mArmReorientation = computeArmReorientation(mPrevIsLeft);
@@ -259,6 +257,8 @@ void RiggedHand::updateStyle() {
   // load new mesh if necessary
   if (mGender != mPrevGender) {
     mSkinnedVboHands = getMeshForGender(mGender);
+    setOffsetsForGender();
+
     mSkinnedVboHands->update();
     mForearmLength = (getArmNode()->getAbsolutePosition() - getWristNode()->getAbsolutePosition()).norm();
   }
@@ -365,6 +365,18 @@ void RiggedHand::updateMeshMirroring(bool left) {
     model::SkinnedVboMesh::MeshVboSectionRef& nailsSection = sections[3];
     modelSection->setDefaultTransformation(transform);
     nailsSection->setDefaultTransformation(transform);
+  }
+}
+
+void RiggedHand::setOffsetsForGender() {
+  if (mGender == FEMALE) {
+    mScaleMultiplier = 1.26f;
+    mTranslationOffset = Eigen::Vector3f(-3.0f, -2.0f, -14.0f);
+    mRotationOffset = Eigen::Quaternionf(1.0f, 0.01f, 0.02f, 0.01f);
+  } else if (mGender == MALE) {
+    mScaleMultiplier = 1.16f;
+    mTranslationOffset = Eigen::Vector3f(5.0f, -2.0f, -11.0f);
+    mRotationOffset = Eigen::Quaternionf(1.0f, 0.025f, 0.025f, 0.045f);
   }
 }
 

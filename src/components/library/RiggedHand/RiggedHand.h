@@ -58,6 +58,7 @@ private:
   void updateIntermediateData();
   void updateFinger(int fingerIdx);
   void updateMeshMirroring(bool left);
+  void setOffsetsForGender();
   model::NodeRef getArmNode() const;
   model::NodeRef getWristNode() const;
   model::NodeRef getJointNode(int fingerIdx, int boneIdx) const;
