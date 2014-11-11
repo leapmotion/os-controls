@@ -397,10 +397,11 @@ GLMesh<DIM>
 - DONE: Get rid of GLController, as it does almost nothing, and its original intended design (to
   track OpenGL server state and prevent redundant server state changes) is contrary to one
   of the main design principles of the Components lib (drop-in capability).
-- Create GLMesh and factor out of PrimitiveGeometry.
+- DONE: Create GLMesh and factor out of PrimitiveGeometry.
 - Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
+- Ensure that all types of uniforms can be set via GLShader (in particular, arrays and structures of uniforms).
 - Add SceneGraph and Camera.  Keep Projection [matrix], get rid of ModelView (because its stack
   is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
 - Abstracting the choice of a particular linear algebra library (Eigen in our case) out.

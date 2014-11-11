@@ -1,7 +1,5 @@
 #include "PrimitiveGeometry.h"
 
-#include <iostream> // TEMP
-
 #include "Leap/GL/GLShader.h"
 
 void PrimitiveGeometry::PushUnitSphere(size_t resolution, PrimitiveGeometryMesh &mesh) {
