@@ -504,7 +504,10 @@ void RadialPolygonPrim::RecomputeGeometry() const {
     cylinderBasis.col(2) = binormal;
 
     // add the vertex to the main face of the polygon
-    m_Polygon.PushTri(nextPoint.cast<float>(), avgPoint.cast<float>(), curPoint.cast<float>());
+    const EigenTypes::Vector3f p0 = nextPoint.cast<float>();
+    const EigenTypes::Vector3f p1 = avgPoint.cast<float>();
+    const EigenTypes::Vector3f p2 = curPoint.cast<float>();
+    m_Polygon.PushTri(p0, p1, p2);
   }
 
   // upload main face
