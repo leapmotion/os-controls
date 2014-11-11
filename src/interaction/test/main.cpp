@@ -49,10 +49,12 @@ void SampleListener::onFrame(const Controller& controller) {
     // std::cerr << "Frame available" << std::endl;
     SystemWipe system_wipe;
     m_recog.AutoFilter(controller.frame(), system_wipe);
+    m_recog.PrintDevInfo(std::cerr);
     if (system_wipe.status != SystemWipe::Status::NOT_ACTIVE) {
         std::cerr << " -- system wipe reporting: " << std::setw(4) << AsString(system_wipe.direction) << ", " << std::setw(10) << AsString(system_wipe.status) << ", " << std::setw(10) << system_wipe.progress << '\n';
+    } else {
+        std::cerr << '\n';
     }
-    // std::cerr << '\n';
 }
 
 int main(int argc, char** argv) {
