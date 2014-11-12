@@ -653,11 +653,13 @@ foreach(_sublibrary ${_all_link_sublibraries})
         install(
             FILES ${_headers}
             DESTINATION "include/${_source_path}"
+            COMPONENT "Components"
         )
         get_target_property(_resources ${_sublibrary} INTERFACE_PATH_PREFIXED_RESOURCES)
         install(
             FILES ${_resources}
             DESTINATION "resources"
+            COMPONENT "Components"
         )
     endif()
 endforeach()
@@ -675,6 +677,7 @@ list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
 install(
     TARGETS Components ${_all_link_sublibraries}
     EXPORT ComponentsRelease
+    COMPONENT Components
     CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
     # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
     LIBRARY DESTINATION lib/Release
@@ -684,6 +687,7 @@ install(
 install(
     TARGETS Components ${_all_link_sublibraries}
     EXPORT ComponentsDebug
+    COMPONENT Components
     CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
     # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
     LIBRARY DESTINATION lib/Debug
@@ -697,6 +701,7 @@ install(
 install(
     EXPORT ComponentsRelease
     CONFIGURATIONS Release
+    COMPONENT Components
     NAMESPACE Components::
     DESTINATION cmake
     FILE ComponentsExport.cmake
@@ -704,6 +709,7 @@ install(
 install(
     EXPORT ComponentsDebug
     CONFIGURATIONS Debug
+    COMPONENT Components
     NAMESPACE Components::
     DESTINATION cmake
     FILE ComponentsExport.cmake
@@ -717,6 +723,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PRO
 install(
     FILES ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake
     DESTINATION .
+    COMPONENT Components
 )
 # Generate the version configuration file.  This is the preferred method for indicating the presence
 # of a library and conveying version information to the find_package cmake command.
@@ -725,6 +732,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenericConfigVersion.cmake.in $
 install(
     FILES ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake
     DESTINATION .
+    COMPONENT Components
 )
 
 ###################################################################################################
@@ -768,7 +776,7 @@ if(BUILD_DOCUMENTATION)
         SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
     # Define install rules for the documentation.
     # TODO: Ideally we would specify that the 'doc' target is a dependency of 'install'.
-    install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION ".")
+    install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION "." COMPONENT "Components")
 endif()
 
 # TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages

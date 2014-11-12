@@ -176,11 +176,11 @@ if(APPLE)
 endif()
 
 # Install commands for the Resources
-install(TARGETS Shortcuts
+install(TARGETS Shortcuts COMPONENT Shortcuts
   RUNTIME DESTINATION "."
   BUNDLE DESTINATION "."
   RESOURCE DESTINATION "."
 )
 
 #post build script to add the manifest & sign the thing.
-install(SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/SignShortcuts.cmake)
+install(SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/SignShortcuts.cmake COMPONENT Shortcuts)
