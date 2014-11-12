@@ -442,7 +442,7 @@ void RadialPolygonPrim::RecomputeGeometry() const {
   // - the angle between any two sides is no greater than 180 degrees
 
   static const double EPSILON = 1E-7;
-  const int numPoints = m_Sides.size();
+  const int numPoints = static_cast<int>(m_Sides.size());
   assert(numPoints > 0);
   if (numPoints <= 0) {
     return;

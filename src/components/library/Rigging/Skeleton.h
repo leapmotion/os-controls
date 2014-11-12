@@ -37,7 +37,7 @@ namespace model {
 
     bool hasBone(const std::string& name) const;
     NodeRef getBone(const std::string& name) const;
-    int getNumBones() { return mBoneNames.size(); }
+    int getNumBones() { return static_cast<int>(mBoneNames.size()); }
 
     //! Adds bone node to name -> NodeRef map.
     void addBone(const std::string& name, const NodeRef& bone);

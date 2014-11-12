@@ -26,7 +26,7 @@ namespace model {
     std::weak_ptr<Node>& getParent() { return mParent; }
     void setParent(NodeRef parent);
 
-    int getNumChildren() const { return mChildren.size(); }
+    int getNumChildren() const { return static_cast<int>(mChildren.size()); }
     bool hasChildren() const { return !mChildren.empty(); }
     bool hasParent() const { return !mParent.expired(); }
 

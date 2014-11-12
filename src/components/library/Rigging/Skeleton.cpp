@@ -57,7 +57,7 @@ namespace model {
   void Skeleton::addBone(const std::string &name, const NodeRef &bone)
   {
     if (mBoneNames.count(name) == 0) {
-      bone->setBoneIndex(mBoneNames.size());
+      bone->setBoneIndex(static_cast<int>(mBoneNames.size()));
       mBoneNames[name] = bone;
     }
   }
