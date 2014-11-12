@@ -236,7 +236,7 @@ const std::map<GLenum,std::string> GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP{
   { GL_INT_VEC2, "ivec2" },
   { GL_INT_VEC3, "ivec3" },
   { GL_INT_VEC4, "ivec4" },
-  { GL_UNSIGNED_INT, "unsigned int" },
+  { GL_UNSIGNED_INT, "uint" },
   { GL_UNSIGNED_INT_VEC2, "uvec2" },
   { GL_UNSIGNED_INT_VEC3, "uvec3" },
   { GL_UNSIGNED_INT_VEC4, "uvec4" },
