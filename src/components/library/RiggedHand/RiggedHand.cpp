@@ -439,12 +439,12 @@ model::SkinnedVboMeshRef RiggedHand::getMeshForGender(Gender gender) {
   static model::ModelSourceRef femaleMeshSource;
   if (gender == MALE) {
     if (maleMeshSource == nullptr) {
-      maleMeshSource = model::loadModel("Male_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
+      maleMeshSource = model::loadModel("models/Male_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
     }
     return model::SkinnedVboMesh::create(maleMeshSource, nullptr);
   } else if (gender == FEMALE) {
     if (femaleMeshSource == nullptr) {
-      femaleMeshSource = model::loadModel("Female_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
+      femaleMeshSource = model::loadModel("models/Female_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
     }
     return model::SkinnedVboMesh::create(femaleMeshSource, nullptr);
   } else {
@@ -467,6 +467,7 @@ GLTexture2ImageRef RiggedHand::getTexture(Gender gender, SkinTone tone, TextureM
   const int idx = genderIdx*itemsPerGender + toneIdx*numTextureMaps + textureIdx;
   if (textures[idx] == nullptr) {
     std::stringstream ss;
+    ss << "textures/";
     if (gender == MALE) {
       ss << "Male";
     } else if (gender == FEMALE) {
