@@ -78,7 +78,7 @@ if(_this_is_standalone_project)
     # needed by the specified components.
     target_link_components(BasicShapes PUBLIC Animation Application GLController GLShaderLoader GLTexture2Loader Primitives SFMLController)
 else()
-    set_property(TARGET BasicShapes PROPERTY FOLDER "Components example apps")
+    set_property(TARGET BasicShapes PROPERTY FOLDER "Components/Example Apps")
     target_link_libraries(BasicShapes PUBLIC Animation Application GLController GLShaderLoader GLTexture2Loader Primitives SFMLController)
 endif()
 
