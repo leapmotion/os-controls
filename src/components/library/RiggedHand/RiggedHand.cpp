@@ -44,7 +44,7 @@ RiggedHand::RiggedHand() {
   mUseRim = false;
   mOpacity = 1.0f;
   mRimStart = 0.25f;
-  mSpecular = 0.5f;
+  mSpecular = 0.4f;
   mShininess = 5.0f;
   mAmbient = 0.00f;
   mDiffuse = 0.5f;
@@ -198,11 +198,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       mHandsShader->SetUniformi("normalMap", 1);
       mHandsShader->SetUniformi("useSpecularMap", mUseSpecularMap);
       mHandsShader->SetUniformi("specularMap", 2);
-      mHandsShader->SetUniformf("rimColor", rimColor);
-      mHandsShader->SetUniformf("rimStart", mRimStart);
-      mHandsShader->SetUniformf("innerTransparency", 1.0f-mOpacity);
       mHandsShader->SetUniformf("camPos", Eigen::Vector3f::Zero().eval());
-      mHandsShader->SetUniformf("opacity", std::min(1.0f, 2.0f*mOpacity));
 
       mHandsShader->SetUniformf("diffuse_light_color", diffuseColor);
       mHandsShader->SetUniformf("specular", specularColor);
