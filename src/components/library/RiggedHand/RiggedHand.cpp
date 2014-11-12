@@ -445,12 +445,12 @@ model::SkinnedVboMeshRef RiggedHand::getMeshForGender(Gender gender) {
     if (maleMeshSource == nullptr) {
       maleMeshSource = model::loadModel("Male_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
     }
-    return model::SkinnedVboMesh::create(maleMeshSource, nullptr, getHandsShader());
+    return model::SkinnedVboMesh::create(maleMeshSource, nullptr);
   } else if (gender == FEMALE) {
     if (femaleMeshSource == nullptr) {
       femaleMeshSource = model::loadModel("Female_Rigged_Arm.FBX", "", UNIT_CONVERSION_SCALE_FACTOR);
     }
-    return model::SkinnedVboMesh::create(femaleMeshSource, nullptr, getHandsShader());
+    return model::SkinnedVboMesh::create(femaleMeshSource, nullptr);
   } else {
     assert(0);
     return nullptr;

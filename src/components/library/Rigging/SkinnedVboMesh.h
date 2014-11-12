@@ -47,7 +47,7 @@ namespace model {
     };
     typedef std::shared_ptr<SkinnedVboMesh::MeshSection> MeshVboSectionRef;
 
-    static SkinnedVboMeshRef create(ModelSourceRef modelSource, std::shared_ptr<Skeleton> skeleton = nullptr, GLShaderRef skinningShader = nullptr);
+    static SkinnedVboMeshRef create(ModelSourceRef modelSource, std::shared_ptr<Skeleton> skeleton = nullptr);
 
     void update();
 
@@ -65,22 +65,18 @@ namespace model {
     void setDefaultTransformation(const Eigen::Matrix4f& transformation) { mActiveSection->setDefaultTransformation(transformation); }
     const Eigen::Matrix4f& getDefaultTranformation() const { return mActiveSection->getDefaultTranformation(); }
 
-    GLShaderRef getShader() { return mSkinningShader; }
-    const GLShaderRef getShader() const { return mSkinningShader; }
-
     void setEnableSkinning(bool enabled) { mEnableSkinning = enabled; }
 
     friend struct SkinnedVboMesh::MeshSection;
 
     std::array<Eigen::Matrix4f, MAXBONES> mBoneMatrices;
     std::array<Eigen::Matrix4f, MAXBONES> mInvTransposeMatrices;
-    GLShaderRef mSkinningShader;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   protected:
     bool mEnableSkinning;
-    SkinnedVboMesh(ModelSourceRef modelSource, GLShaderRef skinningShader, std::shared_ptr<Skeleton> skeleton = nullptr);
+    SkinnedVboMesh(ModelSourceRef modelSource, std::shared_ptr<Skeleton> skeleton = nullptr);
     MeshVboSectionRef mActiveSection;
     std::vector< MeshVboSectionRef > mMeshSections;
   };

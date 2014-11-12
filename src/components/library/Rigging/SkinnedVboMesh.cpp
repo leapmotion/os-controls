@@ -37,14 +37,13 @@ namespace model {
     }
   }
 
-  SkinnedVboMeshRef SkinnedVboMesh::create(ModelSourceRef modelSource, SkeletonRef skeleton, GLShaderRef skinningShader)
+  SkinnedVboMeshRef SkinnedVboMesh::create(ModelSourceRef modelSource, SkeletonRef skeleton)
   {
-    return SkinnedVboMeshRef(new SkinnedVboMesh(modelSource, skinningShader, skeleton));
+    return SkinnedVboMeshRef(new SkinnedVboMesh(modelSource, skeleton));
   }
 
-  SkinnedVboMesh::SkinnedVboMesh(ModelSourceRef modelSource, GLShaderRef skinningShader, SkeletonRef skeleton)
+  SkinnedVboMesh::SkinnedVboMesh(ModelSourceRef modelSource, SkeletonRef skeleton)
     : mEnableSkinning(true)
-    , mSkinningShader(skinningShader)
   {
     assert(modelSource->getNumSections() > 0);
 
