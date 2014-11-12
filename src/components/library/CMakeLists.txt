@@ -153,6 +153,7 @@ add_sublibrary(
         Leap/GL/GLVertexBuffer.h
         Leap/GL/Internal/ColorComponent.h
         Leap/GL/Internal/Meta.h
+        Leap/GL/Internal/ShaderUniform.h
         Leap/GL/Mesh.h
         Leap/GL/MeshException.h
         Leap/GL/ModelViewProjection.h
