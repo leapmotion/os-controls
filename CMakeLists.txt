@@ -3,8 +3,7 @@ project(OSControls)
 include(CTest)
 
 set(CPACK_GENERATOR "ZIP")
-
-include(CPack)
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 
 set(LEAP_COMPANY_NAME "Leap Motion")
 
@@ -39,3 +38,5 @@ endif()
 
 add_subdirectory(contrib)
 add_subdirectory(src)
+include(CPack)
+
