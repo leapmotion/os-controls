@@ -33,7 +33,7 @@ void RiggedHandLayer::Update(TimeDelta real_time_delta) {
       mRiggedHands.resize(numHands);
       for (int i=prevNumHands; i<numHands; i++) {
         mRiggedHands[i] = RiggedHandRef(new RiggedHand());
-        mRiggedHands[i]->SetStyle(RiggedHand::FEMALE, RiggedHand::MEDIUM);
+        mRiggedHands[i]->SetStyle(RiggedHand::MALE, RiggedHand::MEDIUM);
       }
       for (int i=0; i<numHands; i++) {
         mRiggedHands[i]->SetLeapHand(hands[i]);
@@ -108,7 +108,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
     glUniform1fv(lightStrengths0, 3, lightStrengths);
 
     shader->SetUniformi("numLights", 3);
-    shader->SetUniformi("attenuate", 1);
+    shader->SetUniformf("attenuation", 1.0f);
     shader->SetUniformi("depthImage", 0);
     shader->SetUniformi("normalImage", 0);
     shader->SetUniformi("flatImage", 0);

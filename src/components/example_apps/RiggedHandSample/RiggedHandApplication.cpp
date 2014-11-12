@@ -27,10 +27,10 @@ void RiggedHandApplication::Initialize() {
   params.transparentWindow = true;
   params.fullscreen = true;
 #endif
-  /*params.windowPosX = -1080;
-  params.windowPosY = 0;
-  params.windowWidth = 4080;
-  params.windowHeight = 1920;*/
+  //params.windowPosX = -1080;
+  //params.windowPosY = 0;
+  //params.windowWidth = 4080;
+  //params.windowHeight = 1920;
   params.alwaysOnTop = true;
   params.windowTitle = "Leap Rigged Hand";
   params.antialias = true;

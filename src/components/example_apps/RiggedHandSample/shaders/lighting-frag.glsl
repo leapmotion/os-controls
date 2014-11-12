@@ -15,14 +15,6 @@ uniform sampler2D normalMap;
 uniform bool useSpecularMap;
 uniform sampler2D specularMap;
 
-uniform float opacity;
-uniform float innerTransparency;
-
-// rim lighting
-uniform vec4 rimColor;
-uniform float rimStart;
-const float rimEnd = 1.0;
-
 // material
 uniform vec4 diffuse_light_color;
 uniform vec4 ambient_light_color;
@@ -36,7 +28,7 @@ uniform vec4 emission;
 uniform vec3 lightPos[MAX_LIGHTS];
 uniform float lightStrengths[MAX_LIGHTS];
 uniform int numLights;
-uniform bool attenuate;
+uniform float attenuation;
 
 uniform float minDepthDist;
 uniform float maxDepthDist;
@@ -101,39 +93,25 @@ void main (void)
         specularColor = specular * texture2D(specularMap, outTexCoord);
       }
 
-      vec4 Iamb = ambient_light_color * Dm;
-
-      gl_FragColor = emission + Iamb;
+      vec4 finalColor = emission + ambient_light_color * Dm;
       for (int i=0; i<numLights; i++) {
         vec3 lightDir = lightPos[i] - outPosition;
         float dist = length(lightDir);
         vec3 L = lightDir / dist;
         vec3 R = normalize(-reflect(L, normal));
 
-        float falloff = 1.0f;
-        if (attenuate) {
-          float ratio = minDepthDist / dist;
-          falloff = ratio * ratio;
-        }
+        float ratio = minDepthDist / dist;
+        float falloff = (1.0-attenuation) + attenuation*ratio*ratio;
 
         vec4 Idiff = lightStrengths[i] * falloff * diffuse_light_color * max(dot(normal, L), 0.0) * Dm;
 
         vec4 Ispec = lightStrengths[i] * falloff * specularColor * pow(max(dot(R, E), 0.0), shininess);
 
-        gl_FragColor = gl_FragColor + Idiff + Ispec;
+        finalColor = finalColor + Idiff + Ispec;
       }
 
-      float normalToCam = 1.0 - abs(dot(normal, E));
-      float rim = smoothstep(rimStart, rimEnd, normalToCam);
-      vec4 Irim = rim*rimColor;
-
-      gl_FragColor = gl_FragColor + Irim;
-
-      gl_FragColor.a = 1.0;
-
-      float edgeMult = 1.0 - innerTransparency*abs(dot(normal, E));
-
-      gl_FragColor = opacity*edgeMult*gl_FragColor;
+      finalColor.a = 1.0;
+      gl_FragColor = finalColor;
     }
   }
 }

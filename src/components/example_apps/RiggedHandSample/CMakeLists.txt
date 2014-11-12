@@ -91,28 +91,28 @@ define_post_build_resource_copy_rules(
     RELATIVE_PATH_BASE
         ${EXECUTABLE_OUTPUT_PATH}
     RELATIVE_PATH_RESOURCES
-        lighting-frag.glsl
-        lighting-vert.glsl
-        Male_Rigged_Arm.FBX
-        Male_Arm_DarkSkin_color.png
-        Male_Arm_DarkSkin_normal.png
-        Male_Arm_DarkSkin_specular.png
-        Male_Arm_LightSkin_color.png
-        Male_Arm_LightSkin_normal.png
-        Male_Arm_LightSkin_specular.png
-        Male_Arm_MediumSkin_color.png
-        Male_Arm_MediumSkin_normal.png
-        Male_Arm_MediumSkin_specular.png
-        Female_Rigged_Arm.FBX
-        Female_Arm_DarkSkin_color.png
-        Female_Arm_DarkSkin_normal.png
-        Female_Arm_DarkSkin_specular.png
-        Female_Arm_LightSkin_color.png
-        Female_Arm_LightSkin_normal.png
-        Female_Arm_LightSkin_specular.png
-        Female_Arm_MediumSkin_color.png
-        Female_Arm_MediumSkin_normal.png
-        Female_Arm_MediumSkin_specular.png
+        shaders/lighting-frag.glsl
+        shaders/lighting-vert.glsl
+        models/Male_Rigged_Arm.FBX
+        models/Female_Rigged_Arm.FBX
+        textures/Male_Arm_DarkSkin_color.png
+        textures/Male_Arm_DarkSkin_normal.png
+        textures/Male_Arm_DarkSkin_specular.png
+        textures/Male_Arm_LightSkin_color.png
+        textures/Male_Arm_LightSkin_normal.png
+        textures/Male_Arm_LightSkin_specular.png
+        textures/Male_Arm_MediumSkin_color.png
+        textures/Male_Arm_MediumSkin_normal.png
+        textures/Male_Arm_MediumSkin_specular.png
+        textures/Female_Arm_DarkSkin_color.png
+        textures/Female_Arm_DarkSkin_normal.png
+        textures/Female_Arm_DarkSkin_specular.png
+        textures/Female_Arm_LightSkin_color.png
+        textures/Female_Arm_LightSkin_normal.png
+        textures/Female_Arm_LightSkin_specular.png
+        textures/Female_Arm_MediumSkin_color.png
+        textures/Female_Arm_MediumSkin_normal.png
+        textures/Female_Arm_MediumSkin_specular.png
 )
 
 if(_this_is_standalone_project)

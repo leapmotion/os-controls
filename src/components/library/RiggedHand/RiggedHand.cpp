@@ -429,7 +429,9 @@ model::NodeRef RiggedHand::getJointNode(int fingerIdx, int boneIdx) const {
 GLShaderRef RiggedHand::getHandsShader() {
   static GLShaderRef handsShader;
   if (handsShader == nullptr) {
-    handsShader = Resource<GLShader>("lighting");
+    std::shared_ptr<TextFile> lightingFrag(new TextFile("shaders/lighting-frag.glsl"));
+    std::shared_ptr<TextFile> lightingVert(new TextFile("shaders/lighting-vert.glsl"));
+    handsShader = std::shared_ptr<GLShader>(new GLShader(lightingVert->Contents(), lightingFrag->Contents()));
   }
   return handsShader;
 }

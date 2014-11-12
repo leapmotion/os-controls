@@ -40,8 +40,8 @@ void main()
 	}
 	outPosition = (model_view_matrix * pos).xyz;
 	outNormal = (normal_matrix * norm).xyz;
-  outTexCoord = tex_coord;
-  outTexCoord.y = 1.0 - outTexCoord.y;
+ 	outTexCoord = tex_coord;
+ 	outTexCoord.y = 1.0 - outTexCoord.y;
 
 	gl_Position = projection_times_model_view_matrix * pos;
 }
