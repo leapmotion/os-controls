@@ -31,7 +31,7 @@ void OculusApplication::Initialize() {
   m_SFMLController.Initialize(params);        // This initializes everything SFML-related.
 
 #if _WIN32
-  m_Oculus.SetHWND(m_SFMLController.GetHWND());
+  m_Oculus.SetWindow(m_SFMLController.GetHWND());
 #endif
 
   if (!m_Oculus.Init()) {

@@ -2,6 +2,7 @@
 #include "GLTestFramework.h"
 #include <gtest/gtest.h>
 #include "Leap/GL/GLShader.h"
+#include <memory>
 
 class GLShaderTest : public GLTestFramework_Headless { };
 
