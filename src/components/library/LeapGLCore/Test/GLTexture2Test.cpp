@@ -150,8 +150,8 @@ void RenderTexturedRectangle (const GLTexture2 &texture) {
   const GLfloat param = 0.7f;
   const GLfloat vertex_array[VERTEX_COUNT*2] = {
     -param, -param,
-      param, -param,
-      param,  param,
+     param, -param,
+     param,  param,
     -param,  param
   };
   static const GLfloat TEXTURE_COORD_ARRAY[VERTEX_COUNT*2] = {
