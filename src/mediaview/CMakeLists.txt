@@ -11,7 +11,7 @@ ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
 
 add_library(mediaview ${mediaview_EXEFLAGS} ${mediaview_SOURCES})
 
-set_property(TARGET mediaview PROPERTY FOLDER "Shortcuts Projects")
+set_property(TARGET mediaview PROPERTY FOLDER "Shortcuts")
 
 target_link_libraries(mediaview Autowiring graphics)
 

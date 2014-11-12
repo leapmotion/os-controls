@@ -1,3 +1,10 @@
+set(Shortcuts_VERSION_MAJOR "1")
+set(Shortcuts_VERSION_MINOR "0")
+set(Shortcuts_VERSION_PATCH "1")
+set(Shortcuts_VERSION "${Shortcuts_VERSION_MAJOR}.${Shortcuts_VERSION_MINOR}.${Shortcuts_VERSION_PATCH}")
+set(Shortcuts_APPNAME "OS Controls")
+set(Shortcuts_APPDESC "Leap Motion Shortcuts")
+
 set(Shortcuts_SOURCES
   ErrorDialogs.h
   ErrorDialogs.cpp
@@ -98,7 +105,7 @@ configure_file(Version.h.in Version.h)
 
 add_executable(Shortcuts ${Shortcuts_EXEFLAGS} ${Shortcuts_SOURCES})
 
-set_property(TARGET Shortcuts PROPERTY FOLDER "Shortcuts Projects")
+set_property(TARGET Shortcuts PROPERTY FOLDER "Shortcuts")
 
 target_link_libraries(Shortcuts Autowiring utility interaction graphics osinterface expose)
 
