@@ -67,23 +67,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES 
 endif()
 
 add_subdirectory(C++11)
-
-add_sublibrary(
-    Application
-    HEADERS
-        Application.h
-        EventHandler.h
-        Renderable.h
-        RenderableEventHandler.h
-    SOURCES
-        Application.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-    EXPLICIT_LIBRARY_DEPENDENCIES
-        "SDL 2"
-    BRIEF_DOC_STRING
-        "A simple framework for an SDL-based application."
-)
+add_subdirectory(Application)
 
 add_sublibrary(
     EigenTypes # TODO: this should probably be renamed to just Eigen
