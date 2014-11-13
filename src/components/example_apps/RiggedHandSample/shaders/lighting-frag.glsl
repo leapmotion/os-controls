@@ -69,7 +69,7 @@ void main (void)
     gl_FragColor.rgb = vec3(value);
     gl_FragColor.a = 1.0;
   } else if (flatImage) {
-    gl_FragColor = emission + ambient_light_color;
+    gl_FragColor = emission + ambient_lighting_proportion*ambient_light_color;
   } else {
     vec4 Dm = vec4(1.0);
     if (use_texture) {
@@ -93,7 +93,7 @@ void main (void)
         specularColor = specular * texture2D(specularMap, outTexCoord);
       }
 
-      vec4 finalColor = emission + ambient_light_color * Dm;
+      vec4 finalColor = emission + ambient_lighting_proportion * ambient_light_color * Dm;
       for (int i=0; i<numLights; i++) {
         vec3 lightDir = lightPos[i] - outPosition;
         float dist = length(lightDir);

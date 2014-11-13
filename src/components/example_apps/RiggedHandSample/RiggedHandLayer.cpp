@@ -88,13 +88,11 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   zBox.Translation() = 15 * Eigen::Vector3d::UnitZ();
   PrimitiveBase::DrawSceneGraph(zBox, m_Renderer);
 
-  glEnable(GL_TEXTURE_2D);
   for (size_t i=0; i<mRiggedHands.size(); i++) {
-    PrimitiveBase::DrawSceneGraph(*mRiggedHands[i], m_Renderer);
-  }
-  glDisable(GL_TEXTURE_2D);
+    if (!mRiggedHands[i]->HandsShader()) {
+      mRiggedHands[i]->SetHandsShader(RiggedHand::getDefaultHandsShader());
+    }
 
-  for (size_t i=0; i<mRiggedHands.size(); i++) {
     GLShaderRef shader = mRiggedHands[i]->HandsShader();
     shader->Bind();
 
@@ -117,4 +115,10 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
     shader->SetUniformf("maxDepthDist", static_cast<float>(1000));
     shader->Unbind();
   }
+
+  glEnable(GL_TEXTURE_2D);
+  for (size_t i=0; i<mRiggedHands.size(); i++) {
+    PrimitiveBase::DrawSceneGraph(*mRiggedHands[i], m_Renderer);
+  }
+  glDisable(GL_TEXTURE_2D);
 }

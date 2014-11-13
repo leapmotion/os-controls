@@ -47,6 +47,8 @@ public:
   void SetHandsShader(const GLShaderRef& shader) { mHandsShader = shader; };
   GLShaderRef HandsShader() { return mHandsShader; };
 
+  static GLShaderRef getDefaultHandsShader();
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
@@ -66,7 +68,6 @@ private:
   model::NodeRef getWristNode() const;
   model::NodeRef getJointNode(int fingerIdx, int boneIdx) const;
 
-  static GLShaderRef getHandsShader();
   static model::SkinnedVboMeshRef getMeshForGender(Gender gender);
   static GLTexture2ImageRef getTexture(Gender gender, SkinTone tone, TextureMap texture);
   static Eigen::Quaterniond lookRotation(const Eigen::Vector3d& lookAt, const Eigen::Vector3d& upDirection, bool leftHanded = false);

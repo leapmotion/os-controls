@@ -156,7 +156,7 @@ void RiggedHand::MakeAdditionalModelViewTransformations(ModelView& model_view) c
 
 void RiggedHand::DrawContents(RenderState& renderState) const {
   if (!mHandsShader) {
-    mHandsShader = getHandsShader();
+    mHandsShader = getDefaultHandsShader();
   }
 
   std::vector<model::MeshVboSectionRef>& sections = mSkinnedVboHands->getSections();
@@ -200,7 +200,6 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       mHandsShader->SetUniformi("normalMap", 1);
       mHandsShader->SetUniformi("useSpecularMap", mUseSpecularMap);
       mHandsShader->SetUniformi("specularMap", 2);
-      mHandsShader->SetUniformf("camPos", Eigen::Vector3f::Zero().eval());
 
       mHandsShader->SetUniformf("diffuse_light_color", diffuseColor);
       mHandsShader->SetUniformf("specular", specularColor);
@@ -428,7 +427,7 @@ model::NodeRef RiggedHand::getJointNode(int fingerIdx, int boneIdx) const {
   return mSkinnedVboHands->getSkeleton()->getBone(boneName);
 }
 
-GLShaderRef RiggedHand::getHandsShader() {
+GLShaderRef RiggedHand::getDefaultHandsShader() {
   static GLShaderRef handsShader;
   if (handsShader == nullptr) {
     std::shared_ptr<TextFile> lightingFrag(new TextFile("shaders/lighting-frag.glsl"));
