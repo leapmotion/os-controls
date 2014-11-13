@@ -1,5 +1,7 @@
 add_sublibrary(
     GLTexture2
+    SOURCE_PATH
+        .
     HEADERS
         GLTexture2.h
         GLTexture2Params.h

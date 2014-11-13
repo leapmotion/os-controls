@@ -1,5 +1,7 @@
 add_sublibrary(
     TextAndBinaryFileLoader
+    SOURCE_PATH
+        .
     HEADERS
         TextFileLoader.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES

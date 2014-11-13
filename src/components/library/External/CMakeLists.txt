@@ -1,7 +1,7 @@
 add_sublibrary(
     NanoSVG
     SOURCE_PATH
-        ./NanoSVG
+        NanoSVG
     HEADERS
         LICENSE.txt
         nanosvg.h
@@ -13,7 +13,7 @@ add_sublibrary(
 add_sublibrary(
     PolyPartition
     SOURCE_PATH
-        ./PolyPartition
+        PolyPartition
     HEADERS
         polypartition.h
     SOURCES

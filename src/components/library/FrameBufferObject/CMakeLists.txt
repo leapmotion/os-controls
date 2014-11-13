@@ -1,6 +1,8 @@
 
 add_sublibrary(
     FrameBufferObject
+    SOURCE_PATH
+        .
     HEADERS
         FrameBufferObject.h
         RenderBuffer.h

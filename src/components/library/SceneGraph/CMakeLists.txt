@@ -1,5 +1,7 @@
 add_sublibrary(
     SceneGraph
+    SOURCE_PATH
+        .
     HEADERS
         SceneGraphNode.h
         SceneGraphNodeProperties.h

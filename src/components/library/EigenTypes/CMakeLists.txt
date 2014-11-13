@@ -1,5 +1,7 @@
 add_sublibrary(
     EigenTypes # TODO: this should probably be renamed to just Eigen
+    SOURCE_PATH
+        .
     HEADERS
         EigenTypes.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES

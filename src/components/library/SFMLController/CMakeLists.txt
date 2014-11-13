@@ -2,6 +2,8 @@
 set(SFML_STATIC_LIBRARIES ON) #required for proper linkage..
 add_sublibrary(
     SFMLController
+    SOURCE_PATH
+        .
     HEADERS
         SFMLController.h
     SOURCES

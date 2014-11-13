@@ -1,5 +1,7 @@
 add_sublibrary(
     LeapListener
+    SOURCE_PATH
+        .
     HEADERS
         LeapListener.h
     SOURCES

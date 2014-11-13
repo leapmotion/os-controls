@@ -1,6 +1,8 @@
 
 add_sublibrary(
     Animation
+    SOURCE_PATH
+    	.
     HEADERS
         Animation.h
     EXPLICIT_SUBLIBRARY_DEPENDENCIES

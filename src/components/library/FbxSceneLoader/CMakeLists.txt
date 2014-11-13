@@ -1,5 +1,7 @@
 add_sublibrary(
     FbxSceneLoader
+    SOURCE_PATH
+        .
     HEADERS
         FbxSceneLoader.h
     SOURCES

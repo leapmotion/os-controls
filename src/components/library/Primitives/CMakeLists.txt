@@ -1,5 +1,7 @@
 add_sublibrary(
     Primitives
+    SOURCE_PATH
+        .
     HEADERS
         DropShadow.h
         PrimitiveBase.h

@@ -1,5 +1,7 @@
 add_sublibrary(
     GLMatrices
+    SOURCE_PATH
+        .
     HEADERS
         ModelViewProjection.h
     SOURCES
