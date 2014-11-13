@@ -7,6 +7,8 @@
 #include <cmath>
 #include <assert.h>
 
+#include <Leap.h>
+
 const float RiggedHand::UNIT_CONVERSION_SCALE_FACTOR = 10.0f; // FBX model is in cm, our units are mm
 
 RiggedHand::RiggedHand() {

@@ -7,9 +7,12 @@
 #include "GLTexture2Image.h"
 #include "PrimitiveBase.h"
 
-#include <Leap.h>
-
 #include <memory>
+
+namespace Leap {
+  class Hand;
+  struct Matrix;
+}
 
 class RiggedHand : public PrimitiveBase {
 public:
