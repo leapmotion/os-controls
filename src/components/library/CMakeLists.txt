@@ -668,46 +668,46 @@ endforeach()
 list(SORT ALL_LIBRARY_DEPENDENCIES)
 list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
 
-install(
-    TARGETS Components ${_all_link_sublibraries}
-    EXPORT ComponentsRelease
-    COMPONENT Components
-    CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
-    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
-    LIBRARY DESTINATION lib/Release
-    ARCHIVE DESTINATION lib/Release
-    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
-)
-install(
-    TARGETS Components ${_all_link_sublibraries}
-    EXPORT ComponentsDebug
-    COMPONENT Components
-    CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
-    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
-    LIBRARY DESTINATION lib/Debug
-    ARCHIVE DESTINATION lib/Debug
-    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
-)
-# This causes automatically-generated export targets to be defined during the install step in
-#   ${CMAKE_INSTALL_PREFIX}/cmake/ComponentsExport.cmake
-# which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with
-# configure_file and install).
-install(
-    EXPORT ComponentsRelease
-    CONFIGURATIONS Release
-    COMPONENT Components
-    NAMESPACE Components::
-    DESTINATION cmake
-    FILE ComponentsExport.cmake
-)
-install(
-    EXPORT ComponentsDebug
-    CONFIGURATIONS Debug
-    COMPONENT Components
-    NAMESPACE Components::
-    DESTINATION cmake
-    FILE ComponentsExport.cmake
-)
+#install(
+#    TARGETS Components ${_all_link_sublibraries}
+#    EXPORT ComponentsRelease
+#    COMPONENT Components
+#    CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
+#    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
+#    LIBRARY DESTINATION lib/Release
+#    ARCHIVE DESTINATION lib/Release
+#    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
+#)
+#install(
+#    TARGETS Components ${_all_link_sublibraries}
+#    EXPORT ComponentsDebug
+#    COMPONENT Components
+#    CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
+#    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
+#    LIBRARY DESTINATION lib/Debug
+#    ARCHIVE DESTINATION lib/Debug
+#    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
+#)
+## This causes automatically-generated export targets to be defined during the install step in
+##   ${CMAKE_INSTALL_PREFIX}/cmake/ComponentsExport.cmake
+## which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with
+## configure_file and install).
+#install(
+#    EXPORT ComponentsRelease
+#    CONFIGURATIONS Release
+#    COMPONENT Components
+#    NAMESPACE Components::
+#    DESTINATION cmake
+#    FILE ComponentsExport.cmake
+#)
+#install(
+#    EXPORT ComponentsDebug
+#    CONFIGURATIONS Debug
+#    COMPONENT Components
+#    NAMESPACE Components::
+#    DESTINATION cmake
+#    FILE ComponentsExport.cmake
+#)
 # Generate the file ComponentsConfig.cmake that will be installed with the `make install` steps.
 # NOTE: This is distinct from the ComponentsConfig.cmake file that will be generated in
 # ${PROJECT_BINARY_DIR} by the export command below.
@@ -738,14 +738,14 @@ install(
 # Generate the file ComponentsConfig.cmake that will be generated in the build dir by the build.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfig.cmake @ONLY)
 # Generate the file which defines all the targets of this project.
-export(
-    TARGETS
-        Components
-        ${ADDED_SUBLIBRARIES}
-    NAMESPACE Components::
-    FILE cmake/ComponentsExport.cmake
-)
-
+#export(
+#    TARGETS
+#        Components
+#        ${ADDED_SUBLIBRARIES}
+#    NAMESPACE Components::
+#    FILE cmake/ComponentsExport.cmake
+#)
+#
 ###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
