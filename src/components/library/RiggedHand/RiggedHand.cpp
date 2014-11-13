@@ -224,7 +224,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       auto locations = std::make_tuple(positionAddr, normalAddr, texcoordAddr, boneWeightsAddr, boneIndicesAddr);
       section->getVboMesh().Enable(locations);
 
-      const int numIndices = static_cast<int>(section->getIndices().Size());
+      const int numIndices = static_cast<int>(section->getIndices().Size())/sizeof(uint32_t);
       section->getIndices().Bind();
       GL_THROW_UPON_ERROR(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
       section->getIndices().Unbind();
