@@ -1,0 +1,20 @@
+add_sublibrary(
+    RadialMenu
+    HEADERS
+        RadialItem.h
+        RadialMenu.h
+        RadialSlider.h
+    SOURCES
+        RadialItem.cpp
+        RadialMenu.cpp
+        RadialSlider.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
+        Animation
+        EigenTypes
+        GLCompatibility
+        GLMaterial
+        Primitives
+    BRIEF_DOC_STRING
+        "Provides abstract radial view classes."
+)

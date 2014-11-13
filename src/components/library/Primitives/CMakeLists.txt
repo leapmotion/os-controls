@@ -1,0 +1,31 @@
+add_sublibrary(
+    Primitives
+    HEADERS
+        DropShadow.h
+        PrimitiveBase.h
+        PrimitiveGeometry.h
+        Primitives.h
+        RenderState.h
+        SVGPrimitive.h
+        TexturedFrame.h
+    SOURCES
+        DropShadow.cpp
+        PrimitiveGeometry.cpp
+        Primitives.cpp
+        SVGPrimitive.cpp
+        TexturedFrame.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
+        GLBuffer
+        GLMaterial
+        GLMatrices
+        GLShaderLoader
+        GLTexture2
+        GLVertexBuffer
+        NanoSVG
+        PolyPartition
+        Resource
+        SceneGraph
+    BRIEF_DOC_STRING
+        "Provides some simple shapes in a transform hierarchy."
+)
