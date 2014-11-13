@@ -176,6 +176,7 @@ void SDLController::ConfigureRenderer() {
 
 void SDLController::InitGLContext() {
   // Create a GL context.
+  SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
   m_SDL_GLContext = SDL_GL_CreateContext(m_SDL_Window);
   if (m_SDL_GLContext == nullptr) {
     CleanUpInitializedResources();
