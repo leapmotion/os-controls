@@ -149,17 +149,6 @@ endif()
 # projects that link this library.
 ###################################################################################################
 
-if(_this_is_standalone_project)
-    # TODO: We could build both static and shared libraries.  There will be a name collision in
-    # the library target, which we can resolve using
-    # http://datainfer.wordpress.com/2013/10/24/make-both-static-and-shared-libraries-in-one-build-with-cmake/
-    # However I haven't implemented this directly because there is a different name collision
-    # problem in multiple calls to target_package to specify dependencies (e.g. on Eigen).
-
-    # TODO: could/should this be a target property?
-    option(BUILD_SHARED_LIBS "Build Components as a shared library (instead of static)" OFF)
-endif()
-
 add_library(Components INTERFACE)
 
 ###################################################################################################
