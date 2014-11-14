@@ -102,17 +102,6 @@ add_subdirectory(TextAndBinaryFileLoader)
 add_subdirectory(Test/GLTestFramework)
 
 ###################################################################################################
-# Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
-###################################################################################################
-
-# TODO: make these into target properties.  BUILD_WITH_INSTALL_RPATH is a target property.
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-# This specifies the directory prefix for the install name (see output of `otool -L libComponents.dylib`).
-# Shared libraries should use "@loader_path", and can be installed side by side with the application
-# binary.  See the Stub example app for usage.
-set(CMAKE_INSTALL_NAME_DIR "@loader_path")
-
-###################################################################################################
 # Global compiler options (and related) go here.  NOTE: ANY SUBLIBRARY-SPECIFIC COMPILER OPTIONS
 # SHOULD BE MADE IN THE CORRESPONDING SUBLIBRARY DEFINITION!
 ###################################################################################################
