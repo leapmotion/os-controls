@@ -9,11 +9,6 @@
 
 #include <memory>
 
-namespace Leap {
-  class Hand;
-  struct Matrix;
-}
-
 class RiggedHand : public PrimitiveBase {
 public:
 
@@ -25,10 +20,6 @@ public:
 
   void SetStyle(Gender gender, SkinTone tone);
 
-  // option 1 - use Leap API hand to fill in needed fields
-  void SetLeapHand(const Leap::Hand& hand);
-
-  // option 2 - set all fields manually
   void SetConfidence(float confidence);
   void SetTimeVisible(float timeVisible);
   void SetIsLeft(bool isLeft);
@@ -39,7 +30,7 @@ public:
   void SetBoneBasis(int fingerIdx, int boneIdx, const Eigen::Matrix3f& basis);
   void SetBoneLength(int fingerIdx, int boneIdx, float length);
 
-  // after setting data from Leap or manual input, call Update to transfer data to rig/skin
+  // after setting data call Update to transfer data to rig/skin
   void UpdateRigAndSkin();
 
   virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
@@ -72,7 +63,6 @@ private:
   static GLTexture2ImageRef getTexture(Gender gender, SkinTone tone, TextureMap texture);
   static Eigen::Quaterniond lookRotation(const Eigen::Vector3d& lookAt, const Eigen::Vector3d& upDirection, bool leftHanded = false);
   static Eigen::Quaterniond toQuat(const Eigen::Matrix3d& basis, bool leftHanded = false);
-  static Eigen::Matrix3d toEigen(const Leap::Matrix& mat);
   static Eigen::Quaterniond computeArmReorientation(bool left);
   static Eigen::Quaterniond computeWristReorientation(bool left);
   static Eigen::Quaterniond computeFingerReorientation(bool left);

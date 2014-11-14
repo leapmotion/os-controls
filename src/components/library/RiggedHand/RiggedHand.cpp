@@ -7,8 +7,6 @@
 #include <cmath>
 #include <assert.h>
 
-#include <Leap.h>
-
 const float RiggedHand::UNIT_CONVERSION_SCALE_FACTOR = 10.0f; // FBX model is in cm, our units are mm
 
 RiggedHand::RiggedHand() {
@@ -72,27 +70,6 @@ RiggedHand::~RiggedHand() {
 void RiggedHand::SetStyle(Gender gender, SkinTone tone) {
   mGender = gender;
   mSkinTone = tone;
-}
-
-void RiggedHand::SetLeapHand(const Leap::Hand& hand) {
-  mConfidence = hand.confidence();
-  mTimeVisible = hand.timeVisible();
-  mIsLeft = hand.isLeft();
-
-  mArmBasis = toEigen(hand.arm().basis());
-  mHandBasis = toEigen(hand.basis());
-  mPalmWidth = hand.palmWidth();
-  mLeapWristPosition = hand.wristPosition().toVector3<Eigen::Vector3f>();
-
-  const Leap::FingerList fingers = hand.fingers();
-  for (int i=0; i<5; i++) {
-    const Leap::Finger finger = fingers[i];
-    for (int j=0; j<4; j++) {
-      const Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(j));
-      mBoneLengths[i][j] = bone.length();
-      mBoneBases[i][j] = toEigen(bone.basis());
-    }
-  }
 }
 
 void RiggedHand::SetConfidence(float confidence) {
@@ -535,17 +512,6 @@ Eigen::Quaterniond RiggedHand::toQuat(const Eigen::Matrix3d& basis, bool leftHan
   const Eigen::Vector3d up = rightHanded * LEAP_UP;
   const Eigen::Vector3d forward = rightHanded * LEAP_FORWARD;
   return lookRotation(forward, up, leftHanded);
-}
-
-Eigen::Matrix3d RiggedHand::toEigen(const Leap::Matrix& mat) {
-  Eigen::Matrix3d result;
-  //result.col(0) = mat.xBasis.toVector3<Eigen::Vector3d>();
-  //result.col(1) = mat.yBasis.toVector3<Eigen::Vector3d>();
-  //result.col(2) = mat.zBasis.toVector3<Eigen::Vector3d>();
-  result.col(0) << mat.xBasis.x, mat.xBasis.y, mat.xBasis.z;
-  result.col(1) << mat.yBasis.x, mat.yBasis.y, mat.yBasis.z;
-  result.col(2) << mat.zBasis.x, mat.zBasis.y, mat.zBasis.z;
-  return result;
 }
 
 Eigen::Quaterniond RiggedHand::computeArmReorientation(bool left) {

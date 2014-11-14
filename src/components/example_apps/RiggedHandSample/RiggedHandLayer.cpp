@@ -36,7 +36,7 @@ void RiggedHandLayer::Update(TimeDelta real_time_delta) {
         mRiggedHands[i]->SetStyle(RiggedHand::MALE, RiggedHand::MEDIUM);
       }
       for (int i=0; i<numHands; i++) {
-        mRiggedHands[i]->SetLeapHand(hands[i]);
+        setRiggedHandFromLeapHand(mRiggedHands[i], hands[i]);
         mRiggedHands[i]->UpdateRigAndSkin();
       }
     }
@@ -121,4 +121,34 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
     PrimitiveBase::DrawSceneGraph(*mRiggedHands[i], m_Renderer);
   }
   glDisable(GL_TEXTURE_2D);
+}
+
+
+Eigen::Matrix3d RiggedHandLayer::toEigen(const Leap::Matrix& mat) {
+  Eigen::Matrix3d result;
+  result.col(0) << mat.xBasis.x, mat.xBasis.y, mat.xBasis.z;
+  result.col(1) << mat.yBasis.x, mat.yBasis.y, mat.yBasis.z;
+  result.col(2) << mat.zBasis.x, mat.zBasis.y, mat.zBasis.z;
+  return result;
+}
+
+void RiggedHandLayer::setRiggedHandFromLeapHand(RiggedHandRef riggedHand, Leap::Hand leapHand) {
+  riggedHand->SetConfidence(leapHand.confidence());
+  riggedHand->SetTimeVisible(leapHand.timeVisible());
+  riggedHand->SetIsLeft(leapHand.isLeft());
+
+  riggedHand->SetArmBasis(toEigen(leapHand.arm().basis()).cast<float>());
+  riggedHand->SetHandBasis(toEigen(leapHand.basis()).cast<float>());
+  riggedHand->SetPalmWidth(leapHand.palmWidth());
+  riggedHand->SetWristPosition(leapHand.wristPosition().toVector3<Eigen::Vector3f>());
+
+  const Leap::FingerList fingers = leapHand.fingers();
+  for (int i=0; i<5; i++) {
+    const Leap::Finger finger = fingers[i];
+    for (int j=0; j<4; j++) {
+      const Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(j));
+      riggedHand->SetBoneLength(i, j, bone.length());
+      riggedHand->SetBoneBasis(i, j, toEigen(bone.basis()).cast<float>());
+    }
+  }
 }

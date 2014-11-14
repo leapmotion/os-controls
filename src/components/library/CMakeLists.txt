@@ -590,9 +590,8 @@ add_sublibrary(
         RiggedHand.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Rigging
-        LeapListener
     BRIEF_DOC_STRING
-        "Realistic deformable hand from Leap API."
+        "Realistic deformable hand."
 )
 
 ###################################################################################################

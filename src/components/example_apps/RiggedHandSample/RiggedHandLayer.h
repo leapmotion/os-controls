@@ -28,6 +28,9 @@ public:
 
 private:
 
+  Eigen::Matrix3d toEigen(const Leap::Matrix& mat);
+  void setRiggedHandFromLeapHand(RiggedHandRef riggedHand, Leap::Hand leapHand);
+
   int m_Width;
   int m_Height;
 
