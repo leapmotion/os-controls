@@ -102,28 +102,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Ma
 endif()
 
 ###################################################################################################
-# Add options for defining which sublibraries should be linked into the Components library, and
-# link them.
-###################################################################################################
-
-# Construct the list of sublibraries that are required to be linked.
-set(_explicit_link_sublibraries "")
-foreach(_sublibrary ${ADDED_SUBLIBRARIES})
-    list(APPEND _explicit_link_sublibraries ${_sublibrary})
-    target_link_libraries(Components INTERFACE ${_sublibrary})
-endforeach()
-
-set(_temp "${ADDED_SUBLIBRARIES}")
-list(SORT _temp)
-set(SUBLIBRARIES_DEFINED_readonly ${_temp} CACHE STRING "This is the list of sublibraries that were successfully defined (all dependencies were met)." FORCE)
-
-set(_temp "${UNADDED_SUBLIBRARIES}")
-list(SORT _temp)
-set(SUBLIBRARIES_UNDEFINED_readonly ${_temp} CACHE STRING "This is the list of sublibraries that were not successfully defined (some dependencies were unmet)." FORCE)
-
-print_dependency_graph_of_sublibrary_linking_library(Components "${ADDED_SUBLIBRARIES}")
-
-###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
