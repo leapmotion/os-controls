@@ -69,8 +69,6 @@ foreach(subdirectory ${all_subdirectories})
   endif()
 endforeach()
 
-add_subdirectory(Test/GLTestFramework)
-
 ###################################################################################################
 # Global compiler options (and related) go here.  NOTE: ANY SUBLIBRARY-SPECIFIC COMPILER OPTIONS
 # SHOULD BE MADE IN THE CORRESPONDING SUBLIBRARY DEFINITION!
