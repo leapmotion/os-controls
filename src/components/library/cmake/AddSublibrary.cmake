@@ -204,11 +204,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
     foreach(_source ${_arg_SOURCES})
         list(APPEND _path_prefixed_sources ${_sublibrary_source_path}/${_source})
     endforeach()
-    # Determine the relative paths of all the resources.
-    set(_path_prefixed_resources "")
-    foreach(_resource ${_arg_RESOURCES})
-        list(APPEND _path_prefixed_resources ${_sublibrary_source_path}/${_resource})
-    endforeach()
 
     # TODO: Consider using `add_library(target OBJECT ...)` to make a library target
     # which doesn't compile down to an archived library, but otherwise behaves as one.
