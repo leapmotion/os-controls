@@ -64,27 +64,17 @@ endmacro()
 #     Currently, each compile definition is inherited by sublibraries which depend upon this sublibrary.
 #   * COMPILE_OPTIONS [opt1 [opt2 [...]]] -- Specifies commandline flags to pass to the compiler.
 #     Currently, each compile option is inherited by sublibraries which depend upon this sublibrary.
-#   * INTERNAL_DEPENDENCIES [comp1 [comp2 [...]]] -- Specifies which other sublibraries
-#     this sublibrary depends upon.  Each dependency must already be fully defined.  What this
-#     dependency means on a practical level is that the compile definitions, compile options,
-#     include directories, and link libraries will all be inherited by this sublibrary automatically.
-#   * EXTERNAL_DEPENDENCIES [lib1 [lib2 [...]]] -- Specifies the libraries that this
+#   * INTERNAL_DEPENDENCIES [comp1 [comp2 [...]]] -- Specifies which other projects
+#     this project depends upon. Implemented using target_link_libraries
+#   * EXTERNAL_DEPENDENCIES [lib1 [lib2 [...]]] -- Specifies the external modules that this
 #     sublibrary depends upon.  Each parameter should be in the form
 #       "LibName [version] [other-arguments]"
 #     and will be passed verbatim as arguments to find_package (therefore see the documentation for
-#     find_package for more details).  These libraries do not need to already be defined -- the
-#     find_package function will be called on them (invoking the respective FindXXX.cmake module).
-#     As with INTERNAL_DEPENDENCIES, the compile definitions, compile options, include
-#     directories (and presumably link libraries?) will all be inherited by this sublibrary
-#     automatically.
+#     find_package for more details). If found, they will then be linked agains using target_package
 #   * ADDITIONAL_TARGET_PROPERTIES [prop1 val1 [prop2 val2 [...]]] -- Specifies arguments to pass
 #     directly to set_target_properties, which will be called on the library target for this
 #     sublibrary.  These target properties are set at the very end of this function, so any target
-#     property already set can and will be overridden.  TODO: add a warning about overriding
-#     properties?
-#   * BRIEF_DOC_STRING [string1 [string2 [...]]] -- Specifies a list of strings (each of which
-#     typically can be newline-terminated) whose concatenation defines the "brief description"
-#     of this sublibrary.
+#     property already set can and will be overridden. Note that arugments must be strictly in pairs.
 #   * DETAILED_DOC_STRINGS [string1 [string2 [...]]] -- Analogous to BRIEF_DOC_STRING, but is
 #     intended to be used for a more detailed description.  Each separate string should be
 #     newline-terminated and should fit within one line (about 80 chars), so the print-out of all
