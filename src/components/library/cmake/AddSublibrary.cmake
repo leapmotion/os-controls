@@ -205,13 +205,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
         list(APPEND _path_prefixed_sources ${_sublibrary_source_path}/${_source})
     endforeach()
 
-    # TODO: Consider using `add_library(target OBJECT ...)` to make a library target
-    # which doesn't compile down to an archived library, but otherwise behaves as one.
-    # This may have caveats, such as calling
-    #   add_executable(user_app $<TARGET_OBJECTS:target>)
-    # (essentially treating it as a set of sources) instead of
-    #   target_link_libraries(user_app target)
-    # See the docs for add_library.
     list(LENGTH _arg_SOURCES _source_count)
     list(LENGTH _arg_HEADERS _headers_count)
     if(${_source_count} EQUAL 0 AND ${_headers_count} EQUAL 0)
