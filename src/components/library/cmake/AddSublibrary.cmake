@@ -169,7 +169,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     endif()
 
     foreach(_dep ${_arg_EXPLICIT_LIBRARY_DEPENDENCIES})
-        # For each library that hasn't been target_package'ed yet, call target_package on it.
+        # For each library that hasn't been find_package'ed yet, call find_package on it.
         separate_arguments(_dep)
         list(GET _dep 0 _lib_name)
         set(_lib_target_name ${_lib_name}::${_lib_name})
@@ -178,8 +178,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
             verbose_message("calling find_package(${_dep})")
             find_package(${_dep})
             if(NOT TARGET ${_lib_target_name})
-                message(${_unmet_dependency_message_status} "The \"${SUBLIBRARY_NAME}\" sublibrary has unmet library dependency \"${_dep}\", and therefore can't be defined.  This may be an inteded behavior (for example if you legitimately lack a library dependency and don't want the dependent sublibraries to be built) or may indicate a real error in the sublibrary definition.")
-                set(UNADDED_SUBLIBRARIES ${UNADDED_SUBLIBRARIES} ${SUBLIBRARY_NAME} PARENT_SCOPE)
+                message(WARNING "The \"${SUBLIBRARY_NAME}\" sublibrary has unmet library dependency \"${_dep}\", and therefore can't be defined.  This may be an inteded behavior (for example if you legitimately lack a library dependency and don't want the dependent sublibraries to be built) or may indicate a real error in the sublibrary definition.")
                 return()
             endif()
         endif()
