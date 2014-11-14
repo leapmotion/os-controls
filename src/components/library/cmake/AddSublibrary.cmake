@@ -221,7 +221,8 @@ function(add_sublibrary SUBLIBRARY_NAME)
 
     # If there are external project links, add them
     foreach(_dep ${_arg_EXTERNAL_DEPENDENCIES})
-        target_package(${SUBLIBRARY_NAME} LINK_TYPE ${_target_scope} ${_dep})
+        separate_arguments(_dep)
+        target_package(${SUBLIBRARY_NAME} ${_dep} LINK_TYPE ${_target_scope})
     endforeach()
 
     # Define post-build rules for copying resources.
