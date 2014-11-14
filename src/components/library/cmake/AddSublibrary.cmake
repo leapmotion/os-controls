@@ -35,7 +35,6 @@ include(VerboseMessage)
 macro(begin_sublibrary_definitions)
     set(ADDED_SUBLIBRARIES "")
     set(UNADDED_SUBLIBRARIES "")
-    set(LIBRARY_DEPENDENCY_MAP "")
 endmacro()
 
 function(get_sublibrary_target_name SUBLIBRARY target_name)
