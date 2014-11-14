@@ -233,84 +233,6 @@ endforeach()
 list(SORT ALL_LIBRARY_DEPENDENCIES)
 list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
 
-#install(
-#    TARGETS Components ${_all_link_sublibraries}
-#    EXPORT ComponentsRelease
-#    COMPONENT Components
-#    CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
-#    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
-#    LIBRARY DESTINATION lib/Release
-#    ARCHIVE DESTINATION lib/Release
-#    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
-#)
-#install(
-#    TARGETS Components ${_all_link_sublibraries}
-#    EXPORT ComponentsDebug
-#    COMPONENT Components
-#    CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
-#    # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
-#    LIBRARY DESTINATION lib/Debug
-#    ARCHIVE DESTINATION lib/Debug
-#    INCLUDES DESTINATION ${_Components_INCLUDE_DIRECTORIES}
-#)
-## This causes automatically-generated export targets to be defined during the install step in
-##   ${CMAKE_INSTALL_PREFIX}/cmake/ComponentsExport.cmake
-## which will be called by ${CMAKE_INSTALL_PREFIX}/ComponentsConfig.cmake (see next step with
-## configure_file and install).
-#install(
-#    EXPORT ComponentsRelease
-#    CONFIGURATIONS Release
-#    COMPONENT Components
-#    NAMESPACE Components::
-#    DESTINATION cmake
-#    FILE ComponentsExport.cmake
-#)
-#install(
-#    EXPORT ComponentsDebug
-#    CONFIGURATIONS Debug
-#    COMPONENT Components
-#    NAMESPACE Components::
-#    DESTINATION cmake
-#    FILE ComponentsExport.cmake
-#)
-# Generate the file ComponentsConfig.cmake that will be installed with the `make install` steps.
-# NOTE: This is distinct from the ComponentsConfig.cmake file that will be generated in
-# ${PROJECT_BINARY_DIR} by the export command below.
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake @ONLY)
-# Install rule for the ComponentsConfig.cmake file just generated.  It goes in the root directory
-# of the installation, and is the file that cmake looks for and uses in find_package.
-install(
-    FILES ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake
-    DESTINATION .
-    COMPONENT Components
-)
-# Generate the version configuration file.  This is the preferred method for indicating the presence
-# of a library and conveying version information to the find_package cmake command.
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenericConfigVersion.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake @ONLY)
-# Install rule for the version configuration file.  It should go in the root dir of the install.
-install(
-    FILES ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake
-    DESTINATION .
-    COMPONENT Components
-)
-
-###################################################################################################
-# Export rule for creating the ComponentsConfig.cmake file in the build directory, which is
-# what is found by cmake in order to link to the Components library from its build directory,
-# e.g. for when you're developing in parallel the Components library and an app which uses it.
-###################################################################################################
-
-# Generate the file ComponentsConfig.cmake that will be generated in the build dir by the build.
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PROJECT_BINARY_DIR}/ComponentsConfig.cmake @ONLY)
-# Generate the file which defines all the targets of this project.
-#export(
-#    TARGETS
-#        Components
-#        ${ADDED_SUBLIBRARIES}
-#    NAMESPACE Components::
-#    FILE cmake/ComponentsExport.cmake
-#)
-#
 ###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
@@ -333,9 +255,6 @@ if(BUILD_DOCUMENTATION)
         doc
         COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
         SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
-    # Define install rules for the documentation.
-    # TODO: Ideally we would specify that the 'doc' target is a dependency of 'install'.
-    install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION "." COMPONENT "Components")
 endif()
 
 # TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages
