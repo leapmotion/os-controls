@@ -145,13 +145,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Ma
 endif()
 
 ###################################################################################################
-# Definition of the actual Components library -- this is the target that will be used by external
-# projects that link this library.
-###################################################################################################
-
-add_library(Components INTERFACE)
-
-###################################################################################################
 # Add options for defining which sublibraries should be linked into the Components library, and
 # link them.
 ###################################################################################################
