@@ -230,13 +230,17 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # (essentially treating it as a set of sources) instead of
     #   target_link_libraries(user_app target)
     # See the docs for add_library.
-    list(LENGTH _path_prefixed_sources _source_count)
-    if(${_source_count} EQUAL 0)
+    list(LENGTH _arg_SOURCES _source_count)
+    list(LENGTH _arg_HEADERS _headers_count)
+    if(${_source_count} EQUAL 0 AND ${_headers_count} EQUAL 0)
         set(_is_interface_only TRUE)
         add_library(${SUBLIBRARY_NAME} INTERFACE)
-        # This is the scope specifier for use in the target_* functions called on this target.
-        # In particular, INTERFACE targets can only have INTERFACE scope.
         set(_target_scope INTERFACE)
+    elseif(${_source_count} EQUAL 0)
+        set(_is_interface_only TRUE)
+        add_library(${SUBLIBRARY_NAME} STATIC ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
+        set_property(TARGET ${SUBLIBRARY_NAME} PROPERTY LINKER_LANGUAGE CXX)
+        set(_target_scope PUBLIC)
     else()
         set(_is_interface_only FALSE)
         add_library(${SUBLIBRARY_NAME} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
