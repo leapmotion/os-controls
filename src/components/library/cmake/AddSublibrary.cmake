@@ -336,31 +336,20 @@ function(add_sublibrary SUBLIBRARY_NAME)
 endfunction()
 
 # This is a private helper function for print_dependency_graph_of_sublibrary.
-function(_print_dependency_graph_of_sublibrary SUBLIBRARY RECURSION_INDENT)
-    get_target_property(_brief_doc_string ${SUBLIBRARY} INTERFACE_BRIEF_DOC_STRING)
+function(_print_dependency_graph_of_target TARGET RECURSION_INDENT)
+    get_target_property(_brief_doc_string ${TARGET} INTERFACE_BRIEF_DOC_STRING)
     verbose_message("${RECURSION_INDENT}${SUBLIBRARY} -- ${_brief_doc_string}")
-    get_target_property(_explicit_sublibrary_dependencies ${SUBLIBRARY} INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
-    foreach(_dep ${_explicit_sublibrary_dependencies})
-        _print_dependency_graph_of_sublibrary(${_dep} "${RECURSION_INDENT}    ")
+    get_target_property(_link_libraries ${TARGET} INTERFACE_LINK_LIBRARIES)
+    foreach(_dep ${_link_libraries})
+        _print_dependency_graph_of_target(${_dep} "${RECURSION_INDENT}    ")
     endforeach()
 endfunction()
 
 # This function prints a dependency graph of the given sublibrary, simply using
 # nested, indented text lines to denote dependency.
-function(print_dependency_graph_of_sublibrary SUBLIBRARY)
-    _print_dependency_graph_of_sublibrary(${SUBLIBRARY} "")
+function(print_dependency_graph_of_target SUBLIBRARY)
+    _print_dependency_graph_of_target(${SUBLIBRARY} "")
 endfunction()
-
-# This function prints a dependency graph for a library that explicitly depends on
-# the sublibraries listed in LINK_SUBLIBRARIES.
-function(print_dependency_graph_of_sublibrary_linking_library LIBNAME LINK_SUBLIBRARIES)
-    verbose_message("${LIBNAME} -- depends explicitly on [${LINK_SUBLIBRARIES}]")
-    foreach(_link_sublibrary ${LINK_SUBLIBRARIES})
-        _print_dependency_graph_of_sublibrary(${_link_sublibrary} "    ")
-    endforeach()
-endfunction()
-
-# TODO: write a dot graph generator which produces the dependency graph.
 
 ###################################################################################################
 # Test functions
