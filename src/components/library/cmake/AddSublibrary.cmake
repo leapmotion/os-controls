@@ -123,24 +123,8 @@ function(add_sublibrary SUBLIBRARY_NAME)
         message(SEND_ERROR "Required BRIEF_DOC_STRING value was not defined for sublibrary ${SUBLIBRARY_NAME}")
     endif()
 
-    # Parse the arguments for use in the following target-defining calls.
-    if(_arg_EXCLUDE_FROM_ALL)
-        set(_exclude_from_all "EXCLUDE_FROM_ALL")
-    else()
-        set(_exclude_from_all "")
-    endif()
-
-    # Determine the directory for the sublibrary sources.
-    if(_arg_SOURCE_PATH)
-        verbose_message("    using explicitly-specified SOURCE_PATH (${_arg_SOURCE_PATH}) for SOURCE_PATH")
-        set(_sublibrary_source_path ${_arg_SOURCE_PATH})
-    else()
-        verbose_message("    using SUBLIBRARY_NAME (${SUBLIBRARY_NAME}) for SOURCE_PATH")
-        set(_sublibrary_source_path .)
-    endif()
-    
+    #Check to ensure that all required external dependencies are valid - early out if any aren't    
     foreach(_dep ${_arg_EXTERNAL_DEPENDENCIES})
-        # For each library that hasn't been find_package'ed yet, call find_package on it.
         separate_arguments(_dep)
         list(GET _dep 0 _lib_name)
         set(_lib_target_name ${_lib_name}::${_lib_name})
@@ -156,6 +140,22 @@ function(add_sublibrary SUBLIBRARY_NAME)
         endif()
         verbose_message("it can be -- proceeding with target definition as normal.")
     endforeach()
+
+    # Parse the arguments for use in the following target-defining calls.
+    if(_arg_EXCLUDE_FROM_ALL)
+        set(_exclude_from_all "EXCLUDE_FROM_ALL")
+    else()
+        set(_exclude_from_all "")
+    endif()
+
+    # Determine the directory for the sublibrary sources.
+    if(_arg_SOURCE_PATH)
+        verbose_message("    using explicitly-specified SOURCE_PATH (${_arg_SOURCE_PATH}) for SOURCE_PATH")
+        set(_sublibrary_source_path ${_arg_SOURCE_PATH})
+    else()
+        verbose_message("    using SUBLIBRARY_NAME (${SUBLIBRARY_NAME}) for SOURCE_PATH")
+        set(_sublibrary_source_path .)
+    endif()
 
     # Determine the relative paths of all the headers.
     set(_path_prefixed_headers "")
