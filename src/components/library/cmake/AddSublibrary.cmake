@@ -48,8 +48,8 @@ endmacro()
 #   * BRIEF_DOC_STRING <string> -- A brief description of this sublibrary which should fit within
 #     one line (about 80 chars).
 #   * SOURCE_PATH -- The path, relative to CMAKE_CURRENT_SOURCE_DIR, containing all the sublibrary
-#     headers and sources.  If this value is left unspecified, then it will default to the sublibrary
-#     name.
+#     headers and sources.  If this value is left unspecified, then it will default to the current
+#     directory.  Useful if you don't want to stick a cmakelists file in a subdirectory.
 # - Parameters taking multiple arguments (each one is optional, unless otherwise specified):
 #   * HEADERS [header1 [header2 [...]]] -- The list of headers for the sublibrary.  Each of these
 #     should be specified using a relative path, based at the sublibrary's subdirectory.
