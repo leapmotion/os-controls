@@ -37,10 +37,6 @@ macro(begin_sublibrary_definitions)
     set(UNADDED_SUBLIBRARIES "")
 endmacro()
 
-function(get_sublibrary_target_name SUBLIBRARY target_name)
-    set(${target_name} ${SUBLIBRARY} PARENT_SCOPE)
-endfunction()
-
 # This function defines a sublibrary (logical subgrouping of source, as described above)
 # as a library target.  The function uses the CMakeParseArguments paradigm, where all-uppercase
 # keywords indicate the meaning of the arguments that follow it (e.g. the install cmake command).
@@ -151,9 +147,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
         message(SEND_ERROR "Required BRIEF_DOC_STRING value was not defined for sublibrary ${SUBLIBRARY_NAME}")
     endif()
 
-    # Determine the target name of this sublibrary.
-    get_sublibrary_target_name(${SUBLIBRARY_NAME} _sublibrary_target_name)
-
     # Add the REQUIRE_${SUBLIBRARY_NAME} option for use in dependency checking.
     option(REQUIRE_${SUBLIBRARY_NAME} "${_arg_BRIEF_DOC_STRING}" OFF)
 
@@ -173,9 +166,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_sublibrary_source_path ${SUBLIBRARY_NAME})
     endif()
     
-    # Determine the target name of this sublibrary.
-    get_sublibrary_target_name(${SUBLIBRARY_NAME} _sublibrary_target_name)
-
     if(_arg_REQUIRED OR REQUIRE_${SUBLIBRARY_NAME})
         set(_required TRUE)
     else()
@@ -191,12 +181,11 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_unmet_dependency_message_status STATUS)
     endif()
     foreach(_dep ${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES})
-        get_sublibrary_target_name(${_dep} _dep_target_name)
         verbose_message("checking if sublibrary ${_dep} can be depended upon by sublibrary ${SUBLIBRARY_NAME}.")
-        if(NOT TARGET ${_dep_target_name})
             message(${_unmet_dependency_message_status} "The \"${SUBLIBRARY_NAME}\" sublibrary has unmet sublibrary dependency ${_dep}, and therefore can't be defined.  This may be an inteded behavior (for example if you legitimately lack a library dependency and don't want the dependent sublibraries to be built) or may indicate a real error in the sublibrary definition.")
-            set(UNADDED_SUBLIBRARIES ${UNADDED_SUBLIBRARIES} ${_sublibrary_target_name} PARENT_SCOPE)
             return()
+        if(NOT TARGET ${_dep})
+            set(UNADDED_SUBLIBRARIES ${UNADDED_SUBLIBRARIES} ${SUBLIBRARY_NAME} PARENT_SCOPE)
         endif()
         verbose_message("it can be -- proceeding with target definition as normal.")
     endforeach()
@@ -211,7 +200,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
             find_package(${_semicolon_delimited_dep})
             if(NOT TARGET ${_lib_target_name})
                 message(${_unmet_dependency_message_status} "The \"${SUBLIBRARY_NAME}\" sublibrary has unmet library dependency \"${_dep}\", and therefore can't be defined.  This may be an inteded behavior (for example if you legitimately lack a library dependency and don't want the dependent sublibraries to be built) or may indicate a real error in the sublibrary definition.")
-                set(UNADDED_SUBLIBRARIES ${UNADDED_SUBLIBRARIES} ${_sublibrary_target_name} PARENT_SCOPE)
+                set(UNADDED_SUBLIBRARIES ${UNADDED_SUBLIBRARIES} ${SUBLIBRARY_NAME} PARENT_SCOPE)
                 return()
             endif()
         endif()
@@ -244,15 +233,15 @@ function(add_sublibrary SUBLIBRARY_NAME)
     list(LENGTH _path_prefixed_sources _source_count)
     if(${_source_count} EQUAL 0)
         set(_is_interface_only TRUE)
-        add_library(${_sublibrary_target_name} INTERFACE)
+        add_library(${SUBLIBRARY_NAME} INTERFACE)
         # This is the scope specifier for use in the target_* functions called on this target.
         # In particular, INTERFACE targets can only have INTERFACE scope.
         set(_target_scope INTERFACE)
     else()
         set(_is_interface_only FALSE)
-        add_library(${_sublibrary_target_name} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
+        add_library(${SUBLIBRARY_NAME} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
         # This is the scope specifier for use in the target_* functions called on this target.
-        set_target_properties(${_sublibrary_target_name} PROPERTIES FOLDER Components)
+        set_target_properties(${SUBLIBRARY_NAME} PROPERTIES FOLDER Components)
         set(_target_scope PUBLIC)
     endif()
 
@@ -267,18 +256,18 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # If this sublibrary has headers, then they must be located in a subdirectory with the same name.
     if(_arg_HEADERS)
         target_include_directories(
-            ${_sublibrary_target_name}
+            ${SUBLIBRARY_NAME}
             ${_target_scope}
                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}>
                 $<INSTALL_INTERFACE:include/${_sublibrary_source_path}>)
     endif()
     # If there are compile definitions, add them.
     if(_arg_COMPILE_DEFINITIONS)
-        target_compile_definitions(${_sublibrary_target_name} ${_target_scope} ${_arg_COMPILE_DEFINITIONS})
+        target_compile_definitions(${SUBLIBRARY_NAME} ${_target_scope} ${_arg_COMPILE_DEFINITIONS})
     endif()
     # If there are compile options, add them.
     if(_arg_COMPILE_OPTIONS)
-        target_compile_options(${_sublibrary_target_name} ${_target_scope} ${_arg_COMPILE_OPTIONS})
+        target_compile_options(${SUBLIBRARY_NAME} ${_target_scope} ${_arg_COMPILE_OPTIONS})
     endif()
 
     # Add link libraries from each sublibrary dependency.  The target_link_directories
@@ -287,8 +276,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # INTERFACE_LINK_LIBRARIES) during build time from the dependencies to their
     # dependents.
     foreach(_dep ${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES})
-        get_sublibrary_target_name(${_dep} _dep_target_name)
-        target_link_libraries(${_sublibrary_target_name} ${_target_scope} ${_dep_target_name})
+        target_link_libraries(${SUBLIBRARY_NAME} ${_target_scope} ${_dep})
     endforeach()
 
     # Add include directories and link libraries from each library dependency,
@@ -299,13 +287,13 @@ function(add_sublibrary SUBLIBRARY_NAME)
         string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
         list(GET _semicolon_delimited_dep 0 _lib_name)
         set(_lib_target_name ${_lib_name}::${_lib_name})
-        target_link_libraries(${_sublibrary_target_name} ${_target_scope} ${_lib_target_name})
+        target_link_libraries(${SUBLIBRARY_NAME} ${_target_scope} ${_lib_target_name})
     endforeach()
 
     # Define post-build rules for copying resources.
     foreach(_resource ${_arg_RESOURCES})
         add_custom_command(
-            TARGET ${_sublibrary_target_name}
+            TARGET ${SUBLIBRARY_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}/${_resource}" "${PROJECT_BINARY_DIR}/resources/${_resource}"
         )
@@ -313,7 +301,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     
     # Store several of the parameter values as target properties
     set_target_properties(
-        ${_sublibrary_target_name}
+        ${SUBLIBRARY_NAME}
         PROPERTIES
             INTERFACE_SOURCE_PATH "${_sublibrary_source_path}"
             INTERFACE_HEADERS "${_arg_HEADERS}"
@@ -333,11 +321,10 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # Add any other particular target properties.  NOTE: This should be done last, so it can override
     # any other property that has already been set.
     if(${_additional_target_property_count})
-        set_target_properties(${_sublibrary_target_name} PROPERTIES ${_arg_ADDITIONAL_TARGET_PROPERTIES})
+        set_target_properties(${SUBLIBRARY_NAME} PROPERTIES ${_arg_ADDITIONAL_TARGET_PROPERTIES})
     endif()
 
     # Append this sublibrary to the list of defined sublibraries.
-    set(ADDED_SUBLIBRARIES ${ADDED_SUBLIBRARIES} ${_sublibrary_target_name} PARENT_SCOPE)
     # For later generation of automatic library dependency finding, determine all library dependencies
     # of the added sublibrary recursively.
     compute_all_sublibrary_dependencies_of(${_sublibrary_target_name} _deps)
