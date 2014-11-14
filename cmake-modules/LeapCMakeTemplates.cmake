@@ -2,7 +2,7 @@
 #LeapTemplates
 
 
-macro(leap_find_external_libraries pc_variant)
+macro(leap_find_external_libraries)
   find_path(EXTERNAL_LIBRARY_DIR "eigen-3.2.1/Eigen/CmakeLists.txt"
     PATHS
       "$ENV{EXTERNAL_LIBRARY_DIR}"
@@ -10,6 +10,9 @@ macro(leap_find_external_libraries pc_variant)
       "$ENV{PATH}"
       "/opt/local/Libraries"
   )
+  if(EXTERNAL_LIBRARY_DIR STREQUAL "EXTERNAL_LIBRARY_DIR-NOTFOUND")
+    message(SEND_ERROR "External Library Directory not found, optionally specify a folder to look for external libraries")
+  endif()
 
   list(INSERT CMAKE_PREFIX_PATH 0 "${EXTERNAL_LIBRARY_DIR}")
 endmacro()
