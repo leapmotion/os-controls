@@ -325,71 +325,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
     endif()
 
     # Append this sublibrary to the list of defined sublibraries.
-    # For later generation of automatic library dependency finding, determine all library dependencies
-    # of the added sublibrary recursively.
-    compute_all_sublibrary_dependencies_of(${_sublibrary_target_name} _deps)
-    set(_all_library_dependencies "")
-    foreach(_dep ${_deps})
-        get_target_property(_dep_explicit_library_dependencies ${_dep} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
-        list(APPEND _all_library_dependencies ${_dep_explicit_library_dependencies})
-    endforeach()
-    list(SORT _all_library_dependencies)
-    list(REMOVE_DUPLICATES _all_library_dependencies)
-    verbose_message("    all library dependencies of ${_sublibrary_target_name} : ${_all_library_dependencies}")
-    # Store the dependencies in a "map" format which can be later parsed by cmake_parse_arguments.
-    set(LIBRARY_DEPENDENCY_MAP ${LIBRARY_DEPENDENCY_MAP} ${_sublibrary_target_name} ${_all_library_dependencies} PARENT_SCOPE)
-endfunction()
-
-# This is a private helper function which implements the recursion of the graph traversal
-# algorithm.  The reason it's implemented using a macro instead of a function is because
-# all variables set in functions are locally scoped, and the way to get around that, using
-# set with PARENT_SCOPE, is shitty and does not behave in a predictable way in this setting.
-# Also, the reason that the dumb nested if/else statements are used instead of early-out
-# return statements is because returning from a macro actually returns from the function
-# invoking it.
-#
-# This function CAN handle cyclic dependency graphs.
-macro(_compute_all_sublibrary_dependencies_of SUBLIBRARY RECURSION_INDENT PRINT_DEBUG_MESSAGES)
-    get_target_property(_explicit_dependencies ${SUBLIBRARY} INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
-    list(LENGTH _explicit_dependencies _explicit_dependency_count)
-
-    # If SUBLIBRARY has already been visited, return nothing
-    list(FIND VISITED ${SUBLIBRARY} _index)
-    if(NOT ${_index} LESS 0) # If _index >= 0, then SUBLIBRARY was found in _visited
-        if(${PRINT_DEBUG_MESSAGES})
-            message("${RECURSION_INDENT}visiting sublibrary ${SUBLIBRARY}, visited [${VISITED}] ... base case -- already visited")
-        endif()
-    # If there are no explicit dependencies, return SUBLIBRARY
-    elseif(${_explicit_dependency_count} EQUAL 0)
-        if(${PRINT_DEBUG_MESSAGES})
-            message("${RECURSION_INDENT}visiting sublibrary ${SUBLIBRARY}, visited [${VISITED}] ... base case -- no explicit dependencies")
-        endif()
-        list(APPEND VISITED ${SUBLIBRARY}) # Mark SUBLIBRARY as visited.
-    # Otherwise there are unvisited dependencies to visit, so recurse on them.
-    else()
-        if(${PRINT_DEBUG_MESSAGES})
-            message("${RECURSION_INDENT}visiting sublibrary ${SUBLIBRARY}, visited [${VISITED}] ... recursing on dependencies [${_explicit_dependencies}]")
-        endif()
-        list(APPEND VISITED ${SUBLIBRARY}) # Mark SUBLIBRARY as visited.
-        foreach(_dependency ${_explicit_dependencies})
-            _compute_all_sublibrary_dependencies_of(${_dependency} "${RECURSION_INDENT}    " ${PRINT_DEBUG_MESSAGES})
-        endforeach()
-    endif()
-endmacro()
-
-# This function traverses the directed graph of sublibrary dependencies (there may be
-# cycles of mutually-dependent sublibraries, though add_sublibrary is incapable
-# of creating such cycles).  SUBLIBRARY should be the sublibrary whose dependencies will be
-# computed.  The output is placed in _retval_name, which will be set to the list of all
-# dependencies of SUBLIBRARY, and will be sorted alphabetically.  SUBLIBRARY is considered
-# a dependency of itself.
-#
-# This function CAN handle cyclic dependency graphs.
-function(compute_all_sublibrary_dependencies_of SUBLIBRARY _retval_name)
-    set(VISITED "")
-    _compute_all_sublibrary_dependencies_of(${SUBLIBRARY} "" 0)
-    list(SORT VISITED)
-    set(${_retval_name} ${VISITED} PARENT_SCOPE)
+    set(ADDED_SUBLIBRARIES ${ADDED_SUBLIBRARIES} ${SUBLIBRARY_NAME} PARENT_SCOPE)
 endfunction()
 
 # This is a private helper function for print_dependency_graph_of_sublibrary.
