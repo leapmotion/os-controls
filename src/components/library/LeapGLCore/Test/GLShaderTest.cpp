@@ -3,7 +3,11 @@
 #include "GLTestFramework.h"
 #include <gtest/gtest.h>
 #include "Leap/GL/GLShader.h"
+#include "Leap/GL/Internal/UniformSetter.h"
 #include <memory>
+
+// Convenience macro for annotated printing the value of variables.
+#define FMT(x) #x << " = " << (x)
 
 class GLShaderTest : public GLTestFramework_Headless { };
 
@@ -202,3 +206,257 @@ TEST_F(GLShaderTest_Visible, Vec3UniformSettingEquivalence) {
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
 
+
+
+
+
+
+
+
+class Internal_UniformSetterTest : public GLTestFramework_Headless { };
+
+TEST_F(Internal_UniformSetterTest, SetABunch) {
+  // Make sure that passing a valid shader as the attached_shader param doesn't throw.
+  {
+    std::string vertex_shader_source(
+      "uniform bool condition;\n"
+      "uniform bvec2 conditions;\n"
+      "uniform vec3 vec_three;\n"
+      "uniform float array[4];\n"
+      "uniform vec2 vec2_array[4];\n"
+      "uniform mat2 m2x2;\n"
+      "uniform mat3 m3x3[2];\n"
+      "uniform float dumb[4];\n"
+      "struct Thingy {\n"
+      "    int n;\n"
+      "    bool p[2];\n"
+      "};\n"
+      "uniform Thingy thinger[2];\n"
+      "void main () {\n"
+      "    gl_Position = ftransform();\n"
+      "    vec2 blah = vec2_array[0] + vec2_array[1] + vec2_array[2] + vec2_array[3];"
+      "    float avg = (array[0] + array[1] + array[2] + array[3]) / 4.0;\n"
+      "    float garbage = m2x2[0][0] + m3x3[0][0][0] + dumb[1] + dumb[2];"
+      "    gl_FrontColor = vec4(vec_three.x, vec_three.y, vec_three.z+garbage, thinger[0].p[1]&&condition&&conditions.x&&conditions.y ? float(thinger[0].n) : avg + blah.x + blah.y);\n"
+      "}\n"
+    );
+    std::string fragment_shader_source(
+      "void main () {\n"
+      "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
+      "}\n"
+    );
+    std::shared_ptr<GLShader> valid_shader;
+    ASSERT_NO_THROW_(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec_three")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec2_array")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec2_array[0]")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec2_array[1]")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec2_array[2]")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec2_array[3]")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "array")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "array[0]")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "array[1]")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "array[2]")) << '\n';
+    std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "array[3]")) << '\n';
+    std::cout << FMT(valid_shader->LocationOfUniform("vec_three")) << '\n';
+    std::cout << FMT(valid_shader->LocationOfUniform("array")) << '\n';
+    std::cout << FMT(valid_shader->LocationOfUniform("array[0]")) << '\n';
+
+    valid_shader->Bind();
+
+
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_BOOL>::Set(valid_shader->LocationOfUniform("condition"), true);
+    )
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_BOOL_VEC2>::Set(valid_shader->LocationOfUniform("conditions"), false, true);
+    )
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_BOOL_VEC2>::Set(valid_shader->LocationOfUniform("conditions"), std::array<GLint,2>{{false, true}});
+    )
+    typedef std::array<GLint,2> GLint2;
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_BOOL_VEC2>::Set<GLint2>(valid_shader->LocationOfUniform("conditions"), {{false, true}});
+    )
+
+
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_FLOAT_VEC3>::Set(valid_shader->LocationOfUniform("vec_three"), std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
+    )
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_FLOAT_VEC3>::Set(valid_shader->LocationOfUniform("vec_three"), 1.0f, 2.0f, 3.0f);
+    )
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_FLOAT>::SetArray<4>(valid_shader->LocationOfUniform("array"), std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
+    )
+    typedef std::array<GLfloat,4> GLfloat4;
+    GL_THROW_UPON_ERROR(
+      (Leap::GL::Internal::UniformSetter<GL_FLOAT>::SetArray<4,GLfloat4>)(valid_shader->LocationOfUniform("array"), {{8.0f, 4.0f, 2.0f, 1.0f}});
+    )
+
+
+
+    // GL_THROW_UPON_ERROR(
+    //   valid_shader->SetUniform2<GL_BOOL>("condition", true);
+    // )
+    // GL_THROW_UPON_ERROR(
+    //   valid_shader->SetUniform2<GL_BOOL_VEC2>("conditions", false, true);
+    // )
+    // GL_THROW_UPON_ERROR(
+    //   valid_shader->SetUniform2<GL_BOOL_VEC2>("conditions", std::array<GLint,2>{{false, true}});
+    // )
+    // typedef std::array<GLint,2> GLint2;
+    // GL_THROW_UPON_ERROR(
+    //   (valid_shader->SetUniform2<GL_BOOL_VEC2,GLint2>)("conditions", {{false, true}});
+    // )
+
+
+    // GL_THROW_UPON_ERROR(
+    //   valid_shader->SetUniform2<GL_FLOAT_VEC3>("vec_three", std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
+    // )
+    // GL_THROW_UPON_ERROR(
+    //   valid_shader->SetUniform2<GL_FLOAT_VEC3>("vec_three", 1.0f, 2.0f, 3.0f);
+    // )
+    // GL_THROW_UPON_ERROR(
+    //   (valid_shader->SetUniformArray2<GL_FLOAT,4>)("array", std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
+    // )
+    // typedef std::array<GLfloat,4> GLfloat4;
+    // GL_THROW_UPON_ERROR(
+    //   (valid_shader->SetUniformArray2<GL_FLOAT,4,GLfloat4>)("array", {{8.0f, 4.0f, 2.0f, 1.0f}});
+    // )
+
+
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT2>::Set(
+        valid_shader->LocationOfUniform("m2x2"),
+        std::array<std::array<GLfloat,2>,2>{{
+          {{1.0f, 2.0f}},
+          {{3.0f, 4.0f}}
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT2>::Set(
+        valid_shader->LocationOfUniform("m2x2"),
+        std::array<GLfloat,2*2>{{
+          1.0f, 2.0f,
+          3.0f, 4.0f
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+    GL_THROW_UPON_ERROR(
+      (Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT2>::Set<std::array<GLfloat,2*2>>)(
+        valid_shader->LocationOfUniform("m2x2"),
+        {{
+          1.0f, 2.0f,
+          3.0f, 4.0f
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+
+
+    // GL_THROW_UPON_ERROR(
+    //   valid_shader->SetUniform2<GL_FLOAT_MAT2>(
+    //     "m2x2",
+    //     std::array<std::array<GLfloat,2>,2>{{
+    //       {{1.0f, 2.0f}},
+    //       {{3.0f, 4.0f}}
+    //     }},
+    //     Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    // )
+    // GL_THROW_UPON_ERROR(
+    //   valid_shader->SetUniform2<GL_FLOAT_MAT2>(
+    //     "m2x2", 
+    //     std::array<GLfloat,2*2>{{
+    //       1.0f, 2.0f,
+    //       3.0f, 4.0f
+    //     }},
+    //     Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    // )
+    // GL_THROW_UPON_ERROR(
+    //   (valid_shader->SetUniform2<GL_FLOAT_MAT2,std::array<GLfloat,2*2>>)(
+    //     "m2x2",
+    //     {{
+    //       1.0f, 2.0f,
+    //       3.0f, 4.0f
+    //     }},
+    //     Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    // )
+
+
+    GL_THROW_UPON_ERROR(
+      Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT3>::SetArray<2>(
+        valid_shader->LocationOfUniform("m3x3"),
+        std::array<std::array<GLfloat,3*3>,2>{{
+          {{
+            1.0f, 2.0f, 3.0f,
+            4.0f, 5.0f, 6.0f,
+            7.0f, 8.0f, 9.0f
+          }},
+          {{
+            11.0f, 12.0f, 13.0f,
+            14.0f, 15.0f, 16.0f,
+            17.0f, 18.0f, 19.0f
+          }}
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+    GL_THROW_UPON_ERROR(
+      (Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT3>::SetArray<2,std::array<std::array<GLfloat,3*3>,2>>)(
+        valid_shader->LocationOfUniform("m3x3"),
+        {{
+          {{
+            1.0f, 2.0f, 3.0f,
+            4.0f, 5.0f, 6.0f,
+            7.0f, 8.0f, 9.0f
+          }},
+          {{
+            11.0f, 12.0f, 13.0f,
+            14.0f, 15.0f, 16.0f,
+            17.0f, 18.0f, 19.0f
+          }}
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+
+    // GL_THROW_UPON_ERROR(
+    //   (valid_shader->SetUniformArray2<GL_FLOAT_MAT3,2>)(
+    //     "m3x3",
+    //     std::array<std::array<GLfloat,3*3>,2>{{
+    //       {{
+    //         1.0f, 2.0f, 3.0f,
+    //         4.0f, 5.0f, 6.0f,
+    //         7.0f, 8.0f, 9.0f
+    //       }},
+    //       {{
+    //         11.0f, 12.0f, 13.0f,
+    //         14.0f, 15.0f, 16.0f,
+    //         17.0f, 18.0f, 19.0f
+    //       }}
+    //     }},
+    //     GL_TRUE);
+    // )
+    // GL_THROW_UPON_ERROR(
+    //   (valid_shader->SetUniformArray2<GL_FLOAT_MAT3,2,std::array<std::array<GLfloat,3*3>,2>>)(
+    //     "m3x3",
+    //     {{
+    //       {{
+    //         1.0f, 2.0f, 3.0f,
+    //         4.0f, 5.0f, 6.0f,
+    //         7.0f, 8.0f, 9.0f
+    //       }},
+    //       {{
+    //         11.0f, 12.0f, 13.0f,
+    //         14.0f, 15.0f, 16.0f,
+    //         17.0f, 18.0f, 19.0f
+    //       }}
+    //     }},
+    //     GL_TRUE);
+    // )
+
+      // "uniform mat2 m2x2;\n"
+      // "uniform mat3 m3x3[2];\n"
+
+    valid_shader->Unbind();
+  }
+}

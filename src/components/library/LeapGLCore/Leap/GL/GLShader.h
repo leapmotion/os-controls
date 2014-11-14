@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "Leap/GL/Common.h"
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 #include "Leap/GL/GLError.h"
 #include "Leap/GL/Internal/ShaderUniform.h"
@@ -13,8 +14,6 @@
 
 namespace Leap {
 namespace GL {
-
-enum MatrixStorageConvention { COLUMN_MAJOR, ROW_MAJOR };
 
 enum class VariableIs { REQUIRED, OPTIONAL_NO_WARN, OPTIONAL_BUT_WARN };
 

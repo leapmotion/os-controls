@@ -137,6 +137,7 @@ add_sublibrary(
     LeapGLCore
     HEADERS
         Leap/GL/ColorComponent.h
+        Leap/GL/Common.h
         Leap/GL/Exception.h
         Leap/GL/FrameBufferObject.h
         Leap/GL/GLBuffer.h
@@ -154,6 +155,8 @@ add_sublibrary(
         Leap/GL/Internal/ColorComponent.h
         Leap/GL/Internal/Meta.h
         Leap/GL/Internal/ShaderUniform.h
+        Leap/GL/Internal/UniformSetter.h
+        Leap/GL/Internal/UniformSetterTraits.h
         Leap/GL/Mesh.h
         Leap/GL/MeshException.h
         Leap/GL/ModelViewProjection.h
