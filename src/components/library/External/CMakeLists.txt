@@ -23,3 +23,19 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "PolyPartition library for triangulating polygons -- created by Ivan Fratric."
 )
+
+add_sublibrary(
+    GTest
+    EXCLUDE_FROM_ALL
+    SOURCE_PATH
+        GTest
+    HEADERS
+        gtest/gtest.h
+    SOURCES
+        gtest/gtest-all.cc
+        gtest/gtest_main.cc
+    COMPILE_DEFINITIONS
+        GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
+    BRIEF_DOC_STRING
+        "Provides an easy way to include and link the Google Test framework."
+)

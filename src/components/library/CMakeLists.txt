@@ -99,6 +99,7 @@ add_subdirectory(SFMLController)
 add_subdirectory(Singleton)
 add_subdirectory(TextAndBinaryFile)
 add_subdirectory(TextAndBinaryFileLoader)
+add_subdirectory(Test/GLTestFramework)
 
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
@@ -184,56 +185,6 @@ set(SUBLIBRARIES_UNDEFINED_readonly ${_temp} CACHE STRING "This is the list of s
 print_dependency_graph_of_sublibrary_linking_library(Components "${ADDED_SUBLIBRARIES}")
 
 ###################################################################################################
-# Define install rules for the library.  This is probably not the legit way to do it, and we
-# should figure out what the legit way is.
-###################################################################################################
-
-# Recursively determine all sublibrary dependencies implicitly enabled via the explicit enabling.
-set(_all_link_sublibraries "")
-foreach(_sublibrary ${_explicit_link_sublibraries})
-    compute_all_sublibrary_dependencies_of(${_sublibrary} _sublibrary_deps)
-    list(APPEND _all_link_sublibraries ${_sublibrary_deps}) # This may append redundant sublibraries.
-endforeach()
-# Sort and and remove duplicates, because we will iterate through the list, defining install
-# rules for each, and we don't want to make redundant install rules.
-list(SORT _all_link_sublibraries)
-list(REMOVE_DUPLICATES _all_link_sublibraries)
-
-# Define the install rules while accumulating include directories.
-set(_Components_INCLUDE_DIRECTORIES "")
-foreach(_sublibrary ${_all_link_sublibraries})
-    get_target_property(_is_phony ${_sublibrary} INTERFACE_IS_PHONY)
-    if(NOT _is_phony)
-        get_target_property(_dir ${_sublibrary} INTERFACE_INCLUDE_DIRECTORIES)
-        # message("making install rules for sublibrary ${_sublibrary}, include dir ${_dir}")
-        list(APPEND _Components_INCLUDE_DIRECTORIES "include/${_dir}")
-        get_target_property(_source_path ${_sublibrary} INTERFACE_SOURCE_PATH)
-        get_target_property(_headers ${_sublibrary} INTERFACE_PATH_PREFIXED_HEADERS)
-        install(
-            FILES ${_headers}
-            DESTINATION "include/${_source_path}"
-            COMPONENT "Components"
-        )
-        get_target_property(_resources ${_sublibrary} INTERFACE_PATH_PREFIXED_RESOURCES)
-        install(
-            FILES ${_resources}
-            DESTINATION "resources"
-            COMPONENT "Components"
-        )
-    endif()
-endforeach()
-
-# Determine all library dependencies (of linked sublibraries) for purposes of generating find_dependency
-# commands in ComponentsConfig.cmake.
-set(ALL_LIBRARY_DEPENDENCIES "")
-foreach(_sublibrary ${_all_link_sublibraries})
-    get_target_property(_explicit_library_dependencies ${_sublibrary} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
-    list(APPEND ALL_LIBRARY_DEPENDENCIES ${_explicit_library_dependencies})
-endforeach()
-list(SORT ALL_LIBRARY_DEPENDENCIES)
-list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
-
-###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
@@ -255,143 +206,6 @@ if(BUILD_DOCUMENTATION)
         doc
         COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
         SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
-endif()
-
-# TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages
-
-###################################################################################################
-# Unit test components and rules
-###################################################################################################
-
-add_sublibrary(
-    GTest
-    EXCLUDE_FROM_ALL
-    SOURCE_PATH
-        External/GTest
-    HEADERS
-        gtest/gtest.h
-    SOURCES
-        gtest/gtest-all.cc
-        gtest/gtest_main.cc
-    COMPILE_DEFINITIONS
-        GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
-    BRIEF_DOC_STRING
-        "Provides an easy way to include and link the Google Test framework."
-)
-
-add_sublibrary(
-    GLTestFramework
-    EXCLUDE_FROM_ALL
-    SOURCE_PATH
-        Test/GLTestFramework
-    HEADERS
-        GLTestFramework.h
-    SOURCES
-        GLTestFramework.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLController
-        GTest
-        SDLController
-    BRIEF_DOC_STRING
-        "Provides an easy way to create GL-based tests."
-)
-
-# This effectively resets ADDED_SUBLIBRARIES and UNADDED_SUBLIBRARIES.  It is intentionally
-# called after the call to add_sublibrary(GTest ...) so that only the unit test components
-# show up in ADDED_SUBLIBRARIES.
-begin_sublibrary_definitions()
-
-add_sublibrary(
-    C++11Test
-    EXCLUDE_FROM_ALL
-    SOURCE_PATH
-        C++11/Test
-    SOURCES
-        C++11ComplianceTest.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        GTest
-    BRIEF_DOC_STRING
-        "Unit tests for the C++11 component."
-)
-
-add_sublibrary(
-    EigenTest
-    EXCLUDE_FROM_ALL
-    SOURCE_PATH
-        EigenTypes/Test
-    SOURCES
-        EigenTest.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        EigenTypes
-        GTest
-    BRIEF_DOC_STRING
-        "Unit tests for the EigenTypes component." # TODO: EigenTypes should be renamed to Eigen
-)
-
-add_sublibrary(
-    GLShaderTest
-    EXCLUDE_FROM_ALL
-    SOURCE_PATH
-        GLShader/Test
-    SOURCES
-        GLShaderTest.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLShaderLoader
-        GLTestFramework
-    BRIEF_DOC_STRING
-        "Unit tests for the GLShader component."
-)
-
-add_sublibrary(
-    GLTexture2Test
-    SOURCE_PATH
-        GLTexture2/Test
-    SOURCES
-        GLTexture2Test.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GLTexture2
-        GLTestFramework
-    BRIEF_DOC_STRING
-        "Unit tests for the GLTexture2 component."
-)
-
-add_sublibrary(
-    SceneGraphTest
-    SOURCE_PATH
-        SceneGraph/Test
-    SOURCES
-        SceneGraphNodePropertiesTest.cpp
-        SceneGraphNodeTest.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        GTest
-        SceneGraph
-    BRIEF_DOC_STRING
-        "Unit tests for the GLTexture2 component."
-)
-
-set(_tests ${ADDED_SUBLIBRARIES})
-
-# In order for gtest to "see" the unit tests, the sources apparently have to be linked
-# directly into the test executable.  The call to target_link_libraries seems redundant
-# and also seems like it would cause duplicate symbol linker errors, but the linker
-# effectively throws out the entire contents of the linked components.  The call to
-# target_link_libraries is what propagates all the necessary include directories and
-# libraries to link into the executable.  This sort of hack-ish solution allows unit
-# tests to be organized in the "sublibrary" paradigm as the other components are.
-# NOTE: Because of this hack, the unit test sources will be built twice (once to build
-# the unit test component targets, and a second time to build the ComponentsTest executable).
-set(ComponentsTest_SOURCES "")
-foreach(_test ${_tests})
-    get_target_property(_headers ${_test} INTERFACE_PATH_PREFIXED_HEADERS)
-    get_target_property(_sources ${_test} INTERFACE_PATH_PREFIXED_SOURCES)
-    set_property(TARGET ${_test} PROPERTY FOLDER "Tests")
-    list(APPEND ComponentsTest_SOURCES ${_headers} ${_sources})
-endforeach()
-add_executable(ComponentsTest ${ComponentsTest_SOURCES})
-
-if(NOT _this_is_standalone_project)
-    set_property(TARGET ComponentsTest PROPERTY FOLDER "Components")
 endif()
 
 if (MSVC_USE_MT)

@@ -6,3 +6,5 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "A phony target which just provides compiler options for enabling C++11."
 )
+
+add_subdirectory(Test)

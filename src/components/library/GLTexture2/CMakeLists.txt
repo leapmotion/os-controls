@@ -16,3 +16,4 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "A C++ class for managing 2D textures in OpenGL."
 )
+add_subdirectory(Test)

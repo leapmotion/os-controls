@@ -11,3 +11,4 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "Convenience typedefs for working with particular Eigen vector/matrix types."
 )
+add_subdirectory(Test)

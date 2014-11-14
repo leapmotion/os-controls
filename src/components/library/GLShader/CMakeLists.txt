@@ -14,3 +14,4 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "A C++ class which manages GLSL-based shader programs."
 )
+add_subdirectory(Test)

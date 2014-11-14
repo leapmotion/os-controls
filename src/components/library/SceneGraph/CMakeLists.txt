@@ -13,3 +13,4 @@ add_sublibrary(
     BRIEF_DOC_STRING
         "Provides a C++ baseclass which implements the 'scene graph' design pattern (see Wikipedia)."
 )
+add_subdirectory(Test)
