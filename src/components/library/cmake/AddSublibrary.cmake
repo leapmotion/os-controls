@@ -30,11 +30,9 @@ include(CMakeParseArguments)
 include(VerboseMessage)
 
 # ADDED_SUBLIBRARIES is a list of the target names of all the defined sublibraries.  Defining a
-# sublibrary via the add_sublibrary will append to it.  UNADDED_SUBLIBRARIES is a list of
-# the target names of all the sublibraries that could not be defined due to unmet dependencies.
+# sublibrary via the add_sublibrary will append to it.  
 macro(begin_sublibrary_definitions)
     set(ADDED_SUBLIBRARIES "")
-    set(UNADDED_SUBLIBRARIES "")
 endmacro()
 
 # This function defines a sublibrary (logical subgrouping of source, as described above)
@@ -46,9 +44,6 @@ endmacro()
 #   implicitly disables that argument -- this is the default):
 #   * EXCLUDE_FROM_ALL -- Excludes this sublibrary's target from the "make all" target.  Does
 #     not apply to interface-only sublibraries (see below at INTERFACE_IS_INTERFACE_ONLY).
-#   * REQUIRED -- Indicates that this sublibrary (and therefore all of its dependencies) is required
-#     by the build, and any failure to define its target and link dependencies should result in
-#     an error.  This flag will also be set if the global REQUIRE_${SUBLIBRARY_NAME} flag is set.
 # - Parameters taking a single argument:
 #   * BRIEF_DOC_STRING <string> -- A brief description of this sublibrary which should fit within
 #     one line (about 80 chars).
@@ -109,7 +104,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # Do the fancy map-style parsing of the arguments
     set(_options
         EXCLUDE_FROM_ALL
-        REQUIRED
     )
     set(_one_value_args
         SOURCE_PATH             # Optional specification of relative path to headers and sources.
@@ -129,13 +123,15 @@ function(add_sublibrary SUBLIBRARY_NAME)
     )
     cmake_parse_arguments(_arg "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
 
+    if(${DISABLE_${SUBLIBRARY_NAME}})
+        verbose_message("Skipping disabled target ${SUBLIBRARY_NAME}")
+        return()
+    endif()
+
     # Check the validity/presence of certain options
     if(NOT _arg_BRIEF_DOC_STRING)
         message(SEND_ERROR "Required BRIEF_DOC_STRING value was not defined for sublibrary ${SUBLIBRARY_NAME}")
     endif()
-
-    # Add the REQUIRE_${SUBLIBRARY_NAME} option for use in dependency checking.
-    option(REQUIRE_${SUBLIBRARY_NAME} "${_arg_BRIEF_DOC_STRING}" OFF)
 
     # Parse the arguments for use in the following target-defining calls.
     if(_arg_EXCLUDE_FROM_ALL)
@@ -153,21 +149,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_sublibrary_source_path ${SUBLIBRARY_NAME})
     endif()
     
-    if(_arg_REQUIRED OR REQUIRE_${SUBLIBRARY_NAME})
-        set(_required TRUE)
-    else()
-        set(_required FALSE)
-    endif()
-    # Check for the existence of the sublibrary dependencies.  If any don't exist as targets,
-    # don't define this sublibrary as a target.  Same with library dependencies.  That way,
-    # missing library dependencies propagate the blocking of sublibrary definitions all the
-    # way up.  This will produce a warning though.
-    if(_required)
-        set(_unmet_dependency_message_status SEND_ERROR)
-    else()
-        set(_unmet_dependency_message_status STATUS)
-    endif()
-
     foreach(_dep ${_arg_EXPLICIT_LIBRARY_DEPENDENCIES})
         # For each library that hasn't been find_package'ed yet, call find_package on it.
         separate_arguments(_dep)
@@ -179,6 +160,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
             find_package(${_dep})
             if(NOT TARGET ${_lib_target_name})
                 message(WARNING "The \"${SUBLIBRARY_NAME}\" sublibrary has unmet library dependency \"${_dep}\", and therefore can't be defined.  This may be an inteded behavior (for example if you legitimately lack a library dependency and don't want the dependent sublibraries to be built) or may indicate a real error in the sublibrary definition.")
+                option(DISABLE_${SUBLIBRARY_NAME} "${_arg_BRIEF_DOC_STRING}" OFF)
                 return()
             endif()
         endif()
