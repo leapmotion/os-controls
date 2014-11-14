@@ -214,24 +214,14 @@ function(add_sublibrary SUBLIBRARY_NAME)
         target_compile_options(${SUBLIBRARY_NAME} ${_target_scope} ${_arg_COMPILE_OPTIONS})
     endif()
 
-    # Add link libraries from each sublibrary dependency.  The target_link_directories
-    # command sets up the propagation of the various INTERFACE_XXX target properties
-    # (e.g. INTERFACE_INCLUDE_DIRECTORIES, INTERFACE_COMPILE_OPTIONS,
-    # INTERFACE_LINK_LIBRARIES) during build time from the dependencies to their
-    # dependents.
-    foreach(_dep ${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES})
-        target_link_libraries(${SUBLIBRARY_NAME} ${_target_scope} ${_dep})
-    endforeach()
+    # If there are internal project links, add them
+    if(_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
+        target_link_libraries(${SUBLIBRARY_NAME} ${_target_scope} ${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES})
+    endif()
 
-    # Add include directories and link libraries from each library dependency,
-    # analogously to that of the sublibrary dependencies.  This requires calling
-    # find_package on the libraries which haven't been loaded as targets yet.
+    # If there are external project links, add them
     foreach(_dep ${_arg_EXPLICIT_LIBRARY_DEPENDENCIES})
-        # For each library that hasn't been target_package'ed yet, call target_package on it.
-        string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
-        list(GET _semicolon_delimited_dep 0 _lib_name)
-        set(_lib_target_name ${_lib_name}::${_lib_name})
-        target_link_libraries(${SUBLIBRARY_NAME} ${_target_scope} ${_lib_target_name})
+        target_package(${SUBLIBRARY_NAME} LINK_TYPE ${_target_scope} ${_dep})
     endforeach()
 
     # Define post-build rules for copying resources.
