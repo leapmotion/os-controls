@@ -248,8 +248,9 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_target_scope PUBLIC)
     endif()
 
-    if(_target_scope NOT EQUAL INTERFACE)
+    if(NOT ${_target_scope} STREQUAL INTERFACE)
         set_target_properties(${SUBLIBRARY_NAME} PROPERTIES FOLDER Components)
+    endif()
 
     # Determine if this is a "phony" target, meaning there are no headers or sources.
     list(LENGTH _path_prefixed_headers _header_count)
