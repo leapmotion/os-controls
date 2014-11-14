@@ -208,16 +208,13 @@ function(add_sublibrary SUBLIBRARY_NAME)
     list(LENGTH _arg_SOURCES _source_count)
     list(LENGTH _arg_HEADERS _headers_count)
     if(${_source_count} EQUAL 0 AND ${_headers_count} EQUAL 0)
-        set(_is_interface_only TRUE)
         add_library(${SUBLIBRARY_NAME} INTERFACE)
         set(_target_scope INTERFACE)
     elseif(${_source_count} EQUAL 0)
-        set(_is_interface_only TRUE)
         add_library(${SUBLIBRARY_NAME} STATIC ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
         set_property(TARGET ${SUBLIBRARY_NAME} PROPERTY LINKER_LANGUAGE CXX)
         set(_target_scope PUBLIC)
     else()
-        set(_is_interface_only FALSE)
         add_library(${SUBLIBRARY_NAME} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
         # This is the scope specifier for use in the target_* functions called on this target.
         set(_target_scope PUBLIC)
@@ -225,14 +222,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
 
     if(NOT ${_target_scope} STREQUAL INTERFACE)
         set_target_properties(${SUBLIBRARY_NAME} PROPERTIES FOLDER Components)
-    endif()
-
-    # Determine if this is a "phony" target, meaning there are no headers or sources.
-    list(LENGTH _path_prefixed_headers _header_count)
-    if(${_header_count} EQUAL 0 AND ${_source_count} EQUAL 0)
-        set(_is_phony TRUE)
-    else()
-        set(_is_phony FALSE)
     endif()
 
     # If this sublibrary has headers, then they must be located in a subdirectory with the same name.
