@@ -193,34 +193,3 @@ endif()
 if (MSVC_USE_MT)
   set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:LIBCMT")
 endif()
-
-# Link each of the dependencies of each unit test components.  The reason for this
-# indirection is because the test sources must be specified directly in the call to
-# add_executable above.  This is a totally suboptimal solution in terms of cmake
-# code duplication and fragility but avoids redundant compilation.
-# The alternative which is a tradeoff between simplicity and technical incorrectness is:
-# target_link_libraries(ComponentsTest PUBLIC ${_tests})
-foreach(_test ${_tests})
-    # Set compile definitions and options.
-    get_target_property(_compile_definitions ${_test} INTERFACE_COMPILE_DEFINITIONS)
-    if(_compile_definitions)
-        target_compile_definitions(ComponentsTest PUBLIC ${_compile_definitions})
-    endif()
-    get_target_property(_compile_options ${_test} INTERFACE_COMPILE_OPTIONS)
-    if(_compile_options)
-        target_compile_options(ComponentsTest PUBLIC ${_compile_options})
-    endif()
-    # Link the explicit sublibrary dependencies of each test
-    get_target_property(_explicit_sublibrary_dependencies ${_test} INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
-    foreach(_dep ${_explicit_sublibrary_dependencies})
-        target_link_libraries(ComponentsTest PUBLIC ${_dep})
-    endforeach()
-    # Link the explicit library dependencies of each test
-    get_target_property(_explicit_library_dependencies ${_test} INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES)
-    foreach(_dep ${_explicit_library_dependencies})
-        string(REPLACE " " ";" _semicolon_delimited_dep ${_dep})
-        list(GET _semicolon_delimited_dep 0 _lib_name)
-        set(_lib_target_name ${_lib_name}::${_lib_name})
-        target_link_libraries(ComponentsTest PUBLIC ${_lib_target_name})
-    endforeach()
-endforeach()
