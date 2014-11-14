@@ -1,7 +1,5 @@
 add_sublibrary(
     GLShader
-    SOURCE_PATH
-        .
     HEADERS
         GLShader.h
         GLShaderBindingScopeGuard.h

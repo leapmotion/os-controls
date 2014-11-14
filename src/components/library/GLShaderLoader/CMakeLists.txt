@@ -1,7 +1,5 @@
 add_sublibrary(
     GLShaderLoader
-    SOURCE_PATH
-        .
     HEADERS
         GLShaderLoader.h
     INTERNAL_DEPENDENCIES

@@ -1,7 +1,5 @@
 add_sublibrary(
     GLMaterial
-    SOURCE_PATH
-        .
     HEADERS
         GLMaterial.h
         GLShaderMatrices.h

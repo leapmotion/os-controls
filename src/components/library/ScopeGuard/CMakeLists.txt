@@ -1,7 +1,5 @@
 add_sublibrary(
     ScopeGuard
-    SOURCE_PATH
-        .
     HEADERS
         ScopeGuard.h
     BRIEF_DOC_STRING

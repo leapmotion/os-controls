@@ -1,7 +1,5 @@
 add_sublibrary(
     ResourceManager
-    SOURCE_PATH
-        .
     HEADERS
         ResourceManager.h
     BRIEF_DOC_STRING

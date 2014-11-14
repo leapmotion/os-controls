@@ -6,8 +6,6 @@ endif()
 
 add_sublibrary(
     SDLController
-    SOURCE_PATH
-        .
     HEADERS
         SDLController.h
     SOURCES

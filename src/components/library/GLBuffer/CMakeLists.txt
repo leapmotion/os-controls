@@ -1,8 +1,6 @@
 
 add_sublibrary(
     GLBuffer
-    SOURCE_PATH
-        .
     HEADERS
         GLBuffer.h
     SOURCES

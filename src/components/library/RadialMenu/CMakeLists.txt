@@ -1,7 +1,5 @@
 add_sublibrary(
     RadialMenu
-    SOURCE_PATH
-        .
     HEADERS
         RadialItem.h
         RadialMenu.h

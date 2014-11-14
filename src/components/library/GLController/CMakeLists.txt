@@ -1,7 +1,5 @@
 add_sublibrary(
     GLController
-    SOURCE_PATH
-        .
     HEADERS
         GLController.h
     SOURCES

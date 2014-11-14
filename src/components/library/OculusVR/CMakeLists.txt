@@ -1,7 +1,5 @@
 add_sublibrary(
     OculusVR
-    SOURCE_PATH
-        .
     HEADERS
         OculusVR.h
     SOURCES

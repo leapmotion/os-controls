@@ -1,7 +1,5 @@
 add_sublibrary(
     GLVertexBuffer
-    SOURCE_PATH
-        .
     HEADERS
         GLVertexAttribute.h
         GLVertexBuffer.h

@@ -1,7 +1,5 @@
 add_sublibrary(
     Resource
-    SOURCE_PATH
-        .
     HEADERS
         Resource.h
     INTERNAL_DEPENDENCIES

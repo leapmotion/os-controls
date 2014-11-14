@@ -1,8 +1,6 @@
 add_sublibrary(
     GLTestFramework
     EXCLUDE_FROM_ALL
-    SOURCE_PATH
-        .
     HEADERS
         GLTestFramework.h
     SOURCES

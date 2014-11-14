@@ -1,7 +1,5 @@
 add_sublibrary(
     HandCursor
-    SOURCE_PATH
-        .
     HEADERS
         HandCursor.h
     SOURCES

@@ -1,7 +1,5 @@
 add_sublibrary(
     GLCompatibility
-    SOURCE_PATH
-        .
     HEADERS
         gl_glext_glu.h
         GLError.h # This might really belong in a different component

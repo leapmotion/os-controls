@@ -1,7 +1,5 @@
 add_sublibrary(
     GLTexture2FreeImage
-    SOURCE_PATH
-        .
     HEADERS
         GLTexture2FreeImage.h
     SOURCES

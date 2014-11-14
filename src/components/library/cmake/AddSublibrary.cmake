@@ -146,7 +146,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_sublibrary_source_path ${_arg_SOURCE_PATH})
     else()
         verbose_message("    using SUBLIBRARY_NAME (${SUBLIBRARY_NAME}) for SOURCE_PATH")
-        set(_sublibrary_source_path ${SUBLIBRARY_NAME})
+        set(_sublibrary_source_path .)
     endif()
     
     foreach(_dep ${_arg_EXTERNAL_DEPENDENCIES})

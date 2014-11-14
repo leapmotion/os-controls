@@ -1,8 +1,6 @@
 
 add_sublibrary(
     Color
-    SOURCE_PATH
-        .
     HEADERS
         Color.h
     SOURCES
