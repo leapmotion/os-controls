@@ -99,23 +99,10 @@ endmacro()
 # Again, this is done before the ADDITIONAL_TARGET_PROPERTIES are set, so these can be overridden.
 # Node that the INTERFACE_ prefix is only required for INTERFACE targets (e.g. HEADERS or IS_PHONY
 # would be an allowable target property name on a non-interface target), but uniformity in the
-# target property names was desired over minimality in this case.
-# - INTERFACE_SOURCE_PATH                         -- As described above.
-# - INTERFACE_HEADERS                             -- As described above.
-# - INTERFACE_SOURCES                             -- As described above.
-# - INTERFACE_RESOURCES                           -- As described above.
-# - INTERFACE_PATH_PREFIXED_HEADERS               -- The same as HEADERS, but with the source path as a path prefix.
-# - INTERFACE_PATH_PREFIXED_SOURCES               -- The same as SOURCES, but with the source path as a path prefix.
-# - INTERFACE_PATH_PREFIXED_RESOURCES             -- The same as RESOURCES, but with the source path as a path prefix.
-# - INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES    -- As described above.
-# - INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES       -- As described above.
+# target property names was desired.
 # - INTERFACE_BRIEF_DOC_STRING                    -- As described above.
 # - INTERFACE_DETAILED_DOC_STRINGS                -- As described above.
-# - INTERFACE_IS_INTERFACE_ONLY                   -- Is set to TRUE if and only if there are no SOURCES,
-#                                                    and is otherwise set to FALSE.
-# - INTERFACE_IS_PHONY                            -- Is set to TRUE if and only if there are no HEADERS
-#                                                    and no SOURCES, i.e. if this is a "phony" target,
-#                                                    and is otherwise set to FALSE.
+
 function(add_sublibrary SUBLIBRARY_NAME)
     verbose_message("add_sublibrary(${SUBLIBRARY_NAME} ...)")
 
@@ -133,7 +120,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         SOURCES
         RESOURCES
         COMPILE_DEFINITIONS
-        # COMPILE_FEATURES      # target_compile_features is not working for me.
+        # COMPILE_FEATURES      # target_compile_features is a CMake 3.1 feature and should be added when we upgrade
         COMPILE_OPTIONS
         EXPLICIT_SUBLIBRARY_DEPENDENCIES
         EXPLICIT_LIBRARY_DEPENDENCIES
@@ -310,19 +297,8 @@ function(add_sublibrary SUBLIBRARY_NAME)
     set_target_properties(
         ${SUBLIBRARY_NAME}
         PROPERTIES
-            INTERFACE_SOURCE_PATH "${_sublibrary_source_path}"
-            INTERFACE_HEADERS "${_arg_HEADERS}"
-            INTERFACE_SOURCES "${_arg_SOURCES}"
-            INTERFACE_RESOURCES "${_arg_RESOURCES}"
-            INTERFACE_PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
-            INTERFACE_PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
-            INTERFACE_PATH_PREFIXED_RESOURCES "${_path_prefixed_resources}"
-            INTERFACE_EXPLICIT_SUBLIBRARY_DEPENDENCIES "${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES}"
-            INTERFACE_EXPLICIT_LIBRARY_DEPENDENCIES "${_arg_EXPLICIT_LIBRARY_DEPENDENCIES}"
             INTERFACE_BRIEF_DOC_STRING "${_arg_BRIEF_DOC_STRING}"
             INTERFACE_DETAILED_DOC_STRINGS "${_arg_DETAILED_DOC_STRINGS}"
-            INTERFACE_IS_INTERFACE_ONLY "${_is_interface_only}"
-            INTERFACE_IS_PHONY "${_is_phony}"
     )
 
     # Add any other particular target properties.  NOTE: This should be done last, so it can override
