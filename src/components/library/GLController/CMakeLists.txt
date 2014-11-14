@@ -6,7 +6,7 @@ add_sublibrary(
         GLController.h
     SOURCES
         GLController.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         GLCompatibility
     BRIEF_DOC_STRING
         "A single point of control for usage of OpenGL."

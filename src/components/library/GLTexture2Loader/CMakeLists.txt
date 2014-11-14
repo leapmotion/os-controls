@@ -6,7 +6,7 @@ add_sublibrary(
         GLTexture2Loader.h
     SOURCES
         GLTexture2Loader.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         GLTexture2FreeImage
         ResourceManager
     BRIEF_DOC_STRING

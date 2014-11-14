@@ -10,7 +10,7 @@ add_sublibrary(
         RadialItem.cpp
         RadialMenu.cpp
         RadialSlider.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         Color
         Animation
         EigenTypes

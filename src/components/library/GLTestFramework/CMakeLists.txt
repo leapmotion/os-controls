@@ -7,7 +7,7 @@ add_sublibrary(
         GLTestFramework.h
     SOURCES
         GLTestFramework.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         GLController
         GTest
         SDLController

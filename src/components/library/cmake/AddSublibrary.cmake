@@ -64,17 +64,17 @@ endmacro()
 #     Currently, each compile definition is inherited by sublibraries which depend upon this sublibrary.
 #   * COMPILE_OPTIONS [opt1 [opt2 [...]]] -- Specifies commandline flags to pass to the compiler.
 #     Currently, each compile option is inherited by sublibraries which depend upon this sublibrary.
-#   * EXPLICIT_SUBLIBRARY_DEPENDENCIES [comp1 [comp2 [...]]] -- Specifies which other sublibraries
+#   * INTERNAL_DEPENDENCIES [comp1 [comp2 [...]]] -- Specifies which other sublibraries
 #     this sublibrary depends upon.  Each dependency must already be fully defined.  What this
 #     dependency means on a practical level is that the compile definitions, compile options,
 #     include directories, and link libraries will all be inherited by this sublibrary automatically.
-#   * EXPLICIT_LIBRARY_DEPENDENCIES [lib1 [lib2 [...]]] -- Specifies the libraries that this
+#   * EXTERNAL_DEPENDENCIES [lib1 [lib2 [...]]] -- Specifies the libraries that this
 #     sublibrary depends upon.  Each parameter should be in the form
 #       "LibName [version] [other-arguments]"
 #     and will be passed verbatim as arguments to find_package (therefore see the documentation for
 #     find_package for more details).  These libraries do not need to already be defined -- the
 #     find_package function will be called on them (invoking the respective FindXXX.cmake module).
-#     As with EXPLICIT_SUBLIBRARY_DEPENDENCIES, the compile definitions, compile options, include
+#     As with INTERNAL_DEPENDENCIES, the compile definitions, compile options, include
 #     directories (and presumably link libraries?) will all be inherited by this sublibrary
 #     automatically.
 #   * ADDITIONAL_TARGET_PROPERTIES [prop1 val1 [prop2 val2 [...]]] -- Specifies arguments to pass
@@ -116,8 +116,8 @@ function(add_sublibrary SUBLIBRARY_NAME)
         COMPILE_DEFINITIONS
         # COMPILE_FEATURES      # target_compile_features is a CMake 3.1 feature and should be added when we upgrade
         COMPILE_OPTIONS
-        EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        EXPLICIT_LIBRARY_DEPENDENCIES
+        INTERNAL_DEPENDENCIES
+        EXTERNAL_DEPENDENCIES
         ADDITIONAL_TARGET_PROPERTIES
         DETAILED_DOC_STRINGS    # This is for a more in-depth description of the purpose and scope of the sublibrary.
     )
@@ -149,7 +149,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_sublibrary_source_path ${SUBLIBRARY_NAME})
     endif()
     
-    foreach(_dep ${_arg_EXPLICIT_LIBRARY_DEPENDENCIES})
+    foreach(_dep ${_arg_EXTERNAL_DEPENDENCIES})
         # For each library that hasn't been find_package'ed yet, call find_package on it.
         separate_arguments(_dep)
         list(GET _dep 0 _lib_name)
@@ -215,12 +215,12 @@ function(add_sublibrary SUBLIBRARY_NAME)
     endif()
 
     # If there are internal project links, add them
-    if(_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES)
-        target_link_libraries(${SUBLIBRARY_NAME} ${_target_scope} ${_arg_EXPLICIT_SUBLIBRARY_DEPENDENCIES})
+    if(_arg_INTERNAL_DEPENDENCIES)
+        target_link_libraries(${SUBLIBRARY_NAME} ${_target_scope} ${_arg_INTERNAL_DEPENDENCIES})
     endif()
 
     # If there are external project links, add them
-    foreach(_dep ${_arg_EXPLICIT_LIBRARY_DEPENDENCIES})
+    foreach(_dep ${_arg_EXTERNAL_DEPENDENCIES})
         target_package(${SUBLIBRARY_NAME} LINK_TYPE ${_target_scope} ${_dep})
     endforeach()
 
@@ -280,9 +280,9 @@ macro(check_deps SUBLIBRARY_NAME EXPECTED_DEPS)
     endif()
 endmacro()
 
-function(define_test_sublibrary SUBLIBRARY EXPLICIT_SUBLIBRARY_DEPENDENCIES)
+function(define_test_sublibrary SUBLIBRARY INTERNAL_DEPENDENCIES)
     add_custom_target(${SUBLIBRARY})
-    set_target_properties(${SUBLIBRARY} PROPERTIES EXPLICIT_SUBLIBRARY_DEPENDENCIES "${EXPLICIT_SUBLIBRARY_DEPENDENCIES}")
+    set_target_properties(${SUBLIBRARY} PROPERTIES INTERNAL_DEPENDENCIES "${INTERNAL_DEPENDENCIES}")
 endfunction()
 
 function(test_compute_all_sublibrary_dependencies_of)

@@ -9,9 +9,9 @@ add_sublibrary(
         RenderableEventHandler.h
     SOURCES
         Application.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
-    EXPLICIT_LIBRARY_DEPENDENCIES
+    EXTERNAL_DEPENDENCIES
         "SDL 2"
     BRIEF_DOC_STRING
         "A simple framework for an SDL-based application."

@@ -4,7 +4,7 @@ add_sublibrary(
         .
     HEADERS
         GLShaderLoader.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         GLShader
         Resource
         TextAndBinaryFileLoader

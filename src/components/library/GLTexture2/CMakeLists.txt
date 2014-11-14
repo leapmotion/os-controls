@@ -10,7 +10,7 @@ add_sublibrary(
         GLTexture2.cpp
         GLTexture2Params.cpp
         GLTexture2PixelData.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
         GLCompatibility
     BRIEF_DOC_STRING

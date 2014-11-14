@@ -7,7 +7,7 @@ add_sublibrary(
         SceneGraphNodeProperties.h
         SceneGraphNodeProperty.h
         SceneGraphNodeValues.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
         EigenTypes
     BRIEF_DOC_STRING

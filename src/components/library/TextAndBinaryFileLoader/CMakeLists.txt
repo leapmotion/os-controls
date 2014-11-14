@@ -4,7 +4,7 @@ add_sublibrary(
         .
     HEADERS
         TextFileLoader.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         ResourceManager
         TextAndBinaryFile
     BRIEF_DOC_STRING

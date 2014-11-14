@@ -5,7 +5,7 @@ add_sublibrary(
     HEADERS
         GLVertexAttribute.h
         GLVertexBuffer.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
         GLBuffer
         GLCompatibility

@@ -9,7 +9,7 @@ add_sublibrary(
     SOURCES
         FrameBufferObject.cpp
         RenderBuffer.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         GLTexture2
         GLCompatibility
     BRIEF_DOC_STRING

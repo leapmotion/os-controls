@@ -7,7 +7,7 @@ add_sublibrary(
         GLBuffer.h
     SOURCES
         GLBuffer.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         GLCompatibility
     BRIEF_DOC_STRING
         "A fast GPU buffer object for OpenGL geometry."

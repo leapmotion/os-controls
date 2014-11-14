@@ -6,10 +6,10 @@ add_sublibrary(
         OculusVR.h
     SOURCES
         OculusVR.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         EigenTypes
         GLCompatibility
-    EXPLICIT_LIBRARY_DEPENDENCIES
+    EXTERNAL_DEPENDENCIES
         "OculusSDK"
     BRIEF_DOC_STRING
         "Provides Oculus VR tracking and distortion functionality."

@@ -13,10 +13,10 @@ add_sublibrary(
     SOURCES
         SDLController.cpp
         ${_maybe_MakeTransparent_Apple_mm}
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
         GLCompatibility
-    EXPLICIT_LIBRARY_DEPENDENCIES
+    EXTERNAL_DEPENDENCIES
         "SDL 2"
     BRIEF_DOC_STRING
         "A single point of control for init, shutdown, and general use of SDL."

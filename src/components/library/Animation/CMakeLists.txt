@@ -5,7 +5,7 @@ add_sublibrary(
     	.
     HEADERS
         Animation.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         EigenTypes
     BRIEF_DOC_STRING
         "Basic templated animation and interpolation."

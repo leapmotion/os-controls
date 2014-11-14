@@ -8,9 +8,9 @@ add_sublibrary(
         SFMLController.h
     SOURCES
         SFMLController.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
-    EXPLICIT_LIBRARY_DEPENDENCIES
+    EXTERNAL_DEPENDENCIES
         "SFML 2.1"
     BRIEF_DOC_STRING
         "A single point of control for init, shutdown, and general use of SFML."

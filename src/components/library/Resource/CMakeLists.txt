@@ -4,7 +4,7 @@ add_sublibrary(
         .
     HEADERS
         Resource.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         ResourceManager
         Singleton
     BRIEF_DOC_STRING

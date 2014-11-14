@@ -6,7 +6,7 @@ add_sublibrary(
         HandCursor.h
     SOURCES
         HandCursor.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         Color
         Animation
         EigenTypes

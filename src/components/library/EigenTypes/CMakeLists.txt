@@ -4,9 +4,9 @@ add_sublibrary(
         .
     HEADERS
         EigenTypes.h
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
-    EXPLICIT_LIBRARY_DEPENDENCIES
+    EXTERNAL_DEPENDENCIES
         "Eigen 3.2.1"
     BRIEF_DOC_STRING
         "Convenience typedefs for working with particular Eigen vector/matrix types."

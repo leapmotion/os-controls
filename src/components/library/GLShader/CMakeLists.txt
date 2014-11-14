@@ -7,7 +7,7 @@ add_sublibrary(
         GLShaderBindingScopeGuard.h
     SOURCES
         GLShader.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
         GLCompatibility
         ScopeGuard

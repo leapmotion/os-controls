@@ -7,7 +7,7 @@ add_sublibrary(
         Color.h
     SOURCES
         Color.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         C++11
         EigenTypes
     BRIEF_DOC_STRING

@@ -11,7 +11,7 @@ add_sublibrary(
     RESOURCES
         material-frag.glsl
         matrix-transformed-vert.glsl
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         Color
         EigenTypes
         GLShader

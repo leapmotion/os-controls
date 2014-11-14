@@ -16,7 +16,7 @@ add_sublibrary(
         Primitives.cpp
         SVGPrimitive.cpp
         TexturedFrame.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+    INTERNAL_DEPENDENCIES
         Color
         GLBuffer
         GLMaterial
