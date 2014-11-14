@@ -60,12 +60,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake-module
 
 include(AddSublibrary)
 
-# The added sublibrary target names will be accumulated in ADDED_SUBLIBRARIES
-
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    set(_cxx11_compiler_flags "-std=c++11")
-endif()
-
 add_subdirectory(Application)
 add_subdirectory(Animation)
 add_subdirectory(EigenTypes) # TODO: this should probably be renamed to just Eigen

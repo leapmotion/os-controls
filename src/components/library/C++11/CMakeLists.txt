@@ -1,3 +1,7 @@
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+    set(_cxx11_compiler_flags "-std=c++11")
+endif()
+
 add_sublibrary(
     C++11
     SOURCE_PATH "."
