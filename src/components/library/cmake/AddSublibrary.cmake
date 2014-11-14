@@ -245,9 +245,11 @@ function(add_sublibrary SUBLIBRARY_NAME)
         set(_is_interface_only FALSE)
         add_library(${SUBLIBRARY_NAME} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
         # This is the scope specifier for use in the target_* functions called on this target.
-        set_target_properties(${SUBLIBRARY_NAME} PROPERTIES FOLDER Components)
         set(_target_scope PUBLIC)
     endif()
+
+    if(_target_scope NOT EQUAL INTERFACE)
+        set_target_properties(${SUBLIBRARY_NAME} PROPERTIES FOLDER Components)
 
     # Determine if this is a "phony" target, meaning there are no headers or sources.
     list(LENGTH _path_prefixed_headers _header_count)
