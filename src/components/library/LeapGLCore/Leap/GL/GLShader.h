@@ -10,6 +10,7 @@
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 #include "Leap/GL/GLError.h"
 #include "Leap/GL/Internal/ShaderUniform.h"
+#include "Leap/GL/Internal/UniformSetter.h"
 #include "Leap/GL/ShaderException.h"
 
 namespace Leap {
@@ -89,6 +90,7 @@ public:
   //   VariableIs::OPTIONAL_BUT_WARN: Print a message indicating the missing variable.
   //   VariableIs::REQUIRED: Throw an exception with information indicating the missing variable.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: get rid of this
   void CheckForTypedUniform (const std::string &name, GLenum type, VariableIs check_type) const;
   // Checks for the attribute with given name and type.  If the variable is not found, then the behavior
   // depends on the value of check_type:
@@ -96,20 +98,25 @@ public:
   //   VariableIs::OPTIONAL_BUT_WARN: Print a message indicating the missing variable.
   //   VariableIs::REQUIRED: Throw an exception with information indicating the missing variable.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: get rid of this
   void CheckForTypedAttribute (const std::string &name, GLenum type, VariableIs check_type) const;
 
   // Returns a map, indexed by name, containing all the active uniforms in this shader program.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: rename this to ActiveUniformInfoMap
   const VarInfoMap &UniformInfoMap () const { return m_uniform_info_map; }
   // Returns a map, indexed by name, containing all the active attributes in this shader program.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: rename this to ActiveAttributeInfoMap
   const VarInfoMap &AttributeInfoMap () const { return m_attribute_info_map; }
 
   // Returns true iff the shader uniform exists.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: get rid of this
   bool HasUniform (const std::string &name) const { return m_uniform_info_map.find(name) != m_uniform_info_map.end(); }
   // Returns the VarInfo data for the requested uniform, or throws if that uniform is not found.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: get rid of this
   const VarInfo &UniformInfo (const std::string &name) const {
     VarInfoMap::const_iterator it = m_uniform_info_map.find(name);
     if (it == m_uniform_info_map.end()) {
@@ -119,9 +126,11 @@ public:
   }
   // Returns true iff the shader attribute exists.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: get rid of this
   bool HasAttribute (const std::string &name) const { return m_attribute_info_map.find(name) != m_attribute_info_map.end(); }
   // Returns the VarInfo data for the requested attribute, or throws if that attribute is not found.
   // This shader does not need to be bound for this call to succeed.
+  // TODO: get rid of this
   const VarInfo &AttributeInfo (const std::string &name) const {
     VarInfoMap::const_iterator it = m_attribute_info_map.find(name);
     if (it == m_attribute_info_map.end()) {
@@ -133,6 +142,7 @@ public:
   // The -1 return value is what is used by the glUniform* functions as a sentinel value for "this
   // uniform is not found, so do nothing silently".
   // This shader does not need to be bound for this call to succeed.
+  // TODO: change this to use glGetUniformLocation
   GLint LocationOfUniform (const std::string &name) const {
     auto it = m_uniform_info_map.find(name);
     return it != m_uniform_info_map.end() ? it->second.Location() : -1;
@@ -141,6 +151,7 @@ public:
   // The -1 return value is what is used by the glUniform* functions as a sentinel value for "this
   // uniform is not found, so do nothing silently".
   // This shader does not need to be bound for this call to succeed.
+  // TODO: change this to use glGetAttributeLocation
   GLint LocationOfAttribute (const std::string &name) const {
     auto it = m_attribute_info_map.find(name);
     return it != m_attribute_info_map.end() ? it->second.Location() : -1;
@@ -149,6 +160,23 @@ public:
   // These SetUniform* methods require this shader to currently be bound.  They are named
   // with type annotators to avoid confusion in situations where types are implicitly coerced.
   // The uniform has a fixed type in the shader, so the call to SetUniform* should reflect that.
+
+  template <GLenum GL_TYPE_, typename... Types_>
+  void SetUniform (GLint location, Types_... args) {
+    Internal::UniformSetter<GL_TYPE_>::Set(location, args...);
+  }
+  template <GLenum GL_TYPE_, typename... Types_>
+  void SetUniform (const std::string &name, Types_... args) {
+    Internal::UniformSetter<GL_TYPE_>::Set(glGetUniformLocation(m_program_handle, name.c_str()), args...);
+  }
+  template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
+  void SetUniformArray (GLint location, Types_... args) {
+    Internal::UniformSetter<GL_TYPE_>::template SetArray<ARRAY_LENGTH_>(location, args...);
+  }
+  template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
+  void SetUniformArray (const std::string &name, Types_... args) {
+    Internal::UniformSetter<GL_TYPE_>::template SetArray<ARRAY_LENGTH_>(glGetUniformLocation(m_program_handle, name.c_str()), args...);
+  }
 
   // Sets the named uniform to the given bool value (casted to GLint).
   // This shader must be bound for this call to succeed.

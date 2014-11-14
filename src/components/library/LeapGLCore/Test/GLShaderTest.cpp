@@ -296,34 +296,34 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
 
 
 
-    // GL_THROW_UPON_ERROR(
-    //   valid_shader->SetUniform2<GL_BOOL>("condition", true);
-    // )
-    // GL_THROW_UPON_ERROR(
-    //   valid_shader->SetUniform2<GL_BOOL_VEC2>("conditions", false, true);
-    // )
-    // GL_THROW_UPON_ERROR(
-    //   valid_shader->SetUniform2<GL_BOOL_VEC2>("conditions", std::array<GLint,2>{{false, true}});
-    // )
-    // typedef std::array<GLint,2> GLint2;
-    // GL_THROW_UPON_ERROR(
-    //   (valid_shader->SetUniform2<GL_BOOL_VEC2,GLint2>)("conditions", {{false, true}});
-    // )
+    GL_THROW_UPON_ERROR(
+      valid_shader->SetUniform<GL_BOOL>("condition", true);
+    )
+    GL_THROW_UPON_ERROR(
+      valid_shader->SetUniform<GL_BOOL_VEC2>("conditions", false, true);
+    )
+    GL_THROW_UPON_ERROR(
+      valid_shader->SetUniform<GL_BOOL_VEC2>("conditions", std::array<GLint,2>{{false, true}});
+    )
+    typedef std::array<GLint,2> GLint2;
+    GL_THROW_UPON_ERROR(
+      (valid_shader->SetUniform<GL_BOOL_VEC2,GLint2>)("conditions", {{false, true}});
+    )
 
 
-    // GL_THROW_UPON_ERROR(
-    //   valid_shader->SetUniform2<GL_FLOAT_VEC3>("vec_three", std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
-    // )
-    // GL_THROW_UPON_ERROR(
-    //   valid_shader->SetUniform2<GL_FLOAT_VEC3>("vec_three", 1.0f, 2.0f, 3.0f);
-    // )
-    // GL_THROW_UPON_ERROR(
-    //   (valid_shader->SetUniformArray2<GL_FLOAT,4>)("array", std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
-    // )
-    // typedef std::array<GLfloat,4> GLfloat4;
-    // GL_THROW_UPON_ERROR(
-    //   (valid_shader->SetUniformArray2<GL_FLOAT,4,GLfloat4>)("array", {{8.0f, 4.0f, 2.0f, 1.0f}});
-    // )
+    GL_THROW_UPON_ERROR(
+      valid_shader->SetUniform<GL_FLOAT_VEC3>("vec_three", std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
+    )
+    GL_THROW_UPON_ERROR(
+      valid_shader->SetUniform<GL_FLOAT_VEC3>("vec_three", 1.0f, 2.0f, 3.0f);
+    )
+    GL_THROW_UPON_ERROR(
+      (valid_shader->SetUniformArray<GL_FLOAT,4>)("array", std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
+    )
+    typedef std::array<GLfloat,4> GLfloat4;
+    GL_THROW_UPON_ERROR(
+      (valid_shader->SetUniformArray<GL_FLOAT,4,GLfloat4>)("array", {{8.0f, 4.0f, 2.0f, 1.0f}});
+    )
 
 
     GL_THROW_UPON_ERROR(
@@ -355,33 +355,33 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
     )
 
 
-    // GL_THROW_UPON_ERROR(
-    //   valid_shader->SetUniform2<GL_FLOAT_MAT2>(
-    //     "m2x2",
-    //     std::array<std::array<GLfloat,2>,2>{{
-    //       {{1.0f, 2.0f}},
-    //       {{3.0f, 4.0f}}
-    //     }},
-    //     Leap::GL::MatrixStorageConvention::ROW_MAJOR);
-    // )
-    // GL_THROW_UPON_ERROR(
-    //   valid_shader->SetUniform2<GL_FLOAT_MAT2>(
-    //     "m2x2", 
-    //     std::array<GLfloat,2*2>{{
-    //       1.0f, 2.0f,
-    //       3.0f, 4.0f
-    //     }},
-    //     Leap::GL::MatrixStorageConvention::ROW_MAJOR);
-    // )
-    // GL_THROW_UPON_ERROR(
-    //   (valid_shader->SetUniform2<GL_FLOAT_MAT2,std::array<GLfloat,2*2>>)(
-    //     "m2x2",
-    //     {{
-    //       1.0f, 2.0f,
-    //       3.0f, 4.0f
-    //     }},
-    //     Leap::GL::MatrixStorageConvention::ROW_MAJOR);
-    // )
+    GL_THROW_UPON_ERROR(
+      valid_shader->SetUniform<GL_FLOAT_MAT2>(
+        "m2x2",
+        std::array<std::array<GLfloat,2>,2>{{
+          {{1.0f, 2.0f}},
+          {{3.0f, 4.0f}}
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+    GL_THROW_UPON_ERROR(
+      valid_shader->SetUniform<GL_FLOAT_MAT2>(
+        "m2x2", 
+        std::array<GLfloat,2*2>{{
+          1.0f, 2.0f,
+          3.0f, 4.0f
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+    GL_THROW_UPON_ERROR(
+      (valid_shader->SetUniform<GL_FLOAT_MAT2,std::array<GLfloat,2*2>>)(
+        "m2x2",
+        {{
+          1.0f, 2.0f,
+          3.0f, 4.0f
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
 
 
     GL_THROW_UPON_ERROR(
@@ -419,43 +419,40 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
 
-    // GL_THROW_UPON_ERROR(
-    //   (valid_shader->SetUniformArray2<GL_FLOAT_MAT3,2>)(
-    //     "m3x3",
-    //     std::array<std::array<GLfloat,3*3>,2>{{
-    //       {{
-    //         1.0f, 2.0f, 3.0f,
-    //         4.0f, 5.0f, 6.0f,
-    //         7.0f, 8.0f, 9.0f
-    //       }},
-    //       {{
-    //         11.0f, 12.0f, 13.0f,
-    //         14.0f, 15.0f, 16.0f,
-    //         17.0f, 18.0f, 19.0f
-    //       }}
-    //     }},
-    //     GL_TRUE);
-    // )
-    // GL_THROW_UPON_ERROR(
-    //   (valid_shader->SetUniformArray2<GL_FLOAT_MAT3,2,std::array<std::array<GLfloat,3*3>,2>>)(
-    //     "m3x3",
-    //     {{
-    //       {{
-    //         1.0f, 2.0f, 3.0f,
-    //         4.0f, 5.0f, 6.0f,
-    //         7.0f, 8.0f, 9.0f
-    //       }},
-    //       {{
-    //         11.0f, 12.0f, 13.0f,
-    //         14.0f, 15.0f, 16.0f,
-    //         17.0f, 18.0f, 19.0f
-    //       }}
-    //     }},
-    //     GL_TRUE);
-    // )
-
-      // "uniform mat2 m2x2;\n"
-      // "uniform mat3 m3x3[2];\n"
+    GL_THROW_UPON_ERROR(
+      (valid_shader->SetUniformArray<GL_FLOAT_MAT3,2>)(
+        "m3x3",
+        std::array<std::array<GLfloat,3*3>,2>{{
+          {{
+            1.0f, 2.0f, 3.0f,
+            4.0f, 5.0f, 6.0f,
+            7.0f, 8.0f, 9.0f
+          }},
+          {{
+            11.0f, 12.0f, 13.0f,
+            14.0f, 15.0f, 16.0f,
+            17.0f, 18.0f, 19.0f
+          }}
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
+    GL_THROW_UPON_ERROR(
+      (valid_shader->SetUniformArray<GL_FLOAT_MAT3,2,std::array<std::array<GLfloat,3*3>,2>>)(
+        "m3x3",
+        {{
+          {{
+            1.0f, 2.0f, 3.0f,
+            4.0f, 5.0f, 6.0f,
+            7.0f, 8.0f, 9.0f
+          }},
+          {{
+            11.0f, 12.0f, 13.0f,
+            14.0f, 15.0f, 16.0f,
+            17.0f, 18.0f, 19.0f
+          }}
+        }},
+        Leap::GL::MatrixStorageConvention::ROW_MAJOR);
+    )
 
     valid_shader->Unbind();
   }

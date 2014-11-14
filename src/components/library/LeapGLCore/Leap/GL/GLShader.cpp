@@ -59,6 +59,11 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
       GLenum type;
       glGetActiveUniform(m_program_handle, index, active_uniform_max_length, &length, &size, &type, &name[0]);
       name.resize(length);
+      // Chop off array subscript if present.
+      if (*name.rbegin() == ']') {
+        assert(name.find_last_of('[') != std::string::npos && "If ']' is the last char, then '[' better also be present.");
+        name.resize(name.find_last_of('['));
+      }
       GLint location = glGetUniformLocation(m_program_handle, name.c_str());
       // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       // TODO: use emplace here, then get rid of default constructor for VarInfo
