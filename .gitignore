@@ -43,3 +43,6 @@ ComponentsConfig.cmake
 ComponentsConfigVersion.cmake
 src/components/library/cmake/ComponentsExport.cmake
 resources
+
+src/components/example_apps/RiggedHandSample/models/*
+src/components/example_apps/RiggedHandSample/textures/*
