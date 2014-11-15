@@ -63,9 +63,6 @@ public:
   Primitive() { }
   virtual ~Primitive() { }
 
-  void SetShader(const GLShaderRef& shader) {
-    m_shader = shader;
-  }
   const GLShader &Shader () const {
     if (!m_shader) {
       throw std::runtime_error("shader member was not initialized");
@@ -74,7 +71,7 @@ public:
   }
 
   //Must be compatible with the default material (ie, use the same names for the matrix inputs)
-  void SetShader(std::shared_ptr<GLShader> shader) { m_shader = shader; }
+  void SetShader(const std::shared_ptr<GLShader> &shader) { m_shader = shader; }
 
   const GLMaterial &Material () const { return m_material; }
   GLMaterial &Material () { return m_material; }
