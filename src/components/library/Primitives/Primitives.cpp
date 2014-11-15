@@ -17,7 +17,7 @@ void Sphere::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometry geom;
   static bool loaded = false;
   if (!loaded) {
-    PrimitiveGeometry::CreateUnitSphere(30, geom);
+    PrimitiveGeometry::CreateUnitSphere(48, 24, geom);
     loaded = true;
   }
   geom.Draw(Shader(), GL_TRIANGLES);
@@ -245,6 +245,276 @@ void PartialDiskWithTriangle::RecomputeGeometry() const {
   }
 
   m_Geometry.UploadDataToBuffers();
+
+  m_RecomputeGeometry = false;
+}
+
+PartialSphere::PartialSphere() : m_RecomputeGeometry(true), m_Radius(1), m_StartWidthAngle(0), m_EndWidthAngle(M_PI), m_StartHeightAngle(0), m_EndHeightAngle(M_PI) { }
+
+void PartialSphere::MakeAdditionalModelViewTransformations(ModelView &model_view) const {
+  model_view.Scale(EigenTypes::Vector3::Constant(m_Radius));
+}
+
+void PartialSphere::DrawContents(RenderState& renderState) const {
+  if (m_StartWidthAngle >= m_EndWidthAngle || m_StartHeightAngle >= m_EndHeightAngle) {
+    // don't proceed if the shape is empty
+    return;
+  }
+
+  if (m_RecomputeGeometry) {
+    RecomputeGeometry();
+  }
+
+  m_Geometry.Draw(Shader(), GL_TRIANGLES);
+}
+
+void PartialSphere::RecomputeGeometry() const {
+  static const double DESIRED_ANGLE_PER_SEGMENT = 0.1; // radians
+  const double heightSweep = std::min(M_PI, m_EndHeightAngle - m_StartHeightAngle);
+  const double widthSweep = std::min(2.0 * M_PI, m_EndWidthAngle - m_StartWidthAngle);
+  const int numWidth = static_cast<int>(widthSweep / DESIRED_ANGLE_PER_SEGMENT) + 1;
+  const int numHeight = static_cast<int>(heightSweep / DESIRED_ANGLE_PER_SEGMENT) + 1;
+  PrimitiveGeometry::CreateUnitSphere(numWidth, numHeight, m_Geometry, m_StartHeightAngle, m_EndHeightAngle, m_StartWidthAngle, m_EndWidthAngle);
+  m_RecomputeGeometry = false;
+}
+
+PartialCylinder::PartialCylinder() : m_RecomputeGeometry(true), m_Radius(1), m_Height(1), m_StartAngle(0), m_EndAngle(2.0*M_PI) { }
+
+void PartialCylinder::MakeAdditionalModelViewTransformations(ModelView &model_view) const {
+  model_view.Scale(EigenTypes::Vector3(m_Radius, m_Height, m_Radius));
+}
+
+void PartialCylinder::DrawContents(RenderState& renderState) const {
+  if (m_StartAngle >= m_EndAngle) {
+    // don't proceed if the shape is empty
+    return;
+  }
+
+  if (m_RecomputeGeometry) {
+    RecomputeGeometry();
+  }
+
+  m_Geometry.Draw(Shader(), GL_TRIANGLES);
+}
+
+void PartialCylinder::RecomputeGeometry() const {
+  PrimitiveGeometry::CreateUnitCylinder(30, 1, m_Geometry, 1.0f, 1.0f, m_StartAngle, m_EndAngle);
+  m_RecomputeGeometry = false;
+}
+
+CapsulePrim::CapsulePrim() : m_Radius(1), m_Height(1) { }
+
+void CapsulePrim::DrawContents(RenderState& renderState) const {
+  static bool loaded = false;
+  static PrimitiveGeometry cap;
+  static PrimitiveGeometry body;
+  if (!loaded) {
+    PrimitiveGeometry::CreateUnitSphere(24, 12, cap, -M_PI/2.0, 0);
+    PrimitiveGeometry::CreateUnitCylinder(24, 1, body);
+    loaded = true;
+  }
+
+  ModelView& modelView = renderState.GetModelView();
+
+  // draw body
+  modelView.Push();
+  modelView.Scale(EigenTypes::Vector3(m_Radius, m_Height, m_Radius));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  body.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+
+  // draw first end cap
+  modelView.Push();
+  modelView.Translate(EigenTypes::Vector3(0, -m_Height/2.0, 0));
+  modelView.Scale(EigenTypes::Vector3::Constant(m_Radius));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  cap.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+
+  // draw second end cap
+  modelView.Push();
+  modelView.Translate(EigenTypes::Vector3(0, m_Height/2.0, 0));
+  modelView.Scale(EigenTypes::Vector3(m_Radius, -m_Radius, m_Radius));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  cap.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+}
+
+BiCapsulePrim::BiCapsulePrim() : m_RecomputeGeometry(true), m_Radius1(1), m_Radius2(1), m_Height(1) { }
+
+void BiCapsulePrim::DrawContents(RenderState& renderState) const {
+  if (m_RecomputeGeometry) {
+    RecomputeGeometry();
+  }
+
+  ModelView& modelView = renderState.GetModelView();
+
+  // draw body
+  double bodyHeight = m_Height + (m_BodyOffset2 - m_BodyOffset1);
+  modelView.Push();
+  modelView.Translate(EigenTypes::Vector3(0, (m_BodyOffset1+m_BodyOffset2)/2.0, 0));
+  modelView.Scale(EigenTypes::Vector3(1.0, bodyHeight, 1.0));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  m_Body.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+
+  // draw first end cap
+  modelView.Push();
+  modelView.Translate(EigenTypes::Vector3(0, -m_Height/2.0, 0));
+  modelView.Scale(EigenTypes::Vector3::Constant(m_Radius1));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  m_Cap1.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+
+  // draw second end cap
+  modelView.Push();
+  modelView.Translate(EigenTypes::Vector3(0, m_Height/2.0, 0));
+  modelView.Scale(EigenTypes::Vector3(m_Radius2, -m_Radius2, m_Radius2));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  m_Cap2.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+}
+
+void BiCapsulePrim::RecomputeGeometry() const {
+  const double sideAngle = M_PI/2.0 - std::acos((m_Radius1 - m_Radius2)/m_Height);
+
+  const double sinSideAngle = std::sin(sideAngle);
+  const double cosSideAngle = std::cos(sideAngle);
+  m_BodyOffset1 = sinSideAngle * m_Radius1;
+  m_BodyOffset2 = sinSideAngle * m_Radius2;
+  m_BodyRadius1 = cosSideAngle * m_Radius1;
+  m_BodyRadius2 = cosSideAngle * m_Radius2;
+
+  PrimitiveGeometry::CreateUnitSphere(24, 12, m_Cap1, -M_PI/2.0, sideAngle);
+  PrimitiveGeometry::CreateUnitSphere(24, 12, m_Cap2, -M_PI/2.0, -sideAngle);
+  PrimitiveGeometry::CreateUnitCylinder(24, 1, m_Body, static_cast<float>(m_BodyRadius1), static_cast<float>(m_BodyRadius2));
+  m_RecomputeGeometry = false;
+}
+
+RadialPolygonPrim::RadialPolygonPrim() : m_RecomputeGeometry(true), m_Radius(1) { }
+
+void RadialPolygonPrim::DrawContents(RenderState& renderState) const {
+  if (m_RecomputeGeometry) {
+    RecomputeGeometry();
+  }
+
+  ModelView& modelView = renderState.GetModelView();
+
+  // draw top polygon face
+  modelView.Push();
+  modelView.Translate(EigenTypes::Vector3(0, m_Radius, 0));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  m_Polygon.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+
+  // draw bottom polygon face
+  modelView.Push();
+  modelView.Scale(EigenTypes::Vector3(1, -1, 1));
+  modelView.Translate(EigenTypes::Vector3(0, m_Radius, 0));
+  GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+  m_Polygon.Draw(Shader(), GL_TRIANGLES);
+  modelView.Pop();
+
+  // draw each side consisting of a partial sphere and half-cylinder
+  for (size_t i=0; i<m_Sides.size(); i++) {
+    modelView.Push();
+    modelView.Translate(m_Sides[i].m_Origin);
+    modelView.Multiply(m_Sides[i].m_SphereBasis);
+    modelView.Scale(EigenTypes::Vector3::Constant(m_Radius));
+    GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+    m_Sides[i].m_SphereJoint.Draw(Shader(), GL_TRIANGLES);
+    modelView.Pop();
+
+    modelView.Push();
+    modelView.Translate(m_Sides[i].m_Origin);
+    modelView.Multiply(m_Sides[i].m_CylinderBasis);
+    modelView.Scale(EigenTypes::Vector3(m_Radius, m_Sides[i].m_Length, m_Radius));
+    modelView.Translate(EigenTypes::Vector3(0, 0.5, 0));
+    GLShaderMatrices::UploadUniforms(Shader(), modelView.Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+    m_CylinderBody.Draw(Shader(), GL_TRIANGLES);
+    modelView.Pop();
+  }
+}
+
+void RadialPolygonPrim::RecomputeGeometry() const {
+  // assumptions: 
+  // - average of all polygon vertices lies within the shape
+  // - the angle between any two sides is no greater than 180 degrees
+
+  static const double EPSILON = 1E-7;
+  const int numPoints = static_cast<int>(m_Sides.size());
+  assert(numPoints > 0);
+  if (numPoints <= 0) {
+    return;
+  }
+
+  // compute the centroid of the polygon
+  EigenTypes::Vector3 avgPoint(EigenTypes::Vector3::Zero());
+  for (int i=0; i<numPoints; i++) {
+    avgPoint += m_Sides[i].m_Origin;
+  }
+  avgPoint /= numPoints;
+
+  // normal of the main face
+  const EigenTypes::Vector3 normal = EigenTypes::Vector3::UnitY();
+
+  for (int i=0; i<numPoints; i++) {
+    // retrieve the two polygon sides meeting at this point
+    const EigenTypes::Vector3& curPoint = m_Sides[i].m_Origin;
+    const EigenTypes::Vector3& prevPoint = m_Sides[i == 0 ? numPoints-1 : i-1].m_Origin;
+    const EigenTypes::Vector3& nextPoint = m_Sides[(i+1)%numPoints].m_Origin;
+    const EigenTypes::Vector3 vec1 = (curPoint - prevPoint);
+    const EigenTypes::Vector3 vec2 = (nextPoint - curPoint);
+
+    // length of the side used for the partial cylinder
+    m_Sides[i].m_Length = vec1.norm();
+
+    // calculate angle at this vertex of the polygon
+    const double denom = vec1.squaredNorm() * vec2.squaredNorm();
+    double angle = 0;
+    if (denom > EPSILON) {
+      const double val = vec1.dot(vec2) / std::sqrt(denom);
+      if (val <= -1.0) {
+        angle = M_PI;
+      } else {
+        angle = std::acos(val);
+      }
+    }
+
+    // if this vertex is locally concave, the partial sphere is hidden inside the shape
+    if (vec1.cross(vec2).y() < 0) {
+      angle = 0;
+    }
+    
+    // create partial sphere to join the two cylindrical sides
+    static const double DESIRED_ANGLE_PER_SEGMENT = 0.1; // radians
+    const int numWidth = static_cast<int>(angle / DESIRED_ANGLE_PER_SEGMENT) + 1;
+    PrimitiveGeometry::CreateUnitSphere(numWidth, 16, m_Sides[i].m_SphereJoint, -M_PI/2.0, M_PI/2.0, 0, angle);
+
+    // compute bases of partial sphere and partial cylinder at this vertex
+    const EigenTypes::Vector3 tangent = vec1.normalized();
+    const EigenTypes::Vector3 binormal = tangent.cross(normal);
+    EigenTypes::Matrix3x3& sphereBasis = m_Sides[i].m_SphereBasis;
+    sphereBasis.col(0) = tangent;
+    sphereBasis.col(1) = normal;
+    sphereBasis.col(2) = binormal;
+    EigenTypes::Matrix3x3& cylinderBasis = m_Sides[i].m_CylinderBasis;
+    cylinderBasis.col(0) = normal;
+    cylinderBasis.col(1) = -tangent;
+    cylinderBasis.col(2) = binormal;
+
+    // add the vertex to the main face of the polygon
+    const EigenTypes::Vector3f p0 = nextPoint.cast<float>();
+    const EigenTypes::Vector3f p1 = avgPoint.cast<float>();
+    const EigenTypes::Vector3f p2 = curPoint.cast<float>();
+    m_Polygon.PushTri(p0, p1, p2);
+  }
+
+  // upload main face
+  m_Polygon.UploadDataToBuffers();
+
+  // create a single unit half-cylinder to be reused for all sides
+  PrimitiveGeometry::CreateUnitCylinder(16, 1, m_CylinderBody, 1.0f, 1.0f, 0.0, M_PI);
 
   m_RecomputeGeometry = false;
 }

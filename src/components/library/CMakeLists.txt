@@ -74,6 +74,18 @@ add_sublibrary(
         "A phony target which just provides compiler options for enabling C++11."
 )
 
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+    set(_unicode_compiler_flags "/D UNICODE")
+endif()
+
+add_sublibrary(
+    Unicode
+    COMPILE_OPTIONS
+        ${_unicode_compiler_flags}
+    BRIEF_DOC_STRING
+        "A phony target which just provides compiler options for enabling Unicode support."
+)
+
 add_sublibrary(
     Application
     HEADERS
@@ -185,21 +197,6 @@ add_sublibrary(
 if(APPLE)
   set_property(SOURCE SFMLController/SFMLController.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
 endif()
-
-add_sublibrary(
-    FbxSceneLoader
-    HEADERS
-        FbxSceneLoader.h
-    SOURCES
-        FbxSceneLoader.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        ResourceManager
-    EXPLICIT_LIBRARY_DEPENDENCIES
-        "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
-    BRIEF_DOC_STRING
-        "ResourceManager-managed loading of FbxScene objects using the FBX SDK."
-)
 
 add_sublibrary(
     GLTexture2
@@ -539,6 +536,62 @@ add_sublibrary(
         Primitives
     BRIEF_DOC_STRING
         "Simple hand cursor representation."
+)
+
+add_sublibrary(
+    GLTexture2Image
+    HEADERS
+        GLTexture2Image.h
+    SOURCES
+        GLTexture2Image.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLTexture2
+        GLTexture2FreeImage
+    BRIEF_DOC_STRING
+        "Wrapper from file to GL texture."
+)
+
+add_sublibrary(
+    Rigging
+    HEADERS
+        AMeshSection.h
+        ModelIo.h
+        ModelSourceAssimp.h
+        ModelTargetSkinnedVboMesh.h
+        Node.h
+        Skeleton.h
+        SkinnedVboMesh.h
+    SOURCES
+        ModelIo.cpp
+        ModelSourceAssimp.cpp
+        ModelTargetSkinnedVboMesh.cpp
+        Node.cpp
+        Skeleton.cpp
+        SkinnedVboMesh.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Color
+        EigenTypes
+        Primitives
+        GLShader
+        GLTexture2Image
+        GLVertexBuffer
+        Unicode
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "Assimp 3.1.1"
+    BRIEF_DOC_STRING
+        "Mesh rigging, skinning, and deformation."
+)
+
+add_sublibrary(
+    RiggedHand
+    HEADERS
+        RiggedHand.h
+    SOURCES
+        RiggedHand.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Rigging
+    BRIEF_DOC_STRING
+        "Realistic deformable hand."
 )
 
 ###################################################################################################

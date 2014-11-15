@@ -47,6 +47,9 @@ resources
 xcode
 
 
+src/components/example_apps/RiggedHandSample/models/*
+src/components/example_apps/RiggedHandSample/textures/*
+
 src/components/install/*
 src/components/install_manifest.txt
 
