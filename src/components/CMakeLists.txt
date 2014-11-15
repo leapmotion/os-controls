@@ -13,7 +13,6 @@ if(_this_is_standalone_project)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
     project(ComponentsSuite VERSION 0.3) # "Suite" meaning components library and example apps.
 
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake") #For our specialized cmake modules
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake-modules") # For most other cmake modules
 
     set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -30,6 +29,8 @@ if(_this_is_standalone_project)
     include(LeapCMakeTemplates)
     leap_find_external_libraries()
 endif()
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake") #For our specialized cmake modules
 
 # The subdirectory containing the Components library itself.
 add_subdirectory(library)
