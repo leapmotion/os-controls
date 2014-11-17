@@ -14,38 +14,6 @@ foreach(subdirectory ${all_subdirectories})
 endforeach()
 
 ###################################################################################################
-# Global compiler options (and related) go here.  NOTE: ANY SUBLIBRARY-SPECIFIC COMPILER OPTIONS
-# SHOULD BE MADE IN THE CORRESPONDING SUBLIBRARY DEFINITION!
-###################################################################################################
-
-# TODO: look into using target_compile_definitions and target_compile_options,
-# though these seem sufficiently global to warrant the extreme measure of
-# setting CMAKE_CXX_FLAGS.
-
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU") # "GNU" is GCC
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-reorder -Wno-unused-variable")
-elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX") # /WX is to treat warnings as errors.
-endif()
-
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-    option(MSVC_USE_MT "Build using static runtime instead of dynamic" OFF)
-    if (MSVC_USE_MT)
-      string(REGEX REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-      string(REGEX REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
-    endif()
-endif()
-
-# Special rules to handle use of the libc++ library on Mac with Clang.
-# TODO: Are there analogous rules for Mac with GCC?
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-    if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") # GCC ("GNU") probably would require a different option
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    endif()
-endif()
-
-###################################################################################################
 # These Doxygen build rules were taken from
 # http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/usewithcmakeproject.html
 ###################################################################################################
