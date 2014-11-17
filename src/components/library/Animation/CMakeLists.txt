@@ -1,4 +1,3 @@
-
 add_sublibrary(
     Animation
     SOURCE_PATH

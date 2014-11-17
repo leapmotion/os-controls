@@ -1,4 +1,3 @@
-
 set(SFML_STATIC_LIBRARIES ON) #required for proper linkage..
 add_sublibrary(
     SFMLController

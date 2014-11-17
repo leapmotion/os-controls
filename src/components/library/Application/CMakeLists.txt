@@ -1,4 +1,3 @@
-
 add_sublibrary(
     Application
     SOURCE_PATH "."
