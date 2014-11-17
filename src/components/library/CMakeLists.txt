@@ -1,17 +1,11 @@
+include(AddSublibrary)
+
 ###################################################################################################
 # Sublibrary definitions
 ###################################################################################################
 
-include(AddSublibrary)
 
-# Add all appropriate subdirectories:
-file(GLOB all_subdirectories RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
-foreach(subdirectory ${all_subdirectories})
-  set(curdir "${CMAKE_CURRENT_SOURCE_DIR}/${subdirectory}")
-  if(NOT ${subdirectory} STREQUAL "." AND EXISTS "${curdir}/CMakeLists.txt")
-    add_subdirectory(${subdirectory})
-  endif()
-endforeach()
+leap_add_all_subdirectories()
 
 ###################################################################################################
 # These Doxygen build rules were taken from
