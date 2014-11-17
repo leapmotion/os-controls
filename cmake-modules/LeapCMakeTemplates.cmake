@@ -61,3 +61,13 @@ macro(leap_use_strict_warnings)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX") # /WX is to treat warnings as errors.
   endif()
 endmacro()
+
+function(leap_add_all_subdirectories)
+  file(GLOB all_subdirectories RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
+  foreach(subdirectory ${all_subdirectories})
+    set(curdir "${CMAKE_CURRENT_SOURCE_DIR}/${subdirectory}")
+    if(NOT ${subdirectory} STREQUAL "." AND EXISTS "${curdir}/CMakeLists.txt")
+      add_subdirectory(${subdirectory})
+    endif()
+  endforeach()
+endfunction()
