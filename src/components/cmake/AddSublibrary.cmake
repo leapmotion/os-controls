@@ -170,7 +170,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
 
     list(LENGTH _arg_SOURCES _source_count)
     if(${_source_count} EQUAL 0)
-        add_library(${SUBLIBRARY_NAME} INTERFACE)
+        add_library(${SUBLIBRARY_NAME} INTERFACE) #Cannot use static, or linking will attempt to link with an absent .lib file.
         set(_target_scope INTERFACE)
     else()
         add_library(${SUBLIBRARY_NAME} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
