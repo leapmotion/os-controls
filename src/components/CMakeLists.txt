@@ -36,6 +36,5 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake") #For our spec
 
 # The subdirectory containing the Components library itself.
 add_subdirectory(library)
-# The subdirectories containing the example apps.
-add_subdirectory(example_apps/BasicShapes)
-add_subdirectory(example_apps/Stub)
+# The subdirectory containing the example apps.
+add_subdirectory(example_apps)

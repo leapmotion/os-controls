@@ -4,7 +4,6 @@ include(AddSublibrary)
 # Sublibrary definitions
 ###################################################################################################
 
-
 leap_add_all_subdirectories()
 
 ###################################################################################################
@@ -31,6 +30,3 @@ if(BUILD_DOCUMENTATION)
         SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
 endif()
 
-if (MSVC_USE_MT)
-  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:LIBCMT")
-endif()
