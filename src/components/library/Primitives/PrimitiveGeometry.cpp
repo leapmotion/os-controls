@@ -74,18 +74,23 @@ void PrimitiveGeometry::Draw(const GLShader &bound_shader, GLenum drawMode) cons
   m_VertexBuffer.Disable(locations);
 }
 
-void PrimitiveGeometry::CreateUnitSphere(int resolution, PrimitiveGeometry& geom) {
-  const float resFloatW = static_cast<float>(2*resolution);
-  const float resFloatH = static_cast<float>(resolution);
+void PrimitiveGeometry::CreateUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometry& geom, double heightAngleStart, double heightAngleEnd, double widthAngleStart, double widthAngleEnd) {
+  const float resFloatW = static_cast<float>(widthResolution);
+  const float resFloatH = static_cast<float>(heightResolution);
   const float pi = static_cast<float>(M_PI);
   const float twoPi = static_cast<float>(2.0 * M_PI);
 
-  for (int w=0; w<2*resolution; w++) {
-    for (int h=-resolution/2; h<resolution/2; h++) {
-      const float inc1 = (w/resFloatW) * twoPi;
-      const float inc2 = ((w+1)/resFloatW) * twoPi;
-      const float inc3 = (h/resFloatH) * pi;
-      const float inc4 = ((h+1)/resFloatH) * pi;
+  const float widthStart = static_cast<float>(widthAngleStart);
+  const float widthSweep = std::min(twoPi, static_cast<float>(widthAngleEnd - widthAngleStart));
+  const float heightStart = static_cast<float>(heightAngleStart);
+  const float heightSweep = std::min(pi, static_cast<float>(heightAngleEnd - heightAngleStart));
+
+  for (int w=0; w<widthResolution; w++) {
+    for (int h=0; h<heightResolution; h++) {
+      const float inc1 = (w/resFloatW) * widthSweep + widthStart;
+      const float inc2 = ((w+1)/resFloatW) * widthSweep + widthStart;
+      const float inc3 = (h/resFloatH) * heightSweep + heightStart;
+      const float inc4 = ((h+1)/resFloatH) * heightSweep + heightStart;
 
       // compute first position
       const float x1 = std::sin(inc1);
@@ -118,32 +123,53 @@ void PrimitiveGeometry::CreateUnitSphere(int resolution, PrimitiveGeometry& geom
   geom.UploadDataToBuffers();
 }
 
-void PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometry& geom) {
+void PrimitiveGeometry::CreateUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometry& geom, float radiusBottom, float radiusTop, double angleStart, double angleEnd) {
   const float radialRes = 1.0f / static_cast<float>(radialResolution);
   const float verticalRes = 1.0f / static_cast<float>(verticalResolution);
   
   const float twoPi = static_cast<float>(2.0 * M_PI);
+  const float start = static_cast<float>(angleStart);
+  const float sweep = std::min(twoPi, static_cast<float>(angleEnd - angleStart));
 
   for (int w=0; w<radialResolution; w++) {
-    const float inc1 = w * radialRes * twoPi;
-    const float inc2 = (w+1) * radialRes * twoPi;
+    const float inc1 = w * radialRes * sweep + start;
+    const float inc2 = (w+1) * radialRes * sweep + start;
 
     const float c1 = std::cos(inc1);
     const float c2 = std::cos(inc2);
     const float s1 = std::sin(inc1);
     const float s2 = std::sin(inc2);
 
+    // vectors perpendicular from center axis to wall
+    const EigenTypes::Vector3f p1(c1, 0, s1);
+    const EigenTypes::Vector3f p2(c2, 0, s2);
+
     for (int h=0; h<verticalResolution; h++) {
-      const float h1 = h * verticalRes - 0.5f;
-      const float h2 = (h+1) * verticalRes - 0.5f;
+      const float ratio1 = h*verticalRes;
+      const float ratio2 = (h+1)*verticalRes;
 
-      const EigenTypes::Vector3f v1(c1, h1, s1);
-      const EigenTypes::Vector3f v2(c1, h2, s1);
-      const EigenTypes::Vector3f v3(c2, h1, s2);
-      const EigenTypes::Vector3f v4(c2, h2, s2);
+      const float h1 = ratio1 - 0.5f;
+      const float h2 = ratio2 - 0.5f;
 
-      const EigenTypes::Vector3f n1(c1, 0, s1);
-      const EigenTypes::Vector3f n2(c2, 0, s2);
+      const float r1 = (1.0f-ratio1)*radiusBottom + ratio1*radiusTop;
+      const float r2 = (1.0f-ratio2)*radiusBottom + ratio2*radiusTop;
+
+      const EigenTypes::Vector3f v1(r1*c1, h1, r1*s1);
+      const EigenTypes::Vector3f v2(r2*c1, h2, r2*s1);
+      const EigenTypes::Vector3f v3(r1*c2, h1, r1*s2);
+      const EigenTypes::Vector3f v4(r2*c2, h2, r2*s2);
+
+      // tangents
+      const EigenTypes::Vector3f t1 = v2 - v1;
+      const EigenTypes::Vector3f t2 = v4 - v3;
+
+      // binormals
+      const EigenTypes::Vector3f b1 = (p1.cross(t1));
+      const EigenTypes::Vector3f b2 = (p2.cross(t2));
+
+      // normals
+      const EigenTypes::Vector3f n1 = t1.cross(b1).normalized();
+      const EigenTypes::Vector3f n2 = t2.cross(b2).normalized();
 
       geom.PushTri(MakeVertexAttributes(v1, n1), MakeVertexAttributes(v2, n1), MakeVertexAttributes(v3, n2));
       geom.PushTri(MakeVertexAttributes(v4, n2), MakeVertexAttributes(v3, n2), MakeVertexAttributes(v2, n1));

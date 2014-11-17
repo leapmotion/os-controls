@@ -39,8 +39,8 @@ public:
   void Draw(const GLShader &bound_shader, GLenum drawMode) const;
 
   // Factory functions for generating some simple shapes.  These functions assume that the draw mode (see Draw) is GL_TRIANGLES.
-  static void CreateUnitSphere(int resolution, PrimitiveGeometry& geom);
-  static void CreateUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometry& geom);
+  static void CreateUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometry& geom, double heightAngleStart = -M_PI/2.0, double heightAngleEnd = M_PI/2.0, double widthAngleStart = 0, double widthAngleEnd = 2.0*M_PI);
+  static void CreateUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometry& geom, float radiusBottom = 1.0f, float radiusTop = 1.0f, double angleStart = 0, double angleEnd = 2.0*M_PI);
   static void CreateUnitSquare(PrimitiveGeometry& geom);
   static void CreateUnitDisk(int resolution, PrimitiveGeometry& geom);
   static void CreateUnitBox(PrimitiveGeometry& geom);
