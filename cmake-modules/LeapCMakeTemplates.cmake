@@ -43,4 +43,12 @@ macro(leap_use_standard_platform_settings)
     set(USE_LIBCXX ON)
   endif()
 
+  #Add the ability to choose which MSVC runtime library you want to be linking with...
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+    option(MSVC_USE_MT "Build using static runtime instead of dynamic" OFF)
+    if (MSVC_USE_MT)
+      string(REGEX REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+      string(REGEX REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+    endif()
+  endif()
 endmacro()
