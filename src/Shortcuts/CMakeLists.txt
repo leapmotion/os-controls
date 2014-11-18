@@ -184,3 +184,6 @@ install(TARGETS Shortcuts COMPONENT Shortcuts
 
 #post build script to add the manifest & sign the thing.
 install(SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/SignShortcuts.cmake COMPONENT Shortcuts)
+
+add_subdirectory(PreferencePane)
+add_subdirectory(ShortcutsHelper)
