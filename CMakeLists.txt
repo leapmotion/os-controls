@@ -6,7 +6,6 @@ set(CPACK_GENERATOR "ZIP")
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 
 set(LEAP_COMPANY_NAME "Leap Motion")
-
 set(APP_COPYRIGHT "Copyright © 2014 Leap Motion, Inc. All rights reserved.")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
