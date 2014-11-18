@@ -3,6 +3,7 @@
 
 #include "AROverlay.h"
 #include "LeapImagePassthrough.h"
+#include "NativeUI.h"
 #include "graphics/RenderEngine.h"
 #include "hmdinterface/HmdFactory.h"
 #include "hmdinterface/IDevice.h"
@@ -55,6 +56,7 @@ void VRShell::Main(void) {
   shellCtxt->Initiate();
   CurrentContextPusher pshr(shellCtxt);
 
+  AutoRequired<NativeUI> nativeUI;
   AutoRequired<RenderWindow> renderEngineWindow;
   renderEngineWindow->SetActive();
   AutoRequired<RenderEngine>();
@@ -84,6 +86,9 @@ void VRShell::Main(void) {
 
   overlay->SetSourceWindow(*renderEngineWindow);
 
+  nativeUI->ShowUI();
+  auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
+
   // Defer starting any Leap handling until the window is ready
   *this += [this] {
     AutoRequired<LeapInput> leap;
@@ -91,9 +96,8 @@ void VRShell::Main(void) {
     leap->AddPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
   };
 
-  AutoFired<Updatable> upd;
-
   // Dispatch events until told to quit:
+  AutoFired<Updatable> upd;
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle OS events:

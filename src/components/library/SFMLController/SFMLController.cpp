@@ -144,6 +144,7 @@ void SFMLController::InitWindow() {
   m_Window.create(sf::VideoMode(m_Params.windowWidth, m_Params.windowHeight, 32U), m_Params.windowTitle, windowStyle, m_Settings);
   m_Window.setVisible(false);
   m_Window.setVerticalSyncEnabled(m_Params.vsync);
+  m_Window.setPosition(sf::Vector2i(m_Params.windowPosX, m_Params.windowPosY));
 
   m_WindowHandle = m_Window.getSystemHandle();
 #if _WIN32

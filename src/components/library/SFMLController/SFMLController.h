@@ -8,6 +8,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#pragma comment(lib,"winmm.lib")
 #include <Windows.h>
 #endif
 

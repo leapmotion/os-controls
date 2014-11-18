@@ -12,10 +12,10 @@ EigenTypes::Matrix4x4& Projection::Matrix() {
 
 void Projection::Perspective(double left, double bottom, double right, double top, double nearClip, double farClip) {
   const double denom = 1/(nearClip - farClip);
-  m_matrix << 2/(right - left),                0, (right + left)/(right - left),                        0,
-                             0, 2/(top - bottom), (top + bottom)/(top - bottom),                        0,
-                             0,                0,    (farClip + nearClip)*denom, 2*farClip*nearClip*denom,
-                             0,                0,                            -1,                        0;
+  m_matrix << 2*nearClip/(right - left),                         0, (right + left)/(right - left),                        0,
+                                      0, 2*nearClip/(top - bottom), (top + bottom)/(top - bottom),                        0,
+                                      0,                         0,    (farClip + nearClip)*denom, 2*farClip*nearClip*denom,
+                                      0,                         0,                            -1,                        0;
 }
 
 void Projection::Perspective(double hFovRadians, double widthOverHeight, double nearClip, double farClip) {
@@ -64,9 +64,9 @@ void ModelView::LookAt(const EigenTypes::Vector3& eye, const EigenTypes::Vector3
   EigenTypes::Vector3 x = y.cross(z).normalized();
   y = z.cross(x).normalized();
   mat.setIdentity();
-  mat.col(0) << x, 0;
-  mat.col(1) << y, 0;
-  mat.col(2) << z, 0;
+  mat.row(0) << x.transpose(), 0;
+  mat.row(1) << y.transpose(), 0;
+  mat.row(2) << z.transpose(), 0;
   mat.col(3) << -x.dot(eye), -y.dot(eye), -z.dot(eye), 1.0;
 }
 
