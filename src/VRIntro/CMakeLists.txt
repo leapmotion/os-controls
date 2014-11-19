@@ -5,7 +5,6 @@ include(ConditionalSources)
 
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
 
-include(ListSubdirectories)
 include(TargetImportedLibraries) # for Walter's target_package command
 
 ###################################################################################################
