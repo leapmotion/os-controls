@@ -3,24 +3,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 # External module includes
 include(ConditionalSources)
 include(TargetImportedLibraries)
-
-# Adds a precompiled header
-MACRO(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar)
-  if(MSVC)
-    set_source_files_properties(${PrecompiledSource}
-        PROPERTIES
-        COMPILE_FLAGS "/Yc${PrecompiledHeader}"
-        )
-    foreach( src_file ${${SourcesVar}} )
-        set_source_files_properties(
-            ${src_file}
-            PROPERTIES
-            COMPILE_FLAGS "/Yu${PrecompiledHeader}"
-            )
-    endforeach( src_file ${${SourcesVar}} )
-    list(APPEND ${SourcesVar} ${PrecompiledHeader} ${PrecompiledSource})
-  endif(MSVC)
-ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
+include(AddMsvcPrecompiledHeader)
 
 # Run all of our project configuration steps
 add_subdirectory(source)
