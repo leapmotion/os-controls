@@ -7,7 +7,7 @@ set(mediaview_SOURCES
   VolumeSliderView.cpp
 )
 
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
+add_pch(graphics_SOURCES "stdafx.h" "stdafx.cpp")
 
 add_library(mediaview ${mediaview_EXEFLAGS} ${mediaview_SOURCES})
 
