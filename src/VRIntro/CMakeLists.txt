@@ -1,5 +1,5 @@
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/src/components/cmake) #used for DefinePostBuildResourceCopyRules, which will be replaced soon.
 # External module includes
 include(ConditionalSources)
 include(TargetImportedLibraries)
