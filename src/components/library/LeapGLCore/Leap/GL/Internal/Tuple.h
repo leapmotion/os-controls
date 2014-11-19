@@ -20,6 +20,8 @@ struct Tuple_t<EmptyTyple> {
 
 template <typename Head_, typename... BodyTypes_>
 struct Tuple_t<Typle_t<Head_,BodyTypes_...>> {
+	typedef Typle_t<Head_,BodyTypes_...> Typle;
+	static size_t const LENGTH = Length_f<Typle>::V;
 	typedef Head_ Head;
 	typedef Tuple_t<Typle_t<BodyTypes_...>> BodyTuple;
 	Tuple_t () { }
@@ -34,6 +36,16 @@ struct Tuple_t<Typle_t<Head_,BodyTypes_...>> {
 	template <size_t INDEX_> typename std::enable_if<INDEX_==0,Head_ &>::type el () { return m_head; }
 	template <size_t INDEX_> typename std::enable_if<(INDEX_>0),typename Element_f<Typle_t<Head_,BodyTypes_...>,INDEX_>::T const &>::type el () const { return m_body_tuple.template el<INDEX_-1>(); }
 	template <size_t INDEX_> typename std::enable_if<(INDEX_>0),typename Element_f<Typle_t<Head_,BodyTypes_...>,INDEX_>::T &>::type el () { return m_body_tuple.template el<INDEX_-1>(); }
+	std::array<Head_,LENGTH> const &as_array () const {
+		static_assert(TypleIsUniform_f<Typle>::V, "This method is only well-defined if the Tuple_t's element types are uniform.");
+		assert(reinterpret_cast<uint8_t const *>(&m_head) + sizeof(Head_) == reinterpret_cast<uint8_t const *>(&m_body_tuple) && "This method is only well-defined if the elements of this Tuple_t are densely packed.");
+		return *reinterpret_cast<std::array<Head_,LENGTH> const *>(this);
+	}
+	std::array<Head_,LENGTH> &as_array () {
+		static_assert(TypleIsUniform_f<Typle>::V, "This method is only well-defined if the Tuple_t's element types are uniform.");
+		assert(reinterpret_cast<uint8_t *>(&m_head) + sizeof(Head_) == reinterpret_cast<uint8_t *>(&m_body_tuple) && "This method is only well-defined if the elements of this Tuple_t are densely packed.");
+		return *reinterpret_cast<std::array<Head_,LENGTH> *>(this);
+	}
 private:
 	Head_ m_head;
 	BodyTuple m_body_tuple;
@@ -57,13 +69,14 @@ void PrintWithoutParens (std::ostream &out, Tuple_t<Typle_t<Head_,BodyTypes_...>
 	}
 }
 
-
 template <typename Typle_>
 std::ostream &operator << (std::ostream &out, Tuple_t<Typle_> const &t) {
 	out << '(';
 	PrintWithoutParens(out, t);
 	return out << ')';
 }
+
+
 
 } // end of namespace Internal
 } // end of namespace GL

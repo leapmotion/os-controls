@@ -13,9 +13,9 @@ namespace Internal {
 
 template <GLenum GL_TYPE_> struct UniformSetterTraits { static const bool IS_DEFINED = false; };
 
-#define DEFINE_UNIFORM_SETTER_TRAITS(GL_TYPE, GLtype_, COMPONENT_COUNT_, glUniform, glUniformv, GLUniformArgumentType_) \
+#define DEFINE_UNIFORM_SETTER_TRAITS(GL_TYPE_, GLtype_, COMPONENT_COUNT_, glUniform, glUniformv, GLUniformArgumentType_) \
   template <> \
-  struct UniformSetterTraits<GL_TYPE> { \
+  struct UniformSetterTraits<GL_TYPE_> { \
     static const bool IS_DEFINED = true; \
     typedef GLtype_ GLtype; \
     typedef GLUniformArgumentType_ UniformArgumentType; \
@@ -29,15 +29,20 @@ template <GLenum GL_TYPE_> struct UniformSetterTraits { static const bool IS_DEF
       glUniformv(location, count, value); \
     } \
     template <typename T_, size_t ARRAY_LENGTH_> \
-    static void CheckCompatibilityOf () { \
-      static_assert(std::is_standard_layout<T_>::value, "T_ must be a standard-layout type mapping directly onto a GLUniformArgumentType_[COMPONENT_COUNT_*ARRAY_LENGTH_]."); \
-      static_assert(sizeof(T_) == ARRAY_LENGTH_*COMPONENT_COUNT*sizeof(UniformArgumentType), "T_ must be a standard-layout type mapping directly onto a GLUniformArgumentType_[COMPONENT_COUNT_*ARRAY_LENGTH_]."); \
+    static typename std::enable_if<ARRAY_LENGTH_==1>::type CheckCompatibilityOf () { \
+      static_assert(std::is_standard_layout<T_>::value, "T_ must be a standard-layout type mapping directly onto a " #GLUniformArgumentType_ "[" #COMPONENT_COUNT_ "]."); \
+      static_assert(sizeof(T_) == ARRAY_LENGTH_*COMPONENT_COUNT*sizeof(UniformArgumentType), "T_ must be a standard-layout type mapping directly onto a " #GLUniformArgumentType_ "[" #COMPONENT_COUNT_ "]."); \
+    } \
+    template <typename T_, size_t ARRAY_LENGTH_> \
+    static typename std::enable_if<(ARRAY_LENGTH_>1)>::type CheckCompatibilityOf () { \
+      static_assert(std::is_standard_layout<T_>::value, "T_ must be a standard-layout type mapping directly onto a " #GLUniformArgumentType_ "[" #COMPONENT_COUNT_ "][ARRAY_LENGTH_]."); \
+      static_assert(sizeof(T_) == ARRAY_LENGTH_*COMPONENT_COUNT*sizeof(UniformArgumentType), "T_ must be a standard-layout type mapping directly onto a " #GLUniformArgumentType_ "[" #COMPONENT_COUNT_ "][ARRAY_LENGTH_]."); \
     } \
   }
 
-#define DEFINE_MATRIX_UNIFORM_SETTER_TRAITS(GL_TYPE, GLtype_, ROWS_, COLUMNS_, glUniformMatrixv) \
+#define DEFINE_MATRIX_UNIFORM_SETTER_TRAITS(GL_TYPE_, GLtype_, ROWS_, COLUMNS_, glUniformMatrixv) \
   template <> \
-  struct UniformSetterTraits<GL_TYPE> { \
+  struct UniformSetterTraits<GL_TYPE_> { \
     static const bool IS_DEFINED = true; \
     typedef GLtype_ GLtype; \
     typedef GLtype_ UniformArgumentType; \
@@ -46,9 +51,14 @@ template <GLenum GL_TYPE_> struct UniformSetterTraits { static const bool IS_DEF
       glUniformMatrixv(location, count, matrix_storage_convention == MatrixStorageConvention::ROW_MAJOR ? GL_TRUE : GL_FALSE, value); \
     } \
     template <typename T_, size_t ARRAY_LENGTH_> \
-    static void CheckCompatibilityOf () { \
-      static_assert(std::is_standard_layout<T_>::value, "T_ must be a standard-layout type mapping directly onto a GLUniformArgumentType_[ROWS_*COLUMNS_*ARRAY_LENGTH_]."); \
-      static_assert(sizeof(T_) == ARRAY_LENGTH_*COMPONENT_COUNT*sizeof(UniformArgumentType), "T_ must be a standard-layout type mapping directly onto a GLUniformArgumentType_[ROWS_*COLUMNS_*ARRAY_LENGTH_]."); \
+    static typename std::enable_if<ARRAY_LENGTH_==1>::type CheckCompatibilityOf () { \
+      static_assert(std::is_standard_layout<T_>::value, "T_ must be a standard-layout type mapping directly onto a " #GLtype_ "[" #ROWS_ "*" #COLUMNS_ "]."); \
+      static_assert(sizeof(T_) == ARRAY_LENGTH_*COMPONENT_COUNT*sizeof(UniformArgumentType), "T_ must be a standard-layout type mapping directly onto a " #GLtype_ "[" #ROWS_ "*" #COLUMNS_ "]."); \
+    } \
+    template <typename T_, size_t ARRAY_LENGTH_> \
+    static typename std::enable_if<(ARRAY_LENGTH_>1)>::type CheckCompatibilityOf () { \
+      static_assert(std::is_standard_layout<T_>::value, "T_ must be a standard-layout type mapping directly onto a " #GLtype_ "[" #ROWS_ "*" #COLUMNS_ "][ARRAY_LENGTH_]."); \
+      static_assert(sizeof(T_) == ARRAY_LENGTH_*COMPONENT_COUNT*sizeof(UniformArgumentType), "T_ must be a standard-layout type mapping directly onto a " #GLtype_ "[" #ROWS_ "*" #COLUMNS_ "][ARRAY_LENGTH_]."); \
     } \
   }
 

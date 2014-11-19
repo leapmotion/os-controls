@@ -38,6 +38,13 @@ template <typename Head_, template <typename T_> class Metafunction_f_> struct O
 template <typename T_, size_t LENGTH_> struct UniformTyple_f { typedef typename HeadBodyTyple_f<T_,typename UniformTyple_f<T_,LENGTH_-1>::T>::T T; };
 template <typename T_> struct UniformTyple_f<T_,0> { typedef EmptyTyple T; };
 
+template <typename T_> struct TypleIsUniform_f;
+template <> struct TypleIsUniform_f<EmptyTyple> { static bool const V = true; };
+template <typename Head_> struct TypleIsUniform_f<Typle_t<Head_>> { static bool const V = true; };
+template <typename Element0_, typename Element1_, typename... Rest_> struct TypleIsUniform_f<Typle_t<Element0_,Element1_,Rest_...>> {
+	static bool const V = std::is_same<Element0_,Element1_>::value && TypleIsUniform_f<Typle_t<Element1_,Rest_...>>::V;
+};
+
 template <typename T_, size_t INDEX_> struct Element_f;// { static_assert(INDEX_ < Length_f<T_>::V, "INDEX_ must be less than length of typle."); };
 template <typename Head_, typename... BodyTypes_> struct Element_f<Typle_t<Head_,BodyTypes_...>,0> { typedef Head_ T; };
 template <size_t INDEX_> struct Element_f<EmptyTyple,INDEX_> { typedef std::nullptr_t T; };

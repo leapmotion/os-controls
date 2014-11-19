@@ -18,41 +18,41 @@ template <GLenum GL_TYPE_> struct UniformSetter;
 // for argument types such as GLfloat, GLboolean, etc.  Otherwise the wrong overload is called
 // for UniformSetter<GL_BOOL>::Set(loc, true).
 
-#define DEFINE_UNIFORM_SETTER(GL_TYPE) \
-  template <> struct UniformSetter<GL_TYPE> { \
-    static_assert(UniformSetterTraits<GL_TYPE>::IS_DEFINED, "UniformSetterTraits<GL_TYPE> not defined."); \
+#define DEFINE_UNIFORM_SETTER(GL_TYPE_) \
+  template <> struct UniformSetter<GL_TYPE_> { \
+    static_assert(UniformSetterTraits<GL_TYPE_>::IS_DEFINED, "UniformSetterTraits<GL_TYPE_> not defined."); \
     template <typename... Types_> \
     static void Set (GLint location, Types_... args) { \
-      UniformSetterTraits<GL_TYPE>::SetUsingValues(location, args...); \
+      UniformSetterTraits<GL_TYPE_>::SetUsingValues(location, args...); \
     } \
     template <typename T_> \
     static typename std::enable_if<!std::is_fundamental<T_>::value>::type Set (GLint location, const T_ &value) { \
-      typedef typename UniformSetterTraits<GL_TYPE>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE>::CheckCompatibilityOf<T_,1>(); \
-      UniformSetterTraits<GL_TYPE>::SetUsingPointer(location, 1, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
+      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, 1, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
     template <size_t ARRAY_LENGTH_, typename T_> \
     static void SetArray (GLint location, const T_ &value) { \
-      typedef typename UniformSetterTraits<GL_TYPE>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
-      UniformSetterTraits<GL_TYPE>::SetUsingPointer(location, ARRAY_LENGTH_, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
+      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
   }
 
-#define DEFINE_MATRIX_UNIFORM_SETTER(GL_TYPE) \
-  template <> struct UniformSetter<GL_TYPE> { \
-    static_assert(UniformSetterTraits<GL_TYPE>::IS_DEFINED, "UniformSetterTraits<GL_TYPE> not defined."); \
+#define DEFINE_MATRIX_UNIFORM_SETTER(GL_TYPE_) \
+  template <> struct UniformSetter<GL_TYPE_> { \
+    static_assert(UniformSetterTraits<GL_TYPE_>::IS_DEFINED, "UniformSetterTraits<GL_TYPE_> not defined."); \
     template <typename T_> \
     static void Set (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
-      typedef typename UniformSetterTraits<GL_TYPE>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE>::CheckCompatibilityOf<T_,1>(); \
-      UniformSetterTraits<GL_TYPE>::SetUsingPointer(location, 1, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
+      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, 1, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
     template <size_t ARRAY_LENGTH_, typename T_> \
     static void SetArray (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
-      typedef typename UniformSetterTraits<GL_TYPE>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
-      UniformSetterTraits<GL_TYPE>::SetUsingPointer(location, ARRAY_LENGTH_, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
+      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
   }
 
