@@ -3,8 +3,6 @@ if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}/source/VRIntro)
     set(_this_is_standalone_project TRUE)
 endif()
 
-include(Common)
-
 set(VRIntro_SOURCES
     main.cpp
     APIFrameSupplier.h

@@ -3,8 +3,6 @@ if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}/source/VRIntroLib)
     set(_this_is_standalone_project TRUE)
 endif()
 
-include(Common)
-
 set(VRIntroLib_SOURCES
   VRIntroApp.cpp
   VRIntroApp.h
