@@ -2,7 +2,7 @@
 
 #include "Leap/GL/Common.h"
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
-#include "Leap/GL/Internal/UniformSetterTraits.h"
+#include "Leap/GL/Internal/UniformTraits.h"
 #include "Leap/GL/ShaderException.h"
 
 namespace Leap {
@@ -12,47 +12,47 @@ namespace GL {
 // internally in the implementation of the publicly-presented classes.
 namespace Internal {
 
-template <GLenum GL_TYPE_> struct UniformSetter;
+template <GLenum GL_TYPE_> struct UniformUploader;
 
-// std::is_fundamental is used so that the Set function which accepts `const T_ &` is disabled
+// std::is_fundamental is used so that the Upload function which accepts `const T_ &` is disabled
 // for argument types such as GLfloat, GLboolean, etc.  Otherwise the wrong overload is called
-// for UniformSetter<GL_BOOL>::Set(loc, true).
+// for UniformUploader<GL_BOOL>::Upload(loc, true).
 
 #define DEFINE_UNIFORM_SETTER(GL_TYPE_) \
-  template <> struct UniformSetter<GL_TYPE_> { \
-    static_assert(UniformSetterTraits<GL_TYPE_>::IS_DEFINED, "UniformSetterTraits<GL_TYPE_> not defined."); \
+  template <> struct UniformUploader<GL_TYPE_> { \
+    static_assert(UniformTraits<GL_TYPE_>::IS_DEFINED, "UniformTraits<GL_TYPE_> not defined."); \
     template <typename... Types_> \
-    static void Set (GLint location, Types_... args) { \
-      UniformSetterTraits<GL_TYPE_>::SetUsingValues(location, args...); \
+    static void Upload (GLint location, Types_... args) { \
+      UniformTraits<GL_TYPE_>::SetUsingValues(location, args...); \
     } \
     template <typename T_> \
-    static typename std::enable_if<!std::is_fundamental<T_>::value>::type Set (GLint location, const T_ &value) { \
-      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
-      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, 1, reinterpret_cast<const UniformArgumentType *>(&value)); \
+    static typename std::enable_if<!std::is_fundamental<T_>::value>::type Upload (GLint location, const T_ &value) { \
+      typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
+      UniformTraits<GL_TYPE_>::SetUsingPointer(location, 1, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
     template <size_t ARRAY_LENGTH_, typename T_> \
-    static void SetArray (GLint location, const T_ &value) { \
-      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
-      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, reinterpret_cast<const UniformArgumentType *>(&value)); \
+    static void UploadArray (GLint location, const T_ &value) { \
+      typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
+      UniformTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
   }
 
 #define DEFINE_MATRIX_UNIFORM_SETTER(GL_TYPE_) \
-  template <> struct UniformSetter<GL_TYPE_> { \
-    static_assert(UniformSetterTraits<GL_TYPE_>::IS_DEFINED, "UniformSetterTraits<GL_TYPE_> not defined."); \
+  template <> struct UniformUploader<GL_TYPE_> { \
+    static_assert(UniformTraits<GL_TYPE_>::IS_DEFINED, "UniformTraits<GL_TYPE_> not defined."); \
     template <typename T_> \
-    static void Set (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
-      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
-      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, 1, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
+    static void Upload (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
+      typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
+      UniformTraits<GL_TYPE_>::SetUsingPointer(location, 1, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
     template <size_t ARRAY_LENGTH_, typename T_> \
-    static void SetArray (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
-      typedef typename UniformSetterTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
-      UniformSetterTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
-      UniformSetterTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
+    static void UploadArray (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
+      typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
+      UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
+      UniformTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
   }
 

@@ -5,7 +5,7 @@
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/Internal/Map.h"
 #include "Leap/GL/Internal/ShaderFrontend.h"
-#include "Leap/GL/Internal/UniformSetterTraits.h"
+#include "Leap/GL/Internal/UniformTraits.h"
 #include <sstream>
 
 namespace Leap {
@@ -116,20 +116,20 @@ private:
 
 /*
 
-enum class MaterialPropertyName { DIFFUSE_COLOR, LIGHT_POSITIONS, ... };
+enum MaterialPropertyName { DIFFUSE_COLOR, LIGHT_POSITIONS, ... };
 ShaderFrontend<MaterialPropertyName,
                Uniform<DIFFUSE_COLOR,GL_FLOAT_VEC4,Rgba<GLfloat>>,
                UniformArray<LIGHT_POSITIONS,GL_FLOAT_VEC3,10,Vector3<GLfloat>>,
                ...> material(uniform_locations);
 
-material.Set<DIFFUSE_COLOR>(Rgba<GLfloat>(1,0,0,1));
+material.Uniform<DIFFUSE_COLOR>(Rgba<GLfloat>(1,0,0,1));
 
 Vector3 light_positions[10] = ...; // This could be a std::array<Vector3,10> or std::vector<Vector3> of size 10.
-material.Set<LIGHT_POSITIONS>(light_positions);
-material.Set<LIGHT_POSITIONS>(3, 10, array_of_7_Vector3s);
+material.Uniform<LIGHT_POSITIONS>(light_positions);
+material.Uniform<LIGHT_POSITIONS>(3, 10, array_of_7_Vector3s);
 
 for (size_t i = 0; i < 10; ++i) {
-  material.Set<LIGHT_POSITIONS>(i, Vector3(expression involving i));
+  material.Uniform<LIGHT_POSITIONS>(i, Vector3(expression involving i));
 }
 
 */

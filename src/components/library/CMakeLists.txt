@@ -160,8 +160,8 @@ add_sublibrary(
         Leap/GL/Internal/Tuple.h
         Leap/GL/Internal/TypeMap.h
         Leap/GL/Internal/Typle.h
-        Leap/GL/Internal/UniformSetter.h
-        Leap/GL/Internal/UniformSetterTraits.h
+        Leap/GL/Internal/UniformTraits.h
+        Leap/GL/Internal/UniformUploader.h
         Leap/GL/Mesh.h
         Leap/GL/MeshException.h
         Leap/GL/ModelViewProjection.h

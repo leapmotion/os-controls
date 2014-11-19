@@ -10,7 +10,7 @@
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 #include "Leap/GL/GLError.h"
 #include "Leap/GL/Internal/ShaderUniform.h"
-#include "Leap/GL/Internal/UniformSetter.h"
+#include "Leap/GL/Internal/UniformUploader.h"
 #include "Leap/GL/ShaderException.h"
 
 namespace Leap {
@@ -163,19 +163,19 @@ public:
 
   template <GLenum GL_TYPE_, typename... Types_>
   static void UploadUniform (GLint location, Types_... args) {
-    Internal::UniformSetter<GL_TYPE_>::Set(location, args...);
+    Internal::UniformUploader<GL_TYPE_>::Upload(location, args...);
   }
   template <GLenum GL_TYPE_, typename... Types_>
   void UploadUniform (const std::string &name, Types_... args) const {
-    Internal::UniformSetter<GL_TYPE_>::Set(glGetUniformLocation(m_program_handle, name.c_str()), args...);
+    Internal::UniformUploader<GL_TYPE_>::Upload(glGetUniformLocation(m_program_handle, name.c_str()), args...);
   }
   template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
   static void UploadUniformArray (GLint location, Types_... args) {
-    Internal::UniformSetter<GL_TYPE_>::template SetArray<ARRAY_LENGTH_>(location, args...);
+    Internal::UniformUploader<GL_TYPE_>::template UploadArray<ARRAY_LENGTH_>(location, args...);
   }
   template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
   void UploadUniformArray (const std::string &name, Types_... args) const {
-    Internal::UniformSetter<GL_TYPE_>::template SetArray<ARRAY_LENGTH_>(glGetUniformLocation(m_program_handle, name.c_str()), args...);
+    Internal::UniformUploader<GL_TYPE_>::template UploadArray<ARRAY_LENGTH_>(glGetUniformLocation(m_program_handle, name.c_str()), args...);
   }
 
   // Sets the named uniform to the given bool value (casted to GLint).

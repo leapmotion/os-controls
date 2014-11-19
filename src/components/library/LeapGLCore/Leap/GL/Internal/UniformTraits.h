@@ -11,11 +11,11 @@ namespace GL {
 // internally in the implementation of the publicly-presented classes.
 namespace Internal {
 
-template <GLenum GL_TYPE_> struct UniformSetterTraits { static const bool IS_DEFINED = false; };
+template <GLenum GL_TYPE_> struct UniformTraits { static const bool IS_DEFINED = false; };
 
 #define DEFINE_UNIFORM_SETTER_TRAITS(GL_TYPE_, GLtype_, COMPONENT_COUNT_, glUniform, glUniformv, GLUniformArgumentType_) \
   template <> \
-  struct UniformSetterTraits<GL_TYPE_> { \
+  struct UniformTraits<GL_TYPE_> { \
     static const bool IS_DEFINED = true; \
     typedef GLtype_ GLtype; \
     typedef GLUniformArgumentType_ UniformArgumentType; \
@@ -42,7 +42,7 @@ template <GLenum GL_TYPE_> struct UniformSetterTraits { static const bool IS_DEF
 
 #define DEFINE_MATRIX_UNIFORM_SETTER_TRAITS(GL_TYPE_, GLtype_, ROWS_, COLUMNS_, glUniformMatrixv) \
   template <> \
-  struct UniformSetterTraits<GL_TYPE_> { \
+  struct UniformTraits<GL_TYPE_> { \
     static const bool IS_DEFINED = true; \
     typedef GLtype_ GLtype; \
     typedef GLtype_ UniformArgumentType; \

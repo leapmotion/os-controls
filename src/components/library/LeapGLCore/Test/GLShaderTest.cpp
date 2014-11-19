@@ -3,7 +3,7 @@
 #include "GLTestFramework.h"
 #include <gtest/gtest.h>
 #include "Leap/GL/GLShader.h"
-#include "Leap/GL/Internal/UniformSetter.h"
+#include "Leap/GL/Internal/UniformUploader.h"
 #include <memory>
 
 // Convenience macro for annotated printing the value of variables.
@@ -266,32 +266,32 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
 
 
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_BOOL>::Set(valid_shader->LocationOfUniform("condition"), true);
+      Leap::GL::Internal::UniformUploader<GL_BOOL>::Upload(valid_shader->LocationOfUniform("condition"), true);
     )
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_BOOL_VEC2>::Set(valid_shader->LocationOfUniform("conditions"), false, true);
+      Leap::GL::Internal::UniformUploader<GL_BOOL_VEC2>::Upload(valid_shader->LocationOfUniform("conditions"), false, true);
     )
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_BOOL_VEC2>::Set(valid_shader->LocationOfUniform("conditions"), std::array<GLint,2>{{false, true}});
+      Leap::GL::Internal::UniformUploader<GL_BOOL_VEC2>::Upload(valid_shader->LocationOfUniform("conditions"), std::array<GLint,2>{{false, true}});
     )
     typedef std::array<GLint,2> GLint2;
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_BOOL_VEC2>::Set<GLint2>(valid_shader->LocationOfUniform("conditions"), {{false, true}});
+      Leap::GL::Internal::UniformUploader<GL_BOOL_VEC2>::Upload<GLint2>(valid_shader->LocationOfUniform("conditions"), {{false, true}});
     )
 
 
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_FLOAT_VEC3>::Set(valid_shader->LocationOfUniform("vec_three"), std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
+      Leap::GL::Internal::UniformUploader<GL_FLOAT_VEC3>::Upload(valid_shader->LocationOfUniform("vec_three"), std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
     )
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_FLOAT_VEC3>::Set(valid_shader->LocationOfUniform("vec_three"), 1.0f, 2.0f, 3.0f);
+      Leap::GL::Internal::UniformUploader<GL_FLOAT_VEC3>::Upload(valid_shader->LocationOfUniform("vec_three"), 1.0f, 2.0f, 3.0f);
     )
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_FLOAT>::SetArray<4>(valid_shader->LocationOfUniform("array"), std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
+      Leap::GL::Internal::UniformUploader<GL_FLOAT>::UploadArray<4>(valid_shader->LocationOfUniform("array"), std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
     )
     typedef std::array<GLfloat,4> GLfloat4;
     GL_THROW_UPON_ERROR(
-      (Leap::GL::Internal::UniformSetter<GL_FLOAT>::SetArray<4,GLfloat4>)(valid_shader->LocationOfUniform("array"), {{8.0f, 4.0f, 2.0f, 1.0f}});
+      (Leap::GL::Internal::UniformUploader<GL_FLOAT>::UploadArray<4,GLfloat4>)(valid_shader->LocationOfUniform("array"), {{8.0f, 4.0f, 2.0f, 1.0f}});
     )
 
 
@@ -327,7 +327,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
 
 
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT2>::Set(
+      Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT2>::Upload(
         valid_shader->LocationOfUniform("m2x2"),
         std::array<std::array<GLfloat,2>,2>{{
           {{1.0f, 2.0f}},
@@ -336,7 +336,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT2>::Set(
+      Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT2>::Upload(
         valid_shader->LocationOfUniform("m2x2"),
         std::array<GLfloat,2*2>{{
           1.0f, 2.0f,
@@ -345,7 +345,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
     GL_THROW_UPON_ERROR(
-      (Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT2>::Set<std::array<GLfloat,2*2>>)(
+      (Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT2>::Upload<std::array<GLfloat,2*2>>)(
         valid_shader->LocationOfUniform("m2x2"),
         {{
           1.0f, 2.0f,
@@ -385,7 +385,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
 
 
     GL_THROW_UPON_ERROR(
-      Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT3>::SetArray<2>(
+      Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT3>::UploadArray<2>(
         valid_shader->LocationOfUniform("m3x3"),
         std::array<std::array<GLfloat,3*3>,2>{{
           {{
@@ -402,7 +402,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
     GL_THROW_UPON_ERROR(
-      (Leap::GL::Internal::UniformSetter<GL_FLOAT_MAT3>::SetArray<2,std::array<std::array<GLfloat,3*3>,2>>)(
+      (Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT3>::UploadArray<2,std::array<std::array<GLfloat,3*3>,2>>)(
         valid_shader->LocationOfUniform("m3x3"),
         {{
           {{
