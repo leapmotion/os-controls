@@ -33,11 +33,7 @@ std::shared_ptr<GLShader> CreateShaderWithUniform (const std::string &name, cons
     "}\n"
   );
   std::cout << vertex_shader_source << '\n';
-  // Construct the shader and the GLShaderInterface.
-  std::shared_ptr<GLShader> shader;
-  // ASSERT_NO_THROW_(shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
-  shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source);
-  return shader;
+  return std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source);
 }
 
 enum class UniformName { THINGY };
@@ -49,7 +45,7 @@ TEST_F(ShaderFrontendTest, Test_float) {
                          ThingyUniform<UniformName::THINGY,GL_FLOAT,float>> Frontend;
   Frontend frontend(*shader, Frontend::UniformLocations(shader->LocationOfUniform("thingy")));
   shader->Bind();
-  frontend.SetUniform<UniformName::THINGY>(4.566f);
+  frontend.Set<UniformName::THINGY>(4.566f);
   shader->Unbind();
 }
 
@@ -59,10 +55,24 @@ TEST_F(ShaderFrontendTest, Test_vec2) {
                          ThingyUniform<UniformName::THINGY,GL_FLOAT_VEC2,std::array<float,2>>> Frontend;
   Frontend frontend(*shader, Frontend::UniformLocations(shader->LocationOfUniform("thingy")));
   shader->Bind();
-  frontend.SetUniform<UniformName::THINGY>({{4.56f, 88.0f}});
-  // frontend.SetUniform<UniformName::THINGY>({{4.56f, 88.0f, 100.0f}}); // This should cause a compile error.
-  frontend.SetUniform<UniformName::THINGY>(4.566f, 88.0f);
-  // frontend.SetUniform<UniformName::THINGY>(4.566f, 88.0f, 300.0f); // This should cause a static_assert.
+  frontend.Set<UniformName::THINGY>({{4.56f, 88.0f}});
+  // frontend.Set<UniformName::THINGY>({{4.56f, 88.0f, 100.0f}}); // This should cause a compile error.
+  shader->Unbind();
+}
+
+TEST_F(ShaderFrontendTest, Test_vec3) {
+  struct V {
+    float x,y,z;
+    V () { }
+    V (float x_, float y_, float z_) : x(x_), y(y_), z(z_) { }
+  };
+  auto shader = CreateShaderWithUniform("thingy", "vec3", "120");
+  typedef ShaderFrontend<UniformName,
+                         ThingyUniform<UniformName::THINGY,GL_FLOAT_VEC3,V>> Frontend;
+  Frontend frontend(*shader, Frontend::UniformLocations(shader->LocationOfUniform("thingy")));
+  shader->Bind();
+  frontend.Set<UniformName::THINGY>(V(4.56f, 88.0f, -1.02f));
+  frontend.Set<UniformName::THINGY>(4.56f, 88.0f, -1.02f);
   shader->Unbind();
 }
 

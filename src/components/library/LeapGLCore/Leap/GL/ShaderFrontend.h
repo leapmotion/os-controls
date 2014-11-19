@@ -4,6 +4,7 @@
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/Internal/Map.h"
 #include "Leap/GL/Internal/ShaderFrontend.h"
+#include "Leap/GL/Internal/UniformSetterTraits.h"
 
 namespace Leap {
 namespace GL {
@@ -15,43 +16,46 @@ private:
   typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::UniformNameOf_f>::T UniformNames;
   typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::GlTypeMappingOf_f>::T GlTypeMappings;
   typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::CppTypeMappingOf_f>::T CppTypeMappings;
-  typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::CppTypeOf_f>::T CppTypes;
   typedef Internal::TypeMap_t<GlTypeMappings> GlTypeMap;
   typedef Internal::TypeMap_t<CppTypeMappings> CppTypeMap;
-  // template <UniformNameType_ NAME_> using UniformName = Value_t<UniformNameType_,NAME_>;
+  template <UniformNameType_ NAME_> using UniformName = Internal::Value_t<UniformNameType_,NAME_>;
 public:
 
-  template <UniformNameType_ NAME_> struct IndexOfUniform_f { static const size_t V = Internal::IndexIn_f<UniformNames,Internal::Value_t<UniformNameType_,NAME_>>::V; };
-  template <UniformNameType_ NAME_> struct GlTypeOfUniform_f { static const GLenum V = Internal::Eval_f<GlTypeMap,Internal::Value_t<UniformNameType_,NAME_>>::T::V; };
-  template <UniformNameType_ NAME_> struct CppTypeOfUniform_f { typedef typename Internal::Eval_f<CppTypeMap,Internal::Value_t<UniformNameType_,NAME_>>::T T; };
+  template <UniformNameType_ NAME_> struct IndexOfUniform_f { static const size_t V = Internal::IndexIn_f<UniformNames,UniformName<NAME_>>::V; };
+  template <UniformNameType_ NAME_> struct GlTypeOfUniform_f { static const GLenum V = Internal::Eval_f<GlTypeMap,UniformName<NAME_>>::T::V; };
+  template <UniformNameType_ NAME_> struct CppTypeOfUniform_f { typedef typename Internal::Eval_f<CppTypeMap,UniformName<NAME_>>::T T; };
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<GLint,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformLocations;
-  typedef Internal::Tuple_t<CppTypes> UniformValues;
+  typedef Internal::Map_t<Internal::TypeMap_t<CppTypeMappings>> UniformMap;
 
   // TODO: maybe make this have resource semantics (initialize/destroy)
-  // TODO: checking for typed uniforms
   template <typename... Types_>
   ShaderFrontend (const GLShader &shader, const UniformLocations &uniform_locations, Types_... args)
     : m_shader(shader)
     , m_uniform_locations(uniform_locations)
-    , m_uniform_values(args...)
-  { }
+    , m_uniform_map(args...)
+  {
+    Internal::CheckUniformTypes<UniformMappingsTyple>::Check();
+    // TODO: runtime checking of uniform types
+  }
 
   template <UniformNameType_ NAME_>
-  void SetUniform (typename CppTypeOfUniform_f<NAME_>::T const &value) const {
-    assert(GLShader::CurrentlyBoundProgramHandle() == m_shader.ProgramHandle() && "This shader must currently be bound in order to upload a uniform.");
-    m_shader.SetUniform<GlTypeOfUniform_f<NAME_>::V>(m_uniform_locations.template el<IndexOfUniform_f<NAME_>::V>(), value);
+  typename CppTypeOfUniform_f<NAME_>::T const &Get () const { return m_uniform_map.template val<UniformName<NAME_>>(); }
+
+  template <UniformNameType_ NAME_>
+  void Set (typename CppTypeOfUniform_f<NAME_>::T const &value) {
+    m_uniform_map.template val<UniformName<NAME_>>() = value;
   }
   template <UniformNameType_ NAME_, typename... Types_>
-  void SetUniform (Types_... args) const {
-    assert(GLShader::CurrentlyBoundProgramHandle() == m_shader.ProgramHandle() && "This shader must currently be bound in order to upload a uniform.");
-    m_shader.SetUniform<GlTypeOfUniform_f<NAME_>::V>(m_uniform_locations.template el<IndexOfUniform_f<NAME_>::V>(), args...);
+  void Set (Types_... args) {
+    typedef typename CppTypeOfUniform_f<NAME_>::T CppType;
+    m_uniform_map.template val<UniformName<NAME_>>() = CppType(args...);
   }
 
 private:
 
   const GLShader &m_shader;
   const UniformLocations m_uniform_locations;
-  UniformValues m_uniform_values;
+  UniformMap m_uniform_map;
 };
 
 

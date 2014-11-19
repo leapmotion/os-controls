@@ -14,23 +14,32 @@ namespace Internal {
 template <typename T_, T_ V_> struct Value_t { static T_ const V = V_; };
 
 template <typename Uniform_> struct UniformNameOf_f;
-template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, typename CppType_> struct UniformNameOf_f<Uniform<Name_,NAME_,GL_TYPE_,CppType_>> {
+template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename CppType_> struct UniformNameOf_f<UniformSpecification<Name_,NAME_,GL_TYPE_,ARRAY_LENGTH_,CppType_>> {
   typedef Value_t<Name_,NAME_> T;
 };
 
 template <typename Uniform_> struct GlTypeMappingOf_f;
-template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, typename CppType_> struct GlTypeMappingOf_f<Uniform<Name_,NAME_,GL_TYPE_,CppType_>> {
+template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename CppType_> struct GlTypeMappingOf_f<UniformSpecification<Name_,NAME_,GL_TYPE_,ARRAY_LENGTH_,CppType_>> {
   typedef Typle_t<Value_t<Name_,NAME_>,Value_t<GLenum,GL_TYPE_>> T;
 };
 
 template <typename Uniform_> struct CppTypeMappingOf_f;
-template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, typename CppType_> struct CppTypeMappingOf_f<Uniform<Name_,NAME_,GL_TYPE_,CppType_>> {
+template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename CppType_> struct CppTypeMappingOf_f<UniformSpecification<Name_,NAME_,GL_TYPE_,ARRAY_LENGTH_,CppType_>> {
   typedef Typle_t<Value_t<Name_,NAME_>,CppType_> T;
 };
 
 template <typename Uniform_> struct CppTypeOf_f;
-template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, typename CppType_> struct CppTypeOf_f<Uniform<Name_,NAME_,GL_TYPE_,CppType_>> {
+template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename CppType_> struct CppTypeOf_f<UniformSpecification<Name_,NAME_,GL_TYPE_,ARRAY_LENGTH_,CppType_>> {
   typedef CppType_ T;
+};
+
+template <typename UniformMappingsTyple_> struct CheckUniformTypes;
+template <> struct CheckUniformTypes<Typle_t<>> { static void Check () { } };
+template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename CppType_, typename... BodyUniformMappings_> struct CheckUniformTypes<Typle_t<UniformSpecification<Name_,NAME_,GL_TYPE_,ARRAY_LENGTH_,CppType_>,BodyUniformMappings_...>> {
+	static void Check () {
+		Internal::UniformSetterTraits<GL_TYPE_>::template CheckCompatibilityOf<CppType_,1>();
+		CheckUniformTypes<Typle_t<BodyUniformMappings_...>>::Check();
+	}
 };
 
 } // end of namespace Internal
