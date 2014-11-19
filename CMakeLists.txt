@@ -21,7 +21,7 @@ leap_find_external_libraries(x86_vc12)
 leap_use_standard_platform_settings()
 
 include(TargetImportedLibraries)
-include(AddMSVCPrecompiledHeader)
+include(AddPCH)
 include(ConditionalSources)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

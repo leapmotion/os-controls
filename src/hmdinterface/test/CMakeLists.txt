@@ -3,7 +3,7 @@ set(hmdinterfacetest_SRCS
   OculusTest.cpp
 )
 
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" hmdinterfacetest_SRCS)
+add_pch(hmdinterfacetest_SRCS "stdafx.h" "stdafx.cpp")
 add_executable(hmdinterfacetest ${hmdinterfacetest_SRCS})
 set_property(TARGET hmdinterfacetest PROPERTY FOLDER "Tests")
 

@@ -25,7 +25,7 @@ set(VRShell_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/shaders/passthrough-frag.glsl
   ${CMAKE_SOURCE_DIR}/src/shaders/passthrough-vert.glsl
 )
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRShell_SOURCES)
+add_pch(VRShell_SOURCES "stdafx.h" "stdafx.cpp")
 
 set(VRShell_CLR_SOURCES
   AssemblyInfo.cpp

@@ -7,7 +7,7 @@ set(utilitytest_SRCS
   LockablePropertyTest.cpp
 )
 
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" utilitytest_SRCS)
+add_pch(utilitytest_SRCS "stdafx.h" "stdafx.cpp")
 add_executable(utilitytest ${utilitytest_SRCS})
 set_property(TARGET utilitytest PROPERTY FOLDER "Tests")
 
