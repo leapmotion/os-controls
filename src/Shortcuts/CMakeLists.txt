@@ -12,7 +12,7 @@ set(Shortcuts_SOURCES
   NativeUI.cpp
   Shortcuts.h
   Shortcuts.cpp
-  Version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/Version.h
 )
 
 set(Shortcuts_RESOURCES
