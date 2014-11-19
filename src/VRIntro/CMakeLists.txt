@@ -1,17 +1,3 @@
-set(_this_is_standalone_project FALSE)
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
-    set(_this_is_standalone_project TRUE)
-endif()
-
-if(_this_is_standalone_project)
-    cmake_minimum_required(VERSION 3.0)
-
-    project(VRIntro)
-
-    # Set up our output directories to be in our root
-    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-    set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 # External module includes
