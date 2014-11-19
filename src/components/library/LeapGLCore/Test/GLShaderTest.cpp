@@ -84,7 +84,7 @@ void SetTypedUniformCheckInVertexShader (const std::map<GLenum,std::string> &uni
         "}\n";
       // Dummy fragment shader source
       std::string fragment_shader_source(
-        "#version 120\n"
+        "#version " + glsl_version + "\n"
         "void main () {\n"
         "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "}\n"

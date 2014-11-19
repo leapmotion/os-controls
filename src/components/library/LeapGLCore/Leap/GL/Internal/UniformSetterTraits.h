@@ -22,6 +22,7 @@ template <GLenum GL_TYPE_> struct UniformSetterTraits { static const bool IS_DEF
     static const size_t COMPONENT_COUNT = COMPONENT_COUNT_; \
     template <typename... Types_> \
     static void SetUsingValues (GLint location, Types_... args) { \
+      static_assert(sizeof...(Types_) == COMPONENT_COUNT_, "Expected exactly " #COMPONENT_COUNT_ " value arguments after the location argument."); \
       glUniform(location, args...); \
     } \
     static void SetUsingPointer (GLint location, GLsizei count, const UniformArgumentType *value) { \

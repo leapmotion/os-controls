@@ -153,8 +153,13 @@ add_sublibrary(
         Leap/GL/GLVertexAttribute.h
         Leap/GL/GLVertexBuffer.h
         Leap/GL/Internal/ColorComponent.h
+        Leap/GL/Internal/Map.h
         Leap/GL/Internal/Meta.h
+        Leap/GL/Internal/ShaderFrontend.h
         Leap/GL/Internal/ShaderUniform.h
+        Leap/GL/Internal/Tuple.h
+        Leap/GL/Internal/TypeMap.h
+        Leap/GL/Internal/Typle.h
         Leap/GL/Internal/UniformSetter.h
         Leap/GL/Internal/UniformSetterTraits.h
         Leap/GL/Mesh.h
@@ -169,6 +174,7 @@ add_sublibrary(
         Leap/GL/SceneGraphNodeValues.h
         Leap/GL/ScopeGuard.h
         Leap/GL/ShaderException.h
+        Leap/GL/ShaderFrontend.h
         Leap/GL/Texture2Exception.h
         Leap/GL/VertexBufferException.h
     SOURCES
@@ -761,6 +767,7 @@ add_sublibrary(
         RGBTest.cpp
         SceneGraphNodePropertiesTest.cpp
         SceneGraphNodeTest.cpp
+        ShaderFrontendTest.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         GLTestFramework
         LeapGLCore

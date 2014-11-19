@@ -162,19 +162,19 @@ public:
   // The uniform has a fixed type in the shader, so the call to SetUniform* should reflect that.
 
   template <GLenum GL_TYPE_, typename... Types_>
-  void SetUniform (GLint location, Types_... args) {
+  static void SetUniform (GLint location, Types_... args) {
     Internal::UniformSetter<GL_TYPE_>::Set(location, args...);
   }
   template <GLenum GL_TYPE_, typename... Types_>
-  void SetUniform (const std::string &name, Types_... args) {
+  void SetUniform (const std::string &name, Types_... args) const {
     Internal::UniformSetter<GL_TYPE_>::Set(glGetUniformLocation(m_program_handle, name.c_str()), args...);
   }
   template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
-  void SetUniformArray (GLint location, Types_... args) {
+  static void SetUniformArray (GLint location, Types_... args) {
     Internal::UniformSetter<GL_TYPE_>::template SetArray<ARRAY_LENGTH_>(location, args...);
   }
   template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
-  void SetUniformArray (const std::string &name, Types_... args) {
+  void SetUniformArray (const std::string &name, Types_... args) const {
     Internal::UniformSetter<GL_TYPE_>::template SetArray<ARRAY_LENGTH_>(glGetUniformLocation(m_program_handle, name.c_str()), args...);
   }
 
