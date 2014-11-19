@@ -1,8 +1,3 @@
-set(_this_is_standalone_project FALSE)
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}/source/VRIntro)
-    set(_this_is_standalone_project TRUE)
-endif()
-
 set(VRIntro_SOURCES
     main.cpp
     APIFrameSupplier.h
@@ -59,24 +54,12 @@ define_post_build_resource_copy_rules(
         RunMirrored.bat
 )
 
-if(_this_is_standalone_project)
-    define_post_build_resource_copy_rules(
-        TARGET
-            VRIntro
-        RELATIVE_PATH_BASE
-            $<TARGET_FILE_DIR:VRIntro>
-        ABSOLUTE_PATH_RESOURCES
-            ${Components_DIR}/resources/material-frag.glsl
-            ${Components_DIR}/resources/matrix-transformed-vert.glsl
-    )
-else()
-    define_post_build_resource_copy_rules(
-        TARGET
-            VRIntro
-        RELATIVE_PATH_BASE
-            $<TARGET_FILE_DIR:VRIntro>
-        ABSOLUTE_PATH_RESOURCES
-            ${CMAKE_SOURCE_DIR}/src/components/library/GLMaterial/material-frag.glsl
-            ${CMAKE_SOURCE_DIR}/src/components/library/GLMaterial/matrix-transformed-vert.glsl
-    )
-endif()
+define_post_build_resource_copy_rules(
+    TARGET
+        VRIntro
+    RELATIVE_PATH_BASE
+        $<TARGET_FILE_DIR:VRIntro>
+    ABSOLUTE_PATH_RESOURCES
+        ${CMAKE_SOURCE_DIR}/src/components/library/GLMaterial/material-frag.glsl
+        ${CMAKE_SOURCE_DIR}/src/components/library/GLMaterial/matrix-transformed-vert.glsl
+)

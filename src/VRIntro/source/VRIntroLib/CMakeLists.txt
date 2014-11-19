@@ -1,8 +1,3 @@
-set(_this_is_standalone_project FALSE)
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}/source/VRIntroLib)
-    set(_this_is_standalone_project TRUE)
-endif()
-
 set(VRIntroLib_SOURCES
   VRIntroApp.cpp
   VRIntroApp.h
@@ -61,11 +56,7 @@ if(NOT VRIntro_SHOW_CONSOLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 endif()
 
 add_library(VRIntroLib STATIC ${VRIntroLib_SOURCES})
-if(_this_is_standalone_project)
-    target_link_components(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
-else()
-    target_link_libraries(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
-endif()
+target_link_libraries(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
 target_package(VRIntroLib Eigen)
 
 if(WIN32)
