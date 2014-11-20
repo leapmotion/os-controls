@@ -52,9 +52,8 @@ MediaViewStateMachine::MediaViewStateMachine() :
     item->SetRadius(MENU_RADIUS);
     item->SetThickness(MENU_THICKNESS);
     item->SetActivatedRadius(ACTIVATION_RADIUS);
-    item->Material().SetAmbientLightColor(bgColor);
-    item->Material().SetAmbientLightingProportion(1.0f);
-    item->Material().SetDiffuseLightColor(bgColor);
+    item->Material().Uniform<AMBIENT_LIGHT_COLOR>() = bgColor;
+    item->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
     item->SetHoverColor(fillColor);
     item->SetActivatedColor(handleOutlineColor);
   }

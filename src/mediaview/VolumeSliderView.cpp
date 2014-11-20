@@ -40,13 +40,11 @@ VolumeSliderView::VolumeSliderView() :
   m_sliderInactivePart->SetSize(EigenTypes::Vector2(0.0f, m_height));
 
   //Setup bar materials
-  m_sliderActivePart->Material().SetDiffuseLightColor(ACTIVE_PART_COLOR);
-  m_sliderActivePart->Material().SetAmbientLightColor(ACTIVE_PART_COLOR);
-  m_sliderActivePart->Material().SetAmbientLightingProportion(1.0f);
+  m_sliderActivePart->Material().Uniform<AMBIENT_LIGHT_COLOR>() = ACTIVE_PART_COLOR;
+  m_sliderActivePart->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
-  m_sliderInactivePart->Material().SetDiffuseLightColor(INACTIVE_PART_COLOR);
-  m_sliderInactivePart->Material().SetAmbientLightColor(INACTIVE_PART_COLOR);
-  m_sliderInactivePart->Material().SetAmbientLightingProportion(1.0f);
+  m_sliderInactivePart->Material().Uniform<AMBIENT_LIGHT_COLOR>() = INACTIVE_PART_COLOR;
+  m_sliderInactivePart->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 }
 
 void VolumeSliderView::Activate() {
