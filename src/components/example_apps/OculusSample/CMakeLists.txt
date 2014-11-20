@@ -103,7 +103,7 @@ else()
         RELATIVE_PATH_BASE
             ${EXECUTABLE_OUTPUT_PATH}
         ABSOLUTE_PATH_RESOURCES
-            ${Components_DIR}/LeapGLCore/Resources/material-frag.glsl
-            ${Components_DIR}/LeapGLCore/Resources/matrix-transformed-vert.glsl
+            ${Components_DIR}/Primitives/material-frag.glsl
+            ${Components_DIR}/Primitives/matrix-transformed-vert.glsl
     )
 endif()

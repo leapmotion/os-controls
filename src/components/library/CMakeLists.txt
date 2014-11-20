@@ -143,7 +143,6 @@ add_sublibrary(
         Leap/GL/GLBuffer.h
         Leap/GL/GLError.h
         Leap/GL/GLHeaders.h
-        Leap/GL/GLMaterial.h
         Leap/GL/GLShader.h
         Leap/GL/GLShaderBindingScopeGuard.h
         Leap/GL/GLShaderMatrices.h
@@ -180,7 +179,6 @@ add_sublibrary(
     SOURCES
         Leap/GL/FrameBufferObject.cpp
         Leap/GL/GLBuffer.cpp
-        Leap/GL/GLMaterial.cpp
         Leap/GL/GLShader.cpp
         Leap/GL/GLShaderMatrices.cpp
         Leap/GL/GLTexture2.cpp
@@ -188,9 +186,6 @@ add_sublibrary(
         Leap/GL/GLTexture2PixelData.cpp
         Leap/GL/ModelViewProjection.cpp
         Leap/GL/RenderBuffer.cpp
-    RESOURCES
-        Resources/material-frag.glsl
-        Resources/matrix-transformed-vert.glsl
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.
         Color # TODO: LeapGL color
@@ -364,6 +359,7 @@ add_sublibrary(
     Primitives
     HEADERS
         DropShadow.h
+        LambertianMaterial.h
         PrimitiveBase.h
         PrimitiveGeometry.h
         Primitives.h
@@ -376,6 +372,9 @@ add_sublibrary(
         Primitives.cpp
         SVGPrimitive.cpp
         TexturedFrame.cpp
+    RESOURCES
+        material-frag.glsl
+        matrix-transformed-vert.glsl
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         Color
         GLShaderLoader

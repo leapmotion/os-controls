@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GLShaderLoader.h"
-#include "Leap/GL/GLMaterial.h"
+#include "LambertianMaterial.h"
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLShaderBindingScopeGuard.h"
 #include "Leap/GL/GLShaderMatrices.h"

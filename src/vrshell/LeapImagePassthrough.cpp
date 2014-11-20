@@ -46,7 +46,7 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     GLTexture2PixelDataReference pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, image.data(), width*height);
     m_texture = std::make_shared<GLTexture2>(params, pixel_data);
     m_rect.SetTexture(m_texture);
-    m_rect.Material().Uniform<USE_TEXTURE>() = true;
+    m_rect.Material().Uniform<TEXTURE_MAPPING_ENABLED>() = true;
   }
   else {
     m_texture->Bind();

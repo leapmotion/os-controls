@@ -158,7 +158,7 @@ ImagePrimitive::ImagePrimitive(const std::shared_ptr<GLTexture2> &texture) {
   SetTexture(texture);
   SetScaleBasedOnTextureSize();
   Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
-  Material().Uniform<USE_TEXTURE>() = true;
+  Material().Uniform<TEXTURE_MAPPING_ENABLED>() = true;
 }
 
 void ImagePrimitive::SetScaleBasedOnTextureSize () {
