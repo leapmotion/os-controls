@@ -68,16 +68,14 @@ void HandCursor::Update(const Leap::Hand& hand) {
   m_PalmOutlineThickness = m_DrawStyle == BLOB ? (PALM_MAX_RAD / 4.0f) * palmNorm : 1.0f;
   m_PalmOutlineRadius = m_DrawStyle == BLOB ? palmRadius : 35.0f;
 
-  GLMaterial& palmCenterMat = m_PalmCenter->Material();
-  palmCenterMat.SetAmbientLightColor(m_FillColor);
-  palmCenterMat.SetDiffuseLightColor(m_FillColor);
-  palmCenterMat.SetAmbientLightingProportion(1.0f);
+  auto &palmCenterMat = m_PalmCenter->Material();
+  palmCenterMat.Uniform<AMBIENT_LIGHT_COLOR>() = m_FillColor;
+  palmCenterMat.Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_PalmCenter->SetRadius(palmRadius);
 
-  GLMaterial& palmOutlineMat = m_PalmOutline->Material();
-  palmOutlineMat.SetAmbientLightColor(m_OutlineColor);
-  palmOutlineMat.SetDiffuseLightColor(m_OutlineColor);
-  palmOutlineMat.SetAmbientLightingProportion(1.0f);
+  auto &palmOutlineMat = m_PalmOutline->Material();
+  palmOutlineMat.Uniform<AMBIENT_LIGHT_COLOR>() = m_OutlineColor;
+  palmOutlineMat.Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_PalmOutline->SetInnerRadius(m_PalmOutlineRadius - m_PalmOutlineThickness/2.0f);
   m_PalmOutline->SetOuterRadius(m_PalmOutlineRadius + m_PalmOutlineThickness/2.0f);
   m_PalmOutline->SetStartAngle(0.0f);
@@ -137,9 +135,8 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   fingerVisual->Translation() = fingerTranslation;
   fingerVisual->SetRadius(fingerRadius);
   
-  fingerVisual->Material().SetAmbientLightColor(blendedColor);
-  fingerVisual->Material().SetDiffuseLightColor(blendedColor);
-  fingerVisual->Material().SetAmbientLightingProportion(1.0f);
+  fingerVisual->Material().Uniform<AMBIENT_LIGHT_COLOR>() = blendedColor;
+  fingerVisual->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   std::shared_ptr<DropShadow>& fingerDropShadow = m_FingerDropShadows[fingerIndex];
 
