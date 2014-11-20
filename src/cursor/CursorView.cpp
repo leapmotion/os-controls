@@ -49,9 +49,8 @@ CursorView::CursorView() :
 
   //Initialize Disk Cursor
   m_disk->SetRadius(20.0f);
-  m_disk->Material().SetAmbientLightColor(CURSOR_COLOR);
-  m_disk->Material().SetDiffuseLightColor(CURSOR_COLOR);
-  m_disk->Material().SetAmbientLightingProportion(1.0f);
+  m_disk->Material().Uniform<AMBIENT_LIGHT_COLOR>() = CURSOR_COLOR;
+  m_disk->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   // Load SVG Files for scroll cursor parts
   Resource<TextFile> scrollBodyFile("scroll-cursor-body.svg");

@@ -21,9 +21,8 @@ ExposeActivationStateMachine::ExposeActivationStateMachine() :
   m_goalBottomY(0.0f,0.7f),
   m_pusherBottomY(0.0f, 0.7f)
 {
-  m_goalStrip->Material().SetDiffuseLightColor(GOAL_COLOR);
-  m_goalStrip->Material().SetAmbientLightColor(GOAL_COLOR);
-  m_goalStrip->Material().SetAmbientLightingProportion(1.0f);
+  m_goalStrip->Material().Uniform<AMBIENT_LIGHT_COLOR>() = GOAL_COLOR;
+  m_goalStrip->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   // Setup SVG
   Resource<TextFile> exposeIconFile("expose-icon-01.svg");
@@ -101,9 +100,8 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
         m_armed = true;
         m_pusherBottomY.SetGoal( PUSHER_BOTTOM_Y );
       }
-      m_pusherBar->Material().SetAmbientLightColor(blended);
-      m_pusherBar->Material().SetDiffuseLightColor(blended);
-      m_pusherBar->Material().SetAmbientLightingProportion(1.0f);
+      m_pusherBar->Material().Uniform<AMBIENT_LIGHT_COLOR>() = blended;
+      m_pusherBar->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
       if( diffPercent >= 1 && m_armed) {
         resolveSelection();

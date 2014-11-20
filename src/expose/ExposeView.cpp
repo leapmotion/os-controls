@@ -32,24 +32,20 @@ ExposeView::ExposeView() :
   m_backgroundImage = Autowired<OSVirtualScreen>()->PrimaryScreen().GetBackgroundTexture(m_backgroundImage);
 
   m_selectionRegion = std::shared_ptr<Disk>(new Disk);
-  m_selectionRegion->Material().SetDiffuseLightColor(selectionRegionColor);
-  m_selectionRegion->Material().SetAmbientLightColor(selectionRegionColor);
-  m_selectionRegion->Material().SetAmbientLightingProportion(1.0f);
+  m_selectionRegion->Material().Uniform<AMBIENT_LIGHT_COLOR>() = selectionRegionColor;
+  m_selectionRegion->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   m_selectionOutline = std::shared_ptr<PartialDisk>(new PartialDisk);
-  m_selectionOutline->Material().SetDiffuseLightColor(selectionOutlineColor);
-  m_selectionOutline->Material().SetAmbientLightColor(selectionOutlineColor);
-  m_selectionOutline->Material().SetAmbientLightingProportion(1.0f);
+  m_selectionOutline->Material().Uniform<AMBIENT_LIGHT_COLOR>() = selectionOutlineColor;
+  m_selectionOutline->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   m_selectionRegionActive = std::shared_ptr<Disk>(new Disk);
-  m_selectionRegionActive->Material().SetDiffuseLightColor(selectionRegionActiveColor);
-  m_selectionRegionActive->Material().SetAmbientLightColor(selectionRegionActiveColor);
-  m_selectionRegionActive->Material().SetAmbientLightingProportion(1.0f);
+  m_selectionRegionActive->Material().Uniform<AMBIENT_LIGHT_COLOR>() = selectionRegionActiveColor;
+  m_selectionRegionActive->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   m_selectionOutlineActive = std::shared_ptr<PartialDisk>(new PartialDisk);
-  m_selectionOutlineActive->Material().SetDiffuseLightColor(selectionOutlineActiveColor);
-  m_selectionOutlineActive->Material().SetAmbientLightColor(selectionOutlineActiveColor);
-  m_selectionOutlineActive->Material().SetAmbientLightingProportion(1.0f);
+  m_selectionOutlineActive->Material().Uniform<AMBIENT_LIGHT_COLOR>() = selectionOutlineActiveColor;
+  m_selectionOutlineActive->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   memset(&m_prevHandData, 0, sizeof(m_prevHandData));
 }
@@ -243,7 +239,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
   const float alphaMask = m_alphaMask.Current() > 0.00001 ? 1.0f : 0.0f;
-  m_backgroundImage->Material().SetAmbientLightColor(Color(alphaMask, alphaMask, alphaMask, alphaMask));
+  m_backgroundImage->Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(alphaMask, alphaMask, alphaMask, alphaMask);
 
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     EigenTypes::Vector3 center(EigenTypes::Vector3::Zero());
