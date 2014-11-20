@@ -14,8 +14,8 @@ LeapImagePassthrough::LeapImagePassthrough() {
 
   m_rect.SetSize(EigenTypes::Vector2(640, 480));
   m_rect.Translation() = EigenTypes::Vector3(320, 240, 0);
-  m_rect.Material().SetAmbientLightColor(Color::Green());
-  m_rect.Material().SetAmbientLightingProportion(1.0f);
+  m_rect.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::Green();
+  m_rect.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 }
 
 LeapImagePassthrough::~LeapImagePassthrough()
@@ -46,7 +46,7 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     GLTexture2PixelDataReference pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, image.data(), width*height);
     m_texture = std::make_shared<GLTexture2>(params, pixel_data);
     m_rect.SetTexture(m_texture);
-    m_rect.Material().SetUseTexture(true);
+    m_rect.Material().Uniform<USE_TEXTURE>() = true;
   }
   else {
     m_texture->Bind();
