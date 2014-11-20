@@ -29,7 +29,7 @@ RenderEngine::RenderEngine() :
   // set light position
   const EigenTypes::Vector3f lightPos(0, 10, 10);
   m_shader->Bind();
-  m_shader->SetUniformf("lightPosition", lightPos);
+  m_shader->UploadUniform<GL_FLOAT_VEC3>("lightPosition", lightPos);
   m_shader->Unbind();
 }
 

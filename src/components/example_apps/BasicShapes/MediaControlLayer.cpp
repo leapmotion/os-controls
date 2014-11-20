@@ -154,8 +154,8 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   // set light position
   const EigenTypes::Vector3f desiredLightPos(0, 10, 10);
   const EigenTypes::Vector3f lightPos = desiredLightPos - eyePos.cast<float>();
-  m_shader->SetUniformf("light_position", lightPos);
-  m_shader->SetUniformi("use_texture", false);
+  m_shader->UploadUniform<GL_FLOAT_VEC3>("light_position", lightPos);
+  m_shader->UploadUniform<GL_BOOL>("use_texture", false);
 
   // draw primitives
   PrimitiveBase::DrawSceneGraph(m_LeftSection, m_Renderer);
@@ -167,8 +167,9 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   PrimitiveBase::DrawSceneGraph(m_VolumeHandleOutline, m_Renderer);
 
   glEnable(GL_TEXTURE_2D);
-  m_shader->SetUniformi("use_texture", true);
-  m_shader->SetUniformi("texture", 0);
+  m_shader->Bind();
+  m_shader->UploadUniform<GL_BOOL>("use_texture", true);
+  m_shader->UploadUniform<GL_SAMPLER_2D>("texture", 0);
 
   m_RewindTexture->Bind();
   PrimitiveBase::DrawSceneGraph(m_Rewind, m_Renderer);

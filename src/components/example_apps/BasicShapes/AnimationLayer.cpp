@@ -116,7 +116,7 @@ void AnimationLayer::Render(TimeDelta real_time_delta) const {
   // set light position
   const EigenTypes::Vector3f desiredLightPos(0, 10, 10);
   const EigenTypes::Vector3f lightPos = desiredLightPos - eyePos.cast<float>();
-  m_shader->SetUniformf("light_position", lightPos);
+  m_shader->UploadUniform<GL_FLOAT_VEC3>("light_position", lightPos);
 
   // draw primitives
   PrimitiveBase::DrawSceneGraph(m_Sphere1, m_Renderer);

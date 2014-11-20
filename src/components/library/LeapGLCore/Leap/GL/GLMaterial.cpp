@@ -36,11 +36,11 @@ void GLMaterial::UploadUniforms (const GLShader &shader, float alpha_mask, BindF
   Color ambientColor = m_ambient_light_color;
   diffuseColor.A() *= alpha_mask;
   ambientColor.A() *= alpha_mask;
-  shader.SetUniformf("diffuse_light_color", diffuseColor);
-  shader.SetUniformf("ambient_light_color", ambientColor);
-  shader.SetUniformf("ambient_lighting_proportion", m_ambient_lighting_proportion);
-  shader.SetUniformi("use_texture", m_use_texture);
-  shader.SetUniformi("texture", m_texture_unit_index);
+  shader.UploadUniform<GL_FLOAT_VEC4>("diffuse_light_color", diffuseColor);
+  shader.UploadUniform<GL_FLOAT_VEC4>("ambient_light_color", ambientColor);
+  shader.UploadUniform<GL_FLOAT>("ambient_lighting_proportion", m_ambient_lighting_proportion);
+  shader.UploadUniform<GL_BOOL>("use_texture", m_use_texture);
+  shader.UploadUniform<GL_SAMPLER_2D>("texture", m_texture_unit_index);
 }
 
 } // end of namespace GL
