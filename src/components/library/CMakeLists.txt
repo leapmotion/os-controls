@@ -164,8 +164,8 @@ add_sublibrary(
         Leap/GL/MeshException.h
         Leap/GL/ModelViewProjection.h
         Leap/GL/RenderBuffer.h
-        Leap/GL/RGB.h
-        Leap/GL/RGBA.h
+        Leap/GL/Rgb.h
+        Leap/GL/Rgba.h
         Leap/GL/SceneGraphNode.h
         Leap/GL/SceneGraphNodeProperties.h
         Leap/GL/SceneGraphNodeProperty.h
@@ -762,8 +762,8 @@ add_sublibrary(
         ColorComponentTest.cpp
         GLShaderTest.cpp
         GLTexture2Test.cpp
-        RGBATest.cpp
-        RGBTest.cpp
+        RgbaTest.cpp
+        RgbTest.cpp
         SceneGraphNodePropertiesTest.cpp
         SceneGraphNodeTest.cpp
         ShaderFrontendTest.cpp
