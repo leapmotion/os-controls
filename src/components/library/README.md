@@ -398,10 +398,10 @@ GLMesh<DIM>
   track OpenGL server state and prevent redundant server state changes) is contrary to one
   of the main design principles of the Components lib (drop-in capability).
 - DONE: Create GLMesh and factor out of PrimitiveGeometry.
-- Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
+- DONE: Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
-- Ensure that all types of uniforms can be set via GLShader (in particular, arrays and structures of uniforms).
+- DONE: Ensure that all types of uniforms can be set via GLShader (in particular, arrays and structures of uniforms).
 - Add SceneGraph and Camera.  Keep Projection [matrix], get rid of ModelView (because its stack
   is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
 - Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
@@ -424,6 +424,7 @@ GLMesh<DIM>
 - Pixel buffer objects (could be a way to do faster pixel transfers from GPU to CPU)
 - GLTraits / reflection
 - Color -- HSV<T>, HSVA<T>, sRGB<T>, sRGBA<T> (sRGB is a nonlinear analog to RGB)
+- Uniform buffer objects (this appears to be for OpenGL 4+ (?))
 
 #### GL component closure notes
 

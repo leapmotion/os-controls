@@ -21,9 +21,11 @@ private:
   typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::GlTypeMappingOf_f>::T GlTypeMappings;
   typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::ArrayLengthMappingOf_f>::T ArrayLengthMappings;
   typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::CppTypeMappingOf_f>::T CppTypeMappings;
+  typedef typename Internal::OnEach_f<UniformMappingsTyple,Internal::MatrixStorageConventionMappingOf_f>::T MatrixStorageConventionMappings;
   typedef Internal::TypeMap_t<GlTypeMappings> GlTypeMap;
   typedef Internal::TypeMap_t<ArrayLengthMappings> ArrayLengthMap;
   typedef Internal::TypeMap_t<CppTypeMappings> CppTypeMap;
+  typedef Internal::TypeMap_t<MatrixStorageConventionMappings> MatrixStorageConventionMap;
   template <UniformNameType_ NAME_> using UniformName_t = Internal::Value_t<UniformNameType_,NAME_>;
 
   // template <UniformNameType_ NAME_> struct IndexOfUniform_f { static const size_t V = Internal::IndexIn_f<UniformNames,UniformName_t<NAME_>>::V; };
@@ -33,6 +35,7 @@ public:
   template <UniformNameType_ NAME_> struct GlTypeOfUniform_f { static const GLenum V = Internal::Eval_f<GlTypeMap,UniformName_t<NAME_>>::T::V; };
   template <UniformNameType_ NAME_> struct ArrayLengthOfUniform_f { static const size_t V = Internal::Eval_f<ArrayLengthMap,UniformName_t<NAME_>>::T::V; };
   template <UniformNameType_ NAME_> struct CppTypeOfUniform_f { typedef typename Internal::Eval_f<CppTypeMap,UniformName_t<NAME_>>::T T; };
+  template <UniformNameType_ NAME_> struct MatrixStorageConventionOfUniform_f { typedef typename Internal::Eval_f<MatrixStorageConventionMap,UniformName_t<NAME_>>::T T; };
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<std::string,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformIds; // TODO: this should be Map_t
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<GLint,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformLocations; // TODO: this should be Map_t
   typedef Internal::Map_t<Internal::TypeMap_t<CppTypeMappings>> UniformMap;
@@ -98,8 +101,9 @@ private:
     typedef typename Internal::Element_f<UniformNames,INDEX_>::T UniformName;
     static const GLenum GL_TYPE_ = Internal::Eval_f<GlTypeMap,UniformName>::T::V;
     static const size_t ARRAY_LENGTH = Internal::Eval_f<ArrayLengthMap,UniformName>::T::V;
+    static const MatrixStorageConvention MATRIX_STORAGE_CONVENTION = Internal::Eval_f<MatrixStorageConventionMap,UniformName>::T::V;
     // Upload the uniform.
-    GLShader::UploadUniformArray<GL_TYPE_,ARRAY_LENGTH>(m_uniform_locations.template el<INDEX_>(), m_uniform_map.template val<UniformName>());
+    Internal::UniformizedInterface_UploadArray<GL_TYPE_,ARRAY_LENGTH,MATRIX_STORAGE_CONVENTION>(m_uniform_locations.template el<INDEX_>(), m_uniform_map.template val<UniformName>());
     // Iterate.
     UploadUniform<INDEX_+1>();
   }
@@ -112,30 +116,6 @@ private:
   UniformLocations m_uniform_locations;
   UniformMap m_uniform_map;
 };
-
-
-/*
-
-enum MaterialPropertyName { DIFFUSE_COLOR, LIGHT_POSITIONS, ... };
-ShaderFrontend<MaterialPropertyName,
-               Uniform<DIFFUSE_COLOR,GL_FLOAT_VEC4,Rgba<GLfloat>>,
-               UniformArray<LIGHT_POSITIONS,GL_FLOAT_VEC3,10,Vector3<GLfloat>>,
-               ...> material(uniform_locations);
-
-material.Uniform<DIFFUSE_COLOR>(Rgba<GLfloat>(1,0,0,1));
-
-Vector3 light_positions[10] = ...; // This could be a std::array<Vector3,10> or std::vector<Vector3> of size 10.
-material.Uniform<LIGHT_POSITIONS>(light_positions);
-material.Uniform<LIGHT_POSITIONS>(3, 10, array_of_7_Vector3s);
-
-for (size_t i = 0; i < 10; ++i) {
-  material.Uniform<LIGHT_POSITIONS>(i, Vector3(expression involving i));
-}
-
-*/
-
-
-
 
 } // end of namespace GL
 } // end of namespace Leap
