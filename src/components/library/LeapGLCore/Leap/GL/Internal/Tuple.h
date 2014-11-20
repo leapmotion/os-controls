@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <iostream>
 #include "Leap/GL/Internal/Typle.h"
 
@@ -58,7 +59,7 @@ Tuple_t<Typle_t<Types_...>> tuple (Types_... args) {
 	return Tuple_t<Typle_t<Types_...>>(args...);
 }
 
-void PrintWithoutParens (std::ostream &out, EmptyTuple) { }
+inline void PrintWithoutParens (std::ostream &out, EmptyTuple) { }
 
 template <typename Head_, typename... BodyTypes_>
 void PrintWithoutParens (std::ostream &out, Tuple_t<Typle_t<Head_,BodyTypes_...>> const &t) {
