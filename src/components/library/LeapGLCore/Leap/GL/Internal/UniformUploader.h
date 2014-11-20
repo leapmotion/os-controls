@@ -23,19 +23,19 @@ template <GLenum GL_TYPE_> struct UniformUploader;
     static_assert(UniformTraits<GL_TYPE_>::IS_DEFINED, "UniformTraits<GL_TYPE_> not defined."); \
     template <typename... Types_> \
     static void Upload (GLint location, Types_... args) { \
-      UniformTraits<GL_TYPE_>::SetUsingValues(location, args...); \
+      UniformTraits<GL_TYPE_>::UploadUsingValues(location, args...); \
     } \
     template <typename T_> \
     static typename std::enable_if<!std::is_fundamental<T_>::value>::type Upload (GLint location, const T_ &value) { \
       typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
       UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
-      UniformTraits<GL_TYPE_>::SetUsingPointer(location, 1, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      UniformTraits<GL_TYPE_>::UploadUsingPointer(location, 1, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
     template <size_t ARRAY_LENGTH_, typename T_> \
     static void UploadArray (GLint location, const T_ &value) { \
       typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
       UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
-      UniformTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      UniformTraits<GL_TYPE_>::UploadUsingPointer(location, ARRAY_LENGTH_, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
   }
 
@@ -46,13 +46,13 @@ template <GLenum GL_TYPE_> struct UniformUploader;
     static void Upload (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
       typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
       UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,1>(); \
-      UniformTraits<GL_TYPE_>::SetUsingPointer(location, 1, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      UniformTraits<GL_TYPE_>::UploadUsingPointer(location, 1, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
     template <size_t ARRAY_LENGTH_, typename T_> \
     static void UploadArray (GLint location, const T_ &value, MatrixStorageConvention matrix_storage_convention) { \
       typedef typename UniformTraits<GL_TYPE_>::UniformArgumentType UniformArgumentType; \
       UniformTraits<GL_TYPE_>::CheckCompatibilityOf<T_,ARRAY_LENGTH_>(); \
-      UniformTraits<GL_TYPE_>::SetUsingPointer(location, ARRAY_LENGTH_, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
+      UniformTraits<GL_TYPE_>::UploadUsingPointer(location, ARRAY_LENGTH_, matrix_storage_convention, reinterpret_cast<const UniformArgumentType *>(&value)); \
     } \
   }
 

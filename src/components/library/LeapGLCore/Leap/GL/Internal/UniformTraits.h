@@ -21,11 +21,11 @@ template <GLenum GL_TYPE_> struct UniformTraits { static const bool IS_DEFINED =
     typedef GLUniformArgumentType_ UniformArgumentType; \
     static const size_t COMPONENT_COUNT = COMPONENT_COUNT_; \
     template <typename... Types_> \
-    static void SetUsingValues (GLint location, Types_... args) { \
+    static void UploadUsingValues (GLint location, Types_... args) { \
       static_assert(sizeof...(Types_) == COMPONENT_COUNT_, "Expected exactly " #COMPONENT_COUNT_ " value arguments after the location argument."); \
       glUniform(location, args...); \
     } \
-    static void SetUsingPointer (GLint location, GLsizei count, const UniformArgumentType *value) { \
+    static void UploadUsingPointer (GLint location, GLsizei count, const UniformArgumentType *value) { \
       glUniformv(location, count, value); \
     } \
     template <typename T_, size_t ARRAY_LENGTH_> \
@@ -47,7 +47,7 @@ template <GLenum GL_TYPE_> struct UniformTraits { static const bool IS_DEFINED =
     typedef GLtype_ GLtype; \
     typedef GLtype_ UniformArgumentType; \
     static const size_t COMPONENT_COUNT = ROWS_*COLUMNS_; \
-    static void SetUsingPointer (GLint location, GLsizei count, MatrixStorageConvention matrix_storage_convention, const UniformArgumentType *value) { \
+    static void UploadUsingPointer (GLint location, GLsizei count, MatrixStorageConvention matrix_storage_convention, const UniformArgumentType *value) { \
       glUniformMatrixv(location, count, matrix_storage_convention == MatrixStorageConvention::ROW_MAJOR ? GL_TRUE : GL_FALSE, value); \
     } \
     template <typename T_, size_t ARRAY_LENGTH_> \
