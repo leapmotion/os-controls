@@ -70,9 +70,11 @@ public:
                  1.0f,                          // ambient_lighting_proportion
                  GL_FALSE,                      // use_texture
                  0)                             // texture
-  { 
-    // GLMaterial::CheckShaderForUniforms(*m_shader);
-  }
+    , m_shader_matrices(*m_shader,
+                        "projection_times_model_view_matrix",
+                        "model_view_matrix",
+                        "normal_matrix")
+  { }
   virtual ~Primitive() { }
 
   const GLShader &Shader () const {
@@ -97,12 +99,13 @@ public:
     model_view.Multiply(SquareMatrixAdaptToDim<4>(global_properties.AffineTransform().AsFullMatrix(), EigenTypes::MATH_TYPE(1)));
     MakeAdditionalModelViewTransformations(model_view);
 
+    m_shader_matrices.SetMatrices(model_view.Matrix(), render_state.GetProjection().Matrix());
+
     const GLShader &shader = Shader();
     GLShaderBindingScopeGuard bso(shader, BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     
-    GLShaderMatrices::UploadUniforms(shader, model_view.Matrix(), render_state.GetProjection().Matrix(), BindFlags::NONE);
-    // Material().UploadUniforms(shader, global_properties.AlphaMask(), BindFlags::NONE);
     m_material.UploadUniforms();
+    m_shader_matrices.UploadUniforms();
 
     DrawContents(render_state);
 
@@ -122,6 +125,7 @@ private:
 
   Resource<GLShader> m_shader;
   LambertianMaterial m_material;
+  mutable ShaderMatrices m_shader_matrices;
 };
 
 typedef Primitive<3> Primitive3;
