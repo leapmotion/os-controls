@@ -1,6 +1,4 @@
-#include "Leap/GL/GLShaderMatrices.h"
-
-#include "Leap/GL/GLShaderBindingScopeGuard.h"
+#include "Leap/GL/ShaderMatrices.h"
 
 ShaderMatrices::ShaderMatrices (const GLShader &shader,
                                 const std::string &projection_times_model_view_matrix_id,

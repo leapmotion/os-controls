@@ -1,13 +1,12 @@
 #pragma once
 
 #include "EigenTypes.h"
-#include "Leap/GL/GLHeaders.h"
-#include "Leap/GL/GLShader.h"
-#include "Leap/GL/ScopeGuard.h"
 #include "Leap/GL/ShaderFrontend.h"
 
 namespace Leap {
 namespace GL {
+
+class GLShader;
 
 // Presents an interface specifically tailored to shaders having [optional] matrix uniforms of the form:
 //   uniform mat4 projection_times_model_view_matrix

@@ -4,9 +4,9 @@
 #include "LambertianMaterial.h"
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLShaderBindingScopeGuard.h"
-#include "Leap/GL/GLShaderMatrices.h"
 #include "Leap/GL/SceneGraphNode.h"
 #include "Leap/GL/SceneGraphNodeValues.h"
+#include "Leap/GL/ShaderMatrices.h"
 #include "RenderState.h"
 #include "Resource.h"
 

@@ -145,7 +145,6 @@ add_sublibrary(
         Leap/GL/GLHeaders.h
         Leap/GL/GLShader.h
         Leap/GL/GLShaderBindingScopeGuard.h
-        Leap/GL/GLShaderMatrices.h
         Leap/GL/GLTexture2.h
         Leap/GL/GLTexture2Params.h
         Leap/GL/GLTexture2PixelData.h
@@ -174,18 +173,19 @@ add_sublibrary(
         Leap/GL/ScopeGuard.h
         Leap/GL/ShaderException.h
         Leap/GL/ShaderFrontend.h
+        Leap/GL/ShaderMatrices.h
         Leap/GL/Texture2Exception.h
         Leap/GL/VertexBufferException.h
     SOURCES
         Leap/GL/FrameBufferObject.cpp
         Leap/GL/GLBuffer.cpp
         Leap/GL/GLShader.cpp
-        Leap/GL/GLShaderMatrices.cpp
         Leap/GL/GLTexture2.cpp
         Leap/GL/GLTexture2Params.cpp
         Leap/GL/GLTexture2PixelData.cpp
         Leap/GL/ModelViewProjection.cpp
         Leap/GL/RenderBuffer.cpp
+        Leap/GL/ShaderMatrices.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.
         Color # TODO: LeapGL color
