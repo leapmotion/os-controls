@@ -26,33 +26,33 @@ m_time(0)
 
   const Color color1(1.0f, 0.5f, 0.3f, 1.0f);
   m_Sphere1.SetRadius(6);
-  m_Sphere1.Material().SetDiffuseLightColor(color1);
-  m_Sphere1.Material().SetAmbientLightColor(color1);
-  m_Sphere1.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere1.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color1;
+  m_Sphere1.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color1;
+  m_Sphere1.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere1Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere1Translation.SetSmoothStrength(0.95f);
 
   const Color color2(0.9f, 0.9f, 0.4f, 1.0f);
   m_Sphere2.SetRadius(5);
-  m_Sphere2.Material().SetDiffuseLightColor(color2);
-  m_Sphere2.Material().SetAmbientLightColor(color2);
-  m_Sphere2.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere2.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color2;
+  m_Sphere2.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color2;
+  m_Sphere2.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere2Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere2Translation.SetSmoothStrength(0.85f);
 
   const Color color3(0.3f, 1.0f, 0.5f, 1.0f);
   m_Sphere3.SetRadius(4);
-  m_Sphere3.Material().SetDiffuseLightColor(color3);
-  m_Sphere3.Material().SetAmbientLightColor(color3);
-  m_Sphere3.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere3.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color3;
+  m_Sphere3.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color3;
+  m_Sphere3.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere3Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere3Translation.SetSmoothStrength(0.75f);
 
   const Color color4(0.4f, 0.7f, 1.0f, 1.0f);
   m_Sphere4.SetRadius(3);
-  m_Sphere4.Material().SetDiffuseLightColor(color4);
-  m_Sphere4.Material().SetAmbientLightColor(color4);
-  m_Sphere4.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere4.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color4;
+  m_Sphere4.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color4;
+  m_Sphere4.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere4Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere4Translation.SetSmoothStrength(0.65f);
 }

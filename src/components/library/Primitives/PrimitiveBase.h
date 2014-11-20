@@ -60,8 +60,18 @@ public:
   typedef SceneGraphNode<ParticularSceneGraphNodeProperties<EigenTypes::MATH_TYPE,DIM,float>> Parent_SceneGraphNode;
   typedef typename Properties::AffineTransformValue_::Transform Transform;
 
-  Primitive() : m_shader("material") {
-    GLMaterial::CheckShaderForUniforms(*m_shader);
+  Primitive()
+    : m_shader("material")
+    , m_material(*m_shader,
+                 LambertianMaterial::UniformIds("light_position", "diffuse_light_color", "ambient_light_color", "ambient_lighting_proportion", "use_texture", "texture"),
+                 EigenTypes::Vector3f::Zero(),  // light_position
+                 Color::White(),                // diffuse_light_color
+                 Color::White(),                // ambient_light_color
+                 1.0f,                          // ambient_lighting_proportion
+                 GL_FALSE,                      // use_texture
+                 0)                             // texture
+  { 
+    // GLMaterial::CheckShaderForUniforms(*m_shader);
   }
   virtual ~Primitive() { }
 
@@ -71,8 +81,8 @@ public:
     }
     return *m_shader;
   }
-  const GLMaterial &Material () const { return m_material; }
-  GLMaterial &Material () { return m_material; }
+  const LambertianMaterial &Material () const { return m_material; }
+  LambertianMaterial &Material () { return m_material; }
 
   typename Transform::ConstTranslationPart Translation () const { return this->LocalProperties().AffineTransform().translation(); }
   typename Transform::TranslationPart Translation () { return this->LocalProperties().AffineTransform().translation(); }
@@ -91,7 +101,8 @@ public:
     GLShaderBindingScopeGuard bso(shader, BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     
     GLShaderMatrices::UploadUniforms(shader, model_view.Matrix(), render_state.GetProjection().Matrix(), BindFlags::NONE);
-    Material().UploadUniforms(shader, global_properties.AlphaMask(), BindFlags::NONE);
+    // Material().UploadUniforms(shader, global_properties.AlphaMask(), BindFlags::NONE);
+    m_material.UploadUniforms();
 
     DrawContents(render_state);
 
@@ -110,7 +121,7 @@ protected:
 private:
 
   Resource<GLShader> m_shader;
-  GLMaterial m_material;
+  LambertianMaterial m_material;
 };
 
 typedef Primitive<3> Primitive3;

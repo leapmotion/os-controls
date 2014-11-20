@@ -34,78 +34,67 @@ MediaControlLayer::MediaControlLayer() :
 
   m_LeftSection.SetStartAngle(PI_2 + PI_4);
   m_LeftSection.SetEndAngle(2*PI_2 + PI_4);
-  m_LeftSection.Material().SetDiffuseLightColor(bgColor);
-  m_LeftSection.Material().SetAmbientLightColor(bgColor);
-  m_LeftSection.Material().SetAmbientLightingProportion(1.0f);
+  m_LeftSection.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
+  m_LeftSection.Material().Uniform<AMBIENT_LIGHT_COLOR>() = bgColor;
   m_LeftSection.SetInnerRadius(innerRad);
   m_LeftSection.SetOuterRadius(outerRad);
   m_LeftSection.Translation() = EigenTypes::Vector3(-0.25, 0, 0);
 
   m_TopSection.SetStartAngle(PI_4);
   m_TopSection.SetEndAngle(PI_2 + PI_4);
-  m_TopSection.Material().SetDiffuseLightColor(bgColor);
-  m_TopSection.Material().SetAmbientLightColor(bgColor);
-  m_TopSection.Material().SetAmbientLightingProportion(1.0f);
+  m_TopSection.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
+  m_TopSection.Material().Uniform<AMBIENT_LIGHT_COLOR>() = bgColor;
   m_TopSection.SetInnerRadius(innerRad);
   m_TopSection.SetOuterRadius(outerRad);
   m_TopSection.Translation() = EigenTypes::Vector3(0, 0.25, 0);
 
   m_RightSection.SetStartAngle(-PI_4);
   m_RightSection.SetEndAngle(PI_4);
-  m_RightSection.Material().SetDiffuseLightColor(bgColor);
-  m_RightSection.Material().SetAmbientLightColor(bgColor);
-  m_RightSection.Material().SetAmbientLightingProportion(1.0f);
+  m_RightSection.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
+  m_RightSection.Material().Uniform<AMBIENT_LIGHT_COLOR>() = bgColor;
   m_RightSection.SetInnerRadius(innerRad);
   m_RightSection.SetOuterRadius(outerRad);
   m_RightSection.Translation() = EigenTypes::Vector3(0.25, 0, 0);
 
-  m_VolumeFill.Material().SetDiffuseLightColor(fillColor);
-  m_VolumeFill.Material().SetAmbientLightColor(fillColor);
-  m_VolumeFill.Material().SetAmbientLightingProportion(1.0f);
+  m_VolumeFill.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = fillColor;
+  m_VolumeFill.Material().Uniform<AMBIENT_LIGHT_COLOR>() = fillColor;
 
   m_VolumeTrack.SetStartAngle(-PI_4);
   m_VolumeTrack.SetEndAngle(2*PI_2 + PI_4);
   m_VolumeTrack.SetInnerRadius(innerTrackRad);
   m_VolumeTrack.SetOuterRadius(outerTrackRad);
-  m_VolumeTrack.Material().SetDiffuseLightColor(bgColor);
-  m_VolumeTrack.Material().SetAmbientLightColor(bgColor);
-  m_VolumeTrack.Material().SetAmbientLightingProportion(1.0f);
+  m_VolumeTrack.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
+  m_VolumeTrack.Material().Uniform<AMBIENT_LIGHT_COLOR>() = bgColor;
 
   m_VolumeFill.SetStartAngle(-PI_4);
   m_VolumeFill.SetEndAngle(2*PI_2 + PI_4);
   m_VolumeFill.SetInnerRadius(innerTrackRad);
   m_VolumeFill.SetOuterRadius(outerTrackRad);
-  m_VolumeFill.Material().SetDiffuseLightColor(fillColor);
-  m_VolumeFill.Material().SetAmbientLightColor(fillColor);
-  m_VolumeFill.Material().SetAmbientLightingProportion(1.0f);
+  m_VolumeFill.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = fillColor;
+  m_VolumeFill.Material().Uniform<AMBIENT_LIGHT_COLOR>() = fillColor;
 
-  m_VolumeHandle.Material().SetDiffuseLightColor(handleColor);
-  m_VolumeHandle.Material().SetAmbientLightColor(handleColor);
-  m_VolumeHandle.Material().SetAmbientLightingProportion(1.0f);
+  m_VolumeHandle.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = handleColor;
+  m_VolumeHandle.Material().Uniform<AMBIENT_LIGHT_COLOR>() = handleColor;
   m_VolumeHandle.SetRadius(0.9);
 
-  m_VolumeHandleOutline.Material().SetDiffuseLightColor(handleOutlineColor);
-  m_VolumeHandleOutline.Material().SetAmbientLightColor(handleOutlineColor);
-  m_VolumeHandleOutline.Material().SetAmbientLightingProportion(1.0f);
+  m_VolumeHandleOutline.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = handleOutlineColor;
+  m_VolumeHandleOutline.Material().Uniform<AMBIENT_LIGHT_COLOR>() = handleOutlineColor;
   m_VolumeHandleOutline.SetRadius(1.0);
 
   m_Rewind.Translation() = EigenTypes::Vector3(-(innerRad+outerRad)/2.0, 0.0, 0.1);
   m_Rewind.SetSize(EigenTypes::Vector2(2, 2));
-  m_Rewind.Material().SetDiffuseLightColor(Color::White());
-  m_Rewind.Material().SetAmbientLightColor(Color::White());
-  m_Rewind.Material().SetAmbientLightingProportion(1.0f);
+  m_Rewind.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color::White();
+  m_Rewind.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::White();
 
   m_PlayPause.Translation() = EigenTypes::Vector3(0.0, (innerRad+outerRad)/2.0, 0.1);
   m_PlayPause.SetSize(EigenTypes::Vector2(2, 2));
-  m_PlayPause.Material().SetDiffuseLightColor(Color::White());
-  m_PlayPause.Material().SetAmbientLightColor(Color::White());
-  m_PlayPause.Material().SetAmbientLightingProportion(1.0f);
+  m_PlayPause.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color::White();
+  m_PlayPause.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::White();
 
   m_FastForward.Translation() = EigenTypes::Vector3((innerRad+outerRad)/2.0, 0.0, 0.1);
   m_FastForward.SetSize(EigenTypes::Vector2(2, 2));
-  m_FastForward.Material().SetDiffuseLightColor(Color::White());
-  m_FastForward.Material().SetAmbientLightColor(Color::White());
-  m_FastForward.Material().SetAmbientLightingProportion(1.0f);
+  m_FastForward.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color::White();
+  m_FastForward.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::White();
 }
 
 MediaControlLayer::~MediaControlLayer() {

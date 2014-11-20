@@ -31,7 +31,7 @@ TexturedFrame::TexturedFrame() {
   SetRectangleEdgeTextureCoordinate(Rectangle::OUTER,    RectangleEdge::TOP, 1.0f);
 
   // Set up the material properties regarding textures
-  Material().SetUseTexture(true);
+  Material().Uniform<USE_TEXTURE>() = true;
   
   m_recompute_mesh = true;
 }

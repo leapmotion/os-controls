@@ -36,7 +36,7 @@ MediaControlLayer::MediaControlLayer() :
   m_VolumeSlider.SetFillColor(fillColor);
   m_VolumeSlider.SetHandleColor(handleColor);
   m_VolumeSlider.SetHandleOutlineColor(handleOutlineColor); 
-  m_VolumeSlider.Material().SetDiffuseLightColor(bgColor);
+  m_VolumeSlider.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
 
   const int numItems = 3;
   m_PlaybackMenu.SetStartAngle(startAngle);
@@ -47,7 +47,7 @@ MediaControlLayer::MediaControlLayer() :
     item->SetRadius(13.5);
     item->SetThickness(7.0);
     item->SetActivatedRadius(17.0);
-    item->Material().SetDiffuseLightColor(bgColor);
+    item->Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
     item->SetHoverColor(fillColor);
     item->SetActivatedColor(handleOutlineColor);
   }
@@ -74,9 +74,6 @@ MediaControlLayer::MediaControlLayer() :
 
   m_Controller.addListener(m_Listener);
 
-  m_Cursor.Material().SetDiffuseLightColor(Color::White());
-  m_Cursor.Material().SetAmbientLightColor(Color::White());
-  m_Cursor.Material().SetAmbientLightingProportion(1.0f);
   m_Cursor.SetRadius(2.0);
 
   m_Volume = 0.5;

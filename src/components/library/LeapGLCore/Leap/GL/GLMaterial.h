@@ -4,6 +4,7 @@
 #include "EigenTypes.h"
 #include "Leap/GL/GLHeaders.h"
 #include "Leap/GL/ScopeGuard.h"
+#include "Leap/GL/ShaderFrontend.h"
 
 namespace Leap {
 namespace GL {
@@ -47,6 +48,7 @@ public:
   // Alpha mask is not technically part of the material state.
   void UploadUniforms (const GLShader &shader, float alpha_mask, BindFlags bind_flags) const;
 
+  // TODO: this should go away, since we're using non-aligned eigen vectors.
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
 
@@ -57,6 +59,26 @@ private:
   bool m_use_texture;
   GLint m_texture_unit_index;
 };
+
+enum LambertianMaterialProperty {
+  LIGHT_POSITION,
+  DIFFUSE_LIGHT_COLOR,
+  AMBIENT_LIGHT_COLOR,
+  AMBIENT_LIGHTING_PROPORTION,
+  USE_TEXTURE,
+  TEXTURE_UNIT_INDEX
+};
+
+template <LambertianMaterialProperty NAME_, GLenum GL_TYPE_, typename CppType_>
+using LambertianMaterialUniform = Leap::GL::Uniform<LambertianMaterialProperty,NAME_,GL_TYPE_,CppType_>;
+
+typedef ShaderFrontend<LambertianMaterialProperty,
+                       LambertianMaterialUniform<LIGHT_POSITION,GL_FLOAT_VEC3,EigenTypes::Vector3f>,
+                       LambertianMaterialUniform<DIFFUSE_LIGHT_COLOR,GL_FLOAT_VEC4,Color>,
+                       LambertianMaterialUniform<AMBIENT_LIGHT_COLOR,GL_FLOAT_VEC4,Color>,
+                       LambertianMaterialUniform<AMBIENT_LIGHTING_PROPORTION,GL_FLOAT,float>,
+                       LambertianMaterialUniform<USE_TEXTURE,GL_BOOL,GLint>,
+                       LambertianMaterialUniform<TEXTURE_UNIT_INDEX,GL_SAMPLER_2D,GLint>> LambertianMaterial;
 
 } // end of namespace GL
 } // end of namespace Leap

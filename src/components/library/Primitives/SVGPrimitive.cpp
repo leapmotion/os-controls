@@ -205,9 +205,8 @@ void SVGPrimitive::RecomputeChildren() {
           const float green = static_cast<float>((strokeColor >>  8) & 0xFF)/255.0f;
           const float red   = static_cast<float>( strokeColor        & 0xFF)/255.0f;
           const Color color(red, green, blue, alpha*opacity*simulatedStrokeWidth);
-          genericShape->Material().SetDiffuseLightColor(color);
-          genericShape->Material().SetAmbientLightColor(color);
-          genericShape->Material().SetAmbientLightingProportion(1.0f);
+          genericShape->Material().Uniform<AMBIENT_LIGHT_COLOR>() = color;
+          genericShape->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
           const auto& points = curve.Points();
           for (const auto& pt : points) {
             const EigenTypes::Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
@@ -237,9 +236,8 @@ void SVGPrimitive::RecomputeChildren() {
         const float green = static_cast<float>((fillColor >>  8) & 0xFF)/255.0f;
         const float red   = static_cast<float>( fillColor        & 0xFF)/255.0f;
         const Color color(red, green, blue, alpha*opacity);
-        genericShape->Material().SetDiffuseLightColor(color);
-        genericShape->Material().SetAmbientLightColor(color);
-        genericShape->Material().SetAmbientLightingProportion(1.0f);
+        genericShape->Material().Uniform<AMBIENT_LIGHT_COLOR>() = color;
+        genericShape->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
         for (auto& triangle : triangles) {
           assert(triangle.GetNumPoints() == 3);
           const EigenTypes::Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
