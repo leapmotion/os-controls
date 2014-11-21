@@ -94,7 +94,8 @@ struct ColorComponent {
   // if blend_parameter is One(), and linearly interpolates between the two in all other cases.
   void BlendWith (const ColorComponent &blend_target, const ColorComponent &blend_parameter) {
     ColorComponent one_minus_blend_parameter(One() - blend_parameter);
-    m_value = m_value*one_minus_blend_parameter + blend_target*blend_parameter;
+    m_value =   Internal::ComponentValueMask(m_value, one_minus_blend_parameter.m_value) 
+              + Internal::ComponentValueMask(blend_target.m_value, blend_parameter.m_value);
   }
   // Linear blending between two Components.
   ColorComponent BlendedWith (const ColorComponent &blend_target, const ColorComponent &blend_parameter) {
