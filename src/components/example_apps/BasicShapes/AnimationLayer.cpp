@@ -24,7 +24,7 @@ m_time(0)
   m_shader->CheckForTypedAttribute("normal", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
   m_shader->CheckForTypedAttribute("tex_coord", GL_FLOAT_VEC2, VariableIs::OPTIONAL_BUT_WARN);
 
-  const Color color1(1.0f, 0.5f, 0.3f, 1.0f);
+  const Rgba<float> color1(1.0f, 0.5f, 0.3f, 1.0f);
   m_Sphere1.SetRadius(6);
   m_Sphere1.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color1;
   m_Sphere1.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color1;
@@ -32,7 +32,7 @@ m_time(0)
   m_Sphere1Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere1Translation.SetSmoothStrength(0.95f);
 
-  const Color color2(0.9f, 0.9f, 0.4f, 1.0f);
+  const Rgba<float> color2(0.9f, 0.9f, 0.4f, 1.0f);
   m_Sphere2.SetRadius(5);
   m_Sphere2.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color2;
   m_Sphere2.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color2;
@@ -40,7 +40,7 @@ m_time(0)
   m_Sphere2Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere2Translation.SetSmoothStrength(0.85f);
 
-  const Color color3(0.3f, 1.0f, 0.5f, 1.0f);
+  const Rgba<float> color3(0.3f, 1.0f, 0.5f, 1.0f);
   m_Sphere3.SetRadius(4);
   m_Sphere3.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color3;
   m_Sphere3.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color3;
@@ -48,7 +48,7 @@ m_time(0)
   m_Sphere3Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere3Translation.SetSmoothStrength(0.75f);
 
-  const Color color4(0.4f, 0.7f, 1.0f, 1.0f);
+  const Rgba<float> color4(0.4f, 0.7f, 1.0f, 1.0f);
   m_Sphere4.SetRadius(3);
   m_Sphere4.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color4;
   m_Sphere4.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color4;

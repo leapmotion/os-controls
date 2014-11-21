@@ -8,10 +8,10 @@
 #include "Leap/GL/GLTexture2.h"
 #include "Resource.h"
 
-Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
-Color fillColor(0.4f, 0.8f, 0.4f, 0.7f);
-Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
-Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
+Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
+Rgba<float> fillColor(0.4f, 0.8f, 0.4f, 0.7f);
+Rgba<float> handleColor(0.65f, 0.675f, 0.7f, 1.0f);
+Rgba<float> handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 const double innerTrackRad = 8.25;
 const double outerTrackRad = 9;
@@ -83,18 +83,18 @@ MediaControlLayer::MediaControlLayer() :
 
   m_Rewind.Translation() = EigenTypes::Vector3(-(innerRad+outerRad)/2.0, 0.0, 0.1);
   m_Rewind.SetSize(EigenTypes::Vector2(2, 2));
-  m_Rewind.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color::White();
-  m_Rewind.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::White();
+  m_Rewind.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
+  m_Rewind.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
 
   m_PlayPause.Translation() = EigenTypes::Vector3(0.0, (innerRad+outerRad)/2.0, 0.1);
   m_PlayPause.SetSize(EigenTypes::Vector2(2, 2));
-  m_PlayPause.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color::White();
-  m_PlayPause.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::White();
+  m_PlayPause.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
+  m_PlayPause.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
 
   m_FastForward.Translation() = EigenTypes::Vector3((innerRad+outerRad)/2.0, 0.0, 0.1);
   m_FastForward.SetSize(EigenTypes::Vector2(2, 2));
-  m_FastForward.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color::White();
-  m_FastForward.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::White();
+  m_FastForward.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
+  m_FastForward.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
 }
 
 MediaControlLayer::~MediaControlLayer() {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Color.h"
 #include "EigenTypes.h"
 #include "Leap/GL/GLBuffer.h"
 #include "Leap/GL/GLVertexBuffer.h"

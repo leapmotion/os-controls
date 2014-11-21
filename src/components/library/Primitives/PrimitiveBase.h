@@ -65,8 +65,8 @@ public:
     , m_material(*m_shader,
                  LambertianMaterial::UniformIds("light_position", "diffuse_light_color", "ambient_light_color", "ambient_lighting_proportion", "use_texture", "texture"),
                  EigenTypes::Vector3f::Zero(),  // light_position
-                 Color::White(),                // diffuse_light_color
-                 Color::White(),                // ambient_light_color
+                 Rgba<float>::One(),            // diffuse_light_color -- Rgba<float>::One() is opaque white
+                 Rgba<float>::One(),            // ambient_light_color -- Rgba<float>::One() is opaque white
                  1.0f,                          // ambient_lighting_proportion
                  GL_FALSE,                      // use_texture
                  0)                             // texture

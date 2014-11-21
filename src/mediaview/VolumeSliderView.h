@@ -3,6 +3,7 @@
 #include "GLShaderLoader.h"
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Rgba.h"
 #include "Primitives.h"
 #include "Resource.h"
 #include "TextFile.h"
@@ -45,8 +46,8 @@ public:
   void DrawContents(RenderState &render_state) const override;
 
 private:
-  const Color INACTIVE_PART_COLOR = Color(0.4f, 0.425f, 0.45f, 0.75f);
-  const Color ACTIVE_PART_COLOR = Color(0.505f, 0.831f, 0.114f, 0.95f);
+  const Rgba<float> INACTIVE_PART_COLOR = Rgba<float>(0.4f, 0.425f, 0.45f, 0.75f);
+  const Rgba<float> ACTIVE_PART_COLOR = Rgba<float>(0.505f, 0.831f, 0.114f, 0.95f);
   const float ICON_Y_OFFSET = 45.0f;
 
   float m_volumeLevel;

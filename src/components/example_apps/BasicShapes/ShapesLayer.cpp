@@ -26,21 +26,21 @@ ShapesLayer::ShapesLayer ()
   m_shader->CheckForTypedAttribute("tex_coord", GL_FLOAT_VEC2, VariableIs::OPTIONAL_BUT_WARN);
 
   m_Sphere1.SetRadius(5);
-  m_Sphere1.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color(0.4f, 0.7f, 1.0f, 1.0f);
-  m_Sphere1.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Sphere1.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.4f, 0.7f, 1.0f, 1.0f);
+  m_Sphere1.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
   m_Sphere1.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere1.LocalProperties().AlphaMask() = 1.0f;
 
   m_Sphere2.SetRadius(5);
-  m_Sphere2.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color(1.0f, 0.7f, 0.4f, 1.0f);
-  m_Sphere2.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Sphere2.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.7f, 0.4f, 1.0f);
+  m_Sphere2.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
   m_Sphere2.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere2.LocalProperties().AlphaMask() = 1.0f;
 
   m_Rect.SetSize(EigenTypes::Vector2(20, 10));
   m_Rect.Translation() = EigenTypes::Vector3::Zero();
-  m_Rect.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color(1.0f, 1.0f, 1.0f, 0.3f);
-  m_Rect.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(1.0f, 1.0f, 1.0f, 0.3f);
+  m_Rect.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 1.0f, 0.3f);
+  m_Rect.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 1.0f, 0.3f);
   m_Rect.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.9f;
   m_Rect.SetTexture(Resource<GLTexture2>("playpause.png"));
   m_Rect.LocalProperties().AlphaMask() = 1.0f;
@@ -58,28 +58,28 @@ ShapesLayer::ShapesLayer ()
   m_Cylinder.SetHeight(25);
   m_Cylinder.SetRadius(4);
   m_Cylinder.Translation() = 40*EigenTypes::Vector3::UnitX();
-  m_Cylinder.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color(0.7f, 1.0f, 0.4f, 1.0f);
-  m_Cylinder.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Cylinder.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.7f, 1.0f, 0.4f, 1.0f);
+  m_Cylinder.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
   m_Cylinder.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Cylinder.LocalProperties().AlphaMask() = 1.0f;
 
   m_Disk.SetRadius(6);
   m_Disk.Translation() = -40*EigenTypes::Vector3::UnitX();
-  m_Disk.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color(1.0f, 1.0f, 0.3f, 1.0f);
-  m_Disk.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(1.0f, 1.0f, 0.3f, 1.0f);
+  m_Disk.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 0.3f, 1.0f);
+  m_Disk.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 0.3f, 1.0f);
   m_Disk.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.9f;
   m_Disk.LocalProperties().AlphaMask() = 1.0f;
 
   m_Box.SetSize(EigenTypes::Vector3(10, 5, 3));
   m_Box.Translation() = EigenTypes::Vector3(-30, 20, 0);
-  m_Box.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color(0.3f, 1.0f, 1.0f, 1.0f);
-  m_Box.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Box.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.3f, 1.0f, 1.0f, 1.0f);
+  m_Box.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
   m_Box.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   m_Box.LocalProperties().AlphaMask() = 1.0f;
 
   m_PartialDisk.Translation() = EigenTypes::Vector3(30, -20, 0);
-  m_PartialDisk.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Color(1.0f, 0.3f, 1.0f, 1.0f);
-  m_PartialDisk.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(1.0f, 0.3f, 1.0f, 1.0f);
+  m_PartialDisk.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.3f, 1.0f, 1.0f);
+  m_PartialDisk.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.3f, 1.0f, 1.0f);
   m_PartialDisk.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_PartialDisk.LocalProperties().AlphaMask() = 1.0f;
 
@@ -135,7 +135,7 @@ ShapesLayer::ShapesLayer ()
   {
     m_DropShadowContrastBackground.Translation() = EigenTypes::Vector3(30, 20, 0);
     m_DropShadowContrastBackground.SetSize(EigenTypes::Vector2(25, 25));
-    m_DropShadowContrastBackground.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(0.75f, 0.75f, 0.75f, 1.0f);
+    m_DropShadowContrastBackground.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.75f, 0.75f, 0.75f, 1.0f);
     
     m_DropShadow.Translation() = EigenTypes::Vector3(30, 20, 0);
     m_DropShadow.SetBasisRectangleSize(EigenTypes::Vector2(10, 10));

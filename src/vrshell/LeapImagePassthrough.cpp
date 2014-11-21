@@ -13,7 +13,7 @@ LeapImagePassthrough::LeapImagePassthrough() {
 
   m_rect.SetSize(EigenTypes::Vector2(640, 480));
   m_rect.Translation() = EigenTypes::Vector3(320, 240, 0);
-  m_rect.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color::Green();
+  m_rect.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.0f, 1.0f, 0.0f, 1.0f); // Green
   m_rect.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 }
 

@@ -3,7 +3,7 @@
 #include "LeapListener.h"
 #include "Primitives.h"
 #include "DropShadow.h"
-#include "Color.h"
+#include "Leap/GL/Rgba.h"
 
 class HandCursor : public PrimitiveBase {
 public:
@@ -31,8 +31,8 @@ private:
   
   void formatFinger(const Leap::Finger& finger, float distance, bool isLeft = false);
 
-  Color m_OutlineColor;
-  Color m_FillColor;
+  Rgba<float> m_OutlineColor;
+  Rgba<float> m_FillColor;
 
   float m_PalmOutlineRadius;
   float m_PalmOutlineThickness;

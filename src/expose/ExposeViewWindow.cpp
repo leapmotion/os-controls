@@ -54,8 +54,7 @@ void ExposeViewWindow::Render(const RenderFrame& frame) const {
 
   static const double HIGHLIGHT_WIDTH = 50.0;
   m_highlight->LocalProperties().AlphaMask() = m_activation.Value();
-  const EigenTypes::Vector3f highlightRGB(0.505f, 0.831f, 0.114f);
-  Color highlightColor(highlightRGB);
+  Rgba<float> highlightColor(0.505f, 0.831f, 0.114f);
   m_highlight->Material().Uniform<AMBIENT_LIGHT_COLOR>() = highlightColor;
   m_highlight->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   EigenTypes::Vector2 size = m_texture->Size();

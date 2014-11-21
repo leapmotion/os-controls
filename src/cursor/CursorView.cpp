@@ -45,7 +45,7 @@ CursorView::CursorView() :
   m_bodyAlpha(0.0f,0.3f),
   m_diskAlpha(0.0f,0.5f)
 {
-  const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
+  const Rgba<float> CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
 
   //Initialize Disk Cursor
   m_disk->SetRadius(20.0f);

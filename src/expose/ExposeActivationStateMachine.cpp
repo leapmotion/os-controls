@@ -90,7 +90,7 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
       float yDiff = PUSHER_BOTTOM_Y - handData.locationData.y;
       float diffPercent = yDiff / PUSHER_BOTTOM_Y;
       diffPercent = std::min(1.0f, std::max(0.0f, diffPercent));
-      Color blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
+      Rgba<float> blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
       if ( diffPercent > 0 ) {
         if ( m_armed ) {
           m_pusherBottomY.SetImmediate(std::min(handData.locationData.y, PUSHER_BOTTOM_Y));
@@ -114,10 +114,10 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
   }
 }
 
-Color ExposeActivationStateMachine::blendColor(Color c1, Color c2, float amnt) {
-  amnt = std::min(1.0f, std::max(0.0f, amnt));
-  const EigenTypes::Vector4f blend = (amnt * c2.Data()) + ((1.0f-amnt) * c1.Data());
-  return Color(blend);
+Rgba<float> ExposeActivationStateMachine::blendColor(Rgba<float> c1, Rgba<float> c2, float amnt) {
+  ColorComponent<float> param(amnt);
+  param.Clamp(); // Clamps the parameter to within the range [0,1].
+  return c1.BlendedWith(c2, amnt);
 }
 
 void ExposeActivationStateMachine::transitionToInactive() {

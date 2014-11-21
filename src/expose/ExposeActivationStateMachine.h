@@ -6,6 +6,7 @@
 
 #include "Primitives.h"
 #include "Animation.h"
+#include "Leap/GL/Rgba.h"
 #include <SVGPrimitive.h>
 #include <autowiring/Autowiring.h>
 
@@ -26,16 +27,16 @@ public:
   bool IsVisible() const override { return m_pusherBottomY.Value() > 0.0f; }
 
 private:
-  const Color UNSELECTED_COLOR = Color(0.4f, 0.425f, 0.45f, 0.7f);
-  const Color SELECTED_COLOR = Color(0.505f, 0.831f, 0.114f, 1.0f);
-  const Color GOAL_COLOR = Color(0.505f, 0.831f, 0.114f, 1.0f);
+  const Rgba<float> UNSELECTED_COLOR = Rgba<float>(0.4f, 0.425f, 0.45f, 0.7f);
+  const Rgba<float> SELECTED_COLOR = Rgba<float>(0.505f, 0.831f, 0.114f, 1.0f);
+  const Rgba<float> GOAL_COLOR = Rgba<float>(0.505f, 0.831f, 0.114f, 1.0f);
   const float GOAL_BOTTOM_Y = 30.0f;
   const float PUSHER_BOTTOM_Y = 150.0f;
   const float ICON_Y_OFFSET = 10.0f;
 
   void transitionToInactive();
   void resolveSelection();
-  Color blendColor(Color c1, Color c2, float amnt);
+  Rgba<float> blendColor(Rgba<float> c1, Rgba<float> c2, float amnt);
 
   enum class State {
 

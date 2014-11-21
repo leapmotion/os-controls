@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Color.h"
 #include "EigenTypes.h"
 #include "Leap/GL/GLHeaders.h"
+#include "Leap/GL/Rgba.h"
 #include "Leap/GL/ShaderFrontend.h"
 
 enum LambertianMaterialProperty {
@@ -19,8 +19,8 @@ using LambertianMaterialUniform = Leap::GL::Uniform<LambertianMaterialProperty,N
 
 typedef ShaderFrontend<LambertianMaterialProperty,
                        LambertianMaterialUniform<LIGHT_POSITION,GL_FLOAT_VEC3,EigenTypes::Vector3f>,
-                       LambertianMaterialUniform<DIFFUSE_LIGHT_COLOR,GL_FLOAT_VEC4,Color>,
-                       LambertianMaterialUniform<AMBIENT_LIGHT_COLOR,GL_FLOAT_VEC4,Color>,
+                       LambertianMaterialUniform<DIFFUSE_LIGHT_COLOR,GL_FLOAT_VEC4,Rgba<float>>,
+                       LambertianMaterialUniform<AMBIENT_LIGHT_COLOR,GL_FLOAT_VEC4,Rgba<float>>,
                        LambertianMaterialUniform<AMBIENT_LIGHTING_PROPORTION,GL_FLOAT,float>,
                        LambertianMaterialUniform<TEXTURE_MAPPING_ENABLED,GL_BOOL,GLint>,
                        LambertianMaterialUniform<TEXTURE_UNIT_INDEX,GL_SAMPLER_2D,GLint>> LambertianMaterial;

@@ -8,7 +8,6 @@
 #include "uievents/ShortcutsDomain.h"
 
 #include "Animation.h"
-#include "Color.h"
 #include "HandCursor.h"
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/SceneGraphNode.h"

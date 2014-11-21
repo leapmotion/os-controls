@@ -2,7 +2,6 @@
 
 #include "Primitives.h"
 #include "SVGPrimitive.h"
-#include "Color.h"
 #include "Animation.h"
 
 class RadialItem : public PrimitiveBase {

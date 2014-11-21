@@ -14,8 +14,10 @@ HandCursor::HandCursor() {
     m_FingerDropShadows[i] = std::shared_ptr<DropShadow>(new DropShadow());
   }
 
-  m_OutlineColor = Color(1.0f, 1.0f, 1.0f, 1.0f); // 26 26 26
-  m_FillColor = Color(0.505f, 0.831f, 0.114f, 1.0f); // 129 212 29
+  m_OutlineColor = Rgba<uint8_t>(26, 26, 26); // The assignment converts to Rgba<float>
+  m_FillColor = Rgba<uint8_t>(129, 212, 29);
+  // m_OutlineColor = Rgba<float>(1.0f, 1.0f, 1.0f, 1.0f); // 26 26 26
+  // m_FillColor = Rgba<float>(0.505f, 0.831f, 0.114f, 1.0f); // 129 212 29
   
   Translation().z() = 0;
 
@@ -102,8 +104,8 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   static const float FINGER_SIZE_OUT = 8.0f;
   const float FINGER_SIZE_IN = m_DrawStyle == BLOB ? 20.0f : 2.5f;
 
-  static const Color FINGER_COLOR_OUT(0.505f, 0.831f, 0.114f, 1.0f);
-  const Color FINGER_COLOR_IN = m_DrawStyle == BLOB ? FINGER_COLOR_OUT : Color(0.5f, 0.5f, 0.5f, 1.0f);
+  static const Rgba<float> FINGER_COLOR_OUT(0.505f, 0.831f, 0.114f, 1.0f);
+  const Rgba<float> FINGER_COLOR_IN = m_DrawStyle == BLOB ? FINGER_COLOR_OUT : Rgba<float>(0.5f, 0.5f, 0.5f, 1.0f);
 
   static const float M_PIf = static_cast<float>(M_PI);
 
@@ -123,8 +125,7 @@ void HandCursor::formatFinger(const Leap::Finger& finger, float bend, bool isLef
   bendNorm = 1.0f - std::min(1.0f, std::max(0.0f, bendNorm));
   float visualDist = relativeLengths[fingerIndex] * (FINGER_DISTANCE_MIN + (bendNorm*(FINGER_DISTANCE_MAX - FINGER_DISTANCE_MIN)));
   
-  const EigenTypes::Vector4f blend = (bendNorm * FINGER_COLOR_OUT.Data()) + ((1.0f-bendNorm) * FINGER_COLOR_IN.Data());
-  Color blendedColor(blend);
+  Rgba<float> blendedColor(FINGER_COLOR_IN.BlendedWith(FINGER_COLOR_OUT, bendNorm));
   
   visualPosition *= visualDist;
 

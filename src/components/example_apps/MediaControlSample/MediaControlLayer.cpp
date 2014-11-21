@@ -8,10 +8,10 @@
 #include "Leap/GL/GLTexture2.h"
 #include "Resource.h"
 
-const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
-const Color fillColor(0.4f, 0.8f, 0.4f, 0.7f);
-const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
-const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
+const Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
+const Rgba<float> fillColor(0.4f, 0.8f, 0.4f, 0.7f);
+const Rgba<float> handleColor(0.65f, 0.675f, 0.7f, 1.0f);
+const Rgba<float> handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 MediaControlLayer::MediaControlLayer() :
   m_Width(640),

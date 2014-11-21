@@ -4,6 +4,7 @@
 #include "ExposeViewWindow.h"
 #include "graphics/RenderEngine.h"
 #include "graphics/RenderFrame.h"
+#include "Leap/GL/Rgba.h"
 #include "utility/SamplePrimitives.h"
 #include "osinterface/OSApp.h"
 #include "osinterface/OSVirtualScreen.h"
@@ -12,10 +13,10 @@
 
 #include <SVGPrimitive.h>
 
-Color selectionRegionColor(1.0f, 1.0f, 1.0f, 0.15f);
-Color selectionOutlineColor(1.0f, 1.0f, 1.0f, 0.3f);
-Color selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.35f);
-Color selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.65f);
+Rgba<float> selectionRegionColor(1.0f, 1.0f, 1.0f, 0.15f);
+Rgba<float> selectionOutlineColor(1.0f, 1.0f, 1.0f, 0.3f);
+Rgba<float> selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.35f);
+Rgba<float> selectionOutlineActiveColor(0.5f, 1.0f, 0.7f, 0.65f);
 
 ExposeView::ExposeView() :
   m_alphaMask(0.0f, ExposeViewWindow::VIEW_ANIMATION_TIME, EasingFunctions::QuadInOut<float>),
@@ -239,7 +240,7 @@ void ExposeView::updateLayout(std::chrono::duration<double> dt) {
   m_selectionRegionActive->LocalProperties().AlphaMask() = m_alphaMask.Current();
 
   const float alphaMask = m_alphaMask.Current() > 0.00001 ? 1.0f : 0.0f;
-  m_backgroundImage->Material().Uniform<AMBIENT_LIGHT_COLOR>() = Color(alphaMask, alphaMask, alphaMask, alphaMask);
+  m_backgroundImage->Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(alphaMask, alphaMask, alphaMask, alphaMask);
 
   for (const std::shared_ptr<ExposeGroup>& group : m_groups) {
     EigenTypes::Vector3 center(EigenTypes::Vector3::Zero());
