@@ -45,48 +45,47 @@ template <typename T>
 void TestBlended_Rgba () {
   typedef Rgba<T> Rgba;
   typedef ColorComponent<T> C;
-  static const size_t COUNT = 10;
-  for (size_t i = 0; i < COUNT; ++i) {
-    Rgba a(0x123*i, 0x456*i, 0x789*i, 0xABC*i);
-    for (size_t j = 0; j < COUNT; ++j) {
-      Rgba b(0x123*j, 0x456*j, 0x789*j, 0xABC*j);
-      EXPECT_EQ(a, a.BlendedWith(b, C::Zero()));
-      EXPECT_EQ(b, a.BlendedWith(b, C::One()));
+
+  static const size_t SAMPLE_COUNT = 33;
+  Rgba delta = Rgba::One();
+  delta.R() /= (SAMPLE_COUNT-1);
+  delta.G() /= (SAMPLE_COUNT-1);
+  delta.B() /= (SAMPLE_COUNT-1);
+  delta.A() /= (SAMPLE_COUNT-1);
+  size_t i, j;
+  Rgba value_i, value_j;
+  for (i = 0, value_i = Rgba::Zero(); i < SAMPLE_COUNT; ++i, value_i += delta) {
+    for (j = 0, value_j = Rgba::Zero(); j < SAMPLE_COUNT; ++j, value_j += delta) {
+      EXPECT_EQ(value_i, value_i.BlendedWith(value_j, C::Zero()));
+      EXPECT_EQ(value_j, value_i.BlendedWith(value_j, C::One()));
     }
   }
 }
 
 TEST_F(RgbaTest, Blended_Rgba_uint8_t) {
-// TEST_F(RgbaTest, DISABLED_Blended_Rgba_uint8_t) {
   TestBlended_Rgba<uint8_t>();
 }
 
 TEST_F(RgbaTest, Blended_Rgba_uint16_t) {
-// TEST_F(RgbaTest, DISABLED_Blended_Rgba_uint16_t) {
   TestBlended_Rgba<uint16_t>();
 }
 
 TEST_F(RgbaTest, Blended_Rgba_uint32_t) {
-// TEST_F(RgbaTest, DISABLED_Blended_Rgba_uint32_t) {
   TestBlended_Rgba<uint32_t>();
 }
 
 TEST_F(RgbaTest, Blended_Rgba_uint64_t) {
-// TEST_F(RgbaTest, DISABLED_Blended_Rgba_uint64_t) {
   TestBlended_Rgba<uint64_t>();
 }
 
 TEST_F(RgbaTest, Blended_Rgba_float) {
-// TEST_F(RgbaTest, DISABLED_Blended_Rgba_float) {
   TestBlended_Rgba<float>();
 }
 
 TEST_F(RgbaTest, Blended_Rgba_double) {
-// TEST_F(RgbaTest, DISABLED_Blended_Rgba_double) {
   TestBlended_Rgba<double>();
 }
 
-TEST_F(RgbaTest, Blended_Rgba_long_double) {
-// TEST_F(RgbaTest, DISABLED_Blended_Rgba_long_double) {
+TEST_F(RgbaTest, DISABLED_Blended_Rgba_long_double) {
   TestBlended_Rgba<long double>();
 }

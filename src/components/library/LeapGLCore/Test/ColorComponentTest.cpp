@@ -4,6 +4,42 @@
 
 class ColorComponentTest : public testing::Test { };
 
+template <typename T_>
+void TestComponentZeroAndOne (const T_ &zero_value, const T_ &one_value) {
+  auto zero = ColorComponent<T_>::Zero();
+  auto one = ColorComponent<T_>::One();
+  EXPECT_EQ(zero_value, zero);
+  EXPECT_EQ(one_value, one);
+  EXPECT_EQ(zero, zero+zero);
+  EXPECT_EQ(one, one+zero);
+  EXPECT_EQ(one, zero+one);
+  EXPECT_EQ(zero, zero*zero);
+  EXPECT_EQ(zero, zero*one);
+  EXPECT_EQ(zero, one*zero);
+  EXPECT_EQ(one, one*one);
+  static const size_t SAMPLE_COUNT = 33;
+  const T_ delta = one_value / (SAMPLE_COUNT-1);
+  ColorComponent<T_> value(zero_value);
+  for (size_t i = 0; i < SAMPLE_COUNT; ++i, value.Value() += delta) {
+    EXPECT_EQ(value, zero+value);
+    EXPECT_EQ(value, value+zero);
+    EXPECT_EQ(zero, zero*value);
+    EXPECT_EQ(zero, value*zero);
+    EXPECT_EQ(value, one*value);
+    EXPECT_EQ(value, value*one);
+  }
+}
+
+TEST_F(ColorComponentTest, ZeroAndOne) {
+  TestComponentZeroAndOne<uint8_t>(std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
+  TestComponentZeroAndOne<uint16_t>(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
+  TestComponentZeroAndOne<uint32_t>(std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max());
+  TestComponentZeroAndOne<uint64_t>(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
+  TestComponentZeroAndOne<float>(0.0f, 1.0f);
+  TestComponentZeroAndOne<double>(0.0, 1.0);
+  TestComponentZeroAndOne<long double>(0.0, 1.0);
+}
+
 template <typename From, typename To>
 void TestConvertComponent_ConversionEndpointMapping () {
   // Ensure that the endpoints of the dynamic range are mapped. 
@@ -13,7 +49,7 @@ void TestConvertComponent_ConversionEndpointMapping () {
             ColorComponent<To>::One());
 }
 
-TEST_F(ColorComponentTest, DISABLED_ConversionEndpointMapping) {
+TEST_F(ColorComponentTest, ConversionEndpointMapping) {
   TestConvertComponent_ConversionEndpointMapping<uint8_t,uint8_t>();
   TestConvertComponent_ConversionEndpointMapping<uint8_t,uint16_t>();
   TestConvertComponent_ConversionEndpointMapping<uint8_t,uint32_t>();
@@ -129,7 +165,7 @@ void TestConvertComponent_PartialInverse () {
   }
 }
 
-TEST_F(ColorComponentTest, DISABLED_ConvertComponent_PartialInverse) {
+TEST_F(ColorComponentTest, ConvertComponent_PartialInverse) {
   TestConvertComponent_PartialInverse<uint8_t,uint8_t>();
   TestConvertComponent_PartialInverse<uint8_t,uint16_t>();
   TestConvertComponent_PartialInverse<uint8_t,uint32_t>();
@@ -180,77 +216,35 @@ TEST_F(ColorComponentTest, ConvertComponent_LossyIntegralConversion) {
   TestConvertComponent_LossyIntegralConversion<uint16_t,uint8_t>();
 }
 
-template <typename Component>
-void TestComponentMask () {
-  typedef ColorComponent<Component> C;
-  static const int SAMPLE_COUNT = 100; //100000;
-
-  // Make sure that One behaves as 1 (multiplicative identity).
-  {
-    C i(0);
-    for (int sample = 0; sample < SAMPLE_COUNT; ++sample, ++i.Value()) {
-      EXPECT_EQ(i, C::One()*i);
-    }
-  }
-  {
-    C i(static_cast<Component>(-SAMPLE_COUNT));
-    for (int sample = 0; sample < SAMPLE_COUNT; ++sample, ++i.Value()) {
-      EXPECT_EQ(i, C::One()*i);
-    }
-  }
-  
-  // Make sure that Zero behaves as 0 (multiplicative annihilator).
-  {
-    C i(0);
-    for (int sample = 0; sample < SAMPLE_COUNT; ++sample, ++i.Value()) {
-      EXPECT_EQ(C::Zero(), C::Zero()*i);
-    }
-  }
-  {
-    C i(static_cast<Component>(-SAMPLE_COUNT));
-    for (int sample = 0; sample < SAMPLE_COUNT; ++sample, ++i.Value()) {
-      EXPECT_EQ(C::Zero(), C::Zero()*i);
-    }
-  }  
-}
-
-TEST_F(ColorComponentTest, DISABLED_ComponentMask) {
-  TestComponentMask<uint8_t>();
-  TestComponentMask<uint16_t>();
-  TestComponentMask<uint32_t>();
-  TestComponentMask<uint64_t>();
-  TestComponentMask<float>();
-  TestComponentMask<double>();
-  TestComponentMask<long double>();
-}
-
-template <typename T>
+template <typename T_>
 void TestBlended_Component () {
-  typedef ColorComponent<T> C;
-  static const size_t COUNT = 1000;
-  for (size_t i = 0; i < COUNT; ++i) {
-    C a(0x123*i);
-    for (size_t j = 0; j < COUNT; ++j) {
-      C b(0x123*j);
-      EXPECT_EQ(a, a.BlendedWith(b, C::Zero()));
-      EXPECT_EQ(b, a.BlendedWith(b, C::One()));
+  typedef ColorComponent<T_> C;
+
+  static const size_t SAMPLE_COUNT = 33;
+  const T_ delta = C::One() / (SAMPLE_COUNT-1);
+  size_t i, j;
+  C value_i, value_j;
+  for (i = 0, value_i = C::Zero(); i < SAMPLE_COUNT; ++i, value_i.Value() += delta) {
+    for (j = 0, value_j = C::Zero(); j < SAMPLE_COUNT; ++j, value_j.Value() += delta) {
+      EXPECT_EQ(value_i, value_i.BlendedWith(value_j, C::Zero()));
+      EXPECT_EQ(value_j, value_i.BlendedWith(value_j, C::One()));
     }
   }
 }
 
-TEST_F(ColorComponentTest, DISABLED_Blended_Component_uint8_t) {
+TEST_F(ColorComponentTest, Blended_Component_uint8_t) {
   TestBlended_Component<uint8_t>();
 }
 
-TEST_F(ColorComponentTest, DISABLED_Blended_Component_uint16_t) {
+TEST_F(ColorComponentTest, Blended_Component_uint16_t) {
   TestBlended_Component<uint16_t>();
 }
 
-TEST_F(ColorComponentTest, DISABLED_Blended_Component_uint32_t) {
+TEST_F(ColorComponentTest, Blended_Component_uint32_t) {
   TestBlended_Component<uint32_t>();
 }
 
-TEST_F(ColorComponentTest, DISABLED_Blended_Component_uint64_t) {
+TEST_F(ColorComponentTest, Blended_Component_uint64_t) {
   TestBlended_Component<uint64_t>();
 }
 
@@ -262,6 +256,6 @@ TEST_F(ColorComponentTest, Blended_Component_double) {
   TestBlended_Component<double>();
 }
 
-TEST_F(ColorComponentTest, DISABLED_Blended_Component_long_double) {
+TEST_F(ColorComponentTest, Blended_Component_long_double) {
   TestBlended_Component<long double>();
 }

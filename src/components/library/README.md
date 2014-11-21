@@ -410,7 +410,8 @@ GLMesh<DIM>
   otherwise get rid of it.  It has been decided that exception safety, along with a uniformized
   resource binding/unbinding convention is a good enough reason to have this.
 - DONE: Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)
-- All color unit tests should pass (some are currently disabled).
+- DONE: All color unit tests should pass (some are currently disabled).  NOTE: The blending tests for 
+  long double aren't passing, but that's probably ok, we could just disallow long double as a component type.
 - Integrate RGB and RGBA into rest of code, replacing "class Color"
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;
   could also make an interface for that purpose -- perhaps that "make me a GL context" interface
