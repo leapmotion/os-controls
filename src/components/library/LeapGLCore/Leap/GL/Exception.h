@@ -3,28 +3,13 @@
 #include <stdexcept>
 #include <string>
 
-#ifndef LEAP_NOEXCEPT
-  #if _WIN32
-    #define LEAP_NOEXCEPT
-  #else
-    #define LEAP_NOEXCEPT noexcept
-  #endif
-#endif
-
 namespace Leap {
 namespace GL {
 
 // Base class for all Leap::GL exceptions.  TODO: Rename to Exception.
-class GLException : public std::exception {
+class GLException : public std::runtime_error {
 public:
-
-  GLException (const std::string &message) : m_message(message) { }
-
-  virtual const char *what () const LEAP_NOEXCEPT override { return m_message.c_str(); }
-
-private:
-
-  std::string m_message;
+  GLException (const std::string &message) : std::runtime_error(message) { }
 };
 
 } // end of namespace GL
