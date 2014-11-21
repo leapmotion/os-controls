@@ -38,19 +38,20 @@ public:
     m_rgb(rgb),
     m_alpha(a)
   { }
-  // Construct an Rgb value from a templatized POD type consisting of 4 ColorComponent values
-  template <typename U>
-  Rgba (const U &t) {
-    static_assert(sizeof(U) == sizeof(Rgba), "U must be a POD consisting of exactly 4 ColorComponent values");
-    // TODO: check that U is actually a POD of the required type.
-    memcpy(static_cast<void *>(this), static_cast<const void *>(&t), sizeof(Rgba));
-  }
+  // // Construct an Rgb value from a templatized standard-layout type consisting of 4 ColorComponent values
+  // template <typename U>
+  // Rgba (const U &t) {
+  //   static_assert(sizeof(U) == sizeof(Rgba), "U must be a standard-layout type consisting of exactly 4 ColorComponent values");
+  //   static_assert(std::is_standard_layout<U>::value, "U must be a standard-layout type consisting of exactly 4 ColorComponent values");
+  //   // TODO: somehow check that U is actually made up of T values.
+  //   memcpy(static_cast<void *>(this), static_cast<const void *>(&t), sizeof(Rgba));
+  // }
   // Dynamic conversion from Rgba value with different component type.  This
-  // is guaranteed to scale the dynamic range of the components losslessly.
+  // is guaranteed to scale the dynamic range of the components appropriately.
   template <typename U>
   Rgba (const Rgba<U> &other) {
-    m_rgb = other.m_rgb;
-    m_alpha = other.m_alpha;
+    m_rgb = other.Rgb();
+    m_alpha = other.A();
   }
 
   bool operator == (const Rgba &other) const {

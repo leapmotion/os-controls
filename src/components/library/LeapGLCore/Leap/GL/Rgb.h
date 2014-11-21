@@ -28,20 +28,21 @@ public:
     m_data[1] = g;
     m_data[2] = b;
   }
-  // Construct an Rgb value from a templatized POD type consisting of 3 T values
-  template <typename U>
-  Rgb (const U &t) {
-    static_assert(sizeof(U) == sizeof(Rgb), "U must be a POD consisting of exactly 3 T values");
-    // TODO: check that U is actually a POD of the required type.
-    memcpy(static_cast<void *>(this), static_cast<const void *>(&t), sizeof(Rgb));
-  }
+  // // Construct an Rgb value from a templatized standard-layout type consisting of 3 T values
+  // template <typename U>
+  // Rgb (const U &t) {
+  //   static_assert(sizeof(U) == sizeof(Rgb), "U must be a standard-layout type consisting of exactly 3 T values");
+  //   static_assert(std::is_standard_layout<U>::value, "U must be a standard-layout type consisting of exactly 3 T values");
+  //   // TODO: somehow check that U is actually made up of T values.
+  //   memcpy(static_cast<void *>(this), static_cast<const void *>(&t), sizeof(Rgb));
+  // }
   // Dynamic conversion from Rgb value with different component type.  This
-  // is guaranteed to scale the dynamic range of the components losslessly.
+  // is guaranteed to scale the dynamic range of the components appropriately.
   template <typename U>
   Rgb (const Rgb<U> &other) {
-    for (size_t i = 0; i < COMPONENT_COUNT; ++i) {
-      m_data[i] = other.m_data[i];
-    }
+    R() = other.R();
+    G() = other.G();
+    B() = other.B();
   }
 
   bool operator == (const Rgb &other) const {
