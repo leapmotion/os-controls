@@ -113,19 +113,6 @@ add_sublibrary(
 )
 
 add_sublibrary(
-    Color
-    HEADERS
-        Color.h
-    SOURCES
-        Color.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        EigenTypes
-    BRIEF_DOC_STRING
-        "Provides RGBA color and some color-space conversions."
-)
-
-add_sublibrary(
     ResourceManager
     HEADERS
         ResourceManager.h
@@ -188,7 +175,6 @@ add_sublibrary(
         Leap/GL/ShaderMatrices.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
         C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.
-        Color # TODO: LeapGL color
         EigenTypes # TODO: get rid of Eigen dependency.
     EXPLICIT_LIBRARY_DEPENDENCIES
         "Glew 1.9.0"
@@ -376,7 +362,6 @@ add_sublibrary(
         material-frag.glsl
         matrix-transformed-vert.glsl
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        Color
         GLShaderLoader
         LeapGLCore
         NanoSVG
@@ -426,7 +411,6 @@ add_sublibrary(
         RadialMenu.cpp
         RadialSlider.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        Color
         Animation
         EigenTypes
         LeapGLCore
@@ -442,7 +426,6 @@ add_sublibrary(
     SOURCES
         HandCursor.cpp
     EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        Color
         Animation
         EigenTypes
         LeapGLCore
