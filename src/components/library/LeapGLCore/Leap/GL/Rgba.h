@@ -132,6 +132,7 @@ public:
 
   void BlendWith (const Rgba &blend_target, const ColorComponent<T> &blend_parameter) {
     m_rgb.BlendWith(blend_target.m_rgb, blend_parameter);
+    m_alpha.BlendWith(blend_target.m_alpha, blend_parameter);
   }
   Rgba BlendedWith (const Rgba &blend_target, const ColorComponent<T> &blend_parameter) const {
     Rgba retval(*this);
