@@ -25,6 +25,12 @@ struct ColorComponent {
   ColorComponent (const T &value) : m_value(value) { }
   // Copy constructor.
   ColorComponent (const ColorComponent &other) : m_value(other.m_value) { }
+  // Dynamic conversion from ColorComponent value with different type.  This
+  // is guaranteed to scale the dynamic range appropriately.
+  template <typename U>
+  ColorComponent (const ColorComponent<U> &other) {
+    Internal::ConvertComponentValue(other.Value(), m_value);
+  }
 
   // Returns this component converted to use a different underlying type.  Note that
   // this may result in a loss of precision (e.g. ColorComponent<uint32_t>::As<uint16_t>).
@@ -43,14 +49,6 @@ struct ColorComponent {
   T &Value () { return m_value; }
   operator const T & () const { return m_value; }
   operator T & () { return m_value; }
-
-  // It seems like the conversion operator(s) take care of these.
-  // bool operator == (const ColorComponent &other) const { return m_value == other.m_value; }
-  // bool operator != (const ColorComponent &other) const { return m_value != other.m_value; }
-  // bool operator <= (const ColorComponent &other) const { return m_value <= other.m_value; }
-  // bool operator <  (const ColorComponent &other) const { return m_value <  other.m_value; }
-  // bool operator >= (const ColorComponent &other) const { return m_value >= other.m_value; }
-  // bool operator >  (const ColorComponent &other) const { return m_value >  other.m_value; }
 
   // Color component addition (combine lightnesses).
   void operator += (const ColorComponent &other) {
@@ -80,7 +78,7 @@ struct ColorComponent {
   // because it's impossible for the value to be outside the range.
   void Clamp () {
     typedef Internal::ComponentValueTraits<ColorComponent> ComponentValueTraits;
-    m_value = std::min(std::max(m_value, Zero()), One());
+    m_value = std::min(std::max(m_value, Zero().Value()), One().Value());
   }
   // Returns the clamped value.
   ColorComponent Clamped () const {
