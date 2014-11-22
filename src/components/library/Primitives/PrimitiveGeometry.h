@@ -27,9 +27,12 @@ typedef Mesh<GLVertexAttribute<GL_FLOAT_VEC3>, // Position
 
 namespace PrimitiveGeometry {
 
-// Factory functions for generating some simple shapes.  These functions assume that the draw mode (see Draw) is GL_TRIANGLES.
-void PushUnitSphere(size_t resolution, PrimitiveGeometryMesh &mesh);
-void PushUnitCylinder(size_t radialResolution, size_t verticalResolution, PrimitiveGeometryMesh &mesh);
+// TODO: make the PrimitiveGeometryMesh argument first.
+
+// Functions for populating a PrimitiveGeometryMesh object with some simple shapes.  These functions assume that
+// the draw mode of the mesh is GL_TRIANGLES.
+void PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMesh& geom, double heightAngleStart = -M_PI/2.0, double heightAngleEnd = M_PI/2.0, double widthAngleStart = 0, double widthAngleEnd = 2.0*M_PI);
+void PushUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometryMesh& geom, float radiusBottom = 1.0f, float radiusTop = 1.0f, double angleStart = 0, double angleEnd = 2.0*M_PI);
 void PushUnitSquare(PrimitiveGeometryMesh &mesh);
 void PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &mesh);
 void PushUnitBox(PrimitiveGeometryMesh &mesh);

@@ -60,31 +60,47 @@ public:
   typedef SceneGraphNode<ParticularSceneGraphNodeProperties<EigenTypes::MATH_TYPE,DIM,float>> Parent_SceneGraphNode;
   typedef typename Properties::AffineTransformValue_::Transform Transform;
 
-  Primitive()
-    : m_shader("material")
-    , m_material(*m_shader,
-                 LambertianMaterial::UniformIds("light_position", "diffuse_light_color", "ambient_light_color", "ambient_lighting_proportion", "use_texture", "texture"),
-                 EigenTypes::Vector3f::Zero(),  // light_position
-                 Rgba<float>::One(),            // diffuse_light_color -- Rgba<float>::One() is opaque white
-                 Rgba<float>::One(),            // ambient_light_color -- Rgba<float>::One() is opaque white
-                 1.0f,                          // ambient_lighting_proportion
-                 GL_FALSE,                      // use_texture
-                 0)                             // texture
-    , m_shader_matrices(*m_shader,
-                        "projection_times_model_view_matrix",
-                        "model_view_matrix",
-                        "normal_matrix")
-  { }
+  Primitive() {
+    SetShader(Resource<GLShader>("material"));
+  }
   virtual ~Primitive() { }
 
   const GLShader &Shader () const {
-    if (!m_shader) {
-      throw std::runtime_error("shader member was not initialized");
-    }
+    assert(m_shader);
     return *m_shader;
   }
-  const LambertianMaterial &Material () const { return m_material; }
-  LambertianMaterial &Material () { return m_material; }
+
+  const LambertianMaterial &Material () const { return *m_material; }
+  LambertianMaterial &Material () { return *m_material; }
+
+  //Must be compatible with the default material (ie, use the same names for the matrix inputs)
+  void SetShader(const std::shared_ptr<GLShader> &shader) {
+    if (!shader) {
+      throw std::runtime_error("Must specify a valid shader.");
+    }
+    std::shared_ptr<LambertianMaterial> material;
+    auto uniform_ids = LambertianMaterial::UniformIds("light_position", "diffuse_light_color", "ambient_light_color", "ambient_lighting_proportion", "use_texture", "texture");
+    if (m_material) {
+      // Use existing material values for uniforms for re-initialized material.
+      material = std::make_shared<LambertianMaterial>(*shader, uniform_ids, m_material->Uniforms());
+    } else {
+      // Use default values for uniforms.
+      material =
+        std::make_shared<LambertianMaterial>(
+          *shader,
+          uniform_ids,
+          EigenTypes::Vector3f::Zero(),  // light_position
+          Rgba<float>::One(),            // diffuse_light_color -- Rgba<float>::One() is opaque white
+          Rgba<float>::One(),            // ambient_light_color -- Rgba<float>::One() is opaque white
+          1.0f,                          // ambient_lighting_proportion
+          GL_FALSE,                      // use_texture
+          0);                            // texture
+    }
+
+    m_shader = shader;
+    m_material = material;
+    m_shader_matrices = std::make_shared<ShaderMatrices>(*m_shader, "projection_times_model_view_matrix", "model_view_matrix", "normal_matrix");
+  }
 
   typename Transform::ConstTranslationPart Translation () const { return this->LocalProperties().AffineTransform().translation(); }
   typename Transform::TranslationPart Translation () { return this->LocalProperties().AffineTransform().translation(); }
@@ -92,6 +108,10 @@ public:
   typename Transform::LinearPart LinearTransformation () { return this->LocalProperties().AffineTransform().linear(); }
 
   void Draw(RenderState &render_state, const Properties &global_properties) const {
+    assert(m_shader);
+    assert(m_material);
+    assert(m_shader_matrices);
+
     // Set the model view (TODO: change this to not be in the RenderState, since it's tracked by DepthFirstTraverse)
     ModelView& model_view = render_state.GetModelView();
     // TODO: make a ScopeGuard for model view matrix.
@@ -99,13 +119,12 @@ public:
     model_view.Multiply(SquareMatrixAdaptToDim<4>(global_properties.AffineTransform().AsFullMatrix(), EigenTypes::MATH_TYPE(1)));
     MakeAdditionalModelViewTransformations(model_view);
 
-    m_shader_matrices.SetMatrices(model_view.Matrix(), render_state.GetProjection().Matrix());
+    m_shader_matrices->SetMatrices(model_view.Matrix(), render_state.GetProjection().Matrix());
 
-    const GLShader &shader = Shader();
-    GLShaderBindingScopeGuard bso(shader, BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
+    GLShaderBindingScopeGuard bso(Shader(), BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     
-    m_material.UploadUniforms();
-    m_shader_matrices.UploadUniforms();
+    m_material->UploadUniforms();
+    m_shader_matrices->UploadUniforms();
 
     DrawContents(render_state);
 
@@ -120,12 +139,18 @@ protected:
 
   // This method should be overridden in each subclass to draw the particular geometry that it represents.
   virtual void DrawContents(RenderState &render_state) const = 0;
+
+  // Temporary hack to allow multiple model-matrix primitives (CapsulePrim, BiCapsulePrim)
+  void ManuallySetMatricesAndUploadMatrixUniforms (const EigenTypes::Matrix4x4 &model_view, const EigenTypes::Matrix4x4 &projection) const {
+    m_shader_matrices->SetMatrices(model_view, projection);
+    m_shader_matrices->UploadUniforms();
+  }
   
 private:
 
-  Resource<GLShader> m_shader;
-  LambertianMaterial m_material;
-  mutable ShaderMatrices m_shader_matrices;
+  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<LambertianMaterial> m_material;
+  std::shared_ptr<ShaderMatrices> m_shader_matrices;
 };
 
 typedef Primitive<3> Primitive3;

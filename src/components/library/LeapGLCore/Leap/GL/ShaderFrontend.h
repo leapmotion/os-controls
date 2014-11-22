@@ -58,6 +58,8 @@ public:
 
   template <UniformNameType_ NAME_> typename CppTypeOfUniform_f<NAME_>::T const &Uniform () const { return m_uniform_map.template val<UniformName_t<NAME_>>(); }
   template <UniformNameType_ NAME_> typename CppTypeOfUniform_f<NAME_>::T &Uniform () { return m_uniform_map.template val<UniformName_t<NAME_>>(); }
+  const UniformMap &Uniforms () const { return m_uniform_map; }
+  UniformMap &Uniforms () { return m_uniform_map; }
 
   void UploadUniforms () const {
     assert(GLShader::CurrentlyBoundProgramHandle() == m_shader.ProgramHandle() && "This shader must be bound in order to upload uniforms.");

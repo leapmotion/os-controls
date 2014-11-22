@@ -24,7 +24,7 @@ inline std::string GLErrorMessage(GLenum error_code, const std::string &during) 
   error_message += "GL error \"" + std::string(reinterpret_cast<const char *>(gluErrorString(error_code))) + "\" " + during;
 #else
   std::ostringstream out;
-  out << std::hex << error_code;
+  out << std::hex << error_code << " - " << glewGetErrorString(error_code);
   error_message += "GL error 0x" + out.str() + ' ' + during;
 #endif
   return error_message;

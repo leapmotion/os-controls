@@ -24,6 +24,7 @@ class ComposedViewMac :
   virtual void SetOffset(float x, float y) override {}
   virtual void SetRotation(float centerX, float centerY, float degrees) override {}
   virtual void SetScale(float centerX, float centerY, float scaleX, float scaleY) override {}
+  virtual void SetClip(float x, float y, float width, float height) override  {}
 };
 
 class ComposedDisplayMac :

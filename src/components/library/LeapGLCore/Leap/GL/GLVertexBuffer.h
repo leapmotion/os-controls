@@ -182,7 +182,7 @@ private:
     static const Attributes A; // This is not actually used for anything at runtime, just for determining the offset.
     static const size_t OFFSET_OF_INDEXth_ATTRIBUTE = static_cast<size_t>(reinterpret_cast<const uint8_t *>(&std::get<INDEX>(A)) - reinterpret_cast<const uint8_t *>(&A));
     // Call the Enable method of the INDEXth attribute type with the INDEXth location value, etc.
-    AttributeType::Enable(location, stride, OFFSET_OF_INDEXth_ATTRIBUTE);
+    AttributeType::Enable(location, static_cast<GLsizei>(stride), static_cast<GLsizei>(OFFSET_OF_INDEXth_ATTRIBUTE));
     // Increment INDEX and call this method again (this is a meta-program for loop).
     EnableAndIterate<INDEX+1>(locations, stride);
   }

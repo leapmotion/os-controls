@@ -1,15 +1,20 @@
 #include "stdafx.h"
 #include "VRShell.h"
 
+#include "AROverlay.h"
+#include "LeapImagePassthrough.h"
+#include "NativeUI.h"
 #include "graphics/RenderEngine.h"
 #include "hmdinterface/HmdFactory.h"
 #include "hmdinterface/IDevice.h"
+#include "hmdinterface/IDeviceConfiguration.h"
+#include "interaction/FrameFragmenter.h"
+#include "interaction/SystemWipeRecognizer.h"
 #include "osinterface/LeapInput.h"
-#include "utility/PlatformInitializer.h"
-#include "LeapImagePassthrough.h"
 #include "osinterface/RenderWindow.h"
 #include "osinterface/OSVirtualScreen.h"
 #include "osinterface/CompositionEngine.h"
+#include "utility/PlatformInitializer.h"
 #include <autowiring/AutoNetServer.h>
 #include <iostream>
 
@@ -51,10 +56,13 @@ void VRShell::Main(void) {
   shellCtxt->Initiate();
   CurrentContextPusher pshr(shellCtxt);
 
-  AutoRequired<RenderWindow> renderWindow;
-  AutoRequired<OSVirtualScreen>();
+  AutoRequired<NativeUI> nativeUI;
+  AutoRequired<RenderWindow> renderEngineWindow;
+  renderEngineWindow->SetActive();
   AutoRequired<RenderEngine>();
-  AutoRequired<CompositionEngine>();
+  AutoRequired<OSVirtualScreen>();
+  AutoRequired<RawFrameFragmenter> fragmenter;
+  AutoRequired<AROverlay> overlay;
 
   // Create the OculusRift::Context (non-device initialization/shutdown)
   // This really needs to be done in a factory - we have no business knowing
@@ -63,18 +71,23 @@ void VRShell::Main(void) {
   AutoRequired<Hmd::HmdFactory> hmdFactory;
 
   // Create the OculusRift::Device (per-device initialization/shutdown)
-  //Todo - make this have an autowiring compatible interface.
-  std::shared_ptr<Hmd::IDevice> hmdDevice(hmdFactory->CreateDevice());
-  // NOTE: This SetWindow nonsense is going to be abstracted to be one parameter in a
-  // DeviceInitializationParameters interface in Leap::Hmd.
-  hmdDevice->SetWindow(renderWindow->GetSystemHandle());
-  hmdDevice->Initialize();
-  assert(hmdDevice->IsInitialized() && "TODO: handle error the real way");
+  AutoRequired<Hmd::IDevice> hmdDevice;
 
-  renderWindow->SetVSync(false);
-  renderWindow->SetSize({640, 480});
-  renderWindow->SetTransparent(false);
-  renderWindow->SetVisible(true);
+  hmdDevice->SetWindow(renderEngineWindow->GetSystemHandle());
+  hmdDevice->Initialize();
+
+  const auto &hmdConfiguration = hmdDevice->Configuration();
+
+  renderEngineWindow->SetRect(OSRectMake(hmdConfiguration.WindowPositionX(), hmdConfiguration.WindowPositionY(),
+                                         hmdConfiguration.DisplayWidth(), hmdConfiguration.DisplayHeight()));
+  renderEngineWindow->SetVSync(false);
+  renderEngineWindow->SetTransparent(false);
+  renderEngineWindow->SetVisible(true);
+
+  overlay->SetSourceWindow(*renderEngineWindow);
+
+  nativeUI->ShowUI();
+  auto teardown = MakeAtExit([&nativeUI] {nativeUI->DestroyUI(); });
 
   // Defer starting any Leap handling until the window is ready
   *this += [this] {
@@ -83,24 +96,24 @@ void VRShell::Main(void) {
     leap->AddPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
   };
 
-  AutoFired<Updatable> upd;
-
   // Dispatch events until told to quit:
+  AutoFired<Updatable> upd;
   auto then = std::chrono::steady_clock::now();
   for(AutoCurrentContext ctxt; !ctxt->IsShutdown(); ) {
     // Handle OS events:
-    renderWindow->ProcessEvents();
+    renderEngineWindow->ProcessEvents();
+
     // Handle autowiring events:
     DispatchAllEvents();
     // Broadcast update event to all interested parties:
-    auto now = std::chrono::steady_clock::now();
+    const auto now = std::chrono::steady_clock::now();
     upd(&Updatable::Tick)(now - then);
     then = now;
   }
 
   hmdDevice->Shutdown();
 
-  renderWindow->SetVisible(false);
+  renderEngineWindow->SetVisible(false);
 }
 
 void VRShell::Filter(void) {

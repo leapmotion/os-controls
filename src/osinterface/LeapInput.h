@@ -37,6 +37,7 @@ private:
   void AbortInput(void);
 
   // Leap::Listener overrides:
+  void onConnect(const Leap::Controller& controller) override;
   void onServiceConnect(const Leap::Controller& controller) override;
   void onDisconnect(const Leap::Controller& controller) override;
   void onFocusLost(const Leap::Controller& controller) override;

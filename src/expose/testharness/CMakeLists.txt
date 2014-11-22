@@ -11,10 +11,10 @@ elseif(APPLE)
   set_property(SOURCE Shortcuts.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
   set(expose_testharness_EXEFLAGS MACOSX_BUNDLE)
 endif()
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" expose_testharness_SOURCES)
+add_pch(expose_testharness_SOURCES "stdafx.h" "stdafx.cpp")
 
 add_executable(expose_testharness ${expose_testharness_EXEFLAGS} ${expose_testharness_SOURCES})
-set_property(TARGET expose_testharness PROPERTY FOLDER "Shortcuts Projects")
+set_property(TARGET expose_testharness PROPERTY FOLDER "Shortcuts")
 
 target_link_libraries(expose_testharness expose utility osinterface graphics)
 target_include_directories(expose_testharness PRIVATE "..")

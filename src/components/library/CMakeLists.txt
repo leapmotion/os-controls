@@ -11,7 +11,7 @@ if(_this_is_standalone_project)
     ###################################################################################################
 
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
-    project(Components VERSION 0.3)
+    project(Components VERSION 0.4)
     set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
     set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
     set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
@@ -71,6 +71,18 @@ add_sublibrary(
         ${_cxx11_compiler_flags}
     BRIEF_DOC_STRING
         "A phony target which just provides compiler options for enabling C++11."
+)
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+    set(_unicode_compiler_flags "/D UNICODE")
+endif()
+
+add_sublibrary(
+    Unicode
+    COMPILE_OPTIONS
+        ${_unicode_compiler_flags}
+    BRIEF_DOC_STRING
+        "A phony target which just provides compiler options for enabling Unicode support."
 )
 
 add_sublibrary(
@@ -222,21 +234,6 @@ add_sublibrary(
 if(APPLE)
   set_property(SOURCE SFMLController/SFMLController.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
 endif()
-
-add_sublibrary(
-    FbxSceneLoader
-    HEADERS
-        FbxSceneLoader.h
-    SOURCES
-        FbxSceneLoader.cpp
-    EXPLICIT_SUBLIBRARY_DEPENDENCIES
-        C++11
-        ResourceManager
-    EXPLICIT_LIBRARY_DEPENDENCIES
-        "FbxSdk" # TODO: specify version (IMPORTANT: inside the quotes, e.g. "FbxSdk 2015.1")
-    BRIEF_DOC_STRING
-        "ResourceManager-managed loading of FbxScene objects using the FBX SDK."
-)
 
 add_sublibrary(
     Singleton
@@ -435,6 +432,60 @@ add_sublibrary(
         "Simple hand cursor representation."
 )
 
+add_sublibrary(
+    GLTexture2Image
+    HEADERS
+        GLTexture2Image.h
+    SOURCES
+        GLTexture2Image.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        GLTexture2FreeImage
+        LeapGLCore
+    BRIEF_DOC_STRING
+        "Wrapper from file to GL texture."
+)
+
+add_sublibrary(
+    Rigging
+    HEADERS
+        AMeshSection.h
+        ModelIo.h
+        ModelSourceAssimp.h
+        ModelTargetSkinnedVboMesh.h
+        Node.h
+        Skeleton.h
+        SkinnedVboMesh.h
+    SOURCES
+        ModelIo.cpp
+        ModelSourceAssimp.cpp
+        ModelTargetSkinnedVboMesh.cpp
+        Node.cpp
+        Skeleton.cpp
+        SkinnedVboMesh.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        EigenTypes
+        Primitives
+        GLTexture2Image
+        LeapGLCore
+        Unicode
+    EXPLICIT_LIBRARY_DEPENDENCIES
+        "Assimp 3.1.1"
+    BRIEF_DOC_STRING
+        "Mesh rigging, skinning, and deformation."
+)
+
+add_sublibrary(
+    RiggedHand
+    HEADERS
+        RiggedHand.h
+    SOURCES
+        RiggedHand.cpp
+    EXPLICIT_SUBLIBRARY_DEPENDENCIES
+        Rigging
+    BRIEF_DOC_STRING
+        "Realistic deformable hand."
+)
+
 ###################################################################################################
 # Loader path stuff (necessary for correct loading of dylibs when the dylib files are moved).
 ###################################################################################################
@@ -547,11 +598,13 @@ foreach(_sublibrary ${_all_link_sublibraries})
         install(
             FILES ${_headers}
             DESTINATION "include/${_source_path}"
+            COMPONENT "Components"
         )
         get_target_property(_resources ${_sublibrary} INTERFACE_PATH_PREFIXED_RESOURCES)
         install(
             FILES ${_resources}
             DESTINATION "resources"
+            COMPONENT "Components"
         )
     endif()
 endforeach()
@@ -569,6 +622,7 @@ list(REMOVE_DUPLICATES ALL_LIBRARY_DEPENDENCIES)
 install(
     TARGETS Components ${_all_link_sublibraries}
     EXPORT ComponentsRelease
+    COMPONENT Components
     CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
     # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
     LIBRARY DESTINATION lib/Release
@@ -578,6 +632,7 @@ install(
 install(
     TARGETS Components ${_all_link_sublibraries}
     EXPORT ComponentsDebug
+    COMPONENT Components
     CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
     # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
     LIBRARY DESTINATION lib/Debug
@@ -591,6 +646,7 @@ install(
 install(
     EXPORT ComponentsRelease
     CONFIGURATIONS Release
+    COMPONENT Components
     NAMESPACE Components::
     DESTINATION cmake
     FILE ComponentsExport.cmake
@@ -598,6 +654,7 @@ install(
 install(
     EXPORT ComponentsDebug
     CONFIGURATIONS Debug
+    COMPONENT Components
     NAMESPACE Components::
     DESTINATION cmake
     FILE ComponentsExport.cmake
@@ -611,6 +668,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ComponentsConfig.cmake.in ${PRO
 install(
     FILES ${PROJECT_BINARY_DIR}/cmake/for_install_dir/ComponentsConfig.cmake
     DESTINATION .
+    COMPONENT Components
 )
 # Generate the version configuration file.  This is the preferred method for indicating the presence
 # of a library and conveying version information to the find_package cmake command.
@@ -619,6 +677,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenericConfigVersion.cmake.in $
 install(
     FILES ${PROJECT_BINARY_DIR}/ComponentsConfigVersion.cmake
     DESTINATION .
+    COMPONENT Components
 )
 
 ###################################################################################################
@@ -662,7 +721,7 @@ if(BUILD_DOCUMENTATION)
         SOURCES ${PROJECT_BINARY_DIR}/Doxyfile ${Components_SOURCES})
     # Define install rules for the documentation.
     # TODO: Ideally we would specify that the 'doc' target is a dependency of 'install'.
-    install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION ".")
+    install(DIRECTORY ${DOXYGEN_OUTPUT_DIR} DESTINATION "." COMPONENT "Components")
 endif()
 
 # TODO: write cpack rules -- it's probably an easier way to generate compiled lib packages

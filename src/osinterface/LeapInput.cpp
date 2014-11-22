@@ -4,9 +4,11 @@
 #include "OSVirtualScreen.h"
 #include "interaction/FrameFragmenter.h"
 
+
 LeapInput::LeapInput(void):
   ContextMember("LeapInput"),
-  m_isAcceptingInput(false)
+  m_isAcceptingInput(false),
+  m_policyFlags(Leap::Controller::POLICY_DEFAULT)
 {
   m_controller->addListener(*this);
 }
@@ -33,6 +35,10 @@ void LeapInput::AbortInput(void) {
   m_listener(&LeapInputListener::OnLeapFrame)(Leap::Frame::invalid());
 }
 
+void LeapInput::onConnect(const Leap::Controller& controller) {
+  controller.setPolicyFlags(m_policyFlags);
+}
+
 void LeapInput::onServiceConnect(const Leap::Controller& controller) {
   controller.setPolicyFlags(m_policyFlags);
 }
@@ -53,6 +59,5 @@ void LeapInput::onFrame(const Leap::Controller& controller) {
     return;
   }
   m_isAcceptingInput = true;
-  CurrentContextPusher pshr(this->GetContext());
   m_listener(&LeapInputListener::OnLeapFrame)(controller.frame());
 }

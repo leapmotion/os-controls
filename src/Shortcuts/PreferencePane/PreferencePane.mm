@@ -1,7 +1,7 @@
 #import "PreferencePane.h"
 #import "utility/Config.h"
 #import "utility/AutoLaunch.h"
-#import "../Shortcuts/Version.h"
+#import "../Version.h"
 
 #import <Cocoa/Cocoa.h>
 #import <autowiring/autowiring.h>

@@ -20,6 +20,7 @@ set(osinterface_SOURCES
   OSGeometry.h
   OSCursor.h
   OSCursor.cpp
+  OSKeyboardEvent.h
   OSScreen.h
   OSScreenBase.h
   OSVirtualScreen.h

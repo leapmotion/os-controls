@@ -45,7 +45,6 @@ public:
   typedef std::function<void(T& current, const T& start, const T& goal, double percent)> EasingFunction;
 
   Animated(const EasingFunction& func = EasingFunctions::Linear<T>) : Animated(T()) {}
-  Animated(const T& initial, double duration) : Animated(initial, duration) {}
   Animated(const T& initial, double duration = 1.0, const EasingFunction& func = EasingFunctions::Linear<T>) :
     m_current(initial), m_start(initial), m_goal(initial), 
     m_duration(duration), m_completion(0.0), m_easing(func)
@@ -58,6 +57,7 @@ public:
   const T& Goal() const { return m_goal; }
 
   double Completion() const { return m_completion; }
+  
 
   void SetEasingFunction(const EasingFunction& func) {
     m_easing = func;
@@ -72,6 +72,11 @@ public:
   void Set(const T& newGoal, double newDuration) {
     Set(newGoal);
     m_duration = newDuration;
+  }
+
+  void SetCompletion(double percent) {
+    m_completion = std::max(0.0, std::min(1.0, percent));
+    m_easing(m_current, m_start, m_goal, m_completion);
   }
 
   void SetImmediate(const T& newGoal) {
@@ -91,10 +96,7 @@ public:
     m_completion += deltaT / m_duration;
     m_completion = std::max(0.0, std::min(1.0, m_completion));
 
-    if (m_completion < 1.0)
-      m_easing(m_current, m_start, m_goal, m_completion);
-    else
-      m_current = m_goal;
+    m_easing(m_current, m_start, m_goal, m_completion);
   }
 
 private:

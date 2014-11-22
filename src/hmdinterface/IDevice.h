@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include <autowiring/ContextMember.h>
+
 namespace Hmd {
 
 class IContext;
@@ -45,10 +47,14 @@ private:
 };
 #endif
 
-class IDevice {
+class IDevice : 
+  public ContextMember
+{
 public:
 
   virtual ~IDevice () { }
+
+  static IDevice* New();
 
   /// @brief Initialize this Device object.
   /// @details If this method call succeeds, then the initialization has succeeded.  Errors are
@@ -76,6 +82,7 @@ public:
   /// @details If IsInitialized is false, this method will throw an exception that is
   /// a subclass of Hmd::IException.
   virtual const Hmd::IContext &Context () const = 0;
+
   /// @brief Returns the DeviceConfiguration which reflects the actual configuration state of the device.
   /// @details If IsInitialized is false, this method will throw an exception that is
   /// a subclass of Hmd::IException.

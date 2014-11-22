@@ -46,3 +46,11 @@ resources
 .DS_Store
 xcode
 
+
+src/components/example_apps/RiggedHandSample/models/*
+src/components/example_apps/RiggedHandSample/textures/*
+
+src/components/install/*
+src/components/install_manifest.txt
+
+src/vrshell/Version.h
