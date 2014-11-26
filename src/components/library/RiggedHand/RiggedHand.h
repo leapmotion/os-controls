@@ -2,6 +2,7 @@
 
 #include "EigenTypes.h"
 #include "Leap/GL/GLShader.h"
+#include "Leap/GL/ShaderMatrices.h"
 #include "Skeleton.h"
 #include "SkinnedVboMesh.h"
 #include "GLTexture2Image.h"
@@ -132,6 +133,8 @@ private:
 
   // hand shader
   mutable std::shared_ptr<GLShader> mHandsShader;
+  // ShaderFrontend for setting matrix uniforms
+  mutable std::shared_ptr<ShaderMatrices> mShaderMatrices;
 
   // convert units on loading
   static const float UNIT_CONVERSION_SCALE_FACTOR; 

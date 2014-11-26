@@ -11,8 +11,6 @@
 
 #include <memory>
 
-class GLShader;
-
 class RiggedHandLayer : public RenderableEventHandler {
 public:
 

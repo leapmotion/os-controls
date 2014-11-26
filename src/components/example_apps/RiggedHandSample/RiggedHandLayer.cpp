@@ -1,5 +1,6 @@
 #include "RiggedHandLayer.h"
 
+#include "Leap/GL/GLShader.h"
 #include "ModelIo.h"
 #include "ModelSourceAssimp.h"
 
@@ -69,22 +70,25 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   
   Box xBox;
   xBox.SetSize(Eigen::Vector3d(30, 1, 1));
-  xBox.Material().SetDiffuseLightColor(Color::Red());
-  xBox.Material().SetAmbientLightColor(Color::Red());
+  xBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.0f, 0.0f, 1.0f); // Red
+  xBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.0f, 0.0f, 1.0f); // Red
+  xBox.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   xBox.Translation() = 15 * Eigen::Vector3d::UnitX();
   PrimitiveBase::DrawSceneGraph(xBox, m_Renderer);
 
   Box yBox;
   yBox.SetSize(Eigen::Vector3d(1, 30, 1));
-  yBox.Material().SetDiffuseLightColor(Color::Green());
-  yBox.Material().SetAmbientLightColor(Color::Green());
+  yBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.0f, 1.0f, 0.0f, 1.0f); // Green
+  yBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.0f, 1.0f, 0.0f, 1.0f); // Green
+  yBox.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   yBox.Translation() = 15 * Eigen::Vector3d::UnitY();
   PrimitiveBase::DrawSceneGraph(yBox, m_Renderer);
 
   Box zBox;
   zBox.SetSize(Eigen::Vector3d(1, 1, 30));
-  zBox.Material().SetDiffuseLightColor(Color::Blue());
-  zBox.Material().SetAmbientLightColor(Color::Blue());
+  zBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.0f, 0.0f, 1.0f, 1.0f); // Blue
+  zBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.0f, 0.0f, 1.0f, 1.0f); // Blue
+  zBox.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   zBox.Translation() = 15 * Eigen::Vector3d::UnitZ();
   PrimitiveBase::DrawSceneGraph(zBox, m_Renderer);
 
@@ -99,20 +103,22 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
     const float lightPos[] ={ -200, 200, -200, 200, 200, -200, 0, 100, 100 };
     const float lightStrengths[] ={ 1.0f, 1.0f, 1.0f };
 
-    const int lightPos0 = shader->LocationOfUniform("lightPos[0]");
-    glUniform3fv(lightPos0, 3, lightPos);
+    // const int lightPos0 = shader->LocationOfUniform("lightPos[0]");
+    const int lightPos0 = shader->LocationOfUniform("lightPos");
+    glUniform3fv(lightPos0, 3, lightPos); // TODO: replace with GLShader::UploadUniform
 
-    const int lightStrengths0 = shader->LocationOfUniform("lightStrengths[0]");
-    glUniform1fv(lightStrengths0, 3, lightStrengths);
+    // const int lightStrengths0 = shader->LocationOfUniform("lightStrengths[0]");
+    const int lightStrengths0 = shader->LocationOfUniform("lightStrengths");
+    glUniform1fv(lightStrengths0, 3, lightStrengths); // TODO: replace with GLShader::UploadUniform
 
-    shader->SetUniformi("numLights", 3);
-    shader->SetUniformf("attenuation", 1.0f);
-    shader->SetUniformi("depthImage", 0);
-    shader->SetUniformi("normalImage", 0);
-    shader->SetUniformi("flatImage", 0);
-    shader->SetUniformf("emission", Color::Black());
-    shader->SetUniformf("minDepthDist", static_cast<float>(300));
-    shader->SetUniformf("maxDepthDist", static_cast<float>(1000));
+    shader->UploadUniform<GL_INT>("numLights", 3);
+    shader->UploadUniform<GL_FLOAT>("attenuation", 1.0f);
+    shader->UploadUniform<GL_BOOL>("depthImage", false);
+    shader->UploadUniform<GL_BOOL>("normalImage", false);
+    shader->UploadUniform<GL_BOOL>("flatImage", false);
+    shader->UploadUniform<GL_FLOAT_VEC4>("emission", Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f)); // Opaque black
+    shader->UploadUniform<GL_FLOAT>("minDepthDist", static_cast<float>(300));
+    shader->UploadUniform<GL_FLOAT>("maxDepthDist", static_cast<float>(1000));
     shader->Unbind();
   }
 

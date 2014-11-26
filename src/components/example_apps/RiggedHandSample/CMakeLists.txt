@@ -72,10 +72,10 @@ if(_this_is_standalone_project)
     find_package(Components)
     # The target_link_components function finds and links exactly the minimal set of libraries
     # needed by the specified components.
-    target_link_components(RiggedHandSample PUBLIC Application GLController GLShaderLoader GLTexture2Loader LeapListener Primitives SFMLController RiggedHand)
+    target_link_components(RiggedHandSample PUBLIC Application GLShaderLoader GLTexture2Loader LeapGLCore LeapListener Primitives SFMLController RiggedHand)
 else()
     set_property(TARGET RiggedHandSample PROPERTY FOLDER "Components example apps")
-    target_link_libraries(RiggedHandSample PUBLIC Application GLController GLShaderLoader GLTexture2Loader LeapListener Primitives SFMLController Rigging RiggedHand)
+    target_link_libraries(RiggedHandSample PUBLIC Application GLShaderLoader GLTexture2Loader LeapGLCore LeapListener Primitives SFMLController Rigging RiggedHand)
 endif()
 
 ###################################################################################################

@@ -133,7 +133,14 @@ void RiggedHand::MakeAdditionalModelViewTransformations(ModelView& model_view) c
 
 void RiggedHand::DrawContents(RenderState& renderState) const {
   if (!mHandsShader) {
+    assert(!mShaderMatrices);
     mHandsShader = getDefaultHandsShader();
+    mShaderMatrices =
+      std::make_shared<ShaderMatrices>(
+        *mHandsShader,
+        "projection_times_model_view_matrix",
+        "model_view_matrix",
+        "normal_matrix");
   }
 
   std::vector<model::MeshVboSectionRef>& sections = mSkinnedVboHands->getSections();
@@ -168,26 +175,32 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       //const Eigen::Matrix4f normalMatrix = renderState.GetModelView().Matrix().inverse().transpose().cast<float>().eval();
       //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("normalMatrix", normalMatrix, MatrixStorageConvention::COLUMN_MAJOR);
 
-      GLShaderMatrices::UploadUniforms(*mHandsShader, renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+      // GLShaderMatrices::UploadUniforms(*mHandsShader, renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+      mShaderMatrices->SetMatrices(renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix());
+      mShaderMatrices->UploadUniforms();
 
-      mHandsShader->SetUniformi("isAnimated", section->isAnimated());
-      mHandsShader->SetUniformi("use_texture", 1);
-      mHandsShader->SetUniformi("texture", 0);
-      mHandsShader->SetUniformi("useNormalMap", mUseNormalMap);
-      mHandsShader->SetUniformi("normalMap", 1);
-      mHandsShader->SetUniformi("useSpecularMap", mUseSpecularMap);
-      mHandsShader->SetUniformi("specularMap", 2);
 
-      mHandsShader->SetUniformf("diffuse_light_color", diffuseColor);
-      mHandsShader->SetUniformf("specular", specularColor);
-      mHandsShader->SetUniformf("ambient_light_color", ambientColor);
-      mHandsShader->SetUniformf("ambient_lighting_proportion", 0.0f);
-      mHandsShader->SetUniformf("shininess", mShininess);
+      mHandsShader->UploadUniform<GL_BOOL>("isAnimated", section->isAnimated());
+      mHandsShader->UploadUniform<GL_BOOL>("use_texture", true);
+      mHandsShader->UploadUniform<GL_SAMPLER_2D>("texture", 0);
+      mHandsShader->UploadUniform<GL_BOOL>("useNormalMap", mUseNormalMap);
+      mHandsShader->UploadUniform<GL_SAMPLER_2D>("normalMap", 1);
+      mHandsShader->UploadUniform<GL_BOOL>("useSpecularMap", mUseSpecularMap);
+      mHandsShader->UploadUniform<GL_SAMPLER_2D>("specularMap", 2);
+
+      mHandsShader->UploadUniform<GL_FLOAT_VEC4>("diffuse_light_color", diffuseColor);
+      mHandsShader->UploadUniform<GL_FLOAT_VEC4>("specular", specularColor);
+      mHandsShader->UploadUniform<GL_FLOAT_VEC4>("ambient_light_color", ambientColor);
+      mHandsShader->UploadUniform<GL_FLOAT>("ambient_lighting_proportion", 0.0f);
+      mHandsShader->UploadUniform<GL_FLOAT>("shininess", mShininess);
 
       if (section->hasSkeleton()) {
-        const int boneMatricesAddr = mHandsShader->LocationOfUniform("boneMatrices[0]");
-        const int invTransposeMatricesAddr = mHandsShader->LocationOfUniform("invTransposeMatrices[0]");
+        // const int boneMatricesAddr = mHandsShader->LocationOfUniform("boneMatrices[0]");
+        // const int invTransposeMatricesAddr = mHandsShader->LocationOfUniform("invTransposeMatrices[0]");
+        const int boneMatricesAddr = mHandsShader->LocationOfUniform("boneMatrices");
+        const int invTransposeMatricesAddr = mHandsShader->LocationOfUniform("invTransposeMatrices");
 
+        // TODO: replace with GLShader::UploadUniform
         glUniformMatrix4fv(boneMatricesAddr, model::SkinnedVboMesh::MAXBONES, false, section->mBoneMatricesPtr->data()->data());
         glUniformMatrix4fv(invTransposeMatricesAddr, model::SkinnedVboMesh::MAXBONES, false, section->mInvTransposeMatricesPtr->data()->data());
       }
