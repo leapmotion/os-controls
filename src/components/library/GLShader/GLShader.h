@@ -5,6 +5,7 @@
 #include <map> // TODO: use unordered_map, but wait until Cinder is cut out of FreeForm so it can use C++11.
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "gl_glext_glu.h" // convenience header for cross-platform GL includes
 #include "GLError.h"
@@ -300,6 +301,8 @@ private:
   VarInfoMap m_uniform_info_map;
   VarInfoMap m_attribute_info_map;
 };
+
+typedef std::shared_ptr<GLShader> GLShaderRef;
 
 // Template specializations of UniformFunction and UniformMatrixFunction.
 // TODO: Try to consolidate these into fewer specializations (or none)

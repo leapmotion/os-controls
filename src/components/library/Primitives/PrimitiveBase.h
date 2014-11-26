@@ -60,9 +60,7 @@ public:
   typedef SceneGraphNode<ParticularSceneGraphNodeProperties<EigenTypes::MATH_TYPE,DIM,float>> Parent_SceneGraphNode;
   typedef typename Properties::AffineTransformValue_::Transform Transform;
 
-  Primitive() : m_shader("material") {
-    GLMaterial::CheckShaderForUniforms(*m_shader);
-  }
+  Primitive() { }
   virtual ~Primitive() { }
 
   const GLShader &Shader () const {
@@ -73,7 +71,7 @@ public:
   }
 
   //Must be compatible with the default material (ie, use the same names for the matrix inputs)
-  void SetShader(std::shared_ptr<GLShader> shader) { m_shader = shader; }
+  void SetShader(const std::shared_ptr<GLShader> &shader) { m_shader = shader; }
 
   const GLMaterial &Material () const { return m_material; }
   GLMaterial &Material () { return m_material; }
@@ -91,6 +89,10 @@ public:
     model_view.Multiply(SquareMatrixAdaptToDim<4>(global_properties.AffineTransform().AsFullMatrix(), EigenTypes::MATH_TYPE(1)));
     MakeAdditionalModelViewTransformations(model_view);
 
+    if (!m_shader) {
+      m_shader = Resource<GLShader>("material");
+      GLMaterial::CheckShaderForUniforms(*m_shader);
+    }
     const GLShader &shader = Shader();
     GLShaderBindingScopeGuard bso(shader, BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     
@@ -113,7 +115,7 @@ protected:
   
 private:
 
-  Resource<GLShader> m_shader;
+  mutable GLShaderRef m_shader;
   GLMaterial m_material;
 };
 

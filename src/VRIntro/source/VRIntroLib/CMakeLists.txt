@@ -1,10 +1,7 @@
-set(_this_is_standalone_project FALSE)
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}/source/VRIntroLib)
-    set(_this_is_standalone_project TRUE)
-endif()
+option(USE_BULLET "Use Bullet physics engine to build block simulation level" OFF)
 
-include(Common)
-
+CONFIGURE_FILE(Config.h.in ${PROJECT_BINARY_DIR}/Config.h @ONLY IMMEDIATE)
+include_directories(${PROJECT_BINARY_DIR})
 set(VRIntroLib_SOURCES
   VRIntroApp.cpp
   VRIntroApp.h
@@ -33,6 +30,9 @@ set(VRIntroLib_SOURCES
   PlatformInitializer.h
   PrecisionTimer.h
   IFrameSupplier.h
+  MathUtility.h
+  MathUtility.cpp
+  PhysicsLayer.h
 )
 
 add_windows_sources(
@@ -42,6 +42,10 @@ add_windows_sources(
   Mirror.h
   Mirror.cpp
 )
+
+if(USE_BULLET)
+  set(VRIntroLib_SOURCES ${VRIntroLib_SOURCES} PhysicsLayer.cpp)
+endif()
 
 add_mac_sources(
   VRIntroLib_SOURCES
@@ -56,6 +60,8 @@ option(VRIntro_SHOW_CONSOLE "Display console window for debugging" OFF)
 set(_add_executable_options "")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
     set(_add_executable_options "MACOSX_BUNDLE")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -Wall -Werror -Wno-reorder -Wno-unused-variable -Wno-unused-private-field")
 endif()
 
 if(NOT VRIntro_SHOW_CONSOLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
@@ -63,13 +69,13 @@ if(NOT VRIntro_SHOW_CONSOLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 endif()
 
 add_library(VRIntroLib STATIC ${VRIntroLib_SOURCES})
-if(_this_is_standalone_project)
-    target_link_components(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
-else()
-    target_link_libraries(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
-endif()
+set_property(TARGET VRIntroLib PROPERTY FOLDER "VRIntro")
+target_link_libraries(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
 target_package(VRIntroLib Eigen)
+if(USE_BULLET)
+  target_package(VRIntroLib Bullet)
+endif()
 
 if(WIN32)
-  target_link_libraries(VRIntroLib comctl32.lib Dwmapi.lib)
+  target_link_libraries(VRIntroLib comctl32.lib Dwmapi.lib Shlwapi.lib)
 endif()

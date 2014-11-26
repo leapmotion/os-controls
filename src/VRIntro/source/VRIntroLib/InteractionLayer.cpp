@@ -6,6 +6,15 @@
 #include "GLShaderLoader.h"
 #include "GLController.h"
 
+
+EigenTypes::Matrix3x3f SkeletonHand::arbitraryRelatedRotation() const
+{
+  EigenTypes::Matrix3x3f result = rotationButNotReally; 
+  EigenTypes::Vector3f z = result.col(0).cross(result.col(1));
+  result.col(2) = z;
+  return result;
+}
+
 InteractionLayer::InteractionLayer(const EigenTypes::Vector3f& initialEyePos, const std::string& shaderName) :
   m_Shader(Resource<GLShader>(shaderName)),
   m_EyePos(initialEyePos),
@@ -13,7 +22,7 @@ InteractionLayer::InteractionLayer(const EigenTypes::Vector3f& initialEyePos, co
 
 }
 
-void InteractionLayer::DrawSkeletonHands() const {
+void InteractionLayer::DrawSkeletonHands(bool capsuleMode) const {
   m_Shader->Bind();
   const EigenTypes::Vector3f desiredLightPos(0, 1.5, 0.5);
   const EigenTypes::Vector3f lightPos = m_EyeView*desiredLightPos;
@@ -34,15 +43,38 @@ void InteractionLayer::DrawSkeletonHands() const {
     m_Cylinder.Material().SetAmbientLightColor(Color(0.85f, 0.85f, 0.85f, alpha));
     m_Cylinder.Material().SetAmbientLightingProportion(0.3f);
 
-    DrawSkeletonHand(hand, alpha);
+    if (capsuleMode) {
+      glEnable(GL_STENCIL_TEST);
+      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+      glStencilMask(0);
+      glStencilFunc(GL_EQUAL, 1, 1); // Pass test if stencil value is 1
+      for (int i = 0; i < 23; i++) {
+        DrawSphere(hand.joints[i], 2.5f*m_FingerRadius, 1.0f);
+        DrawCylinder(hand.joints[i], hand.jointConnections[i], 2.5f*m_FingerRadius, 1.0f);
+      }
+      // Fill in palm
+      DrawSphere(hand.center, 3.0f*m_FingerRadius, 1.0f);
+      DrawSphere((hand.center + hand.joints[19] + 2.0*hand.joints[20])*0.25f, 2.5f*m_FingerRadius, 1.0f);
+      DrawSphere((hand.center + hand.joints[0] + 2.0*hand.joints[20])*0.25f, 2.5f*m_FingerRadius, 1.0f);
+      DrawSphere(hand.center + 12.0*m_FingerRadius*(hand.center - m_EyePos).normalized(), 12.0*m_FingerRadius, 1.0f);
+
+      // Fill in arm
+      DrawCylinder((hand.joints[20] + hand.joints[21])*0.5f, (hand.jointConnections[20] + hand.jointConnections[21])*0.5f, 3.0f*m_FingerRadius, 1.0f);
+      
+      glDisable(GL_STENCIL_TEST);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+      glStencilMask(1);
+    } else {
+      DrawSkeletonHand(hand, alpha);
+    }
   }
   m_Shader->Unbind();
 }
 
 void InteractionLayer::DrawSkeletonHand(const SkeletonHand& hand, float alpha) const {
   for (int i = 0; i < 23; i++) {
-    DrawSphere(hand.joints[i], 10e-3f, alpha);
-    DrawCylinder(hand.joints[i], hand.jointConnections[i], 7e-3f, alpha);
+    DrawSphere(hand.joints[i], m_FingerRadius, alpha);
+    DrawCylinder(hand.joints[i], hand.jointConnections[i], 0.7f*m_FingerRadius, alpha);
   }
 }
 

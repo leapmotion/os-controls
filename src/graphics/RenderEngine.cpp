@@ -95,7 +95,8 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
       const EigenTypes::Matrix4x4 projection = frame.renderState.GetProjection().Matrix();
 
       for (int i = 0; i < hmd->Configuration().EyeCount(); i++) {
-        const int eyeIndex = hmd->Configuration().EyeRenderOrder(i);
+        //const int eyeIndex = hmd->Configuration().EyeRenderOrder(i);
+        const int eyeIndex = i;
         frame.eyeIndex = eyeIndex;
         hmd->BeginRenderingEye(eyeIndex);
         

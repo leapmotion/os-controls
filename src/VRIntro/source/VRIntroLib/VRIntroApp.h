@@ -6,6 +6,7 @@
 #include "SDLController.h"
 #include "OculusVR.h"
 #include "PassthroughLayer.h"
+#include "MessageLayer.h"
 #include "RenderState.h"
 
 #include <memory>
@@ -14,6 +15,8 @@
 #include <thread>
 
 class IFrameSupplier;
+class HandLayer;
+class MessageLayer;
 
 // Interface class for top-level control of an application.
 class VRIntroApp : public Application {
@@ -51,10 +54,6 @@ public:
   #endif
 
 private:
-  static const int CONTENT_LAYERS = 5;
-  static const int HAND_LAYER = CONTENT_LAYERS;
-  static const int HELP_LAYER = CONTENT_LAYERS + 1;
-
   void InitializeApplicationLayers();
   void ShutdownApplicationLayers();
   void SelectLayer(int i);
@@ -79,13 +78,20 @@ private:
     return EventHandlerAction::PASS_ON;
   }
 
-  mutable OculusVR m_Oculus;
-  SDLController m_SDLController;
-  GLController m_GLController;
-  TimePoint m_applicationTime;
-  std::vector<std::shared_ptr<InteractionLayer>> m_Layers;
-  std::shared_ptr<PassthroughLayer> m_PassthroughLayer[2];
-  IFrameSupplier* m_FrameSupplier;
+  mutable OculusVR  m_Oculus;
+  SDLController     m_SDLController;
+  GLController      m_GLController;
+  TimePoint         m_applicationTime;
+  std::vector<std::shared_ptr<InteractionLayer>>  m_Layers;
+  std::vector<std::shared_ptr<InteractionLayer>>  m_MappedLayers;
+  std::shared_ptr<HandLayer> m_HandLayer;
+  std::shared_ptr<HandLayer> m_GhostHandLayer;
+  std::shared_ptr<MessageLayer> m_MessageLayer;
+
+  std::shared_ptr<PassthroughLayer>               m_PassthroughLayer[2];
+  IFrameSupplier*                                 m_FrameSupplier;
+  Uint32                                          SDL_Window_ID;
+  MessageLayer*                                   messageLayer;
   
   std::thread m_MirrorThread;
 #if _WIN32
@@ -93,11 +99,16 @@ private:
 #endif
   bool m_ShowMirror;
 
-  int m_Selected;
+  int  m_Selected;
   bool m_HealthWarningDismissed;
   bool m_HelpToggled;
   bool m_OculusMode;
+  bool m_CrippleMode;
+  bool m_CroppleMode;
 
   int m_Width;
   int m_Height;
+
+  float m_Zoom;
+  float m_Scale;
 };
