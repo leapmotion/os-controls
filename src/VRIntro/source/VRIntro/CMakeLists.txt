@@ -34,7 +34,7 @@ define_post_build_resource_copy_rules(
     TARGET
         VRIntro
     RELATIVE_PATH_BASE
-        $<TARGET_FILE_DIR:VRIntro>
+        ${EXECUTABLE_OUTPUT_PATH}
     RELATIVE_PATH_RESOURCES
         shaders/fractal-frag.glsl
         shaders/fractal-vert.glsl
