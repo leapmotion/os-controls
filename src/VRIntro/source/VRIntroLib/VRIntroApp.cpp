@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Config.h"
 #include "IFrameSupplier.h"
 #include "VRIntroApp.h"
 #include "SpheresLayer.h"
@@ -9,6 +10,7 @@
 #include "FractalLayer.h"
 #include "QuadsLayer.h"
 #include "FlyingLayer.h"
+#include "PhysicsLayer.h"
 #include "SDL.h"
 #include "PlatformInitializer.h"
 #include "PrecisionTimer.h"
@@ -39,14 +41,20 @@ VRIntroApp::VRIntroApp(bool showMirror) :
   m_HealthWarningDismissed(false),
   m_HelpToggled(false),
   m_OculusMode(true),
+  m_CrippleMode(false),
+  m_CroppleMode(false),
   m_ShowMirror(showMirror),
-  m_Selected(0) {}
+  m_Selected(0),
+  m_Zoom(1.0f),
+  m_Scale(1.0f) {}
 
 void VRIntroApp::InitMirror() {
 #if _WIN32
   if (m_ShowMirror) {
     m_MirrorThread = std::thread(RunMirror, GetHwnd(), std::ref(m_MirrorHWND));
   }
+#else
+  SDL_Window_ID = this->GetWindowID();
 #endif
 }
 
@@ -73,34 +81,34 @@ void VRIntroApp::Initialize() {
   params.windowTitle = "Leap Motion VR Intro BETA (F11 to fullscreen)";
 
   m_Oculus.InitHMD();
-  if ( ! m_Oculus.isDebug() ){
-    params.windowHeight = m_Oculus.GetHMDHeight();
+  if (!m_Oculus.isDebug()) {
     params.windowWidth = m_Oculus.GetHMDWidth();
+    params.windowHeight = m_Oculus.GetHMDHeight();
+  } else {
+    params.windowWidth = 640;
+    params.windowHeight = 720;
   }
-  else{
-    m_OculusMode = false;
-  }
-  
+
   m_applicationTime = TimePoint(0.0);         // Start the application time at zero.
-  
+
   m_SDLController.Initialize(params);         // This initializes everything SDL-related.
   m_Width = m_SDLController.GetParams().windowWidth;
   m_Height = m_SDLController.GetParams().windowHeight;
 
   m_GLController.Initialize();                // This initializes the general GL state.
   FreeImage_Initialise();
-  
+
   if (glewInit() != GLEW_OK) {
     throw std::runtime_error("Glew initialization failed");
   }
-  
+
 #if _WIN32
   // m_Oculus.SetHWND(m_SDLController.GetHWND());
 #endif
   if (!m_Oculus.Init()) {
     throw std::runtime_error("Oculus initialization failed");
   }
-  
+
   InitMirror();
 
   // TODO: Add to components
@@ -128,7 +136,9 @@ void VRIntroApp::Update(TimeDelta real_time_delta) {
   float leap_baseline = m_FrameSupplier->IsDragonfly() ? 64.0f : 40.0f;
   // Set passthrough images
   for (int i = 0; i < 2; i++) {
-    m_FrameSupplier->PopulatePassthroughLayer(*m_PassthroughLayer[i], i);
+    m_FrameSupplier->PopulatePassthroughLayer(*m_PassthroughLayer[i], m_CrippleMode ? 0 : i);
+    m_PassthroughLayer[i]->SetCrippleMode(m_CroppleMode);
+    m_PassthroughLayer[i]->SetStencil(m_GhostHandLayer->Alpha() == 1);
   }
 
   // Calculate where each point of interest would have to be if a 6.4-cm baseline Leap centered exactly at the eyeballs saw the frame seen. It will be off by a factor of 1.6.
@@ -140,12 +150,13 @@ void VRIntroApp::Update(TimeDelta real_time_delta) {
   EigenTypes::Matrix4x4f inputTransform = avgView.inverse();
   EigenTypes::Matrix3x3f conventionConv;
   conventionConv << -EigenTypes::Vector3f::UnitX(), -EigenTypes::Vector3f::UnitZ(), -EigenTypes::Vector3f::UnitY();
-  inputTransform.block<3, 3>(0, 0) *= OCULUS_BASELINE/leap_baseline*conventionConv;
+  inputTransform.block<3, 3>(0, 0) *= m_Scale*OCULUS_BASELINE/leap_baseline*conventionConv;
 
   for (auto it = m_Layers.begin(); it != m_Layers.end(); ++it) {
     InteractionLayer &layer = **it;
     if (layer.Alpha() > 0.01f) {
       m_FrameSupplier->PopulateInteractionLayer(layer, inputTransform.eval().data());
+      layer.SetFingerRadius(m_Scale*6.25f*OCULUS_BASELINE/leap_baseline);
       layer.UpdateEyePos(avgView.inverse().block<3, 1>(0, 3));
       layer.UpdateEyeView(avgView.block<3, 3>(0, 0));
       layer.Update(real_time_delta);              // Update each application layer, from back to front.
@@ -159,26 +170,39 @@ void VRIntroApp::Update(TimeDelta real_time_delta) {
     m_HealthWarningDismissed = true;
   }
 
-  MessageLayer* messageLayer = static_cast<MessageLayer*>(&*m_Layers[HELP_LAYER]);
-  if (m_applicationTime > 15.0f && !m_HelpToggled) {
-    m_HelpToggled = true;
-    messageLayer->SetVisible(0, false);
+  if (m_PassthroughLayer[0]->m_HasData) {
+    if (m_applicationTime > 15.0f && !m_HelpToggled) {
+      m_HelpToggled = true;
+      m_MessageLayer->SetVisible(1, false);
+    }
+  } else {
+    // Leap is not attached or frames are not going through
+    m_MessageLayer->SetVisible(0, true);
   }
-  messageLayer->SetVisible(1, false);
-//  messageLayer->SetVisible(1, m_LeapListener.GetFPSEstimate() < 59);
-  messageLayer->SetVisible(2, !m_OculusMode);
+
+  m_MessageLayer->SetVisible(2, m_FrameSupplier->GetFPSEstimate() < 30);
+  m_MessageLayer->SetVisible(3, m_Oculus.isDebug() && m_OculusMode);
+
   double elapsed = timer.Stop();
   //std::cout << __LINE__ << ":\t   Update() = " << (elapsed) << std::endl;
 }
 
 void VRIntroApp::Render(TimeDelta real_time_delta) const {
+
+  GLenum error_code = glGetError();
+  glEnable(GL_BLEND);
+  //glClearStencil(0);
+  glStencilMask(1); // Write to stencil buffer
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  GLenum error_code1 = glGetError();
   PrecisionTimer timer;
   timer.Start();
   assert(real_time_delta >= 0.0);
   if (m_OculusMode) {
     m_Oculus.BeginFrame();
     glGetError(); // Remove any phantom gl errors before they throw an exception
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Do the eye-order trick!
     for (int i = 1; i >= 0; i--) {
@@ -193,7 +217,7 @@ void VRIntroApp::Render(TimeDelta real_time_delta) const {
     glGetError(); // Remove any phantom gl errors before they throw an exception
   } else {
     m_SDLController.BeginRender();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, m_Width, m_Height);
 
     Projection projection;
@@ -210,20 +234,23 @@ void VRIntroApp::Render(TimeDelta real_time_delta) const {
 }
 
 void VRIntroApp::RenderEye(TimeDelta real_time_delta, int i, const EigenTypes::Matrix4x4f& proj) const {
-  const EigenTypes::Matrix4x4f view = m_Oculus.EyeView(i);
+  GLenum error_code = glGetError();
+  const EigenTypes::Matrix4x4f view = m_Oculus.EyeView(m_CrippleMode ? 0 : i);
+  const EigenTypes::Matrix4x4f zoomMat = EigenTypes::Vector4f(m_Zoom, m_Zoom, 1, 1).asDiagonal();
 
-  m_PassthroughLayer[i]->SetProjection(proj);
+  GLenum error_code2 = glGetError();
+  glDisable(GL_DEPTH_TEST);
+  m_PassthroughLayer[i]->SetProjection(zoomMat*proj);
+  GLenum error_code1 = glGetError();
   m_PassthroughLayer[i]->Render(real_time_delta);
 
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it) {
+  for (auto it = m_Layers.begin(); it != m_Layers.end(); ++it) {
     // Set individual shader's state
     InteractionLayer &layer = **it;
     if (layer.Alpha() > 0.01f) {
-      layer.SetProjection(proj);
+      layer.SetProjection(zoomMat*proj);
       layer.SetModelView(view);
       // Set default shader's state
       glMatrixMode(GL_PROJECTION);
@@ -240,7 +267,7 @@ EventHandlerAction VRIntroApp::HandleWindowEvent(const SDL_WindowEvent &ev) {
   if (ev.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
     m_Width = ev.data1;
     m_Height = ev.data2;
-    
+
     // Render smoothly in different modes
     glViewport(0,0, m_Width, m_Height);
     m_SDLController.EndRender();
@@ -264,29 +291,40 @@ EventHandlerAction VRIntroApp::HandleKeyboardEvent(const SDL_KeyboardEvent &ev) 
       break;
     case 'h':
       // Hand
-      SelectLayer(HAND_LAYER);
+      m_HandLayer->Alpha() = 1 - m_HandLayer->Alpha();
+      m_GhostHandLayer->Alpha() = 1 - m_GhostHandLayer->Alpha();
+      break;
+    case 'c':
+      m_CrippleMode = !m_CrippleMode;
+      break;
+    case 'v':
+      m_CroppleMode = !m_CroppleMode;
       break;
     case SDLK_F1:
       // Help menu
       m_HelpToggled = true;
       {
-        MessageLayer* messageLayer = static_cast<MessageLayer*>(&*m_Layers[HELP_LAYER]);
-        messageLayer->SetVisible(0, !messageLayer->GetVisible(0));
+        m_MessageLayer->SetVisible(1, !m_MessageLayer->GetVisible(1));
       }
       break;
+    case SDLK_0:
     case SDLK_1:
     case SDLK_2:
     case SDLK_3:
     case SDLK_4:
     case SDLK_5:
+    case SDLK_6:
+    case SDLK_7:
       // Content layer
       if (!(SDL_GetModState() & KMOD_CTRL)) {
-        for (int i = 0; i < CONTENT_LAYERS; i++) {
-          m_Layers[i]->Alpha() = 0;
+        for (int i = 0; i < m_MappedLayers.size(); i++) {
+          m_MappedLayers[i]->Alpha() = 0;
         }
       }
       // Dim passthrough if in flying stage
-      SelectLayer(ev.keysym.sym - SDLK_1);
+      if (ev.keysym.sym != SDLK_0) {
+        SelectLayer(ev.keysym.sym - SDLK_1);
+      }
       for (int i = 0; i < 2; i++) {
         float alpha;
         if (ev.keysym.sym == SDLK_3) {
@@ -300,24 +338,51 @@ EventHandlerAction VRIntroApp::HandleKeyboardEvent(const SDL_KeyboardEvent &ev) 
       }
       break;
     case SDLK_UP: {
-      float& alpha = m_Layers[m_Selected]->Alpha();
+      float& alpha = m_MappedLayers[m_Selected]->Alpha();
       alpha = std::min(1.0f, alpha + 0.04f);
     }
     break;
     case SDLK_DOWN: {
-      float& alpha = m_Layers[m_Selected]->Alpha();
+      float& alpha = m_MappedLayers[m_Selected]->Alpha();
       alpha = std::max(0.0f, alpha - 0.04f);
     }
     break;
     case SDLK_LEFT:
-      m_Selected = (m_Selected + m_Layers.size() - 1) % m_Layers.size();
+      m_Selected = (m_Selected + m_MappedLayers.size() - 1) % m_MappedLayers.size();
       break;
     case SDLK_RIGHT:
-      m_Selected = (m_Selected + 1) % m_Layers.size();
+      m_Selected = (m_Selected + 1) % m_MappedLayers.size();
       break;
     case SDLK_F11:
       m_SDLController.ToggleFullscreen();
       //SDL_GetWindowSize(m_SDLController.GetWindow(), &m_Width, &m_Height);
+      break;
+    case SDLK_HOME:
+    case SDLK_F7:
+      m_Zoom *= 0.99009901f;
+      break;
+    case SDLK_END:
+    case SDLK_F8:
+      m_Zoom *= 1.01f;
+      break;
+    case SDLK_PAGEUP:
+    case SDLK_F9:
+      m_Scale *= 1.01f;
+      break;
+    case SDLK_PAGEDOWN:
+    case SDLK_F10:
+      m_Scale *= 0.99009901f;
+      break;
+    case SDLK_BACKSPACE:
+      m_Zoom = 1.0f;
+      m_Scale = 1.0f;
+      break;
+    case ';':
+      if (SDL_GetModState() & KMOD_SHIFT) {
+        system("cmd /c lftool --set_strobe interval,127");
+      } else {
+        system("cmd /c lftool --set_strobe interval,1");
+      }
       break;
     case 0x1b:
       exit(0);
@@ -355,24 +420,42 @@ TimePoint VRIntroApp::Time() const {
 void VRIntroApp::InitializeApplicationLayers() {
   EigenTypes::Vector3f defaultEyePose(0, 1.675f, -5.f);
 
-  m_Layers.push_back(std::shared_ptr<GridLayer>(new GridLayer(defaultEyePose)));
-  m_Layers.push_back(std::shared_ptr<SpheresLayer>(new SpheresLayer(defaultEyePose)));
-  m_Layers.push_back(std::shared_ptr<SpaceLayer>(new SpaceLayer(defaultEyePose)));
-  m_Layers.push_back(std::shared_ptr<FlyingLayer>(new FlyingLayer(defaultEyePose)));
-  m_Layers.push_back(std::shared_ptr<FractalLayer>(new FractalLayer(defaultEyePose)));
-
-  m_Layers.push_back(std::shared_ptr<HandLayer>(new HandLayer(defaultEyePose)));
-  m_Layers.push_back(std::shared_ptr<MessageLayer>(new MessageLayer(defaultEyePose)));
-  // m_Layers.push_back(std::shared_ptr<MessageLayer>(new MessageLayer(defaultEyePose)));
-  //m_Layers.push_back(std::shared_ptr<QuadsLayer>(new QuadsLayer(defaultEyePose)));
-
-  m_Layers[CONTENT_LAYERS]->Alpha() = 1;
-  m_Layers[CONTENT_LAYERS + 1]->Alpha() = 1;
+  m_MessageLayer = std::shared_ptr<MessageLayer>(new MessageLayer(defaultEyePose));
+  m_MessageLayer->Alpha() = 1.0f;
+  m_HandLayer = std::shared_ptr<HandLayer>(new HandLayer(defaultEyePose));
+  m_HandLayer->Alpha() = 1.0f;
+  m_GhostHandLayer = std::shared_ptr<HandLayer>(new HandLayer(defaultEyePose, true));
 
   for (int i = 0; i < 2; i++) {
     m_PassthroughLayer[i] = std::shared_ptr<PassthroughLayer>(new PassthroughLayer());
     m_PassthroughLayer[i]->Alpha() = 1.0f;
   }
+
+  m_MappedLayers.push_back(std::shared_ptr<GridLayer>(new GridLayer(defaultEyePose)));
+  m_MappedLayers.push_back(std::shared_ptr<SpheresLayer>(new SpheresLayer(defaultEyePose)));
+  m_MappedLayers.push_back(std::shared_ptr<SpaceLayer>(new SpaceLayer(defaultEyePose)));
+  m_MappedLayers.push_back(std::shared_ptr<FlyingLayer>(new FlyingLayer(defaultEyePose)));
+  m_MappedLayers.push_back(std::shared_ptr<FractalLayer>(new FractalLayer(defaultEyePose)));
+  m_MappedLayers.push_back(std::shared_ptr<QuadsLayer>(new QuadsLayer(defaultEyePose)));
+#if USE_BULLET == 1
+  m_MappedLayers.push_back(std::shared_ptr<PhysicsLayer>(new PhysicsLayer(defaultEyePose)));
+#else
+  m_MappedLayers.push_back(std::shared_ptr<GridLayer>(new GridLayer(defaultEyePose)));
+#endif
+
+  // Opaque
+  m_Layers.push_back(m_GhostHandLayer);
+  m_Layers.push_back(m_MappedLayers[0]);
+  m_Layers.push_back(m_MappedLayers[1]);
+  m_Layers.push_back(m_MappedLayers[3]);
+  m_Layers.push_back(m_MappedLayers[5]);
+  m_Layers.push_back(m_MappedLayers[6]);
+
+  // Translucent
+  m_Layers.push_back(m_HandLayer);
+  m_Layers.push_back(m_MappedLayers[2]);
+  m_Layers.push_back(m_MappedLayers[4]);
+  m_Layers.push_back(m_MessageLayer);
 }
 
 void VRIntroApp::ShutdownApplicationLayers() {
@@ -388,7 +471,10 @@ void VRIntroApp::ShutdownApplicationLayers() {
 }
 
 void VRIntroApp::SelectLayer(int i) {
-  m_Selected = i % m_Layers.size();
-  float& alpha = m_Layers[m_Selected]->Alpha();
+  m_Selected = i % m_MappedLayers.size();
+  float& alpha = m_MappedLayers[m_Selected]->Alpha();
   alpha = alpha < 0.3f ? 1.0f : 0.0f;
+
+  static int lastSelected = -1;
+  if (lastSelected != m_Selected) { m_MappedLayers[m_Selected]->OnSelected(); lastSelected = m_Selected; }
 }

@@ -10,7 +10,9 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(initialEyePos, "shaders/solid"),
   m_PopupShader(Resource<GLShader>("shaders/transparent")),
   m_PopupTexture(Resource<GLTexture2>("images/level3_popup.png")),
-  m_OddEven(0) {
+  m_OddEven(0),
+  m_StarShowMode(0),
+  m_StarsToShow(NUM_STARS) {
   m_Buffer.Create(GL_ARRAY_BUFFER);
   m_Buffer.Bind();
   m_Buffer.Allocate(NULL, 12*sizeof(float)*NUM_STARS, GL_DYNAMIC_DRAW);
@@ -56,9 +58,8 @@ void SpaceLayer::Update(TimeDelta real_time_delta) {
 }
 
 void SpaceLayer::Render(TimeDelta real_time_delta) const {
-  // glDisable(GL_DEPTH_TEST);
-  glDepthMask(GL_FALSE);
   RenderPopup();
+  glDepthMask(GL_FALSE);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   glLineWidth(1.5);
   glPointSize(1.0);
@@ -74,12 +75,12 @@ void SpaceLayer::Render(TimeDelta real_time_delta) const {
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 6*sizeof(float), 0);
   glVertexAttribPointer(m_Shader->LocationOfAttribute("velocity"), 3, GL_FLOAT, GL_TRUE, 6*sizeof(float), (GLvoid*)(3*sizeof(float)));
 
-  m_Buffer.Write(m_Buf, 12*NUM_STARS*sizeof(float));
-  glDrawArrays(GL_LINES, 0, 2*NUM_STARS);
+  m_Buffer.Write(m_Buf, 12*m_StarsToShow*sizeof(float));
+  glDrawArrays(GL_LINES, 0, 2*m_StarsToShow);
 
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 12*sizeof(float), (GLvoid*)((6*m_OddEven)*sizeof(float)));
   glVertexAttribPointer(m_Shader->LocationOfAttribute("velocity"), 3, GL_FLOAT, GL_TRUE, 12*sizeof(float), (GLvoid*)((6*m_OddEven + 3)*sizeof(float)));
-  glDrawArrays(GL_POINTS, 0, NUM_STARS);
+  glDrawArrays(GL_POINTS, 0, m_StarsToShow);
 
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("velocity"));
@@ -87,7 +88,7 @@ void SpaceLayer::Render(TimeDelta real_time_delta) const {
 
   m_Shader->Unbind();
   //std::cout << __LINE__ << ":\t SDL_GetTicks() = " << (SDL_GetTicks() - start) << std::endl;
-  // glEnable(GL_DEPTH_TEST);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDepthMask(GL_TRUE);
 }
 
@@ -100,6 +101,7 @@ void SpaceLayer::RenderPopup() const {
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glUniform1i(m_PopupShader->LocationOfUniform("texture"), 0);
+  glUniform1f(m_PopupShader->LocationOfUniform("alpha"), 0.7f);
 
   m_PopupBuffer.Bind();
   glEnableVertexAttribArray(m_PopupShader->LocationOfAttribute("position"));
@@ -175,14 +177,15 @@ void SpaceLayer::UpdateV(int type, const EigenTypes::Vector3f& p, EigenTypes::Ve
 
 void SpaceLayer::UpdateAllPhysics() {
   // Update stars
-  for (size_t i = 0; i < NUM_STARS; i++) {
+  for (int i = 0; i < m_StarsToShow; i++) {
+    int type = static_cast<int>(static_cast<float>(i)*NUM_STARS/m_StarsToShow);
     EigenTypes::Vector3f tempV = vel[i];
     for (size_t j = 0; j < NUM_GALAXIES + m_SkeletonHands.size(); j++) {
-      UpdateV(i, pos[i], tempV, j);
+      UpdateV(type, pos[i], tempV, j);
     }
     const EigenTypes::Vector3f tempP = pos[i] + 0.667f*tempV;
     for (size_t j = 0; j < NUM_GALAXIES + m_SkeletonHands.size(); j++) {
-      UpdateV(i, tempP, vel[i], j);
+      UpdateV(type, tempP, vel[i], j);
     }
     pos[i] += 0.25*tempV + 0.75*vel[i];
 
@@ -213,6 +216,10 @@ void SpaceLayer::UpdateAllPhysics() {
 EventHandlerAction SpaceLayer::HandleKeyboardEvent(const SDL_KeyboardEvent &ev) {
   if (ev.type == SDL_KEYDOWN) {
     switch (ev.keysym.sym) {
+    case 's':
+      m_StarShowMode++;
+      m_StarsToShow = static_cast<int>(0.5f + NUM_STARS*exp(-0.4*static_cast<float>(m_StarShowMode % 10)));
+      return EventHandlerAction::CONSUME;
     case SDLK_SPACE:
       InitPhysics();
       return EventHandlerAction::CONSUME;

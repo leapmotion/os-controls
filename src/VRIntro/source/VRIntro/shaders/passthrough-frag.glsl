@@ -13,13 +13,17 @@ uniform sampler2D distortion;
 uniform float gamma;
 uniform float brightness;
 uniform float use_color;
+uniform float ir_mode;
+uniform float cripple_mode;
+uniform float stencil_mode;
 
 // debayer
 float width = 672.0;
 float height = 600.0;
-float rscale = 1.23;
-float gscale = 1.04;
-float bscale = 0.73;
+float rscale = 1.5;
+float gscale = 1.0;
+float bscale = 0.5;
+float irscale = 1.2;
 
 float corr_ir_g = 0.2;
 float corr_ir_rb = 0.2;
@@ -32,10 +36,15 @@ vec2 b_offset = vec2(0.5, 0);
 
 void main(void) {
   vec2 texCoord = texture2D(distortion, frag_ray).xy;
+
+  // 60 degree FOV 16:9 aspect ratio single camera setup         
+  if (cripple_mode > 0.5 && (frag_ray.x < 0.4335 || frag_ray.x > 0.5665 || frag_ray.y < 0.4508 || frag_ray.y > 0.5492)) {
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    return;
+  }
+
   if (use_color > 0.5) {
     // Unwarp the point. Correct oculus distortion, if applicable
-    texCoord.x *= 4.0; // HACK!!!
-    texCoord.y *= 2.0; // HACK!!!
    
     float dx = 1.0/width;
     float dy = 1.0/height;
@@ -74,7 +83,10 @@ void main(void) {
    
     const mat4 transformation = mat4(5.6220, -1.5456, 0.3634, -0.1106, -1.6410, 3.1944, -1.7204, 0.0189, 0.1410, 0.4896, 10.8399, -0.1053, -3.7440, -1.9080, -8.6066, 1.0000);
     const mat4 conservative = mat4(5.6220, 0.0000, 0.3634, 0.0000, 0.0000, 3.1944, 0.0000, 0.0189, 0.1410, 0.4896, 10.8399, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000);
-   
+
+    const mat4 transformation_filtered = mat4(5.0670, -1.2312, 0.8625, -0.0507, -1.5210, 3.1104, -2.0194, 0.0017, -0.8310, -0.3000, 13.1744, -0.1052, -2.4540, -1.3848, -10.9618, 1.0000);
+    const mat4 conservative_filtered = mat4(5.0670, 0.0000, 0.8625, 0.0000, 0.0000, 3.1104, 0.0000, 0.0017, 0.0000, 0.0000, 13.1744, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000);
+
     vec4 input_lf = vec4(r_lf, g_lf, b_lf, ir_lf);
    
     // input_lf = bilateral_a*bilateral(texCoord, input_lf) + (1-bilateral_a)*input_lf;
@@ -82,8 +94,8 @@ void main(void) {
     input_lf.g += ir_hf*corr_ir_g + r_hf*corr_g_rb + b_hf*corr_g_rb;
     input_lf.b += ir_hf*corr_ir_rb + r_hf*corr_r_b + g_hf*corr_g_rb;
    
-    vec4 output_lf = transformation*input_lf;
-    vec4 output_lf_fudge = conservative*input_lf;
+    vec4 output_lf = transformation_filtered*input_lf;
+    vec4 output_lf_fudge = conservative_filtered*input_lf;
     //vec4 output_lf_gray = gray*input_lf;
    
     float fudge_threshold = 0.5;
@@ -102,22 +114,25 @@ void main(void) {
     gl_FragColor.r = rfudge*output_lf_fudge.r + (1-rfudge)*output_lf.r;
     gl_FragColor.g = gfudge*output_lf_fudge.g + (1-gfudge)*output_lf.g;
     gl_FragColor.b = bfudge*output_lf_fudge.b + (1-bfudge)*output_lf.b;
+    float ir_out = irfudge*output_lf_fudge.a + (1-irfudge)*output_lf.a;
    
     gl_FragColor.r *= rscale;
     gl_FragColor.g *= gscale;
     gl_FragColor.b *= bscale;
+    ir_out *= irscale;
    
     //float avgrgb = 0.33333*(input_lf.r + input_lf.g + input_lf.b) - 0.9*input_lf.a;
     //float threshold = min(1, avgrgb*100);
     //threshold *= threshold;
     //gl_FragColor.rgb = output_lf_gray.rgb*(1 - threshold) + gl_FragColor.rgb*(threshold);
-   
-    //gl_FragColor.rgb = show_ir > 0.5 ? vec3(pow(ir_out, gamma)): pow(gl_FragColor.rgb, vec3(gamma));
     
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(gamma));
-
+    gl_FragColor.rgb = ir_mode > 0.5 ? vec3(ir_out) : gl_FragColor.rgb;
+    gl_FragColor.rgb = 1.05*brightness*pow(gl_FragColor.rgb, vec3(gamma));
+    vec3 dist = normalize(output_lf.rgb) - vec3(0.6968, 0.4856, 0.5279);
+    gl_FragColor.a = stencil_mode > 0.5 ? ir_out*6.0 + 0.08/(1 + 25*dot(dist, dist)) : 1.0;
+    
   } else {
     gl_FragColor.rgb = brightness*vec3(pow(texture2D(texture, texCoord).r, gamma));
+    gl_FragColor.a = stencil_mode > 0.5 ? gl_FragColor.r : 1.0;
   }
-  gl_FragColor.a = 1.0;
 }

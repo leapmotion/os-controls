@@ -8,7 +8,36 @@ set(VRIntro_SOURCES
 
 option(VRIntro_SHOW_CONSOLE "Display console window for debugging" OFF)
 
-if(NOT VRIntro_SHOW_CONSOLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Mac OS X operating system -- see http://www.openguru.com/2009/04/cmake-detecting-platformoperating.html
+    set(_add_executable_options "MACOSX_BUNDLE")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -Wall -Werror -Wno-reorder -Wno-unused-variable -Wno-unused-private-field")
+
+    # Locate all recourses
+
+    set(VRINTRO_SOURCE_DIR ${PROJECT_SOURCE_DIR}/source/VRIntro)
+    
+    file(GLOB COPY_IMG_RESOURCES  ${VRINTRO_SOURCE_DIR}/images/*)
+    set_source_files_properties(
+      ${COPY_IMG_RESOURCES}
+      PROPERTIES
+      MACOSX_PACKAGE_LOCATION Resources/images
+    )
+    
+    file(GLOB COPY_COMPONENTS_GLSL_RESOURCES ${Components_DIR}/resources/*)
+    file(GLOB COPY_VRINTRO_GLSL_RESOURCES ${VRINTRO_SOURCE_DIR}/shaders/*)
+    set_source_files_properties(
+      ${COPY_VRINTRO_GLSL_RESOURCES}
+      PROPERTIES
+      MACOSX_PACKAGE_LOCATION Resources/shaders
+    )
+    set_source_files_properties(
+      ${COPY_COMPONENTS_GLSL_RESOURCES}
+      PROPERTIES
+      MACOSX_PACKAGE_LOCATION Resources
+    )
+endif()
+
     set(_add_executable_options WIN32)
 endif()
 
@@ -20,7 +49,13 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 endif()
 
 ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRIntro_SOURCES)
-add_executable(VRIntro ${_add_executable_options} ${VRIntro_SOURCES})
+add_executable(VRIntro 
+		${_add_executable_options} 
+		${VRIntro_SOURCES}
+                ${COPY_IMG_RESOURCES}
+                ${COPY_VRINTRO_GLSL_RESOURCES}
+                ${COPY_COMPONENTS_GLSL_RESOURCES}
+)
 target_include_directories(VRIntro PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 target_link_libraries(VRIntro VRIntroLib)
 target_package(VRIntro Leap)
@@ -28,7 +63,7 @@ target_package(VRIntro Leap)
 ###################################################################################################
 # Resource rules
 ###################################################################################################
-
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 include(DefinePostBuildResourceCopyRules)
 define_post_build_resource_copy_rules(
     TARGET
@@ -62,4 +97,6 @@ define_post_build_resource_copy_rules(
     ABSOLUTE_PATH_RESOURCES
         ${CMAKE_SOURCE_DIR}/src/components/library/GLMaterial/material-frag.glsl
         ${CMAKE_SOURCE_DIR}/src/components/library/GLMaterial/matrix-transformed-vert.glsl
+		"${SDL_SHARED_LIB}"
 )
+endif()

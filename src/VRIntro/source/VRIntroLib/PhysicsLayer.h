@@ -2,13 +2,14 @@
 
 #include "Interactionlayer.h"
 
-class GLShader;
 
-class HandLayer : public InteractionLayer {
+class PhysicsLayer : public InteractionLayer
+{
 public:
-  HandLayer(const EigenTypes::Vector3f& initialEyePos, bool isGhost = false);
-  //virtual ~HandLayer ();
+  PhysicsLayer(const EigenTypes::Vector3f& initialEyePos);
+  virtual ~PhysicsLayer ();
 
+  virtual void OnSelected();
   virtual void Update(TimeDelta real_time_delta) override;
   virtual void Render(TimeDelta real_time_delta) const override;
   EventHandlerAction HandleKeyboardEvent(const SDL_KeyboardEvent &ev) override;
@@ -16,5 +17,6 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  bool m_IsGhost;
+
+  class BulletWrapper* m_BulletWrapper;
 };
