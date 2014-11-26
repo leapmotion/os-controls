@@ -92,9 +92,9 @@ TEST_F(SceneGraphNodeTest, PropertyDeltas) {
   E->LocalProperties().Name() = "E";
 
   //      A
-  //     / \
+  //     / \     '
   //    B   C
-  //       / \
+  //       / \   '
   //      D   E
 
   A->AddChild(B);
