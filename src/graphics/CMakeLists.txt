@@ -6,7 +6,7 @@ set(graphics_SOURCES
   RenderFrame.h
 )
 
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" graphics_SOURCES)
+add_pch(graphics_SOURCES "stdafx.h" "stdafx.cpp")
 
 add_library(graphics ${graphics_SOURCES})
 

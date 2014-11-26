@@ -11,7 +11,7 @@ if(_this_is_standalone_project)
     ###################################################################################################
 
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8) # all glu functions are depricated in 10.9
-    project(ComponentsSuite VERSION 0.3) # "Suite" meaning components library and example apps.
+    project(ComponentsSuite VERSION 0.4) # "Suite" meaning components library and example apps.
 
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake-modules") # For most other cmake modules
 

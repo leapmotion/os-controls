@@ -88,7 +88,7 @@ include(DefinePostBuildResourceCopyRules)
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/models)
   #TODO: Use ExternalProject_Add to grab these from a separate repository.
-  message(WARNING "Rigged Hand Sample missing models & texture data.  Get them from Ocuserv\Common\toRaffi\riggedHand")
+  message(WARNING "Rigged Hand Sample missing models & texture data.  Get them from \\\\Ocuserv\\Common\\toRaffi\\riggedHand")
 endif()
 
 define_post_build_resource_copy_rules(

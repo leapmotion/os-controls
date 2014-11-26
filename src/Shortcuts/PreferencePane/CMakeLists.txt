@@ -8,7 +8,7 @@ set(PreferencePane_SOURCES
 )
 
 set(PreferencePane_RESOURCES
-  ../Shortcuts/icons/ShortcutsPreferences.tiff
+  ../icons/ShortcutsPreferences.tiff
 )
 
 add_conditional_sources(PreferencePane_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${PreferencePane_RESOURCES})

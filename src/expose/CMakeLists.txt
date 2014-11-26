@@ -18,7 +18,7 @@ set(expose_SOURCES
 )
 
 
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" expose_SOURCES)
+add_pch(expose_SOURCES "stdafx.h" "stdafx.cpp")
 
 add_library(expose ${expose_EXEFLAGS} ${expose_SOURCES})
 set_property(TARGET expose PROPERTY FOLDER "Shortcuts")

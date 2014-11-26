@@ -7,7 +7,7 @@ set(uievents_SOURCES
   Updatable.h
 )
 
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" uievents_SOURCES)
+add_pch(uievents_SOURCES "stdafx.h" "stdafx.cpp")
 add_library(uievents ${uievents_SOURCES})
 set_property(TARGET uievents PROPERTY FOLDER "Shortcuts")
 

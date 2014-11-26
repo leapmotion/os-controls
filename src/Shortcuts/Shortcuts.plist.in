@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleVersion</key>
-	<string>@APP_VERSION@</string>
+	<string>@Shortcuts_VERSION@</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@APP_VERSION@</string>
+	<string>@Shortcuts_VERSION@</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>LSMinimumSystemVersion</key>
