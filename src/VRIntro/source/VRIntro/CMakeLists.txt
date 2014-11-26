@@ -38,6 +38,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Ma
     )
 endif()
 
+if(WIN32)
     set(_add_executable_options WIN32)
 endif()
 

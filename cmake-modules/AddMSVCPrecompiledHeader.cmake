@@ -13,6 +13,5 @@ macro(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar
             )
     endforeach( src_file ${${SourcesVar}} )
     list(APPEND ${SourcesVar} ${PrecompiledHeader} ${PrecompiledSource})
-    add_compile_options(/Yu)
   endif(MSVC)
 endmacro(ADD_MSVC_PRECOMPILED_HEADER)

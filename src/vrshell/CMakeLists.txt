@@ -36,6 +36,7 @@ set(VRShell_CLR_SOURCES
   Resources.rc
   Resources.h
 )
+
 add_windows_sources(VRShell_SOURCES ${VRShell_CLR_SOURCES})
 add_mac_sources(VRShell_SOURCES NativeUIMac.mm)
 
