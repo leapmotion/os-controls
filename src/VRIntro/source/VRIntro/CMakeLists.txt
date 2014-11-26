@@ -60,6 +60,7 @@ add_executable(VRIntro
 target_include_directories(VRIntro PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 target_link_libraries(VRIntro VRIntroLib)
 target_package(VRIntro Leap)
+set_property(TARGET VRIntro PROPERTY FOLDER "VRIntro")
 
 ###################################################################################################
 # Resource rules

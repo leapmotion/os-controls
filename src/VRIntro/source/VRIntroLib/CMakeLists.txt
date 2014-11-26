@@ -69,6 +69,7 @@ if(NOT VRIntro_SHOW_CONSOLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 endif()
 
 add_library(VRIntroLib STATIC ${VRIntroLib_SOURCES})
+set_property(TARGET VRIntroLib PROPERTY FOLDER "VRIntro")
 target_link_libraries(VRIntroLib Application GLController GLShaderLoader GLTexture2Loader Primitives SDLController OculusVR)
 target_package(VRIntroLib Eigen)
 if(USE_BULLET)
