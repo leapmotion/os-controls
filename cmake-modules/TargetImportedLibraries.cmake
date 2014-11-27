@@ -109,6 +109,7 @@ function(target_package target package )
   if(TARGET ${package}::${package})
     verbose_message("${package}::${package} already exists, skipping find op")
   else()
+    verbose_message("searching for ${package}::${package} with ${target_package_UNPARSED_ARGUMENTS}")
     find_package(${target_package_UNPARSED_ARGUMENTS})
   endif()
 
