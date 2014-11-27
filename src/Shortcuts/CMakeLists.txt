@@ -69,7 +69,7 @@ if(APPLE)
 endif()
 
 add_pch(Shortcuts_SOURCES "stdafx.h" "stdafx.cpp")
-add_conditional_sources(Shortcuts_SOURCES "" GROUP_NAME "Resource Files" "FILES" ${Shortcuts_RESOURCES})
+add_resource_files(Shortcuts_SOURCES ${Shortcuts_RESOURCES})
 
 if(WIN32)
   set(Shortcuts_EXEFLAGS WIN32)

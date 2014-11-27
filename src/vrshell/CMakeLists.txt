@@ -36,6 +36,7 @@ set(VRShell_CLR_SOURCES
   Resources.rc
   Resources.h
 )
+
 add_windows_sources(VRShell_SOURCES ${VRShell_CLR_SOURCES})
 add_mac_sources(VRShell_SOURCES NativeUIMac.mm)
 
@@ -57,7 +58,7 @@ if(WIN32)
   endforeach()
 endif()
 
-add_conditional_sources(VRShell_SOURCES "" GROUP_NAME "Resource Files" "FILES" 
+add_resource_files(VRShell_SOURCES
   ${VRShell_RESOURCES}
   icons/icon.ico
   icons/icon_512x512.png
