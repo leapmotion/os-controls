@@ -14,6 +14,9 @@ add_sublibrary(
         Primitives.cpp
         SVGPrimitive.cpp
         TexturedFrame.cpp
+    RESOURCES
+      material-frag.glsl
+      matrix-transformed-vert.glsl
     INTERNAL_DEPENDENCIES
         LeapGLCore
         GLShaderLoader
