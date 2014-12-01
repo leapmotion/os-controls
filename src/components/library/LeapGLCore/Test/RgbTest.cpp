@@ -8,7 +8,7 @@ void TestRgbEquality () {
   typedef Rgb<T> Rgb;
   static const size_t COUNT = 1000;
   for (size_t i = 0; i < COUNT; ++i) {
-    Rgb a(0x123*i, 0x456*i, 0x789*i);
+    Rgb a(static_cast<T>(0x123*i), static_cast<T>(0x456*i), static_cast<T>(0x789*i));
     EXPECT_EQ(a, a);
   }
 }
