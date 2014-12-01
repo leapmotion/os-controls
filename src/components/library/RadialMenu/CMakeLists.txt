@@ -1,0 +1,18 @@
+add_sublibrary(
+    RadialMenu
+    HEADERS
+        RadialItem.h
+        RadialMenu.h
+        RadialSlider.h
+    SOURCES
+        RadialItem.cpp
+        RadialMenu.cpp
+        RadialSlider.cpp
+    INTERNAL_DEPENDENCIES
+        Animation
+        EigenTypes
+        LeapGLCore
+        Primitives
+    BRIEF_DOC_STRING
+        "Provides abstract radial view classes."
+)

@@ -1,0 +1,64 @@
+add_sublibrary(
+    LeapGLCore
+    HEADERS
+        Leap/GL/ColorComponent.h
+        Leap/GL/Common.h
+        Leap/GL/Exception.h
+        Leap/GL/FrameBufferObject.h
+        Leap/GL/GLBuffer.h
+        Leap/GL/GLError.h
+        Leap/GL/GLHeaders.h
+        Leap/GL/GLShader.h
+        Leap/GL/GLShaderBindingScopeGuard.h
+        Leap/GL/GLTexture2.h
+        Leap/GL/GLTexture2Params.h
+        Leap/GL/GLTexture2PixelData.h
+        Leap/GL/GLVertexAttribute.h
+        Leap/GL/GLVertexBuffer.h
+        Leap/GL/Internal/ColorComponent.h
+        Leap/GL/Internal/Map.h
+        Leap/GL/Internal/Meta.h
+        Leap/GL/Internal/ShaderFrontend.h
+        Leap/GL/Internal/ShaderUniform.h
+        Leap/GL/Internal/Tuple.h
+        Leap/GL/Internal/TypeMap.h
+        Leap/GL/Internal/Typle.h
+        Leap/GL/Internal/UniformTraits.h
+        Leap/GL/Internal/UniformUploader.h
+        Leap/GL/Mesh.h
+        Leap/GL/MeshException.h
+        Leap/GL/ModelViewProjection.h
+        Leap/GL/RenderBuffer.h
+        Leap/GL/Rgb.h
+        Leap/GL/Rgba.h
+        Leap/GL/SceneGraphNode.h
+        Leap/GL/SceneGraphNodeProperties.h
+        Leap/GL/SceneGraphNodeProperty.h
+        Leap/GL/SceneGraphNodeValues.h
+        Leap/GL/ScopeGuard.h
+        Leap/GL/ShaderException.h
+        Leap/GL/ShaderFrontend.h
+        Leap/GL/ShaderMatrices.h
+        Leap/GL/Texture2Exception.h
+        Leap/GL/VertexBufferException.h
+    SOURCES
+        Leap/GL/FrameBufferObject.cpp
+        Leap/GL/GLBuffer.cpp
+        Leap/GL/GLShader.cpp
+        Leap/GL/GLTexture2.cpp
+        Leap/GL/GLTexture2Params.cpp
+        Leap/GL/GLTexture2PixelData.cpp
+        Leap/GL/ModelViewProjection.cpp
+        Leap/GL/RenderBuffer.cpp
+        Leap/GL/ShaderMatrices.cpp
+    INTERNAL_DEPENDENCIES
+        C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.
+        EigenTypes # TODO: get rid of Eigen dependency.
+    EXTERNAL_DEPENDENCIES
+        "Glew 1.9.0"
+        "OpenGL 2.1" # It is necessary to link GL after Glew on Linux.
+    BRIEF_DOC_STRING
+        "The LeapGL core component provides C++ abstractions for most of the commonly used OpenGL concepts."
+)
+
+add_subdirectory(Test)
