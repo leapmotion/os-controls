@@ -85,7 +85,7 @@ void main (void)
     }
 
     if (normalImage) {
-      gl_FragColor.rgb = 0.5*(normal + vec3(1.0));
+      gl_FragColor.rbg = 0.5*(normal + vec3(1.0)); // .rbg is intentional to flip y and z
       gl_FragColor.a = 1.0;
     } else {
       vec4 specularColor = specular;
