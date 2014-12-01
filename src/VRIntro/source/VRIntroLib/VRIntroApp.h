@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Application.h"
-#include "GLController.h"
+#include "Leap/GL/GLHeaders.h"
 #include "RenderableEventHandler.h"
 #include "SDLController.h"
 #include "OculusVR.h"
@@ -80,7 +80,6 @@ private:
 
   mutable OculusVR  m_Oculus;
   SDLController     m_SDLController;
-  GLController      m_GLController;
   TimePoint         m_applicationTime;
   std::vector<std::shared_ptr<InteractionLayer>>  m_Layers;
   std::vector<std::shared_ptr<InteractionLayer>>  m_MappedLayers;

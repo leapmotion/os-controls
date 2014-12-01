@@ -2,7 +2,7 @@
 
 #include "Interactionlayer.h"
 
-class GLShader;
+class Leap::GL::GLShader;
 
 class SpaceLayer : public InteractionLayer {
 public:
@@ -29,8 +29,8 @@ private:
 
   mutable GLBuffer m_Buffer;
   mutable GLBuffer m_PopupBuffer;
-  std::shared_ptr<GLTexture2> m_PopupTexture;
-  std::shared_ptr<GLShader> m_PopupShader;
+  std::shared_ptr<Leap::GL::GLTexture2> m_PopupTexture;
+  std::shared_ptr<Leap::GL::GLShader> m_PopupShader;
 
   EigenTypes::Vector3f m_GalaxyPos[NUM_GALAXIES];
   EigenTypes::Vector3f m_GalaxyVel[NUM_GALAXIES];

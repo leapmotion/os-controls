@@ -2,14 +2,12 @@
 
 #include "Interactionlayer.h"
 
-class GLShader;
+class Leap::GL::GLShader;
 
 class FlyingLayer : public InteractionLayer {
 public:
   FlyingLayer(const EigenTypes::Vector3f& initialEyePos);
   //virtual ~FlyingLayer ();
-
-
 
   virtual void Update(TimeDelta real_time_delta) override;
   virtual void Render(TimeDelta real_time_delta) const override;
@@ -20,7 +18,8 @@ public:
 private:
   mutable GLBuffer m_PopupBuffer;
   std::shared_ptr<GLTexture2> m_PopupTexture;
-  std::shared_ptr<GLShader> m_PopupShader;
+  std::shared_ptr<Leap::GL::GLShader> m_PopupShader;
+  std::shared_ptr<Leap::GL::ShaderMatrices> m_PopupShaderMatrices;
 
   void RenderPopup() const;
 

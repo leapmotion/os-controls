@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "GridLayer.h"
 
-#include "GLController.h"
 #include <math.h>
 
 GridLayer::GridLayer(const EigenTypes::Vector3f& initialEyePos) :

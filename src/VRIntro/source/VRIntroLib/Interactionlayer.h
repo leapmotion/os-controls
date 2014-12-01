@@ -3,8 +3,8 @@
 #include "RenderableEventHandler.h"
 #include "RenderState.h"
 #include "Primitives.h"
-
 #include "EigenTypes.h"
+#include "Leap/GL/GLShader.h"
 
 #include <memory>
 
@@ -65,7 +65,10 @@ public:
 protected:
   void DrawSkeletonHands(bool capsuleMode = false) const;
   mutable RenderState m_Renderer;
-  std::shared_ptr<GLShader> m_Shader;
+
+  std::shared_ptr<Leap::GL::GLShader> m_Shader;
+  std::shared_ptr<Leap::GL::ShaderMatrices> m_ShaderMatrices;
+
   mutable Sphere m_Sphere;
   mutable Cylinder m_Cylinder;
   mutable Box m_Box;

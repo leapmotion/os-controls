@@ -3,7 +3,7 @@
 #include "Interactionlayer.h"
 #include "MathUtility.h"
 
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 #include "GLTexture2Loader.h"
 
 class GLShader;

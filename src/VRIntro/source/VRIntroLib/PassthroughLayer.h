@@ -2,8 +2,8 @@
 
 #include "InteractionLayer.h"
 
-#include "GLTexture2.h"
-#include "GLBuffer.h"
+#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/GLBuffer.h"
 #include "EigenTypes.h"
 
 #include <memory>

@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "MessageLayer.h"
 
-#include "GLController.h"
 #include "Resource.h"
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
+
+using Leap::GL::GLTexture2;
 #include "GLTexture2Loader.h"
+
 
 MessageLayer::MessageLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/transparent"),
@@ -56,7 +58,8 @@ void MessageLayer::Render(TimeDelta real_time_delta) const {
   EigenTypes::Matrix4x4f modelView = m_ModelView;
   modelView.block<3, 1>(0, 3) += modelView.block<3, 3>(0, 0)*m_EyePos;
   modelView.block<3, 3>(0, 0) = EigenTypes::Matrix3x3f::Identity();
-  GLShaderMatrices::UploadUniforms(*m_Shader, modelView.cast<double>(), m_Projection.cast<double>(), BindFlags::NONE);
+  m_ShaderMatrices->SetMatrices(modelView.cast<double>(), m_Projection.cast<double>());
+  m_ShaderMatrices->UploadUniforms();
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glUniform1i(m_Shader->LocationOfUniform("texture"), 0);

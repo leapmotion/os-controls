@@ -1,15 +1,14 @@
 #include "stdafx.h"
 #include "SpaceLayer.h"
 
-#include "GLController.h"
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"
 
 SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(initialEyePos, "shaders/solid"),
-  m_PopupShader(Resource<GLShader>("shaders/transparent")),
-  m_PopupTexture(Resource<GLTexture2>("images/level3_popup.png")),
+  m_PopupShader(Resource<Leap::GL::GLShader>("shaders/transparent")),
+  m_PopupTexture(Resource<Leap::GL::GLTexture2>("images/level3_popup.png")),
   m_OddEven(0),
   m_StarShowMode(0),
   m_StarsToShow(NUM_STARS) {
@@ -67,7 +66,8 @@ void SpaceLayer::Render(TimeDelta real_time_delta) const {
 
   // 4 ms per million particles
   m_Shader->Bind();
-  GLShaderMatrices::UploadUniforms(*m_Shader, m_ModelView.cast<double>(), m_Projection.cast<double>(), BindFlags::NONE);
+  m_ShaderMatrices->SetMatrices( m_ModelView.cast<double>(), m_Projection.cast<double>());
+  m_ShaderMatrices->UploadUniforms();
 
   m_Buffer.Bind();
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
@@ -97,7 +97,8 @@ void SpaceLayer::RenderPopup() const {
   EigenTypes::Matrix4x4f modelView = m_ModelView;
   modelView.block<3, 1>(0, 3) += modelView.block<3, 3>(0, 0)*m_EyePos;
   //modelView.block<3, 3>(0, 0) = EigenTypes::Matrix3x3f::Identity();
-  GLShaderMatrices::UploadUniforms(*m_PopupShader, modelView.cast<double>(), m_Projection.cast<double>(), BindFlags::NONE);
+  m_ShaderMatrices->SetMatrices(modelView.cast<double>(), m_Projection.cast<double>());
+  m_ShaderMatrices->UploadUniforms();
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glUniform1i(m_PopupShader->LocationOfUniform("texture"), 0);

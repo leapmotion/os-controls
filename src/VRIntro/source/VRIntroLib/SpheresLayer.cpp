@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "SpheresLayer.h"
 
-#include "GLController.h"
-
 SpheresLayer::SpheresLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(initialEyePos),
   m_Pos(NUM_SPHERES),
@@ -45,16 +43,18 @@ void SpheresLayer::Render(TimeDelta real_time_delta) const {
   glUniform3f(lightPosLoc, lightPos[0], lightPos[1], lightPos[2]);
 
   // Common property
-  m_Sphere.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
 
   for (size_t j = 0; j < NUM_SPHERES; j++) {
     float desaturation = 0.005f / (0.005f + m_Disp[j].squaredNorm());
-    EigenTypes::Vector3f color = m_Colors[j]*(1.0f - desaturation) + m_Mono[j]*desaturation;
+    const Leap::GL::Rgb<float> color(m_Colors[j]*(1.0f - desaturation) + m_Mono[j]*desaturation);
+    const Leap::GL::Rgba<float> alphaColor(color.R(), color.G(), color.B(), m_Alpha);
 
     m_Sphere.SetRadius(m_Radius[j]);
     m_Sphere.Translation() = (m_Pos[j] + m_Disp[j]).cast<double>();
-    m_Sphere.Material().SetDiffuseLightColor(Color(color.x(), color.y(), color.z(), m_Alpha));
-    m_Sphere.Material().SetAmbientLightColor(Color(color.x(), color.y(), color.z(), m_Alpha));
+    m_Sphere.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = alphaColor;
+    m_Sphere.Material().Uniform<AMBIENT_LIGHT_COLOR>() = alphaColor;
+
     PrimitiveBase::DrawSceneGraph(m_Sphere, m_Renderer);
   }
   m_Shader->Unbind();

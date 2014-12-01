@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "PassthroughLayer.h"
-#include "GLController.h"
-#include "GLShader.h"
-
-#include "GLTexture2.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/GLTexture2.h"
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"
 
@@ -92,7 +90,8 @@ void PassthroughLayer::Render(TimeDelta real_time_delta) const {
   if (m_HasData) {
     glDepthMask(GL_FALSE);
     m_Shader->Bind();
-    GLShaderMatrices::UploadUniforms(*m_Shader, EigenTypes::Matrix4x4::Identity(), m_Projection.cast<double>(), BindFlags::NONE);
+    m_ShaderMatrices->SetMatrices(EigenTypes::Matrix4x4::Identity(), m_Projection.cast<double>());
+    m_ShaderMatrices->UploadUniforms();
 
     glActiveTexture(GL_TEXTURE0 + 0);
     if (m_UseRGBI) {

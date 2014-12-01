@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "HandLayer.h"
 
-#include "GLController.h"
-
 HandLayer::HandLayer(const EigenTypes::Vector3f& initialEyePos, bool isGhost) :
   InteractionLayer(initialEyePos),
   m_IsGhost(isGhost) {

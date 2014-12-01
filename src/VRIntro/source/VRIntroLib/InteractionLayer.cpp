@@ -2,13 +2,12 @@
 #include "InteractionLayer.h"
 
 #include "Resource.h"
-#include "GLShader.h"
+#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Rgba.h"
 #include "GLShaderLoader.h"
-#include "GLController.h"
 
 
-EigenTypes::Matrix3x3f SkeletonHand::arbitraryRelatedRotation() const
-{
+EigenTypes::Matrix3x3f SkeletonHand::arbitraryRelatedRotation() const {
   EigenTypes::Matrix3x3f result = rotationButNotReally; 
   EigenTypes::Vector3f z = result.col(0).cross(result.col(1));
   result.col(2) = z;
@@ -16,10 +15,13 @@ EigenTypes::Matrix3x3f SkeletonHand::arbitraryRelatedRotation() const
 }
 
 InteractionLayer::InteractionLayer(const EigenTypes::Vector3f& initialEyePos, const std::string& shaderName) :
-  m_Shader(Resource<GLShader>(shaderName)),
+  m_Shader(Resource<Leap::GL::GLShader>(shaderName)),
+  m_ShaderMatrices(std::make_shared<Leap::GL::ShaderMatrices>(*m_Shader,
+    "projection_times_model_view_matrix",
+    "model_view_matrix",
+    "normal_matrix")),
   m_EyePos(initialEyePos),
   m_Alpha(0.0f) {
-
 }
 
 void InteractionLayer::DrawSkeletonHands(bool capsuleMode) const {
@@ -35,13 +37,13 @@ void InteractionLayer::DrawSkeletonHands(bool capsuleMode) const {
     float alpha = m_Alpha*std::min(hand.confidence, 0.006f/(distSq*distSq));
 
     // Set common properties
-    m_Sphere.Material().SetDiffuseLightColor(Color(0.4f, 0.6f, 1.0f, alpha));
-    m_Sphere.Material().SetAmbientLightColor(Color(0.4f, 0.6f, 1.0f, alpha));
-    m_Sphere.Material().SetAmbientLightingProportion(0.3f);
+    m_Sphere.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.4f, 0.6f, 1.0f, alpha);
+    m_Sphere.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.4f, 0.6f, 1.0f, alpha);
+    m_Sphere.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
 
-    m_Cylinder.Material().SetDiffuseLightColor(Color(0.85f, 0.85f, 0.85f, alpha));
-    m_Cylinder.Material().SetAmbientLightColor(Color(0.85f, 0.85f, 0.85f, alpha));
-    m_Cylinder.Material().SetAmbientLightingProportion(0.3f);
+    m_Cylinder.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.85f, 0.85f, 0.85f, alpha);
+    m_Cylinder.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.85f, 0.85f, 0.85f, alpha);
+    m_Cylinder.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
 
     if (capsuleMode) {
       glEnable(GL_STENCIL_TEST);

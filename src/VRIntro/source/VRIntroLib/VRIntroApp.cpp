@@ -21,7 +21,7 @@
 #include <cassert>
 #include <thread>
 
-#include "gl_glext_glu.h"
+#include "Leap/GL/GLHeaders.h"
 
 #if _WIN32
 #pragma comment(lib, "winmm.lib")
@@ -95,7 +95,7 @@ void VRIntroApp::Initialize() {
   m_Width = m_SDLController.GetParams().windowWidth;
   m_Height = m_SDLController.GetParams().windowHeight;
 
-  m_GLController.Initialize();                // This initializes the general GL state.
+  Leap::GL::InitializeGlew();
   FreeImage_Initialise();
 
   if (glewInit() != GLEW_OK) {
@@ -122,7 +122,6 @@ void VRIntroApp::Shutdown() {
 
   m_Oculus.Destroy();
   FreeImage_DeInitialise();                   // Shut down FreeImage.
-  m_GLController.Shutdown();                  // This shuts down the general GL state.
   m_SDLController.Shutdown();                 // This shuts down everything SDL-related.
 }
 

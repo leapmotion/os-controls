@@ -4,16 +4,19 @@
 #include "MathUtility.h"
 
 #include "Primitives.h"
-#include "GLController.h"
 
-#include "GLTexture2.h"
+#include "Leap/GL/GLTexture2.h"
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"
 
 FlyingLayer::FlyingLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(initialEyePos),
-  m_PopupShader(Resource<GLShader>("shaders/transparent")),
-  m_PopupTexture(Resource<GLTexture2>("images/level4_popup.png")),
+  m_PopupShader(Resource<Leap::GL::GLShader>("shaders/transparent")),
+  m_PopupShaderMatrices(std::make_shared<Leap::GL::ShaderMatrices>(*m_PopupShader, 
+    "projection_times_model_view_matrix",
+    "model_view_matrix",
+    "normal_matrix")),
+  m_PopupTexture(Resource<Leap::GL::GLTexture2>("images/level4_popup.png")),
   m_GridCenter(initialEyePos),
   m_Velocity(EigenTypes::Vector3f::Zero()),
   m_RotationAA(EigenTypes::Vector3f::Zero()),
@@ -92,8 +95,8 @@ void FlyingLayer::Render(TimeDelta real_time_delta) const {
 
   m_Sphere.SetRadius(0.3f);
   m_Sphere.Translation() = (m_EyeView.transpose()*EigenTypes::Vector3f(0, 0, -1.25) + m_EyePos).cast<double>();
-  m_Sphere.Material().SetDiffuseLightColor(Color(1.0f, 0.5f, 0.4f, m_Alpha));
-  m_Sphere.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>(1.0f, 0.5f, 0.4f, m_Alpha);
+  m_Sphere.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   //PrimitiveBase::DrawSceneGraph(m_Sphere, m_Renderer);
   m_Shader->Unbind();
 
@@ -153,7 +156,8 @@ void FlyingLayer::RenderPopup() const {
   EigenTypes::Matrix4x4f modelView = m_ModelView;
   modelView.block<3, 1>(0, 3) += modelView.block<3, 3>(0, 0)*m_EyePos;
   modelView.block<3, 3>(0, 0) = EigenTypes::Matrix3x3f::Identity();
-  GLShaderMatrices::UploadUniforms(*m_PopupShader, modelView.cast<double>(), m_Projection.cast<double>(), BindFlags::NONE);
+  m_PopupShaderMatrices->SetMatrices(modelView.cast<double>(), m_Projection.cast<double>());
+  m_PopupShaderMatrices->UploadUniforms();
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glUniform1i(m_PopupShader->LocationOfUniform("texture"), 0);

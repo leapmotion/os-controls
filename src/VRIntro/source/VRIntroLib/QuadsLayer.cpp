@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "QuadsLayer.h"
-#include "GLController.h"
 
 #include <float.h>
 
@@ -126,7 +125,8 @@ void QuadsLayer::Render(TimeDelta real_time_delta) const {
   Pane::m_HeadTilt = MathUtility::RotationVectorToMatrix(atan(1/Pane::m_Stride)*EigenTypes::Vector3f(modelView(2, 0), 0, modelView(2, 2)));
 
   //modelView.block<3, 3>(0, 0) = EigenTypes::Matrix3x3f::Identity();
-  GLShaderMatrices::UploadUniforms(*m_Shader, modelView.cast<double>(), m_Projection.cast<double>(), BindFlags::NONE);
+  m_ShaderMatrices->SetMatrices(modelView.cast<double>(), m_Projection.cast<double>());
+  m_ShaderMatrices->UploadUniforms();
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glUniform1i(m_Shader->LocationOfUniform("texture"), 0);
