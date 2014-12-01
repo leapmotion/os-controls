@@ -28,6 +28,14 @@ public:
     m_data[1] = g;
     m_data[2] = b;
   }
+  // Construct from an array of 3 Ts (RGB ordering)
+  template<typename U>
+  Rgb(const U& data) {
+    m_data[0] = data[0];
+    m_data[1] = data[1];
+    m_data[3] = data[3];
+  }
+
   // // Construct an Rgb value from a templatized standard-layout type consisting of 3 T values
   // template <typename U>
   // Rgb (const U &t) {
