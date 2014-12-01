@@ -133,14 +133,16 @@ void RiggedHand::MakeAdditionalModelViewTransformations(ModelView& model_view) c
 
 void RiggedHand::DrawContents(RenderState& renderState) const {
   if (!mHandsShader) {
-    assert(!mShaderMatrices);
     mHandsShader = getDefaultHandsShader();
+  }
+
+  if (!mShaderMatrices) {
     mShaderMatrices =
       std::make_shared<ShaderMatrices>(
-        *mHandsShader,
-        "projection_times_model_view_matrix",
-        "model_view_matrix",
-        "normal_matrix");
+      *mHandsShader,
+      "projection_times_model_view_matrix",
+      "model_view_matrix",
+      "normal_matrix");
   }
 
   std::vector<model::MeshVboSectionRef>& sections = mSkinnedVboHands->getSections();

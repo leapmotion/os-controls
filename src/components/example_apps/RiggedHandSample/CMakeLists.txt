@@ -140,7 +140,7 @@ else()
         RELATIVE_PATH_BASE
             ${EXECUTABLE_OUTPUT_PATH}
         ABSOLUTE_PATH_RESOURCES
-            ${Components_DIR}/GLMaterial/material-frag.glsl
-            ${Components_DIR}/GLMaterial/matrix-transformed-vert.glsl
+            ${Components_DIR}/Primitives/material-frag.glsl
+            ${Components_DIR}/Primitives/matrix-transformed-vert.glsl
     )
 endif()
