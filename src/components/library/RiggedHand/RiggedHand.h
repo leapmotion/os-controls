@@ -36,7 +36,17 @@ public:
 
   virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
 
-  void SetHandsShader(const std::shared_ptr<GLShader>& shader) { mHandsShader = shader; };
+  void SetHandsShader(const std::shared_ptr<GLShader>& shader) {
+    if (shader.get() != mHandsShader.get()) {
+      mShaderMatrices =
+        std::make_shared<ShaderMatrices>(
+        *shader,
+        "projection_times_model_view_matrix",
+        "model_view_matrix",
+        "normal_matrix");
+    }
+    mHandsShader = shader;
+  };
   std::shared_ptr<GLShader> HandsShader() { return mHandsShader; };
 
   static std::shared_ptr<GLShader> getDefaultHandsShader();
