@@ -184,7 +184,7 @@ void PrimitiveGeometry::PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &m
   const float resFloat = static_cast<float>(resolution);
   const float twoPi = static_cast<float>(2.0 * M_PI);
 
-  for (int i=0; i<resolution; i++) {
+  for (size_t i=0; i<resolution; i++) {
     const float inc1 = (i/resFloat) * twoPi;
     const float inc2 = ((i+1)/resFloat) * twoPi;
 

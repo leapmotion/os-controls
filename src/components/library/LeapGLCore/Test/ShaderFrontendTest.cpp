@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include "Leap/GL/ShaderFrontend.h"
 #include <sstream>
+#include <memory>
 
 // Convenience macro for annotated printing the value of variables.
 #define FMT(x) #x << " = " << (x)

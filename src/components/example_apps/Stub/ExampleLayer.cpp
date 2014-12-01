@@ -36,7 +36,7 @@ void ExampleLayer::Render (TimeDelta real_time_delta) const {
 
   if (m_shader) {
     static const GLuint VERTEX_COUNT = 4;
-    const GLfloat param = 0.1f * std::sin(2.0f*m_time) + 0.9f;
+    const GLfloat param = static_cast<GLfloat>(0.1f * std::sin(2.0f*m_time) + 0.9f);
     const GLfloat vertex_array[VERTEX_COUNT*2] = {
       -param, -param,
        param, -param,
@@ -55,7 +55,7 @@ void ExampleLayer::Render (TimeDelta real_time_delta) const {
     glEnable(GL_TEXTURE_2D);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     static const GLuint VERTEX_COUNT = 4;
-    const GLfloat param = 0.1f * std::sin(3.0f*m_time) + 0.7f;
+    const GLfloat param = static_cast<GLfloat>(0.1f * std::sin(3.0f*m_time) + 0.7f);
     const GLfloat vertex_array[VERTEX_COUNT*2] = {
       -param, -param,
        param, -param,
