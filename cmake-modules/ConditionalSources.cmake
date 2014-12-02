@@ -36,7 +36,7 @@ endmacro()
 function(conditional_sources condition_var)
   _conditional_sources_parse_arguments(${ARGN})
 
-  source_group(${conditional_sources_GROUP_NAME} FILES ${conditional_sources_FILES})
+  source_group(${conditional_sources_GROUP_NAME} FILES "${conditional_sources_FILES}")
 
   separate_arguments(condition_var)
   verbose_message("Evaluating conditional as: ${condition_var}")
