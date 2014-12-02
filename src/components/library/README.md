@@ -366,20 +366,8 @@ GLMesh<DIM>
 
 ##### GL component high priority
 
-- Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
-  convention.  Some possible choices are:
-  (1) Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this)
-  (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
-      there is a separate Shutdown/Destroy method
-      destruction releases the resource (GLBuffer does this).
-  (3) Construct with acquired resource (as in (1)) or construct as "invalid/empty",
-      there is a [Re]Initialize method to [re]acquire a resource
-      there is a Shutdown method
-      destruction releases the resource.
-  Number (3) is probably the most flexible, because it doesn't require destroying and reconstructing
-  to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
-  Then again, we probably don't want to make that architectural choice for people, and want our
-  classes to be usable in many different paradigms.
+###### Done
+
 - DONE: Make the directory structure of the components repo into the following, where an X indicates a change.
 
   * components/                             -- root directory of repo -- this exists already
@@ -402,10 +390,6 @@ GLMesh<DIM>
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
 - DONE: Ensure that all types of uniforms can be set via GLShader (in particular, arrays and structures of uniforms).
-- Add SceneGraph and Camera.  Keep Projection [matrix], get rid of ModelView (because its stack
-  is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
-- Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
-  This will require some prototyping and code review.
 - DONE: Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
   otherwise get rid of it.  It has been decided that exception safety, along with a uniformized
   resource binding/unbinding convention is a good enough reason to have this.
@@ -413,6 +397,29 @@ GLMesh<DIM>
 - DONE: All color unit tests should pass (some are currently disabled).  NOTE: The blending tests for 
   long double aren't passing, but that's probably ok, we could just disallow long double as a component type.
 - DONE: Integrate RGB and RGBA into rest of code, replacing "class Color"
+
+###### Still To Do
+
+- Simplify GLTexture2PixelData class hierarchy to a single structure, eliminating the storage
+  concern that GLTexture2PixelDataStorage provides.
+- Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
+  convention.  Some possible choices are:
+  (1) Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this)
+  (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
+      there is a separate Shutdown/Destroy method
+      destruction releases the resource (GLBuffer does this).
+  (3) Construct with acquired resource (as in (1)) or construct as "invalid/empty",
+      there is a [Re]Initialize method to [re]acquire a resource
+      there is a Shutdown method
+      destruction releases the resource.
+  Number (3) is probably the most flexible, because it doesn't require destroying and reconstructing
+  to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
+  Then again, we probably don't want to make that architectural choice for people, and want our
+  classes to be usable in many different paradigms.
+- Add SceneGraph and Camera.  Keep Projection [matrix], get rid of ModelView (because its stack
+  is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
+- Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
+  This will require some prototyping and code review.
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;
   could also make an interface for that purpose -- perhaps that "make me a GL context" interface
   would be useful in the GL core component?).
@@ -768,6 +775,33 @@ currently being provided by Eigen, is the following:
     ~ File size (this would require a bit of thought for definition, but carefully done, the global
       size property of a node could be the recursive size of a node and all its children, e.g. in
       a filesystem).  This one would certainly benefit from the caching scheme.
+- Camera design notes:
+  * The goal is to provide the usual "lookat" semantics for camera positioning/orienting but through
+    the SceneGraphNode framework.  This could be accomplished by defining a series of Camera
+    functions (perhaps just in a Camera namespace) which operate on AffineTransform objects
+    (or in particular, the AffineTransform properties of SceneGraphNodes).  For example,
+      Camera::SetLookAt(node, eye_position, focus_position, up_direction);
+    would set the AffineTransform property of node so that its position is eye_position, it's
+    looking at focus_position, and its orientation is fixed using up_direction.  This would be
+    relative to the coordinate system of node's parent.  There could be another function which
+    does the same thing but does it relative to the coordinate system of a different, specified
+    node.
+  * The "view" part of the model-view matrix is provided by the global AffineTransform property
+    of the camera node.  The perspective matrix is provided by other parameters:
+    ~ Orthographic : Must specify vert/horiz scale
+    ~ Perspective  : Must specify vert/horiz FOV or view frustum.
+    This particular bit of information does require state to store, which justifies having some
+    sort of class -- be it Camera or Perspective or whathaveyou.  Probably it's better not to
+    have a subclass of SceneGraphNode for the camera state, so that one could use any node as
+    the camera view.  Perhaps the Camera class would just look like:
+      class Camera {
+        SceneGraphNode *m_node;
+        ViewFrustum m_view_frustum;
+      public:
+        ...
+        Matrix4x4 ViewMatrix () const { <derived from m_node> }
+        Matrix4x4 ProjectionMatrix () const { <derived from m_view_frustum> }
+      };
   
 #### Design notes for hooked GLController (different than existing/deprecated GLController)
 
