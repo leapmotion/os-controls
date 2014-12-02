@@ -2,7 +2,13 @@
 
 #include "Interactionlayer.h"
 
-class Leap::GL::GLShader;
+namespace Leap {
+namespace GL {
+
+class GLShader;
+
+} // end of namespace GL
+} // end of namespace Leap
 
 class SpaceLayer : public InteractionLayer {
 public:

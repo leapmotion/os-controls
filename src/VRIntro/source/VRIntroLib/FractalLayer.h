@@ -2,7 +2,13 @@
 
 #include "Interactionlayer.h"
 
-class Leap::GL::GLTexture2;
+namespace Leap {
+namespace GL {
+
+class GLTexture2;
+
+} // end of namespace GL
+} // end of namespace Leap
 
 class FractalLayer : public InteractionLayer
 {
