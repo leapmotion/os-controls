@@ -32,6 +32,10 @@ macro(leap_use_standard_platform_settings)
   set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING "" FORCE)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+  if(WIN32)
+    add_definitions(-DNOMINMAX) #Make windows.h not be terrible
+  endif()
+
   if(APPLE)
     if(NOT CMAKE_OSX_ARCHITECTURES)
       set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Mac OS X build architectures" FORCE)
