@@ -49,7 +49,7 @@ endmacro()
 #     one line (about 80 chars).
 #   * SOURCE_PATH -- The path, relative to CMAKE_CURRENT_SOURCE_DIR, containing all the sublibrary
 #     headers and sources.  If this value is left unspecified, then it will default to the current
-#     directory.  Useful if you don't want to stick a cmakelists file in a subdirectory.
+#     directory.
 # - Parameters taking multiple arguments (each one is optional, unless otherwise specified):
 #   * HEADERS [header1 [header2 [...]]] -- The list of headers for the sublibrary.  Each of these
 #     should be specified using a relative path, based at the sublibrary's subdirectory.
@@ -151,21 +151,21 @@ function(add_sublibrary SUBLIBRARY_NAME)
     # Determine the directory for the sublibrary sources.
     if(_arg_SOURCE_PATH)
         verbose_message("    using explicitly-specified SOURCE_PATH (${_arg_SOURCE_PATH}) for SOURCE_PATH")
-        set(_sublibrary_source_path ${_arg_SOURCE_PATH})
+        set(_sublibrary_source_path "${_arg_SOURCE_PATH}/")
     else()
         verbose_message("    using SUBLIBRARY_NAME (${SUBLIBRARY_NAME}) for SOURCE_PATH")
-        set(_sublibrary_source_path .)
+        set(_sublibrary_source_path "")
     endif()
 
     # Determine the relative paths of all the headers.
     set(_path_prefixed_headers "")
     foreach(_header ${_arg_HEADERS})
-        list(APPEND _path_prefixed_headers ${_sublibrary_source_path}/${_header})
+        list(APPEND _path_prefixed_headers ${_sublibrary_source_path}${_header})
     endforeach()
     # Determine the relative paths of all the sources.
     set(_path_prefixed_sources "")
     foreach(_source ${_arg_SOURCES})
-        list(APPEND _path_prefixed_sources ${_sublibrary_source_path}/${_source})
+        list(APPEND _path_prefixed_sources ${_sublibrary_source_path}${_source})
     endforeach()
 
     list(LENGTH _arg_SOURCES _source_count)
@@ -215,7 +215,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         add_custom_command(
             TARGET ${SUBLIBRARY_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}/${_resource}" "${PROJECT_BINARY_DIR}/resources/${_resource}"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}${_resource}" "${PROJECT_BINARY_DIR}/resources/${_resource}"
         )
     endforeach()
     

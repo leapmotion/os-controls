@@ -13,5 +13,5 @@ add_sublibrary(
         "A single point of control for init, shutdown, and general use of SFML."
 )
 if(APPLE)
-  set_property(SOURCE SFMLController/SFMLController.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
+  set_property(SOURCE SFMLController.cpp PROPERTY COMPILE_FLAGS "-x objective-c++")
 endif()
