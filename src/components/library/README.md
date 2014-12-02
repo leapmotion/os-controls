@@ -721,6 +721,54 @@ Both methods of delivering uniforms will use the same "packet type", so that the
 for specifying uniform values is contained within a single place, and not duplicated
 in GLShaderFrontend.
 
+#### Linear algebra abstraction design notes
+
+The linear algebra functionality in code which LeapGL inherits from Components, that is
+currently being provided by Eigen, is the following:
+- Matrix addition/subtraction
+- Matrix multiplication
+- Matrix normalization
+- Vector inner product
+- 3-vector cross product
+- Construction of matrices by component values
+  * Assignment to rows/columns
+- Generation of 3x3 rotation matrix via angle/axis vectors (this is really just a formula
+  that could be implemented in-code (it is implemented in ModelViewProjection.cpp))
+- Matrix inversion (ShaderMatrices)
+- Matrix transpose (ShaderMatrices)
+
+#### SceneGraphNode and Camera design notes
+
+- Some notes from a conversation with Raffi:
+  * It would be good to have a nicer API for scene graph nodes -- one that doesn't require
+    use of the boilerplate "LocalProperties()" method call.  Perhaps this could be provided
+    via global functions that mutate scene graph nodes.  E.g. Translate(node, v), 
+    Rotate(node, R), Scale(node, 2.0f), SetAlphaMask(node, 0.5f), etc.
+  * The Camera class will subsume the Projection class, and provide the projection matrix
+    as a function of its properties:
+    ~ Eye position
+    ~ Eye direction
+    ~ Up direction
+    ~ Fov/View frustum -- OR -- specify orthographic projection
+    However, because these properties will typically be provided in global coordinates, their
+    interplay with SceneGraphNode will need some thought.  The "view" matrix will be a function
+    of the global transformation of the Camera in the scene graph.
+  * The ModelView class will be replaced by the existing stack functionality of SceneGraphNode.
+    Some linear algebra functionality will be needed for this, so that matrix operations can be
+    done internally.
+  * As an implementation detail (which would be hidden with respect to the SceneGraphNode API),
+    caching of nodes' global properties could be done in order to reduce computation time.
+    However that is done, it must be efficient.
+  * Additional scene graph node properties that justify the complexity of the SceneGraphNodeProperty
+    class:
+    ~ Name -- whose global 'coordinate' is a path (e.g. "/device0/left_camera"), and the property
+      delta between two nodes would be a relative path (e.g. "../right_camera").
+    ~ Color blending -- for masking and tinting renderable objects.
+    ~ Style sheets (accumulation and propagation of properties), e.g. in GUI widget layouts.
+    ~ File size (this would require a bit of thought for definition, but carefully done, the global
+      size property of a node could be the recursive size of a node and all its children, e.g. in
+      a filesystem).  This one would certainly benefit from the caching scheme.
+  
 #### Design notes for hooked GLController (different than existing/deprecated GLController)
 
 The goal is to provide a minimal but clear C++ interface to the GL state, caching 

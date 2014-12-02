@@ -39,8 +39,8 @@ void Projection::Orthographic(double left, double bottom, double right, double t
 
 EigenTypes::Vector2 Projection::Project(const EigenTypes::Vector3& point) const {
   EigenTypes::Vector2 result = (m_matrix * EigenTypes::Vector4(point.x(), point.y(), point.z(), 1.0)).head<2>();
-  result.x() = (result.x() + 1)/2;
-  result.y() = (result.y() + 1)/2;
+  result.x() = (result.x() + 1)/2; // Why add 1/2?  This doesn't make any sense.
+  result.y() = (result.y() + 1)/2; // Why add 1/2?  This doesn't make any sense.
   return result;
 }
 
