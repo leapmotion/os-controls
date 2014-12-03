@@ -46,7 +46,7 @@ public:
   NodeProperty ()
     :
     m_is_valid(true),
-    m_apply_type(::ApplyType::OPERATE)
+    m_apply_type(Leap::GL::ApplyType::OPERATE)
   { }
 
   bool operator == (const NodeProperty &other) const {
@@ -147,7 +147,7 @@ private:
 
 template <typename ValueType_>
 NodeProperty<ValueType_> operator * (NodeProperty<ValueType_> lhs, const NodeProperty<ValueType_> &rhs) {
-  lhs.Apply(rhs, ::Operate::ON_RIGHT);
+  lhs.Apply(rhs, Leap::GL::Operate::ON_RIGHT);
   return lhs;
 }
 
