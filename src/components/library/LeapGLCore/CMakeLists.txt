@@ -1,6 +1,7 @@
 add_sublibrary(
     LeapGLCore
     HEADERS
+        Leap/GL/Camera.h
         Leap/GL/ColorComponent.h
         Leap/GL/Common.h
         Leap/GL/Exception.h
@@ -28,6 +29,8 @@ add_sublibrary(
         Leap/GL/Mesh.h
         Leap/GL/MeshException.h
         Leap/GL/ModelViewProjection.h
+        Leap/GL/OrthographicCamera.h
+        Leap/GL/PerspectiveCamera.h
         Leap/GL/RenderBuffer.h
         Leap/GL/Rgb.h
         Leap/GL/Rgba.h
@@ -42,6 +45,7 @@ add_sublibrary(
         Leap/GL/Texture2Exception.h
         Leap/GL/VertexBufferException.h
     SOURCES
+        Leap/GL/Camera.cpp
         Leap/GL/FrameBufferObject.cpp
         Leap/GL/GLBuffer.cpp
         Leap/GL/GLShader.cpp
@@ -49,6 +53,8 @@ add_sublibrary(
         Leap/GL/GLTexture2Params.cpp
         Leap/GL/GLTexture2PixelData.cpp
         Leap/GL/ModelViewProjection.cpp
+        Leap/GL/OrthographicCamera.cpp
+        Leap/GL/PerspectiveCamera.cpp
         Leap/GL/RenderBuffer.cpp
         Leap/GL/ShaderMatrices.cpp
     INTERNAL_DEPENDENCIES
