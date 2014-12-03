@@ -1,18 +1,15 @@
-add_sublibrary(
-    LeapGLCoreTest
-    EXCLUDE_FROM_ALL
-    SOURCES
-        ColorComponentTest.cpp
-        GLShaderTest.cpp
-        GLTexture2Test.cpp
-        RgbaTest.cpp
-        RgbTest.cpp
-        SceneGraphNodePropertiesTest.cpp
-        SceneGraphNodeTest.cpp
-        ShaderFrontendTest.cpp
-    INTERNAL_DEPENDENCIES
-        GLTestFramework
-        LeapGLCore
-    BRIEF_DOC_STRING
-        "Unit tests for the LeapGLCore component."
+set(_sources
+    ColorComponentTest.cpp
+    GLShaderTest.cpp
+    GLTexture2Test.cpp
+    OrthographicCameraTest.cpp
+    RgbaTest.cpp
+    RgbTest.cpp
+    SceneGraphNodePropertiesTest.cpp
+    SceneGraphNodeTest.cpp
+    ShaderFrontendTest.cpp
 )
+add_executable(LeapGLCoreTest ${_sources})
+target_link_libraries(LeapGLCoreTest GLTestFramework GTest LeapGLCore)
+set_property(TARGET LeapGLCoreTest PROPERTY FOLDER "Tests")
+add_test(NAME LeapGLCoreTest COMMAND $<TARGET_FILE:LeapGLCoreTest>)
