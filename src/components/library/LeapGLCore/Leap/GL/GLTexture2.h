@@ -19,8 +19,6 @@ public:
   
   GLTexture2(const GLTexture2& rhs) = delete;
 
-  // TODO: make GLTexture2-specific std::exception subclass?
-
   // Construct a GLTexture2 with the specified parameters and pixel data. The pixel data is only
   // passed into glTexImage2D, and is not stored.  The default value for pixel_data is "empty",
   // which indicates that while the texture memory will be allocated for it, it will not be
