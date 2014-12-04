@@ -2,8 +2,8 @@
 
 #include <cassert>
 #include <cstdint>
-#include <map> // TODO: use unordered_map, but wait until Cinder is cut out of FreeForm so it can use C++11.
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Leap/GL/Common.h"
@@ -38,7 +38,6 @@ public:
   class VarInfo {
   public:
 
-    VarInfo () { } // TEMP until C++11 compatibility allows use of std::map::emplace
     VarInfo (const std::string &name, GLint location, GLint size, GLenum type);
 
     const std::string &Name () const { return m_name; }
@@ -57,7 +56,7 @@ public:
     GLenum m_type;
   };
 
-  typedef std::map<std::string,VarInfo> VarInfoMap;
+  typedef std::unordered_map<std::string,VarInfo> VarInfoMap;
 
   // TODO: make GLShader-specific std::exception subclass?
 
@@ -182,8 +181,8 @@ public:
   // error if that type is not a shader variable type.
   static const std::string &VariableTypeString (GLenum type);
   
-  static const std::map<GLenum,std::string> OPENGL_2_1_UNIFORM_TYPE_MAP;
-  static const std::map<GLenum,std::string> OPENGL_3_3_UNIFORM_TYPE_MAP;
+  static const std::unordered_map<GLenum,std::string> OPENGL_2_1_UNIFORM_TYPE_MAP;
+  static const std::unordered_map<GLenum,std::string> OPENGL_3_3_UNIFORM_TYPE_MAP;
 
 private:
 

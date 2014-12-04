@@ -66,9 +66,8 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
       }
       GLint location = glGetUniformLocation(m_program_handle, name.c_str());
       // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
-      // TODO: use emplace here, then get rid of default constructor for VarInfo
       if (location >= 0) {
-        m_uniform_info_map[name] = VarInfo(name, location, size, type);
+        m_uniform_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
       }
     }
   }
@@ -92,9 +91,8 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
       name.resize(length);
       GLint location = glGetAttribLocation(m_program_handle, name.c_str());
       // std::cout << "attrib " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
-      // TODO: use emplace here, then get rid of default constructor for VarInfo
       if (location >= 0) {
-        m_attribute_info_map[name] = VarInfo(name, location, size, type);
+        m_attribute_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
       }
     }
   }
@@ -202,7 +200,7 @@ GLuint GLShader::Compile (GLuint type, const std::string &source) {
   return shader;
 }
 
-const std::map<GLenum,std::string> GLShader::OPENGL_2_1_UNIFORM_TYPE_MAP{
+const std::unordered_map<GLenum,std::string> GLShader::OPENGL_2_1_UNIFORM_TYPE_MAP{
   { GL_FLOAT, "float" },
   { GL_FLOAT_VEC2, "vec2" },
   { GL_FLOAT_VEC3, "vec3" },
@@ -232,7 +230,7 @@ const std::map<GLenum,std::string> GLShader::OPENGL_2_1_UNIFORM_TYPE_MAP{
   { GL_SAMPLER_2D_SHADOW, "sampler2DShadow" },
 };
 
-const std::map<GLenum,std::string> GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP{
+const std::unordered_map<GLenum,std::string> GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP{
   { GL_FLOAT, "float" },
   { GL_FLOAT_VEC2, "vec2" },
   { GL_FLOAT_VEC3, "vec3" },
