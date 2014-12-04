@@ -94,7 +94,7 @@ std::shared_ptr<ImagePrimitive> OSAppMac::GetIconTexture(std::shared_ptr<ImagePr
       texture.reset();
     }
   }
-  GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
+  GLTexture2PixelData pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
   if (texture) {
     texture->UpdateTexture(pixelData);
   } else {

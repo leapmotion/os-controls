@@ -108,7 +108,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     }
   }
 
-  GLTexture2PixelDataReference pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+  GLTexture2PixelData pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
   pixelData.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, stride);
   if (texture) {
     texture->UpdateTexture(pixelData);

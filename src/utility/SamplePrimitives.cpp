@@ -25,7 +25,7 @@ std::shared_ptr<ImagePrimitive> MakePatternedTexture(size_t cx, size_t cy) {
     );
 
   // Data we'll be filling:
-  GLTexture2PixelDataReference data(GL_RGBA, GL_UNSIGNED_BYTE, sampleSpace);
+  GLTexture2PixelData data(GL_RGBA, GL_UNSIGNED_BYTE, sampleSpace.data(), sampleSpace.size()*sizeof(uint32_t));
 
   // Create a new texture if we have to:
   GLTexture2Params params(cx, cy);

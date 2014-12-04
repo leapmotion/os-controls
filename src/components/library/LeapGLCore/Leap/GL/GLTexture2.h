@@ -23,7 +23,7 @@ public:
   // passed into glTexImage2D, and is not stored.  The default value for pixel_data is "empty",
   // which indicates that while the texture memory will be allocated for it, it will not be
   // initialized.  An exception will be thrown upon error.
-  GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data = GLTexture2PixelDataEmpty());
+  GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data = GLTexture2PixelData());
   // Automatically frees the allocated resources.
   ~GLTexture2 ();
 

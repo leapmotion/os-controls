@@ -1,5 +1,7 @@
 #include "Leap/GL/GLTexture2PixelData.h"
 
+#include <cassert>
+
 namespace Leap {
 namespace GL {
 
@@ -69,13 +71,38 @@ size_t GLTexture2PixelData::BytesInType (GLenum type) {
   }
 }
 
-GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type)
-  :
-  m_format(format),
-  m_type(type)
-{
+GLTexture2PixelData::GLTexture2PixelData () {
+  SetFormatAndType(GL_RGBA, GL_UNSIGNED_BYTE); // Reasonable defaults that will not be used anyway if IsEmpty.
+  MakeEmpty();
+}
+
+GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type, const void *readable_raw_data, size_t raw_data_byte_count) {
+  SetFormatAndType(format, type);
+  MakeReadable(readable_raw_data, raw_data_byte_count);
+}
+
+GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type, void *readable_and_writeable_raw_data, size_t raw_data_byte_count) {
+  SetFormatAndType(format, type);
+  MakeReadableAndWriteable(readable_and_writeable_raw_data, raw_data_byte_count);
+}
+
+GLint GLTexture2PixelData::PixelStoreiParameter (GLenum pname) const {
+  // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
+  auto it = m_pixel_store_i_parameter.find(pname);
+  if (it == m_pixel_store_i_parameter.end()) {
+    throw Texture2Exception("specified GLint-valued PixelStorei parameter not found and/or specified");
+  }
+  return it->second;
+}
+
+void GLTexture2PixelData::SetFormatAndType (GLenum format, GLenum type) {
+  // TODO: validity checking for format and type.
+  m_format = format;
+  m_type = type;
+
   // The following calls do checks for validity (basically checking that the format and type are each valid
-  // in the sense that they're acceptable values for OpenGL 2.1 or OpenGL 3.3).
+  // in the sense that they're acceptable values for OpenGL 2.1 or OpenGL 3.3), throwing Texture2Exception
+  // if their arguments are invalid.
   size_t bytes_in_pixel = ComponentsInFormat(format)*BytesInType(type);
   // NOTE: TEMPORARY hacky handling of GL_UNPACK_ALIGNMENT, so that the assumption that all pixel
   // data is layed out contiguously in the raw pixel data is correct (it isn't necessarily, as
@@ -88,48 +115,42 @@ GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type)
   }
 }
 
-GLint GLTexture2PixelData::PixelStoreiParameter (GLenum pname) const {
-  // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
-  auto it = m_pixel_store_i_parameter.find(pname);
-  if (it == m_pixel_store_i_parameter.end()) {
-    throw Texture2Exception("specified GLint-valued PixelStorei parameter not found and/or specified");
-  }
-  return it->second;
+void GLTexture2PixelData::MakeEmpty () {
+  m_readable_raw_data = nullptr;
+  m_writeable_raw_data = nullptr;
+  m_raw_data_byte_count = 0;
+  assert(IsEmpty());
+}
+
+void GLTexture2PixelData::MakeReadable (const void *readable_raw_data, size_t raw_data_byte_count) {
+  if (readable_raw_data == nullptr)
+    throw Texture2Exception("readable_raw_data must be non-null.");
+  if (raw_data_byte_count == 0)
+    throw Texture2Exception("raw_data_byte_count must be positive, indicating the size of the buffer specified by readable_raw_data.");
+  m_readable_raw_data = readable_raw_data;
+  m_writeable_raw_data = nullptr;
+  m_raw_data_byte_count = raw_data_byte_count;
+  assert(!IsEmpty());
+  assert(IsReadable());
+  assert(!IsWriteable());
+}
+
+void GLTexture2PixelData::MakeReadableAndWriteable (void *readable_and_writeable_raw_data, size_t raw_data_byte_count) {
+  if (readable_and_writeable_raw_data == nullptr)
+    throw Texture2Exception("readable_and_writeable_raw_data must be non-null.");
+  if (raw_data_byte_count == 0)
+    throw Texture2Exception("raw_data_byte_count must be positive, indicating the size of the buffer specified by readable_and_writeable_raw_data.");
+  m_readable_raw_data = readable_and_writeable_raw_data;
+  m_writeable_raw_data = readable_and_writeable_raw_data;
+  m_raw_data_byte_count = raw_data_byte_count;
+  assert(!IsEmpty());
+  assert(IsReadable());
+  assert(IsWriteable());
 }
 
 void GLTexture2PixelData::SetPixelStoreiParameter (GLenum pname, GLint param) {
   // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
   m_pixel_store_i_parameter[pname] = param;
-}
-
-// ////////////////////////////////////////////////////////////////////////////////////////////////
-// GLTexture2PixelDataReference
-// ////////////////////////////////////////////////////////////////////////////////////////////////
-
-GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenum type, const void *readable_raw_pixel_data, size_t raw_pixel_data_byte_count)
-  :
-  GLTexture2PixelData(format, type),
-  m_readable_raw_pixel_data(readable_raw_pixel_data),
-  m_writeable_raw_pixel_data(nullptr),
-  m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
-{
-  if (readable_raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
-    throw Texture2Exception("if readable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
-  }
-  // TODO: checks for validity in the type and format arguments?
-}
-
-GLTexture2PixelDataReference::GLTexture2PixelDataReference (GLenum format, GLenum type, void *readable_and_writeable_raw_pixel_data, size_t raw_pixel_data_byte_count)
-  :
-  GLTexture2PixelData(format, type),
-  m_readable_raw_pixel_data(readable_and_writeable_raw_pixel_data),
-  m_writeable_raw_pixel_data(readable_and_writeable_raw_pixel_data),
-  m_raw_pixel_data_byte_count(raw_pixel_data_byte_count)
-{
-  if (readable_and_writeable_raw_pixel_data == nullptr && raw_pixel_data_byte_count > 0) {
-    throw Texture2Exception("if readable_and_writeable_raw_pixel_data is null, then raw_pixel_data_byte_count must be zero.");
-  }
-  // TODO: checks for validity in the type and format arguments?
 }
 
 } // end of namespace GL

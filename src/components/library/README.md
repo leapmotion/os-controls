@@ -398,11 +398,11 @@ GLMesh<DIM>
   long double aren't passing, but that's probably ok, we could just disallow long double as a component type.
 - Integrate RGB and RGBA into rest of code, replacing "class Color"
 - SceneGraphNode and Camera.
+- Simplify GLTexture2PixelData class hierarchy to a single structure, eliminating the storage
+  concern that GLTexture2PixelDataStorage provides.
 
 ###### Still To Do
 
-- Simplify GLTexture2PixelData class hierarchy to a single structure, eliminating the storage
-  concern that GLTexture2PixelDataStorage provides.
 - Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
   convention.  Some possible choices are:
   (1) Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this)

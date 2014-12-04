@@ -8,9 +8,9 @@
 PassthroughLayer::PassthroughLayer() :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/passthrough"),
   m_RealHeight(240),
-  m_image(GLTexture2Params(640, 240, GL_LUMINANCE), GLTexture2PixelDataReference(GL_LUMINANCE, GL_UNSIGNED_BYTE, (const void*) NULL, 0)),
-  m_colorimage(GLTexture2Params(608, 540, GL_RGBA), GLTexture2PixelDataReference(GL_RGBA, GL_UNSIGNED_BYTE, (const void*) NULL, 0)),
-  m_distortion(GLTexture2Params(64, 64, GL_RG32F), GLTexture2PixelDataReference(GL_RG, GL_FLOAT, (const void*) NULL, 0)),
+  m_image(GLTexture2Params(640, 240, GL_LUMINANCE)), // Because no pixel data was supplied, OpenGL will allocate the texture memory automatically.
+  m_colorimage(GLTexture2Params(608, 540, GL_RGBA)), // Same here.
+  m_distortion(GLTexture2Params(64, 64, GL_RG32F)),  // Same here.
   m_Gamma(0.8f),
   m_Brightness(1.0f),
   m_IRMode(0),
@@ -77,13 +77,13 @@ void PassthroughLayer::SetImage(const unsigned char* data, int width, int height
 }
 
 void PassthroughLayer::SetColorImage(const unsigned char* data) {
-  m_colorimage.UpdateTexture(GLTexture2PixelDataReference(GL_RGBA, GL_UNSIGNED_BYTE, data, m_colorimage.Params().Width()*m_colorimage.Params().Height()*4));
+  m_colorimage.UpdateTexture(GLTexture2PixelData(GL_RGBA, GL_UNSIGNED_BYTE, data, m_colorimage.Params().Width()*m_colorimage.Params().Height()*4));
   m_UseRGBI = true;
   m_HasData = true;
 }
 
 void PassthroughLayer::SetDistortion(const float* data) {
-  m_distortion.UpdateTexture(GLTexture2PixelDataReference(GL_RG, GL_FLOAT, data, m_distortion.Params().Width()*m_distortion.Params().Height()*8));
+  m_distortion.UpdateTexture(GLTexture2PixelData(GL_RG, GL_FLOAT, data, m_distortion.Params().Width()*m_distortion.Params().Height()*8));
 }
 
 void PassthroughLayer::Render(TimeDelta real_time_delta) const {
