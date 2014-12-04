@@ -368,7 +368,7 @@ GLMesh<DIM>
 
 ###### Done
 
-- DONE: Make the directory structure of the components repo into the following, where an X indicates a change.
+- Make the directory structure of the components repo into the following, where an X indicates a change.
 
   * components/                             -- root directory of repo -- this exists already
   * components/library/                   X -- new root directory of the Components library
@@ -379,24 +379,25 @@ GLMesh<DIM>
   I think having a "library" subdir of components is clearer, because then it reads
   "components library", which is what it is.  Then the source code for the library
   is in the "source" subdirectory of "library", which is also what that is.
-- DONE: Namespace Leap::GL::
-- DONE: Directory structure to reflect the namespace:
+- Namespace Leap::GL::
+- Directory structure to reflect the namespace:
   e.g. components/library/source/Leap/GL/Abc.h
-- DONE: Get rid of GLController, as it does almost nothing, and its original intended design (to
+- Get rid of GLController, as it does almost nothing, and its original intended design (to
   track OpenGL server state and prevent redundant server state changes) is contrary to one
   of the main design principles of the Components lib (drop-in capability).
-- DONE: Create GLMesh and factor out of PrimitiveGeometry.
-- DONE: Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
+- Create GLMesh and factor out of PrimitiveGeometry.
+- Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
-- DONE: Ensure that all types of uniforms can be set via GLShader (in particular, arrays and structures of uniforms).
-- DONE: Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
+- Ensure that all types of uniforms can be set via GLShader (in particular, arrays and structures of uniforms).
+- Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
   otherwise get rid of it.  It has been decided that exception safety, along with a uniformized
   resource binding/unbinding convention is a good enough reason to have this.
-- DONE: Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)
-- DONE: All color unit tests should pass (some are currently disabled).  NOTE: The blending tests for 
+- Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)
+- All color unit tests should pass (some are currently disabled).  NOTE: The blending tests for 
   long double aren't passing, but that's probably ok, we could just disallow long double as a component type.
-- DONE: Integrate RGB and RGBA into rest of code, replacing "class Color"
+- Integrate RGB and RGBA into rest of code, replacing "class Color"
+- SceneGraphNode and Camera.
 
 ###### Still To Do
 
@@ -416,8 +417,12 @@ GLMesh<DIM>
   to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
   Then again, we probably don't want to make that architectural choice for people, and want our
   classes to be usable in many different paradigms.
-- Add SceneGraph and Camera.  Keep Projection [matrix], get rid of ModelView (because its stack
-  is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
+- Make RenderBuffer an Internal class, because it's apparently an implementation detail of FrameBufferObject.
+  Also, the name should change to FramebufferObject (or maybe just Framebuffer).  See
+  https://www.opengl.org/wiki/Framebuffer_Object
+- Integrate Camera into existing code (Primitives), get rid of Projection, and replace the functionality
+  of ModelView with SceneGraphNode's facilities.  ModelView's operations (Rotate, Scale, Translate, etc)
+  will need to be provided.
 - Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
   This will require some prototyping and code review.
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;
