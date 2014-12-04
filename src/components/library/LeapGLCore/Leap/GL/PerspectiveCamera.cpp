@@ -53,13 +53,13 @@ void PerspectiveCamera::SetUsingFrustumNearClipSize (double near_clip_width, dou
 const EigenTypes::Matrix4x4 &PerspectiveCamera::ProjectionMatrix () const {
   if (!m_projection_matrix_is_cached) {
     const double denom = 1.0 / (m_near_clip_depth - m_far_clip_depth);
-    const double d0 = 2.0 * m_near_clip_depth / m_near_clip_width;
-    const double d1 = 2.0 * m_near_clip_depth / m_near_clip_height;
-    const double d2 = (m_near_clip_depth + m_far_clip_depth) * denom;
+    const double l00 = 2.0 * m_near_clip_depth / m_near_clip_width;
+    const double l11 = 2.0 * m_near_clip_depth / m_near_clip_height;
+    const double l22 = (m_near_clip_depth + m_far_clip_depth) * denom;
     const double t2 = 2.0 * m_near_clip_depth * m_far_clip_depth*denom;
-    m_projection_matrix <<  d0, 0.0,  0.0, 0.0,
-                           0.0,  d1,  0.0, 0.0,
-                           0.0, 0.0,   d2,  t2,
+    m_projection_matrix << l00, 0.0,  0.0, 0.0,
+                           0.0, l11,  0.0, 0.0,
+                           0.0, 0.0,  l22,  t2,
                            0.0, 0.0, -1.0, 0.0;
     m_projection_matrix_is_cached = true;
   }

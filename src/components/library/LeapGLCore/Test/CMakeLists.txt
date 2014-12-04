@@ -3,6 +3,7 @@ set(_sources
     GLShaderTest.cpp
     GLTexture2Test.cpp
     OrthographicCameraTest.cpp
+    PerspectiveCameraTest.cpp
     RgbaTest.cpp
     RgbTest.cpp
     SceneGraphNodePropertiesTest.cpp
