@@ -64,7 +64,7 @@ TEST_F(GLShaderTest, CompileUnsuccessfully) {
   }
 }
 
-void SetTypedUniformCheckInVertexShader (const std::map<GLenum,std::string> &uniform_type_map, const std::string &glsl_version) {
+void SetTypedUniformCheckInVertexShader (const std::unordered_map<GLenum,std::string> &uniform_type_map, const std::string &glsl_version) {
   for (auto it = uniform_type_map.begin(); it != uniform_type_map.end(); ++it) {
     GLenum uniform_type = it->first;
     const std::string &uniform_type_name = it->second;
