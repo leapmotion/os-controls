@@ -178,7 +178,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("normalMatrix", normalMatrix, MatrixStorageConvention::COLUMN_MAJOR);
 
       // GLShaderMatrices::UploadUniforms(*mHandsShader, renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
-      mShaderMatrices->SetMatrices(renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix());
+      mShaderMatrices->SetMatrices(renderState.GetModelView().Matrix(), renderState.Camera().ProjectionMatrix());
       mShaderMatrices->UploadUniforms();
 
 

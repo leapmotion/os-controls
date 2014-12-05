@@ -6,6 +6,7 @@
 #include "GLTexture2Loader.h"
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/PerspectiveCamera.h"
 #include "Resource.h"
 
 const Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
@@ -77,6 +78,10 @@ MediaControlLayer::MediaControlLayer() :
   m_Cursor.SetRadius(2.0);
 
   m_Volume = 0.5;
+
+  // The FOV and other parameters for the camera are set in Render.
+  m_Camera = std::make_shared<PerspectiveCamera>();
+  m_Renderer.SetCamera(m_Camera);
 }
 
 MediaControlLayer::~MediaControlLayer() {
@@ -181,7 +186,7 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0; 
-  m_Renderer.GetProjection().Perspective(fovRadians, widthOverHeight, nearClip, farClip);
+  m_Camera->SetUsingFOVAndAspectRatio(fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ(); // + 0.5*m_Cursor.Translation();

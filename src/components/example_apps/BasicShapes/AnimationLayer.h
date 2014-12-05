@@ -11,6 +11,7 @@ namespace Leap {
 namespace GL {
 
 class GLShader;
+class PerspectiveCamera;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -37,6 +38,7 @@ private:
   Sphere m_Sphere2;
   Sphere m_Sphere3;
   Sphere m_Sphere4;
+  std::shared_ptr<PerspectiveCamera> m_Camera;
   mutable RenderState m_Renderer;
 
   Smoothed<EigenTypes::Vector3> m_Sphere1Translation;

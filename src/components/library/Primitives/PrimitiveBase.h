@@ -2,6 +2,7 @@
 
 #include "GLShaderLoader.h"
 #include "LambertianMaterial.h"
+#include "Leap/GL/Camera.h"
 #include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLShaderBindingScopeGuard.h"
 #include "Leap/GL/SceneGraphNode.h"
@@ -119,7 +120,7 @@ public:
     model_view.Multiply(SquareMatrixAdaptToDim<4>(global_properties.AffineTransform().AsFullMatrix(), EigenTypes::MATH_TYPE(1)));
     MakeAdditionalModelViewTransformations(model_view);
 
-    m_shader_matrices->SetMatrices(model_view.Matrix(), render_state.GetProjection().Matrix());
+    m_shader_matrices->SetMatrices(model_view.Matrix(), render_state.Camera().ProjectionMatrix());
 
     GLShaderBindingScopeGuard bso(Shader(), BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     

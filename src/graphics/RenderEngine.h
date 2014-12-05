@@ -14,6 +14,7 @@ namespace Leap {
 namespace GL {
 
 class GLShader;
+class OrthographicCamera;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -51,6 +52,7 @@ private:
   Autowired<RenderWindow> m_renderWindow;
 
   bool m_drewFrame;
+  std::shared_ptr<OrthographicCamera> m_Camera;
   RenderState m_renderState;
   std::shared_ptr<GLShader> m_shader;
 };

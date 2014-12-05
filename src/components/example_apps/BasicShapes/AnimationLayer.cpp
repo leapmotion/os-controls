@@ -2,11 +2,12 @@
 
 #include <cmath>
 
+#include "GLShaderLoader.h"
+#include "GLTexture2Loader.h"
 #include "Leap/GL/GLBuffer.h"
 #include "Leap/GL/GLShader.h"
-#include "GLShaderLoader.h"
 #include "Leap/GL/GLTexture2.h"
-#include "GLTexture2Loader.h"
+#include "Leap/GL/PerspectiveCamera.h"
 #include "Resource.h"
 
 AnimationLayer::AnimationLayer()
@@ -55,6 +56,10 @@ m_time(0)
   m_Sphere4.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere4Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere4Translation.SetSmoothStrength(0.65f);
+
+  // The FOV and other parameters for the camera are set in Render.
+  m_Camera = std::make_shared<PerspectiveCamera>();
+  m_Renderer.SetCamera(m_Camera);
 }
 
 AnimationLayer::~AnimationLayer() {
@@ -101,7 +106,7 @@ void AnimationLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0;
-  m_Renderer.GetProjection().Perspective(fovRadians, widthOverHeight, nearClip, farClip);
+  m_Camera->SetUsingFOVAndAspectRatio(fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();

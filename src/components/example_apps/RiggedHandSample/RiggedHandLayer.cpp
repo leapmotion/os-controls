@@ -1,6 +1,7 @@
 #include "RiggedHandLayer.h"
 
 #include "Leap/GL/GLShader.h"
+#include "Leap/GL/PerspectiveCamera.h"
 #include "ModelIo.h"
 #include "ModelSourceAssimp.h"
 
@@ -15,6 +16,10 @@ RiggedHandLayer::RiggedHandLayer()
   mController.setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 
   mPauseLeap = false;
+
+  // The FOV and other parameters for the camera are set in Render.
+  m_Camera = std::make_shared<PerspectiveCamera>();
+  m_Renderer.SetCamera(m_Camera);
 }
 
 RiggedHandLayer::~RiggedHandLayer() {
@@ -52,7 +57,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 10.0;
   const double farClip = 10000.0;
-  m_Renderer.GetProjection().Perspective(fovRadians, widthOverHeight, nearClip, farClip);
+  m_Camera->SetUsingFOVAndAspectRatio(fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = EigenTypes::Vector3(0.0f, 300.0f, 250.0f);

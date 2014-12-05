@@ -423,6 +423,8 @@ GLMesh<DIM>
 - Integrate Camera into existing code (Primitives), get rid of Projection, and replace the functionality
   of ModelView with SceneGraphNode's facilities.  ModelView's operations (Rotate, Scale, Translate, etc)
   will need to be provided.
+- Rename classes that have the GL prefix to not have the GL prefix, because they're in a namespace.
+- Take out the temporary "using namespace Leap::GL" statements everywhere.
 - Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
   This will require some prototyping and code review.
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;

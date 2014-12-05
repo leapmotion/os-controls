@@ -15,6 +15,7 @@ namespace GL {
 
 class GLShader;
 class GLTexture2;
+class PerspectiveCamera;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -45,6 +46,7 @@ private:
 
   double m_Volume;
 
+  std::shared_ptr<PerspectiveCamera> m_Camera;
   mutable RenderState m_Renderer;
 
   LeapListener m_Listener;

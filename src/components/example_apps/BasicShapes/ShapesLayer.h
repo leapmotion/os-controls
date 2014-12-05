@@ -13,6 +13,7 @@ namespace Leap {
 namespace GL {
 
 class GLShader;
+class PerspectiveCamera;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -56,6 +57,7 @@ private:
   RectanglePrim m_DropShadowContrastBackground;
   DropShadow m_DropShadow;
 
+  std::shared_ptr<PerspectiveCamera> m_Camera;
   mutable RenderState m_Renderer;
 
   std::shared_ptr<GLShader> m_shader;
