@@ -400,6 +400,9 @@ GLMesh<DIM>
 - SceneGraphNode and Camera.
 - Simplify GLTexture2PixelData class hierarchy to a single structure, eliminating the storage
   concern that GLTexture2PixelDataStorage provides.
+- Make RenderBuffer an Internal class, because it's apparently an implementation detail of FrameBufferObject.
+  Also, the name should change to FramebufferObject (or maybe just Framebuffer).  See
+  https://www.opengl.org/wiki/Framebuffer_Object
 
 ###### Still To Do
 
@@ -417,9 +420,6 @@ GLMesh<DIM>
   to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
   Then again, we probably don't want to make that architectural choice for people, and want our
   classes to be usable in many different paradigms.
-- Make RenderBuffer an Internal class, because it's apparently an implementation detail of FrameBufferObject.
-  Also, the name should change to FramebufferObject (or maybe just Framebuffer).  See
-  https://www.opengl.org/wiki/Framebuffer_Object
 - Integrate Camera into existing code (Primitives), get rid of Projection, and replace the functionality
   of ModelView with SceneGraphNode's facilities.  ModelView's operations (Rotate, Scale, Translate, etc)
   will need to be provided.

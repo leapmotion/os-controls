@@ -2,7 +2,7 @@
 
 #include "Leap/GL/GLError.h"
 #include "Leap/GL/GLTexture2.h"
-#include "Leap/GL/RenderBuffer.h"
+#include "Leap/GL/Internal/RenderBuffer.h"
 
 #include <assert.h>
 
@@ -162,10 +162,10 @@ bool FrameBufferObject::initColor()
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
     GLWarnUponError("in glFramebufferTextureEXT");
   } else { // multisampling
-    RenderBuffer::Format rbFormat;
+    Internal::RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalColor;
     rbFormat.samples = m_Samples;
-    m_ColorRenderBuffer = RenderBuffer::Create(m_Width, m_Height, rbFormat);
+    m_ColorRenderBuffer = Internal::RenderBuffer::Create(m_Width, m_Height, rbFormat);
     if (m_ColorRenderBuffer == nullptr) {
       return false;
     } else {
@@ -193,10 +193,10 @@ bool FrameBufferObject::initDepth()
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_DepthTexture->Id(), 0);
     GLWarnUponError("in glFramebufferTexture2DEXT");
   } else { // multisampling
-    RenderBuffer::Format rbFormat;
+    Internal::RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalDepth;
     rbFormat.samples = m_Samples;
-    m_DepthRenderBuffer = RenderBuffer::Create(m_Width, m_Height, rbFormat);
+    m_DepthRenderBuffer = Internal::RenderBuffer::Create(m_Width, m_Height, rbFormat);
     if (m_DepthRenderBuffer == nullptr) {
       return false;
     } else {

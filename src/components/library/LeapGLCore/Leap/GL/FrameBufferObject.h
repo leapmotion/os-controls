@@ -6,7 +6,8 @@ namespace Leap {
 namespace GL {
 
 class GLTexture2;
-class RenderBuffer;
+
+namespace Internal { class RenderBuffer; }
 
 /// <summary>
 /// The FrameBufferObject class is a wrapper around the OpenGL Framebuffer functionality.  The class will create a
@@ -14,6 +15,7 @@ class RenderBuffer;
 /// If multisampling is enabled (Format.samples > 0), then the attachments will be attached as a RenderBuffer,
 /// otherwise, the attachments will be attached as a Texture
 /// </summary>
+// TODO: the name should change to FramebufferObject (or maybe just Framebuffer).  See https://www.opengl.org/wiki/Framebuffer_Object
 class FrameBufferObject
 {
 public:
@@ -86,20 +88,20 @@ protected:
   bool initColor();
   bool initDepth();
 
-  bool                  m_Error;
-  int                   m_Height;
-  int                   m_Width;
-  int                   m_Samples;
-  Format                m_Format;
+  bool                    m_Error;
+  int                     m_Height;
+  int                     m_Width;
+  int                     m_Samples;
+  Format                  m_Format;
 
-  GLuint                m_FramebufferId;
-  GLenum                m_Status;
+  GLuint                  m_FramebufferId;
+  GLenum                  m_Status;
 
-  RenderBuffer*         m_ColorRenderBuffer;
-  RenderBuffer*         m_DepthRenderBuffer;
+  Internal::RenderBuffer* m_ColorRenderBuffer;
+  Internal::RenderBuffer* m_DepthRenderBuffer;
   
-  GLTexture2*           m_ColorTexture;
-  GLTexture2*           m_DepthTexture;
+  GLTexture2*             m_ColorTexture;
+  GLTexture2*             m_DepthTexture;
 };
 
 } // end of namespace GL

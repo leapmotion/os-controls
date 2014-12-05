@@ -4,6 +4,10 @@
 
 namespace Leap {
 namespace GL {
+// The contents of the Internal namespace are not intended to be used publicly, and provide
+// no guarantee as to the stability of their API.  The classes and functions are used
+// internally in the implementation of the publicly-presented classes.
+namespace Internal {
 
 /// <summary>
 /// The RenderBuffer class is a wrapper around the OpenGL Renderbuffer functionality
@@ -52,6 +56,7 @@ protected:
   GLint                 m_Samples;
 };
 
+} // end of namespace Internal
 } // end of namespace GL
 } // end of namespace Leap
 

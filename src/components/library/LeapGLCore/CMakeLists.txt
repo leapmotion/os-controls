@@ -19,6 +19,7 @@ add_sublibrary(
         Leap/GL/Internal/ColorComponent.h
         Leap/GL/Internal/Map.h
         Leap/GL/Internal/Meta.h
+        Leap/GL/Internal/RenderBuffer.h
         Leap/GL/Internal/ShaderFrontend.h
         Leap/GL/Internal/ShaderUniform.h
         Leap/GL/Internal/Tuple.h
@@ -31,7 +32,6 @@ add_sublibrary(
         Leap/GL/ModelViewProjection.h
         Leap/GL/OrthographicCamera.h
         Leap/GL/PerspectiveCamera.h
-        Leap/GL/RenderBuffer.h
         Leap/GL/Rgb.h
         Leap/GL/Rgba.h
         Leap/GL/SceneGraphNode.h
@@ -52,10 +52,10 @@ add_sublibrary(
         Leap/GL/GLTexture2.cpp
         Leap/GL/GLTexture2Params.cpp
         Leap/GL/GLTexture2PixelData.cpp
+        Leap/GL/Internal/RenderBuffer.cpp
         Leap/GL/ModelViewProjection.cpp
         Leap/GL/OrthographicCamera.cpp
         Leap/GL/PerspectiveCamera.cpp
-        Leap/GL/RenderBuffer.cpp
         Leap/GL/ShaderMatrices.cpp
     INTERNAL_DEPENDENCIES
         C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.

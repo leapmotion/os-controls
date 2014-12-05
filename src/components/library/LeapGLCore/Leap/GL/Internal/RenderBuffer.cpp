@@ -1,9 +1,13 @@
-#include "Leap/GL/RenderBuffer.h"
+#include "Leap/GL/Internal/RenderBuffer.h"
 
 #include "Leap/GL/GLError.h"
 
 namespace Leap {
 namespace GL {
+// The contents of the Internal namespace are not intended to be used publicly, and provide
+// no guarantee as to the stability of their API.  The classes and functions are used
+// internally in the implementation of the publicly-presented classes.
+namespace Internal {
 
 // static
 
@@ -66,6 +70,7 @@ RenderBuffer::RenderBuffer(int width, int height, const Format& format)
   Unbind();
 }
 
+} // end of namespace Internal
 } // end of namespace GL
 } // end of namespace Leap
 
