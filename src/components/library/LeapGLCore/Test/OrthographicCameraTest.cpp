@@ -22,7 +22,7 @@ Vector3 TransformHomogeneous (const Matrix4x4 &projection, const Vector3 &v) {
 
 } // end of anonymous namespace
 
-TEST_F(OrthographicCameraTest, CornerCorrespondence) {
+TEST_F(OrthographicCameraTest, SymmetricViewBox_CornerCorrespondence) {
   // Verify that each corner of the oriented orthographic view box
   //   [-w/2,w/2]x[-h/2,h/2]x[-n,-f],
   // where w := width, h := height, n := near_clip_depth, and f := far_clip_depth,
@@ -34,7 +34,7 @@ TEST_F(OrthographicCameraTest, CornerCorrespondence) {
   double h = 6.0;
   double n = 0.5;
   double f = 128.0;
-  camera.SetViewBox(w, h, n, f);
+  camera.SetSymmetricViewBox(w, h, n, f);
 
   Matrix4x4 projection = camera.ProjectionMatrix();
   ExpectVectorEq(Vector3(-1, -1, -1), TransformHomogeneous(projection, Vector3(-w/2, -h/2, -n)));
@@ -45,4 +45,31 @@ TEST_F(OrthographicCameraTest, CornerCorrespondence) {
   ExpectVectorEq(Vector3(-1,  1,  1), TransformHomogeneous(projection, Vector3(-w/2,  h/2, -f)));
   ExpectVectorEq(Vector3( 1, -1,  1), TransformHomogeneous(projection, Vector3( w/2, -h/2, -f)));
   ExpectVectorEq(Vector3( 1,  1,  1), TransformHomogeneous(projection, Vector3( w/2,  h/2, -f)));
+}
+
+TEST_F(OrthographicCameraTest, ViewBox_CornerCorrespondence) {
+  // Verify that each corner of the oriented orthographic view box
+  //   [l,r]x[b,t]x[-n,-f],
+  // where w := width, h := height, n := near_clip_depth, and f := far_clip_depth,
+  // maps to the corresponding corner of
+  //   [-1,1]x[-1,1]x[-1,1].
+
+  Leap::GL::OrthographicCamera camera;
+  double l = 8.0;
+  double r = 24.0;
+  double b = -2.0;
+  double t = 6.0;
+  double n = 0.5;
+  double f = 128.0;
+  camera.SetViewBox(l, r, b, t, n, f);
+
+  Matrix4x4 projection = camera.ProjectionMatrix();
+  ExpectVectorEq(Vector3(-1, -1, -1), TransformHomogeneous(projection, Vector3(l, b, -n)));
+  ExpectVectorEq(Vector3(-1,  1, -1), TransformHomogeneous(projection, Vector3(l, t, -n)));
+  ExpectVectorEq(Vector3( 1, -1, -1), TransformHomogeneous(projection, Vector3(r, b, -n)));
+  ExpectVectorEq(Vector3( 1,  1, -1), TransformHomogeneous(projection, Vector3(r, t, -n)));
+  ExpectVectorEq(Vector3(-1, -1,  1), TransformHomogeneous(projection, Vector3(l, b, -f)));
+  ExpectVectorEq(Vector3(-1,  1,  1), TransformHomogeneous(projection, Vector3(l, t, -f)));
+  ExpectVectorEq(Vector3( 1, -1,  1), TransformHomogeneous(projection, Vector3(r, b, -f)));
+  ExpectVectorEq(Vector3( 1,  1,  1), TransformHomogeneous(projection, Vector3(r, t, -f)));
 }

@@ -5,15 +5,16 @@
 namespace Leap {
 namespace GL {
 
-// Implements the Camera interface to provide a symmetric orthographic projection
-// (symmetric in the sense that the view box is symmetric in each of x and y).
+// Implements the Camera interface to provide either a symmetric orthographic projection
+// (symmetric in the sense that the view box is symmetric in each of x and y), or an
+// asymmetric orthographic projection.
 //
 // Before understanding what the orthographic projection is, it's important to note
 // that the "view" coordinates are a right-handed coordinate system that have the
 // positive x axis extending to the viewer's right, the positive y axis extending
 // upward along the view, and the positive z axis extending toward the viewer.
 //
-// The orthographic view box is the axially-aligned, oriented box
+// The symmetric orthographic view box is the axially-aligned, oriented box
 //   [-w/2,w/2] x [-h/2,h/2] x [-n,-f]
 // where w := width, h := height, n := near clipping plane depth, and f := far clipping
 // plane depth.  Note that f-n must be positive, and therefore -f < -n, so the oriented
@@ -24,6 +25,12 @@ namespace GL {
 // in the projection will be used to determine the x and y coordinates on screen, while the
 // z coordinate in the projection gives value that will be used in the depth buffer (lower
 // depths are closer to the viewer).
+//
+// The asymmetric orthographic view box is similar to the symmetric case, except that it
+// isn't necessarily symmetric in each of the x and y coordinates).  It's the axially-aligned,
+// oriented box
+//   [l,r] x [b,t] x [-n,-f]
+// where l := left, r := right, b := bottom, t := top, and n and f are as before.
 //
 // Note that the projection operation is defined as follows.  The 3-vector U = (x,y,z) is
 // "homogenized" to produce a 4-vector V = (x,y,z,1).  The projection matrix P is multiplied
@@ -36,6 +43,9 @@ namespace GL {
 // projected vector is (a/d, b/d, c/d)).  In the case of the orthographic projection, the
 // 4th coordinate of the 4-vector V will always be 1, so the division step doesn't change
 // anything.
+//
+// Some additional related documentation can be found at
+// http://msdn.microsoft.com/en-us/library/windows/desktop/dd373965%28v=vs.85%29.aspx
 class OrthographicCamera : public Camera
 {
 public:
@@ -43,11 +53,18 @@ public:
   OrthographicCamera ();
   virtual ~OrthographicCamera () { }
 
-  // Define the camera in terms of the width/height/near depth/far depth of the orthographic view box.
-  void SetViewBox (double width, double height, double near_clip_depth, double far_clip_depth);
+  // Define the camera in terms of the width/height/near depth/far depth of a symmetric orthographic view box.
+  void SetSymmetricViewBox (double width, double height, double near_clip_depth, double far_clip_depth);
+  // Define the camera in terms of the left/right/bottom/top/near depth/far depth of a symmetric orthographic view box.
+  // This does the same thing as the old OpenGL glOrtho.
+  void SetViewBox (double left, double right, double bottom, double top, double near_clip_depth, double far_clip_depth);
 
   virtual const EigenTypes::Matrix4x4 &ProjectionMatrix () const override;
 
+  double Left () const { return m_left; }
+  double Right () const { return m_right; }
+  double Bottom () const { return m_bottom; }
+  double Top () const { return m_top; }
   double Width () const { return m_width; }
   double Height () const { return m_height; }
   double NearClipDepth () const { return m_near_clip_depth; }
@@ -55,6 +72,10 @@ public:
 
 private:
 
+  double m_left;
+  double m_right;
+  double m_bottom;
+  double m_top;
   double m_width;
   double m_height;
   double m_near_clip_depth;
