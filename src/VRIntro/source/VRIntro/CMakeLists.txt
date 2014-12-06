@@ -15,7 +15,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # This is the correct way to detect Ma
 
   # Locate all recourses
 
-  set(VRINTRO_SOURCE_DIR ${PROJECT_SOURCE_DIR}/source/VRIntro)
+  set(VRINTRO_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/VRIntro/source/VRIntro)
     
   file(GLOB COPY_IMG_RESOURCES  ${VRINTRO_SOURCE_DIR}/images/*)
   set_source_files_properties(
