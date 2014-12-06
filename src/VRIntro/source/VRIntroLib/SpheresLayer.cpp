@@ -25,8 +25,9 @@ SpheresLayer::SpheresLayer(const EigenTypes::Vector3f& initialEyePos) :
     float dist = 0.40f + (float)rand() / RAND_MAX * 0.2f;
     m_Radius[i] = 0.020f + (float)rand() / RAND_MAX * 0.03f;
     m_Pos[i] = EigenTypes::Vector3f(0.0f, 1.7f, -5.0f) + EigenTypes::Vector3f(x, y, z)*dist;
-    m_Colors[i] = EigenTypes::Vector3f(r, g, b).normalized();
-    m_Mono[i] = EigenTypes::Vector3f::Ones()*m_Colors[i].sum()*0.33f;
+    float norm = EigenTypes::Vector3f(r, g, b).norm();
+    m_Colors[i] = Rgb<float>(r/norm, g/norm, b/norm);
+    m_Mono[i] = Rgb<float>(0.33f*(r+g+b)/norm); // Assign same component value to R, G, B.
   }
 }
 
@@ -45,10 +46,12 @@ void SpheresLayer::Render(TimeDelta real_time_delta) const {
   // Common property
   m_Sphere.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
 
+  assert(m_Colors.size() >= NUM_SPHERES);
+  assert(m_Mono.size() >= NUM_SPHERES);
   for (size_t j = 0; j < NUM_SPHERES; j++) {
     float desaturation = 0.005f / (0.005f + m_Disp[j].squaredNorm());
-    const Leap::GL::Rgb<float> color(m_Colors[j]*(1.0f - desaturation) + m_Mono[j]*desaturation);
-    const Leap::GL::Rgba<float> alphaColor(color.R(), color.G(), color.B(), m_Alpha);
+    const Rgb<float> color(m_Colors[j].BlendedWith(m_Mono[j], desaturation));
+    const Rgba<float> alphaColor(color, m_Alpha);
 
     m_Sphere.SetRadius(m_Radius[j]);
     m_Sphere.Translation() = (m_Pos[j] + m_Disp[j]).cast<double>();

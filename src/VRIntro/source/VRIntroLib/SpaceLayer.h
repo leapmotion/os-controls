@@ -37,6 +37,7 @@ private:
   mutable GLBuffer m_PopupBuffer;
   std::shared_ptr<Leap::GL::GLTexture2> m_PopupTexture;
   std::shared_ptr<Leap::GL::GLShader> m_PopupShader;
+  std::shared_ptr<Leap::GL::ShaderMatrices> m_PopupShaderMatrices;
 
   EigenTypes::Vector3f m_GalaxyPos[NUM_GALAXIES];
   EigenTypes::Vector3f m_GalaxyVel[NUM_GALAXIES];

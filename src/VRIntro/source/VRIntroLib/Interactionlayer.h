@@ -4,11 +4,17 @@
 #include "RenderState.h"
 #include "Primitives.h"
 #include "EigenTypes.h"
-#include "Leap/GL/GLShader.h"
 
 #include <memory>
 
+namespace Leap {
+namespace GL {
+
 class GLShader;
+class MatrixCamera;
+
+} // end of namespace GL
+} // end of namespace Leap
 
 struct SkeletonHand {
 
@@ -45,7 +51,7 @@ public:
   void UpdateEyePos(const EigenTypes::Vector3f& eyePos) { m_EyePos = eyePos; }
   void UpdateEyeView(const EigenTypes::Matrix3x3f& eyeView) { m_EyeView = eyeView; }
   float& Alpha() { return m_Alpha; }
-  void SetProjection(const EigenTypes::Matrix4x4f& value) { m_Projection = value; m_Renderer.GetProjection().Matrix() = value.cast<double>(); }
+  void SetProjection(const EigenTypes::Matrix4x4f& value);
   void SetModelView(const EigenTypes::Matrix4x4f& value) { m_ModelView = value; m_Renderer.GetModelView().Matrix() = value.cast<double>(); }
   void SetFingerRadius(float value) { m_FingerRadius = value; }
   
@@ -64,6 +70,8 @@ public:
 
 protected:
   void DrawSkeletonHands(bool capsuleMode = false) const;
+
+  std::shared_ptr<MatrixCamera> m_Camera;
   mutable RenderState m_Renderer;
 
   std::shared_ptr<Leap::GL::GLShader> m_Shader;
@@ -74,7 +82,6 @@ protected:
   mutable Box m_Box;
   float m_FingerRadius;
 
-  EigenTypes::Matrix4x4f m_Projection;
   EigenTypes::Matrix4x4f m_ModelView;
   EigenTypes::Vector3f m_EyePos;
   EigenTypes::Matrix3x3f m_EyeView;

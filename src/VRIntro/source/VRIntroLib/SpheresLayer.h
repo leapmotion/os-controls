@@ -24,9 +24,9 @@ private:
   EigenTypes::stdvectorV3f m_Pos;
   EigenTypes::stdvectorV3f m_Disp;
   EigenTypes::stdvectorV3f m_Vel;
-  
-  EigenTypes::stdvectorV3f m_Colors;
-  EigenTypes::stdvectorV3f m_Mono;
+
+  std::vector<Rgb<float>> m_Colors;
+  std::vector<Rgb<float>> m_Mono;
   std::vector<float> m_Radius;
 
   float m_Spring;
