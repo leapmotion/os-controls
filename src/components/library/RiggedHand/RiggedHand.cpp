@@ -170,17 +170,8 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
 
       mHandsShader->Bind();
 
-      //const Eigen::Matrix4f modelView =  renderState.GetModelView().Matrix().cast<float>().eval();
-      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("modelView", modelView, MatrixStorageConvention::COLUMN_MAJOR);
-      //const Eigen::Matrix4f projection = renderState.GetProjection().Matrix().cast<float>().eval();
-      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("projection", projection, MatrixStorageConvention::COLUMN_MAJOR);
-      //const Eigen::Matrix4f normalMatrix = renderState.GetModelView().Matrix().inverse().transpose().cast<float>().eval();
-      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("normalMatrix", normalMatrix, MatrixStorageConvention::COLUMN_MAJOR);
-
-      // GLShaderMatrices::UploadUniforms(*mHandsShader, renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
       mShaderMatrices->SetMatrices(renderState.GetModelView().Matrix(), renderState.Camera().ProjectionMatrix());
       mShaderMatrices->UploadUniforms();
-
 
       mHandsShader->UploadUniform<GL_BOOL>("isAnimated", section->isAnimated());
       mHandsShader->UploadUniform<GL_BOOL>("use_texture", true);

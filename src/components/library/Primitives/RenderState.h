@@ -14,8 +14,6 @@ public:
   // getters for modelview and projection
   const ModelView& GetModelView() const { return m_ModelView; }
   ModelView& GetModelView() { return m_ModelView; }
-  const Projection& GetProjection() const { return m_Projection; }
-  Projection& GetProjection() { return m_Projection; }
 
   bool HasCamera () const { return bool(m_Camera); }
   const Leap::GL::Camera &Camera () const {
@@ -34,6 +32,5 @@ public:
 private:
 
   ModelView m_ModelView;
-  Projection m_Projection;
   std::shared_ptr<Leap::GL::Camera> m_Camera;
 };
