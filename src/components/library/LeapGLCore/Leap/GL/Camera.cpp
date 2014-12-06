@@ -45,7 +45,7 @@ void Camera::ComputeWorldToViewTransformation (
   translation = linear * -eye_position;
 }
 
-static void ComputeViewToWorldTransformation (
+void Camera::ComputeViewToWorldTransformation (
   EigenTypes::Matrix3x3 &linear,
   EigenTypes::Vector3 &translation,
   const EigenTypes::Vector3 &eye_position,
@@ -59,6 +59,49 @@ static void ComputeViewToWorldTransformation (
   linear.col(1) = y;
   linear.col(2) = z;
   translation = eye_position;
+}
+
+void Camera::SetOrthographicProjectionMatrix (
+  EigenTypes::Matrix4x4 &projection_matrix,
+  double left, double right,
+  double bottom, double top,
+  double near_clip_depth, double far_clip_depth)
+{
+  const double width = right - left;
+  const double height = top - bottom;
+  const double depth = far_clip_depth - near_clip_depth;
+  const double l00 = 2.0 / width;
+  const double l11 = 2.0 / height;
+  const double l22 = -2.0 / depth;
+  const double t0 = -(right + left) / width;
+  const double t1 = -(bottom + top) / height;
+  const double t2 = -(far_clip_depth + near_clip_depth) / depth;
+  projection_matrix << l00, 0.0, 0.0,  t0,
+                       0.0, l11, 0.0,  t1,
+                       0.0, 0.0, l22,  t2,
+                       0.0, 0.0, 0.0, 1.0;
+}
+
+void Camera::SetPerspectiveProjectionMatrix (
+  EigenTypes::Matrix4x4 &projection_matrix,
+  double near_clip_left, double near_clip_right,
+  double near_clip_bottom, double near_clip_top,
+  double near_clip_depth, double far_clip_depth)
+{
+  const double near_clip_width = near_clip_right - near_clip_left;
+  const double near_clip_height = near_clip_top - near_clip_bottom;
+  const double depth = far_clip_depth - near_clip_depth;
+  const double denom = 1.0 / (near_clip_depth - far_clip_depth);
+  const double l00 = 2.0 * near_clip_depth / near_clip_width;
+  const double l11 = 2.0 * near_clip_depth / near_clip_height;
+  const double l22 = (near_clip_depth + far_clip_depth) * denom;
+  const double t0 = (near_clip_right + near_clip_left) / near_clip_width;
+  const double t1 = (near_clip_top + near_clip_bottom) / near_clip_height;
+  const double t2 = 2.0 * near_clip_depth * far_clip_depth * denom;
+  projection_matrix << l00, 0.0,  0.0,  t0,
+                       0.0, l11,  0.0,  t1,
+                       0.0, 0.0,  l22,  t2,
+                       0.0, 0.0, -1.0, 0.0;
 }
 
 } // end of namespace GL

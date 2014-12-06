@@ -28,9 +28,9 @@ public:
   // transformation is defined by an eye position (position of the viewer), a focus position (a
   // point that the viewer is looking at), and an "up" direction (the viewer's notion of "up").
   // This transformation is inverse to the one computed by ComputeViewToWorldTransformation.
-  // This is mathematically equivalent to gluLookAt.
+  // Equivalent to the deprecated function gluLookAt.
   static void ComputeWorldToViewTransformation (
-    EigenTypes::Matrix3x3 &linear,             // Out-variable for the linear transformation part of the affine transformation
+    EigenTypes::Matrix3x3 &linear,             // Out-variable for the linear transformation part of the affine transformation.
     EigenTypes::Vector3 &translation,          // Out-variable for the translation part of the affine transformation.
     const EigenTypes::Vector3 &eye_position,   // In-variable for the location of the eye.
     const EigenTypes::Vector3 &focus_position, // In-variable for the point the eye is looking at.
@@ -40,11 +40,24 @@ public:
   // This transformation is what you would use as the local AffineTransformation property in order
   // to place a physical viewer as a SceneGraphNode in a scene graph.
   static void ComputeViewToWorldTransformation (
-    EigenTypes::Matrix3x3 &linear,             // Out-variable for the linear transformation part of the affine transformation
+    EigenTypes::Matrix3x3 &linear,             // Out-variable for the linear transformation part of the affine transformation.
     EigenTypes::Vector3 &translation,          // Out-variable for the translation part of the affine transformation.
     const EigenTypes::Vector3 &eye_position,   // In-variable for the location of the eye.
     const EigenTypes::Vector3 &focus_position, // In-variable for the point the eye is looking at.
     const EigenTypes::Vector3 &up_direction);  // In-variable for the "up" direction for the view.
+
+  // Equivalent to the deprecated OpenGL function glOrtho (see OpenGL 2.1 API docs).
+  static void SetOrthographicProjectionMatrix (
+    EigenTypes::Matrix4x4 &projection_matrix,
+    double left, double right,
+    double bottom, double top,
+    double near_clip_depth, double far_clip_depth);
+  // Equivalent to the deprecated OpenGL function glFrustum (see OpenGL 2.1 API docs).
+  static void SetPerspectiveProjectionMatrix (
+    EigenTypes::Matrix4x4 &projection_matrix,
+    double near_clip_left, double near_clip_right,
+    double near_clip_bottom, double near_clip_top,
+    double near_clip_depth, double far_clip_depth);
 };
 
 } // end of namespace GL

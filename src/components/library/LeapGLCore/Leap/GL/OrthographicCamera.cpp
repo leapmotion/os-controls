@@ -48,17 +48,7 @@ void OrthographicCamera::SetViewBox (double left, double right, double bottom, d
 
 const EigenTypes::Matrix4x4 &OrthographicCamera::ProjectionMatrix () const {
   if (!m_projection_matrix_is_cached) {
-    const double d = m_far_clip_depth - m_near_clip_depth;
-    const double l00 = 2.0 / m_width;
-    const double l11 = 2.0 / m_height;
-    const double l22 = -2.0 / d;
-    const double t0 = -(m_right + m_left) / m_width;
-    const double t1 = -(m_bottom + m_top) / m_height;
-    const double t2 = -(m_far_clip_depth + m_near_clip_depth) / d;
-    m_projection_matrix << l00, 0.0, 0.0,  t0,
-                           0.0, l11, 0.0,  t1,
-                           0.0, 0.0, l22,  t2,
-                           0.0, 0.0, 0.0, 1.0;
+    Camera::SetOrthographicProjectionMatrix(m_projection_matrix, m_left, m_right, m_bottom, m_top, m_near_clip_depth, m_far_clip_depth);
     m_projection_matrix_is_cached = true;
   }
   return m_projection_matrix;
