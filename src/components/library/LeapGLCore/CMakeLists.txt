@@ -14,7 +14,7 @@ add_sublibrary(
         Leap/GL/Texture2.h
         Leap/GL/Texture2Params.h
         Leap/GL/Texture2PixelData.h
-        Leap/GL/GLVertexAttribute.h
+        Leap/GL/VertexAttribute.h
         Leap/GL/GLVertexBuffer.h
         Leap/GL/Internal/ColorComponent.h
         Leap/GL/Internal/Map.h

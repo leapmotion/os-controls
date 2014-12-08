@@ -19,10 +19,10 @@ class Shader;
 
 using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
-typedef Mesh<GLVertexAttribute<GL_FLOAT_VEC3>, // Position
-             GLVertexAttribute<GL_FLOAT_VEC3>, // Normal vector
-             GLVertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
-             GLVertexAttribute<GL_FLOAT_VEC4>  // RGBA color
+typedef Mesh<VertexAttribute<GL_FLOAT_VEC3>, // Position
+             VertexAttribute<GL_FLOAT_VEC3>, // Normal vector
+             VertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
+             VertexAttribute<GL_FLOAT_VEC4>  // RGBA color
             > PrimitiveGeometryMesh;
 
 namespace PrimitiveGeometry {

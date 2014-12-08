@@ -12,11 +12,11 @@ namespace model {
 
   typedef std::shared_ptr<class SkinnedVboMesh> SkinnedVboMeshRef;
 
-  typedef GLVertexBuffer<GLVertexAttribute<GL_FLOAT_VEC3>, // position
-    GLVertexAttribute<GL_FLOAT_VEC3>, // normal
-    GLVertexAttribute<GL_FLOAT_VEC2>, // tex coord
-    GLVertexAttribute<GL_FLOAT_VEC4>, // bone weights
-    GLVertexAttribute<GL_FLOAT_VEC4>> // bone indices
+  typedef GLVertexBuffer<VertexAttribute<GL_FLOAT_VEC3>, // position
+    VertexAttribute<GL_FLOAT_VEC3>, // normal
+    VertexAttribute<GL_FLOAT_VEC2>, // tex coord
+    VertexAttribute<GL_FLOAT_VEC4>, // bone weights
+    VertexAttribute<GL_FLOAT_VEC4>> // bone indices
     VertexBuffer;
 
   typedef VertexBuffer::Attributes VertexAttributes;

@@ -190,7 +190,7 @@ GLMesh<DIM>
   * Buffer
     ~ Buffer -- abstracts the concept of an OpenGL buffer object
   * GLVertexBuffer (depends on C++11)
-    ~ GLVertexAttribute -- abstracts the concept of an OpenGL vertex attribute
+    ~ VertexAttribute -- abstracts the concept of an OpenGL vertex attribute
     ~ GLVertexBuffer -- abstracts the concept of an OpenGL vertex buffer object
   * GLController
     ~ GLController -- Was originally intended to be a frontend for non-redundantly controlling GL state,
@@ -558,7 +558,7 @@ Texture2 (rename to Leap::GL::Texture2)
   * glGetTexLevelParameteriv (with e.g. GL_TEXTURE_INTERNAL_FORMAT)
   * TODO: examine API docs for closure
 
-GLVertexAttribute (rename to Leap::GL::VertexAttribute)
+VertexAttribute (rename to Leap::GL::VertexAttribute)
 - List of relevant GL calls
   * glEnableVertexAttribArray
   * glVertexAttribPointer
@@ -568,7 +568,7 @@ GLVertexAttribute (rename to Leap::GL::VertexAttribute)
   * TODO: examine API docs for closure
 
 GLVertexBuffer (rename to Leap::GL::VertexBuffer)
-- This is an abstraction completely on top of Buffer and GLVertexAttribute, so it doesn't call OpenGL directly.
+- This is an abstraction completely on top of Buffer and VertexAttribute, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
 RenderBuffer (rename to Leap::GL::RenderBuffer)

@@ -2,7 +2,7 @@
 
 #include "Leap/GL/GLHeaders.h"
 #include "Leap/GL/Buffer.h"
-#include "Leap/GL/GLVertexAttribute.h"
+#include "Leap/GL/VertexAttribute.h"
 #include "Leap/GL/Internal/Meta.h"
 #include "Leap/GL/VertexBufferException.h"
 
@@ -148,7 +148,7 @@ public:
   // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
   // tuple argument attribute_locations must correspond exactly to Attributes
-  // (which is a tuple of GLVertexAttribute types defined by this GLVertexBuffer).
+  // (which is a tuple of VertexAttribute types defined by this GLVertexBuffer).
   void Enable (const UniformLocations &attribute_locations) const {
     if (!m_gl_buffer.IsCreated()) {
       throw VertexBufferException("can't Enable a GLVertexBuffer that hasn't had UploadIntermediateAttributes called on it");
