@@ -6,11 +6,11 @@
 namespace Leap {
 namespace GL {
 
-inline void GLShaderBind (const Shader &shader) { shader.Bind(); }
-inline void GLShaderUnbind (const Shader &shader) { shader.Unbind(); }
+inline void ShaderBind (const Shader &shader) { shader.Bind(); }
+inline void ShaderUnbind (const Shader &shader) { shader.Unbind(); }
 
 // Convenience typedef for a ScopeGuard type that will Bind and Unbind a Shader object.
-typedef ScopeGuard<Shader,GLShaderBind,GLShaderUnbind> GLShaderBindingScopeGuard;
+typedef ScopeGuard<Shader,ShaderBind,ShaderUnbind> ShaderBindingScopeGuard;
 
 } // end of namespace GL
 } // end of namespace Leap

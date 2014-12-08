@@ -3,7 +3,7 @@
 #include "GLShaderLoader.h"
 #include "LambertianMaterial.h"
 #include "Leap/GL/Camera.h"
-#include "Leap/GL/GLShaderBindingScopeGuard.h"
+#include "Leap/GL/ShaderBindingScopeGuard.h"
 #include "Leap/GL/SceneGraphNode.h"
 #include "Leap/GL/SceneGraphNodeValues.h"
 #include "Leap/GL/Shader.h"
@@ -122,7 +122,7 @@ public:
 
     m_shader_matrices->SetMatrices(model_view.Matrix(), render_state.Camera().ProjectionMatrix());
 
-    GLShaderBindingScopeGuard bso(Shader(), BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
+    ShaderBindingScopeGuard bso(Shader(), BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     
     m_material->UploadUniforms();
     m_shader_matrices->UploadUniforms();

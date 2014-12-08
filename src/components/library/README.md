@@ -203,7 +203,7 @@ GLMesh<DIM>
   * Shader (depends on C++11, ScopeGuard)
     ~ Shader -- abstracts the concept of a GLSL shader program (vertex and fragment).  Do we want
                   to support geometry shaders?
-    ~ GLShaderBindingScopeGuard -- an object which implements the "scope guard" for binding/unbinding shaders.
+    ~ ShaderBindingScopeGuard -- an object which implements the "scope guard" for binding/unbinding shaders.
                                    This class is not strictly necessary, but is a convenience.
   * GLMaterial (depends on Color, EigenTypes)
     ~ GLMaterial -- provides a C++ interface for a particular fragment shader that we have written.  A lot of design
@@ -331,7 +331,7 @@ GLMesh<DIM>
   because SceneGraph has property stack functionality
 - Perhaps Projection could be replaced with Camera and its use in SceneGraph.
 - Abstracting the choice of Eigen out of the GL component
-- GLShaderBindingScopeGuard is for thread safety but we may not need it
+- ShaderBindingScopeGuard is for thread safety but we may not need it
 - Geometry shader is deemed not necessary right now
 - Cube map -- worthwhile (code in Freeform) but low priority
 - Pixel buffer objects may be a faster way to transfer pixels from GPU to CPU (low priority)
@@ -390,7 +390,7 @@ GLMesh<DIM>
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
 - Ensure that all types of uniforms can be set via Shader (in particular, arrays and structures of uniforms).
-- Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
+- Determine if exception safety is a good enough reason to include ShaderBindingScopeGuard,
   otherwise get rid of it.  It has been decided that exception safety, along with a uniformized
   resource binding/unbinding convention is a good enough reason to have this.
 - Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)

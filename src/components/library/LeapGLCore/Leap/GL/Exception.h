@@ -7,9 +7,9 @@ namespace Leap {
 namespace GL {
 
 // Base class for all Leap::GL exceptions.  TODO: Rename to Exception.
-class GLException : public std::runtime_error {
+class Exception : public std::runtime_error {
 public:
-  GLException (const std::string &message) : std::runtime_error(message) { }
+  Exception (const std::string &message) : std::runtime_error(message) { }
 };
 
 } // end of namespace GL

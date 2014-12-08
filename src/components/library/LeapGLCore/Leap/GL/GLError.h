@@ -33,7 +33,7 @@ inline std::string GLErrorMessage(GLenum error_code, const std::string &during) 
 inline void GLThrowUponError(const std::string& during) {
   GLenum error_code = glGetError();
   if (error_code != GL_NO_ERROR) {
-    throw Leap::GL::GLException(GLErrorMessage(error_code, during));
+    throw Leap::GL::Exception(GLErrorMessage(error_code, during));
   }
 }
 

@@ -10,7 +10,7 @@ add_sublibrary(
         Leap/GL/GLError.h
         Leap/GL/GLHeaders.h
         Leap/GL/Shader.h
-        Leap/GL/GLShaderBindingScopeGuard.h
+        Leap/GL/ShaderBindingScopeGuard.h
         Leap/GL/Texture2.h
         Leap/GL/Texture2Params.h
         Leap/GL/Texture2PixelData.h

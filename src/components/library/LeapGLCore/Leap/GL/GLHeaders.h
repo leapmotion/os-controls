@@ -29,7 +29,7 @@ namespace GL {
 
 inline void InitializeGlew () {
   if (glewInit() != GLEW_OK) {
-    throw Leap::GL::GLException("Glew initialization failed");
+    throw Leap::GL::Exception("Glew initialization failed");
   }
   std::cerr << "GL_VERSION = \"" << glGetString(GL_VERSION) << "\"\n";       // TEMP
   std::cerr << "GL_RENDERER = \"" << glGetString(GL_RENDERER) << "\"\n";     // TEMP

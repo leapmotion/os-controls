@@ -14,10 +14,10 @@ namespace Leap {
 namespace GL {
 
 // Base class for all Leap::GL::Mesh exceptions.
-class MeshException : public GLException {
+class MeshException : public Exception {
 public:
 
-  MeshException (const std::string &message) : GLException(message) { }
+  MeshException (const std::string &message) : Exception(message) { }
 };
 
 } // end of namespace GL

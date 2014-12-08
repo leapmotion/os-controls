@@ -14,10 +14,10 @@ namespace Leap {
 namespace GL {
 
 // Base class for all Leap::GL::Shader exceptions.
-class ShaderException : public GLException {
+class ShaderException : public Exception {
 public:
 
-  ShaderException (const std::string &message) : GLException(message) { }
+  ShaderException (const std::string &message) : Exception(message) { }
 };
 
 } // end of namespace GL
