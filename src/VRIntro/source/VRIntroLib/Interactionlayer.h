@@ -10,7 +10,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 class MatrixCamera;
 
 } // end of namespace GL
@@ -74,7 +74,7 @@ protected:
   std::shared_ptr<MatrixCamera> m_Camera;
   mutable RenderState m_Renderer;
 
-  std::shared_ptr<Leap::GL::GLShader> m_Shader;
+  std::shared_ptr<Leap::GL::Shader> m_Shader;
   std::shared_ptr<Leap::GL::ShaderMatrices> m_ShaderMatrices;
 
   mutable Sphere m_Sphere;

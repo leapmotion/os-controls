@@ -9,7 +9,7 @@
 #include "interaction/interactionConfigs.h"
 
 #include "GLShaderLoader.h"
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "Leap/GL/GLTexture2.h"
 #include "TextFile.h"
 #include "Resource.h"

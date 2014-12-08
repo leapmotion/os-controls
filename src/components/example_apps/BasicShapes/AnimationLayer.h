@@ -10,7 +10,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 class PerspectiveCamera;
 
 } // end of namespace GL
@@ -46,6 +46,6 @@ private:
   Smoothed<EigenTypes::Vector3> m_Sphere3Translation;
   Smoothed<EigenTypes::Vector3> m_Sphere4Translation;
 
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
   TimePoint m_time;
 };

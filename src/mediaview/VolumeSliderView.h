@@ -1,9 +1,9 @@
 #pragma once
 #include "graphics/RenderEngine.h"
 #include "GLShaderLoader.h"
-#include "Leap/GL/GLShader.h"
-#include "Leap/GL/GLTexture2.h"
 #include "Leap/GL/Rgba.h"
+#include "Leap/GL/Shader.h"
+#include "Leap/GL/GLTexture2.h"
 #include "Primitives.h"
 #include "Resource.h"
 #include "TextFile.h"

@@ -4,9 +4,9 @@
 
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLTexture2.h"
 #include "Leap/GL/PerspectiveCamera.h"
+#include "Leap/GL/Shader.h"
 #include "Resource.h"
 
 Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
@@ -27,7 +27,7 @@ MediaControlLayer::MediaControlLayer() :
   m_Height(480),
   m_time(0)
 {
-  m_shader = Resource<GLShader>("material");
+  m_shader = Resource<Shader>("material");
 
   m_RewindTexture = Resource<GLTexture2>("rewind.png");
   m_PlayPauseTexture = Resource<GLTexture2>("playpause.png");

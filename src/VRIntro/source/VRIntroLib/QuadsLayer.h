@@ -6,8 +6,6 @@
 #include "Leap/GL/GLTexture2.h"
 #include "GLTexture2Loader.h"
 
-class GLShader;
-
 struct TextureVertex {
   float x, y, z, u, v;
 };

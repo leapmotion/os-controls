@@ -13,7 +13,7 @@
 namespace Leap {
 namespace GL {
 
-// Base class for all Leap::GL::GLShader exceptions.
+// Base class for all Leap::GL::Shader exceptions.
 class ShaderException : public GLException {
 public:
 

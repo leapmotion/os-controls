@@ -2,8 +2,6 @@
 
 #include "Interactionlayer.h"
 
-class GLShader;
-
 class HandLayer : public InteractionLayer {
 public:
   HandLayer(const EigenTypes::Vector3f& initialEyePos, bool isGhost = false);

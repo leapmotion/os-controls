@@ -1,7 +1,7 @@
 #include "RiggedHandLayer.h"
 
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/PerspectiveCamera.h"
+#include "Leap/GL/Shader.h"
 #include "ModelIo.h"
 #include "ModelSourceAssimp.h"
 
@@ -102,7 +102,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
       mRiggedHands[i]->SetHandsShader(RiggedHand::getDefaultHandsShader());
     }
 
-    std::shared_ptr<GLShader> shader = mRiggedHands[i]->HandsShader();
+    std::shared_ptr<Shader> shader = mRiggedHands[i]->HandsShader();
     shader->Bind();
 
     const float lightPos[] ={ -200, 200, -200, 200, 200, -200, 0, 100, 100 };
@@ -110,11 +110,11 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
 
     // const int lightPos0 = shader->LocationOfUniform("lightPos[0]");
     const int lightPos0 = shader->LocationOfUniform("lightPos");
-    glUniform3fv(lightPos0, 3, lightPos); // TODO: replace with GLShader::UploadUniform
+    glUniform3fv(lightPos0, 3, lightPos); // TODO: replace with Shader::UploadUniform
 
     // const int lightStrengths0 = shader->LocationOfUniform("lightStrengths[0]");
     const int lightStrengths0 = shader->LocationOfUniform("lightStrengths");
-    glUniform1fv(lightStrengths0, 3, lightStrengths); // TODO: replace with GLShader::UploadUniform
+    glUniform1fv(lightStrengths0, 3, lightStrengths); // TODO: replace with Shader::UploadUniform
 
     shader->UploadUniform<GL_INT>("numLights", 3);
     shader->UploadUniform<GL_FLOAT>("attenuation", 1.0f);

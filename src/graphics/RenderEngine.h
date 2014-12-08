@@ -13,7 +13,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 class OrthographicCamera;
 
 } // end of namespace GL
@@ -54,5 +54,5 @@ private:
   bool m_drewFrame;
   std::shared_ptr<OrthographicCamera> m_Camera;
   RenderState m_renderState;
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
 };

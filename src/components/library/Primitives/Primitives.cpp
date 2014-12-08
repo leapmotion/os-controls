@@ -8,7 +8,7 @@ GenericShape::GenericShape(GLenum drawMode) {
 }
 
 void GenericShape::DrawContents(RenderState& renderState) const {
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -32,7 +32,7 @@ void Sphere::DrawContents(RenderState& renderState) const {
     mesh.Initialize();
     assert(mesh.IsInitialized());
   }
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -56,7 +56,7 @@ void Cylinder::DrawContents(RenderState& renderState) const {
     mesh.Initialize();
     assert(mesh.IsInitialized());
   }
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -80,7 +80,7 @@ void Box::DrawContents(RenderState& renderState) const {
     mesh.Initialize();
     assert(mesh.IsInitialized());
   }
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -104,7 +104,7 @@ void Disk::DrawContents(RenderState& renderState) const {
     mesh.Initialize();
     assert(mesh.IsInitialized());
   }
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -135,7 +135,7 @@ void RectanglePrim::DrawContents(RenderState& renderState) const {
     m_texture->Bind();
   }
   {
-    const GLShader &shader = Shader();
+    const Leap::GL::Shader &shader = Shader();
     auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                      shader.LocationOfAttribute("normal"),
                                      shader.LocationOfAttribute("tex_coord"),
@@ -178,7 +178,7 @@ void PartialDisk::DrawContents(RenderState& renderState) const {
     RecomputeMesh();
   }
 
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -342,7 +342,7 @@ void PartialSphere::DrawContents(RenderState& renderState) const {
     RecomputeMesh();
   }
 
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -380,7 +380,7 @@ void CapsulePrim::DrawContents(RenderState& renderState) const {
 
   ModelView& modelView = renderState.GetModelView();
 
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -425,7 +425,7 @@ void BiCapsulePrim::DrawContents(RenderState& renderState) const {
 
   ModelView& modelView = renderState.GetModelView();
 
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -507,7 +507,7 @@ void PartialCylinder::DrawContents(RenderState& renderState) const {
     RecomputeMesh();
   }
 
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),
@@ -535,7 +535,7 @@ void RadialPolygonPrim::DrawContents(RenderState& renderState) const {
 
   ModelView& modelView = renderState.GetModelView();
 
-  const GLShader &shader = Shader();
+  const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                    shader.LocationOfAttribute("normal"),
                                    shader.LocationOfAttribute("tex_coord"),

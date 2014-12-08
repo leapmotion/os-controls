@@ -11,7 +11,7 @@
 
 class ShaderFrontendTest : public GLTestFramework_Headless { };
 
-std::shared_ptr<GLShader> CreateShaderWithUniform (const std::string &name, const std::string &uniform_type_name, size_t array_length, const std::string &glsl_version) {
+std::shared_ptr<Shader> CreateShaderWithUniform (const std::string &name, const std::string &uniform_type_name, size_t array_length, const std::string &glsl_version) {
   // Disallow the sampler types for now.
   assert(uniform_type_name.find("sampler") == std::string::npos);
 
@@ -40,7 +40,7 @@ std::shared_ptr<GLShader> CreateShaderWithUniform (const std::string &name, cons
     "}\n"
   );
   std::cout << vertex_shader_source << '\n';
-  return std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source);
+  return std::make_shared<Shader>(vertex_shader_source, fragment_shader_source);
 }
 
 enum class UniformName { THINGY };

@@ -73,7 +73,7 @@ void TexturedFrame::DrawContents(RenderState& renderState) const {
   glEnable(GL_TEXTURE_2D);
   m_texture->Bind();
   {
-    const GLShader &shader = Shader();
+    const Leap::GL::Shader &shader = Shader();
     auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
                                      shader.LocationOfAttribute("normal"),
                                      shader.LocationOfAttribute("tex_coord"),

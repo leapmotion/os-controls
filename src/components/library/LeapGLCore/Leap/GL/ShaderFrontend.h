@@ -2,10 +2,10 @@
 
 #include "Leap/GL/Common.h"
 #include "Leap/GL/GLHeaders.h"
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/Internal/Map.h"
 #include "Leap/GL/Internal/ShaderFrontend.h"
 #include "Leap/GL/Internal/UniformTraits.h"
+#include "Leap/GL/Shader.h"
 #include <sstream>
 
 namespace Leap {
@@ -42,7 +42,7 @@ public:
 
   // TODO: maybe make this have resource semantics (initialize/destroy)
   template <typename... Types_>
-  ShaderFrontend (const GLShader &shader, const UniformIds &uniform_ids, Types_... args)
+  ShaderFrontend (const Shader &shader, const UniformIds &uniform_ids, Types_... args)
     : m_shader(shader)
     , m_uniform_map(args...)
   {
@@ -51,7 +51,7 @@ public:
       m_uniform_locations.as_array()[i] = glGetUniformLocation(m_shader.ProgramHandle(), uniform_ids.as_array()[i].c_str());
     }
     // Compile-time checking of types.
-    Internal::CheckUniformTypes<UniformMappingsTyple>::Check();
+    Leap::GL::Internal::CheckUniformTypes<UniformMappingsTyple>::Check();
     // Run-time checking of types.
     CheckType<0>(uniform_ids);
   }
@@ -62,7 +62,7 @@ public:
   UniformMap &Uniforms () { return m_uniform_map; }
 
   void UploadUniforms () const {
-    assert(GLShader::CurrentlyBoundProgramHandle() == m_shader.ProgramHandle() && "This shader must be bound in order to upload uniforms.");
+    assert(Shader::CurrentlyBoundProgramHandle() == m_shader.ProgramHandle() && "This shader must be bound in order to upload uniforms.");
     UploadUniform<0>();
   }
 
@@ -77,11 +77,11 @@ private:
       const auto &uniform_id = uniform_ids.template el<INDEX_>();
       auto it = m_shader.UniformInfoMap().find(uniform_id);
       assert(it != m_shader.UniformInfoMap().end() && "This should never happen.");
-      assert(GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP.find(GL_TYPE_) != GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP.end() && "Invalid uniform type.");
+      assert(Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.find(GL_TYPE_) != Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.end() && "Invalid uniform type.");
       const auto &info = it->second;
       if (GL_TYPE_ != info.Type()) {
-        throw ShaderException("For uniform \"" + uniform_id + ", ShaderFrontend was looking for type " + GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP.at(GL_TYPE_) +
-                              " but the actual type was " + GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP.at(info.Type()) + '.');
+        throw ShaderException("For uniform \"" + uniform_id + ", ShaderFrontend was looking for type " + Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.at(GL_TYPE_) +
+                              " but the actual type was " + Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.at(info.Type()) + '.');
       }
       if (ARRAY_LENGTH != info.Size()) {
         std::ostringstream out;
@@ -114,7 +114,7 @@ private:
     // Done with iteration.
   }
 
-  const GLShader &m_shader;
+  const Shader &m_shader;
   UniformLocations m_uniform_locations;
   UniformMap m_uniform_map;
 };

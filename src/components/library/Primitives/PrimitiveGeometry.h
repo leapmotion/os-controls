@@ -12,7 +12,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 
 } // end of namespace GL
 } // end of namespace Leap

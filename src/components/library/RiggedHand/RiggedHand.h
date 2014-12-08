@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EigenTypes.h"
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "Leap/GL/ShaderMatrices.h"
 #include "Skeleton.h"
 #include "SkinnedVboMesh.h"
@@ -36,7 +36,7 @@ public:
 
   virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
 
-  void SetHandsShader(const std::shared_ptr<GLShader>& shader) {
+  void SetHandsShader(const std::shared_ptr<Leap::GL::Shader>& shader) {
     if (shader.get() != mHandsShader.get()) {
       mShaderMatrices =
         std::make_shared<ShaderMatrices>(
@@ -47,9 +47,9 @@ public:
     }
     mHandsShader = shader;
   };
-  std::shared_ptr<GLShader> HandsShader() { return mHandsShader; };
+  std::shared_ptr<Leap::GL::Shader> HandsShader() { return mHandsShader; };
 
-  static std::shared_ptr<GLShader> getDefaultHandsShader();
+  static std::shared_ptr<Leap::GL::Shader> getDefaultHandsShader();
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -142,7 +142,7 @@ private:
   Eigen::Quaterniond mFingerReorientation;
 
   // hand shader
-  mutable std::shared_ptr<GLShader> mHandsShader;
+  mutable std::shared_ptr<Leap::GL::Shader> mHandsShader;
   // ShaderFrontend for setting matrix uniforms
   mutable std::shared_ptr<ShaderMatrices> mShaderMatrices;
 

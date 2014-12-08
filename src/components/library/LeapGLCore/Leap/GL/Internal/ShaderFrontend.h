@@ -2,6 +2,7 @@
 
 #include "Leap/GL/Common.h"
 #include "Leap/GL/GLHeaders.h"
+#include "Leap/GL/Internal/UniformTraits.h"
 
 namespace Leap {
 namespace GL {

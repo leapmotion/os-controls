@@ -2,9 +2,9 @@
 #include "InteractionLayer.h"
 
 #include "Resource.h"
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/MatrixCamera.h"
 #include "Leap/GL/Rgba.h"
+#include "Leap/GL/Shader.h"
 #include "GLShaderLoader.h"
 
 
@@ -16,7 +16,7 @@ EigenTypes::Matrix3x3f SkeletonHand::arbitraryRelatedRotation() const {
 }
 
 InteractionLayer::InteractionLayer(const EigenTypes::Vector3f& initialEyePos, const std::string& shaderName) :
-  m_Shader(Resource<Leap::GL::GLShader>(shaderName)),
+  m_Shader(Resource<Leap::GL::Shader>(shaderName)),
   m_ShaderMatrices(std::make_shared<Leap::GL::ShaderMatrices>(*m_Shader,
     "projection_times_model_view_matrix",
     "model_view_matrix",
@@ -88,7 +88,7 @@ void InteractionLayer::DrawSkeletonHand(const SkeletonHand& hand, float alpha) c
   }
 }
 
-//std::shared_ptr<GLShader> m_Shader;
+//std::shared_ptr<Shader> m_Shader;
 //mutable RenderState m_Renderer;
 //EigenTypes::Vector3f m_EyePos;
 

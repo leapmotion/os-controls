@@ -3,10 +3,10 @@
 #include "GLShaderLoader.h"
 #include "LambertianMaterial.h"
 #include "Leap/GL/Camera.h"
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLShaderBindingScopeGuard.h"
 #include "Leap/GL/SceneGraphNode.h"
 #include "Leap/GL/SceneGraphNodeValues.h"
+#include "Leap/GL/Shader.h"
 #include "Leap/GL/ShaderMatrices.h"
 #include "RenderState.h"
 #include "Resource.h"
@@ -62,11 +62,11 @@ public:
   typedef typename Properties::AffineTransformValue_::Transform Transform;
 
   Primitive() {
-    SetShader(Resource<GLShader>("material"));
+    SetShader(Resource<Leap::GL::Shader>("material"));
   }
   virtual ~Primitive() { }
 
-  const GLShader &Shader () const {
+  const Leap::GL::Shader &Shader () const {
     assert(m_shader);
     return *m_shader;
   }
@@ -75,7 +75,7 @@ public:
   LambertianMaterial &Material () { return *m_material; }
 
   //Must be compatible with the default material (ie, use the same names for the matrix inputs)
-  void SetShader(const std::shared_ptr<GLShader> &shader) {
+  void SetShader(const std::shared_ptr<Leap::GL::Shader> &shader) {
     if (!shader) {
       throw std::runtime_error("Must specify a valid shader.");
     }
@@ -149,7 +149,7 @@ protected:
   
 private:
 
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Leap::GL::Shader> m_shader;
   std::shared_ptr<LambertianMaterial> m_material;
   std::shared_ptr<ShaderMatrices> m_shader_matrices;
 };

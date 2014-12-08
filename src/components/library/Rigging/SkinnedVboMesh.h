@@ -2,7 +2,7 @@
 
 #include "AMeshSection.h"
 
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "Leap/GL/GLVertexBuffer.h"
 
 #include <vector>

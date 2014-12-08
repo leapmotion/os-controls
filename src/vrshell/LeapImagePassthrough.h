@@ -1,7 +1,7 @@
 #pragma once
 #include "graphics/Renderable.h"
 #include "graphics/RenderEngine.h"
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "Leap/GL/GLTexture2.h"
 #include "Primitives.h"
 
@@ -30,7 +30,7 @@ private:
   Autowired<RenderEngine> m_renderEngine;
   std::shared_ptr<GLTexture2> m_texture[2];
   std::shared_ptr<GLTexture2> m_distortion[2];
-  std::shared_ptr<GLShader> m_passthroughShader;
+  std::shared_ptr<Shader> m_passthroughShader;
   RectanglePrim m_rect[2];
 };
 

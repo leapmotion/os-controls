@@ -8,8 +8,6 @@
 
 #include <memory>
 
-class GLShader;
-
 class PassthroughLayer : public InteractionLayer {
 public:
   PassthroughLayer();

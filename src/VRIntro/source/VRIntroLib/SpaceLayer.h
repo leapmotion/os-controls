@@ -5,7 +5,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -36,7 +36,7 @@ private:
   mutable Buffer m_Buffer;
   mutable Buffer m_PopupBuffer;
   std::shared_ptr<Leap::GL::GLTexture2> m_PopupTexture;
-  std::shared_ptr<Leap::GL::GLShader> m_PopupShader;
+  std::shared_ptr<Leap::GL::Shader> m_PopupShader;
   std::shared_ptr<Leap::GL::ShaderMatrices> m_PopupShaderMatrices;
 
   EigenTypes::Vector3f m_GalaxyPos[NUM_GALAXIES];

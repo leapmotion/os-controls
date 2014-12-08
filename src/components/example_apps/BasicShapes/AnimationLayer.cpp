@@ -5,9 +5,9 @@
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
 #include "Leap/GL/Buffer.h"
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/GLTexture2.h"
 #include "Leap/GL/PerspectiveCamera.h"
+#include "Leap/GL/Shader.h"
 #include "Resource.h"
 
 AnimationLayer::AnimationLayer()
@@ -20,7 +20,7 @@ m_Sphere3Translation(EigenTypes::Vector3::Zero()),
 m_Sphere4Translation(EigenTypes::Vector3::Zero()),
 m_time(0)
 {
-  m_shader = Resource<GLShader>("material");
+  m_shader = Resource<Shader>("material");
   m_shader->CheckForTypedAttribute("position", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
   m_shader->CheckForTypedAttribute("normal", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
   m_shader->CheckForTypedAttribute("tex_coord", GL_FLOAT_VEC2, VariableIs::OPTIONAL_BUT_WARN);

@@ -1,4 +1,4 @@
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 
 // #include <iostream> // TEMP
 
@@ -6,10 +6,10 @@ namespace Leap {
 namespace GL {
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// GLShader::VarInfo
+// Shader::VarInfo
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GLShader::VarInfo::VarInfo (const std::string &name, GLint location, GLint size, GLenum type)
+Shader::VarInfo::VarInfo (const std::string &name, GLint location, GLint size, GLenum type)
   :
   m_name(name),
   m_location(location),
@@ -31,10 +31,10 @@ GLShader::VarInfo::VarInfo (const std::string &name, GLint location, GLint size,
 }
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// GLShader
+// Shader
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GLShader::GLShader (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
+Shader::Shader (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
   m_vertex_shader = Compile(GL_VERTEX_SHADER, vertex_shader_source);
   m_fragment_shader = Compile(GL_FRAGMENT_SHADER, fragment_shader_source);
   m_program_handle = glCreateProgram();
@@ -98,14 +98,14 @@ GLShader::GLShader (const std::string &vertex_shader_source, const std::string &
   }
 }
 
-GLShader::~GLShader () {
+Shader::~Shader () {
   glDeleteProgram(m_program_handle);
   glDeleteShader(m_vertex_shader);
   glDeleteShader(m_fragment_shader);
 }
 
 // TODO: combine this with the duplicated code in CheckForTypedAttribute
-void GLShader::CheckForTypedUniform (const std::string &name, GLenum type, VariableIs check_type) const {
+void Shader::CheckForTypedUniform (const std::string &name, GLenum type, VariableIs check_type) const {
   std::string qualifier;
   switch (check_type) {
     case VariableIs::OPTIONAL_NO_WARN:
@@ -120,12 +120,12 @@ void GLShader::CheckForTypedUniform (const std::string &name, GLenum type, Varia
   std::string message;
   do { // This loop is only used so we can break out of it.
     if (!HasUniform(name)) {
-      message = "GLShader: " + qualifier + "uniform \"uniform " + VariableTypeString(type) + ' ' + name + "\" is missing";
+      message = "Shader: " + qualifier + "uniform \"uniform " + VariableTypeString(type) + ' ' + name + "\" is missing";
       break;
     }
     const auto &actual_type = UniformInfo(name).Type();
     if (actual_type != type) {
-      message = "GLShader: has \"uniform " + VariableTypeString(actual_type) + ' ' + name + "\" but expected " + qualifier + "\"uniform " + VariableTypeString(type) + ' ' + name + '\"';
+      message = "Shader: has \"uniform " + VariableTypeString(actual_type) + ' ' + name + "\" but expected " + qualifier + "\"uniform " + VariableTypeString(type) + ' ' + name + '\"';
     }
   } while (false);
   if (!message.empty()) {
@@ -138,7 +138,7 @@ void GLShader::CheckForTypedUniform (const std::string &name, GLenum type, Varia
 }
 
 // TODO: combine this with the duplicated code in CheckForTypedUniform
-void GLShader::CheckForTypedAttribute (const std::string &name, GLenum type, VariableIs check_type) const {
+void Shader::CheckForTypedAttribute (const std::string &name, GLenum type, VariableIs check_type) const {
   std::string qualifier;
   switch (check_type) {
     case VariableIs::OPTIONAL_NO_WARN:
@@ -153,12 +153,12 @@ void GLShader::CheckForTypedAttribute (const std::string &name, GLenum type, Var
   std::string message;
   do { // This loop is only used so we can break out of it.
     if (!HasAttribute(name)) {
-      message = "GLShader: " + qualifier + "\"attribute " + VariableTypeString(type) + ' ' + name + "\" is missing";
+      message = "Shader: " + qualifier + "\"attribute " + VariableTypeString(type) + ' ' + name + "\" is missing";
       break;
     }
     const auto &actual_type = AttributeInfo(name).Type();
     if (actual_type != type) {
-      message = "GLShader: has \"attribute " + VariableTypeString(actual_type) + ' ' + name + "\" but expected " + qualifier + "\"attribute " + VariableTypeString(type) + ' ' + name + '\"';
+      message = "Shader: has \"attribute " + VariableTypeString(actual_type) + ' ' + name + "\" but expected " + qualifier + "\"attribute " + VariableTypeString(type) + ' ' + name + '\"';
     }
   } while (false);
   if (!message.empty()) {
@@ -170,7 +170,7 @@ void GLShader::CheckForTypedAttribute (const std::string &name, GLenum type, Var
   }
 }
 
-const std::string &GLShader::VariableTypeString (GLenum type) {
+const std::string &Shader::VariableTypeString (GLenum type) {
   auto it = OPENGL_3_3_UNIFORM_TYPE_MAP.find(type);
   if (it == OPENGL_3_3_UNIFORM_TYPE_MAP.end()) {
     throw ShaderException("specified type is not a valid uniform type in OpenGL 3.3");
@@ -178,7 +178,7 @@ const std::string &GLShader::VariableTypeString (GLenum type) {
   return it->second;
 }
 
-GLuint GLShader::Compile (GLuint type, const std::string &source) {
+GLuint Shader::Compile (GLuint type, const std::string &source) {
   GLuint shader = glCreateShader(type);
   const GLchar *source_ptr = source.c_str();
   glShaderSource(shader, 1, &source_ptr, NULL);
@@ -200,7 +200,7 @@ GLuint GLShader::Compile (GLuint type, const std::string &source) {
   return shader;
 }
 
-const std::unordered_map<GLenum,std::string> GLShader::OPENGL_2_1_UNIFORM_TYPE_MAP{
+const std::unordered_map<GLenum,std::string> Shader::OPENGL_2_1_UNIFORM_TYPE_MAP{
   { GL_FLOAT, "float" },
   { GL_FLOAT_VEC2, "vec2" },
   { GL_FLOAT_VEC3, "vec3" },
@@ -230,7 +230,7 @@ const std::unordered_map<GLenum,std::string> GLShader::OPENGL_2_1_UNIFORM_TYPE_M
   { GL_SAMPLER_2D_SHADOW, "sampler2DShadow" },
 };
 
-const std::unordered_map<GLenum,std::string> GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP{
+const std::unordered_map<GLenum,std::string> Shader::OPENGL_3_3_UNIFORM_TYPE_MAP{
   { GL_FLOAT, "float" },
   { GL_FLOAT_VEC2, "vec2" },
   { GL_FLOAT_VEC3, "vec3" },

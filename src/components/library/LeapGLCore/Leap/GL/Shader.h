@@ -31,7 +31,7 @@ enum class VariableIs { REQUIRED, OPTIONAL_NO_WARN, OPTIONAL_BUT_WARN };
 /// methods.
 ///
 /// The only exceptions that this class explicitly throws derive from Leap::GL::ShaderException.
-class GLShader {
+class Shader {
 public:
 
   // Stores information about a named variable in a shader program.
@@ -58,12 +58,12 @@ public:
 
   typedef std::unordered_map<std::string,VarInfo> VarInfoMap;
 
-  // TODO: make GLShader-specific std::exception subclass?
+  // TODO: make Shader-specific std::exception subclass?
 
   // Construct a shader with given vertex and fragment programs.
-  GLShader (const std::string &vertex_shader_source, const std::string &fragment_shader_source);
+  Shader (const std::string &vertex_shader_source, const std::string &fragment_shader_source);
   // Automatically frees the allocated resources.
-  ~GLShader ();
+  ~Shader ();
 
   // Returns the shader program handle, which is the integer "name" of this shader program in OpenGL.
   GLint ProgramHandle () const { return m_program_handle; }

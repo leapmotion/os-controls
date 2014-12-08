@@ -2,8 +2,6 @@
 
 #include "Interactionlayer.h"
 
-class GLShader;
-
 class GridLayer : public InteractionLayer {
 public:
   GridLayer(const EigenTypes::Vector3f& initialEyePos);

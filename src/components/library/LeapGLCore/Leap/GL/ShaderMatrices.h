@@ -6,7 +6,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 
 // Presents an interface specifically tailored to shaders having [optional] matrix uniforms of the form:
 //   uniform mat4 projection_times_model_view_matrix
@@ -17,7 +17,7 @@ class ShaderMatrices {
 public:
 
   // Leaving any of the matrix names empty will cause the corresponding uniforms to go unused.
-  ShaderMatrices (const GLShader &shader,
+  ShaderMatrices (const Shader &shader,
                   const std::string &projection_times_model_view_matrix_id,
                   const std::string &model_view_matrix_id,
                   const std::string &normal_matrix_id);

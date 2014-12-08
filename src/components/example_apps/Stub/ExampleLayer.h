@@ -7,7 +7,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 class GLTexture2;
 
 } // end of namespace GL
@@ -27,7 +27,7 @@ public:
 
 private:
 
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
   std::shared_ptr<GLTexture2> m_texture;
   TimePoint m_time;
 };

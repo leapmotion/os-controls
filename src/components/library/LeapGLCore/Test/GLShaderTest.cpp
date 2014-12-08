@@ -2,8 +2,8 @@
 #include <iostream>
 #include "GLTestFramework.h"
 #include <gtest/gtest.h>
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/Internal/UniformUploader.h"
+#include "Leap/GL/Shader.h"
 #include <memory>
 
 // Convenience macro for annotated printing the value of variables.
@@ -23,7 +23,7 @@ TEST_F(GLShaderTest, CompileAndLink) {
     "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
     "}\n"
   );
-  EXPECT_NO_THROW_(auto valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+  EXPECT_NO_THROW_(auto valid_shader = std::make_shared<Shader>(vertex_shader_source, fragment_shader_source));
 }
 
 TEST_F(GLShaderTest, CompileSuccessfully) {
@@ -40,8 +40,8 @@ TEST_F(GLShaderTest, CompileSuccessfully) {
       "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
       "}\n"
     );
-    std::shared_ptr<GLShader> valid_shader;
-    ASSERT_NO_THROW_(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+    std::shared_ptr<Shader> valid_shader;
+    ASSERT_NO_THROW_(valid_shader = std::make_shared<Shader>(vertex_shader_source, fragment_shader_source));
   }
 }
 
@@ -59,8 +59,8 @@ TEST_F(GLShaderTest, CompileUnsuccessfully) {
       "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
       "}\n"
     );
-    std::shared_ptr<GLShader> valid_shader;
-    ASSERT_ANY_THROW(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+    std::shared_ptr<Shader> valid_shader;
+    ASSERT_ANY_THROW(valid_shader = std::make_shared<Shader>(vertex_shader_source, fragment_shader_source));
   }
 }
 
@@ -91,8 +91,8 @@ void SetTypedUniformCheckInVertexShader (const std::unordered_map<GLenum,std::st
       );
       std::cout << vertex_shader_source << '\n';
       // Construct the shader and the GLShaderInterface.
-      std::shared_ptr<GLShader> shader;
-      ASSERT_NO_THROW_(shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+      std::shared_ptr<Shader> shader;
+      ASSERT_NO_THROW_(shader = std::make_shared<Shader>(vertex_shader_source, fragment_shader_source));
       EXPECT_NO_THROW_(shader->CheckForTypedUniform("test0", uniform_type, VariableIs::REQUIRED));
       EXPECT_NO_THROW_(shader->CheckForTypedUniform("test1", uniform_type, VariableIs::REQUIRED));
       EXPECT_NO_THROW_(shader->CheckForTypedUniform("test0", uniform_type, VariableIs::OPTIONAL_NO_WARN));
@@ -104,11 +104,11 @@ void SetTypedUniformCheckInVertexShader (const std::unordered_map<GLenum,std::st
 }
 
 TEST_F(GLShaderTest, SetTypedUniformCheckInVertexShader_OpenGL_2_1) {
-  SetTypedUniformCheckInVertexShader(GLShader::OPENGL_2_1_UNIFORM_TYPE_MAP, "120");
+  SetTypedUniformCheckInVertexShader(Shader::OPENGL_2_1_UNIFORM_TYPE_MAP, "120");
 }
 
 TEST_F(GLShaderTest, DISABLED_SetTypedUniformCheckInVertexShader_OpenGL_3_3) {
-  SetTypedUniformCheckInVertexShader(GLShader::OPENGL_3_3_UNIFORM_TYPE_MAP, "330");
+  SetTypedUniformCheckInVertexShader(Shader::OPENGL_3_3_UNIFORM_TYPE_MAP, "330");
 }
 
 class GLShaderTest_Visible : public GLTestFramework_Visible { };
@@ -158,7 +158,7 @@ TEST_F(GLShaderTest_Visible, Vec2UniformSettingEquivalence) {
   );
 
   // This will throw if there is an error.
-  GLShader shader(vertex_shader_source, fragment_shader_source);
+  Shader shader(vertex_shader_source, fragment_shader_source);
   shader.Bind();
   std::array<float,2> v{{2.0f, 3.0f}};
   glUniform2f(shader.LocationOfUniform("thingy0"), v[0], v[1]);
@@ -192,7 +192,7 @@ TEST_F(GLShaderTest_Visible, Vec3UniformSettingEquivalence) {
   );
 
   // This will throw if there is an error.
-  GLShader shader(vertex_shader_source, fragment_shader_source);
+  Shader shader(vertex_shader_source, fragment_shader_source);
   shader.Bind();
   std::array<float,3> v{{2.0f, 3.0f, 4.0f}};
   glUniform3f(shader.LocationOfUniform("thingy0"), v[0], v[1], v[2]);
@@ -245,8 +245,8 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
       "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
       "}\n"
     );
-    std::shared_ptr<GLShader> valid_shader;
-    ASSERT_NO_THROW_(valid_shader = std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source));
+    std::shared_ptr<Shader> valid_shader;
+    ASSERT_NO_THROW_(valid_shader = std::make_shared<Shader>(vertex_shader_source, fragment_shader_source));
     std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec_three")) << '\n';
     std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec2_array")) << '\n';
     std::cout << FMT(glGetUniformLocation(valid_shader->ProgramHandle(), "vec2_array[0]")) << '\n';

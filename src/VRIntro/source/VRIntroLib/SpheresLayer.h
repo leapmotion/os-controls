@@ -2,8 +2,6 @@
 
 #include "Interactionlayer.h"
 
-class GLShader;
-
 class SpheresLayer : public InteractionLayer {
 public:
   SpheresLayer(const EigenTypes::Vector3f& initialEyePos);

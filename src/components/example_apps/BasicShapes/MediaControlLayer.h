@@ -9,7 +9,7 @@
 namespace Leap {
 namespace GL {
 
-class GLShader;
+class Shader;
 class GLTexture2;
 class PerspectiveCamera;
 
@@ -55,6 +55,6 @@ private:
   std::shared_ptr<PerspectiveCamera> m_Camera;
   mutable RenderState m_Renderer;
 
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
   TimePoint m_time;
 };

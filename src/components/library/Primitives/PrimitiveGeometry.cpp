@@ -1,6 +1,6 @@
 #include "PrimitiveGeometry.h"
 
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 
 void PrimitiveGeometry::PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMesh& mesh, double heightAngleStart, double heightAngleEnd, double widthAngleStart, double widthAngleEnd) {
   if (mesh.IsInitialized()) {

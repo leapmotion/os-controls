@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/ScopeGuard.h"
+#include "Leap/GL/Shader.h"
 
 namespace Leap {
 namespace GL {
 
-inline void GLShaderBind (const GLShader &shader) { shader.Bind(); }
-inline void GLShaderUnbind (const GLShader &shader) { shader.Unbind(); }
+inline void GLShaderBind (const Shader &shader) { shader.Bind(); }
+inline void GLShaderUnbind (const Shader &shader) { shader.Unbind(); }
 
-// Convenience typedef for a ScopeGuard type that will Bind and Unbind a GLShader object.
-typedef ScopeGuard<GLShader,GLShaderBind,GLShaderUnbind> GLShaderBindingScopeGuard;
+// Convenience typedef for a ScopeGuard type that will Bind and Unbind a Shader object.
+typedef ScopeGuard<Shader,GLShaderBind,GLShaderUnbind> GLShaderBindingScopeGuard;
 
 } // end of namespace GL
 } // end of namespace Leap

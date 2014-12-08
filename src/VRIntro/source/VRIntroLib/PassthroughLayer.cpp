@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PassthroughLayer.h"
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "Leap/GL/GLTexture2.h"
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"

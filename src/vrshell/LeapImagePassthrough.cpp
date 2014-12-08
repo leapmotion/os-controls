@@ -12,7 +12,7 @@ enum PolicyFlagInternal {
 };
 
 LeapImagePassthrough::LeapImagePassthrough() :
-m_passthroughShader(Resource<GLShader>("passthrough"))
+m_passthroughShader(Resource<Shader>("passthrough"))
 {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
   m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(POLICY_INCLUDE_ALL_FRAMES));

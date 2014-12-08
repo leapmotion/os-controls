@@ -1,6 +1,6 @@
 #include "RiggedHand.h"
 
-#include "Leap/GL/GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "ModelIo.h"
 #include "ModelSourceAssimp.h"
 
@@ -193,7 +193,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
         const int boneMatricesAddr = mHandsShader->LocationOfUniform("boneMatrices");
         const int invTransposeMatricesAddr = mHandsShader->LocationOfUniform("invTransposeMatrices");
 
-        // TODO: replace with GLShader::UploadUniform
+        // TODO: replace with Shader::UploadUniform
         glUniformMatrix4fv(boneMatricesAddr, model::SkinnedVboMesh::MAXBONES, false, section->mBoneMatricesPtr->data()->data());
         glUniformMatrix4fv(invTransposeMatricesAddr, model::SkinnedVboMesh::MAXBONES, false, section->mInvTransposeMatricesPtr->data()->data());
       }
@@ -410,12 +410,12 @@ model::NodeRef RiggedHand::getJointNode(int fingerIdx, int boneIdx) const {
   return mSkinnedVboHands->getSkeleton()->getBone(boneName);
 }
 
-std::shared_ptr<GLShader> RiggedHand::getDefaultHandsShader() {
-  static std::shared_ptr<GLShader> handsShader;
+std::shared_ptr<Leap::GL::Shader> RiggedHand::getDefaultHandsShader() {
+  static std::shared_ptr<Leap::GL::Shader> handsShader;
   if (handsShader == nullptr) {
     std::shared_ptr<TextFile> lightingFrag(new TextFile("shaders/lighting-frag.glsl"));
     std::shared_ptr<TextFile> lightingVert(new TextFile("shaders/lighting-vert.glsl"));
-    handsShader = std::shared_ptr<GLShader>(new GLShader(lightingVert->Contents(), lightingFrag->Contents()));
+    handsShader = std::shared_ptr<Leap::GL::Shader>(new Leap::GL::Shader(lightingVert->Contents(), lightingFrag->Contents()));
   }
   return handsShader;
 }

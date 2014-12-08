@@ -10,8 +10,8 @@
 
 #include <GL/glew.h>
 #include "GLShaderLoader.h"
-#include "Leap/GL/GLShader.h"
 #include "Leap/GL/OrthographicCamera.h"
+#include "Leap/GL/Shader.h"
 
 #include "Resource.h"
 #include "PrimitiveBase.h"
@@ -29,7 +29,7 @@ RenderEngine::RenderEngine() :
     throw std::runtime_error("Shaders are not supported!");
   }
 
-  m_shader = Resource<GLShader>("material");
+  m_shader = Resource<Shader>("material");
 
   // set light position
   const EigenTypes::Vector3f lightPos(0, 10, 10);

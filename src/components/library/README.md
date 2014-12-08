@@ -40,8 +40,8 @@ also the CMakeLists.txt include directories.  Each component can even have its o
 - Write a cmake function which looks at the set of components and generates a dot graph of their
   dependency graph -- for components and for [system] libraries.
 - Add a "static std::string ResourceTypeName ()" method to ResourceLoader<T> which returns a
-  std::string containing the name of T (e.g. ResourceLoader<GLShader>::ResourceTypeName() would
-  return "GLShader").  This will be useful in ResourceManager messages.
+  std::string containing the name of T (e.g. ResourceLoader<Shader>::ResourceTypeName() would
+  return "Shader").  This will be useful in ResourceManager messages.
 - Look into using FBOs for headless rendering for purposes of GL unit testing, etc., because this
   may not require any windowing support, so e.g. headless GL unit tests wouldn't depend on
   SDLController or SFMLController.
@@ -127,7 +127,7 @@ Relevant technologies/links:
 
 #### Design notes for primitives/GL refactor
 
-GLShader now implements a dictionary for uniforms and attributes (name -> (location, type, size)).
+Shader now implements a dictionary for uniforms and attributes (name -> (location, type, size)).
 GLShaderMatrices provides an interface for setting the expected matrix uniforms for shaders.
 Material is now an interface for setting the parameters of a particular material fragment shader.
 
@@ -200,8 +200,8 @@ GLMesh<DIM>
     ~ ModelView -- Basically replaces the deprecated fixed-function pipeline regarding the GL_MODEL_VIEW matrix stack.
     ~ Projection -- Same, but for GL_PROJECTION
     I personally would like to tighten up the design on these, and ideally abstract away the dependence on Eigen.
-  * GLShader (depends on C++11, ScopeGuard)
-    ~ GLShader -- abstracts the concept of a GLSL shader program (vertex and fragment).  Do we want
+  * Shader (depends on C++11, ScopeGuard)
+    ~ Shader -- abstracts the concept of a GLSL shader program (vertex and fragment).  Do we want
                   to support geometry shaders?
     ~ GLShaderBindingScopeGuard -- an object which implements the "scope guard" for binding/unbinding shaders.
                                    This class is not strictly necessary, but is a convenience.
@@ -227,7 +227,7 @@ GLMesh<DIM>
   up the hypothetical "GLResourceLoaders" package-level component.  These are:
   * GLTexture2FreeImage -- provides a FreeImage-based loader for GLTexture2.  Depends on the FreeImage library.
   * GLTexture2Loader -- provides a ResourceLoader-based loader for GLTexture2 which uses GLTexture2FreeImage.
-  * GLShaderLoader -- provides a ResourceLoader-based loader for GLShader from vertex/fragment shader source.
+  * GLShaderLoader -- provides a ResourceLoader-based loader for Shader from vertex/fragment shader source.
 
   The "loader" components use Resource, ResourceManager, and Singleton, which may not be dependencies we want to
   provide.  Ideally we could abstract dependence on these so that implementations that use Resource,
@@ -236,7 +236,7 @@ GLMesh<DIM>
   proposed abstractions.
 
   The existing GLShaderLoader could be broken up into 1) a class that reads the vertex/fragment shader source from
-  disk and creates a GLShader and 2) the existing ResourceLoader<GLShader> which would then just be a
+  disk and creates a Shader and 2) the existing ResourceLoader<Shader> which would then just be a
   ResourceLoader frontend for the loader in part 1.  Then the part 1 loader could be a part of the GLCoreComponents
   component.
 
@@ -389,7 +389,7 @@ GLMesh<DIM>
 - Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
-- Ensure that all types of uniforms can be set via GLShader (in particular, arrays and structures of uniforms).
+- Ensure that all types of uniforms can be set via Shader (in particular, arrays and structures of uniforms).
 - Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
   otherwise get rid of it.  It has been decided that exception safety, along with a uniformized
   resource binding/unbinding convention is a good enough reason to have this.
@@ -408,7 +408,7 @@ GLMesh<DIM>
 
 - Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
   convention.  Some possible choices are:
-  (1) Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this)
+  (1) Construction is resource acquisition, destruction is release (GLTexture2, Shader does this)
   (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
       there is a separate Shutdown/Destroy method
       destruction releases the resource (Buffer does this).
@@ -505,15 +505,15 @@ Buffer (rename to Leap::GL::Buffer)
   * TODO: examine API docs for closure
 
 GLMaterial (rename to Leap::GL::Material)
-- This is an abstraction completely on top of GLShader, so it doesn't call OpenGL directly.
+- This is an abstraction completely on top of Shader, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
 GLShaderMatrices (rename to Leap::GL::ShaderMatrices or perhaps to X, where X is to vertex shader
 where GLMaterial is to fragment shader).
-- This is an abstraction completely on top of GLShader, so it doesn't call OpenGL directly.
+- This is an abstraction completely on top of Shader, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
-GLShader (rename to Leap::GL::Shader)
+Shader (rename to Leap::GL::Shader)
 - List of relevant GL calls
   * glUseProgram
   * glUniform*
@@ -603,7 +603,7 @@ component are the following.
 
 Some possibilities for resource conventions are the following.
 
-1.  Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this),
+1.  Construction is resource acquisition, destruction is release (GLTexture2, Shader does this),
     and if a failure occurs during resource acquisition (which is the same as construction), an
     exception is thrown.
 2.  Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
@@ -718,7 +718,7 @@ Other random notes
 #### GLMaterial abstraction design notes
 
 Generally what is needed is a strongly-typed C++ frontend for setting uniforms in GLSL
-shaders.  GLShader is aware of what uniforms and attributes are present in the program,
+shaders.  Shader is aware of what uniforms and attributes are present in the program,
 and what type each one is.
 
 Perhaps this concept should be called GLShaderFrontend.  GLShaderFrontend will expect
