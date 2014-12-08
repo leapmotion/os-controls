@@ -182,7 +182,7 @@ GLMesh<DIM>
     ~ GLError.h -- for flexible GL error checking -- could go in a different component.
   * Texture2 (depends on C++11)
     ~ GLTexture2Params -- persistent parameters for Texture2 (e.g. width, height, target, etc)
-    ~ GLTexture2PixelData -- interface for specifying pixel data for loading/saving into/from Texture2
+    ~ Texture2PixelData -- interface for specifying pixel data for loading/saving into/from Texture2
     ~ Texture2 -- Handle to OpenGL texture object
   * FrameBufferObject
     ~ FrameBufferObject
@@ -398,7 +398,7 @@ GLMesh<DIM>
   long double aren't passing, but that's probably ok, we could just disallow long double as a component type.
 - Integrate RGB and RGBA into rest of code, replacing "class Color"
 - SceneGraphNode and Camera.
-- Simplify GLTexture2PixelData class hierarchy to a single structure, eliminating the storage
+- Simplify Texture2PixelData class hierarchy to a single structure, eliminating the storage
   concern that GLTexture2PixelDataStorage provides.
 - Make RenderBuffer an Internal class, because it's apparently an implementation detail of FrameBufferObject.
   Also, the name should change to FramebufferObject (or maybe just Framebuffer).  See

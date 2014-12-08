@@ -32,7 +32,7 @@ DropShadow::DropShadow() {
         pixels[y*params.Width()+x] = LuminanceAlpha{0.0f, std::max(0.0f, 1.0f-std::sqrt(tex_coord.norm()))};
       }
     }
-    GLTexture2PixelData pixel_data(GL_LUMINANCE_ALPHA, GL_FLOAT, pixels.data(), pixels.size()*sizeof(LuminanceAlpha));
+    Texture2PixelData pixel_data(GL_LUMINANCE_ALPHA, GL_FLOAT, pixels.data(), pixels.size()*sizeof(LuminanceAlpha));
 
     ms_shadow_texture = std::make_shared<Texture2>(params, pixel_data);
   }

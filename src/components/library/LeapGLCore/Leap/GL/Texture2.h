@@ -2,7 +2,7 @@
 
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
 #include "Leap/GL/GLTexture2Params.h"
-#include "Leap/GL/GLTexture2PixelData.h"
+#include "Leap/GL/Texture2PixelData.h"
 #include "Leap/GL/Texture2Exception.h"
 
 namespace Leap {
@@ -23,7 +23,7 @@ public:
   // passed into glTexImage2D, and is not stored.  The default value for pixel_data is "empty",
   // which indicates that while the texture memory will be allocated for it, it will not be
   // initialized.  An exception will be thrown upon error.
-  Texture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data = GLTexture2PixelData());
+  Texture2 (const GLTexture2Params &params, const Texture2PixelData &pixel_data = Texture2PixelData());
   // Automatically frees the allocated resources.
   ~Texture2 ();
 
@@ -38,13 +38,13 @@ public:
   void Unbind () const { glBindTexture(m_params.Target(), 0); }
 
   // Updates the contents of this texture from the specified pixel data.
-  void UpdateTexture (const GLTexture2PixelData &pixel_data);
+  void UpdateTexture (const Texture2PixelData &pixel_data);
   // Extracts the contents of this texture to the specified pixel data.
-  void ExtractTexture (GLTexture2PixelData &pixel_data);
+  void ExtractTexture (Texture2PixelData &pixel_data);
   
 private:
 
-  void VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) const;
+  void VerifyPixelDataOrThrow (const Texture2PixelData &pixel_data) const;
 
   GLTexture2Params m_params;
   GLuint m_texture_name;

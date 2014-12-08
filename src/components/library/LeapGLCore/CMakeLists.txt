@@ -13,7 +13,7 @@ add_sublibrary(
         Leap/GL/GLShaderBindingScopeGuard.h
         Leap/GL/Texture2.h
         Leap/GL/GLTexture2Params.h
-        Leap/GL/GLTexture2PixelData.h
+        Leap/GL/Texture2PixelData.h
         Leap/GL/GLVertexAttribute.h
         Leap/GL/GLVertexBuffer.h
         Leap/GL/Internal/ColorComponent.h
@@ -52,7 +52,7 @@ add_sublibrary(
         Leap/GL/Shader.cpp
         Leap/GL/Texture2.cpp
         Leap/GL/GLTexture2Params.cpp
-        Leap/GL/GLTexture2PixelData.cpp
+        Leap/GL/Texture2PixelData.cpp
         Leap/GL/Internal/RenderBuffer.cpp
         Leap/GL/ModelViewProjection.cpp
         Leap/GL/OrthographicCamera.cpp

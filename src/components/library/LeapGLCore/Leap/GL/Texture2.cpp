@@ -14,8 +14,8 @@ namespace { // Anonymous namespace to hide this function from other compilation 
 // This function will call glPixelStorei on each of the pname:param key/value pairs in override_param_map,
 // glGetIntegerv'ing the values of the overridden parameters beforehand, and storing them in overridden_param_map
 // (which will first be cleared), for later restoring via RestorePixelStoreiParameters.
-void OverridePixelStoreiParameters (const GLTexture2PixelData::GLPixelStoreiParameterMap &override_param_map,
-                                    GLTexture2PixelData::GLPixelStoreiParameterMap &overridden_param_map) {
+void OverridePixelStoreiParameters (const Texture2PixelData::GLPixelStoreiParameterMap &override_param_map,
+                                    Texture2PixelData::GLPixelStoreiParameterMap &overridden_param_map) {
   overridden_param_map.clear();
   for (auto p : override_param_map) {
     GLint current_param;
@@ -29,7 +29,7 @@ void OverridePixelStoreiParameters (const GLTexture2PixelData::GLPixelStoreiPara
 
 // This function will call glPixelStorei on each of the pname:param key/value pairs in overridden_param_map,
 // which can be used to restore the PixelStorei values that were overridden in OverridePixelStoreiParameters.
-void RestorePixelStoreiParameters (const GLTexture2PixelData::GLPixelStoreiParameterMap &overridden_param_map) {
+void RestorePixelStoreiParameters (const Texture2PixelData::GLPixelStoreiParameterMap &overridden_param_map) {
   for (auto p : overridden_param_map)
   {
     glPixelStorei(p.first, p.second);
@@ -45,7 +45,7 @@ IntType CeilDiv (IntType numerator, IntType denominator) {
 
 } // End of anonymous namespace.
 
-Texture2::Texture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
+Texture2::Texture2 (const GLTexture2Params &params, const Texture2PixelData &pixel_data)
   :
   m_params(params)
 {
@@ -75,7 +75,7 @@ Texture2::Texture2 (const GLTexture2Params &params, const GLTexture2PixelData &p
     GLThrowUponError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
   }
   // Store all the PixelStorei parameters that are about to be overridden, then override them.
-  GLTexture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
+  Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
   OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
   
   glTexImage2D(m_params.Target(),
@@ -106,7 +106,7 @@ Texture2::~Texture2 () {
   glDeleteTextures(1, &m_texture_name);
 }
 
-void Texture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
+void Texture2::UpdateTexture (const Texture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.ReadableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be readable (return non-null pointer from ReadableRawData)");
@@ -118,7 +118,7 @@ void Texture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
   GLThrowUponError("in glBindTexture");
 
   // Store all the PixelStorei parameters that are about to be overridden, then override them.
-  GLTexture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
+  Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
   OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
   
   glTexSubImage2D(
@@ -140,7 +140,7 @@ void Texture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
   Unbind();
 }
 
-void Texture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
+void Texture2::ExtractTexture (Texture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.WriteableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be writeable (return non-null pointer from WriteableRawData)");
@@ -150,7 +150,7 @@ void Texture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
   GLThrowUponError("in glBindTexture");
   
   // Store all the PixelStorei parameters that are about to be overridden, then override them.
-  GLTexture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
+  Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
   OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
   
   glGetTexImage(
@@ -167,7 +167,7 @@ void Texture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
   Unbind();
 }
 
-void Texture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) const {
+void Texture2::VerifyPixelDataOrThrow (const Texture2PixelData &pixel_data) const {
   if (pixel_data.IsEmpty()) {
     return; // Nothing to verify
   }
@@ -206,8 +206,8 @@ void Texture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) co
     return; // There is no data sufficiency to check, because there will be no data needed.
   }
   
-  size_t n = GLTexture2PixelData::ComponentsInFormat(pixel_data.Format());  // Number of components in a pixel.
-  size_t s = GLTexture2PixelData::BytesInType(pixel_data.Type());           // Number of bytes in a component.
+  size_t n = Texture2PixelData::ComponentsInFormat(pixel_data.Format());  // Number of components in a pixel.
+  size_t s = Texture2PixelData::BytesInType(pixel_data.Type());           // Number of bytes in a component.
   size_t l = pixel_data.HasPixelStoreiParameter(GL_UNPACK_ROW_LENGTH) ?     // Number of pixels in each row of data.
              pixel_data.PixelStoreiParameter(GL_UNPACK_ROW_LENGTH) :        // Use GL_UNPACK_ROW_LENGTH param if specified.
              m_params.Width();                                              // Otherwise the value is understood to be the texture width.

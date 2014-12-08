@@ -104,7 +104,7 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
       texture.reset();
     }
   }
-  GLTexture2PixelData pixelData{ GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4) };
+  Texture2PixelData pixelData{ GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4) };
   if (texture) {
     texture->UpdateTexture(pixelData);
   } else {

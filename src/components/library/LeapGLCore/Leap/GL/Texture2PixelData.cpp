@@ -1,4 +1,4 @@
-#include "Leap/GL/GLTexture2PixelData.h"
+#include "Leap/GL/Texture2PixelData.h"
 
 #include <cassert>
 
@@ -6,12 +6,12 @@ namespace Leap {
 namespace GL {
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// GLTexture2PixelData
+// Texture2PixelData
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: somehow make this less version-specific (?), or come up with a version-agnostic way
 // to determine the size of each pixel from given pixel data format and type.
-size_t GLTexture2PixelData::ComponentsInFormat (GLenum format) {
+size_t Texture2PixelData::ComponentsInFormat (GLenum format) {
   // Allowable OpenGL 2.1 values: GL_COLOR_INDEX, GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_LUMINANCE, GL_LUMINANCE_ALPHA
   // Allowable OpenGL 3.3 values: GL_RED, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL
   // Overlap between 2.1 and 3.3: GL_RED, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA
@@ -40,7 +40,7 @@ size_t GLTexture2PixelData::ComponentsInFormat (GLenum format) {
   }
 }
 
-size_t GLTexture2PixelData::BytesInType (GLenum type) {
+size_t Texture2PixelData::BytesInType (GLenum type) {
   // Allowable OpenGL 2.1 values: GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV, GL_BITMAP, 
   // Allowable OpenGL 3.3 values: GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_UNSIGNED_INT_10_10_10_2, GL_UNSIGNED_INT_2_10_10_10_REV.
   // Overlap between 2.1 and 3.3: all but GL_BITMAP, which only occurs in OpenGL 2.1.  This one will not be supported for now.
@@ -71,22 +71,22 @@ size_t GLTexture2PixelData::BytesInType (GLenum type) {
   }
 }
 
-GLTexture2PixelData::GLTexture2PixelData () {
+Texture2PixelData::Texture2PixelData () {
   SetFormatAndType(GL_RGBA, GL_UNSIGNED_BYTE); // Reasonable defaults that will not be used anyway if IsEmpty.
   MakeEmpty();
 }
 
-GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type, const void *readable_raw_data, size_t raw_data_byte_count) {
+Texture2PixelData::Texture2PixelData (GLenum format, GLenum type, const void *readable_raw_data, size_t raw_data_byte_count) {
   SetFormatAndType(format, type);
   MakeReadable(readable_raw_data, raw_data_byte_count);
 }
 
-GLTexture2PixelData::GLTexture2PixelData (GLenum format, GLenum type, void *readable_and_writeable_raw_data, size_t raw_data_byte_count) {
+Texture2PixelData::Texture2PixelData (GLenum format, GLenum type, void *readable_and_writeable_raw_data, size_t raw_data_byte_count) {
   SetFormatAndType(format, type);
   MakeReadableAndWriteable(readable_and_writeable_raw_data, raw_data_byte_count);
 }
 
-GLint GLTexture2PixelData::PixelStoreiParameter (GLenum pname) const {
+GLint Texture2PixelData::PixelStoreiParameter (GLenum pname) const {
   // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
   auto it = m_pixel_store_i_parameter.find(pname);
   if (it == m_pixel_store_i_parameter.end()) {
@@ -95,7 +95,7 @@ GLint GLTexture2PixelData::PixelStoreiParameter (GLenum pname) const {
   return it->second;
 }
 
-void GLTexture2PixelData::SetFormatAndType (GLenum format, GLenum type) {
+void Texture2PixelData::SetFormatAndType (GLenum format, GLenum type) {
   // TODO: validity checking for format and type.
   m_format = format;
   m_type = type;
@@ -115,14 +115,14 @@ void GLTexture2PixelData::SetFormatAndType (GLenum format, GLenum type) {
   }
 }
 
-void GLTexture2PixelData::MakeEmpty () {
+void Texture2PixelData::MakeEmpty () {
   m_readable_raw_data = nullptr;
   m_writeable_raw_data = nullptr;
   m_raw_data_byte_count = 0;
   assert(IsEmpty());
 }
 
-void GLTexture2PixelData::MakeReadable (const void *readable_raw_data, size_t raw_data_byte_count) {
+void Texture2PixelData::MakeReadable (const void *readable_raw_data, size_t raw_data_byte_count) {
   if (readable_raw_data == nullptr)
     throw Texture2Exception("readable_raw_data must be non-null.");
   if (raw_data_byte_count == 0)
@@ -135,7 +135,7 @@ void GLTexture2PixelData::MakeReadable (const void *readable_raw_data, size_t ra
   assert(!IsWriteable());
 }
 
-void GLTexture2PixelData::MakeReadableAndWriteable (void *readable_and_writeable_raw_data, size_t raw_data_byte_count) {
+void Texture2PixelData::MakeReadableAndWriteable (void *readable_and_writeable_raw_data, size_t raw_data_byte_count) {
   if (readable_and_writeable_raw_data == nullptr)
     throw Texture2Exception("readable_and_writeable_raw_data must be non-null.");
   if (raw_data_byte_count == 0)
@@ -148,7 +148,7 @@ void GLTexture2PixelData::MakeReadableAndWriteable (void *readable_and_writeable
   assert(IsWriteable());
 }
 
-void GLTexture2PixelData::SetPixelStoreiParameter (GLenum pname, GLint param) {
+void Texture2PixelData::SetPixelStoreiParameter (GLenum pname, GLint param) {
   // TODO: validate that pname is a valid argument for this function (see docs of glPixelStorei)
   m_pixel_store_i_parameter[pname] = param;
 }

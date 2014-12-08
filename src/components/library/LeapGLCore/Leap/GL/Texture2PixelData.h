@@ -17,7 +17,7 @@ namespace GL {
 // Base class for pixel data for use in all texel-loading operations in Texture2.
 // Subclasses provide storage of and reference to pixel data. The only exceptions that this
 // class explicitly throws derive from Leap::GL::Texture2Exception.
-class GLTexture2PixelData {
+class Texture2PixelData {
 public:
 
   // Returns the number of components in format.  E.g. ComponentsInFormat(GL_RGBA) is 4.
@@ -30,15 +30,15 @@ public:
   // Specifies an IsEmpty pixel data structure.  Default, valid format and type values are assigned, but they
   // aren't used by Texture2 if IsEmpty returns is true.  This indicates that OpenGL should allocate texture
   // memory automatically.
-  GLTexture2PixelData ();
+  Texture2PixelData ();
   // Specifies a pixel format/type and read-only pixel data.  The pointer must be non-null, and
   // raw_data_byte_count must be positive.  The way the data is interpreted by OpenGL
   // depends on the pixel store parameters (see glPixelStorei).
-  GLTexture2PixelData (GLenum format, GLenum type, const void *readable_raw_data, size_t raw_data_byte_count);
+  Texture2PixelData (GLenum format, GLenum type, const void *readable_raw_data, size_t raw_data_byte_count);
   // Specifies a pixel format/type and pixel data that is readable and writable.  The pointer must
   // be non-null, and raw_data_byte_count must be positive.  The way the data is interpreted by OpenGL
   // depends on the pixel store parameters (see glPixelStorei).
-  GLTexture2PixelData (GLenum format, GLenum type, void *readable_and_writeable_raw_data, size_t raw_data_byte_count);
+  Texture2PixelData (GLenum format, GLenum type, void *readable_and_writeable_raw_data, size_t raw_data_byte_count);
 
   GLenum Format () const { return m_format; }
   GLenum Type () const { return m_type; }

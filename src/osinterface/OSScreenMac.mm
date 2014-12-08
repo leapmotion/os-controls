@@ -99,7 +99,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
         texture.reset();
       }
     }
-    GLTexture2PixelData pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
+    Texture2PixelData pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
     if (texture) {
       texture->UpdateTexture(pixelData);
     } else {

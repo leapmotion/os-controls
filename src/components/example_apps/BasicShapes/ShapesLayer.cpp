@@ -102,7 +102,7 @@ ShapesLayer::ShapesLayer ()
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     struct RgbPixel { uint8_t r, g, b; };
     std::vector<RgbPixel> pixels(width*height);
-    GLTexture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
+    Texture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
     // Make a simple bilinear gradient in green and blue.
     for (GLsizei v = 0; v < height; ++v) {
       for (GLsizei u = 0; u < width; ++u) {

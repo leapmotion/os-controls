@@ -201,7 +201,7 @@ Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2Par
   assert(bpp % 8 == 0 && "only whole-byte pixel formats are supported (convenience choice on the part of this function's design)");
   size_t bytes_per_pixel = bpp / 8;
   size_t raw_pixel_data_size = width * height * bytes_per_pixel;
-  GLTexture2PixelData pixel_data(pixel_data_format, pixel_data_type, raw_pixel_data, raw_pixel_data_size);
+  Texture2PixelData pixel_data(pixel_data_format, pixel_data_type, raw_pixel_data, raw_pixel_data_size);
   // Create the Texture2 using the derived parameters and pixel data.
   return new Texture2(params, pixel_data);
 }

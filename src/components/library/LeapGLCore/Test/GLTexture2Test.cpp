@@ -37,7 +37,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_RawPointer) {
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
   GLTexture2Params params(width, height);
-  GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixel_data, raw_pixel_data_byte_count);
+  Texture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixel_data, raw_pixel_data_byte_count);
   ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
@@ -57,7 +57,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
   GLTexture2Params params(width, height);
-  GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixels.data(), raw_pixels.size()*sizeof(uint8_t));
+  Texture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixels.data(), raw_pixels.size()*sizeof(uint8_t));
   ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
@@ -73,7 +73,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
       pixels[y*width + x] = static_cast<uint8_t>(x*y);
     }
   }
-  GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
+  Texture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
   
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
@@ -93,7 +93,7 @@ TEST_F(GLTexture2HeadlessTest, ExtractTexture) {
       pixels[y*width + x] = static_cast<uint8_t>(x*y);
     }
   }
-  GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
+  Texture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
 
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
@@ -104,7 +104,7 @@ TEST_F(GLTexture2HeadlessTest, ExtractTexture) {
   
   // Create another pixel data storage object to extract the texture data into.
   std::vector<uint8_t> extracted_pixels(width*height);
-  GLTexture2PixelData extracted_pixel_data(GL_RED, GL_UNSIGNED_BYTE, extracted_pixels.data(), extracted_pixels.size()*sizeof(uint8_t));
+  Texture2PixelData extracted_pixel_data(GL_RED, GL_UNSIGNED_BYTE, extracted_pixels.data(), extracted_pixels.size()*sizeof(uint8_t));
   texture->ExtractTexture(extracted_pixel_data);
   
   // Ensure that the pixel data is identical.
@@ -188,7 +188,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
     
     std::vector<uint8_t> pixels(width*height);
     GenerateLuminancePixels(pixels, width, height);
-    GLTexture2PixelData pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
+    Texture2PixelData pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
     texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
@@ -215,7 +215,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
     
     std::vector<uint8_t> pixels(width*height);
     GenerateLuminancePixels(pixels, width, height);
-    GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
+    Texture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
     texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
@@ -242,7 +242,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
     
     std::vector<RgbPixel> pixels(width*height);
     GenerateRgbPixels(pixels, width, height);
-    GLTexture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
+    Texture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
     texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
@@ -253,7 +253,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
 
-// This tests using glPixelStorei parameters (via GLTexture2PixelData::PixelStoreiParameterMap)
+// This tests using glPixelStorei parameters (via Texture2PixelData::PixelStoreiParameterMap)
 // to extract only a subregion out of the pixel data, rather than use the whole thing.
 TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
   std::shared_ptr<Texture2> texture;
@@ -273,7 +273,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
     GLsizei pixel_data_height = 4;
     std::vector<RgbPixel> pixels(pixel_data_width*pixel_data_height);
     GenerateRgbPixels(pixels, pixel_data_width, pixel_data_height);
-    GLTexture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
+    Texture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
     // This should specify the middle 2x2 subregion of pixels for the 2x2 texture.
     pixel_data.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, pixel_data_width);
     pixel_data.SetPixelStoreiParameter(GL_UNPACK_SKIP_PIXELS, 1);

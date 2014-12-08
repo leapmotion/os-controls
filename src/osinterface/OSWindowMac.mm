@@ -132,7 +132,7 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
         texture.reset();
       }
     }
-    GLTexture2PixelData pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
+    Texture2PixelData pixelData{GL_BGRA, GL_UNSIGNED_BYTE, dstBytes, totalBytes};
     pixelData.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, stride);
 
     if (texture) {
