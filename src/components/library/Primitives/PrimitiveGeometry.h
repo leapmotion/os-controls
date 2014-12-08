@@ -2,7 +2,7 @@
 
 #include "EigenTypes.h"
 #include "Leap/GL/Buffer.h"
-#include "Leap/GL/GLVertexBuffer.h"
+#include "Leap/GL/VertexBuffer.h"
 #include "Leap/GL/Mesh.h"
 #include "RenderState.h"
 

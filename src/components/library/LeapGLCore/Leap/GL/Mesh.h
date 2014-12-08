@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include "Leap/GL/Buffer.h"
-#include "Leap/GL/GLVertexBuffer.h"
+#include "Leap/GL/VertexBuffer.h"
 #include "Leap/GL/MeshException.h"
 #include <map>
 #include <vector>
@@ -17,7 +17,7 @@ template <typename... AttributeTypes>
 class Mesh {
 public:
 
-  typedef GLVertexBuffer<AttributeTypes...> VertexBuffer;
+  typedef VertexBuffer<AttributeTypes...> VertexBuffer;
   typedef typename VertexBuffer::Attributes VertexAttributes;
 
   // Constructs an empty mesh having no OpenGL resource usage or draw mode.  At the very least,

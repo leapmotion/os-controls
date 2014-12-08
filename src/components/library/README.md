@@ -131,7 +131,7 @@ Shader now implements a dictionary for uniforms and attributes (name -> (locatio
 GLShaderMatrices provides an interface for setting the expected matrix uniforms for shaders.
 Material is now an interface for setting the parameters of a particular material fragment shader.
 
-GLVertexBuffer now implements the following:
+VertexBuffer now implements the following:
 - Should somehow take a compile-time-specified list of vertex attributes and define
   a "vertex" structure which will contain data for rendering each vertex in a VBO.
 - Should present a strongly-typed interface for adding these attributes to an intermediate
@@ -142,11 +142,11 @@ GLVertexBuffer now implements the following:
 - Should have methods for indicating to GL that this VBO should be enabled (see PrimitiveGeometry::Draw),
   and that it should be disabled.
 
-GLVertexBuffer probably needs more work on the following:
+VertexBuffer probably needs more work on the following:
 - Should present a way to request to modify the uploaded data.
 
 GLMesh<DIM>
-- These are particular instances of GLVertexBuffer implemented for the following vertex attribs:
+- These are particular instances of VertexBuffer implemented for the following vertex attribs:
   * Position
   * Normal
   * Texture Coordinate
@@ -189,9 +189,9 @@ GLMesh<DIM>
     ~ RenderBuffer
   * Buffer
     ~ Buffer -- abstracts the concept of an OpenGL buffer object
-  * GLVertexBuffer (depends on C++11)
+  * VertexBuffer (depends on C++11)
     ~ VertexAttribute -- abstracts the concept of an OpenGL vertex attribute
-    ~ GLVertexBuffer -- abstracts the concept of an OpenGL vertex buffer object
+    ~ VertexBuffer -- abstracts the concept of an OpenGL vertex buffer object
   * GLController
     ~ GLController -- Was originally intended to be a frontend for non-redundantly controlling GL state,
                       but became a very lightweight set of "bookends" for rendering an OpenGL frame.
@@ -386,7 +386,7 @@ GLMesh<DIM>
   track OpenGL server state and prevent redundant server state changes) is contrary to one
   of the main design principles of the Components lib (drop-in capability).
 - Create GLMesh and factor out of PrimitiveGeometry.
-- Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
+- Abstracted version of GLMaterial that is similar to the design of VertexBuffer, but does
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
 - Ensure that all types of uniforms can be set via Shader (in particular, arrays and structures of uniforms).
@@ -567,7 +567,7 @@ VertexAttribute (rename to Leap::GL::VertexAttribute)
 - Associated glGet calls
   * TODO: examine API docs for closure
 
-GLVertexBuffer (rename to Leap::GL::VertexBuffer)
+VertexBuffer (rename to Leap::GL::VertexBuffer)
 - This is an abstraction completely on top of Buffer and VertexAttribute, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 

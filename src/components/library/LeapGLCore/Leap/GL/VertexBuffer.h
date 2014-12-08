@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <vector>
 
-// Design notes for GLVertexBuffer
+// Design notes for VertexBuffer
 // -------------------------------
 // This will encapsulate the concept of an OpenGL vertex buffer -- this is a set of
 // attributes for each vertex, such as position, normal, texture coordinate, color,
@@ -19,18 +19,18 @@
 // for each attribute.  This class will automatically handle creation, allocation, deallocation
 // and destruction of the relevant resources (e.g. GL buffers, etc).
 //
-// The association between the attributes in a GLVertexBuffer and the attributes in
+// The association between the attributes in a VertexBuffer and the attributes in
 // a vertex shader is done by shader attribute name.  Instead of hard-coding the attribute
-// names into GLVertexBuffer, the names of the associated attributes will be specified
-// to GLVertexBuffer for the Enable operation.  This correspondence is essentially a
+// names into VertexBuffer, the names of the associated attributes will be specified
+// to VertexBuffer for the Enable operation.  This correspondence is essentially a
 // dictionary of type attribute -> attribute location.  Some vertex shaders may not have
-// all of the attributes that are provided by a given GLVertexBuffer, and that should be
+// all of the attributes that are provided by a given VertexBuffer, and that should be
 // handled by ignoring the missing attributes.  Thus if a vertex shader only has e.g.
-// the "position" attribute but a GLVertexBuffer has a position and normal attribute for
-// each vertex, said GLVertexBuffer can be used with the shader, and the normal attribute
+// the "position" attribute but a VertexBuffer has a position and normal attribute for
+// each vertex, said VertexBuffer can be used with the shader, and the normal attribute
 // will go unused.
 //
-// The attributes in a GLVertexBuffer should be fully configurable, of any type that is
+// The attributes in a VertexBuffer should be fully configurable, of any type that is
 // allowable by GL.  This should be done with templates, so that the vertex-specifying
 // methods are fully strongly typed.  There should be a "vertex attribute" class which
 // manages the data associated with each attribute and translates the C++-typed attributes
@@ -58,7 +58,7 @@ namespace GL {
 // The only exceptions that this class explicitly throws derive from
 // Leap::GL::VertexBufferException.
 template <typename... AttributeTypes>
-class GLVertexBuffer {
+class VertexBuffer {
 public:
 
   typedef std::tuple<AttributeTypes...> Attributes;
@@ -69,7 +69,7 @@ public:
   // It must be one of: GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW,
   // GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.
   // See glBufferData for more on this.
-  GLVertexBuffer (GLenum usage_pattern)
+  VertexBuffer (GLenum usage_pattern)
     :
     m_usage_pattern(usage_pattern)
   {
@@ -148,10 +148,10 @@ public:
   // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
   // tuple argument attribute_locations must correspond exactly to Attributes
-  // (which is a tuple of VertexAttribute types defined by this GLVertexBuffer).
+  // (which is a tuple of VertexAttribute types defined by this VertexBuffer).
   void Enable (const UniformLocations &attribute_locations) const {
     if (!m_gl_buffer.IsCreated()) {
-      throw VertexBufferException("can't Enable a GLVertexBuffer that hasn't had UploadIntermediateAttributes called on it");
+      throw VertexBufferException("can't Enable a VertexBuffer that hasn't had UploadIntermediateAttributes called on it");
     }
     m_gl_buffer.Bind();
     // Begin iterated binding of vertex attributes starting at the 0th one.
