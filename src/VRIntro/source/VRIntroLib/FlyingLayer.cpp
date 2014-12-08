@@ -5,7 +5,7 @@
 
 #include "Primitives.h"
 
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"
 
@@ -16,7 +16,7 @@ FlyingLayer::FlyingLayer(const EigenTypes::Vector3f& initialEyePos) :
     "projection_times_model_view_matrix",
     "model_view_matrix",
     "normal_matrix")),
-  m_PopupTexture(Resource<Leap::GL::GLTexture2>("images/level4_popup.png")),
+  m_PopupTexture(Resource<Leap::GL::Texture2>("images/level4_popup.png")),
   m_GridCenter(initialEyePos),
   m_Velocity(EigenTypes::Vector3f::Zero()),
   m_RotationAA(EigenTypes::Vector3f::Zero()),

@@ -51,8 +51,8 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     imageParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     imageParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    m_texture[0] = std::make_shared<GLTexture2>(imageParams);
-    m_texture[1] = std::make_shared<GLTexture2>(imageParams);
+    m_texture[0] = std::make_shared<Texture2>(imageParams);
+    m_texture[1] = std::make_shared<Texture2>(imageParams);
 
     GLTexture2Params distortionParams(64, 64, GL_RG32F);
     //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
@@ -61,8 +61,8 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     distortionParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     distortionParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    m_distortion[0] = std::make_shared<GLTexture2>(distortionParams);
-    m_distortion[1] = std::make_shared<GLTexture2>(distortionParams);
+    m_distortion[0] = std::make_shared<Texture2>(distortionParams);
+    m_distortion[1] = std::make_shared<Texture2>(distortionParams);
   }
  
   for (int i = 0; i < 2; i++) {

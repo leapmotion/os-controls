@@ -12,7 +12,7 @@
 namespace Leap {
 namespace GL {
 
-class GLTexture2;
+class Texture2;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -41,10 +41,10 @@ void StubApplication::Initialize() {
   m_applicationTime = TimePoint(0.0);         // Start the application time at zero.
   m_SDLController.Initialize(params);         // This initializes everything SDL-related.
 
-  // Create the ResourceManager<GLTexture2> with the SDL-supplied basepath.  This
-  // must be done before the ResourceManager<GLTexture2> is referred to by anything
-  // else (e.g. Resource<GLTexture2>).
-  Singleton<ResourceManager<GLTexture2>>::CreateInstance(SDLController::BasePath());
+  // Create the ResourceManager<Texture2> with the SDL-supplied basepath.  This
+  // must be done before the ResourceManager<Texture2> is referred to by anything
+  // else (e.g. Resource<Texture2>).
+  Singleton<ResourceManager<Texture2>>::CreateInstance(SDLController::BasePath());
 
   InitializeGlew();                           // This initializes the general GL state.
   FreeImage_Initialise();                     // Initialize FreeImage.

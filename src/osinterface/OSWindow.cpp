@@ -2,7 +2,7 @@
 #include "OSWindow.h"
 #include "utility/SamplePrimitives.h"
 #include <Primitives.h>
-#include <Leap/GL/GLTexture2.h>
+#include <Leap/GL/Texture2.h>
 
 OSWindow::OSWindow(void):
   m_zOrder(1)

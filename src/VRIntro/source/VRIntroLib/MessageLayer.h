@@ -5,7 +5,7 @@
 namespace Leap {
 namespace GL {
 
-class GLTexture2;
+class Texture2;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -30,10 +30,10 @@ private:
 
   mutable Buffer m_Buffer;
 
-  std::shared_ptr<Leap::GL::GLTexture2> m_HelpTexture;
-  std::shared_ptr<Leap::GL::GLTexture2> m_LowFPSTexture;
-  std::shared_ptr<Leap::GL::GLTexture2> m_NoOculusTexture;
-  std::shared_ptr<Leap::GL::GLTexture2> m_NoImagesTexture;
+  std::shared_ptr<Leap::GL::Texture2> m_HelpTexture;
+  std::shared_ptr<Leap::GL::Texture2> m_LowFPSTexture;
+  std::shared_ptr<Leap::GL::Texture2> m_NoOculusTexture;
+  std::shared_ptr<Leap::GL::Texture2> m_NoImagesTexture;
   
   bool m_Visible[NUM_MESSAGES];
 };

@@ -3,7 +3,7 @@
 
 #include "GLController.h"
 #include "Resource.h"
-#include "GLTexture2.h"
+#include "Texture2.h"
 #include "GLTexture2Loader.h"
 
 #include <iostream>

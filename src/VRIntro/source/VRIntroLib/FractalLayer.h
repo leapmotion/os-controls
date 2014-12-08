@@ -5,7 +5,7 @@
 namespace Leap {
 namespace GL {
 
-class GLTexture2;
+class Texture2;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -25,7 +25,7 @@ public:
 private:
   mutable Buffer m_Buffer;
 
-  std::shared_ptr<GLTexture2> m_Texture;
+  std::shared_ptr<Texture2> m_Texture;
   TimePoint m_Time;
   
   EigenTypes::Vector3f m_AvgPalm;

@@ -4,7 +4,7 @@
 #include "OSAppManager.h"
 #include "OSApp.h"
 #include <Primitives.h>
-#include <Leap/GL/GLTexture2.h>
+#include <Leap/GL/Texture2.h>
 
 #include <AppKit/NSWindow.h>
 #include <Foundation/NSArray.h>
@@ -125,7 +125,7 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
     const size_t totalBytes = bytesPerRow*height;
 
     // See if the texture underlying image was resized or not. If so, we need to create a new texture
-    std::shared_ptr<GLTexture2> texture = img->Texture();
+    std::shared_ptr<Texture2> texture = img->Texture();
     if (texture) {
       const auto& params = texture->Params();
       if (params.Height() != height || params.Width() != width) {
@@ -146,7 +146,7 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
       params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-      texture = std::make_shared<GLTexture2>(params, pixelData);
+      texture = std::make_shared<Texture2>(params, pixelData);
       img->SetTexture(texture);
       img->SetScaleBasedOnTextureSize();
     }

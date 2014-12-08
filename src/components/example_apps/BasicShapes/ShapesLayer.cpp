@@ -5,7 +5,7 @@
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
 #include "Leap/GL/Buffer.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "Leap/GL/PerspectiveCamera.h"
 #include "Leap/GL/Shader.h"
 #include "Resource.h"
@@ -16,9 +16,9 @@ ShapesLayer::ShapesLayer ()
   :
   m_Width(640),
   m_Height(480),
-  m_Image1(Resource<GLTexture2>("rewind.png")),
-  m_Image2(Resource<GLTexture2>("playpause.png")),
-  m_Image3(Resource<GLTexture2>("fastforward.png")),
+  m_Image1(Resource<Texture2>("rewind.png")),
+  m_Image2(Resource<Texture2>("playpause.png")),
+  m_Image3(Resource<Texture2>("fastforward.png")),
   m_time(0)
 {
   m_shader = Resource<Shader>("material");
@@ -43,7 +43,7 @@ ShapesLayer::ShapesLayer ()
   m_Rect.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 1.0f, 0.3f);
   m_Rect.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 1.0f, 0.3f);
   m_Rect.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.9f;
-  m_Rect.SetTexture(Resource<GLTexture2>("playpause.png"));
+  m_Rect.SetTexture(Resource<Texture2>("playpause.png"));
   m_Rect.LocalProperties().AlphaMask() = 1.0f;
 
   m_Image1.Translation() = EigenTypes::Vector3(-50.0, -20.0, 0.0);
@@ -89,7 +89,7 @@ ShapesLayer::ShapesLayer ()
   m_SVG.LinearTransformation() = EigenTypes::Vector3(0.03, -0.03, 0.03).asDiagonal() * m_SVG.LinearTransformation();
   m_SVG.LocalProperties().AlphaMask() = 1.0f;
 
-  std::shared_ptr<GLTexture2> frame_texture;
+  std::shared_ptr<Texture2> frame_texture;
   {
     // Generate a texture procedurally for use in TexturedFrame.
     GLsizei width = 4;
@@ -112,7 +112,7 @@ ShapesLayer::ShapesLayer ()
         pixels[v*width+u] = RgbPixel{uint8_t(r), uint8_t(g), uint8_t(b)};
       }
     }
-    frame_texture = std::make_shared<GLTexture2>(params, pixel_data);
+    frame_texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
   {

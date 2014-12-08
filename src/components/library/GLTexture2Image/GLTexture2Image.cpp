@@ -34,7 +34,7 @@ const std::string& GLTexture2Image::GetPath() const
   return m_Path;
 }
 
-std::shared_ptr<GLTexture2> GLTexture2Image::GetTexture() const
+std::shared_ptr<Texture2> GLTexture2Image::GetTexture() const
 {
   return m_Texture;
 }
@@ -80,7 +80,7 @@ bool GLTexture2Image::LoadPath(const std::string& filePath)
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
-    m_Texture = std::shared_ptr<GLTexture2>(LoadGLTexture2UsingFreeImage(filePath, params));
+    m_Texture = std::shared_ptr<Texture2>(LoadGLTexture2UsingFreeImage(filePath, params));
     m_Path = filePath;
     m_Loaded = true;
     
@@ -99,7 +99,7 @@ bool GLTexture2Image::LoadPath(const std::string& filePath)
 //  }
 //  
 //  try {
-//    m_Texture = Resource<GLTexture2>(SDLController::BasePath() + resourcePath);
+//    m_Texture = Resource<Texture2>(SDLController::BasePath() + resourcePath);
 //    m_Path = resourcePath;
 //    m_Loaded = true;
 //  } catch (std::runtime_error&) {

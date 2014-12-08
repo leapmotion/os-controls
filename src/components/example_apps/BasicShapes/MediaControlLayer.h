@@ -10,7 +10,7 @@ namespace Leap {
 namespace GL {
 
 class Shader;
-class GLTexture2;
+class Texture2;
 class PerspectiveCamera;
 
 } // end of namespace GL
@@ -43,9 +43,9 @@ private:
   Disk m_VolumeHandle;
   Disk m_VolumeHandleOutline;
 
-  std::shared_ptr<GLTexture2> m_RewindTexture;
-  std::shared_ptr<GLTexture2> m_PlayPauseTexture;
-  std::shared_ptr<GLTexture2> m_FastForwardTexture;
+  std::shared_ptr<Texture2> m_RewindTexture;
+  std::shared_ptr<Texture2> m_PlayPauseTexture;
+  std::shared_ptr<Texture2> m_FastForwardTexture;
   RectanglePrim m_Rewind;
   RectanglePrim m_PlayPause;
   RectanglePrim m_FastForward;

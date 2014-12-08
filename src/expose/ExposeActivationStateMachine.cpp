@@ -5,7 +5,7 @@
 
 #include "GLShaderLoader.h"
 #include "Leap/GL/Shader.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "Resource.h"
 #include "TextFile.h"
 #include <memory>

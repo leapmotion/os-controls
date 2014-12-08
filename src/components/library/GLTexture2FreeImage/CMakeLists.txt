@@ -9,5 +9,5 @@ add_sublibrary(
     EXTERNAL_DEPENDENCIES
         "FreeImage 3"
     BRIEF_DOC_STRING
-        "Functionality for creating a GLTexture2 from an image file via FreeImage."
+        "Functionality for creating a Texture2 from an image file via FreeImage."
 )

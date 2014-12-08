@@ -2,7 +2,7 @@
 #include "graphics/Renderable.h"
 #include "graphics/RenderEngine.h"
 #include "Leap/GL/Shader.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "Primitives.h"
 
 class LeapInput;
@@ -28,8 +28,8 @@ private:
   AutoRequired<Leap::Controller> m_controller;
 
   Autowired<RenderEngine> m_renderEngine;
-  std::shared_ptr<GLTexture2> m_texture[2];
-  std::shared_ptr<GLTexture2> m_distortion[2];
+  std::shared_ptr<Texture2> m_texture[2];
+  std::shared_ptr<Texture2> m_distortion[2];
   std::shared_ptr<Shader> m_passthroughShader;
   RectanglePrim m_rect[2];
 };

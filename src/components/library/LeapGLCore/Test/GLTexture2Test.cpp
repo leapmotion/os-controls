@@ -1,7 +1,7 @@
 #include "GLTestFramework.h"
 #include <gtest/gtest.h>
 #include <iostream>
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include <memory>
 #include <vector>
 
@@ -15,9 +15,9 @@ TEST_F(GLTexture2HeadlessTest, EmptyTexture) {
   GLsizei width = 100;
   GLsizei height = 120;
   
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   GLTexture2Params params(width, height);
-  ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params));
+  ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
 }
@@ -35,10 +35,10 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_RawPointer) {
   }
   
   // Create the texture from the pixel data.
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   GLTexture2Params params(width, height);
   GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixel_data, raw_pixel_data_byte_count);
-  ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params, pixel_data));
+  ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
 }
@@ -55,10 +55,10 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
   }
   
   // Create the texture from the pixel data.
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   GLTexture2Params params(width, height);
   GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixels.data(), raw_pixels.size()*sizeof(uint8_t));
-  ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params, pixel_data));
+  ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
 }
@@ -76,9 +76,9 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
   GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
   
   // Create the texture from the pixel data.
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   GLTexture2Params params(width, height);
-  ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params, pixel_data));
+  ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
 }
@@ -96,9 +96,9 @@ TEST_F(GLTexture2HeadlessTest, ExtractTexture) {
   GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
 
   // Create the texture from the pixel data.
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   GLTexture2Params params(width, height);
-  ASSERT_NO_THROW_(texture = std::make_shared<GLTexture2>(params, pixel_data));
+  ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
   
@@ -143,7 +143,7 @@ void GenerateRgbPixels (std::vector<RgbPixel> &pixels, GLsizei width, GLsizei he
   }
 }
 
-void RenderTexturedRectangle (const GLTexture2 &texture) {
+void RenderTexturedRectangle (const Texture2 &texture) {
   glDisable(GL_LIGHTING);
   glEnable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
@@ -173,7 +173,7 @@ void RenderTexturedRectangle (const GLTexture2 &texture) {
 }
 
 TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
   {
@@ -189,7 +189,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
     std::vector<uint8_t> pixels(width*height);
     GenerateLuminancePixels(pixels, width, height);
     GLTexture2PixelData pixel_data(GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
-    texture = std::make_shared<GLTexture2>(params, pixel_data);
+    texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
   RenderTexturedRectangle(*texture);
@@ -200,7 +200,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
 }
 
 TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
   {
@@ -216,7 +216,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
     std::vector<uint8_t> pixels(width*height);
     GenerateLuminancePixels(pixels, width, height);
     GLTexture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(uint8_t));
-    texture = std::make_shared<GLTexture2>(params, pixel_data);
+    texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
   RenderTexturedRectangle(*texture);
@@ -227,7 +227,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
 }
 
 TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
   {
@@ -243,7 +243,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
     std::vector<RgbPixel> pixels(width*height);
     GenerateRgbPixels(pixels, width, height);
     GLTexture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
-    texture = std::make_shared<GLTexture2>(params, pixel_data);
+    texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
   RenderTexturedRectangle(*texture);
@@ -256,7 +256,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
 // This tests using glPixelStorei parameters (via GLTexture2PixelData::PixelStoreiParameterMap)
 // to extract only a subregion out of the pixel data, rather than use the whole thing.
 TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
-  std::shared_ptr<GLTexture2> texture;
+  std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
   {
@@ -278,7 +278,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
     pixel_data.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, pixel_data_width);
     pixel_data.SetPixelStoreiParameter(GL_UNPACK_SKIP_PIXELS, 1);
     pixel_data.SetPixelStoreiParameter(GL_UNPACK_SKIP_ROWS, 1);
-    texture = std::make_shared<GLTexture2>(params, pixel_data);
+    texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
   RenderTexturedRectangle(*texture);

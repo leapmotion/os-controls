@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SpaceLayer.h"
 
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"
 
@@ -12,7 +12,7 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
     "projection_times_model_view_matrix",
     "model_view_matrix",
     "normal_matrix")),
-  m_PopupTexture(Resource<Leap::GL::GLTexture2>("images/level3_popup.png")),
+  m_PopupTexture(Resource<Leap::GL::Texture2>("images/level3_popup.png")),
   m_OddEven(0),
   m_StarShowMode(0),
   m_StarsToShow(NUM_STARS) {

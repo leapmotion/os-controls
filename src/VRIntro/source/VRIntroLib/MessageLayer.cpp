@@ -2,18 +2,18 @@
 #include "MessageLayer.h"
 
 #include "Resource.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 
-using Leap::GL::GLTexture2;
+using Leap::GL::Texture2;
 #include "GLTexture2Loader.h"
 
 
 MessageLayer::MessageLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/transparent"),
-  m_HelpTexture(Resource<GLTexture2>("images/help.png")),
-  m_LowFPSTexture(Resource<GLTexture2>("images/lowfps.png")),
-  m_NoOculusTexture(Resource<GLTexture2>("images/no_oculus.png")),
-  m_NoImagesTexture(Resource<GLTexture2>("images/no_images.png")) {
+  m_HelpTexture(Resource<Texture2>("images/help.png")),
+  m_LowFPSTexture(Resource<Texture2>("images/lowfps.png")),
+  m_NoOculusTexture(Resource<Texture2>("images/no_oculus.png")),
+  m_NoImagesTexture(Resource<Texture2>("images/no_images.png")) {
 
   static const float edges[] = {
     // No Images warning

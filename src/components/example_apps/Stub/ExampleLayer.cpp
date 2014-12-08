@@ -4,7 +4,7 @@
 
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "Leap/GL/Shader.h"
 #include "Resource.h"
 #include "ResourceManager.h"
@@ -15,7 +15,7 @@ ExampleLayer::ExampleLayer ()
   m_time(0)
 {
   m_shader = Resource<Shader>("dummy");
-  m_texture = Resource<GLTexture2>("public_domain_astronomy_1.jpg");
+  m_texture = Resource<Texture2>("public_domain_astronomy_1.jpg");
 }
 
 ExampleLayer::~ExampleLayer () { }

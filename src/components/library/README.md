@@ -18,7 +18,7 @@ also the CMakeLists.txt include directories.  Each component can even have its o
   overhead of some highly interdependent framework like Cinder.
 - The overall architecture of the Components library becomes formally apparent.  The components
   that have no component-dependencies (but perhaps [system] library dependencies) could be
-  considered the "lowest level" components (e.g. GLTexture2, Singleton), drawn at the bottom of
+  considered the "lowest level" components (e.g. Texture2, Singleton), drawn at the bottom of
   a dependency graph.  Other components will build off of these, offering more power and
   higher-level interfaces (e.g. Application, GLTexture2FreeImage, Resource), and could therefore
   be drawn higher up on the dependency graph.  A developer-written application would use a
@@ -180,10 +180,10 @@ GLMesh<DIM>
   * GLCompatibility
     ~ gl_glext_glu.h -- uses Glew to include GL headers -- should rename to GLHeaders.h
     ~ GLError.h -- for flexible GL error checking -- could go in a different component.
-  * GLTexture2 (depends on C++11)
-    ~ GLTexture2Params -- persistent parameters for GLTexture2 (e.g. width, height, target, etc)
-    ~ GLTexture2PixelData -- interface for specifying pixel data for loading/saving into/from GLTexture2
-    ~ GLTexture2 -- Handle to OpenGL texture object
+  * Texture2 (depends on C++11)
+    ~ GLTexture2Params -- persistent parameters for Texture2 (e.g. width, height, target, etc)
+    ~ GLTexture2PixelData -- interface for specifying pixel data for loading/saving into/from Texture2
+    ~ Texture2 -- Handle to OpenGL texture object
   * FrameBufferObject
     ~ FrameBufferObject
     ~ RenderBuffer
@@ -225,8 +225,8 @@ GLMesh<DIM>
 
   There is a set of GL components that have additional library dependencies which I view as "extras", which make
   up the hypothetical "GLResourceLoaders" package-level component.  These are:
-  * GLTexture2FreeImage -- provides a FreeImage-based loader for GLTexture2.  Depends on the FreeImage library.
-  * GLTexture2Loader -- provides a ResourceLoader-based loader for GLTexture2 which uses GLTexture2FreeImage.
+  * GLTexture2FreeImage -- provides a FreeImage-based loader for Texture2.  Depends on the FreeImage library.
+  * GLTexture2Loader -- provides a ResourceLoader-based loader for Texture2 which uses GLTexture2FreeImage.
   * GLShaderLoader -- provides a ResourceLoader-based loader for Shader from vertex/fragment shader source.
 
   The "loader" components use Resource, ResourceManager, and Singleton, which may not be dependencies we want to
@@ -408,7 +408,7 @@ GLMesh<DIM>
 
 - Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
   convention.  Some possible choices are:
-  (1) Construction is resource acquisition, destruction is release (GLTexture2, Shader does this)
+  (1) Construction is resource acquisition, destruction is release (Texture2, Shader does this)
   (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
       there is a separate Shutdown/Destroy method
       destruction releases the resource (Buffer does this).
@@ -446,7 +446,7 @@ GLMesh<DIM>
 The GL component is designed to provide abstractions of concepts in the OpenGL API.
 The purpose of this analysis is to determine a closed set of features/API for each
 abstraction, based on the OpenGL API.  E.g. glTexImage2D is affected by state that
-is controlled by glPixelStore* and glTexParameter*, and therefore the GLTexture2
+is controlled by glPixelStore* and glTexParameter*, and therefore the Texture2
 class must provide an API for using those capabilities in the abstraction.
 
 FrameBufferObject (rename to Leap::GL::Framebuffer) 
@@ -542,7 +542,7 @@ Shader (rename to Leap::GL::Shader)
   * glGetShaderInfoLog
   * TODO: examine API docs for closure
 
-GLTexture2 (rename to Leap::GL::Texture2)
+Texture2 (rename to Leap::GL::Texture2)
 - List of relevant GL calls
   * glBindTexture
   * glPixelStore*
@@ -603,7 +603,7 @@ component are the following.
 
 Some possibilities for resource conventions are the following.
 
-1.  Construction is resource acquisition, destruction is release (GLTexture2, Shader does this),
+1.  Construction is resource acquisition, destruction is release (Texture2, Shader does this),
     and if a failure occurs during resource acquisition (which is the same as construction), an
     exception is thrown.
 2.  Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
@@ -646,7 +646,7 @@ unbinding).
 
 Finally, in order to maximize flexibility, each resource class should ideally be populatable from existing,
 created-using-raw-OpenGL-calls resources.  For example, a 2D texture created in some other library that
-the user wants to control via GLTexture2 -- there should be a means to initialize a GLTexture2 using the
+the user wants to control via Texture2 -- there should be a means to initialize a Texture2 using the
 existing texture handle and other parameters.
 
 #### Evaluation of existing C++ OpenGL wrapper libraries

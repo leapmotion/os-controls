@@ -1,8 +1,8 @@
 #include "DropShadow.h"
 
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 
-std::shared_ptr<GLTexture2> DropShadow::ms_shadow_texture;
+std::shared_ptr<Texture2> DropShadow::ms_shadow_texture;
 
 DropShadow::DropShadow() {
   // If the shadow texture singleton isn't created yet, create it.
@@ -34,7 +34,7 @@ DropShadow::DropShadow() {
     }
     GLTexture2PixelData pixel_data(GL_LUMINANCE_ALPHA, GL_FLOAT, pixels.data(), pixels.size()*sizeof(LuminanceAlpha));
 
-    ms_shadow_texture = std::make_shared<GLTexture2>(params, pixel_data);
+    ms_shadow_texture = std::make_shared<Texture2>(params, pixel_data);
   }
   
   SetTexture(ms_shadow_texture);

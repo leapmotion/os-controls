@@ -3,7 +3,7 @@
 #include "Interactionlayer.h"
 #include "MathUtility.h"
 
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "GLTexture2Loader.h"
 
 struct TextureVertex {
@@ -13,7 +13,7 @@ struct TextureVertex {
 struct Pane {
   Pane(int index, float& offset, const char* filename) :
     m_Index(index),
-    m_Texture(Resource<GLTexture2>(filename)) {
+    m_Texture(Resource<Texture2>(filename)) {
     if (index*4 >= static_cast<int>(m_RenderBuffer.size())) {
       m_RenderBuffer.resize((index + 1)*4);
     }
@@ -79,7 +79,7 @@ struct Pane {
   static EigenTypes::Matrix3x3f m_HeadTilt;
 
   bool m_Engaged;
-  std::shared_ptr<GLTexture2> m_Texture;
+  std::shared_ptr<Texture2> m_Texture;
 
   static std::vector<TextureVertex> m_RenderBuffer;
   int m_Index;
@@ -97,7 +97,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  GLTexture2* m_image[300];
+  Texture2* m_image[300];
 
   mutable Buffer m_Buffer;
   std::vector<std::shared_ptr<Pane>> m_Panes;

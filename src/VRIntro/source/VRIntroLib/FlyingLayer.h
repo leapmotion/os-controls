@@ -23,7 +23,7 @@ public:
 
 private:
   mutable Buffer m_PopupBuffer;
-  std::shared_ptr<GLTexture2> m_PopupTexture;
+  std::shared_ptr<Texture2> m_PopupTexture;
   std::shared_ptr<Leap::GL::Shader> m_PopupShader;
   std::shared_ptr<Leap::GL::ShaderMatrices> m_PopupShaderMatrices;
 

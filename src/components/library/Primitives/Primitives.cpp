@@ -1,7 +1,7 @@
 #include "Primitives.h"
 
 #include <cassert>
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 
 GenericShape::GenericShape(GLenum drawMode) {
   m_mesh.SetDrawMode(drawMode);
@@ -154,7 +154,7 @@ ImagePrimitive::ImagePrimitive(void) :
   ImagePrimitive(nullptr)
 {}
 
-ImagePrimitive::ImagePrimitive(const std::shared_ptr<GLTexture2> &texture) {
+ImagePrimitive::ImagePrimitive(const std::shared_ptr<Texture2> &texture) {
   SetTexture(texture);
   SetScaleBasedOnTextureSize();
   Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;

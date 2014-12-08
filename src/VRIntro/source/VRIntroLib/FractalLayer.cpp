@@ -2,12 +2,12 @@
 #include "FractalLayer.h"
 
 #include "Resource.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "GLTexture2Loader.h"
 
 FractalLayer::FractalLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/fractal"),
-  m_Texture(Resource<GLTexture2>("images/random.png")),
+  m_Texture(Resource<Texture2>("images/random.png")),
   m_AvgPalm(EigenTypes::Vector3f::Zero()),
   m_Time(0) {
 

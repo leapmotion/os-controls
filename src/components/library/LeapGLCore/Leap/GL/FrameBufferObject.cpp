@@ -1,7 +1,7 @@
 #include "Leap/GL/FrameBufferObject.h"
 
 #include "Leap/GL/GLError.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "Leap/GL/Internal/RenderBuffer.h"
 
 #include <assert.h>
@@ -70,7 +70,7 @@ void FrameBufferObject::Bind()
   GLWarnUponError("in glBindFramebuffer");
 }
 
-GLTexture2* FrameBufferObject::ColorTexture()
+Texture2* FrameBufferObject::ColorTexture()
 {
   return m_ColorTexture;
 }
@@ -156,7 +156,7 @@ bool FrameBufferObject::initColor()
   if (m_Samples == 0) {
     GLTexture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalColor);
-    m_ColorTexture = new GLTexture2(params);
+    m_ColorTexture = new Texture2(params);
     
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
@@ -187,7 +187,7 @@ bool FrameBufferObject::initDepth()
   if (m_Samples == 0) {
     GLTexture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalDepth);
-    m_DepthTexture = new GLTexture2(params);
+    m_DepthTexture = new Texture2(params);
 
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_DepthTexture->Id(), 0);

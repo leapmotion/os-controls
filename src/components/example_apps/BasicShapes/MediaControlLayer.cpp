@@ -4,7 +4,7 @@
 
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "Leap/GL/PerspectiveCamera.h"
 #include "Leap/GL/Shader.h"
 #include "Resource.h"
@@ -29,9 +29,9 @@ MediaControlLayer::MediaControlLayer() :
 {
   m_shader = Resource<Shader>("material");
 
-  m_RewindTexture = Resource<GLTexture2>("rewind.png");
-  m_PlayPauseTexture = Resource<GLTexture2>("playpause.png");
-  m_FastForwardTexture = Resource<GLTexture2>("fastforward.png");
+  m_RewindTexture = Resource<Texture2>("rewind.png");
+  m_PlayPauseTexture = Resource<Texture2>("playpause.png");
+  m_FastForwardTexture = Resource<Texture2>("fastforward.png");
 
   m_LeftSection.SetStartAngle(PI_2 + PI_4);
   m_LeftSection.SetEndAngle(2*PI_2 + PI_4);

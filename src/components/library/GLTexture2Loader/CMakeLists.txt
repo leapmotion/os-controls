@@ -8,5 +8,5 @@ add_sublibrary(
         GLTexture2FreeImage
         ResourceManager
     BRIEF_DOC_STRING
-        "Provides ResourceManager-managed loading of GLTexture2 objects using FreeImage."
+        "Provides ResourceManager-managed loading of Texture2 objects using FreeImage."
 )

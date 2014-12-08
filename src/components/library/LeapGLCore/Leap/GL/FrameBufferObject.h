@@ -5,7 +5,7 @@
 namespace Leap {
 namespace GL {
 
-class GLTexture2;
+class Texture2;
 
 namespace Internal { class RenderBuffer; }
 
@@ -59,7 +59,7 @@ public:
   /// <summary>
   /// Get the Color Texture.  This function may return null (i.e. uses RenderBuffer for multisampling)
   /// </summary>
-  GLTexture2* ColorTexture();
+  Texture2* ColorTexture();
 
   bool HasError() const;
 
@@ -100,8 +100,8 @@ protected:
   Internal::RenderBuffer* m_ColorRenderBuffer;
   Internal::RenderBuffer* m_DepthRenderBuffer;
   
-  GLTexture2*             m_ColorTexture;
-  GLTexture2*             m_DepthTexture;
+  Texture2*               m_ColorTexture;
+  Texture2*               m_DepthTexture;
 };
 
 } // end of namespace GL

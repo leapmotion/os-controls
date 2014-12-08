@@ -7,7 +7,7 @@
 namespace Leap {
 namespace GL {
 
-class GLTexture2;
+class Texture2;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -125,8 +125,8 @@ public:
   const EigenTypes::Vector2& Size() const { return m_Size; }
   void SetSize(const EigenTypes::Vector2& size) { m_Size = size; }
 
-  const std::shared_ptr<GLTexture2> &Texture () const { return m_texture; }
-  void SetTexture (const std::shared_ptr<GLTexture2> &texture) { m_texture = texture; }
+  const std::shared_ptr<Texture2> &Texture () const { return m_texture; }
+  void SetTexture (const std::shared_ptr<Texture2> &texture) { m_texture = texture; }
 
   virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
@@ -137,7 +137,7 @@ protected:
 private:
 
   EigenTypes::Vector2 m_Size;
-  std::shared_ptr<GLTexture2> m_texture;
+  std::shared_ptr<Texture2> m_texture;
 };
 
 // This is a textured RectanglePrim which sets its aspect ratio based on the texture.
@@ -146,7 +146,7 @@ class ImagePrimitive : public RectanglePrim {
 public:
   
   ImagePrimitive(void);
-  ImagePrimitive(const std::shared_ptr<GLTexture2> &texture);
+  ImagePrimitive(const std::shared_ptr<Texture2> &texture);
   virtual ~ImagePrimitive() { }
   
   void SetScaleBasedOnTextureSize ();

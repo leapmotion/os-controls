@@ -5,7 +5,7 @@
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
 #include "Leap/GL/Buffer.h"
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 #include "Leap/GL/PerspectiveCamera.h"
 #include "Leap/GL/Shader.h"
 #include "Resource.h"

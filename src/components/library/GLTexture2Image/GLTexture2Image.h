@@ -2,12 +2,12 @@
 #define __GLTexture2Image_H__
 
 // Components
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 
 #include <memory>
 #include <string>
 
-/// This class is essentially a wrapper between a std::string path and GLTexture2.
+/// This class is essentially a wrapper between a std::string path and Texture2.
 class GLTexture2Image
 {
 public:
@@ -19,7 +19,7 @@ public:
   
   const std::string& GetPath() const;
   
-  std::shared_ptr<GLTexture2> GetTexture() const;
+  std::shared_ptr<Texture2> GetTexture() const;
   
   bool IsEmpty() const;
   
@@ -39,7 +39,7 @@ public:
 protected:
   bool                            m_Loaded;
   std::string                     m_Path;
-  std::shared_ptr<GLTexture2>     m_Texture;
+  std::shared_ptr<Texture2>       m_Texture;
   mutable int                     m_TextureUnit;
 };
 

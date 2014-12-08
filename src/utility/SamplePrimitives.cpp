@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SamplePrimitives.h"
 #include <Primitives.h>
-#include <Leap/GL/GLTexture2.h>
+#include <Leap/GL/Texture2.h>
 #include <SVGPrimitive.h>
 
 static const char sc_box[] = R"svg(<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect x="10" y="10" height="100" width="100" style="stroke:#ff0000; fill: #0000ff"/></svg>)svg";
@@ -34,6 +34,6 @@ std::shared_ptr<ImagePrimitive> MakePatternedTexture(size_t cx, size_t cy) {
   params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   return std::make_shared<ImagePrimitive>(
-    std::make_shared<GLTexture2>(params, data)
+    std::make_shared<Texture2>(params, data)
   );
 }

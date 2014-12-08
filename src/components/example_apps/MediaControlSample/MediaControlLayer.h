@@ -14,7 +14,7 @@ namespace Leap {
 namespace GL {
 
 class Shader;
-class GLTexture2;
+class Texture2;
 class PerspectiveCamera;
 
 } // end of namespace GL

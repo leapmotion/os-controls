@@ -1,4 +1,4 @@
-#include "Leap/GL/GLTexture2.h"
+#include "Leap/GL/Texture2.h"
 
 #include "Leap/GL/GLError.h"
 #include <sstream>
@@ -45,7 +45,7 @@ IntType CeilDiv (IntType numerator, IntType denominator) {
 
 } // End of anonymous namespace.
 
-GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
+Texture2::Texture2 (const GLTexture2Params &params, const GLTexture2PixelData &pixel_data)
   :
   m_params(params)
 {
@@ -102,11 +102,11 @@ GLTexture2::GLTexture2 (const GLTexture2Params &params, const GLTexture2PixelDat
   glBindTexture(m_params.Target(), 0);
 }
 
-GLTexture2::~GLTexture2 () {
+Texture2::~Texture2 () {
   glDeleteTextures(1, &m_texture_name);
 }
 
-void GLTexture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
+void Texture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.ReadableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be readable (return non-null pointer from ReadableRawData)");
@@ -140,7 +140,7 @@ void GLTexture2::UpdateTexture (const GLTexture2PixelData &pixel_data) {
   Unbind();
 }
 
-void GLTexture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
+void Texture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.WriteableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be writeable (return non-null pointer from WriteableRawData)");
@@ -167,7 +167,7 @@ void GLTexture2::ExtractTexture (GLTexture2PixelData &pixel_data) {
   Unbind();
 }
 
-void GLTexture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) const {
+void Texture2::VerifyPixelDataOrThrow (const GLTexture2PixelData &pixel_data) const {
   if (pixel_data.IsEmpty()) {
     return; // Nothing to verify
   }

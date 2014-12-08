@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "OSScreen.h"
 #include <Primitives.h>
-#include <Leap/GL/GLTexture2.h>
+#include <Leap/GL/Texture2.h>
 #include <ShellScalingApi.h>
 
 #include <fstream>
@@ -100,7 +100,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
   const size_t totalBytes = bytesPerRow*height;
   const uint8_t* dstBytes = FreeImage_GetBits(dib);
 
-  std::shared_ptr<GLTexture2> texture = img->Texture();
+  std::shared_ptr<Texture2> texture = img->Texture();
   if (texture) {
     const auto& params = texture->Params();
     if (params.Height() != height || params.Width() != width) {
@@ -121,7 +121,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    texture = std::make_shared<GLTexture2>(params, pixelData);
+    texture = std::make_shared<Texture2>(params, pixelData);
     img->SetTexture(texture);
     img->SetScaleBasedOnTextureSize();
   }
