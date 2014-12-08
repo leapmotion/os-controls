@@ -22,8 +22,8 @@ FIBITMAP *LoadFreeImageBitmap (const std::string &filepath) {
 }
 
 // This function will attempt to use the various "bitmap information" functions of
-// FreeImage to determine the GLTexture2Params corresponding to the 
-Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2Params params) {
+// FreeImage to determine the Texture2Params corresponding to the 
+Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, Texture2Params params) {
   if (bitmap == nullptr) {
     // TODO: better error reporting
     throw std::runtime_error("error while loading image via FreeImage");
@@ -61,7 +61,7 @@ Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2Par
   unsigned bpp = FreeImage_GetBPP(bitmap);
 
   // The next section of code is effectively a "translation" from the FreeImage bitmap
-  // information gathered above to GLTexture2Params, which is data directly usable by OpenGL.
+  // information gathered above to Texture2Params, which is data directly usable by OpenGL.
 
   GLenum pixel_data_format;   // this is determined by the image data loaded by FreeImage
   GLenum pixel_data_type;     // this is determined by the image data loaded by FreeImage
@@ -206,7 +206,7 @@ Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, GLTexture2Par
   return new Texture2(params, pixel_data);
 }
 
-Texture2 *LoadGLTexture2UsingFreeImage (const std::string &filepath, const GLTexture2Params &params) {
+Texture2 *LoadGLTexture2UsingFreeImage (const std::string &filepath, const Texture2Params &params) {
   FIBITMAP *bitmap = LoadFreeImageBitmap(filepath);
   try {
     Texture2 *texture = AttemptToCreateGLTexture2FromFIBITMAP(bitmap, params);

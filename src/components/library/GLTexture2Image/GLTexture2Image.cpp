@@ -72,7 +72,7 @@ bool GLTexture2Image::LoadPath(const std::string& filePath)
   
   try {
     // Copied from Components/GLTexture2Loader.cpp
-    GLTexture2Params params;
+    Texture2Params params;
     params.SetTarget(GL_TEXTURE_2D);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

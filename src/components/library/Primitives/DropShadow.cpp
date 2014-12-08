@@ -10,7 +10,7 @@ DropShadow::DropShadow() {
     static size_t const WIDTH = 256;
     static size_t const HEIGHT = 256;
     
-    GLTexture2Params params(WIDTH, HEIGHT, GL_LUMINANCE_ALPHA); // Luminance for greyscale, alpha for blending
+    Texture2Params params(WIDTH, HEIGHT, GL_LUMINANCE_ALPHA); // Luminance for greyscale, alpha for blending
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

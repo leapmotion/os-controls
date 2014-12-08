@@ -154,7 +154,7 @@ bool FrameBufferObject::checkStatus()
 bool FrameBufferObject::initColor()
 {
   if (m_Samples == 0) {
-    GLTexture2Params params(m_Width, m_Height);
+    Texture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalColor);
     m_ColorTexture = new Texture2(params);
     
@@ -185,7 +185,7 @@ bool FrameBufferObject::initDepth()
   }
   
   if (m_Samples == 0) {
-    GLTexture2Params params(m_Width, m_Height);
+    Texture2Params params(m_Width, m_Height);
     params.SetInternalFormat(m_Format.internalDepth);
     m_DepthTexture = new Texture2(params);
 

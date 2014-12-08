@@ -181,7 +181,7 @@ GLMesh<DIM>
     ~ gl_glext_glu.h -- uses Glew to include GL headers -- should rename to GLHeaders.h
     ~ GLError.h -- for flexible GL error checking -- could go in a different component.
   * Texture2 (depends on C++11)
-    ~ GLTexture2Params -- persistent parameters for Texture2 (e.g. width, height, target, etc)
+    ~ Texture2Params -- persistent parameters for Texture2 (e.g. width, height, target, etc)
     ~ Texture2PixelData -- interface for specifying pixel data for loading/saving into/from Texture2
     ~ Texture2 -- Handle to OpenGL texture object
   * FrameBufferObject

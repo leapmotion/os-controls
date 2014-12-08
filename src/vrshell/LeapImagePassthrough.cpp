@@ -46,7 +46,7 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     // Generate a texture procedurally.
     GLsizei width = images[0].width();
     GLsizei height = images[0].height();
-    GLTexture2Params imageParams(width, height, GL_LUMINANCE);
+    Texture2Params imageParams(width, height, GL_LUMINANCE);
     imageParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     imageParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     imageParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -54,7 +54,7 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     m_texture[0] = std::make_shared<Texture2>(imageParams);
     m_texture[1] = std::make_shared<Texture2>(imageParams);
 
-    GLTexture2Params distortionParams(64, 64, GL_RG32F);
+    Texture2Params distortionParams(64, 64, GL_RG32F);
     //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

@@ -6,20 +6,20 @@ namespace Leap {
 namespace GL {
 
 class Texture2;
-class GLTexture2Params;
+class Texture2Params;
 
 } // end of namespace GL
 } // end of namespace Leap
 
 using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
-// The only value that must be set in the passed-in GLTexture2Params is "target".
+// The only value that must be set in the passed-in Texture2Params is "target".
 // If it is desired to specify any TexParameter values, this must be done before
 // calling this function.  The other properties (width, height, internal format,
 // pixel data format, pixel data type) are all determined from the loaded image.
-// The GLTexture2Params property of the returned Texture2 will be fully populated
+// The Texture2Params property of the returned Texture2 will be fully populated
 // with all the determined values.
 // NOTE: In principle, the internal format property could be specified beforehand,
 // in which case it would be a hint to OpenGL for how the texture should be stored
 // internally.
-Texture2 *LoadGLTexture2UsingFreeImage (const std::string &filepath, const GLTexture2Params &params);
+Texture2 *LoadGLTexture2UsingFreeImage (const std::string &filepath, const Texture2Params &params);

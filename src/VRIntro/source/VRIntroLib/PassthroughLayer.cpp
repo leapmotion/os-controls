@@ -8,9 +8,9 @@
 PassthroughLayer::PassthroughLayer() :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/passthrough"),
   m_RealHeight(240),
-  m_image(GLTexture2Params(640, 240, GL_LUMINANCE)), // Because no pixel data was supplied, OpenGL will allocate the texture memory automatically.
-  m_colorimage(GLTexture2Params(608, 540, GL_RGBA)), // Same here.
-  m_distortion(GLTexture2Params(64, 64, GL_RG32F)),  // Same here.
+  m_image(Texture2Params(640, 240, GL_LUMINANCE)), // Because no pixel data was supplied, OpenGL will allocate the texture memory automatically.
+  m_colorimage(Texture2Params(608, 540, GL_RGBA)), // Same here.
+  m_distortion(Texture2Params(64, 64, GL_RG32F)),  // Same here.
   m_Gamma(0.8f),
   m_Brightness(1.0f),
   m_IRMode(0),
@@ -43,7 +43,7 @@ PassthroughLayer::~PassthroughLayer() {
 }
 
 void PassthroughLayer::SetImage(const unsigned char* data, int width, int height) {
-  const GLTexture2Params& params = m_image.Params();
+  const Texture2Params& params = m_image.Params();
 
   // We have to resize our texture when image sizes change
   if (height != m_RealHeight) {

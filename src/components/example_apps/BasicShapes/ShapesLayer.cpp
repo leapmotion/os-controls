@@ -94,7 +94,7 @@ ShapesLayer::ShapesLayer ()
     // Generate a texture procedurally for use in TexturedFrame.
     GLsizei width = 4;
     GLsizei height = 4;
-    GLTexture2Params params(width, height, GL_RGB8);
+    Texture2Params params(width, height, GL_RGB8);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);

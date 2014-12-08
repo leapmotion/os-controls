@@ -12,7 +12,7 @@ class Texture2;
 
 using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
-// TODO: maybe make a loader for GLTexture2Params, which would define "profiles" for
+// TODO: maybe make a loader for Texture2Params, which would define "profiles" for
 // different classes of textures (e.g. non-mipmapped RGB textures, 16-bit cubemaps, etc),
 // so that loading a Texture2 would require a profile name and a file name.
 

@@ -16,7 +16,7 @@ TEST_F(GLTexture2HeadlessTest, EmptyTexture) {
   GLsizei height = 120;
   
   std::shared_ptr<Texture2> texture;
-  GLTexture2Params params(width, height);
+  Texture2Params params(width, height);
   ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
@@ -36,7 +36,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_RawPointer) {
   
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
-  GLTexture2Params params(width, height);
+  Texture2Params params(width, height);
   Texture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixel_data, raw_pixel_data_byte_count);
   ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
@@ -56,7 +56,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
   
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
-  GLTexture2Params params(width, height);
+  Texture2Params params(width, height);
   Texture2PixelData pixel_data(GL_RED, GL_UNSIGNED_BYTE, raw_pixels.data(), raw_pixels.size()*sizeof(uint8_t));
   ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
@@ -77,7 +77,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
   
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
-  GLTexture2Params params(width, height);
+  Texture2Params params(width, height);
   ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
@@ -97,7 +97,7 @@ TEST_F(GLTexture2HeadlessTest, ExtractTexture) {
 
   // Create the texture from the pixel data.
   std::shared_ptr<Texture2> texture;
-  GLTexture2Params params(width, height);
+  Texture2Params params(width, height);
   ASSERT_NO_THROW_(texture = std::make_shared<Texture2>(params, pixel_data));
   EXPECT_EQ(100, texture->Params().Width());
   EXPECT_EQ(120, texture->Params().Height());
@@ -179,7 +179,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
   {
     GLsizei width = 200;
     GLsizei height = 120;
-    GLTexture2Params params(width, height, GL_LUMINANCE);
+    Texture2Params params(width, height, GL_LUMINANCE);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
@@ -206,7 +206,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
   {
     GLsizei width = 200;
     GLsizei height = 120;
-    GLTexture2Params params(width, height, GL_LUMINANCE);
+    Texture2Params params(width, height, GL_LUMINANCE);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
@@ -233,7 +233,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
   {
     GLsizei width = 4;
     GLsizei height = 4;
-    GLTexture2Params params(width, height, GL_RGBA8);
+    Texture2Params params(width, height, GL_RGBA8);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
@@ -262,7 +262,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
   {
     GLsizei texture_width = 2;
     GLsizei texture_height = 2;
-    GLTexture2Params params(texture_width, texture_height, GL_RGBA8);
+    Texture2Params params(texture_width, texture_height, GL_RGBA8);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);

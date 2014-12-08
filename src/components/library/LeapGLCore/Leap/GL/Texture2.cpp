@@ -45,13 +45,13 @@ IntType CeilDiv (IntType numerator, IntType denominator) {
 
 } // End of anonymous namespace.
 
-Texture2::Texture2 (const GLTexture2Params &params, const Texture2PixelData &pixel_data)
+Texture2::Texture2 (const Texture2Params &params, const Texture2PixelData &pixel_data)
   :
   m_params(params)
 {
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
-    throw Texture2Exception("GLTexture2Params must specify positive width and height"); // TODO: should this requirement be removed?
+    throw Texture2Exception("Texture2Params must specify positive width and height"); // TODO: should this requirement be removed?
   }
   VerifyPixelDataOrThrow(pixel_data);
 

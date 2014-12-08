@@ -7,7 +7,7 @@
 
 // This is an invaluable resource: http://www.opengl.org/wiki/Common_Mistakes
 
-// Design notes for GLTexture2Params
+// Design notes for Texture2Params
 //
 // Design criteria:
 // - Make a reasonably OpenGL-version-agnostic interface.  specifically,
@@ -35,7 +35,7 @@ namespace Leap {
 namespace GL {
 
 // The only exceptions that this class explicitly throws derive from Leap::GL::Texture2Exception.
-class GLTexture2Params {
+class Texture2Params {
 public:
 
   typedef std::map<GLenum,GLfloat> GLTexParameterfMap;
@@ -52,10 +52,10 @@ public:
   // OpenGL 3.3: https://www.opengl.org/sdk/docs/man3/
   // More at http://www.opengl.org/wiki/Image_Formats though that document may reflect an OpenGL 
   // version later than 2.1.
-  GLTexture2Params (GLsizei width, GLsizei height, GLenum internal_format = DEFAULT_INTERNAL_FORMAT);
+  Texture2Params (GLsizei width, GLsizei height, GLenum internal_format = DEFAULT_INTERNAL_FORMAT);
   // Default constructor sets necessary values that have no reasonable default values to
   // invalid values which *must* be filled in.
-  GLTexture2Params () : GLTexture2Params(0, 0) { }
+  Texture2Params () : Texture2Params(0, 0) { }
 
   // Accessors for glTexImage2D properties.
 

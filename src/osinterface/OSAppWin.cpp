@@ -75,7 +75,7 @@ std::shared_ptr<ImagePrimitive> OSAppWin::GetIconTexture(std::shared_ptr<ImagePr
   if (texture) {
     texture->UpdateTexture(pixelData);
   } else {
-    GLTexture2Params params{ static_cast<GLsizei>(dimension), static_cast<GLsizei>(dimension) };
+    Texture2Params params{ static_cast<GLsizei>(dimension), static_cast<GLsizei>(dimension) };
     params.SetTarget(GL_TEXTURE_2D);
     params.SetInternalFormat(GL_RGBA8);
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
