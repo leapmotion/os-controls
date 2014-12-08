@@ -35,15 +35,15 @@ namespace model {
       const VertexBuffer& getVboMesh() const { return mVboMesh; }
       void setVboMesh(size_t numVertices, size_t numIndices, GLenum primitiveType);
 
-      GLBuffer& getIndices() { return mIndices; }
-      const GLBuffer& getIndices() const { return mIndices; }
+      Buffer& getIndices() { return mIndices; }
+      const Buffer& getIndices() const { return mIndices; }
 
       std::array<Eigen::Matrix4f, MAXBONES>* mBoneMatricesPtr;
       std::array<Eigen::Matrix4f, MAXBONES>* mInvTransposeMatricesPtr;
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     private:
       VertexBuffer mVboMesh;
-      GLBuffer mIndices;
+      Buffer mIndices;
     };
     typedef std::shared_ptr<SkinnedVboMesh::MeshSection> MeshVboSectionRef;
 

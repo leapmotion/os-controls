@@ -33,8 +33,8 @@ private:
   void UpdateAllPhysics();
   void RenderPopup() const;
 
-  mutable GLBuffer m_Buffer;
-  mutable GLBuffer m_PopupBuffer;
+  mutable Buffer m_Buffer;
+  mutable Buffer m_PopupBuffer;
   std::shared_ptr<Leap::GL::GLTexture2> m_PopupTexture;
   std::shared_ptr<Leap::GL::GLShader> m_PopupShader;
   std::shared_ptr<Leap::GL::ShaderMatrices> m_PopupShaderMatrices;

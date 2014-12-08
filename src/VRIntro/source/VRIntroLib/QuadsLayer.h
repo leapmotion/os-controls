@@ -101,7 +101,7 @@ public:
 private:
   GLTexture2* m_image[300];
 
-  mutable GLBuffer m_Buffer;
+  mutable Buffer m_Buffer;
   std::vector<std::shared_ptr<Pane>> m_Panes;
 
   EigenTypes::Vector2f m_LastYTheta;

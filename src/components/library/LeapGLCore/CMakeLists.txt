@@ -6,7 +6,7 @@ add_sublibrary(
         Leap/GL/Common.h
         Leap/GL/Exception.h
         Leap/GL/FrameBufferObject.h
-        Leap/GL/GLBuffer.h
+        Leap/GL/Buffer.h
         Leap/GL/GLError.h
         Leap/GL/GLHeaders.h
         Leap/GL/GLShader.h
@@ -48,7 +48,7 @@ add_sublibrary(
     SOURCES
         Leap/GL/Camera.cpp
         Leap/GL/FrameBufferObject.cpp
-        Leap/GL/GLBuffer.cpp
+        Leap/GL/Buffer.cpp
         Leap/GL/GLShader.cpp
         Leap/GL/GLTexture2.cpp
         Leap/GL/GLTexture2Params.cpp

@@ -187,8 +187,8 @@ GLMesh<DIM>
   * FrameBufferObject
     ~ FrameBufferObject
     ~ RenderBuffer
-  * GLBuffer
-    ~ GLBuffer -- abstracts the concept of an OpenGL buffer object
+  * Buffer
+    ~ Buffer -- abstracts the concept of an OpenGL buffer object
   * GLVertexBuffer (depends on C++11)
     ~ GLVertexAttribute -- abstracts the concept of an OpenGL vertex attribute
     ~ GLVertexBuffer -- abstracts the concept of an OpenGL vertex buffer object
@@ -411,7 +411,7 @@ GLMesh<DIM>
   (1) Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this)
   (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
       there is a separate Shutdown/Destroy method
-      destruction releases the resource (GLBuffer does this).
+      destruction releases the resource (Buffer does this).
   (3) Construct with acquired resource (as in (1)) or construct as "invalid/empty",
       there is a [Re]Initialize method to [re]acquire a resource
       there is a Shutdown method
@@ -491,7 +491,7 @@ FrameBufferObject (rename to Leap::GL::Framebuffer)
   * glGetFramebufferAttachmentParameteriv
   * TODO: examine API docs for closure
 
-GLBuffer (rename to Leap::GL::Buffer)
+Buffer (rename to Leap::GL::Buffer)
 - List of relevant GL calls
   * glGenBuffers
   * glBindBuffer
@@ -568,7 +568,7 @@ GLVertexAttribute (rename to Leap::GL::VertexAttribute)
   * TODO: examine API docs for closure
 
 GLVertexBuffer (rename to Leap::GL::VertexBuffer)
-- This is an abstraction completely on top of GLBuffer and GLVertexAttribute, so it doesn't call OpenGL directly.
+- This is an abstraction completely on top of Buffer and GLVertexAttribute, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
 RenderBuffer (rename to Leap::GL::RenderBuffer)
@@ -608,7 +608,7 @@ Some possibilities for resource conventions are the following.
     exception is thrown.
 2.  Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
     there is a separate Release/Destroy method
-    destruction releases the resource (GLBuffer does this).
+    destruction releases the resource (Buffer does this).
 3.  Construct with acquired resource (as in (1)) or construct as "invalid/empty",
     there is a [Re]Initialize method to [re]acquire a resource
     there is a Release method

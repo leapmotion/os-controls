@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Leap/GL/GLHeaders.h"
-#include "Leap/GL/GLBuffer.h"
+#include "Leap/GL/Buffer.h"
 #include "Leap/GL/GLVertexAttribute.h"
 #include "Leap/GL/Internal/Meta.h"
 #include "Leap/GL/VertexBufferException.h"
@@ -218,7 +218,7 @@ private:
 
   GLenum m_usage_pattern;
   std::vector<Attributes> m_intermediate_attributes;
-  mutable GLBuffer m_gl_buffer;
+  mutable Buffer m_gl_buffer;
 };
 
 } // end of namespace GL

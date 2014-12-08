@@ -23,7 +23,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  mutable GLBuffer m_Buffer;
+  mutable Buffer m_Buffer;
 
   std::shared_ptr<GLTexture2> m_Texture;
   TimePoint m_Time;

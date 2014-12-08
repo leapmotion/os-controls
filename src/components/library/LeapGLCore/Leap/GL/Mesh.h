@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "Leap/GL/GLBuffer.h"
+#include "Leap/GL/Buffer.h"
 #include "Leap/GL/GLVertexBuffer.h"
 #include "Leap/GL/MeshException.h"
 #include <map>
@@ -271,7 +271,7 @@ private:
   // This is the number of indices used to pass to glDrawElements when drawing the VBO.
   size_t m_index_count;
   // This is the buffer containing the index elements.
-  GLBuffer m_index_buffer;
+  Buffer m_index_buffer;
 };
 
 } // end of namespace GL
