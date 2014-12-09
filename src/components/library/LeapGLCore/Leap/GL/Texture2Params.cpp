@@ -40,6 +40,15 @@ void Texture2Params::SetTexParameteri (GLenum pname, GLint value) {
   m_tex_parameter_i[pname] = value;
 }
 
+void Texture2Params::Clear () {
+  m_target = DEFAULT_TARGET;
+  m_size[0] = 0;
+  m_size[1] = 0;
+  m_internal_format = DEFAULT_INTERNAL_FORMAT;
+  m_tex_parameter_f.clear();
+  m_tex_parameter_i.clear();
+}
+
 } // end of namespace GL
 } // end of namespace Leap
 

@@ -62,6 +62,9 @@ Texture2::~Texture2 () {
 }
 
 void Texture2::Initialize (const Texture2Params &params, const Texture2PixelData &pixel_data) {
+  // Ensure that any previously allocated resources are freed.
+  Shutdown();
+
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
     throw Texture2Exception("Texture2Params must specify positive width and height"); // TODO: should this requirement be removed?
@@ -118,6 +121,7 @@ void Texture2::Initialize (const Texture2Params &params, const Texture2PixelData
 void Texture2::Shutdown () {
   if (IsInitialized()) {
     // TODO: should we check here if the texture is still bound?
+    m_params.Clear();
     glDeleteTextures(1, &m_texture_name);
     m_texture_name = 0; // This is what defines !IsInitialized().
     assert(!IsInitialized());
@@ -125,6 +129,10 @@ void Texture2::Shutdown () {
 }
 
 void Texture2::TexSubImage (const Texture2PixelData &pixel_data) {
+  if (!IsInitialized()) {
+    throw Texture2Exception("Can't call Texture2::TexSubImage on a Texture2 that is !IsInitialized().");
+  }
+
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.ReadableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be readable (return non-null pointer from ReadableRawData)");
@@ -159,6 +167,10 @@ void Texture2::TexSubImage (const Texture2PixelData &pixel_data) {
 }
 
 void Texture2::GetTexImage (Texture2PixelData &pixel_data) {
+  if (!IsInitialized()) {
+    throw Texture2Exception("Can't call Texture2::GetTexImage on a Texture2 that is !IsInitialized().");
+  }
+
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.WriteableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be writeable (return non-null pointer from WriteableRawData)");

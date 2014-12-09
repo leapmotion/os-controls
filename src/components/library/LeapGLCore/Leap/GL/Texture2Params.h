@@ -54,8 +54,8 @@ public:
   // version later than 2.1.
   Texture2Params (GLsizei width, GLsizei height, GLenum internal_format = DEFAULT_INTERNAL_FORMAT);
   // Default constructor sets necessary values that have no reasonable default values to
-  // invalid values which *must* be filled in.
-  Texture2Params () : Texture2Params(0, 0) { }
+  // invalid values which *must* be filled in.  The values are the values obtained via Clear().
+  Texture2Params () { Clear(); }
 
   // Accessors for glTexImage2D properties.
 
@@ -93,6 +93,9 @@ public:
 
   void SetTexParameterf (GLenum pname, GLfloat value);
   void SetTexParameteri (GLenum pname, GLint value);
+
+  // Clears all values back to their default, neutral values.
+  void Clear ();
 
 private:
 
