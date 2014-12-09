@@ -6,6 +6,7 @@
 #include "Leap/GL/Internal/Meta.h"
 #include "Leap/GL/VertexBufferException.h"
 
+#include <cassert>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -65,15 +66,33 @@ public:
   static const size_t ATTRIBUTE_COUNT = std::tuple_size<Attributes>::value;
   typedef typename Internal::UniformTuple<ATTRIBUTE_COUNT,GLint>::T UniformLocations;
 
+  // For use in unique-ifying vertex attributes.
+  struct AttributesCompare {
+    bool operator () (const Attributes &lhs, const Attributes &rhs) const {
+      return memcmp(reinterpret_cast<const void *>(&lhs), reinterpret_cast<const void *>(&rhs), sizeof(Attributes)) < 0;
+    }
+  };
+
+  // Construct an un-Initialize-d Texture2 which has not acquired any GL (or other) resources.
+  // It will be necessary to call Initialize on this object to use it.
+  VertexBuffer () : m_usage_pattern(GL_INVALID_ENUM) { }
+  // Convenience constructor that will call Initialize with the given arguments.
+  VertexBuffer (GLenum usage_pattern) { Initialize(usage_pattern); }
+  // Will call Shutdown.
+  ~VertexBuffer () {
+    Shutdown();
+  }
+
+  bool IsInitialized () const { return m_usage_pattern != GL_INVALID_ENUM; }
   // The usage_pattern parameter specifies the expected usage pattern of the data store.
   // It must be one of: GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW,
   // GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.
   // See glBufferData for more on this.
-  VertexBuffer (GLenum usage_pattern)
-    :
-    m_usage_pattern(usage_pattern)
-  {
-    switch (m_usage_pattern) {
+  void Initialize (GLenum usage_pattern) {
+    // Ensure that any previously allocated resources are freed.
+    Shutdown();
+
+    switch (usage_pattern) {
       case GL_STREAM_DRAW:
       case GL_STREAM_READ:
       case GL_STREAM_COPY:
@@ -83,18 +102,23 @@ public:
       case GL_DYNAMIC_DRAW:
       case GL_DYNAMIC_READ:
       case GL_DYNAMIC_COPY:
+        m_usage_pattern = usage_pattern;
+        assert(IsInitialized());
         break; // Ok
       default:
         throw VertexBufferException("usage must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
+    }    
+  }
+  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
+  // safe to call multiple times, and has no effect after the resources are freed).
+  void Shutdown () {
+    if (IsInitialized()) {
+      ClearEverything();
+      assert(!IsUploaded());
+      m_usage_pattern = GL_INVALID_ENUM;
+      assert(!IsInitialized());
     }
   }
-
-  // For use in unique-ifying vertex attributes.
-  struct AttributesCompare {
-    bool operator () (const Attributes &lhs, const Attributes &rhs) const {
-      return memcmp(reinterpret_cast<const void *>(&lhs), reinterpret_cast<const void *>(&rhs), sizeof(Attributes)) < 0;
-    }
-  };
 
   // Returns the usage pattern used in upload operations.
   GLenum UsagePattern () const { return m_usage_pattern; }
@@ -125,6 +149,10 @@ public:
   // method should only be called after the intermediate attributes have changed and the
   // changes need to be propagated to the GPU.
   void UploadIntermediateAttributes () const {
+    if (!IsInitialized()) {
+      throw VertexBufferException("Can't call VertexBuffer::UploadIntermediateAttributes on a VertexBuffer that is !IsInitialized().");
+    }
+
     GLsizeiptr intermediate_attributes_size(m_intermediate_attributes.size()*sizeof(Attributes));
     const void *intermediate_attributes_data(m_intermediate_attributes.data());
     // If the buffer is already created and is the same size as the intermediate attributes,
@@ -142,15 +170,20 @@ public:
       m_gl_buffer.Allocate(intermediate_attributes_data, intermediate_attributes_size, m_usage_pattern);
       m_gl_buffer.Unbind();
     }
+    assert(IsUploaded());
   }
 
-  bool IsInitialized () const { return m_gl_buffer.IsInitialized(); }
+  // Returns true if UploadIntermediateAttributes has been called, i.e. if there are associated GL resources.
+  bool IsUploaded () const { return m_gl_buffer.IsInitialized(); }
   // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
   // tuple argument attribute_locations must correspond exactly to Attributes
   // (which is a tuple of VertexAttribute types defined by this VertexBuffer).
   void Enable (const UniformLocations &attribute_locations) const {
-    if (!m_gl_buffer.IsInitialized()) {
+    if (!IsInitialized()) {
+      throw VertexBufferException("Can't call VertexBuffer::Enable on a VertexBuffer that is !IsInitialized().");
+    }
+    if (!IsUploaded()) {
       throw VertexBufferException("can't Enable a VertexBuffer that hasn't had UploadIntermediateAttributes called on it");
     }
     m_gl_buffer.Bind();
@@ -217,6 +250,8 @@ private:
   }
 
   GLenum m_usage_pattern;
+  // TODO: it might be a good thing to remove the storage of these intermediate attributes from the concern
+  // of this class -- doing so would greatly simplify this class' interface.
   std::vector<Attributes> m_intermediate_attributes;
   mutable Buffer m_gl_buffer;
 };

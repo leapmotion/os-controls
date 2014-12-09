@@ -61,8 +61,8 @@ public:
   }
 
   bool IsInitialized () const {
-    assert(m_vertex_buffer.IsInitialized() == m_index_buffer.IsInitialized() && "m_vertex_buffer and m_index_buffer should either be IsInitialized or not IsInitialized at the same time.");
-    return m_vertex_buffer.IsInitialized();
+    assert(m_vertex_buffer.IsUploaded() == m_index_buffer.IsInitialized());
+    return m_vertex_buffer.IsUploaded();
   }
   // Once all the vertices are specified, calling this method computes the vertex index buffer
   // and uploads the unique-ified vertices and the indices to the GPU.  If successful, the mesh
