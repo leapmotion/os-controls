@@ -16,7 +16,7 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
   m_OddEven(0),
   m_StarShowMode(0),
   m_StarsToShow(NUM_STARS) {
-  m_Buffer.Create(GL_ARRAY_BUFFER);
+  m_Buffer.Initialize(GL_ARRAY_BUFFER);
   m_Buffer.Bind();
   m_Buffer.Allocate(NULL, 12*sizeof(float)*NUM_STARS, GL_DYNAMIC_DRAW);
   m_Buffer.Unbind();
@@ -29,7 +29,7 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
     +0.7f, +0.07f, -4.0f, 1, 1,
   };
 
-  m_PopupBuffer.Create(GL_ARRAY_BUFFER);
+  m_PopupBuffer.Initialize(GL_ARRAY_BUFFER);
   m_PopupBuffer.Bind();
   m_PopupBuffer.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
   m_PopupBuffer.Unbind();
@@ -40,7 +40,6 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
 
 SpaceLayer::~SpaceLayer() {
   delete[] m_Buf;
-  m_Buffer.Destroy();
 }
 
 

@@ -38,9 +38,7 @@ PassthroughLayer::PassthroughLayer() :
   m_distortion.Unbind();
 }
 
-PassthroughLayer::~PassthroughLayer() {
-  m_Buffer.Destroy();
-}
+PassthroughLayer::~PassthroughLayer() { }
 
 void PassthroughLayer::SetImage(const unsigned char* data, int width, int height) {
   const Texture2Params& params = m_image.Params();

@@ -13,8 +13,8 @@ namespace model {
   {
     std::vector<VertexAttributes>& attributes = mVboMesh.IntermediateAttributes();
     attributes.resize(numVertices);
-    if (!mIndices.IsCreated()) {
-      mIndices.Create(GL_ELEMENT_ARRAY_BUFFER);
+    if (!mIndices.IsInitialized()) {
+      mIndices.Initialize(GL_ELEMENT_ARRAY_BUFFER);
     }
   }
 

@@ -591,7 +591,7 @@ how the objects are used (e.g. assuming that they are always constructed via new
 
 The resource-based OpenGL concepts that we will provide abstractions for in the GL
 component are the following.
-    
+
 - Texture2
 - Shader
 - Buffer

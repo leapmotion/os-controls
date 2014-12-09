@@ -11,18 +11,23 @@ class Buffer {
 
 public:
 
-  Buffer();
-  ~Buffer();
-  void Create(GLenum type);
-  void Bind() const;
+  Buffer ();
+  Buffer (GLenum type);
+  ~Buffer ();
+
+  void Initialize (GLenum type);
+  void Shutdown ();
+
+  bool IsInitialized () const { return m_BufferAddress != 0; }
+
+  void Bind () const;
   void Unbind () const;
-  void Allocate(const void* data, GLsizeiptr size, GLenum usage_pattern);
-  void Write(const void* data, int count);
-  GLsizeiptr Size() const { return m_SizeInBytes; }
-  void* Map(GLenum access);
-  bool Unmap();
-  bool IsCreated() const;
-  void Destroy();
+
+  void Allocate (const void* data, GLsizeiptr size, GLenum usage_pattern);
+  void Write (const void* data, int count);
+  GLsizeiptr Size () const { return m_SizeInBytes; }
+  void* Map (GLenum access);
+  bool Unmap ();
 
 private:
 

@@ -41,7 +41,7 @@ MessageLayer::MessageLayer(const EigenTypes::Vector3f& initialEyePos) :
     +0.288f, +0.184f, -0.3f, 1, 1,
   };
 
-  m_Buffer.Create(GL_ARRAY_BUFFER);
+  m_Buffer.Initialize(GL_ARRAY_BUFFER);
   m_Buffer.Bind();
   m_Buffer.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
   m_Buffer.Unbind();

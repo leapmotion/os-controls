@@ -117,7 +117,7 @@ public:
   }
   // This clears the GL buffer object, but preserves everything else.
   void ClearGLResources () const {
-    m_gl_buffer.Destroy();
+    m_gl_buffer.Shutdown();
   }
   // Allocates (if necessary) and populates a GL buffer object with the intermediate attribute
   // buffer data.  It is recommended to clear the intermediate attributes after calling this
@@ -129,13 +129,13 @@ public:
     const void *intermediate_attributes_data(m_intermediate_attributes.data());
     // If the buffer is already created and is the same size as the intermediate attributes,
     // then map it and copy the data in.
-    if (m_gl_buffer.IsCreated() && m_gl_buffer.Size() == intermediate_attributes_size) {
+    if (m_gl_buffer.IsInitialized() && m_gl_buffer.Size() == intermediate_attributes_size) {
       void *ptr = m_gl_buffer.Map(GL_WRITE_ONLY);
       memcpy(ptr, intermediate_attributes_data, intermediate_attributes_size);
       m_gl_buffer.Unmap();
     } else { // Otherwise ensure the buffer is created, 
-      if (!m_gl_buffer.IsCreated()) {
-        m_gl_buffer.Create(GL_ARRAY_BUFFER);
+      if (!m_gl_buffer.IsInitialized()) {
+        m_gl_buffer.Initialize(GL_ARRAY_BUFFER);
       }
       m_gl_buffer.Bind();
       // This will delete and reallocate if it's already allocated.
@@ -144,13 +144,13 @@ public:
     }
   }
 
-  bool IsInitialized () const { return m_gl_buffer.IsCreated(); }
+  bool IsInitialized () const { return m_gl_buffer.IsInitialized(); }
   // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
   // tuple argument attribute_locations must correspond exactly to Attributes
   // (which is a tuple of VertexAttribute types defined by this VertexBuffer).
   void Enable (const UniformLocations &attribute_locations) const {
-    if (!m_gl_buffer.IsCreated()) {
+    if (!m_gl_buffer.IsInitialized()) {
       throw VertexBufferException("can't Enable a VertexBuffer that hasn't had UploadIntermediateAttributes called on it");
     }
     m_gl_buffer.Bind();

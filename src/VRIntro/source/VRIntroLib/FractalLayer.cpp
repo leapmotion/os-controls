@@ -19,7 +19,7 @@ FractalLayer::FractalLayer(const EigenTypes::Vector3f& initialEyePos) :
     +2, +2, -1.5, 1, 1,
   };
 
-  m_Buffer.Create(GL_ARRAY_BUFFER);
+  m_Buffer.Initialize(GL_ARRAY_BUFFER);
   m_Buffer.Bind();
   m_Buffer.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
   m_Buffer.Unbind();

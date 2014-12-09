@@ -61,7 +61,7 @@ public:
   }
 
   bool IsInitialized () const {
-    assert(m_vertex_buffer.IsInitialized() == m_index_buffer.IsCreated() && "m_vertex_buffer and m_index_buffer should either be IsInitialized or not IsInitialized at the same time.");
+    assert(m_vertex_buffer.IsInitialized() == m_index_buffer.IsInitialized() && "m_vertex_buffer and m_index_buffer should either be IsInitialized or not IsInitialized at the same time.");
     return m_vertex_buffer.IsInitialized();
   }
   // Once all the vertices are specified, calling this method computes the vertex index buffer
@@ -106,7 +106,7 @@ public:
 
     m_index_count = static_cast<int>(indices.size());
 
-    m_index_buffer.Create(GL_ELEMENT_ARRAY_BUFFER);
+    m_index_buffer.Initialize(GL_ELEMENT_ARRAY_BUFFER);
     m_index_buffer.Bind();
     // TODO: allow different usage patterns
     m_index_buffer.Allocate(static_cast<void*>(indices.data()), static_cast<int>(indices.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
@@ -126,8 +126,8 @@ public:
     }
     m_vertex_buffer.ClearEverything();
     m_index_count = 0;
-    if (m_index_buffer.IsCreated()) {
-      m_index_buffer.Destroy();
+    if (m_index_buffer.IsInitialized()) {
+      m_index_buffer.Shutdown();
     }
   }
 

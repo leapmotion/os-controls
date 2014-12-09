@@ -72,7 +72,7 @@ QuadsLayer::QuadsLayer(const EigenTypes::Vector3f& initialEyePos) :
   }
 
   Pane::m_Pan = EigenTypes::Vector2f(0.5*m_StripWidth, 0);
-  m_Buffer.Create(GL_ARRAY_BUFFER);
+  m_Buffer.Initialize(GL_ARRAY_BUFFER);
   m_Buffer.Bind();
   m_Buffer.Allocate(NULL, 4*sizeof(TextureVertex)*filenames.size(), GL_DYNAMIC_DRAW);
   m_Buffer.Unbind();
