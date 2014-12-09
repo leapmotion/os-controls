@@ -9,9 +9,9 @@
 // Convenience macro for annotated printing the value of variables.
 #define FMT(x) #x << " = " << (x)
 
-class GLShaderTest : public GLTestFramework_Headless { };
+class ShaderTest : public GLTestFramework_Headless { };
 
-TEST_F(GLShaderTest, CompileAndLink) {
+TEST_F(ShaderTest, CompileAndLink) {
   std::string vertex_shader_source(
     "void main () {\n"
     "    gl_Position = ftransform();\n"
@@ -26,7 +26,7 @@ TEST_F(GLShaderTest, CompileAndLink) {
   EXPECT_NO_THROW_(auto valid_shader = std::make_shared<Shader>(vertex_shader_source, fragment_shader_source));
 }
 
-TEST_F(GLShaderTest, CompileSuccessfully) {
+TEST_F(ShaderTest, CompileSuccessfully) {
   // Make sure that passing a valid shader as the attached_shader param doesn't throw.
   {
     std::string vertex_shader_source(
@@ -45,7 +45,7 @@ TEST_F(GLShaderTest, CompileSuccessfully) {
   }
 }
 
-TEST_F(GLShaderTest, CompileUnsuccessfully) {
+TEST_F(ShaderTest, CompileUnsuccessfully) {
   // Make sure that passing a valid shader as the attached_shader param doesn't throw.
   {
     std::string vertex_shader_source(
@@ -103,15 +103,15 @@ void SetTypedUniformCheckInVertexShader (const std::unordered_map<GLenum,std::st
   }
 }
 
-TEST_F(GLShaderTest, SetTypedUniformCheckInVertexShader_OpenGL_2_1) {
+TEST_F(ShaderTest, SetTypedUniformCheckInVertexShader_OpenGL_2_1) {
   SetTypedUniformCheckInVertexShader(Shader::OPENGL_2_1_UNIFORM_TYPE_MAP, "120");
 }
 
-TEST_F(GLShaderTest, DISABLED_SetTypedUniformCheckInVertexShader_OpenGL_3_3) {
+TEST_F(ShaderTest, DISABLED_SetTypedUniformCheckInVertexShader_OpenGL_3_3) {
   SetTypedUniformCheckInVertexShader(Shader::OPENGL_3_3_UNIFORM_TYPE_MAP, "330");
 }
 
-class GLShaderTest_Visible : public GLTestFramework_Visible { };
+class ShaderTest_Visible : public GLTestFramework_Visible { };
 
 void RenderRectangle () {
   glDisable(GL_LIGHTING);
@@ -138,7 +138,7 @@ void RenderRectangle () {
   glDrawArrays(GL_TRIANGLE_FAN, 0, VERTEX_COUNT);
 }
 
-TEST_F(GLShaderTest_Visible, Vec2UniformSettingEquivalence) {
+TEST_F(ShaderTest_Visible, Vec2UniformSettingEquivalence) {
   std::string vertex_shader_source(
     "#version 120\n"
     "void main () {\n"
@@ -172,7 +172,7 @@ TEST_F(GLShaderTest_Visible, Vec2UniformSettingEquivalence) {
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
 
-TEST_F(GLShaderTest_Visible, Vec3UniformSettingEquivalence) {
+TEST_F(ShaderTest_Visible, Vec3UniformSettingEquivalence) {
   std::string vertex_shader_source(
     "#version 120\n"
     "void main () {\n"

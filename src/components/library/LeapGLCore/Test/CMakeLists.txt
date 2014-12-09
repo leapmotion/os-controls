@@ -1,7 +1,7 @@
 set(_sources
     ColorComponentTest.cpp
-    GLShaderTest.cpp
-    GLTexture2Test.cpp
+    ShaderTest.cpp
+    Texture2Test.cpp
     OrthographicCameraTest.cpp
     PerspectiveCameraTest.cpp
     RgbaTest.cpp

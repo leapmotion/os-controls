@@ -9,9 +9,9 @@
 // Headless tests
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class GLTexture2HeadlessTest : public GLTestFramework_Headless { };
+class Texture2HeadlessTest : public GLTestFramework_Headless { };
 
-TEST_F(GLTexture2HeadlessTest, EmptyTexture) {
+TEST_F(Texture2HeadlessTest, EmptyTexture) {
   GLsizei width = 100;
   GLsizei height = 120;
   
@@ -22,7 +22,7 @@ TEST_F(GLTexture2HeadlessTest, EmptyTexture) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_RawPointer) {
+TEST_F(Texture2HeadlessTest, NonEmptyTexture_RawPointer) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Generate some raw pixel data
@@ -43,7 +43,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_RawPointer) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
+TEST_F(Texture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Generate some raw pixel data
@@ -63,7 +63,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_reference_to_std_vector) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
+TEST_F(Texture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Create the pixel data storage and write some data to it.
@@ -83,7 +83,7 @@ TEST_F(GLTexture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(GLTexture2HeadlessTest, ExtractTexture) {
+TEST_F(Texture2HeadlessTest, ExtractTexture) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Create the pixel data storage and write some data to it.
@@ -115,7 +115,7 @@ TEST_F(GLTexture2HeadlessTest, ExtractTexture) {
 // Visible tests
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class GLTexture2VisibleTest : public GLTestFramework_Visible { };
+class Texture2VisibleTest : public GLTestFramework_Visible { };
 
 struct RgbPixel { uint8_t r, g, b; };
 
@@ -172,7 +172,7 @@ void RenderTexturedRectangle (const Texture2 &texture) {
   texture.Unbind();
 }
 
-TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
+TEST_F(Texture2VisibleTest, ProcedurallyGeneratedLuminance) {
   std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
@@ -199,7 +199,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedLuminance) {
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
 
-TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
+TEST_F(Texture2VisibleTest, ProcedurallyGeneratedRed) {
   std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
@@ -226,7 +226,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRed) {
   SDL_Delay(1000); // Delay so the human's pitiful visual system can keep up.
 }
 
-TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
+TEST_F(Texture2VisibleTest, ProcedurallyGeneratedRGB) {
   std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
@@ -255,7 +255,7 @@ TEST_F(GLTexture2VisibleTest, ProcedurallyGeneratedRGB) {
 
 // This tests using glPixelStorei parameters (via Texture2PixelData::PixelStoreiParameterMap)
 // to extract only a subregion out of the pixel data, rather than use the whole thing.
-TEST_F(GLTexture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
+TEST_F(Texture2VisibleTest, ProcedurallyGenerated_WithStrideAndOffset) {
   std::shared_ptr<Texture2> texture;
   
   // Generate a texture procedurally.
