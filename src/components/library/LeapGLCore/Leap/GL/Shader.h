@@ -60,15 +60,33 @@ public:
 
   // TODO: make Shader-specific std::exception subclass?
 
-  // Construct a shader with given vertex and fragment programs.
+  // Construct an un-Initialize-d shader.
+  Shader ();
+  // Construct an Initialize-d shader.
   Shader (const std::string &vertex_shader_source, const std::string &fragment_shader_source);
-  // Automatically frees the allocated resources.
+  // Will call Shutdown.
   ~Shader ();
 
+  bool IsInitialized () const { return m_program_handle != 0; }
+
+  // Construct a shader with given vertex and fragment programs.
+  void Initialize (const std::string &vertex_shader_source, const std::string &fragment_shader_source);
+  // Frees the allocated resources.
+  void Shutdown ();
+
   // Returns the shader program handle, which is the integer "name" of this shader program in OpenGL.
-  GLint ProgramHandle () const { return m_program_handle; }
+  // Will throw ShaderException if !IsInitialized().
+  GLint ProgramHandle () const {
+    if (!IsInitialized()) {
+      throw ShaderException("A Shader that !IsInitialized() has no ProgramHandle value.");
+    }
+    return m_program_handle;
+  }
   // This method should be called to bind this shader.
   void Bind () const {
+    if (!IsInitialized()) {
+      throw ShaderException("Can't Bind a Shader that !IsInitialized().");
+    }
     THROW_UPON_GL_ERROR(glUseProgram(m_program_handle));
   }
   // This method should be called when no shader program should be used.
@@ -103,11 +121,21 @@ public:
   // Returns a map, indexed by name, containing all the active uniforms in this shader program.
   // This shader does not need to be bound for this call to succeed.
   // TODO: rename this to ActiveUniformInfoMap
-  const VarInfoMap &UniformInfoMap () const { return m_uniform_info_map; }
+  const VarInfoMap &UniformInfoMap () const {
+    if (!IsInitialized()) {
+      throw ShaderException("A Shader that !IsInitialized() has no UniformInfoMap value.");
+    }
+    return m_uniform_info_map;
+  }
   // Returns a map, indexed by name, containing all the active attributes in this shader program.
   // This shader does not need to be bound for this call to succeed.
   // TODO: rename this to ActiveAttributeInfoMap
-  const VarInfoMap &AttributeInfoMap () const { return m_attribute_info_map; }
+  const VarInfoMap &AttributeInfoMap () const {
+    if (!IsInitialized()) {
+      throw ShaderException("A Shader that !IsInitialized() has no AttributeInfoMap value.");
+    }
+    return m_attribute_info_map;
+  }
 
   // Returns true iff the shader uniform exists.
   // This shader does not need to be bound for this call to succeed.
@@ -166,6 +194,9 @@ public:
   }
   template <GLenum GL_TYPE_, typename... Types_>
   void UploadUniform (const std::string &name, Types_... args) const {
+    if (!IsInitialized()) {
+      throw ShaderException("Can't call [the name version of] UploadUniform on a Shader that !IsInitialized().");
+    }
     Internal::UniformUploader<GL_TYPE_>::Upload(glGetUniformLocation(m_program_handle, name.c_str()), args...);
   }
   template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
@@ -174,6 +205,9 @@ public:
   }
   template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
   void UploadUniformArray (const std::string &name, Types_... args) const {
+    if (!IsInitialized()) {
+      throw ShaderException("Can't call [the name version of] UploadUniformArray on a Shader that !IsInitialized().");
+    }
     Internal::UniformUploader<GL_TYPE_>::template UploadArray<ARRAY_LENGTH_>(glGetUniformLocation(m_program_handle, name.c_str()), args...);
   }
 
@@ -192,7 +226,7 @@ private:
 
   GLuint m_vertex_shader;   ///< Handle to the vertex shader in the GL apparatus.
   GLuint m_fragment_shader; ///< Handle to the fragment shader in the GL apparatus.
-  GLuint m_program_handle;            ///< Handle to the shader program in the GL apparatus.
+  GLuint m_program_handle;  ///< Handle to the shader program in the GL apparatus.
 
   VarInfoMap m_uniform_info_map;
   VarInfoMap m_attribute_info_map;

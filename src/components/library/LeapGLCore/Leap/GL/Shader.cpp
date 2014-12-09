@@ -34,7 +34,24 @@ Shader::VarInfo::VarInfo (const std::string &name, GLint location, GLint size, G
 // Shader
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
+Shader::Shader ()
+  : m_program_handle(0)
+  , m_vertex_shader(0)
+  , m_fragment_shader(0)
+{ }
+
 Shader::Shader (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
+  Initialize(vertex_shader_source, fragment_shader_source);
+}
+
+Shader::~Shader () {
+  Shutdown();
+}
+
+void Shader::Initialize (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
+  // Ensure that any previously allocated resources are freed.
+  Shutdown();
+
   m_vertex_shader = Compile(GL_VERTEX_SHADER, vertex_shader_source);
   m_fragment_shader = Compile(GL_FRAGMENT_SHADER, fragment_shader_source);
   m_program_handle = glCreateProgram();
@@ -98,10 +115,15 @@ Shader::Shader (const std::string &vertex_shader_source, const std::string &frag
   }
 }
 
-Shader::~Shader () {
-  glDeleteProgram(m_program_handle);
-  glDeleteShader(m_vertex_shader);
-  glDeleteShader(m_fragment_shader);
+void Shader::Shutdown () {
+  if (!IsInitialized()) {
+    glDeleteProgram(m_program_handle);
+    glDeleteShader(m_vertex_shader);
+    glDeleteShader(m_fragment_shader);
+    m_program_handle = 0;
+    m_vertex_shader = 0;
+    m_fragment_shader = 0;
+  }
 }
 
 // TODO: combine this with the duplicated code in CheckForTypedAttribute
