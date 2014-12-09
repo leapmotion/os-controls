@@ -136,7 +136,7 @@ std::shared_ptr<ImagePrimitive> OSWindowMac::GetWindowTexture(std::shared_ptr<Im
     pixelData.SetPixelStoreiParameter(GL_UNPACK_ROW_LENGTH, stride);
 
     if (texture) {
-      texture->UpdateTexture(pixelData);
+      texture->TexSubImage(pixelData);
     } else {
       Texture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
       params.SetTarget(GL_TEXTURE_2D);

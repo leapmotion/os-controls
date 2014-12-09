@@ -106,7 +106,7 @@ Texture2::~Texture2 () {
   glDeleteTextures(1, &m_texture_name);
 }
 
-void Texture2::UpdateTexture (const Texture2PixelData &pixel_data) {
+void Texture2::TexSubImage (const Texture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.ReadableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be readable (return non-null pointer from ReadableRawData)");
@@ -140,7 +140,7 @@ void Texture2::UpdateTexture (const Texture2PixelData &pixel_data) {
   Unbind();
 }
 
-void Texture2::ExtractTexture (Texture2PixelData &pixel_data) {
+void Texture2::GetTexImage (Texture2PixelData &pixel_data) {
   VerifyPixelDataOrThrow(pixel_data);
   if (pixel_data.WriteableRawData() == nullptr) {
     throw Texture2Exception("pixel_data object must be writeable (return non-null pointer from WriteableRawData)");

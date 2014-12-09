@@ -409,7 +409,7 @@ void ExposeView::updateWindowTextures() {
   for (const std::shared_ptr<ExposeViewWindow>& window : m_windows) {
     if (window->m_layoutLocked)
       continue;
-    window->UpdateTexture();
+    window->TexSubImage();
   }
 }
 
@@ -433,7 +433,7 @@ void ExposeView::updateWindowTexturesRoundRobin() {
     if (window->m_layoutLocked)
       continue;
     if (idx == counter) {
-      window->UpdateTexture();
+      window->TexSubImage();
     }
     idx++;
   }
@@ -449,7 +449,7 @@ std::shared_ptr<ExposeViewWindow> ExposeView::NewExposeWindow(OSWindow& osWindow
 
   // Update the window texture in the main render loop:
   *this += [retVal] {
-    retVal->UpdateTexture();
+    retVal->TexSubImage();
   };
 
   if (!addToExistingGroup(retVal)) {
@@ -568,7 +568,7 @@ void ExposeView::RemoveExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd
 }
 
 void ExposeView::UpdateExposeWindow(const std::shared_ptr<ExposeViewWindow>& wnd) {
-  wnd->UpdateTexture();
+  wnd->TexSubImage();
 
   computeLayout();
 }

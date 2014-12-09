@@ -106,7 +106,7 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
   }
   Texture2PixelData pixelData{ GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4) };
   if (texture) {
-    texture->UpdateTexture(pixelData);
+    texture->TexSubImage(pixelData);
   } else {
     Texture2Params params{ static_cast<GLsizei>(m_szBitmap.cx), static_cast<GLsizei>(m_szBitmap.cy) };
     params.SetTarget(GL_TEXTURE_2D);

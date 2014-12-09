@@ -83,7 +83,7 @@ TEST_F(Texture2HeadlessTest, NonEmptyTexture_stored_std_vector) {
   EXPECT_EQ(120, texture->Params().Height());
 }
 
-TEST_F(Texture2HeadlessTest, ExtractTexture) {
+TEST_F(Texture2HeadlessTest, GetTexImage) {
   GLsizei width = 100;
   GLsizei height = 120;
   // Create the pixel data storage and write some data to it.
@@ -105,7 +105,7 @@ TEST_F(Texture2HeadlessTest, ExtractTexture) {
   // Create another pixel data storage object to extract the texture data into.
   std::vector<uint8_t> extracted_pixels(width*height);
   Texture2PixelData extracted_pixel_data(GL_RED, GL_UNSIGNED_BYTE, extracted_pixels.data(), extracted_pixels.size()*sizeof(uint8_t));
-  texture->ExtractTexture(extracted_pixel_data);
+  texture->GetTexImage(extracted_pixel_data);
   
   // Ensure that the pixel data is identical.
   EXPECT_EQ(pixels, extracted_pixels);

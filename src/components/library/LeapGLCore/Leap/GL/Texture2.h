@@ -38,9 +38,9 @@ public:
   void Unbind () const { glBindTexture(m_params.Target(), 0); }
 
   // Updates the contents of this texture from the specified pixel data.
-  void UpdateTexture (const Texture2PixelData &pixel_data);
+  void TexSubImage (const Texture2PixelData &pixel_data);
   // Extracts the contents of this texture to the specified pixel data.
-  void ExtractTexture (Texture2PixelData &pixel_data);
+  void GetTexImage (Texture2PixelData &pixel_data);
   
 private:
 

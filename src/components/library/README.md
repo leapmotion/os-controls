@@ -403,6 +403,7 @@ GLMesh<DIM>
 - Make RenderBuffer an Internal class, because it's apparently an implementation detail of FrameBufferObject.
   Also, the name should change to FramebufferObject (or maybe just Framebuffer).  See
   https://www.opengl.org/wiki/Framebuffer_Object
+- Rename classes that have the GL prefix to not have the GL prefix, because they're in a namespace.
 
 ###### Still To Do
 
@@ -423,7 +424,6 @@ GLMesh<DIM>
 - Integrate Camera into existing code (Primitives), get rid of Projection, and replace the functionality
   of ModelView with SceneGraphNode's facilities.  ModelView's operations (Rotate, Scale, Translate, etc)
   will need to be provided.
-- Rename classes that have the GL prefix to not have the GL prefix, because they're in a namespace.
 - Take out the temporary "using namespace Leap::GL" statements everywhere.
 - Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
   This will require some prototyping and code review.

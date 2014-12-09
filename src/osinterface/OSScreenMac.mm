@@ -101,7 +101,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     }
     Texture2PixelData pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
     if (texture) {
-      texture->UpdateTexture(pixelData);
+      texture->TexSubImage(pixelData);
     } else {
       Texture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
       params.SetTarget(GL_TEXTURE_2D);

@@ -73,7 +73,7 @@ std::shared_ptr<ImagePrimitive> OSAppWin::GetIconTexture(std::shared_ptr<ImagePr
   }
   Texture2PixelData pixelData{ GL_BGRA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes };
   if (texture) {
-    texture->UpdateTexture(pixelData);
+    texture->TexSubImage(pixelData);
   } else {
     Texture2Params params{ static_cast<GLsizei>(dimension), static_cast<GLsizei>(dimension) };
     params.SetTarget(GL_TEXTURE_2D);

@@ -31,7 +31,7 @@ ExposeViewWindow::ExposeViewWindow(OSWindow& osWindow):
 
 ExposeViewWindow::~ExposeViewWindow(void) {}
 
-void ExposeViewWindow::UpdateTexture(void) {
+void ExposeViewWindow::TexSubImage(void) {
   m_texture = m_osWindow->GetWindowTexture(m_texture);
 }
 
