@@ -1,4 +1,4 @@
-#include "Leap/GL/GLError.h"
+#include "Leap/GL/Error.h"
 #include "RiftDevice.h"
 #include "RiftException.h"
 #include "RiftPose.h"
@@ -253,7 +253,7 @@ void Device::BeginFrame () {
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
-  GLThrowUponError("glBindFramebuffer");
+  ThrowUponGLError("glBindFramebuffer");
 }
 
 std::shared_ptr<Hmd::IPose> Device::EyePose (uint32_t eye_index) const {

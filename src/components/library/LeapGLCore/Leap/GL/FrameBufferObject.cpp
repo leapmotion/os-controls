@@ -1,6 +1,6 @@
 #include "Leap/GL/FrameBufferObject.h"
 
-#include "Leap/GL/GLError.h"
+#include "Leap/GL/Error.h"
 #include "Leap/GL/Texture2.h"
 #include "Leap/GL/Internal/RenderBuffer.h"
 
@@ -26,16 +26,16 @@ FrameBufferObject* FrameBufferObject::Create(int width, int height, const Format
 void FrameBufferObject::Blit(FrameBufferObject* source, FrameBufferObject* target, GLbitfield buffers, GLenum filter)
 {
   glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, source->Id());
-  GLWarnUponError("in glBindFramebuffer (read)");
+  WarnUponGLError("in glBindFramebuffer (read)");
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, target->Id());
-  GLWarnUponError("in glBindFramebuffer (draw)");
+  WarnUponGLError("in glBindFramebuffer (draw)");
   
   glBlitFramebuffer(0, 0, source->Width(), source->Height(),
                     0, 0, target->Width(), target->Height(), buffers, filter);
-  GLWarnUponError("in glBlitFramebuffer");
+  WarnUponGLError("in glBlitFramebuffer");
   
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  GLWarnUponError("in glBindFramebuffer");
+  WarnUponGLError("in glBindFramebuffer");
 }
 
 // public
@@ -59,15 +59,15 @@ FrameBufferObject::~FrameBufferObject()
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  GLWarnUponError("in glBindFramebuffer");
+  WarnUponGLError("in glBindFramebuffer");
   glDeleteFramebuffers(1, &m_FramebufferId);
-  GLWarnUponError("in glDeleteFramebuffers");
+  WarnUponGLError("in glDeleteFramebuffers");
 }
 
 void FrameBufferObject::Bind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferId);
-  GLWarnUponError("in glBindFramebuffer");
+  WarnUponGLError("in glBindFramebuffer");
 }
 
 Texture2* FrameBufferObject::ColorTexture()
@@ -103,7 +103,7 @@ GLenum FrameBufferObject::Status() const
 void FrameBufferObject::Unbind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  GLWarnUponError("in glBindFramebuffer");
+  WarnUponGLError("in glBindFramebuffer");
 }
 
 // protected
@@ -121,7 +121,7 @@ FrameBufferObject::FrameBufferObject(int width, int height, const Format& format
   // TODO: make util function
   GLint maxSamples;
   glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
-  GLWarnUponError("in glGetIntegerv");
+  WarnUponGLError("in glGetIntegerv");
   
   if (format.samples > maxSamples) {
     m_Samples = maxSamples;
@@ -133,7 +133,7 @@ FrameBufferObject::FrameBufferObject(int width, int height, const Format& format
   
   // Framebuffer
   glGenFramebuffers(1, &m_FramebufferId);
-  GLWarnUponError("in glGenFramebuffers");
+  WarnUponGLError("in glGenFramebuffers");
   
   Bind();
 
@@ -160,7 +160,7 @@ bool FrameBufferObject::initColor()
     
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_ColorTexture->Id(), 0);
-    GLWarnUponError("in glFramebufferTextureEXT");
+    WarnUponGLError("in glFramebufferTextureEXT");
   } else { // multisampling
     Internal::RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalColor;
@@ -171,7 +171,7 @@ bool FrameBufferObject::initColor()
     } else {
       // Attachment textures to FBO
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, m_ColorRenderBuffer->Id());
-      GLWarnUponError("in glFrameBufferRenderbufferEXT");
+      WarnUponGLError("in glFrameBufferRenderbufferEXT");
     }
   }
   
@@ -191,7 +191,7 @@ bool FrameBufferObject::initDepth()
 
     // Attachment textures to FBO
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_DepthTexture->Id(), 0);
-    GLWarnUponError("in glFramebufferTexture2DEXT");
+    WarnUponGLError("in glFramebufferTexture2DEXT");
   } else { // multisampling
     Internal::RenderBuffer::Format rbFormat;
     rbFormat.internalFormat = m_Format.internalDepth;
@@ -202,7 +202,7 @@ bool FrameBufferObject::initDepth()
     } else {
       // Attachment textures to FBO
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_DepthRenderBuffer->Id());
-      GLWarnUponError("in glFramebufferRenderbufferEXT");
+      WarnUponGLError("in glFramebufferRenderbufferEXT");
     }
   }
   

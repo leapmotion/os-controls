@@ -7,7 +7,7 @@ add_sublibrary(
         Leap/GL/Exception.h
         Leap/GL/FrameBufferObject.h
         Leap/GL/Buffer.h
-        Leap/GL/GLError.h
+        Leap/GL/Error.h
         Leap/GL/GLHeaders.h
         Leap/GL/Shader.h
         Leap/GL/ShaderBindingScopeGuard.h

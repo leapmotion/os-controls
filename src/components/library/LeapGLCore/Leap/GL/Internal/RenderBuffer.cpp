@@ -1,6 +1,6 @@
 #include "Leap/GL/Internal/RenderBuffer.h"
 
-#include "Leap/GL/GLError.h"
+#include "Leap/GL/Error.h"
 
 namespace Leap {
 namespace GL {
@@ -21,7 +21,7 @@ RenderBuffer* RenderBuffer::Create(int width, int height, const Format& format)
 void RenderBuffer::Bind() const
 {
   glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferId);
-  GLWarnUponError("in glBindRenderbuffer");
+  WarnUponGLError("in glBindRenderbuffer");
 }
 
 GLuint RenderBuffer::Id() const
@@ -32,7 +32,7 @@ GLuint RenderBuffer::Id() const
 void RenderBuffer::Unbind() const
 {
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
-  GLWarnUponError("in glBindRenderbuffer");
+  WarnUponGLError("in glBindRenderbuffer");
 }
 
 // protected
@@ -44,7 +44,7 @@ RenderBuffer::RenderBuffer(int width, int height, const Format& format)
   // TODO: make this a util function
   GLint maxSamples;
   glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
-  GLWarnUponError("in glGetIntegerv");
+  WarnUponGLError("in glGetIntegerv");
   
   if (format.samples > maxSamples) {
     m_Samples = maxSamples;
@@ -53,16 +53,16 @@ RenderBuffer::RenderBuffer(int width, int height, const Format& format)
   }
 
   glGenRenderbuffers(1, &m_RenderBufferId);
-  GLWarnUponError("in glGenRenderbuffers");
+  WarnUponGLError("in glGenRenderbuffers");
   
   Bind();
 
   if (m_Samples == 0) {
     glRenderbufferStorage(GL_RENDERBUFFER, format.internalFormat, m_Width, m_Height);
-    GLWarnUponError("in glRenderbufferStorage");
+    WarnUponGLError("in glRenderbufferStorage");
   } else {
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Samples, format.internalFormat, m_Width, m_Height);
-    GLWarnUponError("in glRenderbufferStorageMultisample");
+    WarnUponGLError("in glRenderbufferStorageMultisample");
   }
 
   // TODO: check QT error

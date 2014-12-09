@@ -209,7 +209,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
 
       const int numIndices = static_cast<int>(section->getIndices().Size())/sizeof(uint32_t);
       section->getIndices().Bind();
-      GL_THROW_UPON_ERROR(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
+      THROW_UPON_GL_ERROR(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
       section->getIndices().Unbind();
 
       section->getVboMesh().Disable(locations);

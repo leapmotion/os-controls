@@ -265,68 +265,68 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
     valid_shader->Bind();
 
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_BOOL>::Upload(valid_shader->LocationOfUniform("condition"), true);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_BOOL_VEC2>::Upload(valid_shader->LocationOfUniform("conditions"), false, true);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_BOOL_VEC2>::Upload(valid_shader->LocationOfUniform("conditions"), std::array<GLint,2>{{false, true}});
     )
     typedef std::array<GLint,2> GLint2;
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_BOOL_VEC2>::Upload<GLint2>(valid_shader->LocationOfUniform("conditions"), {{false, true}});
     )
 
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_FLOAT_VEC3>::Upload(valid_shader->LocationOfUniform("vec_three"), std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_FLOAT_VEC3>::Upload(valid_shader->LocationOfUniform("vec_three"), 1.0f, 2.0f, 3.0f);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_FLOAT>::UploadArray<4>(valid_shader->LocationOfUniform("array"), std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
     )
     typedef std::array<GLfloat,4> GLfloat4;
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (Leap::GL::Internal::UniformUploader<GL_FLOAT>::UploadArray<4,GLfloat4>)(valid_shader->LocationOfUniform("array"), {{8.0f, 4.0f, 2.0f, 1.0f}});
     )
 
 
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       valid_shader->UploadUniform<GL_BOOL>("condition", true);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       valid_shader->UploadUniform<GL_BOOL_VEC2>("conditions", false, true);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       valid_shader->UploadUniform<GL_BOOL_VEC2>("conditions", std::array<GLint,2>{{false, true}});
     )
     typedef std::array<GLint,2> GLint2;
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (valid_shader->UploadUniform<GL_BOOL_VEC2,GLint2>)("conditions", {{false, true}});
     )
 
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       valid_shader->UploadUniform<GL_FLOAT_VEC3>("vec_three", std::array<GLfloat,3>{{1.0f, 2.0f, 3.0f}});
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       valid_shader->UploadUniform<GL_FLOAT_VEC3>("vec_three", 1.0f, 2.0f, 3.0f);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (valid_shader->UploadUniformArray<GL_FLOAT,4>)("array", std::array<GLfloat,4>{{8.0f, 4.0f, 2.0f, 1.0f}});
     )
     typedef std::array<GLfloat,4> GLfloat4;
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (valid_shader->UploadUniformArray<GL_FLOAT,4,GLfloat4>)("array", {{8.0f, 4.0f, 2.0f, 1.0f}});
     )
 
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT2>::Upload(
         valid_shader->LocationOfUniform("m2x2"),
         std::array<std::array<GLfloat,2>,2>{{
@@ -335,7 +335,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         }},
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT2>::Upload(
         valid_shader->LocationOfUniform("m2x2"),
         std::array<GLfloat,2*2>{{
@@ -344,7 +344,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         }},
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT2>::Upload<std::array<GLfloat,2*2>>)(
         valid_shader->LocationOfUniform("m2x2"),
         {{
@@ -355,7 +355,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
     )
 
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       valid_shader->UploadUniform<GL_FLOAT_MAT2>(
         "m2x2",
         std::array<std::array<GLfloat,2>,2>{{
@@ -364,7 +364,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         }},
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       valid_shader->UploadUniform<GL_FLOAT_MAT2>(
         "m2x2", 
         std::array<GLfloat,2*2>{{
@@ -373,7 +373,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         }},
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (valid_shader->UploadUniform<GL_FLOAT_MAT2,std::array<GLfloat,2*2>>)(
         "m2x2",
         {{
@@ -384,7 +384,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
     )
 
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT3>::UploadArray<2>(
         valid_shader->LocationOfUniform("m3x3"),
         std::array<std::array<GLfloat,3*3>,2>{{
@@ -401,7 +401,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         }},
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (Leap::GL::Internal::UniformUploader<GL_FLOAT_MAT3>::UploadArray<2,std::array<std::array<GLfloat,3*3>,2>>)(
         valid_shader->LocationOfUniform("m3x3"),
         {{
@@ -419,7 +419,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
 
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (valid_shader->UploadUniformArray<GL_FLOAT_MAT3,2>)(
         "m3x3",
         std::array<std::array<GLfloat,3*3>,2>{{
@@ -436,7 +436,7 @@ TEST_F(Internal_UniformSetterTest, SetABunch) {
         }},
         Leap::GL::MatrixStorageConvention::ROW_MAJOR);
     )
-    GL_THROW_UPON_ERROR(
+    THROW_UPON_GL_ERROR(
       (valid_shader->UploadUniformArray<GL_FLOAT_MAT3,2,std::array<std::array<GLfloat,3*3>,2>>)(
         "m3x3",
         {{

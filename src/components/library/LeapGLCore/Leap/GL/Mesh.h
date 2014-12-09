@@ -150,7 +150,7 @@ public:
     if (!IsInitialized()) {
       throw MeshException("Can't Draw a Mesh if it not IsInitialized.");
     }
-    GL_THROW_UPON_ERROR(glDrawElements(m_draw_mode, m_index_count, GL_UNSIGNED_INT, 0));
+    THROW_UPON_GL_ERROR(glDrawElements(m_draw_mode, m_index_count, GL_UNSIGNED_INT, 0));
   }
   // Unbinds this mesh.  Must pass in the same attribute_locations as to the call to Bind.
   // TODO: write about what GL operations actually happen.
