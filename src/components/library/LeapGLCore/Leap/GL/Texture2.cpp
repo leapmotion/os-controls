@@ -1,5 +1,6 @@
 #include "Leap/GL/Texture2.h"
 
+#include <cassert>
 #include "Leap/GL/Error.h"
 #include <sstream>
 
@@ -45,10 +46,22 @@ IntType CeilDiv (IntType numerator, IntType denominator) {
 
 } // End of anonymous namespace.
 
+Texture2::Texture2 ()
+  : m_texture_name(0) // Uninitialized
+{ }
+
 Texture2::Texture2 (const Texture2Params &params, const Texture2PixelData &pixel_data)
-  :
-  m_params(params)
+  : m_params(params)
+  , m_texture_name(0)
 {
+  Initialize(params, pixel_data);
+}
+
+Texture2::~Texture2 () {
+  Shutdown();
+}
+
+void Texture2::Initialize (const Texture2Params &params, const Texture2PixelData &pixel_data) {
   // Check the validity of the params.
   if (m_params.Width() == 0 || m_params.Height() == 0) {
     throw Texture2Exception("Texture2Params must specify positive width and height"); // TODO: should this requirement be removed?
@@ -102,8 +115,13 @@ Texture2::Texture2 (const Texture2Params &params, const Texture2PixelData &pixel
   glBindTexture(m_params.Target(), 0);
 }
 
-Texture2::~Texture2 () {
-  glDeleteTextures(1, &m_texture_name);
+void Texture2::Shutdown () {
+  if (IsInitialized()) {
+    // TODO: should we check here if the texture is still bound?
+    glDeleteTextures(1, &m_texture_name);
+    m_texture_name = 0; // This is what defines !IsInitialized().
+    assert(!IsInitialized());
+  }
 }
 
 void Texture2::TexSubImage (const Texture2PixelData &pixel_data) {
