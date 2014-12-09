@@ -27,8 +27,8 @@ enum class VariableIs { REQUIRED, OPTIONAL_NO_WARN, OPTIONAL_BUT_WARN };
 ///
 /// Upon successful linking, the shader program will be queried for all its active uniforms
 /// and attributes, storing the relevant info (name, location, size, type) in a map which is
-/// indexed by name.  These maps can be accessed via the UniformInfoMap and AttributeInfoMap
-/// methods.
+/// indexed by name.  These maps can be accessed via the ActiveUniformInfoMap and
+/// ActiveAttributeInfoMap methods.
 ///
 /// The only exceptions that this class explicitly throws derive from Leap::GL::ShaderException.
 class Shader {
@@ -57,8 +57,6 @@ public:
   };
 
   typedef std::unordered_map<std::string,VarInfo> VarInfoMap;
-
-  // TODO: make Shader-specific std::exception subclass?
 
   // Construct an un-Initialize-d shader.
   Shader ();
@@ -101,87 +99,42 @@ public:
     return current_program;
   }
 
-  // Checks for the uniform with given name and type.  If the variable is not found, then the behavior
-  // depends on the value of check_type:
-  //   VariableIs::OPTIONAL_NO_WARN: Do nothing.
-  //   VariableIs::OPTIONAL_BUT_WARN: Print a message indicating the missing variable.
-  //   VariableIs::REQUIRED: Throw an exception with information indicating the missing variable.
-  // This shader does not need to be bound for this call to succeed.
-  // TODO: get rid of this
-  void CheckForTypedUniform (const std::string &name, GLenum type, VariableIs check_type) const;
-  // Checks for the attribute with given name and type.  If the variable is not found, then the behavior
-  // depends on the value of check_type:
-  //   VariableIs::OPTIONAL_NO_WARN: Do nothing.
-  //   VariableIs::OPTIONAL_BUT_WARN: Print a message indicating the missing variable.
-  //   VariableIs::REQUIRED: Throw an exception with information indicating the missing variable.
-  // This shader does not need to be bound for this call to succeed.
-  // TODO: get rid of this
-  void CheckForTypedAttribute (const std::string &name, GLenum type, VariableIs check_type) const;
-
   // Returns a map, indexed by name, containing all the active uniforms in this shader program.
   // This shader does not need to be bound for this call to succeed.
-  // TODO: rename this to ActiveUniformInfoMap
-  const VarInfoMap &UniformInfoMap () const {
+  const VarInfoMap &ActiveUniformInfoMap () const {
     if (!IsInitialized()) {
-      throw ShaderException("A Shader that !IsInitialized() has no UniformInfoMap value.");
+      throw ShaderException("A Shader that !IsInitialized() has no ActiveUniformInfoMap value.");
     }
-    return m_uniform_info_map;
+    return m_active_uniform_info_map;
   }
   // Returns a map, indexed by name, containing all the active attributes in this shader program.
   // This shader does not need to be bound for this call to succeed.
-  // TODO: rename this to ActiveAttributeInfoMap
-  const VarInfoMap &AttributeInfoMap () const {
+  const VarInfoMap &ActiveAttributeInfoMap () const {
     if (!IsInitialized()) {
-      throw ShaderException("A Shader that !IsInitialized() has no AttributeInfoMap value.");
+      throw ShaderException("A Shader that !IsInitialized() has no ActiveAttributeInfoMap value.");
     }
-    return m_attribute_info_map;
+    return m_active_attribute_info_map;
   }
 
-  // Returns true iff the shader uniform exists.
-  // This shader does not need to be bound for this call to succeed.
-  // TODO: get rid of this
-  bool HasUniform (const std::string &name) const { return m_uniform_info_map.find(name) != m_uniform_info_map.end(); }
-  // Returns the VarInfo data for the requested uniform, or throws if that uniform is not found.
-  // This shader does not need to be bound for this call to succeed.
-  // TODO: get rid of this
-  const VarInfo &UniformInfo (const std::string &name) const {
-    VarInfoMap::const_iterator it = m_uniform_info_map.find(name);
-    if (it == m_uniform_info_map.end()) {
-      throw ShaderException("no uniform named \"" + name + "\" found in shader program");
-    }
-    return it->second;
-  }
-  // Returns true iff the shader attribute exists.
-  // This shader does not need to be bound for this call to succeed.
-  // TODO: get rid of this
-  bool HasAttribute (const std::string &name) const { return m_attribute_info_map.find(name) != m_attribute_info_map.end(); }
-  // Returns the VarInfo data for the requested attribute, or throws if that attribute is not found.
-  // This shader does not need to be bound for this call to succeed.
-  // TODO: get rid of this
-  const VarInfo &AttributeInfo (const std::string &name) const {
-    VarInfoMap::const_iterator it = m_attribute_info_map.find(name);
-    if (it == m_attribute_info_map.end()) {
-      throw ShaderException("no attribute named \"" + name + "\" found in shader program");
-    }
-    return it->second;
-  }
   // Returns the location of the requested uniform (its handle into the GL apparatus) or -1 if not found.
   // The -1 return value is what is used by the glUniform* functions as a sentinel value for "this
   // uniform is not found, so do nothing silently".
   // This shader does not need to be bound for this call to succeed.
-  // TODO: change this to use glGetUniformLocation
   GLint LocationOfUniform (const std::string &name) const {
-    auto it = m_uniform_info_map.find(name);
-    return it != m_uniform_info_map.end() ? it->second.Location() : -1;
+    if (!IsInitialized()) {
+      throw ShaderException("Can't call LocationOfUniform on a Shader that !IsInitialized().");
+    }
+    return glGetUniformLocation(m_program_handle, name.c_str());
   }
   // Returns the location of the requested attribute (its handle into the GL apparatus) or -1 if not found.
   // The -1 return value is what is used by the glUniform* functions as a sentinel value for "this
   // uniform is not found, so do nothing silently".
   // This shader does not need to be bound for this call to succeed.
-  // TODO: change this to use glGetAttributeLocation
   GLint LocationOfAttribute (const std::string &name) const {
-    auto it = m_attribute_info_map.find(name);
-    return it != m_attribute_info_map.end() ? it->second.Location() : -1;
+    if (!IsInitialized()) {
+      throw ShaderException("Can't call LocationOfUniform on a Shader that !IsInitialized().");
+    }
+    return glGetAttribLocation(m_program_handle, name.c_str());
   }
 
   // These SetUniform* methods require this shader to currently be bound.  They are named
@@ -197,7 +150,7 @@ public:
     if (!IsInitialized()) {
       throw ShaderException("Can't call [the name version of] UploadUniform on a Shader that !IsInitialized().");
     }
-    Internal::UniformUploader<GL_TYPE_>::Upload(glGetUniformLocation(m_program_handle, name.c_str()), args...);
+    Internal::UniformUploader<GL_TYPE_>::Upload(LocationOfUniform(name), args...);
   }
   template <GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename... Types_>
   static void UploadUniformArray (GLint location, Types_... args) {
@@ -208,7 +161,7 @@ public:
     if (!IsInitialized()) {
       throw ShaderException("Can't call [the name version of] UploadUniformArray on a Shader that !IsInitialized().");
     }
-    Internal::UniformUploader<GL_TYPE_>::template UploadArray<ARRAY_LENGTH_>(glGetUniformLocation(m_program_handle, name.c_str()), args...);
+    Internal::UniformUploader<GL_TYPE_>::template UploadArray<ARRAY_LENGTH_>(LocationOfUniform(name), args...);
   }
 
   // Returns (enum_name_string, type_name_string) for the given shader variable type.  Throws an
@@ -228,8 +181,8 @@ private:
   GLuint m_fragment_shader; ///< Handle to the fragment shader in the GL apparatus.
   GLuint m_program_handle;  ///< Handle to the shader program in the GL apparatus.
 
-  VarInfoMap m_uniform_info_map;
-  VarInfoMap m_attribute_info_map;
+  VarInfoMap m_active_uniform_info_map;
+  VarInfoMap m_active_attribute_info_map;
 };
 
 } // end of namespace GL

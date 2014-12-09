@@ -64,53 +64,6 @@ TEST_F(ShaderTest, CompileUnsuccessfully) {
   }
 }
 
-void SetTypedUniformCheckInVertexShader (const std::unordered_map<GLenum,std::string> &uniform_type_map, const std::string &glsl_version) {
-  for (auto it = uniform_type_map.begin(); it != uniform_type_map.end(); ++it) {
-    GLenum uniform_type = it->first;
-    const std::string &uniform_type_name = it->second;
-    // Skip the sampler types for now.
-    if (uniform_type_name.find("sampler") == std::string::npos) {
-      // Construct a vertex shader source code with one of each type of allowable uniform.
-      std::string vertex_shader_source("#version " + glsl_version + "\n");
-      vertex_shader_source += "uniform " + uniform_type_name + " test0;\n";
-      vertex_shader_source += "uniform " + uniform_type_name + " test1;\n";
-      vertex_shader_source +=
-        "void main () {\n"
-        "    bool condition = test0 == test1;\n" // This dumb indirection is to try to get around unused uniforms maybe being compiled out of the shader.
-        "    if (condition) {\n"
-        "        gl_Position = ftransform();\n"
-        "        gl_FrontColor = gl_Color;\n"
-        "    }\n"
-        "}\n";
-      // Dummy fragment shader source
-      std::string fragment_shader_source(
-        "#version " + glsl_version + "\n"
-        "void main () {\n"
-        "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-        "}\n"
-      );
-      std::cout << vertex_shader_source << '\n';
-      // Construct the shader and the GLShaderInterface.
-      std::shared_ptr<Shader> shader;
-      ASSERT_NO_THROW_(shader = std::make_shared<Shader>(vertex_shader_source, fragment_shader_source));
-      EXPECT_NO_THROW_(shader->CheckForTypedUniform("test0", uniform_type, VariableIs::REQUIRED));
-      EXPECT_NO_THROW_(shader->CheckForTypedUniform("test1", uniform_type, VariableIs::REQUIRED));
-      EXPECT_NO_THROW_(shader->CheckForTypedUniform("test0", uniform_type, VariableIs::OPTIONAL_NO_WARN));
-      EXPECT_NO_THROW_(shader->CheckForTypedUniform("test1", uniform_type, VariableIs::OPTIONAL_NO_WARN));
-      EXPECT_NO_THROW_(shader->CheckForTypedUniform("test0", uniform_type, VariableIs::OPTIONAL_BUT_WARN));
-      EXPECT_NO_THROW_(shader->CheckForTypedUniform("test1", uniform_type, VariableIs::OPTIONAL_BUT_WARN));
-    }
-  }
-}
-
-TEST_F(ShaderTest, SetTypedUniformCheckInVertexShader_OpenGL_2_1) {
-  SetTypedUniformCheckInVertexShader(Shader::OPENGL_2_1_UNIFORM_TYPE_MAP, "120");
-}
-
-TEST_F(ShaderTest, DISABLED_SetTypedUniformCheckInVertexShader_OpenGL_3_3) {
-  SetTypedUniformCheckInVertexShader(Shader::OPENGL_3_3_UNIFORM_TYPE_MAP, "330");
-}
-
 class ShaderTest_Visible : public GLTestFramework_Visible { };
 
 void RenderRectangle () {

@@ -75,8 +75,8 @@ private:
     static const size_t ARRAY_LENGTH = Internal::Eval_f<ArrayLengthMap,UniformName>::T::V;
     if (m_uniform_locations.template el<INDEX_>() != -1) {
       const auto &uniform_id = uniform_ids.template el<INDEX_>();
-      auto it = m_shader.UniformInfoMap().find(uniform_id);
-      assert(it != m_shader.UniformInfoMap().end() && "This should never happen.");
+      auto it = m_shader.ActiveUniformInfoMap().find(uniform_id);
+      assert(it != m_shader.ActiveUniformInfoMap().end() && "This should never happen.");
       assert(Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.find(GL_TYPE_) != Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.end() && "Invalid uniform type.");
       const auto &info = it->second;
       if (GL_TYPE_ != info.Type()) {

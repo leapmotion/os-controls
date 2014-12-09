@@ -21,9 +21,6 @@ m_Sphere4Translation(EigenTypes::Vector3::Zero()),
 m_time(0)
 {
   m_shader = Resource<Shader>("material");
-  m_shader->CheckForTypedAttribute("position", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
-  m_shader->CheckForTypedAttribute("normal", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
-  m_shader->CheckForTypedAttribute("tex_coord", GL_FLOAT_VEC2, VariableIs::OPTIONAL_BUT_WARN);
 
   const Rgba<float> color1(1.0f, 0.5f, 0.3f, 1.0f);
   m_Sphere1.SetRadius(6);

@@ -84,7 +84,7 @@ void Shader::Initialize (const std::string &vertex_shader_source, const std::str
       GLint location = glGetUniformLocation(m_program_handle, name.c_str());
       // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       if (location >= 0) {
-        m_uniform_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
+        m_active_uniform_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
       }
     }
   }
@@ -109,7 +109,7 @@ void Shader::Initialize (const std::string &vertex_shader_source, const std::str
       GLint location = glGetAttribLocation(m_program_handle, name.c_str());
       // std::cout << "attrib " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
       if (location >= 0) {
-        m_attribute_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
+        m_active_attribute_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
       }
     }
   }
@@ -123,72 +123,6 @@ void Shader::Shutdown () {
     m_program_handle = 0;
     m_vertex_shader = 0;
     m_fragment_shader = 0;
-  }
-}
-
-// TODO: combine this with the duplicated code in CheckForTypedAttribute
-void Shader::CheckForTypedUniform (const std::string &name, GLenum type, VariableIs check_type) const {
-  std::string qualifier;
-  switch (check_type) {
-    case VariableIs::OPTIONAL_NO_WARN:
-    case VariableIs::OPTIONAL_BUT_WARN:
-      qualifier = "optional ";
-      break;
-    
-    case VariableIs::REQUIRED:
-      qualifier = "required ";
-      break;
-  }
-  std::string message;
-  do { // This loop is only used so we can break out of it.
-    if (!HasUniform(name)) {
-      message = "Shader: " + qualifier + "uniform \"uniform " + VariableTypeString(type) + ' ' + name + "\" is missing";
-      break;
-    }
-    const auto &actual_type = UniformInfo(name).Type();
-    if (actual_type != type) {
-      message = "Shader: has \"uniform " + VariableTypeString(actual_type) + ' ' + name + "\" but expected " + qualifier + "\"uniform " + VariableTypeString(type) + ' ' + name + '\"';
-    }
-  } while (false);
-  if (!message.empty()) {
-    switch (check_type) {
-      case VariableIs::OPTIONAL_NO_WARN: break; // Fail silently.
-      case VariableIs::OPTIONAL_BUT_WARN: std::cout << message << '\n'; break; // TODO: come up with a better way to report this.
-      case VariableIs::REQUIRED: throw ShaderException(message); break;
-    }
-  }
-}
-
-// TODO: combine this with the duplicated code in CheckForTypedUniform
-void Shader::CheckForTypedAttribute (const std::string &name, GLenum type, VariableIs check_type) const {
-  std::string qualifier;
-  switch (check_type) {
-    case VariableIs::OPTIONAL_NO_WARN:
-    case VariableIs::OPTIONAL_BUT_WARN:
-      qualifier = "optional ";
-      break;
-    
-    case VariableIs::REQUIRED:
-      qualifier = "required ";
-      break;
-  }
-  std::string message;
-  do { // This loop is only used so we can break out of it.
-    if (!HasAttribute(name)) {
-      message = "Shader: " + qualifier + "\"attribute " + VariableTypeString(type) + ' ' + name + "\" is missing";
-      break;
-    }
-    const auto &actual_type = AttributeInfo(name).Type();
-    if (actual_type != type) {
-      message = "Shader: has \"attribute " + VariableTypeString(actual_type) + ' ' + name + "\" but expected " + qualifier + "\"attribute " + VariableTypeString(type) + ' ' + name + '\"';
-    }
-  } while (false);
-  if (!message.empty()) {
-    switch (check_type) {
-      case VariableIs::OPTIONAL_NO_WARN: break; // Fail silently.
-      case VariableIs::OPTIONAL_BUT_WARN: std::cout << message << '\n'; break; // TODO: come up with a better way to report this.
-      case VariableIs::REQUIRED: throw ShaderException(message); break;
-    }
   }
 }
 

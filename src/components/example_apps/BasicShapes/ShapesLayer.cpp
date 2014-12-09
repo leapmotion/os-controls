@@ -22,9 +22,6 @@ ShapesLayer::ShapesLayer ()
   m_time(0)
 {
   m_shader = Resource<Shader>("material");
-  m_shader->CheckForTypedAttribute("position", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
-  m_shader->CheckForTypedAttribute("normal", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
-  m_shader->CheckForTypedAttribute("tex_coord", GL_FLOAT_VEC2, VariableIs::OPTIONAL_BUT_WARN);
 
   m_Sphere1.SetRadius(5);
   m_Sphere1.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.4f, 0.7f, 1.0f, 1.0f);
