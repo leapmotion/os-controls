@@ -16,6 +16,8 @@
 #include "TextFile.h"
 #include <memory>
 
+using namespace Leap::GL;
+
 const static float PI = 3.14159265f;
 
 const double startAngle = 3 * M_PI/4.0;

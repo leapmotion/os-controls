@@ -13,6 +13,8 @@
 
 #include <SVGPrimitive.h>
 
+using namespace Leap::GL;
+
 Rgba<float> selectionRegionColor(1.0f, 1.0f, 1.0f, 0.15f);
 Rgba<float> selectionOutlineColor(1.0f, 1.0f, 1.0f, 0.3f);
 Rgba<float> selectionRegionActiveColor(0.5f, 1.0f, 0.7f, 0.35f);

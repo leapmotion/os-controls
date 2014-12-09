@@ -8,6 +8,8 @@
 #include <vector>
 #include <memory>
 
+using namespace Leap::GL;
+
 namespace model {
 
   typedef std::shared_ptr<class SkinnedVboMesh> SkinnedVboMeshRef;

@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 
+using namespace Leap::GL;
+
 /// This class is essentially a wrapper between a std::string path and Texture2.
 class GLTexture2Image
 {

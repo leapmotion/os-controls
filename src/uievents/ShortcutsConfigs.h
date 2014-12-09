@@ -10,6 +10,8 @@
 #include "EigenTypes.h"
 #include "Leap/GL/Rgba.h"
 
+using namespace Leap::GL;
+
 namespace configs {
   const float MEDIA_MENU_CENTER_DEADZONE_RADIUS = 100;
   const float MEDIA_MENU_ACTIVATION_RADIUS = 200;

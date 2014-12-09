@@ -5,6 +5,8 @@
 #include "OVR.h"
 #include "OVR_Kernel.h"
 
+using namespace Leap::GL;
+
 /// Used to configure slave GL rendering (i.e. for devices created externally).
 typedef struct ovrGLConfigData_s
 {

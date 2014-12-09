@@ -6,6 +6,8 @@
 
 #include <cassert>
 
+using namespace Leap::GL;
+
 // this class is in this file because it's only used in defining how shaders are loaded
 class GLShaderLoadParams {
 public:

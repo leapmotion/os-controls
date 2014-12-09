@@ -2,6 +2,8 @@
 #include "Leap/GL/SceneGraphNodeProperty.h"
 #include "Leap/GL/SceneGraphNodeValues.h"
 
+using namespace Leap::GL;
+
 class SceneGraphNodePropertiesTest : public testing::Test { };
 
 template <typename Scalar, int DIM>

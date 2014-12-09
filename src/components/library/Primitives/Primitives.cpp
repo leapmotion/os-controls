@@ -3,6 +3,8 @@
 #include <cassert>
 #include "Leap/GL/Texture2.h"
 
+using namespace Leap::GL;
+
 GenericShape::GenericShape(GLenum drawMode) {
   m_mesh.SetDrawMode(drawMode);
 }

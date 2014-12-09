@@ -57,10 +57,10 @@ public:
   // Resets this transform to the identity value.
   void SetIdentity () { this->setIdentity(); }
   // Performs the value-specific operation, either on the left or the right.
-  void Operate (const AffineTransformValue &operand, ::Operate operate) {
+  void Operate (const AffineTransformValue &operand, Leap::GL::Operate operate) {
     switch (operate) {
-    case ::Operate::ON_LEFT:  *this = operand * *this; break;
-    case ::Operate::ON_RIGHT: *this = *this * operand; break;
+    case Leap::GL::Operate::ON_LEFT:  *this = operand * *this; break;
+    case Leap::GL::Operate::ON_RIGHT: *this = *this * operand; break;
     }
   }
   // This will invert the transform, returning true iff the inversion succeeded.
@@ -109,7 +109,7 @@ public:
   // Resets this alpha mask to the identity value (1).
   void SetIdentity () { m_alpha_mask = Scalar(1); }
   // Performs the value-specific operation, either on the left or the right.
-  void Operate (const AlphaMaskValue &operand, ::Operate operate) {
+  void Operate (const AlphaMaskValue &operand, Leap::GL::Operate operate) {
     // Because multiplication is commutative, the left/right choice is irrelevant.
     m_alpha_mask *= operand.m_alpha_mask;
   }
@@ -144,11 +144,11 @@ public:
   // Resets this name to the identity value (empty string).
   void SetIdentity () { m_name.clear(); }
   // Performs the value-specific operation, either on the left or the right.
-  void Operate (const NameValue &operand, ::Operate operate) {
+  void Operate (const NameValue &operand, Leap::GL::Operate operate) {
     std::string separator(m_name.empty() || operand.m_name.empty() ? "" : "/");
     switch (operate) {
-    case ::Operate::ON_LEFT:  m_name = operand.m_name + separator + m_name; break;
-    case ::Operate::ON_RIGHT: m_name += separator + operand.m_name;         break;
+    case Leap::GL::Operate::ON_LEFT:  m_name = operand.m_name + separator + m_name; break;
+    case Leap::GL::Operate::ON_RIGHT: m_name += separator + operand.m_name;         break;
     }
   }
   // TODO: ".." based inversion.
@@ -212,5 +212,3 @@ public:
 
 } // end of namespace GL
 } // end of namespace Leap
-
-using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

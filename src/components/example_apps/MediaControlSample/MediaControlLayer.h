@@ -20,7 +20,7 @@ class PerspectiveCamera;
 } // end of namespace GL
 } // end of namespace Leap
 
-using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
+using namespace Leap::GL;
 
 class MediaControlLayer : public RenderableEventHandler {
 public:

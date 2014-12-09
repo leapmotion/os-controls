@@ -8,3 +8,4 @@
   #include <Windows.h>
 #endif
 
+using namespace Leap::GL;

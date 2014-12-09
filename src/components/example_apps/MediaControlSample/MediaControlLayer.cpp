@@ -9,6 +9,8 @@
 #include "Leap/GL/Shader.h"
 #include "Resource.h"
 
+using namespace Leap::GL;
+
 const Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
 const Rgba<float> fillColor(0.4f, 0.8f, 0.4f, 0.7f);
 const Rgba<float> handleColor(0.65f, 0.675f, 0.7f, 1.0f);

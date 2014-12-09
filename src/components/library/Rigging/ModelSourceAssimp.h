@@ -12,6 +12,8 @@
 
 #include <unordered_set>
 
+using namespace Leap::GL;
+
 namespace ai {
 
   //! Assimp loader settings/flags.

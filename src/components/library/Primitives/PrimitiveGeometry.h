@@ -9,6 +9,8 @@
 #include <map>
 #include <vector>
 
+using namespace Leap::GL;
+
 namespace Leap {
 namespace GL {
 
@@ -16,8 +18,6 @@ class Shader;
 
 } // end of namespace GL
 } // end of namespace Leap
-
-using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.
 
 typedef Mesh<VertexAttribute<GL_FLOAT_VEC3>, // Position
              VertexAttribute<GL_FLOAT_VEC3>, // Normal vector

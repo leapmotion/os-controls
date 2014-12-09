@@ -5,6 +5,8 @@
 #include "Leap/GL/Rgba.h"
 #include "Leap/GL/ShaderFrontend.h"
 
+using namespace Leap::GL;
+
 enum LambertianMaterialProperty {
   LIGHT_POSITION,
   DIFFUSE_LIGHT_COLOR,

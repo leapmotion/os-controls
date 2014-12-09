@@ -12,6 +12,8 @@
 #include <memory>
 #include <Animation.h>
 
+using namespace Leap::GL;
+
 class VolumeSliderView :
   public PrimitiveBase
 {

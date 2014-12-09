@@ -2,6 +2,7 @@
 #include "Leap/GL/OrthographicCamera.h"
 
 using namespace EigenTypes;
+using namespace Leap::GL;
 
 class OrthographicCameraTest : public testing::Test { };
 

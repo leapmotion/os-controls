@@ -12,6 +12,8 @@
 #include "TextFile.h"
 #include "TextFileLoader.h"
 
+using namespace Leap::GL;
+
 ShapesLayer::ShapesLayer ()
   :
   m_Width(640),

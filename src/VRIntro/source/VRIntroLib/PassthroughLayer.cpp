@@ -5,6 +5,8 @@
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"
 
+using namespace Leap::GL;
+
 PassthroughLayer::PassthroughLayer() :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/passthrough"),
   m_RealHeight(240),

@@ -10,6 +10,8 @@
 #include <SVGPrimitive.h>
 #include <autowiring/Autowiring.h>
 
+using namespace Leap::GL;
+
 class ExposeActivationStateMachine  :
 public std::enable_shared_from_this<ExposeActivationStateMachine>,
 public Renderable

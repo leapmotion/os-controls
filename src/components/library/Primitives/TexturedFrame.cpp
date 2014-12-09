@@ -1,8 +1,5 @@
 #include "TexturedFrame.h"
 
-// #include <cassert>
-// #include "Leap/GL/Texture2.h"
-
 TexturedFrame::TexturedFrame() {
   SetBasisRectangleSize(EigenTypes::Vector2(1.0, 1.0));
 

@@ -22,6 +22,8 @@
 #include <thread>
 #include <chrono>
 
+using namespace Leap::GL;
+
 RenderEngine::RenderEngine() :
   m_drewFrame(false)
 {

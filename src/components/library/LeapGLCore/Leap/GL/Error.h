@@ -56,9 +56,9 @@ inline void ClearGLError() {
   // will be thrown upon error either before or after with an indicative message.  This macro
   // should NOT be used as the body of an if statement without { } brackets!
   #define THROW_UPON_GL_ERROR(single_gl_call_statement) \
-    ThrowUponGLError("before " #single_gl_call_statement); \
+    Leap::GL::ThrowUponGLError("before " #single_gl_call_statement); \
     single_gl_call_statement; \
-    ThrowUponGLError("during " #single_gl_call_statement);
+    Leap::GL::ThrowUponGLError("during " #single_gl_call_statement);
 #else
   // In release mode, don't mess with performance! -JH
   // Note: ThrowUponGLError calls glGetError, which is quite expensive.
@@ -72,18 +72,16 @@ inline void ClearGLError() {
   // default parameter value of WarnUponGLError.  This macro should NOT be used as the body of an
   // if statement without { } brackets!
   #define WARN_UPON_GL_ERROR(single_gl_call_statement) \
-    WarnUponGLError("before " #single_gl_call_statement); \
+    Leap::GL::WarnUponGLError("before " #single_gl_call_statement); \
     single_gl_call_statement; \
-    WarnUponGLError("during " #single_gl_call_statement);
+    Leap::GL::WarnUponGLError("during " #single_gl_call_statement);
 #else
   // In release mode, this simply silently clears the error flag after the call.
   // This macro should NOT be used as the body of an if statement without { } brackets!
   #define WARN_UPON_GL_ERROR(single_gl_call_statement, ...) \
     single_gl_call_statement; \
-    ClearGLError();
+    Leap::GL::ClearGLError();
 #endif
 
 } // end of namespace GL
 } // end of namespace Leap
-
-using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

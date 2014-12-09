@@ -5,6 +5,8 @@
 #include "Leap/GL/Texture2.h"
 #include "GLTexture2Loader.h"
 
+using namespace Leap::GL;
+
 FractalLayer::FractalLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/fractal"),
   m_Texture(Resource<Texture2>("images/random.png")),

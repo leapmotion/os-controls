@@ -17,6 +17,8 @@
 #include <string>
 #include <SVGPrimitive.h>
 
+using namespace Leap::GL;
+
 class RenderEngine;
 class Config;
 

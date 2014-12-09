@@ -7,6 +7,8 @@
 #include <array>
 #include <memory>
 
+using namespace Leap::GL;
+
 namespace model {
 
   class Skeleton;

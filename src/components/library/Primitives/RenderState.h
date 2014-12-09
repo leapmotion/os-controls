@@ -4,6 +4,8 @@
 #include "Leap/GL/ModelViewProjection.h"
 #include <memory>
 
+using namespace Leap::GL;
+
 namespace Leap { namespace GL { class Camera; } }
 
 // This class is the bridge between geometry and the OpenGL state machine.

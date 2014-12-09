@@ -10,6 +10,8 @@
 #include "ResourceManager.h"
 #include "SDLController.h"
 
+using namespace Leap::GL;
+
 ExampleLayer::ExampleLayer ()
   :
   m_time(0)

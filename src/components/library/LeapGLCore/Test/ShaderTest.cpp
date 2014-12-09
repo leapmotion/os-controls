@@ -6,6 +6,8 @@
 #include "Leap/GL/Shader.h"
 #include <memory>
 
+using namespace Leap::GL;
+
 // Convenience macro for annotated printing the value of variables.
 #define FMT(x) #x << " = " << (x)
 

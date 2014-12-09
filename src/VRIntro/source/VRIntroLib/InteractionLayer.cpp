@@ -7,6 +7,7 @@
 #include "Leap/GL/Shader.h"
 #include "GLShaderLoader.h"
 
+using namespace Leap::GL;
 
 EigenTypes::Matrix3x3f SkeletonHand::arbitraryRelatedRotation() const {
   EigenTypes::Matrix3x3f result = rotationButNotReally; 

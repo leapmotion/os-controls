@@ -3,6 +3,8 @@
 #include "Leap/GL/SceneGraphNode.h"
 #include "Leap/GL/SceneGraphNodeValues.h"
 
+using namespace Leap::GL;
+
 // #define FORMAT_VALUE(x) #x << " = " << (x)
 
 class SceneGraphNodeTest : public testing::Test { };

@@ -2,6 +2,8 @@
 #include "Leap/GL/ColorComponent.h"
 #include <limits>
 
+using namespace Leap::GL;
+
 class ColorComponentTest : public testing::Test { };
 
 template <typename T_>

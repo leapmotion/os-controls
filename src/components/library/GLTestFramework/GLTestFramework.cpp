@@ -1,6 +1,8 @@
 #include "Leap/GL/GLHeaders.h"
 #include "GLTestFramework.h"
 
+using namespace Leap::GL;
+
 // This class will initialize and shutdown a GL context (SDL based) respectively before and after running each test.
 GLTestFramework::GLTestFramework (Visibility visibility) {
   if (visibility == Visibility::HEADLESS) {

@@ -10,6 +10,8 @@
 
 #include <memory>
 
+using namespace Leap::GL;
+
 class RiggedHand : public PrimitiveBase {
 public:
 

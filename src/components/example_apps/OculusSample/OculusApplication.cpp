@@ -5,6 +5,8 @@
 
 #include "Leap/GL/GLHeaders.h"
 
+using namespace Leap::GL;
+
 #if _WIN32
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "Ws2_32.lib")

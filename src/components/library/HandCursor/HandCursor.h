@@ -5,6 +5,8 @@
 #include "DropShadow.h"
 #include "Leap/GL/Rgba.h"
 
+using namespace Leap::GL;
+
 class HandCursor : public PrimitiveBase {
 public:
   enum DrawStyle { RINGED_PAW, BLOB };

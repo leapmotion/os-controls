@@ -252,5 +252,3 @@ const std::unordered_map<GLenum,std::string> Shader::OPENGL_3_3_UNIFORM_TYPE_MAP
 
 } // end of namespace GL
 } // end of namespace Leap
-
-using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

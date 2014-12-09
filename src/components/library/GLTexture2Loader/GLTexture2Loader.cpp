@@ -5,6 +5,8 @@
 
 #include <cassert>
 
+using namespace Leap::GL;
+
 std::shared_ptr<Texture2> ResourceLoader<Texture2>::LoadResource (const std::string &name, ResourceManager<Texture2> &calling_manager) {
   // TODO: once the Texture2Params loader has been made, these values would be loaded from it.
   // for now, use reasonable fixed values.

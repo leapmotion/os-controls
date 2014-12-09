@@ -2,6 +2,8 @@
 
 #include "Leap/GL/Texture2.h"
 
+using namespace Leap::GL;
+
 std::shared_ptr<Texture2> DropShadow::ms_shadow_texture;
 
 DropShadow::DropShadow() {

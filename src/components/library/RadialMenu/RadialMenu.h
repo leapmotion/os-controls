@@ -6,6 +6,8 @@
 #include "RadialItem.h"
 #include "Leap/GL/Rgba.h"
 
+using namespace Leap::GL;
+
 class RadialMenuItemEvent {
 public:
   virtual void OnActivated() { }

@@ -16,6 +16,8 @@
 #include <memory>
 #include <iostream>
 
+using namespace Leap::GL;
+
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
   m_state(State::INACTIVE),

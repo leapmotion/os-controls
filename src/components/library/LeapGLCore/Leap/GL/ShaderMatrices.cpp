@@ -1,5 +1,8 @@
 #include "Leap/GL/ShaderMatrices.h"
 
+namespace Leap {
+namespace GL {
+
 ShaderMatrices::ShaderMatrices (const Shader &shader,
                                 const std::string &projection_times_model_view_matrix_id,
                                 const std::string &model_view_matrix_id,
@@ -20,3 +23,6 @@ void ShaderMatrices::SetMatrices (const EigenTypes::Matrix4x4 &model_view, const
 void ShaderMatrices::UploadUniforms () {
   m_frontend.UploadUniforms();
 }
+
+} // end of namespace GL
+} // end of namespace Leap

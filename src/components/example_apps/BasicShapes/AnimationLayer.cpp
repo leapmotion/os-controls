@@ -10,6 +10,8 @@
 #include "Leap/GL/Shader.h"
 #include "Resource.h"
 
+using namespace Leap::GL;
+
 AnimationLayer::AnimationLayer()
 :
 m_Width(640),

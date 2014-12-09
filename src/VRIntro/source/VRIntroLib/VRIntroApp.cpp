@@ -37,6 +37,8 @@
 #undef Success
 #endif
 
+using namespace Leap::GL;
+
 VRIntroApp::VRIntroApp(bool showMirror) :
   m_HealthWarningDismissed(false),
   m_HelpToggled(false),

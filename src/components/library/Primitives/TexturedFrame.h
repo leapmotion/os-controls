@@ -4,6 +4,8 @@
 
 #include "Leap/GL/Texture2.h"
 
+using namespace Leap::GL;
+
 // Design notes for TexturedFrame
 // ------------------------------
 // This primitive will provide a configurable, measured, 9-cell frame of the following form:

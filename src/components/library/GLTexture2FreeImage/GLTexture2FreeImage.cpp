@@ -6,6 +6,8 @@
 
 #include <cassert>
 
+using namespace Leap::GL;
+
 // Load an image given a filepath.
 FIBITMAP *LoadFreeImageBitmap (const std::string &filepath) {
   FREE_IMAGE_FORMAT format = FreeImage_GetFileType(filepath.c_str(), 0);

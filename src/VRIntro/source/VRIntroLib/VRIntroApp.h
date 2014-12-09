@@ -14,6 +14,8 @@
 #include <mutex>
 #include <thread>
 
+using namespace Leap::GL;
+
 class IFrameSupplier;
 class HandLayer;
 class MessageLayer;

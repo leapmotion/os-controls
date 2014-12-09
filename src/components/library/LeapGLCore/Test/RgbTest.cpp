@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "Leap/GL/Rgb.h"
 
+using namespace Leap::GL;
+
 class RgbTest : public testing::Test { };
 
 template <typename T>

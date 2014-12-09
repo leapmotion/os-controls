@@ -11,6 +11,8 @@
 #include "RenderState.h"
 #include "Resource.h"
 
+using namespace Leap::GL;
+
 // This is the base class for drawable, geometric primitives.  It inherits SceneGraphNode<...>
 // which provides the "scene graph" design pattern (see Wikipedia article on scene graph),
 // as well as some convenience methods.  The template parameter DIM allows 2D or 3D (or even

@@ -8,6 +8,8 @@
 
 #include <memory>
 
+using namespace Leap::GL;
+
 class PassthroughLayer : public InteractionLayer {
 public:
   PassthroughLayer();

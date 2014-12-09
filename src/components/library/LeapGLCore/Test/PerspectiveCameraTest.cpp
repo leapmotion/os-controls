@@ -2,6 +2,7 @@
 #include "Leap/GL/PerspectiveCamera.h"
 
 using namespace EigenTypes;
+using namespace Leap::GL;
 
 class PerspectiveCameraTest : public testing::Test { };
 

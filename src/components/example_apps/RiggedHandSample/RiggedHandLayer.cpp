@@ -7,6 +7,8 @@
 
 #include <cmath>
 
+using namespace Leap::GL;
+
 RiggedHandLayer::RiggedHandLayer()
 :
   m_Width(640),

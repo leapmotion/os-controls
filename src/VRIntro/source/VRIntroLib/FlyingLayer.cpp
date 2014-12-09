@@ -9,6 +9,8 @@
 #include "GLTexture2Loader.h"
 #include "GLShaderLoader.h"
 
+using namespace Leap::GL;
+
 FlyingLayer::FlyingLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(initialEyePos),
   m_PopupShader(Resource<Leap::GL::Shader>("shaders/transparent")),

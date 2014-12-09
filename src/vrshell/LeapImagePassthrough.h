@@ -5,6 +5,8 @@
 #include "Leap/GL/Texture2.h"
 #include "Primitives.h"
 
+using namespace Leap::GL;
+
 class LeapInput;
 namespace Leap {
   class Controller;

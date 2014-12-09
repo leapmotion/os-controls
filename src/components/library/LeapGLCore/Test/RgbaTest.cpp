@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "Leap/GL/Rgba.h"
 
+using namespace Leap::GL;
+
 class RgbaTest : public testing::Test { };
 
 template <typename T>

@@ -12,6 +12,8 @@
 
 #include "RenderState.h"
 
+using namespace Leap::GL;
+
 ExposeActivationStateMachine::ExposeActivationStateMachine() :
   m_state(State::INACTIVE),
   m_goalStrip(new RectanglePrim()),

@@ -403,7 +403,10 @@ GLMesh<DIM>
 - Make RenderBuffer an Internal class, because it's apparently an implementation detail of FrameBufferObject.
   Also, the name should change to FramebufferObject (or maybe just Framebuffer).  See
   https://www.opengl.org/wiki/Framebuffer_Object
+- Camera was integrated into codebase.
 - Rename classes that have the GL prefix to not have the GL prefix, because they're in a namespace.
+- Take out the temporary "using namespace Leap::GL" statements everywhere.  For now, all non-LeapGL
+  code that includes LeapGL code now has "using namespace Leap::GL" so that no code had to change.
 
 ###### Still To Do
 
@@ -421,10 +424,8 @@ GLMesh<DIM>
   to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
   Then again, we probably don't want to make that architectural choice for people, and want our
   classes to be usable in many different paradigms.
-- Integrate Camera into existing code (Primitives), get rid of Projection, and replace the functionality
-  of ModelView with SceneGraphNode's facilities.  ModelView's operations (Rotate, Scale, Translate, etc)
-  will need to be provided.
-- Take out the temporary "using namespace Leap::GL" statements everywhere.
+- Get rid of Projection, and replace the functionality of ModelView with SceneGraphNode's facilities.
+  ModelView's operations (Rotate, Scale, Translate, etc) will need to be provided.
 - Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
   This will require some prototyping and code review.
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;

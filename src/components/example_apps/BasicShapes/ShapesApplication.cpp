@@ -15,6 +15,8 @@
 #include "ShapesLayer.h"
 #include "AnimationLayer.h"
 
+using namespace Leap::GL;
+
 ShapesApplication::ShapesApplication () {
   // Most everything that would normally go in a constructor should really go in Initialize().
 }

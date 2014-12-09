@@ -13,6 +13,8 @@
 #endif
 #include "RiggedHandLayer.h"
 
+using namespace Leap::GL;
+
 RiggedHandApplication::RiggedHandApplication () {
   // Most everything that would normally go in a constructor should really go in Initialize().
 }

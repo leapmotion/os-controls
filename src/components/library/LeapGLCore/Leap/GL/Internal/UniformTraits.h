@@ -137,5 +137,3 @@ DEFINE_UNIFORM_TRAITS(GL_UNSIGNED_INT_SAMPLER_2D_RECT,              GLint, 1, gl
 } // end of namespace Internal
 } // end of namespace GL
 } // end of namespace Leap
-
-using namespace Leap::GL; // TEMPORARY until the Leap::GL:: scoping has been integrated into all code.

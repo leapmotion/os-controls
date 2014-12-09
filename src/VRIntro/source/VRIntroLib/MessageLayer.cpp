@@ -7,6 +7,7 @@
 using Leap::GL::Texture2;
 #include "GLTexture2Loader.h"
 
+using namespace Leap::GL;
 
 MessageLayer::MessageLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(EigenTypes::Vector3f::Zero(), "shaders/transparent"),
