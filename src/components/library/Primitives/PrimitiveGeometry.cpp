@@ -5,8 +5,11 @@
 using namespace Leap::GL;
 
 void PrimitiveGeometry::PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMesh& mesh, double heightAngleStart, double heightAngleEnd, double widthAngleStart, double widthAngleEnd) {
-  if (mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsInitialized Mesh.");
+  if (!mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+  }
+  if (mesh.IsUploaded()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
   }
   if (mesh.DrawMode() != GL_TRIANGLES) {
     throw std::invalid_argument("The PrimitiveGeometry::PushUnitSphere function requires mesh.DrawMode() to be GL_TRIANGLES.");
@@ -64,8 +67,11 @@ void PrimitiveGeometry::PushUnitSphere(int widthResolution, int heightResolution
 }
 
 void PrimitiveGeometry::PushUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometryMesh& mesh, float radiusBottom, float radiusTop, double angleStart, double angleEnd) {
-  if (mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitCylinder on an IsInitialized Mesh.");
+  if (!mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+  }
+  if (mesh.IsUploaded()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
   }
   if (mesh.DrawMode() != GL_TRIANGLES) {
     throw std::invalid_argument("The PrimitiveGeometry::PushUnitCylinder function requires mesh.DrawMode() to be GL_TRIANGLES.");
@@ -133,8 +139,11 @@ void PrimitiveGeometry::PushUnitCylinder(int radialResolution, int verticalResol
 }
 
 void PrimitiveGeometry::PushUnitSquare(PrimitiveGeometryMesh &mesh) {
-  if (mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSquare on an IsInitialized Mesh.");
+  if (!mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+  }
+  if (mesh.IsUploaded()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
   }
   if (mesh.DrawMode() != GL_TRIANGLES) {
     throw std::invalid_argument("The PrimitiveGeometry::PushUnitSquare function requires mesh.DrawMode() to be GL_TRIANGLES.");
@@ -167,8 +176,11 @@ void PrimitiveGeometry::PushUnitSquare(PrimitiveGeometryMesh &mesh) {
 }
 
 void PrimitiveGeometry::PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &mesh) {
-  if (mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitDisk on an IsInitialized Mesh.");
+  if (!mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+  }
+  if (mesh.IsUploaded()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
   }
   if (mesh.DrawMode() != GL_TRIANGLES) {
     throw std::invalid_argument("The PrimitiveGeometry::PushUnitDisk function requires mesh.DrawMode() to be GL_TRIANGLES.");
@@ -203,8 +215,11 @@ void PrimitiveGeometry::PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &m
 }
 
 void PrimitiveGeometry::PushUnitBox(PrimitiveGeometryMesh &mesh) {
-  if (mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitBox on an IsInitialized Mesh.");
+  if (!mesh.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+  }
+  if (mesh.IsUploaded()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
   }
   if (mesh.DrawMode() != GL_TRIANGLES) {
     throw std::invalid_argument("The PrimitiveGeometry::PushUnitBox function requires mesh.DrawMode() to be GL_TRIANGLES.");

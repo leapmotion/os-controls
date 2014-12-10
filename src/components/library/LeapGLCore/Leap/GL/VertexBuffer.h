@@ -58,6 +58,8 @@ namespace GL {
 //
 // The only exceptions that this class explicitly throws derive from
 // Leap::GL::VertexBufferException.
+//
+// TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
 template <typename... AttributeTypes>
 class VertexBuffer {
 public:
@@ -73,11 +75,17 @@ public:
     }
   };
 
-  // Construct an un-Initialize-d Texture2 which has not acquired any GL (or other) resources.
+  // Construct an un-Initialize-d VertexBuffer which has not acquired any GL (or other) resources.
   // It will be necessary to call Initialize on this object to use it.
-  VertexBuffer () : m_usage_pattern(GL_INVALID_ENUM) { }
+  VertexBuffer ()
+    : m_usage_pattern(GL_INVALID_ENUM)
+  { }
   // Convenience constructor that will call Initialize with the given arguments.
-  VertexBuffer (GLenum usage_pattern) { Initialize(usage_pattern); }
+  VertexBuffer (GLenum usage_pattern)
+    : m_usage_pattern(GL_INVALID_ENUM)
+  {
+    Initialize(usage_pattern);
+  }
   // Will call Shutdown.
   ~VertexBuffer () {
     Shutdown();
@@ -103,11 +111,11 @@ public:
       case GL_DYNAMIC_READ:
       case GL_DYNAMIC_COPY:
         m_usage_pattern = usage_pattern;
-        assert(IsInitialized());
         break; // Ok
       default:
         throw VertexBufferException("usage must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
     }    
+    assert(IsInitialized());
   }
   // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
   // safe to call multiple times, and has no effect after the resources are freed).
@@ -121,13 +129,28 @@ public:
   }
 
   // Returns the usage pattern used in upload operations.
-  GLenum UsagePattern () const { return m_usage_pattern; }
+  GLenum UsagePattern () const {
+    if (!IsInitialized()) {
+      throw VertexBufferException("A VertexBuffer that !IsInitialized() has no UsagePattern value.");
+    }
+    return m_usage_pattern;
+  }
   // Returns a const reference to the vertex attributes' intermediate buffer that is used
   // to create/modify attributes before uploading to the GPU.
-  const std::vector<Attributes> &IntermediateAttributes () const { return m_intermediate_attributes; }
+  const std::vector<Attributes> &IntermediateAttributes () const {
+    if (!IsInitialized()) {
+      throw VertexBufferException("A VertexBuffer that !IsInitialized() has no IntermediateAttributes value.");
+    }
+    return m_intermediate_attributes;
+  }
   // Returns a reference to the vertex attributes' intermediate buffer that is used
   // to create/modify attributes before uploading to the GPU.
-  std::vector<Attributes> &IntermediateAttributes () { return m_intermediate_attributes; }
+  std::vector<Attributes> &IntermediateAttributes () {
+    if (!IsInitialized()) {
+      throw VertexBufferException("A VertexBuffer that !IsInitialized() has no IntermediateAttributes value.");
+    }
+    return m_intermediate_attributes;
+  }
 
   // This releases all resources (pre-load attribute buffer and GL buffer
   // for vertex attributes, if it has been created already).
@@ -174,7 +197,12 @@ public:
   }
 
   // Returns true if UploadIntermediateAttributes has been called, i.e. if there are associated GL resources.
-  bool IsUploaded () const { return m_gl_buffer.IsInitialized(); }
+  bool IsUploaded () const {
+    if (!IsInitialized()) {
+      return false;
+    }
+    return m_gl_buffer.IsInitialized();
+  }
   // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
   // tuple argument attribute_locations must correspond exactly to Attributes

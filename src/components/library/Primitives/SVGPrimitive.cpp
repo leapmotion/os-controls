@@ -214,8 +214,8 @@ void SVGPrimitive::RecomputeChildren() {
             // types, and not Eigen expression templates (e.g. EigenTypes::Vector3f::UnitZ()).
             mesh.PushVertex(point, NORMAL, TEX_COORD, COLOR);
           }
-          mesh.Initialize();
-          assert(mesh.IsInitialized());
+          mesh.UploadIntermediateVertices();
+          assert(mesh.IsUploaded());
           // Gather the strokes; they will be applied after the fill
           strokes.push_back(genericShape);
         }
@@ -247,8 +247,8 @@ void SVGPrimitive::RecomputeChildren() {
                             PrimitiveGeometryMesh::VertexAttributes(point2, NORMAL, TEX_COORD, COLOR), 
                             PrimitiveGeometryMesh::VertexAttributes(point3, NORMAL, TEX_COORD, COLOR));
         }
-        mesh.Initialize();
-        assert(mesh.IsInitialized());
+        mesh.UploadIntermediateVertices();
+        assert(mesh.IsUploaded());
         AddChild(genericShape);
       }
       // Add any strokes after the fill

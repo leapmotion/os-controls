@@ -13,6 +13,8 @@ namespace GL {
 enum class ClearOption { KEEP_INTERMEDIATE_DATA, CLEAR_INTERMEDIATE_DATA };
 
 // A useful resource on what the possible draw modes are is http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/primitive-assembly/
+//
+// TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
 template <typename... AttributeTypes>
 class Mesh {
 public:
@@ -20,27 +22,29 @@ public:
   typedef VertexBuffer<AttributeTypes...> VertexBuffer;
   typedef typename VertexBuffer::Attributes VertexAttributes;
 
-  // Constructs an empty mesh having no OpenGL resource usage or draw mode.  At the very least,
-  // SetDrawMode and Initialize must be called for the resource to be acquired.
+  // Construct an un-Initialize-d Mesh which has not acquired any GL (or other) resources.
+  // It will be necessary to call Initialize on this object to use it.
   Mesh ()
-    : m_draw_mode(GL_INVALID_ENUM) // Uninitialized.
-    , m_vertex_buffer(GL_STATIC_DRAW)
+    : m_draw_mode(GL_INVALID_ENUM)
     , m_index_count(0)
   { }
-  // While each of the members will handle their own cleanup in their destructors, it's good to have
-  // uniform semantics for all the resource types.
-  ~Mesh () { Release(); }
+  // Convenience constructor that will call Initialize with the given arguments.
+  Mesh (GLenum draw_mode)
+    : m_draw_mode(GL_INVALID_ENUM)
+    , m_index_count(0)
+  {
+    Initialize(draw_mode);
+  }
+  // Will call Shutdown.
+  ~Mesh () {
+    Shutdown();
+  }
 
-  GLenum DrawMode () const { return m_draw_mode; }
-  // Sets the draw mode.  This method can't be called between Initialize and Release, or
-  // an exception will be thrown.
-  void SetDrawMode (GLenum draw_mode) {
-    if (IsInitialized()) {
-      throw MeshException("Can't call Mesh::SetDrawMode on a Mesh that IsInitialized.");
-    }
-    if (!m_intermediate_vertices.empty()) {
-      throw MeshException("Changing the draw mode on an existing vertex array is not a well-defined operation.");
-    }
+  bool IsInitialized () const { return m_draw_mode != GL_INVALID_ENUM; }
+  void Initialize (GLenum draw_mode) {
+    // Ensure that any previously allocated resources are freed.
+    Shutdown();
+
     switch (draw_mode) {
       case GL_POINTS:
       case GL_LINE_STRIP:
@@ -58,9 +62,22 @@ public:
       default:
         throw MeshException("Invalid draw mode -- must be one of GL_POINTS, GL_LINE_STRIP, GL_LINE_LOOP, GL_LINES, GL_LINE_STRIP_ADJACENCY, GL_LINES_ADJACENCY, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES, GL_TRIANGLE_STRIP_ADJACENCY and GL_TRIANGLES_ADJACENCY (see OpenGL 3.3 docs for glDrawElements).");
     }
+    assert(IsInitialized());
+  }
+  void Shutdown () {
+    m_draw_mode = GL_INVALID_ENUM;
+    m_intermediate_vertices.clear();
+    m_vertex_buffer.ClearEverything();
+    m_index_count = 0;
+    m_index_buffer.Shutdown();
   }
 
-  bool IsInitialized () const {
+  GLenum DrawMode () const { return m_draw_mode; }
+
+  bool IsUploaded () const {
+    if (!IsInitialized()) {
+      return false;
+    }
     assert(m_vertex_buffer.IsUploaded() == m_index_buffer.IsInitialized());
     return m_vertex_buffer.IsUploaded();
   }
@@ -69,7 +86,11 @@ public:
   // is ready to be Bind()ed.
   // TODO: write about what GL operations actually happen.
   // TODO: add argument to specify if the non-GL internal state should be cleared.
-  void Initialize (ClearOption clear_option = ClearOption::CLEAR_INTERMEDIATE_DATA) {
+  void UploadIntermediateVertices (ClearOption clear_option = ClearOption::CLEAR_INTERMEDIATE_DATA) {
+    if (!IsInitialized()) {
+      throw MeshException("Can't call UploadIntermediateVertices on a Mesh that !IsInitialized().");
+    }
+
     // TODO: move into the function which uses this.
     struct VertexAttributesCompare {
       bool operator () (const VertexAttributes &lhs, const VertexAttributes &rhs) const {
@@ -82,6 +103,7 @@ public:
     VertexIndexMap vertex_attributes_index_map;
     std::vector<GLuint> indices;
     // std::vector<VertexAttributes> unique_vertex_attributes;
+    m_vertex_buffer.Initialize(GL_STATIC_DRAW);
     std::vector<VertexAttributes> &unique_vertex_attributes = m_vertex_buffer.IntermediateAttributes();
     // This loop will reduce m_intermediate_vertices down into unique_vertex_attributes.
     for (auto it = m_intermediate_vertices.begin(); it != m_intermediate_vertices.end(); ++it) {
@@ -117,19 +139,6 @@ public:
     // around could make it easier to regen.
     m_vertex_buffer.ClearIntermediateAttributes();
   }
-  // Releases any OpenGL resources used by this mesh.  The draw mode is preserved.
-  // TODO: write about what GL operations actually happen.
-  // TODO: add argument to specify if the rest of the internal state should be cleared.
-  void Release (ClearOption clear_option = ClearOption::CLEAR_INTERMEDIATE_DATA) {
-    if (clear_option == ClearOption::CLEAR_INTERMEDIATE_DATA) {
-      m_intermediate_vertices.clear();
-    }
-    m_vertex_buffer.ClearEverything();
-    m_index_count = 0;
-    if (m_index_buffer.IsInitialized()) {
-      m_index_buffer.Shutdown();
-    }
-  }
 
   // TODO: think about if these functions really belong here, or if the user should call the VBO and
   // index buffer bind methods and the draw methods themselves.
@@ -139,24 +148,24 @@ public:
   // this allows shaders that don't have all the attributes in this Mesh to still be usable.
   // TODO: write about what GL operations actually happen.
   void Bind (typename VertexBuffer::UniformLocations &attribute_locations) const {
-    if (!IsInitialized()) {
-      throw MeshException("Can't Bind a Mesh if it not IsInitialized.");
+    if (!IsUploaded()) {
+      throw MeshException("Can't Bind a Mesh if it not IsUploaded.");
     }
     // This calls glEnableVertexAttribArray and glVertexAttribPointer on the relevant things.
     m_vertex_buffer.Enable(attribute_locations);
     m_index_buffer.Bind();
   }
   void Draw () const {
-    if (!IsInitialized()) {
-      throw MeshException("Can't Draw a Mesh if it not IsInitialized.");
+    if (!IsUploaded()) {
+      throw MeshException("Can't Draw a Mesh if it not IsUploaded.");
     }
     THROW_UPON_GL_ERROR(glDrawElements(m_draw_mode, m_index_count, GL_UNSIGNED_INT, 0));
   }
   // Unbinds this mesh.  Must pass in the same attribute_locations as to the call to Bind.
   // TODO: write about what GL operations actually happen.
   void Unbind (typename VertexBuffer::UniformLocations &attribute_locations) const {
-    if (!IsInitialized()) {
-      throw MeshException("Can't Unbind a Mesh if it not IsInitialized.");
+    if (!IsUploaded()) {
+      throw MeshException("Can't Unbind a Mesh if it not IsUploaded.");
     }
     m_index_buffer.Unbind();
     // This calls glDisableVertexAttribArray on the relevant things.
@@ -168,7 +177,10 @@ public:
   // some draw modes.
   template <typename... Types_>
   void PushVertex (Types_... args) {
-    if (IsInitialized()) {
+    if (!IsInitialized()) {
+      throw MeshException("Can't push vertex data into a Mesh that !IsInitialized().");
+    }
+    if (IsUploaded()) {
       throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
     }
     m_intermediate_vertices.emplace_back(args...);
@@ -176,8 +188,11 @@ public:
   // To be used only when the draw mode is GL_LINES.  TODO: Figure out the appropriate constness/referenceness to use.
   void PushLine (const VertexAttributes &v0,
                  const VertexAttributes &v1) {
-    if (IsInitialized()) {
-      throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
+    if (!IsInitialized()) {
+      throw MeshException("Can't push vertex data into a Mesh that !IsInitialized().");
+    }
+    if (IsUploaded()) {
+      throw MeshException("Can't push vertex data into a Mesh that IsUploaded.");
     }
     if (m_draw_mode != GL_LINES) {
       throw MeshException("Mesh::PushLine is only defined if the draw mode is GL_LINES.");
@@ -189,8 +204,11 @@ public:
   void PushTriangle (const VertexAttributes &v0,
                      const VertexAttributes &v1,
                      const VertexAttributes &v2) {
-    if (IsInitialized()) {
-      throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
+    if (!IsInitialized()) {
+      throw MeshException("Can't push vertex data into a Mesh that !IsInitialized().");
+    }
+    if (IsUploaded()) {
+      throw MeshException("Can't push vertex data into a Mesh that IsUploaded.");
     }
     if (m_draw_mode != GL_TRIANGLES) {
       throw MeshException("Mesh::PushTriangle is only defined if the draw mode is GL_TRIANGLES.");
@@ -204,8 +222,11 @@ public:
                  const VertexAttributes &v1,
                  const VertexAttributes &v2,
                  const VertexAttributes &v3) {
-    if (IsInitialized()) {
-      throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
+    if (!IsInitialized()) {
+      throw MeshException("Can't push vertex data into a Mesh that !IsInitialized().");
+    }
+    if (IsUploaded()) {
+      throw MeshException("Can't push vertex data into a Mesh that IsUploaded.");
     }
     if (m_draw_mode != GL_TRIANGLES) {
       throw MeshException("Mesh::PushQuad is only defined if the draw mode is GL_TRIANGLES.");
@@ -224,8 +245,11 @@ public:
                           const VertexAttributes &v1,
                           const VertexAttributes &v2,
                           const VertexAttributes &v3) {
-    if (IsInitialized()) {
-      throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
+    if (!IsInitialized()) {
+      throw MeshException("Can't push vertex data into a Mesh that !IsInitialized().");
+    }
+    if (IsUploaded()) {
+      throw MeshException("Can't push vertex data into a Mesh that IsUploaded.");
     }
     if (m_draw_mode != GL_LINES_ADJACENCY) {
       throw MeshException("Mesh::PushLineAdjacency is only defined if the draw mode is GL_LINES_ADJACENCY.");
@@ -242,8 +266,11 @@ public:
                               const VertexAttributes &v3,
                               const VertexAttributes &v4,
                               const VertexAttributes &v5) {
-    if (IsInitialized()) {
-      throw MeshException("Can't push vertex data into a Mesh that IsInitialized.");
+    if (!IsInitialized()) {
+      throw MeshException("Can't push vertex data into a Mesh that !IsInitialized().");
+    }
+    if (IsUploaded()) {
+      throw MeshException("Can't push vertex data into a Mesh that IsUploaded.");
     }
     if (m_draw_mode != GL_LINES) {
       throw MeshException("Mesh::PushTriangleAdjacency is only defined if the draw mode is GL_TRIANGLES_ADJACENCY.");

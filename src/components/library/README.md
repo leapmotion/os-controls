@@ -598,7 +598,7 @@ component are the following.
 - Buffer
 - VertexBuffer
 - Mesh
-- Material
+- ShaderFrontend
 - FrameBuffer
 - RenderBuffer
 
