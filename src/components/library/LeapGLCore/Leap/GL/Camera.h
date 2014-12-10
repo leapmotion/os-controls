@@ -52,11 +52,29 @@ public:
     double left, double right,
     double bottom, double top,
     double near_clip_depth, double far_clip_depth);
+  // Define the camera in terms of the width/height/near depth/far depth of a symmetric orthographic view box.
+  static void SetOrthographicProjectionMatrix_UsingSymmetricViewBox (
+    EigenTypes::Matrix4x4 &projection_matrix,
+    double width, double height,
+    double near_clip_depth, double far_clip_depth);
+
   // Equivalent to the deprecated OpenGL function glFrustum (see OpenGL 2.1 API docs).
   static void SetPerspectiveProjectionMatrix (
     EigenTypes::Matrix4x4 &projection_matrix,
     double near_clip_left, double near_clip_right,
     double near_clip_bottom, double near_clip_top,
+    double near_clip_depth, double far_clip_depth);
+  // Define the camera in terms of its horizontal FOV, its view aspect ratio (width over height),
+  // and the near/far depth of the view frustum.  See PerspectiveCamera.
+  static void SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio (
+    EigenTypes::Matrix4x4 &projection_matrix,
+    double horiz_FOV_radians, double width_over_height,
+    double near_clip_depth, double far_clip_depth);
+  // Define the camera in terms of the width/height/depth of the near side of the view frustum
+  // and the depth of the far side of the view frustum.  See PerspectiveCamera.
+  static void SetPerspectiveProjectionMatrix_UsingSymmetricFrustumNearClipSize (
+    EigenTypes::Matrix4x4 &projection_matrix,
+    double near_clip_width, double near_clip_height,
     double near_clip_depth, double far_clip_depth);
 };
 

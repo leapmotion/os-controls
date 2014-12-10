@@ -29,6 +29,9 @@ void PerspectiveCamera::SetUsingFOVAndAspectRatio (double horiz_FOV_radians, dou
   // Derive the other values.
   m_near_clip_width = 2.0 * near_clip_depth * std::tan(m_horiz_FOV_radians / 2.0);
   m_near_clip_height = m_near_clip_width / m_width_over_height;
+
+  Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio(m_projection_matrix, horiz_FOV_radians, width_over_height, near_clip_depth, far_clip_depth);
+  m_projection_matrix_is_cached = true;
 }
 
 void PerspectiveCamera::SetUsingFrustumNearClipSize (double near_clip_width, double near_clip_height, double near_clip_depth, double far_clip_depth)
@@ -48,6 +51,9 @@ void PerspectiveCamera::SetUsingFrustumNearClipSize (double near_clip_width, dou
   // Derive the other values.
   m_width_over_height = m_near_clip_width / m_near_clip_height;
   m_horiz_FOV_radians = 2.0 * std::atan(m_near_clip_width / (2.0 * m_near_clip_depth));
+
+  Camera::SetPerspectiveProjectionMatrix_UsingSymmetricFrustumNearClipSize(m_projection_matrix, near_clip_width, near_clip_height, near_clip_depth, far_clip_depth);
+  m_projection_matrix_is_cached = true;
 }
 
 const EigenTypes::Matrix4x4 &PerspectiveCamera::ProjectionMatrix () const {

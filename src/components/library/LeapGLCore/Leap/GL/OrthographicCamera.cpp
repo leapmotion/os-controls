@@ -27,6 +27,9 @@ void OrthographicCamera::SetSymmetricViewBox (double width, double height, doubl
   m_bottom = -m_top;
   m_near_clip_depth = near_clip_depth;
   m_far_clip_depth = far_clip_depth;
+
+  Camera::SetOrthographicProjectionMatrix_UsingSymmetricViewBox(m_projection_matrix, width, height, near_clip_depth, far_clip_depth);
+  m_projection_matrix_is_cached = true;
 }
 
 void OrthographicCamera::SetViewBox (double left, double right, double bottom, double top, double near_clip_depth, double far_clip_depth) {
@@ -44,6 +47,9 @@ void OrthographicCamera::SetViewBox (double left, double right, double bottom, d
   m_height = m_top - m_bottom;
   m_near_clip_depth = near_clip_depth;
   m_far_clip_depth = far_clip_depth;
+
+  Camera::SetOrthographicProjectionMatrix(m_projection_matrix, left, right, bottom, top, near_clip_depth, far_clip_depth);
+  m_projection_matrix_is_cached = true;
 }
 
 const EigenTypes::Matrix4x4 &OrthographicCamera::ProjectionMatrix () const {
