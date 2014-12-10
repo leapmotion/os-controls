@@ -3,7 +3,7 @@
 namespace Leap {
 namespace GL {
 
-ShaderMatrices::ShaderMatrices (const Shader &shader,
+ShaderMatrices::ShaderMatrices (const Shader *shader,
                                 const std::string &projection_times_model_view_matrix_id,
                                 const std::string &model_view_matrix_id,
                                 const std::string &normal_matrix_id)

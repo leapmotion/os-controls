@@ -55,7 +55,7 @@ TEST_F(ShaderFrontendTest, Test_float) {
   auto shader = CreateShaderWithUniform("thingy", "float", 1, "120");
   typedef ShaderFrontend<UniformName,
                          ThingyUniform<UniformName::THINGY,GL_FLOAT,float>> Frontend;
-  Frontend frontend(*shader, Frontend::UniformIds("thingy"));
+  Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
   frontend.Uniform<UniformName::THINGY>() = 4.566f;
   shader->Bind();
   frontend.UploadUniforms();
@@ -66,7 +66,7 @@ TEST_F(ShaderFrontendTest, Test_vec2) {
   auto shader = CreateShaderWithUniform("thingy", "vec2", 1, "120");
   typedef ShaderFrontend<UniformName,
                          ThingyUniform<UniformName::THINGY,GL_FLOAT_VEC2,std::array<float,2>>> Frontend;
-  Frontend frontend(*shader, Frontend::UniformIds("thingy"));
+  Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
   frontend.Uniform<UniformName::THINGY>() = {{4.56f, 88.0f}};
   shader->Bind();
   frontend.UploadUniforms();
@@ -83,7 +83,7 @@ TEST_F(ShaderFrontendTest, Test_vec3) {
   auto shader = CreateShaderWithUniform("thingy", "vec3", 1, "120");
   typedef ShaderFrontend<UniformName,
                          ThingyUniform<UniformName::THINGY,GL_FLOAT_VEC3,V>> Frontend;
-  Frontend frontend(*shader, Frontend::UniformIds("thingy"));
+  Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
   frontend.Uniform<UniformName::THINGY>() = V(4.56f, 88.0f, -1.02f);
   frontend.Uniform<UniformName::THINGY>().Set(4.56f, 88.0f, -1.02f);
   shader->Bind();
@@ -100,7 +100,7 @@ TEST_F(ShaderFrontendTest, Test_vec3_4) {
   auto shader = CreateShaderWithUniform("thingy", "vec3", 4, "120");
   typedef ShaderFrontend<UniformName,
                          ThingyUniformArray<UniformName::THINGY,GL_FLOAT_VEC3,4,std::array<V,4>>> Frontend;
-  Frontend frontend(*shader, Frontend::UniformIds("thingy"));
+  Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
   frontend.Uniform<UniformName::THINGY>() = {{V(1,2,3), V(4,5,6), V(0,2,4), V(1,3,5)}};
   frontend.Uniform<UniformName::THINGY>()[2] = V(-1,1,-1);
   shader->Bind();
@@ -112,7 +112,7 @@ TEST_F(ShaderFrontendTest, Test_mat4) {
   auto shader = CreateShaderWithUniform("thingy", "mat4", 1, "120");
   typedef ShaderFrontend<UniformName,
                          ThingyMatrixUniform<UniformName::THINGY,GL_FLOAT_MAT4,std::array<GLfloat,4*4>,ROW_MAJOR>> Frontend;
-  Frontend frontend(*shader, Frontend::UniformIds("thingy"));
+  Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
   frontend.Uniform<UniformName::THINGY>() = {{
     1.0f, 2.0f, 3.0f, 4.0f,
     0.0f, 1.0f, 0.0f, 2.0f,
@@ -128,7 +128,7 @@ TEST_F(ShaderFrontendTest, Test_mat4_2) {
   auto shader = CreateShaderWithUniform("thingy", "mat4", 2, "120");
   typedef ShaderFrontend<UniformName,
                          ThingyMatrixUniformArray<UniformName::THINGY,GL_FLOAT_MAT4,2,std::array<std::array<GLfloat,4*4>,2>,ROW_MAJOR>> Frontend;
-  Frontend frontend(*shader, Frontend::UniformIds("thingy"));
+  Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
   frontend.Uniform<UniformName::THINGY>() = {{
     {{
       1.0f, 2.0f, 3.0f, 4.0f,

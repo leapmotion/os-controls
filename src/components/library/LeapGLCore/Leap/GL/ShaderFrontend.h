@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include "Leap/GL/Common.h"
 #include "Leap/GL/GLHeaders.h"
 #include "Leap/GL/Internal/Map.h"
@@ -40,29 +41,83 @@ public:
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<GLint,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformLocations; // TODO: this should be Map_t
   typedef Internal::Map_t<Internal::TypeMap_t<CppTypeMappings>> UniformMap;
 
-  // TODO: maybe make this have resource semantics (initialize/destroy)
+  // Construct an un-Initialize-d ShaderFrontend which has not acquired any GL (or other) resources.
+  // It will be necessary to call Initialize on this object to use it.
+  ShaderFrontend ()
+    : m_shader(nullptr)
+  { }
+  // Convenience constructor that will call Initialize with the given arguments.
   template <typename... Types_>
-  ShaderFrontend (const Shader &shader, const UniformIds &uniform_ids, Types_... args)
-    : m_shader(shader)
-    , m_uniform_map(args...)
+  ShaderFrontend (const Shader *shader, const UniformIds &uniform_ids, Types_... args)
+    : m_shader(nullptr)
   {
+    Initialize(shader, uniform_ids, args...);
+  }
+  // Will call Shutdown.
+  ~ShaderFrontend () {
+    Shutdown();
+  }
+
+  bool IsInitialized () const { return m_shader != nullptr; }
+  template <typename... Types_>
+  void Initialize (const Shader *shader, const UniformIds &uniform_ids, Types_... args) {
+    // Ensure that any previously allocated resources are freed.
+    Shutdown();
+
+    if (shader == nullptr) {
+      throw ShaderException("shader must be a non-null pointer.");
+    }
+    m_shader = shader;
+    m_uniform_map = UniformMap(args...);
+
     // Store the uniform locations from the shader using the uniform names.
     for (size_t i = 0; i < UNIFORM_COUNT; ++i) {
-      m_uniform_locations.as_array()[i] = glGetUniformLocation(m_shader.ProgramHandle(), uniform_ids.as_array()[i].c_str());
+      m_uniform_locations.as_array()[i] = glGetUniformLocation(m_shader->ProgramHandle(), uniform_ids.as_array()[i].c_str());
     }
     // Compile-time checking of types.
     Leap::GL::Internal::CheckUniformTypes<UniformMappingsTyple>::Check();
     // Run-time checking of types.
     CheckType<0>(uniform_ids);
   }
+  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
+  // safe to call multiple times, and has no effect after the resources are freed).
+  void Shutdown () {
+    if (IsInitialized()) {
+      m_shader = nullptr;
+      assert(!IsInitialized());
+    }
+  }
 
-  template <UniformNameType_ NAME_> typename CppTypeOfUniform_f<NAME_>::T const &Uniform () const { return m_uniform_map.template val<UniformName_t<NAME_>>(); }
-  template <UniformNameType_ NAME_> typename CppTypeOfUniform_f<NAME_>::T &Uniform () { return m_uniform_map.template val<UniformName_t<NAME_>>(); }
-  const UniformMap &Uniforms () const { return m_uniform_map; }
-  UniformMap &Uniforms () { return m_uniform_map; }
+  template <UniformNameType_ NAME_> const typename CppTypeOfUniform_f<NAME_>::T &Uniform () const {
+    if (!IsInitialized()) {
+      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniform<...> value.");
+    }
+    return m_uniform_map.template val<UniformName_t<NAME_>>();
+  }
+  template <UniformNameType_ NAME_> typename CppTypeOfUniform_f<NAME_>::T &Uniform () {
+    if (!IsInitialized()) {
+      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniform<...> value.");
+    }
+    return m_uniform_map.template val<UniformName_t<NAME_>>();
+  }
+  const UniformMap &Uniforms () const {
+    if (!IsInitialized()) {
+      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniforms value.");
+    }
+    return m_uniform_map;
+  }
+  UniformMap &Uniforms () {
+    if (!IsInitialized()) {
+      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniforms value.");
+    }
+    return m_uniform_map;
+  }
 
   void UploadUniforms () const {
-    assert(Shader::CurrentlyBoundProgramHandle() == m_shader.ProgramHandle() && "This shader must be bound in order to upload uniforms.");
+    if (!IsInitialized()) {
+      throw ShaderException("Can't call UploadUniforms on a ShaderFrontend that !IsInitialized().");
+    }
+    assert(Shader::CurrentlyBoundProgramHandle() == m_shader->ProgramHandle() && "This shader must be bound in order to upload uniforms.");
     UploadUniform<0>();
   }
 
@@ -70,13 +125,14 @@ private:
 
   template <size_t INDEX_>
   typename std::enable_if<(INDEX_<UNIFORM_COUNT)>::type CheckType (const UniformIds &uniform_ids) const {
+    assert(m_shader != nullptr);
     typedef typename Internal::Element_f<UniformNames,INDEX_>::T UniformName;
     static const GLenum GL_TYPE_ = Internal::Eval_f<GlTypeMap,UniformName>::T::V;
     static const size_t ARRAY_LENGTH = Internal::Eval_f<ArrayLengthMap,UniformName>::T::V;
     if (m_uniform_locations.template el<INDEX_>() != -1) {
       const auto &uniform_id = uniform_ids.template el<INDEX_>();
-      auto it = m_shader.ActiveUniformInfoMap().find(uniform_id);
-      assert(it != m_shader.ActiveUniformInfoMap().end() && "This should never happen.");
+      auto it = m_shader->ActiveUniformInfoMap().find(uniform_id);
+      assert(it != m_shader->ActiveUniformInfoMap().end() && "This should never happen.");
       assert(Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.find(GL_TYPE_) != Shader::OPENGL_3_3_UNIFORM_TYPE_MAP.end() && "Invalid uniform type.");
       const auto &info = it->second;
       if (GL_TYPE_ != info.Type()) {
@@ -114,7 +170,7 @@ private:
     // Done with iteration.
   }
 
-  const Shader &m_shader;
+  const Shader *m_shader;
   UniformLocations m_uniform_locations;
   UniformMap m_uniform_map;
 };

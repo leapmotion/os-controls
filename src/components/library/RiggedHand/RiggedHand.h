@@ -42,7 +42,7 @@ public:
     if (shader.get() != mHandsShader.get()) {
       mShaderMatrices =
         std::make_shared<ShaderMatrices>(
-        *shader,
+        shader.get(),
         "projection_times_model_view_matrix",
         "model_view_matrix",
         "normal_matrix");

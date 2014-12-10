@@ -85,12 +85,12 @@ public:
     auto uniform_ids = LambertianMaterial::UniformIds("light_position", "diffuse_light_color", "ambient_light_color", "ambient_lighting_proportion", "use_texture", "texture");
     if (m_material) {
       // Use existing material values for uniforms for re-initialized material.
-      material = std::make_shared<LambertianMaterial>(*shader, uniform_ids, m_material->Uniforms());
+      material = std::make_shared<LambertianMaterial>(shader.get(), uniform_ids, m_material->Uniforms());
     } else {
       // Use default values for uniforms.
       material =
         std::make_shared<LambertianMaterial>(
-          *shader,
+          shader.get(),
           uniform_ids,
           EigenTypes::Vector3f::Zero(),  // light_position
           Rgba<float>::One(),            // diffuse_light_color -- Rgba<float>::One() is opaque white
@@ -102,7 +102,7 @@ public:
 
     m_shader = shader;
     m_material = material;
-    m_shader_matrices = std::make_shared<ShaderMatrices>(*m_shader, "projection_times_model_view_matrix", "model_view_matrix", "normal_matrix");
+    m_shader_matrices = std::make_shared<ShaderMatrices>(m_shader.get(), "projection_times_model_view_matrix", "model_view_matrix", "normal_matrix");
   }
 
   typename Transform::ConstTranslationPart Translation () const { return this->LocalProperties().AffineTransform().translation(); }

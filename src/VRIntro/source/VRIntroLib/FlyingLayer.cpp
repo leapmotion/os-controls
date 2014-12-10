@@ -14,7 +14,7 @@ using namespace Leap::GL;
 FlyingLayer::FlyingLayer(const EigenTypes::Vector3f& initialEyePos) :
   InteractionLayer(initialEyePos),
   m_PopupShader(Resource<Leap::GL::Shader>("shaders/transparent")),
-  m_PopupShaderMatrices(std::make_shared<Leap::GL::ShaderMatrices>(*m_PopupShader, 
+  m_PopupShaderMatrices(std::make_shared<Leap::GL::ShaderMatrices>(m_PopupShader.get(), 
     "projection_times_model_view_matrix",
     "model_view_matrix",
     "normal_matrix")),

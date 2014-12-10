@@ -141,7 +141,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
   if (!mShaderMatrices) {
     mShaderMatrices =
       std::make_shared<ShaderMatrices>(
-      *mHandsShader,
+      mHandsShader.get(),
       "projection_times_model_view_matrix",
       "model_view_matrix",
       "normal_matrix");
