@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EigenTypes.h"
-#include "Leap/GL/Buffer.h"
+#include "Leap/GL/BufferObject.h"
 #include "Leap/GL/Mesh.h"
 #include "RenderState.h"
 

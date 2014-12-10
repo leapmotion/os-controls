@@ -150,10 +150,10 @@ void PassthroughLayer::DrawQuad() const {
   const float edges[] = {-4, -4, -1, -4, 4, -1, 4, -4, -1, 4, 4, -1};
   // Why the fuck doesn't this work?
   m_Renderer.EnablePositionAttribute();
-  m_Buffer.Bind();
-  m_Buffer.Allocate(&edges[0], sizeof(edges), GL_DYNAMIC_DRAW);
+  m_BufferObject.Bind();
+  m_BufferObject.Allocate(&edges[0], sizeof(edges), GL_DYNAMIC_DRAW);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  m_Buffer.Release();
+  m_BufferObject.Release();
   m_Renderer.DisablePositionAttribute();
 #else
   glBegin(GL_TRIANGLE_STRIP);

@@ -42,10 +42,10 @@ MessageLayer::MessageLayer(const EigenTypes::Vector3f& initialEyePos) :
     +0.288f, +0.184f, -0.3f, 1, 1,
   };
 
-  m_Buffer.Initialize(GL_ARRAY_BUFFER);
-  m_Buffer.Bind();
-  m_Buffer.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
-  m_Buffer.Unbind();
+  m_BufferObject.Initialize(GL_ARRAY_BUFFER);
+  m_BufferObject.Bind();
+  m_BufferObject.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
+  m_BufferObject.Unbind();
 
   m_Visible[0] = false;
   m_Visible[1] = true;
@@ -66,7 +66,7 @@ void MessageLayer::Render(TimeDelta real_time_delta) const {
   glUniform1i(m_Shader->LocationOfUniform("texture"), 0);
   glUniform1f(m_Shader->LocationOfUniform("alpha"), 1.0f);
 
-  m_Buffer.Bind();
+  m_BufferObject.Bind();
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("texcoord"));
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 5*sizeof(float), (GLvoid*)0);
@@ -84,7 +84,7 @@ void MessageLayer::Render(TimeDelta real_time_delta) const {
 
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("texcoord"));
-  m_Buffer.Unbind();
+  m_BufferObject.Unbind();
 
   m_Shader->Unbind();
 }

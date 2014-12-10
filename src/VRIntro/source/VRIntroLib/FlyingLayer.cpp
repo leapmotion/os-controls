@@ -34,10 +34,10 @@ FlyingLayer::FlyingLayer(const EigenTypes::Vector3f& initialEyePos) :
     +0.4f, +0.210f, -0.6f, 1, 1,
   };
 
-  m_PopupBuffer.Initialize(GL_ARRAY_BUFFER);
-  m_PopupBuffer.Bind();
-  m_PopupBuffer.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
-  m_PopupBuffer.Unbind();
+  m_PopupBufferObject.Initialize(GL_ARRAY_BUFFER);
+  m_PopupBufferObject.Bind();
+  m_PopupBufferObject.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
+  m_PopupBufferObject.Unbind();
 }
 
 void FlyingLayer::Update(TimeDelta real_time_delta) {
@@ -165,7 +165,7 @@ void FlyingLayer::RenderPopup() const {
   glUniform1i(m_PopupShader->LocationOfUniform("texture"), 0);
   glUniform1f(m_PopupShader->LocationOfUniform("alpha"), 1.0f);
 
-  m_PopupBuffer.Bind();
+  m_PopupBufferObject.Bind();
   glEnableVertexAttribArray(m_PopupShader->LocationOfAttribute("position"));
   glEnableVertexAttribArray(m_PopupShader->LocationOfAttribute("texcoord"));
   glVertexAttribPointer(m_PopupShader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 5*sizeof(float), (GLvoid*)0);
@@ -177,7 +177,7 @@ void FlyingLayer::RenderPopup() const {
 
   glDisableVertexAttribArray(m_PopupShader->LocationOfAttribute("position"));
   glDisableVertexAttribArray(m_PopupShader->LocationOfAttribute("texcoord"));
-  m_PopupBuffer.Unbind();
+  m_PopupBufferObject.Unbind();
 
   m_PopupShader->Unbind();
 }

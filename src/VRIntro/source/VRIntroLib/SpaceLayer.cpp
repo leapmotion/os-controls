@@ -19,10 +19,10 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
   m_OddEven(0),
   m_StarShowMode(0),
   m_StarsToShow(NUM_STARS) {
-  m_Buffer.Initialize(GL_ARRAY_BUFFER);
-  m_Buffer.Bind();
-  m_Buffer.Allocate(NULL, 12*sizeof(float)*NUM_STARS, GL_DYNAMIC_DRAW);
-  m_Buffer.Unbind();
+  m_BufferObject.Initialize(GL_ARRAY_BUFFER);
+  m_BufferObject.Bind();
+  m_BufferObject.Allocate(NULL, 12*sizeof(float)*NUM_STARS, GL_DYNAMIC_DRAW);
+  m_BufferObject.Unbind();
 
   // Define popup text coordinates
   static const float edges[] = {
@@ -32,10 +32,10 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
     +0.7f, +0.07f, -4.0f, 1, 1,
   };
 
-  m_PopupBuffer.Initialize(GL_ARRAY_BUFFER);
-  m_PopupBuffer.Bind();
-  m_PopupBuffer.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
-  m_PopupBuffer.Unbind();
+  m_PopupBufferObject.Initialize(GL_ARRAY_BUFFER);
+  m_PopupBufferObject.Bind();
+  m_PopupBufferObject.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
+  m_PopupBufferObject.Unbind();
 
   m_Buf = new float[NUM_STARS*12];
   InitPhysics();
@@ -75,13 +75,13 @@ void SpaceLayer::Render(TimeDelta real_time_delta) const {
   m_ShaderMatrices->SetMatrices( m_ModelView.cast<double>(), m_Renderer.Camera().ProjectionMatrix());
   m_ShaderMatrices->UploadUniforms();
 
-  m_Buffer.Bind();
+  m_BufferObject.Bind();
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("velocity"));
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 6*sizeof(float), 0);
   glVertexAttribPointer(m_Shader->LocationOfAttribute("velocity"), 3, GL_FLOAT, GL_TRUE, 6*sizeof(float), (GLvoid*)(3*sizeof(float)));
 
-  m_Buffer.Write(m_Buf, 12*m_StarsToShow*sizeof(float));
+  m_BufferObject.Write(m_Buf, 12*m_StarsToShow*sizeof(float));
   glDrawArrays(GL_LINES, 0, 2*m_StarsToShow);
 
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 12*sizeof(float), (GLvoid*)((6*m_OddEven)*sizeof(float)));
@@ -90,7 +90,7 @@ void SpaceLayer::Render(TimeDelta real_time_delta) const {
 
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("velocity"));
-  m_Buffer.Unbind();
+  m_BufferObject.Unbind();
 
   m_Shader->Unbind();
   //std::cout << __LINE__ << ":\t SDL_GetTicks() = " << (SDL_GetTicks() - start) << std::endl;
@@ -110,7 +110,7 @@ void SpaceLayer::RenderPopup() const {
   glUniform1i(m_PopupShader->LocationOfUniform("texture"), 0);
   glUniform1f(m_PopupShader->LocationOfUniform("alpha"), 0.7f);
 
-  m_PopupBuffer.Bind();
+  m_PopupBufferObject.Bind();
   glEnableVertexAttribArray(m_PopupShader->LocationOfAttribute("position"));
   glEnableVertexAttribArray(m_PopupShader->LocationOfAttribute("texcoord"));
   glVertexAttribPointer(m_PopupShader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 5*sizeof(float), (GLvoid*)0);
@@ -122,7 +122,7 @@ void SpaceLayer::RenderPopup() const {
 
   glDisableVertexAttribArray(m_PopupShader->LocationOfAttribute("position"));
   glDisableVertexAttribArray(m_PopupShader->LocationOfAttribute("texcoord"));
-  m_PopupBuffer.Unbind();
+  m_PopupBufferObject.Unbind();
 
   m_PopupShader->Unbind();
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

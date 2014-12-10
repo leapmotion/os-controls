@@ -72,10 +72,10 @@ QuadsLayer::QuadsLayer(const EigenTypes::Vector3f& initialEyePos) :
   }
 
   Pane::m_Pan = EigenTypes::Vector2f(0.5*m_StripWidth, 0);
-  m_Buffer.Initialize(GL_ARRAY_BUFFER);
-  m_Buffer.Bind();
-  m_Buffer.Allocate(NULL, 4*sizeof(TextureVertex)*filenames.size(), GL_DYNAMIC_DRAW);
-  m_Buffer.Unbind();
+  m_BufferObject.Initialize(GL_ARRAY_BUFFER);
+  m_BufferObject.Bind();
+  m_BufferObject.Allocate(NULL, 4*sizeof(TextureVertex)*filenames.size(), GL_DYNAMIC_DRAW);
+  m_BufferObject.Unbind();
 }
 
 void QuadsLayer::Update(TimeDelta real_time_delta) {
@@ -132,8 +132,8 @@ void QuadsLayer::Render(TimeDelta real_time_delta) const {
   glUniform1i(m_Shader->LocationOfUniform("texture"), 0);
   glUniform1f(m_Shader->LocationOfUniform("alpha"), 0.8f);
 
-  m_Buffer.Bind();
-  m_Buffer.Write(Pane::m_RenderBuffer.data(), 4*sizeof(TextureVertex)*m_Panes.size());
+  m_BufferObject.Bind();
+  m_BufferObject.Write(Pane::m_RenderBuffer.data(), 4*sizeof(TextureVertex)*m_Panes.size());
 
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("texcoord"));
@@ -147,7 +147,7 @@ void QuadsLayer::Render(TimeDelta real_time_delta) const {
 
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("texcoord"));
-  m_Buffer.Unbind();
+  m_BufferObject.Unbind();
   m_Shader->Unbind();
 }
 

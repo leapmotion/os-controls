@@ -21,10 +21,10 @@ FractalLayer::FractalLayer(const EigenTypes::Vector3f& initialEyePos) :
     +2, +2, -1.5, 1, 1,
   };
 
-  m_Buffer.Initialize(GL_ARRAY_BUFFER);
-  m_Buffer.Bind();
-  m_Buffer.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
-  m_Buffer.Unbind();
+  m_BufferObject.Initialize(GL_ARRAY_BUFFER);
+  m_BufferObject.Bind();
+  m_BufferObject.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
+  m_BufferObject.Unbind();
 
   m_Texture->Bind();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -63,7 +63,7 @@ void FractalLayer::Render(TimeDelta real_time_delta) const {
   glUniform1f(m_Shader->LocationOfUniform("time"), static_cast<float>(m_Time));
   glUniform2fv(m_Shader->LocationOfUniform("c_in"), 1, m_AvgPalm.data());
 
-  m_Buffer.Bind();
+  m_BufferObject.Bind();
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glEnableVertexAttribArray(m_Shader->LocationOfAttribute("texcoord"));
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 5*sizeof(float), (GLvoid*)0);
@@ -74,7 +74,7 @@ void FractalLayer::Render(TimeDelta real_time_delta) const {
 
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("position"));
   glDisableVertexAttribArray(m_Shader->LocationOfAttribute("texcoord"));
-  m_Buffer.Unbind();
+  m_BufferObject.Unbind();
 
   m_Shader->Unbind();
   glDepthMask(GL_TRUE);

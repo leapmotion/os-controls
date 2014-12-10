@@ -187,8 +187,8 @@ GLMesh<DIM>
   * FrameBufferObject
     ~ FrameBufferObject
     ~ RenderBuffer
-  * Buffer
-    ~ Buffer -- abstracts the concept of an OpenGL buffer object
+  * BufferObject
+    ~ BufferObject -- abstracts the concept of an OpenGL buffer object
   * VertexBuffer (depends on C++11)
     ~ VertexAttribute -- abstracts the concept of an OpenGL vertex attribute
     ~ VertexBuffer -- abstracts the concept of an OpenGL vertex buffer object
@@ -409,31 +409,22 @@ GLMesh<DIM>
   code that includes LeapGL code now has "using namespace Leap::GL" so that no code had to change.
 - Deleted FrameBufferObject and RenderBuffer because it had no use cases in os-controls repo, and can be
   added back later.
+- Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
+  convention.
 
 ###### Still To Do
 
-- Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
-  convention.  Some possible choices are:
-  (1) Construction is resource acquisition, destruction is release (Texture2, Shader does this)
-  (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
-      there is a separate Shutdown/Destroy method
-      destruction releases the resource (Buffer does this).
-  (3) Construct with acquired resource (as in (1)) or construct as "invalid/empty",
-      there is a [Re]Initialize method to [re]acquire a resource
-      there is a Shutdown method
-      destruction releases the resource.
-  Number (3) is probably the most flexible, because it doesn't require destroying and reconstructing
-  to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
-  Then again, we probably don't want to make that architectural choice for people, and want our
-  classes to be usable in many different paradigms.
 - Get rid of Projection, and replace the functionality of ModelView with SceneGraphNode's facilities.
   ModelView's operations (Rotate, Scale, Translate, etc) will need to be provided.
-- Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
-  This will require some prototyping and code review.
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;
   could also make an interface for that purpose -- perhaps that "make me a GL context" interface
   would be useful in the GL core component?).
 - Full, Doxygen-based documentation.
+
+###### Deferred Until Later
+
+- Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
+  This will require some prototyping and code review.
 
 ##### GL component low priority
 
@@ -494,7 +485,7 @@ FrameBufferObject (rename to Leap::GL::Framebuffer)
   * glGetFramebufferAttachmentParameteriv
   * TODO: examine API docs for closure
 
-Buffer (rename to Leap::GL::Buffer)
+BufferObject (rename to Leap::GL::BufferObject)
 - List of relevant GL calls
   * glGenBuffers
   * glBindBuffer
@@ -571,7 +562,7 @@ VertexAttribute (rename to Leap::GL::VertexAttribute)
   * TODO: examine API docs for closure
 
 VertexBuffer (rename to Leap::GL::VertexBuffer)
-- This is an abstraction completely on top of Buffer and VertexAttribute, so it doesn't call OpenGL directly.
+- This is an abstraction completely on top of BufferObject and VertexAttribute, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
 RenderBuffer (rename to Leap::GL::RenderBuffer)
@@ -597,7 +588,7 @@ component are the following.
 
 - Texture2
 - Shader
-- Buffer
+- BufferObject
 - VertexBuffer
 - Mesh
 - ShaderFrontend
@@ -609,7 +600,7 @@ Some possibilities for resource conventions are the following.
     exception is thrown.
 2.  Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
     there is a separate Release/Destroy method
-    destruction releases the resource (Buffer does this).
+    destruction releases the resource (BufferObject does this).
 3.  Construct with acquired resource (as in (1)) or construct as "invalid/empty",
     there is a [Re]Initialize method to [re]acquire a resource
     there is a Release method

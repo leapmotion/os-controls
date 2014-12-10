@@ -7,13 +7,13 @@ namespace Leap {
 namespace GL {
 
 // A C++ wrapper class for OpenGL buffer objects, of types e.g. GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER.
-class Buffer {
+class BufferObject {
 
 public:
 
-  Buffer ();
-  Buffer (GLenum type);
-  ~Buffer ();
+  BufferObject ();
+  BufferObject (GLenum type);
+  ~BufferObject ();
 
   void Initialize (GLenum type);
   void Shutdown ();

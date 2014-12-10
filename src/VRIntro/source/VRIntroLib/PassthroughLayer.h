@@ -3,7 +3,7 @@
 #include "InteractionLayer.h"
 
 #include "Leap/GL/Texture2.h"
-#include "Leap/GL/Buffer.h"
+#include "Leap/GL/BufferObject.h"
 #include "EigenTypes.h"
 
 #include <memory>
@@ -35,7 +35,7 @@ private:
   mutable Texture2 m_image;
   mutable Texture2 m_colorimage;
   mutable Texture2 m_distortion;
-  mutable Buffer m_Buffer;
+  mutable BufferObject m_BufferObject;
   float m_Gamma;
   float m_Brightness;
   bool m_UseRGBI;

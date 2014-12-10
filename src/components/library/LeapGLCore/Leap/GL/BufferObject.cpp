@@ -1,4 +1,4 @@
-#include "Leap/GL/Buffer.h"
+#include "Leap/GL/BufferObject.h"
 
 #include <cassert>
 #include "Leap/GL/Error.h"
@@ -6,13 +6,13 @@
 namespace Leap {
 namespace GL {
 
-Buffer::Buffer ()
+BufferObject::BufferObject ()
   : m_BufferAddress(0)
   , m_BufferType(0)
   , m_SizeInBytes(0)
 { }
 
-Buffer::Buffer (GLenum type)
+BufferObject::BufferObject (GLenum type)
   : m_BufferAddress(0)
   , m_BufferType(0)
   , m_SizeInBytes(0)
@@ -20,11 +20,11 @@ Buffer::Buffer (GLenum type)
   Initialize(type);
 }
 
-Buffer::~Buffer () {
+BufferObject::~BufferObject () {
   Shutdown();
 }
 
-void Buffer::Initialize (GLenum type) {
+void BufferObject::Initialize (GLenum type) {
   // Ensure that any previously allocated resources are freed.
   Shutdown();
   // Set up the new buffer type.
@@ -32,7 +32,7 @@ void Buffer::Initialize (GLenum type) {
   THROW_UPON_GL_ERROR(glGenBuffers(1, &m_BufferAddress));
 }
 
-void Buffer::Shutdown () {
+void BufferObject::Shutdown () {
   if (IsInitialized()) {
     // THROW_UPON_GL_ERROR(glDeleteBuffers(1, &m_BufferAddress));
     glDeleteBuffers(1, &m_BufferAddress);
@@ -42,38 +42,38 @@ void Buffer::Shutdown () {
   }
 }
 
-void Buffer::Bind () const {
+void BufferObject::Bind () const {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call Buffer::Bind on a Buffer that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::Bind on a BufferObject that is !IsInitialized().");
   }
   THROW_UPON_GL_ERROR(glBindBuffer(m_BufferType, m_BufferAddress));
 }
 
-void Buffer::Unbind () const {
+void BufferObject::Unbind () const {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call Buffer::Unbind on a Buffer that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::Unbind on a BufferObject that is !IsInitialized().");
   }
   THROW_UPON_GL_ERROR(glBindBuffer(m_BufferType, 0));
 }
 
-void Buffer::Allocate (const void* data, GLsizeiptr size_in_bytes, GLenum usage_pattern) {
+void BufferObject::Allocate (const void* data, GLsizeiptr size_in_bytes, GLenum usage_pattern) {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call Buffer::Allocate on a Buffer that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::Allocate on a BufferObject that is !IsInitialized().");
   }
   THROW_UPON_GL_ERROR(glBufferData(m_BufferType, size_in_bytes, data, usage_pattern));
   m_SizeInBytes = size_in_bytes;
 }
 
-void Buffer::Write (const void* data, int count) {
+void BufferObject::Write (const void* data, int count) {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call Buffer::Write on a Buffer that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::Write on a BufferObject that is !IsInitialized().");
   }
   THROW_UPON_GL_ERROR(glBufferSubData(m_BufferType, 0, count, data));
 }
 
-void* Buffer::Map (GLenum access) {
+void* BufferObject::Map (GLenum access) {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call Buffer::Map on a Buffer that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::Map on a BufferObject that is !IsInitialized().");
   }
   Bind();
   THROW_UPON_GL_ERROR(void *ptr = glMapBuffer(m_BufferType, access));
@@ -81,9 +81,9 @@ void* Buffer::Map (GLenum access) {
   return ptr;
 }
 
-bool Buffer::Unmap () {
+bool BufferObject::Unmap () {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call Buffer::Unmap on a Buffer that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::Unmap on a BufferObject that is !IsInitialized().");
   }
   Bind();
   THROW_UPON_GL_ERROR(bool result = glUnmapBuffer(m_BufferType) == GL_TRUE);

@@ -101,7 +101,7 @@ public:
 private:
   Texture2* m_image[300];
 
-  mutable Buffer m_Buffer;
+  mutable BufferObject m_BufferObject;
   std::vector<std::shared_ptr<Pane>> m_Panes;
 
   EigenTypes::Vector2f m_LastYTheta;

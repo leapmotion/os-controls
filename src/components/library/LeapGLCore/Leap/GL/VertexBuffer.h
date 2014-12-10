@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Leap/GL/GLHeaders.h"
-#include "Leap/GL/Buffer.h"
+#include "Leap/GL/BufferObject.h"
 #include "Leap/GL/VertexAttribute.h"
 #include "Leap/GL/Internal/Meta.h"
 #include "Leap/GL/VertexBufferException.h"
@@ -164,7 +164,7 @@ public:
   }
   // This clears the GL buffer object, but preserves everything else.
   void ClearGLResources () const {
-    m_gl_buffer.Shutdown();
+    m_gl_buffer_object.Shutdown();
   }
   // Allocates (if necessary) and populates a GL buffer object with the intermediate attribute
   // buffer data.  It is recommended to clear the intermediate attributes after calling this
@@ -180,18 +180,18 @@ public:
     const void *intermediate_attributes_data(m_intermediate_attributes.data());
     // If the buffer is already created and is the same size as the intermediate attributes,
     // then map it and copy the data in.
-    if (m_gl_buffer.IsInitialized() && m_gl_buffer.Size() == intermediate_attributes_size) {
-      void *ptr = m_gl_buffer.Map(GL_WRITE_ONLY);
+    if (m_gl_buffer_object.IsInitialized() && m_gl_buffer_object.Size() == intermediate_attributes_size) {
+      void *ptr = m_gl_buffer_object.Map(GL_WRITE_ONLY);
       memcpy(ptr, intermediate_attributes_data, intermediate_attributes_size);
-      m_gl_buffer.Unmap();
+      m_gl_buffer_object.Unmap();
     } else { // Otherwise ensure the buffer is created, 
-      if (!m_gl_buffer.IsInitialized()) {
-        m_gl_buffer.Initialize(GL_ARRAY_BUFFER);
+      if (!m_gl_buffer_object.IsInitialized()) {
+        m_gl_buffer_object.Initialize(GL_ARRAY_BUFFER);
       }
-      m_gl_buffer.Bind();
+      m_gl_buffer_object.Bind();
       // This will delete and reallocate if it's already allocated.
-      m_gl_buffer.Allocate(intermediate_attributes_data, intermediate_attributes_size, m_usage_pattern);
-      m_gl_buffer.Unbind();
+      m_gl_buffer_object.Allocate(intermediate_attributes_data, intermediate_attributes_size, m_usage_pattern);
+      m_gl_buffer_object.Unbind();
     }
     assert(IsUploaded());
   }
@@ -201,7 +201,7 @@ public:
     if (!IsInitialized()) {
       return false;
     }
-    return m_gl_buffer.IsInitialized();
+    return m_gl_buffer_object.IsInitialized();
   }
   // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   // of the vertex attributes given valid locations (i.e. not equal to -1).  The
@@ -214,10 +214,10 @@ public:
     if (!IsUploaded()) {
       throw VertexBufferException("can't Enable a VertexBuffer that hasn't had UploadIntermediateAttributes called on it");
     }
-    m_gl_buffer.Bind();
+    m_gl_buffer_object.Bind();
     // Begin iterated binding of vertex attributes starting at the 0th one.
     EnableAndIterate<0>(attribute_locations, sizeof(Attributes));
-    m_gl_buffer.Unbind();
+    m_gl_buffer_object.Unbind();
   }
   // This method calls glDisableVertexAttribArray on each of the vertex attributes
   // given valid locations (i.e. not equal to -1).  This method is analogous to the
@@ -281,7 +281,7 @@ private:
   // TODO: it might be a good thing to remove the storage of these intermediate attributes from the concern
   // of this class -- doing so would greatly simplify this class' interface.
   std::vector<Attributes> m_intermediate_attributes;
-  mutable Buffer m_gl_buffer;
+  mutable BufferObject m_gl_buffer_object;
 };
 
 } // end of namespace GL

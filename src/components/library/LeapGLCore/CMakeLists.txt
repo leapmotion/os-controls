@@ -5,7 +5,7 @@ add_sublibrary(
         Leap/GL/ColorComponent.h
         Leap/GL/Common.h
         Leap/GL/Exception.h
-        Leap/GL/Buffer.h
+        Leap/GL/BufferObject.h
         Leap/GL/Error.h
         Leap/GL/GLHeaders.h
         Leap/GL/Shader.h
@@ -45,7 +45,7 @@ add_sublibrary(
         Leap/GL/VertexBufferException.h
     SOURCES
         Leap/GL/Camera.cpp
-        Leap/GL/Buffer.cpp
+        Leap/GL/BufferObject.cpp
         Leap/GL/Shader.cpp
         Leap/GL/Texture2.cpp
         Leap/GL/Texture2Params.cpp

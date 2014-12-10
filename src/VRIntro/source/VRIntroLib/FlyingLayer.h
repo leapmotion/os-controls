@@ -22,7 +22,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  mutable Buffer m_PopupBuffer;
+  mutable BufferObject m_PopupBufferObject;
   std::shared_ptr<Texture2> m_PopupTexture;
   std::shared_ptr<Leap::GL::Shader> m_PopupShader;
   std::shared_ptr<Leap::GL::ShaderMatrices> m_PopupShaderMatrices;

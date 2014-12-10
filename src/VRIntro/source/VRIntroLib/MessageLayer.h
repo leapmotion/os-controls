@@ -28,7 +28,7 @@ private:
   static const int NUM_MESSAGES = 4;
   void DrawMessage(int index) const;
 
-  mutable Buffer m_Buffer;
+  mutable BufferObject m_BufferObject;
 
   std::shared_ptr<Leap::GL::Texture2> m_HelpTexture;
   std::shared_ptr<Leap::GL::Texture2> m_LowFPSTexture;
