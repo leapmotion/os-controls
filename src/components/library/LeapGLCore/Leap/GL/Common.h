@@ -8,9 +8,6 @@ namespace GL {
 // For use in specifying the storage convention for matrix-valued arguments to various functions.
 enum MatrixStorageConvention { COLUMN_MAJOR, ROW_MAJOR };
 
-// For use in specifying error-checking policy.
-enum ErrorPolicy { THROW, ASSERT };
-
 // For use in ShaderFrontend in specifying a uniform.
 template <typename Name_, Name_ NAME_, GLenum GL_TYPE_, size_t ARRAY_LENGTH_, typename CppType_, MatrixStorageConvention MATRIX_STORAGE_CONVENTION_> struct UniformSpecification;
 
