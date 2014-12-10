@@ -407,6 +407,8 @@ GLMesh<DIM>
 - Rename classes that have the GL prefix to not have the GL prefix, because they're in a namespace.
 - Take out the temporary "using namespace Leap::GL" statements everywhere.  For now, all non-LeapGL
   code that includes LeapGL code now has "using namespace Leap::GL" so that no code had to change.
+- Deleted FrameBufferObject and RenderBuffer because it had no use cases in os-controls repo, and can be
+  added back later.
 
 ###### Still To Do
 
@@ -599,8 +601,6 @@ component are the following.
 - VertexBuffer
 - Mesh
 - ShaderFrontend
-- FrameBuffer
-- RenderBuffer
 
 Some possibilities for resource conventions are the following.
 

@@ -5,7 +5,6 @@ add_sublibrary(
         Leap/GL/ColorComponent.h
         Leap/GL/Common.h
         Leap/GL/Exception.h
-        Leap/GL/FrameBufferObject.h
         Leap/GL/Buffer.h
         Leap/GL/Error.h
         Leap/GL/GLHeaders.h
@@ -19,7 +18,6 @@ add_sublibrary(
         Leap/GL/Internal/ColorComponent.h
         Leap/GL/Internal/Map.h
         Leap/GL/Internal/Meta.h
-        Leap/GL/Internal/RenderBuffer.h
         Leap/GL/Internal/ShaderFrontend.h
         Leap/GL/Internal/ShaderUniform.h
         Leap/GL/Internal/Tuple.h
@@ -47,13 +45,11 @@ add_sublibrary(
         Leap/GL/VertexBufferException.h
     SOURCES
         Leap/GL/Camera.cpp
-        Leap/GL/FrameBufferObject.cpp
         Leap/GL/Buffer.cpp
         Leap/GL/Shader.cpp
         Leap/GL/Texture2.cpp
         Leap/GL/Texture2Params.cpp
         Leap/GL/Texture2PixelData.cpp
-        Leap/GL/Internal/RenderBuffer.cpp
         Leap/GL/ModelViewProjection.cpp
         Leap/GL/OrthographicCamera.cpp
         Leap/GL/PerspectiveCamera.cpp
