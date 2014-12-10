@@ -40,7 +40,11 @@ Shader::Shader ()
   , m_fragment_shader(0)
 { }
 
-Shader::Shader (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
+Shader::Shader (const std::string &vertex_shader_source, const std::string &fragment_shader_source)
+  : m_program_handle(0)
+  , m_vertex_shader(0)
+  , m_fragment_shader(0)
+{
   Initialize(vertex_shader_source, fragment_shader_source);
 }
 
