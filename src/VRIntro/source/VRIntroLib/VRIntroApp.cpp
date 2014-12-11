@@ -221,12 +221,12 @@ void VRIntroApp::Render(TimeDelta real_time_delta) const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, m_Width, m_Height);
 
-    Projection projection;
+    EigenTypes::Matrix4x4 projection_matrix;
     static const double VFOV = 1.0;
     double hfov = VFOV*m_Width/static_cast<double>(m_Height);
-    projection.Perspective(-hfov, -VFOV, hfov, VFOV, 0.1, 10000.0);
+    Projection::SetPerspective(projection_matrix, -hfov, -VFOV, hfov, VFOV, 0.1, 10000.0);
 
-    RenderEye(real_time_delta, 0, projection.Matrix().cast<float>()); // TODO: Should add an option to oculus vr for eye-agnostic view (halfway between the two eyes)
+    RenderEye(real_time_delta, 0, projection_matrix.cast<float>()); // TODO: Should add an option to oculus vr for eye-agnostic view (halfway between the two eyes)
 
     double elapsed = timer.Stop();
     //std::cout << __LINE__ << ":\t   Render() = " << (elapsed) << std::endl;

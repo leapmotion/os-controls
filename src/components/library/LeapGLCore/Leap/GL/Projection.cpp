@@ -1,10 +1,12 @@
 #include <cassert>
 #include <cmath>
-#include "Leap/GL/Camera.h"
+#include "Leap/GL/Projection.h"
 #include <limits>
 
 namespace Leap {
 namespace GL {
+
+namespace {
 
 void ComputeViewFrameInWorldCoordinates (
   EigenTypes::Vector3 &x,
@@ -29,7 +31,11 @@ void ComputeViewFrameInWorldCoordinates (
   assert(std::abs(y.squaredNorm() - 1.0) < std::numeric_limits<double>::epsilon());
 }
 
-void Camera::ComputeWorldToViewTransformation (
+} // end of anonymous namespace
+
+namespace Projection {
+
+void ComputeWorldToViewTransformation (
   EigenTypes::Matrix3x3 &linear,
   EigenTypes::Vector3 &translation,
   const EigenTypes::Vector3 &eye_position,
@@ -45,7 +51,7 @@ void Camera::ComputeWorldToViewTransformation (
   translation = linear * -eye_position;
 }
 
-void Camera::ComputeViewToWorldTransformation (
+void ComputeViewToWorldTransformation (
   EigenTypes::Matrix3x3 &linear,
   EigenTypes::Vector3 &translation,
   const EigenTypes::Vector3 &eye_position,
@@ -82,7 +88,7 @@ void CheckPerspectiveValues (double width, double height, double depth, double n
 
 } // end of anonymous namespace
 
-void Camera::SetOrthographicProjectionMatrix (
+void SetOrthographic (
   EigenTypes::Matrix4x4 &projection_matrix,
   double left, double right,
   double bottom, double top,
@@ -106,7 +112,7 @@ void Camera::SetOrthographicProjectionMatrix (
                        0.0, 0.0, 0.0, 1.0;
 }
 
-void Camera::SetOrthographicProjectionMatrix_UsingSymmetricViewBox (
+void SetOrthographic_UsingSymmetricViewBox (
   EigenTypes::Matrix4x4 &projection_matrix,
   double width, double height,
   double near_clip_depth, double far_clip_depth)
@@ -125,7 +131,7 @@ void Camera::SetOrthographicProjectionMatrix_UsingSymmetricViewBox (
                        0.0, 0.0, 0.0, 1.0;
 }
 
-void Camera::SetPerspectiveProjectionMatrix (
+void SetPerspective (
   EigenTypes::Matrix4x4 &projection_matrix,
   double near_clip_left, double near_clip_right,
   double near_clip_bottom, double near_clip_top,
@@ -150,7 +156,7 @@ void Camera::SetPerspectiveProjectionMatrix (
                        0.0, 0.0, -1.0, 0.0;
 }
 
-void Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio (
+void SetPerspective_UsingFOVAndAspectRatio (
   EigenTypes::Matrix4x4 &projection_matrix,
   double horiz_FOV_radians, double width_over_height,
   double near_clip_depth, double far_clip_depth)
@@ -161,10 +167,10 @@ void Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio (
   // Derive width and height and forward the call.
   const double near_clip_width = 2.0 * near_clip_depth * std::tan(horiz_FOV_radians / 2.0);
   const double near_clip_height = near_clip_width / width_over_height;
-  SetPerspectiveProjectionMatrix_UsingSymmetricFrustumNearClipSize(projection_matrix, near_clip_width, near_clip_height, near_clip_depth, far_clip_depth);
+  SetPerspective_UsingSymmetricFrustumNearClipSize(projection_matrix, near_clip_width, near_clip_height, near_clip_depth, far_clip_depth);
 }
 
-void Camera::SetPerspectiveProjectionMatrix_UsingSymmetricFrustumNearClipSize (
+void SetPerspective_UsingSymmetricFrustumNearClipSize (
   EigenTypes::Matrix4x4 &projection_matrix,
   double near_clip_width, double near_clip_height,
   double near_clip_depth, double far_clip_depth)
@@ -183,6 +189,8 @@ void Camera::SetPerspectiveProjectionMatrix_UsingSymmetricFrustumNearClipSize (
                        0.0, 0.0,  l22,  t2,
                        0.0, 0.0, -1.0, 0.0;
 }
+
+} // end of namespace Projection
 
 } // end of namespace GL
 } // end of namespace Leap

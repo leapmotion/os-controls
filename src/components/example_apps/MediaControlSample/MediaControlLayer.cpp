@@ -183,7 +183,7 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0; 
-  Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
+  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ(); // + 0.5*m_Cursor.Translation();

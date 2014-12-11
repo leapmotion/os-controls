@@ -5,9 +5,9 @@
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
 #include "Leap/GL/BufferObject.h"
-#include "Leap/GL/Texture2.h"
-#include "Leap/GL/PerspectiveCamera.h"
+#include "Leap/GL/Projection.h"
 #include "Leap/GL/Shader.h"
+#include "Leap/GL/Texture2.h"
 #include "Resource.h"
 #include "TextFile.h"
 #include "TextFileLoader.h"
@@ -204,7 +204,7 @@ void ShapesLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0;
-  Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
+  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();

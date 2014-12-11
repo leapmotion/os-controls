@@ -3,47 +3,6 @@
 namespace Leap {
 namespace GL {
 
-Projection::Projection() : m_matrix(EigenTypes::Matrix4x4::Identity()) { }
-
-const EigenTypes::Matrix4x4& Projection::Matrix() const {
-  return m_matrix;
-}
-
-EigenTypes::Matrix4x4& Projection::Matrix() {
-  return m_matrix;
-}
-
-void Projection::Perspective(double left, double bottom, double right, double top, double nearClip, double farClip) {
-  const double denom = 1/(nearClip - farClip);
-  m_matrix << 2*nearClip/(right - left),                         0, (right + left)/(right - left),                        0,
-                                      0, 2*nearClip/(top - bottom), (top + bottom)/(top - bottom),                        0,
-                                      0,                         0,    (farClip + nearClip)*denom, 2*farClip*nearClip*denom,
-                                      0,                         0,                            -1,                        0;
-}
-
-void Projection::Perspective(double hFovRadians, double widthOverHeight, double nearClip, double farClip) {
-  const double wd2 = nearClip * std::tan(hFovRadians / 2.0);
-  const double left = -wd2;
-  const double right = wd2;
-  const double top = wd2/widthOverHeight;
-  const double bottom = -wd2/widthOverHeight;
-  Perspective(left, bottom, right, top, nearClip, farClip);
-}
-
-void Projection::Orthographic(double left, double bottom, double right, double top, double nearClip, double farClip) {
-  m_matrix << 2/(right - left),                0,                      0,             (right + left)/(left - right),
-                             0, 2/(top - bottom),                      0,             (top + bottom)/(bottom - top),
-                             0,                0, 2/(farClip - nearClip), (farClip + nearClip)/(farClip - nearClip),
-                             0,                0,                      0,                                         1;
-}
-
-EigenTypes::Vector2 Projection::Project(const EigenTypes::Vector3& point) const {
-  EigenTypes::Vector2 result = (m_matrix * EigenTypes::Vector4(point.x(), point.y(), point.z(), 1.0)).head<2>();
-  result.x() = (result.x() + 1)/2; // Why add 1/2?  This doesn't make any sense.
-  result.y() = (result.y() + 1)/2; // Why add 1/2?  This doesn't make any sense.
-  return result;
-}
-
 ModelView::ModelView() {
   m_stack.push_back(EigenTypes::Matrix4x4::Identity());
 }

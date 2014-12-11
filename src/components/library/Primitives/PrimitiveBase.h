@@ -2,7 +2,6 @@
 
 #include "GLShaderLoader.h"
 #include "LambertianMaterial.h"
-#include "Leap/GL/Camera.h"
 #include "Leap/GL/ShaderBindingScopeGuard.h"
 #include "Leap/GL/SceneGraphNode.h"
 #include "Leap/GL/SceneGraphNodeValues.h"

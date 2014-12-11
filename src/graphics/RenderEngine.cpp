@@ -61,7 +61,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // m_renderState.GetProjection().Orthographic(0, windowSize.height, windowSize.width, 0, 1, -100);
   // Note: this is backwards compared to the commented-out line above because there was a sign error in the depth
   // component of the old orthographic projection matrix code.
-  Camera::SetOrthographicProjectionMatrix(m_renderState.ProjectionMatrix(), 0, windowSize.width, windowSize.height, 0, -1, 100);
+  Projection::SetOrthographic(m_renderState.ProjectionMatrix(), 0, windowSize.width, windowSize.height, 0, -1, 100);
   m_renderState.GetModelView().Clear();
 
   m_shader->Bind();

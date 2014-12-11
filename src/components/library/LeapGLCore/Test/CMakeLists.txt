@@ -2,8 +2,7 @@ set(_sources
     ColorComponentTest.cpp
     ShaderTest.cpp
     Texture2Test.cpp
-    OrthographicCameraTest.cpp
-    PerspectiveCameraTest.cpp
+    ProjectionTest.cpp
     RgbaTest.cpp
     RgbTest.cpp
     SceneGraphNodePropertiesTest.cpp

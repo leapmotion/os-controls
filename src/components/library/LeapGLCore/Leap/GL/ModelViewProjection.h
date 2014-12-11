@@ -5,19 +5,6 @@
 namespace Leap {
 namespace GL {
 
-class Projection {
-public:
-  Projection();
-  const EigenTypes::Matrix4x4& Matrix() const;
-  EigenTypes::Matrix4x4& Matrix();
-  void Perspective(double left, double bottom, double right, double top, double nearClip, double farClip);
-  void Perspective(double hFovRadians, double widthOverHeight, double nearClip, double farClip);
-  void Orthographic(double left, double bottom, double right, double top, double nearClip, double farClip);
-  EigenTypes::Vector2 Project(const EigenTypes::Vector3& point) const;
-private:
-  EigenTypes::Matrix4x4 m_matrix;
-};
-
 class ModelView {
 public:
   ModelView();

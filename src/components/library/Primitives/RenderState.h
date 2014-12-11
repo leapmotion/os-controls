@@ -2,20 +2,19 @@
 
 #include <algorithm>
 #include "EigenTypes.h"
-#include "Leap/GL/Camera.h"
 #include "Leap/GL/ModelViewProjection.h"
+#include "Leap/GL/Projection.h"
 #include <memory>
 
 using namespace Leap::GL;
 
-// This class is the bridge between geometry and the OpenGL state machine.
-// Its main role is to encapsulate attribute and uniform addresses along with the viewing matrix transforms.
+// This class is a package for data necessary for rendering.
 class RenderState {
 public:
 
   RenderState () {
     // This should be the same as the default projection matrix in old versions of OpenGL.
-    Camera::SetOrthographicProjectionMatrix(m_ProjectionMatrix, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    Projection::SetOrthographic(m_ProjectionMatrix, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   }
 
   const EigenTypes::Matrix4x4 &ProjectionMatrix () const { return m_ProjectionMatrix; }
@@ -29,5 +28,4 @@ private:
 
   EigenTypes::Matrix4x4 m_ProjectionMatrix;
   ModelView m_ModelView;
-  std::shared_ptr<Leap::GL::Camera> m_Camera;
 };

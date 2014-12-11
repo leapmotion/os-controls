@@ -54,7 +54,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 10.0;
   const double farClip = 10000.0;
-  Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
+  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = EigenTypes::Vector3(0.0f, 300.0f, 250.0f);
