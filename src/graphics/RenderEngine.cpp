@@ -10,7 +10,6 @@
 
 #include <GL/glew.h>
 #include "GLShaderLoader.h"
-#include "Leap/GL/OrthographicCamera.h"
 #include "Leap/GL/Shader.h"
 
 #include "Resource.h"
@@ -38,10 +37,6 @@ RenderEngine::RenderEngine() :
   m_shader->Bind();
   m_shader->UploadUniform<GL_FLOAT_VEC3>("lightPosition", lightPos);
   m_shader->Unbind();
-
-  // The projection parameters for the camera are set in Tick.
-  m_Camera = std::make_shared<OrthographicCamera>();
-  m_renderState.SetCamera(m_Camera);
 }
 
 RenderEngine::~RenderEngine()
@@ -66,7 +61,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   // m_renderState.GetProjection().Orthographic(0, windowSize.height, windowSize.width, 0, 1, -100);
   // Note: this is backwards compared to the commented-out line above because there was a sign error in the depth
   // component of the old orthographic projection matrix code.
-  m_Camera->SetViewBox(0, windowSize.width, windowSize.height, 0, -1, 100);
+  Camera::SetOrthographicProjectionMatrix(m_renderState.ProjectionMatrix(), 0, windowSize.width, windowSize.height, 0, -1, 100);
   m_renderState.GetModelView().Clear();
 
   m_shader->Bind();
@@ -102,7 +97,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
     AutowiredFast<Hmd::IDevice> hmd;
     if (hmd) {
       hmd->BeginFrame();
-      const EigenTypes::Matrix4x4 projection = frame.renderState.Camera().ProjectionMatrix();
+      const EigenTypes::Matrix4x4 projection = frame.renderState.ProjectionMatrix();
 
       for (int i = 0; i < hmd->Configuration().EyeCount(); i++) {
         //const int eyeIndex = hmd->Configuration().EyeRenderOrder(i);

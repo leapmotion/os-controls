@@ -140,10 +140,6 @@ ShapesLayer::ShapesLayer ()
     m_DropShadow.Translation() = EigenTypes::Vector3(30, 20, 0);
     m_DropShadow.SetBasisRectangleSize(EigenTypes::Vector2(10, 10));
   }
-
-  // The FOV and other parameters for the camera are set in Render.
-  m_Camera = std::make_shared<PerspectiveCamera>();
-  m_Renderer.SetCamera(m_Camera);
 }
 
 ShapesLayer::~ShapesLayer () {
@@ -208,7 +204,7 @@ void ShapesLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0;
-  m_Camera->SetUsingFOVAndAspectRatio(fovRadians, widthOverHeight, nearClip, farClip);
+  Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();

@@ -172,7 +172,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
 
       mHandsShader->Bind();
 
-      mShaderMatrices->SetMatrices(renderState.GetModelView().Matrix(), renderState.Camera().ProjectionMatrix());
+      mShaderMatrices->SetMatrices(renderState.GetModelView().Matrix(), renderState.ProjectionMatrix());
       mShaderMatrices->UploadUniforms();
 
       mHandsShader->UploadUniform<GL_BOOL>("isAnimated", section->isAnimated());

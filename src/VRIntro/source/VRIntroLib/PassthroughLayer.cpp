@@ -90,7 +90,7 @@ void PassthroughLayer::Render(TimeDelta real_time_delta) const {
   if (m_HasData) {
     glDepthMask(GL_FALSE);
     m_Shader->Bind();
-    m_ShaderMatrices->SetMatrices(EigenTypes::Matrix4x4::Identity(), m_Renderer.Camera().ProjectionMatrix());
+    m_ShaderMatrices->SetMatrices(EigenTypes::Matrix4x4::Identity(), m_Renderer.ProjectionMatrix());
     m_ShaderMatrices->UploadUniforms();
 
     glActiveTexture(GL_TEXTURE0 + 0);

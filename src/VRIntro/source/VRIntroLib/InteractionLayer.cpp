@@ -2,7 +2,6 @@
 #include "InteractionLayer.h"
 
 #include "Resource.h"
-#include "Leap/GL/MatrixCamera.h"
 #include "Leap/GL/Rgba.h"
 #include "Leap/GL/Shader.h"
 #include "GLShaderLoader.h"
@@ -25,13 +24,10 @@ InteractionLayer::InteractionLayer(const EigenTypes::Vector3f& initialEyePos, co
     "normal_matrix")),
   m_EyePos(initialEyePos),
   m_Alpha(0.0f)
-{
-  m_Camera = std::make_shared<MatrixCamera>();
-  m_Renderer.SetCamera(m_Camera);
-}
+{ }
 
 void InteractionLayer::SetProjection(const EigenTypes::Matrix4x4f& value) {
-  m_Camera->SetProjectionMatrix(value.cast<double>());
+  m_Renderer.ProjectionMatrix() = value.cast<double>();
 }
 
 void InteractionLayer::DrawSkeletonHands(bool capsuleMode) const {

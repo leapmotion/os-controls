@@ -391,7 +391,7 @@ void CapsulePrim::DrawContents(RenderState& renderState) const {
   // draw body
   modelView.Push();
   modelView.Scale(EigenTypes::Vector3(m_Radius, m_Height, m_Radius));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   body.Bind(locations);
   body.Draw();
   body.Unbind(locations);
@@ -401,7 +401,7 @@ void CapsulePrim::DrawContents(RenderState& renderState) const {
   modelView.Push();
   modelView.Translate(EigenTypes::Vector3(0, -m_Height/2.0, 0));
   modelView.Scale(EigenTypes::Vector3::Constant(m_Radius));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   cap.Bind(locations);
   cap.Draw();
   cap.Unbind(locations);
@@ -411,7 +411,7 @@ void CapsulePrim::DrawContents(RenderState& renderState) const {
   modelView.Push();
   modelView.Translate(EigenTypes::Vector3(0, m_Height/2.0, 0));
   modelView.Scale(EigenTypes::Vector3(m_Radius, -m_Radius, m_Radius));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   cap.Bind(locations);
   cap.Draw();
   cap.Unbind(locations);
@@ -438,7 +438,7 @@ void BiCapsulePrim::DrawContents(RenderState& renderState) const {
   modelView.Push();
   modelView.Translate(EigenTypes::Vector3(0, (m_BodyOffset1+m_BodyOffset2)/2.0, 0));
   modelView.Scale(EigenTypes::Vector3(1.0, bodyHeight, 1.0));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   m_Body.Bind(locations);
   m_Body.Draw();
   m_Body.Unbind(locations);
@@ -448,7 +448,7 @@ void BiCapsulePrim::DrawContents(RenderState& renderState) const {
   modelView.Push();
   modelView.Translate(EigenTypes::Vector3(0, -m_Height/2.0, 0));
   modelView.Scale(EigenTypes::Vector3::Constant(m_Radius1));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   m_Cap1.Bind(locations);
   m_Cap1.Draw();
   m_Cap1.Unbind(locations);
@@ -458,7 +458,7 @@ void BiCapsulePrim::DrawContents(RenderState& renderState) const {
   modelView.Push();
   modelView.Translate(EigenTypes::Vector3(0, m_Height/2.0, 0));
   modelView.Scale(EigenTypes::Vector3(m_Radius2, -m_Radius2, m_Radius2));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   m_Cap2.Bind(locations);
   m_Cap2.Draw();
   m_Cap2.Unbind(locations);
@@ -546,7 +546,7 @@ void RadialPolygonPrim::DrawContents(RenderState& renderState) const {
   // draw top polygon face
   modelView.Push();
   modelView.Translate(EigenTypes::Vector3(0, m_Radius, 0));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   // m_Polygon.Draw(Shader(), GL_TRIANGLES);
   m_Polygon.Bind(locations);
   m_Polygon.Draw();
@@ -557,7 +557,7 @@ void RadialPolygonPrim::DrawContents(RenderState& renderState) const {
   modelView.Push();
   modelView.Scale(EigenTypes::Vector3(1, -1, 1));
   modelView.Translate(EigenTypes::Vector3(0, m_Radius, 0));
-  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+  ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
   m_Polygon.Bind(locations);
   m_Polygon.Draw();
   m_Polygon.Unbind(locations);
@@ -569,7 +569,7 @@ void RadialPolygonPrim::DrawContents(RenderState& renderState) const {
     modelView.Translate(m_Sides[i].m_Origin);
     modelView.Multiply(m_Sides[i].m_SphereBasis);
     modelView.Scale(EigenTypes::Vector3::Constant(m_Radius));
-    ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+    ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
     m_Sides[i].m_SphereJoint.Bind(locations);
     m_Sides[i].m_SphereJoint.Draw();
     m_Sides[i].m_SphereJoint.Unbind(locations);
@@ -580,7 +580,7 @@ void RadialPolygonPrim::DrawContents(RenderState& renderState) const {
     modelView.Multiply(m_Sides[i].m_CylinderBasis);
     modelView.Scale(EigenTypes::Vector3(m_Radius, m_Sides[i].m_Length, m_Radius));
     modelView.Translate(EigenTypes::Vector3(0, 0.5, 0));
-    ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.Camera().ProjectionMatrix());
+    ManuallySetMatricesAndUploadMatrixUniforms(modelView.Matrix(), renderState.ProjectionMatrix());
     m_CylinderBody.Bind(locations);
     m_CylinderBody.Draw();
     m_CylinderBody.Unbind(locations);

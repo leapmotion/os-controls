@@ -11,7 +11,6 @@ namespace Leap {
 namespace GL {
 
 class Shader;
-class MatrixCamera;
 
 } // end of namespace GL
 } // end of namespace Leap
@@ -71,7 +70,6 @@ public:
 protected:
   void DrawSkeletonHands(bool capsuleMode = false) const;
 
-  std::shared_ptr<MatrixCamera> m_Camera;
   mutable RenderState m_Renderer;
 
   std::shared_ptr<Leap::GL::Shader> m_Shader;

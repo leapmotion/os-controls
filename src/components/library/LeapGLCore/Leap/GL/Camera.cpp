@@ -63,7 +63,15 @@ void Camera::ComputeViewToWorldTransformation (
 
 namespace {
 
-void CheckValues (double width, double height, double depth, double near_clip_depth) {
+void CheckOrthographicValues (double width, double height, double depth, double near_clip_depth) {
+  // The width, height, depth, and near_clip_depth must all be nonzero (by an epsilon-margin)
+  assert(std::abs(width) > std::numeric_limits<double>::epsilon());
+  assert(std::abs(height) > std::numeric_limits<double>::epsilon());
+  assert(std::abs(depth) > std::numeric_limits<double>::epsilon());
+  assert(std::abs(near_clip_depth) > std::numeric_limits<double>::epsilon());
+}
+
+void CheckPerspectiveValues (double width, double height, double depth, double near_clip_depth) {
   // The width, height, depth, and near_clip_depth must all be nonzero (by an epsilon-margin)
   assert(std::abs(width) > std::numeric_limits<double>::epsilon());
   assert(std::abs(height) > std::numeric_limits<double>::epsilon());
@@ -84,7 +92,7 @@ void Camera::SetOrthographicProjectionMatrix (
   const double height = top - bottom;
   const double depth = far_clip_depth - near_clip_depth;
 
-  CheckValues(width, height, depth, near_clip_depth);
+  CheckOrthographicValues(width, height, depth, near_clip_depth);
 
   const double l00 = 2.0 / width;
   const double l11 = 2.0 / height;
@@ -105,7 +113,7 @@ void Camera::SetOrthographicProjectionMatrix_UsingSymmetricViewBox (
 {
   const double depth = far_clip_depth - near_clip_depth;
 
-  CheckValues(width, height, depth, near_clip_depth);
+  CheckOrthographicValues(width, height, depth, near_clip_depth);
 
   const double l00 = 2.0 / width;
   const double l11 = 2.0 / height;
@@ -127,7 +135,7 @@ void Camera::SetPerspectiveProjectionMatrix (
   const double near_clip_height = near_clip_top - near_clip_bottom;
   const double depth = far_clip_depth - near_clip_depth;
 
-  CheckValues(near_clip_width, near_clip_height, depth, near_clip_depth);
+  CheckPerspectiveValues(near_clip_width, near_clip_height, depth, near_clip_depth);
 
   const double denom = 1.0 / (near_clip_depth - far_clip_depth);
   const double l00 = 2.0 * near_clip_depth / near_clip_width;
@@ -163,7 +171,7 @@ void Camera::SetPerspectiveProjectionMatrix_UsingSymmetricFrustumNearClipSize (
 {
   const double depth = far_clip_depth - near_clip_depth;
 
-  CheckValues(near_clip_width, near_clip_height, depth, near_clip_depth);
+  CheckPerspectiveValues(near_clip_width, near_clip_height, depth, near_clip_depth);
 
   const double denom = -1.0 / depth;
   const double l00 = 2.0 * near_clip_depth / near_clip_width;

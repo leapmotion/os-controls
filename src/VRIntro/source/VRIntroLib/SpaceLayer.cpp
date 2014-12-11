@@ -72,7 +72,7 @@ void SpaceLayer::Render(TimeDelta real_time_delta) const {
 
   // 4 ms per million particles
   m_Shader->Bind();
-  m_ShaderMatrices->SetMatrices( m_ModelView.cast<double>(), m_Renderer.Camera().ProjectionMatrix());
+  m_ShaderMatrices->SetMatrices( m_ModelView.cast<double>(), m_Renderer.ProjectionMatrix());
   m_ShaderMatrices->UploadUniforms();
 
   m_BufferObject.Bind();
@@ -103,7 +103,7 @@ void SpaceLayer::RenderPopup() const {
   EigenTypes::Matrix4x4f modelView = m_ModelView;
   modelView.block<3, 1>(0, 3) += modelView.block<3, 3>(0, 0)*m_EyePos;
   //modelView.block<3, 3>(0, 0) = EigenTypes::Matrix3x3f::Identity();
-  m_PopupShaderMatrices->SetMatrices(modelView.cast<double>(), m_Renderer.Camera().ProjectionMatrix());
+  m_PopupShaderMatrices->SetMatrices(modelView.cast<double>(), m_Renderer.ProjectionMatrix());
   m_PopupShaderMatrices->UploadUniforms();
 
   glActiveTexture(GL_TEXTURE0 + 0);

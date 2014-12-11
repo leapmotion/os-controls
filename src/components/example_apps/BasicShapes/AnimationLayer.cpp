@@ -55,10 +55,6 @@ m_time(0)
   m_Sphere4.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere4Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere4Translation.SetSmoothStrength(0.65f);
-
-  // The FOV and other parameters for the camera are set in Render.
-  m_Camera = std::make_shared<PerspectiveCamera>();
-  m_Renderer.SetCamera(m_Camera);
 }
 
 AnimationLayer::~AnimationLayer() {
@@ -105,7 +101,7 @@ void AnimationLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0;
-  m_Camera->SetUsingFOVAndAspectRatio(fovRadians, widthOverHeight, nearClip, farClip);
+  Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();

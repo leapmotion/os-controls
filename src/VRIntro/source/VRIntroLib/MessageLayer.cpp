@@ -59,7 +59,7 @@ void MessageLayer::Render(TimeDelta real_time_delta) const {
   EigenTypes::Matrix4x4f modelView = m_ModelView;
   modelView.block<3, 1>(0, 3) += modelView.block<3, 3>(0, 0)*m_EyePos;
   modelView.block<3, 3>(0, 0) = EigenTypes::Matrix3x3f::Identity();
-  m_ShaderMatrices->SetMatrices(modelView.cast<double>(), m_Renderer.Camera().ProjectionMatrix());
+  m_ShaderMatrices->SetMatrices(modelView.cast<double>(), m_Renderer.ProjectionMatrix());
   m_ShaderMatrices->UploadUniforms();
 
   glActiveTexture(GL_TEXTURE0 + 0);

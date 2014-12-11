@@ -5,7 +5,6 @@
 #include "GLShaderLoader.h"
 #include "GLTexture2Loader.h"
 #include "Leap/GL/Texture2.h"
-#include "Leap/GL/PerspectiveCamera.h"
 #include "Leap/GL/Shader.h"
 #include "Resource.h"
 
@@ -80,10 +79,6 @@ MediaControlLayer::MediaControlLayer() :
   m_Cursor.SetRadius(2.0);
 
   m_Volume = 0.5;
-
-  // The FOV and other parameters for the camera are set in Render.
-  m_Camera = std::make_shared<PerspectiveCamera>();
-  m_Renderer.SetCamera(m_Camera);
 }
 
 MediaControlLayer::~MediaControlLayer() {
@@ -188,7 +183,7 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0; 
-  m_Camera->SetUsingFOVAndAspectRatio(fovRadians, widthOverHeight, nearClip, farClip);
+  Camera::SetPerspectiveProjectionMatrix_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ(); // + 0.5*m_Cursor.Translation();

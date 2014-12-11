@@ -122,7 +122,7 @@ public:
     model_view.Multiply(SquareMatrixAdaptToDim<4>(global_properties.AffineTransform().AsFullMatrix(), EigenTypes::MATH_TYPE(1)));
     MakeAdditionalModelViewTransformations(model_view);
 
-    m_shader_matrices->SetMatrices(model_view.Matrix(), render_state.Camera().ProjectionMatrix());
+    m_shader_matrices->SetMatrices(model_view.Matrix(), render_state.ProjectionMatrix());
 
     ShaderBindingScopeGuard bso(Shader(), BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     

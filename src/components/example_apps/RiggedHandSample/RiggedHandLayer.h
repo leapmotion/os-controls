@@ -11,8 +11,6 @@
 
 #include <memory>
 
-namespace Leap { namespace GL { class PerspectiveCamera; } }
-
 class RiggedHandLayer : public RenderableEventHandler {
 public:
 
@@ -34,7 +32,6 @@ private:
   int m_Width;
   int m_Height;
 
-  std::shared_ptr<PerspectiveCamera> m_Camera;
   mutable RenderState m_Renderer;
 
   std::vector<RiggedHandRef> mRiggedHands;
