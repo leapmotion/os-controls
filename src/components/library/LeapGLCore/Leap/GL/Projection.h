@@ -68,32 +68,6 @@ namespace GL {
 // TODO
 namespace Projection {
 
-// Compute the transformation taking points in world coordinates to points in view coordinates,
-// where the positive x axis goes rightward in the view, the positive y axis goes upward in the
-// view, and the positive z axis goes toward the viewer (away from focus_position).  The
-// transformation is defined by an eye position (position of the viewer), a focus position (a
-// point that the viewer is looking at), and an "up" direction (the viewer's notion of "up").
-// This transformation is inverse to the one computed by ComputeViewToWorldTransformation.
-// Equivalent to the deprecated function gluLookAt.
-// TODO: this should go in ModelView
-void ComputeWorldToViewTransformation (
-  EigenTypes::Matrix3x3 &linear,             // Out-variable for the linear transformation part of the affine transformation.
-  EigenTypes::Vector3 &translation,          // Out-variable for the translation part of the affine transformation.
-  const EigenTypes::Vector3 &eye_position,   // In-variable for the location of the eye.
-  const EigenTypes::Vector3 &focus_position, // In-variable for the point the eye is looking at.
-  const EigenTypes::Vector3 &up_direction);  // In-variable for the "up" direction for the view.
-// Compute the transformation taking points in view coordinates to points in world coordinates.
-// This transformation is inverse to the one computed by ComputeWorldToViewTransformation.
-// This transformation is what you would use as the local AffineTransformation property in order
-// to place a physical viewer as a SceneGraphNode in a scene graph.
-// TODO: this should go in ModelView
-void ComputeViewToWorldTransformation (
-  EigenTypes::Matrix3x3 &linear,             // Out-variable for the linear transformation part of the affine transformation.
-  EigenTypes::Vector3 &translation,          // Out-variable for the translation part of the affine transformation.
-  const EigenTypes::Vector3 &eye_position,   // In-variable for the location of the eye.
-  const EigenTypes::Vector3 &focus_position, // In-variable for the point the eye is looking at.
-  const EigenTypes::Vector3 &up_direction);  // In-variable for the "up" direction for the view.
-
 // Equivalent to the deprecated OpenGL function glOrtho (see OpenGL 2.1 API docs).
 void SetOrthographic (
   EigenTypes::Matrix4x4 &projection_matrix,

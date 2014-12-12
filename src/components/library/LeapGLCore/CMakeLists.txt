@@ -19,7 +19,7 @@ add_sublibrary(
         Leap/GL/Internal/UniformUploader.h
         Leap/GL/Mesh.h
         Leap/GL/MeshException.h
-        Leap/GL/ModelViewProjection.h
+        Leap/GL/ModelView.h
         Leap/GL/Projection.h
         Leap/GL/Rgb.h
         Leap/GL/Rgba.h
@@ -42,7 +42,7 @@ add_sublibrary(
         Leap/GL/VertexBufferException.h
     SOURCES
         Leap/GL/BufferObject.cpp
-        Leap/GL/ModelViewProjection.cpp
+        Leap/GL/ModelView.cpp
         Leap/GL/Projection.cpp
         Leap/GL/Shader.cpp
         Leap/GL/ShaderMatrices.cpp
