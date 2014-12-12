@@ -6,6 +6,7 @@
 #include "Leap/GL/Internal/Map.h"
 #include "Leap/GL/Internal/ShaderFrontend.h"
 #include "Leap/GL/Internal/UniformTraits.h"
+#include "Leap/GL/ResourceBase.h"
 #include "Leap/GL/Shader.h"
 #include <sstream>
 
@@ -13,7 +14,7 @@ namespace Leap {
 namespace GL {
 
 template <typename UniformNameType_, typename... UniformMappings_>
-class ShaderFrontend {
+class ShaderFrontend : public ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>> {
 private:
 
   typedef Internal::Typle_t<UniformMappings_...> UniformMappingsTyple;
@@ -58,35 +59,9 @@ public:
     Shutdown();
   }
 
-  bool IsInitialized () const { return m_shader != nullptr; }
-  template <typename... Types_>
-  void Initialize (const Shader *shader, const UniformIds &uniform_ids, Types_... args) {
-    // Ensure that any previously allocated resources are freed.
-    Shutdown();
-
-    if (shader == nullptr) {
-      throw ShaderException("shader must be a non-null pointer.");
-    }
-    m_shader = shader;
-    m_uniform_map = UniformMap(args...);
-
-    // Store the uniform locations from the shader using the uniform names.
-    for (size_t i = 0; i < UNIFORM_COUNT; ++i) {
-      m_uniform_locations.as_array()[i] = glGetUniformLocation(m_shader->ProgramHandle(), uniform_ids.as_array()[i].c_str());
-    }
-    // Compile-time checking of types.
-    Leap::GL::Internal::CheckUniformTypes<UniformMappingsTyple>::Check();
-    // Run-time checking of types.
-    CheckType<0>(uniform_ids);
-  }
-  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
-  // safe to call multiple times, and has no effect after the resources are freed).
-  void Shutdown () {
-    if (IsInitialized()) {
-      m_shader = nullptr;
-      assert(!IsInitialized());
-    }
-  }
+  using ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>::IsInitialized;
+  using ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>::Initialize;
+  using ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>::Shutdown;
 
   template <UniformNameType_ NAME_> const typename CppTypeOfUniform_f<NAME_>::T &Uniform () const {
     if (!IsInitialized()) {
@@ -168,6 +143,32 @@ private:
   template <size_t INDEX_>
   typename std::enable_if<(INDEX_>=UNIFORM_COUNT)>::type UploadUniform () const {
     // Done with iteration.
+  }
+
+  friend class ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>;
+
+  bool IsInitialized_Implementation () const { return m_shader != nullptr; }
+  template <typename... Types_>
+  void Initialize_Implementation (const Shader *shader, const UniformIds &uniform_ids, Types_... args) {
+    if (shader == nullptr) {
+      throw ShaderException("shader must be a non-null pointer.");
+    }
+    m_shader = shader;
+    m_uniform_map = UniformMap(args...);
+
+    // Store the uniform locations from the shader using the uniform names.
+    for (size_t i = 0; i < UNIFORM_COUNT; ++i) {
+      m_uniform_locations.as_array()[i] = glGetUniformLocation(m_shader->ProgramHandle(), uniform_ids.as_array()[i].c_str());
+    }
+    // Compile-time checking of types.
+    Leap::GL::Internal::CheckUniformTypes<UniformMappingsTyple>::Check();
+    // Run-time checking of types.
+    CheckType<0>(uniform_ids);
+  }
+  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
+  // safe to call multiple times, and has no effect after the resources are freed).
+  void Shutdown_Implementation () {
+    m_shader = nullptr;
   }
 
   const Shader *m_shader;

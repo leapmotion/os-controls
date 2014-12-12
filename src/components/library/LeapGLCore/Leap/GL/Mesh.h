@@ -2,8 +2,9 @@
 
 #include <cstdint>
 #include "Leap/GL/BufferObject.h"
-#include "Leap/GL/VertexBuffer.h"
 #include "Leap/GL/MeshException.h"
+#include "Leap/GL/ResourceBase.h"
+#include "Leap/GL/VertexBuffer.h"
 #include <map>
 #include <vector>
 
@@ -16,7 +17,7 @@ enum class ClearOption { KEEP_INTERMEDIATE_DATA, CLEAR_INTERMEDIATE_DATA };
 //
 // TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
 template <typename... AttributeTypes>
-class Mesh {
+class Mesh : public ResourceBase<Mesh<AttributeTypes...>> {
 public:
 
   typedef VertexBuffer<AttributeTypes...> VertexBuffer;
@@ -40,37 +41,9 @@ public:
     Shutdown();
   }
 
-  bool IsInitialized () const { return m_draw_mode != GL_INVALID_ENUM; }
-  void Initialize (GLenum draw_mode) {
-    // Ensure that any previously allocated resources are freed.
-    Shutdown();
-
-    switch (draw_mode) {
-      case GL_POINTS:
-      case GL_LINE_STRIP:
-      case GL_LINE_LOOP:
-      case GL_LINES:
-      case GL_LINE_STRIP_ADJACENCY:
-      case GL_LINES_ADJACENCY:
-      case GL_TRIANGLE_STRIP:
-      case GL_TRIANGLE_FAN:
-      case GL_TRIANGLES:
-      case GL_TRIANGLE_STRIP_ADJACENCY:
-      case GL_TRIANGLES_ADJACENCY:
-        m_draw_mode = draw_mode;
-        break;
-      default:
-        throw MeshException("Invalid draw mode -- must be one of GL_POINTS, GL_LINE_STRIP, GL_LINE_LOOP, GL_LINES, GL_LINE_STRIP_ADJACENCY, GL_LINES_ADJACENCY, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES, GL_TRIANGLE_STRIP_ADJACENCY and GL_TRIANGLES_ADJACENCY (see OpenGL 3.3 docs for glDrawElements).");
-    }
-    assert(IsInitialized());
-  }
-  void Shutdown () {
-    m_draw_mode = GL_INVALID_ENUM;
-    m_intermediate_vertices.clear();
-    m_vertex_buffer.ClearEverything();
-    m_index_count = 0;
-    m_index_buffer.Shutdown();
-  }
+  using ResourceBase<Mesh<AttributeTypes...>>::IsInitialized;
+  using ResourceBase<Mesh<AttributeTypes...>>::Initialize;
+  using ResourceBase<Mesh<AttributeTypes...>>::Shutdown;
 
   GLenum DrawMode () const { return m_draw_mode; }
 
@@ -288,6 +261,36 @@ public:
   // TODO: allow changing the m_vertex_buffer contents and re-uploading?
 
 private:
+
+  friend class ResourceBase<Mesh<AttributeTypes...>>;
+
+  bool IsInitialized_Implementation () const { return m_draw_mode != GL_INVALID_ENUM; }
+  void Initialize_Implementation (GLenum draw_mode) {
+    switch (draw_mode) {
+      case GL_POINTS:
+      case GL_LINE_STRIP:
+      case GL_LINE_LOOP:
+      case GL_LINES:
+      case GL_LINE_STRIP_ADJACENCY:
+      case GL_LINES_ADJACENCY:
+      case GL_TRIANGLE_STRIP:
+      case GL_TRIANGLE_FAN:
+      case GL_TRIANGLES:
+      case GL_TRIANGLE_STRIP_ADJACENCY:
+      case GL_TRIANGLES_ADJACENCY:
+        m_draw_mode = draw_mode;
+        break;
+      default:
+        throw MeshException("Invalid draw mode -- must be one of GL_POINTS, GL_LINE_STRIP, GL_LINE_LOOP, GL_LINES, GL_LINE_STRIP_ADJACENCY, GL_LINES_ADJACENCY, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES, GL_TRIANGLE_STRIP_ADJACENCY and GL_TRIANGLES_ADJACENCY (see OpenGL 3.3 docs for glDrawElements).");
+    }
+  }
+  void Shutdown_Implementation () {
+    m_draw_mode = GL_INVALID_ENUM;
+    m_intermediate_vertices.clear();
+    m_vertex_buffer.ClearEverything();
+    m_index_count = 0;
+    m_index_buffer.Shutdown();
+  }
 
   // The draw mode that will be used in Draw().
   GLenum m_draw_mode;

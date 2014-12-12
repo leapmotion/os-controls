@@ -21,6 +21,7 @@ add_sublibrary(
         Leap/GL/MeshException.h
         Leap/GL/ModelView.h
         Leap/GL/Projection.h
+        Leap/GL/ResourceBase.h
         Leap/GL/Rgb.h
         Leap/GL/Rgba.h
         Leap/GL/SceneGraphNode.h

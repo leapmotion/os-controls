@@ -61,73 +61,6 @@ Texture2::~Texture2 () {
   Shutdown();
 }
 
-void Texture2::Initialize (const Texture2Params &params, const Texture2PixelData &pixel_data) {
-  // Ensure that any previously allocated resources are freed.
-  Shutdown();
-
-  // Check the validity of the params.
-  if (m_params.Width() == 0 || m_params.Height() == 0) {
-    throw Texture2Exception("Texture2Params must specify positive width and height"); // TODO: should this requirement be removed?
-  }
-  VerifyPixelDataOrThrow(pixel_data);
-
-  // Clear the GL error flag in case it was not cleared from some other unrelated GL operation
-  ClearGLError();
-  glGenTextures(1, &m_texture_name);
-  ThrowUponGLError("in glGenTextures");
-  glBindTexture(m_params.Target(), m_texture_name);
-  ThrowUponGLError("in glBindTexture");
-
-  // Set all the GLfloat texture parameters.
-  for (auto p : m_params.TexParameterfMap())
-  {
-    glTexParameterf(m_params.Target(), p.first, p.second);
-    ThrowUponGLError(FORMAT("in setting glTexParameterf using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
-  }
-  // Set all the GLint texture parameters.
-  for (auto p : m_params.TexParameteriMap())
-  {
-    glTexParameteri(m_params.Target(), p.first, p.second);
-    ThrowUponGLError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
-  }
-  // Store all the PixelStorei parameters that are about to be overridden, then override them.
-  Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
-  OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
-  
-  glTexImage2D(m_params.Target(),
-               0,                               // mipmap level (for source images, this should be 0)
-               m_params.InternalFormat(),
-               m_params.Width(),
-               m_params.Height(),
-               0,                               // border (must be 0)
-               pixel_data.Format(),
-               pixel_data.Type(),
-               pixel_data.ReadableRawData());
-  ThrowUponGLError("in glTexImage2D");
-
-  // Restore the PixelStorei parameter values that were overridden above.
-  RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
-  
-  // Retrieve and store the actual internal format that this GL implementation used for this texture.
-  GLint actual_internal_format;
-  glGetTexLevelParameteriv(m_params.Target(), 0, GL_TEXTURE_INTERNAL_FORMAT, &actual_internal_format);
-  ThrowUponGLError("in glGetTexParameteriv");
-  m_params.SetInternalFormat(actual_internal_format);
-
-  // Unbind the texture to minimize the possibility that other GL calls may modify this texture.
-  glBindTexture(m_params.Target(), 0);
-}
-
-void Texture2::Shutdown () {
-  if (IsInitialized()) {
-    // TODO: should we check here if the texture is still bound?
-    m_params.Clear();
-    glDeleteTextures(1, &m_texture_name);
-    m_texture_name = 0; // This is what defines !IsInitialized().
-    assert(!IsInitialized());
-  }
-}
-
 void Texture2::TexSubImage (const Texture2PixelData &pixel_data) {
   if (!IsInitialized()) {
     throw Texture2Exception("Can't call Texture2::TexSubImage on a Texture2 that is !IsInitialized().");
@@ -258,6 +191,67 @@ void Texture2::VerifyPixelDataOrThrow (const Texture2PixelData &pixel_data) cons
   if (!pixel_data.IsEmpty() && pixel_data.RawDataByteCount() < ending_pixel_index*sizeof_pixel) {
     throw Texture2Exception("there is insufficient pixel data for the given parameters");
   }
+}
+
+void Texture2::Initialize_Implementation (const Texture2Params &params, const Texture2PixelData &pixel_data) {
+  // Check the validity of the params.
+  if (m_params.Width() == 0 || m_params.Height() == 0) {
+    throw Texture2Exception("Texture2Params must specify positive width and height"); // TODO: should this requirement be removed?
+  }
+  VerifyPixelDataOrThrow(pixel_data);
+
+  // Clear the GL error flag in case it was not cleared from some other unrelated GL operation
+  ClearGLError();
+  glGenTextures(1, &m_texture_name);
+  ThrowUponGLError("in glGenTextures");
+  glBindTexture(m_params.Target(), m_texture_name);
+  ThrowUponGLError("in glBindTexture");
+
+  // Set all the GLfloat texture parameters.
+  for (auto p : m_params.TexParameterfMap())
+  {
+    glTexParameterf(m_params.Target(), p.first, p.second);
+    ThrowUponGLError(FORMAT("in setting glTexParameterf using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
+  }
+  // Set all the GLint texture parameters.
+  for (auto p : m_params.TexParameteriMap())
+  {
+    glTexParameteri(m_params.Target(), p.first, p.second);
+    ThrowUponGLError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
+  }
+  // Store all the PixelStorei parameters that are about to be overridden, then override them.
+  Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
+  OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
+  
+  glTexImage2D(m_params.Target(),
+               0,                               // mipmap level (for source images, this should be 0)
+               m_params.InternalFormat(),
+               m_params.Width(),
+               m_params.Height(),
+               0,                               // border (must be 0)
+               pixel_data.Format(),
+               pixel_data.Type(),
+               pixel_data.ReadableRawData());
+  ThrowUponGLError("in glTexImage2D");
+
+  // Restore the PixelStorei parameter values that were overridden above.
+  RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
+  
+  // Retrieve and store the actual internal format that this GL implementation used for this texture.
+  GLint actual_internal_format;
+  glGetTexLevelParameteriv(m_params.Target(), 0, GL_TEXTURE_INTERNAL_FORMAT, &actual_internal_format);
+  ThrowUponGLError("in glGetTexParameteriv");
+  m_params.SetInternalFormat(actual_internal_format);
+
+  // Unbind the texture to minimize the possibility that other GL calls may modify this texture.
+  glBindTexture(m_params.Target(), 0);
+}
+
+void Texture2::Shutdown_Implementation () {
+  // TODO: should we check here if the texture is still bound?
+  m_params.Clear();
+  glDeleteTextures(1, &m_texture_name);
+  m_texture_name = 0; // This is what defines !IsInitialized().
 }
 
 } // end of namespace GL

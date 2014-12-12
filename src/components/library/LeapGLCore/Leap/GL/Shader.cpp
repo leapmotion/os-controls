@@ -52,84 +52,6 @@ Shader::~Shader () {
   Shutdown();
 }
 
-void Shader::Initialize (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
-  // Ensure that any previously allocated resources are freed.
-  Shutdown();
-
-  m_vertex_shader = Compile(GL_VERTEX_SHADER, vertex_shader_source);
-  m_fragment_shader = Compile(GL_FRAGMENT_SHADER, fragment_shader_source);
-  m_program_handle = glCreateProgram();
-  glAttachShader(m_program_handle, m_vertex_shader);
-  glAttachShader(m_program_handle, m_fragment_shader);
-  glLinkProgram(m_program_handle);
-
-  // Populate the uniform map.
-  {  
-    GLint active_uniforms = 0;
-    glGetProgramiv(m_program_handle, GL_ACTIVE_UNIFORMS, &active_uniforms);
-    // std::cout << "active uniforms = " << active_uniforms << '\n';
-    
-    GLint active_uniform_max_length = 0;
-    glGetProgramiv(m_program_handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &active_uniform_max_length);
-    // std::cout << "active uniform max length = " << active_uniform_max_length << '\n';
-    
-    for (GLint index = 0; index < active_uniforms; ++index) {
-      std::string name(active_uniform_max_length, ' ');
-      GLsizei length;
-      GLint size;
-      GLenum type;
-      glGetActiveUniform(m_program_handle, index, active_uniform_max_length, &length, &size, &type, &name[0]);
-      name.resize(length);
-      // Chop off array subscript if present.
-      if (*name.rbegin() == ']') {
-        assert(name.find_last_of('[') != std::string::npos && "If ']' is the last char, then '[' better also be present.");
-        name.resize(name.find_last_of('['));
-      }
-      GLint location = glGetUniformLocation(m_program_handle, name.c_str());
-      // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
-      if (location >= 0) {
-        m_active_uniform_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
-      }
-    }
-  }
-
-  // Populate the attribute map.
-  {
-    GLint active_attribs = 0;
-    glGetProgramiv(m_program_handle, GL_ACTIVE_ATTRIBUTES, &active_attribs);
-    // std::cout << "active attribs = " << active_attribs << '\n';
-    
-    GLint active_attrib_max_length = 0;
-    glGetProgramiv(m_program_handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &active_attrib_max_length);
-    // std::cout << "active attrib max length = " << active_attrib_max_length << '\n';
-    
-    for (GLint index = 0; index < active_attribs; ++index) {
-      std::string name(active_attrib_max_length, ' ');
-      GLsizei length;
-      GLint size;
-      GLenum type;
-      glGetActiveAttrib(m_program_handle, index, active_attrib_max_length, &length, &size, &type, &name[0]);
-      name.resize(length);
-      GLint location = glGetAttribLocation(m_program_handle, name.c_str());
-      // std::cout << "attrib " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
-      if (location >= 0) {
-        m_active_attribute_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
-      }
-    }
-  }
-}
-
-void Shader::Shutdown () {
-  if (!IsInitialized()) {
-    glDeleteProgram(m_program_handle);
-    glDeleteShader(m_vertex_shader);
-    glDeleteShader(m_fragment_shader);
-    m_program_handle = 0;
-    m_vertex_shader = 0;
-    m_fragment_shader = 0;
-  }
-}
-
 const std::string &Shader::VariableTypeString (GLenum type) {
   auto it = OPENGL_3_3_UNIFORM_TYPE_MAP.find(type);
   if (it == OPENGL_3_3_UNIFORM_TYPE_MAP.end()) {
@@ -253,6 +175,79 @@ const std::unordered_map<GLenum,std::string> Shader::OPENGL_3_3_UNIFORM_TYPE_MAP
   { GL_UNSIGNED_INT_SAMPLER_BUFFER, "usamplerBuffer" },
   { GL_UNSIGNED_INT_SAMPLER_2D_RECT, "usampler2DRect" },
 };
+
+void Shader::Initialize_Implementation (const std::string &vertex_shader_source, const std::string &fragment_shader_source) {
+  m_vertex_shader = Compile(GL_VERTEX_SHADER, vertex_shader_source);
+  m_fragment_shader = Compile(GL_FRAGMENT_SHADER, fragment_shader_source);
+  m_program_handle = glCreateProgram();
+  glAttachShader(m_program_handle, m_vertex_shader);
+  glAttachShader(m_program_handle, m_fragment_shader);
+  glLinkProgram(m_program_handle);
+
+  // Populate the uniform map.
+  {  
+    GLint active_uniforms = 0;
+    glGetProgramiv(m_program_handle, GL_ACTIVE_UNIFORMS, &active_uniforms);
+    // std::cout << "active uniforms = " << active_uniforms << '\n';
+    
+    GLint active_uniform_max_length = 0;
+    glGetProgramiv(m_program_handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &active_uniform_max_length);
+    // std::cout << "active uniform max length = " << active_uniform_max_length << '\n';
+    
+    for (GLint index = 0; index < active_uniforms; ++index) {
+      std::string name(active_uniform_max_length, ' ');
+      GLsizei length;
+      GLint size;
+      GLenum type;
+      glGetActiveUniform(m_program_handle, index, active_uniform_max_length, &length, &size, &type, &name[0]);
+      name.resize(length);
+      // Chop off array subscript if present.
+      if (*name.rbegin() == ']') {
+        assert(name.find_last_of('[') != std::string::npos && "If ']' is the last char, then '[' better also be present.");
+        name.resize(name.find_last_of('['));
+      }
+      GLint location = glGetUniformLocation(m_program_handle, name.c_str());
+      // std::cout << "uniform " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
+      if (location >= 0) {
+        m_active_uniform_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
+      }
+    }
+  }
+
+  // Populate the attribute map.
+  {
+    GLint active_attribs = 0;
+    glGetProgramiv(m_program_handle, GL_ACTIVE_ATTRIBUTES, &active_attribs);
+    // std::cout << "active attribs = " << active_attribs << '\n';
+    
+    GLint active_attrib_max_length = 0;
+    glGetProgramiv(m_program_handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &active_attrib_max_length);
+    // std::cout << "active attrib max length = " << active_attrib_max_length << '\n';
+    
+    for (GLint index = 0; index < active_attribs; ++index) {
+      std::string name(active_attrib_max_length, ' ');
+      GLsizei length;
+      GLint size;
+      GLenum type;
+      glGetActiveAttrib(m_program_handle, index, active_attrib_max_length, &length, &size, &type, &name[0]);
+      name.resize(length);
+      GLint location = glGetAttribLocation(m_program_handle, name.c_str());
+      // std::cout << "attrib " << index << " -- name \"" << name << "\", location = " << location << ", size = " << size << ", type = " << VariableTypeString(type) << '\n';
+      if (location >= 0) {
+        m_active_attribute_info_map.emplace(std::make_pair(name, VarInfo(name, location, size, type)));
+      }
+    }
+  }
+}
+
+void Shader::Shutdown_Implementation () {
+  glDeleteProgram(m_program_handle);
+  glDeleteShader(m_vertex_shader);
+  glDeleteShader(m_fragment_shader);
+  m_program_handle = 0;
+  m_vertex_shader = 0;
+  m_fragment_shader = 0;
+}
 
 } // end of namespace GL
 } // end of namespace Leap

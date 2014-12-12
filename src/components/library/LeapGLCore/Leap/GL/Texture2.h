@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Leap/GL/GLHeaders.h" // convenience header for cross-platform GL includes
+#include "Leap/GL/ResourceBase.h"
 #include "Leap/GL/Texture2Params.h"
 #include "Leap/GL/Texture2PixelData.h"
 #include "Leap/GL/Texture2Exception.h"
@@ -14,7 +15,7 @@ namespace GL {
 // used to construct Texture2 is persistent (it is stored almost unmodified), the pixel_data is
 // not, and is only used to pass in data for texel-loading operations.  The only exceptions that this
 // class explicitly throws derive from Leap::GL::Texture2Exception.
-class Texture2 {
+class Texture2 : public ResourceBase<Texture2> {
 public:
   
   Texture2 (const Texture2 &rhs) = delete;
@@ -27,16 +28,9 @@ public:
   // Will call Shutdown.
   ~Texture2 ();
 
-  bool IsInitialized () const { return m_texture_name != 0; }
-
-  // Construct a Texture2 with the specified parameters and pixel data. The pixel data is only
-  // passed into glTexImage2D, and is not stored.  The default value for pixel_data is "empty",
-  // which indicates that while the texture memory will be allocated for it, it will not be
-  // initialized.  An exception will be thrown upon error.
-  void Initialize (const Texture2Params &params, const Texture2PixelData &pixel_data = Texture2PixelData());
-  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
-  // safe to call multiple times, and has no effect after the resources are freed).
-  void Shutdown ();
+  using ResourceBase<Texture2>::IsInitialized;
+  using ResourceBase<Texture2>::Initialize;
+  using ResourceBase<Texture2>::Shutdown;
 
   // This method should be called to bind this shader.
   void Bind () const {
@@ -76,6 +70,18 @@ public:
 private:
 
   void VerifyPixelDataOrThrow (const Texture2PixelData &pixel_data) const;
+
+  friend class ResourceBase<Texture2>;
+
+  bool IsInitialized_Implementation () const { return m_texture_name != 0; }
+  // Construct a Texture2 with the specified parameters and pixel data. The pixel data is only
+  // passed into glTexImage2D, and is not stored.  The default value for pixel_data is "empty",
+  // which indicates that while the texture memory will be allocated for it, it will not be
+  // initialized.  An exception will be thrown upon error.
+  void Initialize_Implementation (const Texture2Params &params, const Texture2PixelData &pixel_data = Texture2PixelData());
+  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
+  // safe to call multiple times, and has no effect after the resources are freed).
+  void Shutdown_Implementation ();
 
   Texture2Params m_params;
   GLuint m_texture_name;

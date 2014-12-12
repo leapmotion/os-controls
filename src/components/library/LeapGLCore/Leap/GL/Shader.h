@@ -11,6 +11,7 @@
 #include "Leap/GL/Error.h"
 #include "Leap/GL/Internal/ShaderUniform.h"
 #include "Leap/GL/Internal/UniformUploader.h"
+#include "Leap/GL/ResourceBase.h"
 #include "Leap/GL/ShaderException.h"
 
 namespace Leap {
@@ -31,7 +32,7 @@ enum class VariableIs { REQUIRED, OPTIONAL_NO_WARN, OPTIONAL_BUT_WARN };
 /// ActiveAttributeInfoMap methods.
 ///
 /// The only exceptions that this class explicitly throws derive from Leap::GL::ShaderException.
-class Shader {
+class Shader : public ResourceBase<Shader> {
 public:
 
   // Stores information about a named variable in a shader program.
@@ -65,12 +66,9 @@ public:
   // Will call Shutdown.
   ~Shader ();
 
-  bool IsInitialized () const { return m_program_handle != 0; }
-
-  // Construct a shader with given vertex and fragment programs.
-  void Initialize (const std::string &vertex_shader_source, const std::string &fragment_shader_source);
-  // Frees the allocated resources.
-  void Shutdown ();
+  using ResourceBase<Shader>::IsInitialized;
+  using ResourceBase<Shader>::Initialize;
+  using ResourceBase<Shader>::Shutdown;
 
   // Returns the shader program handle, which is the integer "name" of this shader program in OpenGL.
   // Will throw ShaderException if !IsInitialized().
@@ -176,6 +174,14 @@ private:
   // Compiles the specified type of shader program, using the given source.  If an error
   // in encountered, a std::logic_error is thrown.
   static GLuint Compile (GLuint type, const std::string &source);
+
+  friend class ResourceBase<Shader>;
+
+  bool IsInitialized_Implementation () const { return m_program_handle != 0; }
+  // Construct a shader with given vertex and fragment programs.
+  void Initialize_Implementation (const std::string &vertex_shader_source, const std::string &fragment_shader_source);
+  // Frees the allocated resources.
+  void Shutdown_Implementation ();
 
   GLuint m_vertex_shader;   ///< Handle to the vertex shader in the GL apparatus.
   GLuint m_fragment_shader; ///< Handle to the fragment shader in the GL apparatus.

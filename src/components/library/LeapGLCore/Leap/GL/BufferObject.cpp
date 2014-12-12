@@ -24,24 +24,6 @@ BufferObject::~BufferObject () {
   Shutdown();
 }
 
-void BufferObject::Initialize (GLenum type) {
-  // Ensure that any previously allocated resources are freed.
-  Shutdown();
-  // Set up the new buffer type.
-  m_BufferType = type;
-  THROW_UPON_GL_ERROR(glGenBuffers(1, &m_BufferAddress));
-}
-
-void BufferObject::Shutdown () {
-  if (IsInitialized()) {
-    // THROW_UPON_GL_ERROR(glDeleteBuffers(1, &m_BufferAddress));
-    glDeleteBuffers(1, &m_BufferAddress);
-    m_BufferAddress = 0;
-    m_SizeInBytes = 0;
-    assert(!IsInitialized());
-  }
-}
-
 void BufferObject::Bind () const {
   if (!IsInitialized()) {
     throw Leap::GL::Exception("Can't call BufferObject::Bind on a BufferObject that is !IsInitialized().");
@@ -89,6 +71,18 @@ bool BufferObject::Unmap () {
   THROW_UPON_GL_ERROR(bool result = glUnmapBuffer(m_BufferType) == GL_TRUE);
   Unbind();
   return result;
+}
+
+void BufferObject::Initialize_Implementation (GLenum type) {
+  // Set up the new buffer type.
+  m_BufferType = type;
+  THROW_UPON_GL_ERROR(glGenBuffers(1, &m_BufferAddress));
+}
+
+void BufferObject::Shutdown_Implementation () {
+  glDeleteBuffers(1, &m_BufferAddress);
+  m_BufferAddress = 0;
+  m_SizeInBytes = 0;
 }
 
 } // end of namespace GL

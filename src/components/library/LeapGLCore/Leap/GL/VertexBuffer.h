@@ -2,8 +2,9 @@
 
 #include "Leap/GL/GLHeaders.h"
 #include "Leap/GL/BufferObject.h"
-#include "Leap/GL/VertexAttribute.h"
 #include "Leap/GL/Internal/Meta.h"
+#include "Leap/GL/ResourceBase.h"
+#include "Leap/GL/VertexAttribute.h"
 #include "Leap/GL/VertexBufferException.h"
 
 #include <cassert>
@@ -61,7 +62,7 @@ namespace GL {
 //
 // TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
 template <typename... AttributeTypes>
-class VertexBuffer {
+class VertexBuffer : public ResourceBase<VertexBuffer<AttributeTypes...>> {
 public:
 
   typedef std::tuple<AttributeTypes...> Attributes;
@@ -91,42 +92,9 @@ public:
     Shutdown();
   }
 
-  bool IsInitialized () const { return m_usage_pattern != GL_INVALID_ENUM; }
-  // The usage_pattern parameter specifies the expected usage pattern of the data store.
-  // It must be one of: GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW,
-  // GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.
-  // See glBufferData for more on this.
-  void Initialize (GLenum usage_pattern) {
-    // Ensure that any previously allocated resources are freed.
-    Shutdown();
-
-    switch (usage_pattern) {
-      case GL_STREAM_DRAW:
-      case GL_STREAM_READ:
-      case GL_STREAM_COPY:
-      case GL_STATIC_DRAW:
-      case GL_STATIC_READ:
-      case GL_STATIC_COPY:
-      case GL_DYNAMIC_DRAW:
-      case GL_DYNAMIC_READ:
-      case GL_DYNAMIC_COPY:
-        m_usage_pattern = usage_pattern;
-        break; // Ok
-      default:
-        throw VertexBufferException("usage must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
-    }    
-    assert(IsInitialized());
-  }
-  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
-  // safe to call multiple times, and has no effect after the resources are freed).
-  void Shutdown () {
-    if (IsInitialized()) {
-      ClearEverything();
-      assert(!IsUploaded());
-      m_usage_pattern = GL_INVALID_ENUM;
-      assert(!IsInitialized());
-    }
-  }
+  using ResourceBase<VertexBuffer<AttributeTypes...>>::IsInitialized;
+  using ResourceBase<VertexBuffer<AttributeTypes...>>::Initialize;
+  using ResourceBase<VertexBuffer<AttributeTypes...>>::Shutdown;
 
   // Returns the usage pattern used in upload operations.
   GLenum UsagePattern () const {
@@ -275,6 +243,38 @@ private:
     DisableAndIterate (const UniformLocations &locations)
   {
     // Iteration complete -- do nothing.
+  }
+
+  friend class ResourceBase<VertexBuffer<AttributeTypes...>>;
+
+  bool IsInitialized_Implementation () const { return m_usage_pattern != GL_INVALID_ENUM; }
+  // The usage_pattern parameter specifies the expected usage pattern of the data store.
+  // It must be one of: GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW,
+  // GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.
+  // See glBufferData for more on this.
+  void Initialize_Implementation (GLenum usage_pattern) {
+    switch (usage_pattern) {
+      case GL_STREAM_DRAW:
+      case GL_STREAM_READ:
+      case GL_STREAM_COPY:
+      case GL_STATIC_DRAW:
+      case GL_STATIC_READ:
+      case GL_STATIC_COPY:
+      case GL_DYNAMIC_DRAW:
+      case GL_DYNAMIC_READ:
+      case GL_DYNAMIC_COPY:
+        m_usage_pattern = usage_pattern;
+        break; // Ok
+      default:
+        throw VertexBufferException("usage must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
+    }    
+  }
+  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
+  // safe to call multiple times, and has no effect after the resources are freed).
+  void Shutdown_Implementation () {
+    ClearEverything();
+    assert(!IsUploaded());
+    m_usage_pattern = GL_INVALID_ENUM;
   }
 
   GLenum m_usage_pattern;
