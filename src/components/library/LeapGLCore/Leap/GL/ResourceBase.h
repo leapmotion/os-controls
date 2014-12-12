@@ -17,7 +17,11 @@ namespace GL {
 /// initialized (the definition of "is initialized" depends on the resource type).
 ///
 /// The Initialize_Implementation method may accept any arguments (and have any number of
-/// overloads).  Its pre-condition is that IsInitialized_Implementation() 
+/// overloads).  Its pre-condition is that IsInitialized_Implementation() TODO FINISH
+///
+/// Subclasses are responsible for calling Shutdown before or during their own destruction
+/// (this can't be done in the ResourceBase destructor, because that is only called after
+/// the subclass' destructor, which destroys all of its members).
 template <typename Derived_>
 class ResourceBase {
 public:
@@ -42,8 +46,6 @@ protected:
 
   const Derived_ &AsDerived () const { return *static_cast<const Derived_ *>(this); }
   Derived_ &AsDerived () { return *static_cast<Derived_ *>(this); }
-
-  ~ResourceBase () { Shutdown(); }
 };
 
 } // end of namespace GL
