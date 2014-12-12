@@ -56,9 +56,10 @@ TEST_F(ShaderFrontendTest, Test_float) {
   typedef ShaderFrontend<UniformName,
                          ThingyUniform<UniformName::THINGY,GL_FLOAT,float>> Frontend;
   Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
-  frontend.Uniform<UniformName::THINGY>() = 4.566f;
+  Frontend::UniformMap uniforms;
+  uniforms.val<UniformName::THINGY>() = 4.566f;
   shader->Bind();
-  frontend.UploadUniforms();
+  frontend.UploadUniforms(uniforms);
   shader->Unbind();
 }
 
@@ -67,9 +68,10 @@ TEST_F(ShaderFrontendTest, Test_vec2) {
   typedef ShaderFrontend<UniformName,
                          ThingyUniform<UniformName::THINGY,GL_FLOAT_VEC2,std::array<float,2>>> Frontend;
   Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
-  frontend.Uniform<UniformName::THINGY>() = {{4.56f, 88.0f}};
+  Frontend::UniformMap uniforms;
+  uniforms.val<UniformName::THINGY>() = {{4.56f, 88.0f}};
   shader->Bind();
-  frontend.UploadUniforms();
+  frontend.UploadUniforms(uniforms);
   shader->Unbind();
 }
 
@@ -84,10 +86,11 @@ TEST_F(ShaderFrontendTest, Test_vec3) {
   typedef ShaderFrontend<UniformName,
                          ThingyUniform<UniformName::THINGY,GL_FLOAT_VEC3,V>> Frontend;
   Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
-  frontend.Uniform<UniformName::THINGY>() = V(4.56f, 88.0f, -1.02f);
-  frontend.Uniform<UniformName::THINGY>().Set(4.56f, 88.0f, -1.02f);
+  Frontend::UniformMap uniforms;
+  uniforms.val<UniformName::THINGY>() = V(4.56f, 88.0f, -1.02f);
+  uniforms.val<UniformName::THINGY>().Set(4.56f, 88.0f, -1.02f);
   shader->Bind();
-  frontend.UploadUniforms();
+  frontend.UploadUniforms(uniforms);
   shader->Unbind();
 }
 
@@ -101,10 +104,11 @@ TEST_F(ShaderFrontendTest, Test_vec3_4) {
   typedef ShaderFrontend<UniformName,
                          ThingyUniformArray<UniformName::THINGY,GL_FLOAT_VEC3,4,std::array<V,4>>> Frontend;
   Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
-  frontend.Uniform<UniformName::THINGY>() = {{V(1,2,3), V(4,5,6), V(0,2,4), V(1,3,5)}};
-  frontend.Uniform<UniformName::THINGY>()[2] = V(-1,1,-1);
+  Frontend::UniformMap uniforms;
+  uniforms.val<UniformName::THINGY>() = {{V(1,2,3), V(4,5,6), V(0,2,4), V(1,3,5)}};
+  uniforms.val<UniformName::THINGY>()[2] = V(-1,1,-1);
   shader->Bind();
-  frontend.UploadUniforms();
+  frontend.UploadUniforms(uniforms);
   shader->Unbind();
 }
 
@@ -113,14 +117,15 @@ TEST_F(ShaderFrontendTest, Test_mat4) {
   typedef ShaderFrontend<UniformName,
                          ThingyMatrixUniform<UniformName::THINGY,GL_FLOAT_MAT4,std::array<GLfloat,4*4>,ROW_MAJOR>> Frontend;
   Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
-  frontend.Uniform<UniformName::THINGY>() = {{
+  Frontend::UniformMap uniforms;
+  uniforms.val<UniformName::THINGY>() = {{
     1.0f, 2.0f, 3.0f, 4.0f,
     0.0f, 1.0f, 0.0f, 2.0f,
     5.0f, 6.0f, 7.0f, 8.0f,
     1.0f, 0.0f, 1.0f, 0.0f
   }};
   shader->Bind();
-  frontend.UploadUniforms();
+  frontend.UploadUniforms(uniforms);
   shader->Unbind();
 }
 
@@ -129,7 +134,8 @@ TEST_F(ShaderFrontendTest, Test_mat4_2) {
   typedef ShaderFrontend<UniformName,
                          ThingyMatrixUniformArray<UniformName::THINGY,GL_FLOAT_MAT4,2,std::array<std::array<GLfloat,4*4>,2>,ROW_MAJOR>> Frontend;
   Frontend frontend(shader.get(), Frontend::UniformIds("thingy"));
-  frontend.Uniform<UniformName::THINGY>() = {{
+  Frontend::UniformMap uniforms;
+  uniforms.val<UniformName::THINGY>() = {{
     {{
       1.0f, 2.0f, 3.0f, 4.0f,
       0.0f, 1.0f, 0.0f, 2.0f,
@@ -144,6 +150,6 @@ TEST_F(ShaderFrontendTest, Test_mat4_2) {
     }}
   }};
   shader->Bind();
-  frontend.UploadUniforms();
+  frontend.UploadUniforms(uniforms);
   shader->Unbind();
 }

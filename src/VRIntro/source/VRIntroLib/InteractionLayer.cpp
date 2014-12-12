@@ -17,11 +17,7 @@ EigenTypes::Matrix3x3f SkeletonHand::arbitraryRelatedRotation() const {
 
 InteractionLayer::InteractionLayer(const EigenTypes::Vector3f& initialEyePos, const std::string& shaderName) :
   m_Shader(Resource<Leap::GL::Shader>(shaderName)),
-  m_ShaderMatrices(std::make_shared<Leap::GL::ShaderMatrices>(
-    m_Shader.get(),
-    "projection_times_model_view_matrix",
-    "model_view_matrix",
-    "normal_matrix")),
+  m_ShaderMatrices(std::make_shared<Leap::GL::ShaderMatrices>(m_Shader.get())),
   m_EyePos(initialEyePos),
   m_Alpha(0.0f)
 { }

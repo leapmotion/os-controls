@@ -40,12 +40,7 @@ public:
 
   void SetHandsShader(const std::shared_ptr<Leap::GL::Shader>& shader) {
     if (shader.get() != mHandsShader.get()) {
-      mShaderMatrices =
-        std::make_shared<ShaderMatrices>(
-        shader.get(),
-        "projection_times_model_view_matrix",
-        "model_view_matrix",
-        "normal_matrix");
+      mShaderMatrices = std::make_shared<ShaderMatrices>(shader.get());
     }
     mHandsShader = shader;
   };

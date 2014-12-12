@@ -18,12 +18,11 @@ public:
 
   // Leaving any of the matrix names empty will cause the corresponding uniforms to go unused.
   ShaderMatrices (const Shader *shader,
-                  const std::string &projection_times_model_view_matrix_id,
-                  const std::string &model_view_matrix_id,
-                  const std::string &normal_matrix_id);
+                  const std::string &projection_times_model_view_matrix_id = "projection_times_model_view_matrix",
+                  const std::string &model_view_matrix_id = "model_view_matrix",
+                  const std::string &normal_matrix_id = "normal_matrix");
 
-  void SetMatrices (const EigenTypes::Matrix4x4 &model_view, const EigenTypes::Matrix4x4 &projection);
-  void UploadUniforms ();
+  void UploadUniforms (const EigenTypes::Matrix4x4 &model_view, const EigenTypes::Matrix4x4 &projection);
 
 private:
 

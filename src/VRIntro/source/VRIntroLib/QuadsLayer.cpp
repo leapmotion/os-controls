@@ -125,8 +125,7 @@ void QuadsLayer::Render(TimeDelta real_time_delta) const {
   Pane::m_HeadTilt = MathUtility::RotationVectorToMatrix(atan(1/Pane::m_Stride)*EigenTypes::Vector3f(modelView(2, 0), 0, modelView(2, 2)));
 
   //modelView.block<3, 3>(0, 0) = EigenTypes::Matrix3x3f::Identity();
-  m_ShaderMatrices->SetMatrices(modelView.cast<double>(), m_Renderer.ProjectionMatrix());
-  m_ShaderMatrices->UploadUniforms();
+  m_ShaderMatrices->UploadUniforms(modelView.cast<double>(), m_Renderer.ProjectionMatrix());
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glUniform1i(m_Shader->LocationOfUniform("texture"), 0);

@@ -28,9 +28,11 @@ private:
   typedef Internal::TypeMap_t<ArrayLengthMappings> ArrayLengthMap;
   typedef Internal::TypeMap_t<CppTypeMappings> CppTypeMap;
   typedef Internal::TypeMap_t<MatrixStorageConventionMappings> MatrixStorageConventionMap;
-  template <UniformNameType_ NAME_> using UniformName_t = Internal::Value_t<UniformNameType_,NAME_>;
 
   // template <UniformNameType_ NAME_> struct IndexOfUniform_f { static const size_t V = Internal::IndexIn_f<UniformNames,UniformName_t<NAME_>>::V; };
+
+  typedef Internal::Map_t<Internal::TypeMap_t<CppTypeMappings>> UniformMapBaseClass;
+  template <UniformNameType_ NAME_> using UniformName_t = Internal::Value_t<UniformNameType_,NAME_>;
 
 public:
 
@@ -40,7 +42,23 @@ public:
   template <UniformNameType_ NAME_> struct MatrixStorageConventionOfUniform_f { typedef typename Internal::Eval_f<MatrixStorageConventionMap,UniformName_t<NAME_>>::T T; };
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<std::string,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformIds; // TODO: this should be Map_t
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<GLint,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformLocations; // TODO: this should be Map_t
-  typedef Internal::Map_t<Internal::TypeMap_t<CppTypeMappings>> UniformMap;
+
+  // This is the type which stores the data required by UploadUniforms.
+  class UniformMap : public UniformMapBaseClass {
+  public:
+    UniformMap (UniformMapBaseClass const &m) : UniformMapBaseClass(m) { }
+    template <typename... Types_>
+    UniformMap (Types_... args) : UniformMapBaseClass(args...) { }
+    template <UniformNameType_ NAME_>
+    typename UniformMapBaseClass::template val_const_ReturnType_f<UniformName_t<NAME_>>::T val () const {
+      return UniformMapBaseClass::template val<UniformName_t<NAME_>>();
+    }
+    template <UniformNameType_ NAME_>
+    typename UniformMapBaseClass::template val_ReturnType_f<UniformName_t<NAME_>>::T val () {
+      return UniformMapBaseClass::template val<UniformName_t<NAME_>>();
+    }
+    using UniformMapBaseClass::values;
+  };
 
   // Construct an un-Initialize-d ShaderFrontend which has not acquired any GL (or other) resources.
   // It will be necessary to call Initialize on this object to use it.
@@ -49,10 +67,10 @@ public:
   { }
   // Convenience constructor that will call Initialize with the given arguments.
   template <typename... Types_>
-  ShaderFrontend (const Shader *shader, const UniformIds &uniform_ids, Types_... args)
+  ShaderFrontend (const Shader *shader, const UniformIds &uniform_ids)
     : m_shader(nullptr)
   {
-    Initialize(shader, uniform_ids, args...);
+    Initialize(shader, uniform_ids);
   }
   // Will call Shutdown.
   ~ShaderFrontend () {
@@ -63,37 +81,12 @@ public:
   using ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>::Initialize;
   using ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>::Shutdown;
 
-  template <UniformNameType_ NAME_> const typename CppTypeOfUniform_f<NAME_>::T &Uniform () const {
-    if (!IsInitialized()) {
-      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniform<...> value.");
-    }
-    return m_uniform_map.template val<UniformName_t<NAME_>>();
-  }
-  template <UniformNameType_ NAME_> typename CppTypeOfUniform_f<NAME_>::T &Uniform () {
-    if (!IsInitialized()) {
-      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniform<...> value.");
-    }
-    return m_uniform_map.template val<UniformName_t<NAME_>>();
-  }
-  const UniformMap &Uniforms () const {
-    if (!IsInitialized()) {
-      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniforms value.");
-    }
-    return m_uniform_map;
-  }
-  UniformMap &Uniforms () {
-    if (!IsInitialized()) {
-      throw ShaderException("A ShaderFrontend that !IsInitialized() has no Uniforms value.");
-    }
-    return m_uniform_map;
-  }
-
-  void UploadUniforms () const {
+  void UploadUniforms (const UniformMap &uniforms) const {
     if (!IsInitialized()) {
       throw ShaderException("Can't call UploadUniforms on a ShaderFrontend that !IsInitialized().");
     }
     assert(Shader::CurrentlyBoundProgramHandle() == m_shader->ProgramHandle() && "This shader must be bound in order to upload uniforms.");
-    UploadUniform<0>();
+    UploadUniform<0>(uniforms);
   }
 
 private:
@@ -130,18 +123,18 @@ private:
   }
 
   template <size_t INDEX_>
-  typename std::enable_if<(INDEX_<UNIFORM_COUNT)>::type UploadUniform () const {
+  typename std::enable_if<(INDEX_<UNIFORM_COUNT)>::type UploadUniform (const UniformMap &uniforms) const {
     typedef typename Internal::Element_f<UniformNames,INDEX_>::T UniformName;
     static const GLenum GL_TYPE_ = Internal::Eval_f<GlTypeMap,UniformName>::T::V;
     static const size_t ARRAY_LENGTH = Internal::Eval_f<ArrayLengthMap,UniformName>::T::V;
     static const MatrixStorageConvention MATRIX_STORAGE_CONVENTION = Internal::Eval_f<MatrixStorageConventionMap,UniformName>::T::V;
     // Upload the uniform.
-    Internal::UniformizedInterface_UploadArray<GL_TYPE_,ARRAY_LENGTH,MATRIX_STORAGE_CONVENTION>(m_uniform_locations.template el<INDEX_>(), m_uniform_map.template val<UniformName>());
+    Internal::UniformizedInterface_UploadArray<GL_TYPE_,ARRAY_LENGTH,MATRIX_STORAGE_CONVENTION>(m_uniform_locations.template el<INDEX_>(), uniforms.template val<UniformName::V>());
     // Iterate.
-    UploadUniform<INDEX_+1>();
+    UploadUniform<INDEX_+1>(uniforms);
   }
   template <size_t INDEX_>
-  typename std::enable_if<(INDEX_>=UNIFORM_COUNT)>::type UploadUniform () const {
+  typename std::enable_if<(INDEX_>=UNIFORM_COUNT)>::type UploadUniform (const UniformMap &uniforms) const {
     // Done with iteration.
   }
 
@@ -149,12 +142,11 @@ private:
 
   bool IsInitialized_Implementation () const { return m_shader != nullptr; }
   template <typename... Types_>
-  void Initialize_Implementation (const Shader *shader, const UniformIds &uniform_ids, Types_... args) {
+  void Initialize_Implementation (const Shader *shader, const UniformIds &uniform_ids) {
     if (shader == nullptr) {
       throw ShaderException("shader must be a non-null pointer.");
     }
     m_shader = shader;
-    m_uniform_map = UniformMap(args...);
 
     // Store the uniform locations from the shader using the uniform names.
     for (size_t i = 0; i < UNIFORM_COUNT; ++i) {
@@ -173,7 +165,6 @@ private:
 
   const Shader *m_shader;
   UniformLocations m_uniform_locations;
-  UniformMap m_uniform_map;
 };
 
 } // end of namespace GL

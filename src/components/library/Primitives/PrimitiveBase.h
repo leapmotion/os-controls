@@ -101,7 +101,7 @@ public:
 
     m_shader = shader;
     m_material = material;
-    m_shader_matrices = std::make_shared<ShaderMatrices>(m_shader.get(), "projection_times_model_view_matrix", "model_view_matrix", "normal_matrix");
+    m_shader_matrices = std::make_shared<ShaderMatrices>(m_shader.get());
   }
 
   typename Transform::ConstTranslationPart Translation () const { return this->LocalProperties().AffineTransform().translation(); }
@@ -121,12 +121,10 @@ public:
     model_view.Multiply(SquareMatrixAdaptToDim<4>(global_properties.AffineTransform().AsFullMatrix(), EigenTypes::MATH_TYPE(1)));
     MakeAdditionalModelViewTransformations(model_view);
 
-    m_shader_matrices->SetMatrices(model_view.Matrix(), render_state.ProjectionMatrix());
-
     ShaderBindingScopeGuard bso(Shader(), BindFlags::BIND_AND_UNBIND); // binds shader now, unbinds upon end of scope.
     
     m_material->UploadUniforms();
-    m_shader_matrices->UploadUniforms();
+    m_shader_matrices->UploadUniforms(model_view.Matrix(), render_state.ProjectionMatrix());
 
     DrawContents(render_state);
 
@@ -144,8 +142,7 @@ protected:
 
   // Temporary hack to allow multiple model-matrix primitives (CapsulePrim, BiCapsulePrim)
   void ManuallySetMatricesAndUploadMatrixUniforms (const EigenTypes::Matrix4x4 &model_view, const EigenTypes::Matrix4x4 &projection) const {
-    m_shader_matrices->SetMatrices(model_view, projection);
-    m_shader_matrices->UploadUniforms();
+    m_shader_matrices->UploadUniforms(model_view, projection);
   }
   
 private:
