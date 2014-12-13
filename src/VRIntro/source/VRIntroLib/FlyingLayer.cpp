@@ -33,7 +33,7 @@ FlyingLayer::FlyingLayer(const EigenTypes::Vector3f& initialEyePos) :
 
   m_PopupBufferObject.Initialize(GL_ARRAY_BUFFER);
   m_PopupBufferObject.Bind();
-  m_PopupBufferObject.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
+  m_PopupBufferObject.BufferData(edges, sizeof(edges), GL_STATIC_DRAW);
   m_PopupBufferObject.Unbind();
 }
 

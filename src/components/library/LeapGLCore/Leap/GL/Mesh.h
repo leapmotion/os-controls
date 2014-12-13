@@ -104,7 +104,7 @@ public:
     m_index_buffer.Initialize(GL_ELEMENT_ARRAY_BUFFER);
     m_index_buffer.Bind();
     // TODO: allow different usage patterns
-    m_index_buffer.Allocate(static_cast<void*>(indices.data()), static_cast<int>(indices.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
+    m_index_buffer.BufferData(static_cast<void*>(indices.data()), static_cast<int>(indices.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
     m_index_buffer.Unbind();
 
     // For now, always clear the intermediate attributes, because the unique'ified vertices and index buffer will

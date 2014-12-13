@@ -26,7 +26,7 @@ namespace model {
     const int numBytes = static_cast<int>(indices.size() * sizeof(uint32_t));
     BufferObject& indexBufferObject = mSkinnedVboMesh->getActiveSection()->getIndices();
     indexBufferObject.Bind();
-    indexBufferObject.Allocate(indices.data(), numBytes, GL_STATIC_DRAW);
+    indexBufferObject.BufferData(indices.data(), numBytes, GL_STATIC_DRAW);
     indexBufferObject.Unbind();
   }
 

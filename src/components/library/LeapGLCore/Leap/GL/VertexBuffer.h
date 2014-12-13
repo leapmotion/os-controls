@@ -149,16 +149,16 @@ public:
     // If the buffer is already created and is the same size as the intermediate attributes,
     // then map it and copy the data in.
     if (m_gl_buffer_object.IsInitialized() && m_gl_buffer_object.Size() == intermediate_attributes_size) {
-      void *ptr = m_gl_buffer_object.Map(GL_WRITE_ONLY);
+      void *ptr = m_gl_buffer_object.MapBuffer(GL_WRITE_ONLY);
       memcpy(ptr, intermediate_attributes_data, intermediate_attributes_size);
-      m_gl_buffer_object.Unmap();
+      m_gl_buffer_object.UnmapBuffer();
     } else { // Otherwise ensure the buffer is created, 
       if (!m_gl_buffer_object.IsInitialized()) {
         m_gl_buffer_object.Initialize(GL_ARRAY_BUFFER);
       }
       m_gl_buffer_object.Bind();
       // This will delete and reallocate if it's already allocated.
-      m_gl_buffer_object.Allocate(intermediate_attributes_data, intermediate_attributes_size, m_usage_pattern);
+      m_gl_buffer_object.BufferData(intermediate_attributes_data, intermediate_attributes_size, m_usage_pattern);
       m_gl_buffer_object.Unbind();
     }
     assert(IsUploaded());

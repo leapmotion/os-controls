@@ -150,7 +150,7 @@ void PassthroughLayer::DrawQuad() const {
   // Why the fuck doesn't this work?
   m_Renderer.EnablePositionAttribute();
   m_BufferObject.Bind();
-  m_BufferObject.Allocate(&edges[0], sizeof(edges), GL_DYNAMIC_DRAW);
+  m_BufferObject.BufferData(&edges[0], sizeof(edges), GL_DYNAMIC_DRAW);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   m_BufferObject.Release();
   m_Renderer.DisablePositionAttribute();

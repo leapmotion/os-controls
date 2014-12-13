@@ -17,7 +17,7 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
   m_StarsToShow(NUM_STARS) {
   m_BufferObject.Initialize(GL_ARRAY_BUFFER);
   m_BufferObject.Bind();
-  m_BufferObject.Allocate(NULL, 12*sizeof(float)*NUM_STARS, GL_DYNAMIC_DRAW);
+  m_BufferObject.BufferData(NULL, 12*sizeof(float)*NUM_STARS, GL_DYNAMIC_DRAW);
   m_BufferObject.Unbind();
 
   // Define popup text coordinates
@@ -30,7 +30,7 @@ SpaceLayer::SpaceLayer(const EigenTypes::Vector3f& initialEyePos) :
 
   m_PopupBufferObject.Initialize(GL_ARRAY_BUFFER);
   m_PopupBufferObject.Bind();
-  m_PopupBufferObject.Allocate(edges, sizeof(edges), GL_STATIC_DRAW);
+  m_PopupBufferObject.BufferData(edges, sizeof(edges), GL_STATIC_DRAW);
   m_PopupBufferObject.Unbind();
 
   m_Buf = new float[NUM_STARS*12];
@@ -76,7 +76,7 @@ void SpaceLayer::Render(TimeDelta real_time_delta) const {
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 6*sizeof(float), 0);
   glVertexAttribPointer(m_Shader->LocationOfAttribute("velocity"), 3, GL_FLOAT, GL_TRUE, 6*sizeof(float), (GLvoid*)(3*sizeof(float)));
 
-  m_BufferObject.Write(m_Buf, 12*m_StarsToShow*sizeof(float));
+  m_BufferObject.BufferSubData(m_Buf, 12*m_StarsToShow*sizeof(float));
   glDrawArrays(GL_LINES, 0, 2*m_StarsToShow);
 
   glVertexAttribPointer(m_Shader->LocationOfAttribute("position"), 3, GL_FLOAT, GL_TRUE, 12*sizeof(float), (GLvoid*)((6*m_OddEven)*sizeof(float)));

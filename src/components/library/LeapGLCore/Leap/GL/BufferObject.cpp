@@ -38,24 +38,24 @@ void BufferObject::Unbind () const {
   THROW_UPON_GL_ERROR(glBindBuffer(m_BufferType, 0));
 }
 
-void BufferObject::Allocate (const void* data, GLsizeiptr size_in_bytes, GLenum usage_pattern) {
+void BufferObject::BufferData (const void* data, GLsizeiptr size_in_bytes, GLenum usage_pattern) {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call BufferObject::Allocate on a BufferObject that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::BufferData on a BufferObject that is !IsInitialized().");
   }
   THROW_UPON_GL_ERROR(glBufferData(m_BufferType, size_in_bytes, data, usage_pattern));
   m_SizeInBytes = size_in_bytes;
 }
 
-void BufferObject::Write (const void* data, int count) {
+void BufferObject::BufferSubData (const void* data, int count) {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call BufferObject::Write on a BufferObject that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::BufferSubData on a BufferObject that is !IsInitialized().");
   }
   THROW_UPON_GL_ERROR(glBufferSubData(m_BufferType, 0, count, data));
 }
 
-void* BufferObject::Map (GLenum access) {
+void* BufferObject::MapBuffer (GLenum access) {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call BufferObject::Map on a BufferObject that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::MapBuffer on a BufferObject that is !IsInitialized().");
   }
   Bind();
   THROW_UPON_GL_ERROR(void *ptr = glMapBuffer(m_BufferType, access));
@@ -63,9 +63,9 @@ void* BufferObject::Map (GLenum access) {
   return ptr;
 }
 
-bool BufferObject::Unmap () {
+bool BufferObject::UnmapBuffer () {
   if (!IsInitialized()) {
-    throw Leap::GL::Exception("Can't call BufferObject::Unmap on a BufferObject that is !IsInitialized().");
+    throw Leap::GL::Exception("Can't call BufferObject::UnmapBuffer on a BufferObject that is !IsInitialized().");
   }
   Bind();
   THROW_UPON_GL_ERROR(bool result = glUnmapBuffer(m_BufferType) == GL_TRUE);
