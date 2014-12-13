@@ -15,7 +15,7 @@ EigenTypes::Matrix4x4& ModelView::Matrix() {
   return m_stack.back();
 }
 
-void ModelView::Reset() {
+void ModelView::LoadIdentity() {
   m_stack.back().setIdentity();
 }
 
@@ -59,9 +59,9 @@ void ModelView::Multiply(const EigenTypes::Matrix4x4& transform) {
   m_stack.back() *= transform;
 }
 
-void ModelView::Multiply(const EigenTypes::Matrix3x3& transform) {
+void ModelView::Multiply(const EigenTypes::Matrix3x3& linear) {
   EigenTypes::Matrix4x4 affine;
-  affine.block<3,3>(0,0) = transform;
+  affine.block<3,3>(0,0) = linear;
   affine.block<3,1>(0,3).setZero();
   affine.block<1,3>(3,0).setZero();
   affine(3,3) = EigenTypes::MATH_TYPE(1);

@@ -210,7 +210,7 @@ void ShapesLayer::Render(TimeDelta real_time_delta) const {
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();
   const EigenTypes::Vector3 lookAtPoint = EigenTypes::Vector3::Zero();
   const EigenTypes::Vector3 upVector = EigenTypes::Vector3::UnitY();
-  m_Renderer.GetModelView().Reset();
+  m_Renderer.GetModelView().LoadIdentity();
   m_Renderer.GetModelView().LookAt(eyePos, lookAtPoint, upVector);
 
   // set light position

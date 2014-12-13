@@ -61,7 +61,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   const EigenTypes::Vector3 lookAtPoint = EigenTypes::Vector3(0.0f, 150.0f, 0.0f);
   const EigenTypes::Vector3 upVector = EigenTypes::Vector3::UnitY();
   
-  m_Renderer.GetModelView().Reset();
+  m_Renderer.GetModelView().LoadIdentity();
   m_Renderer.GetModelView().LookAt(eyePos, lookAtPoint, upVector);
 
   glEnable(GL_BLEND);
