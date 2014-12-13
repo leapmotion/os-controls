@@ -16,7 +16,7 @@ GLTestFramework::~GLTestFramework () { }
   
 void GLTestFramework::SetUp () {
   m_SDLController.Initialize(m_SDLControllerParams);
-  InitializeGlew();
+  InitializeGlew(&std::cerr);
 
   BeginFrame();
 }

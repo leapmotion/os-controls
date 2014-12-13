@@ -38,7 +38,7 @@ void ShapesApplication::Initialize() {
 
   m_applicationTime = TimePoint(0.0);         // Start the application time at zero.
   m_SFMLController.Initialize(params);        // This initializes everything SDL-related.
-  InitializeGlew();                           // This initializes the general GL state. -- NOTE: this might already be done by SFML
+  InitializeGlew(&std::cerr);                 // This initializes the general GL state. -- NOTE: this might already be done by SFML
   FreeImage_Initialise();                     // Initialize FreeImage.
   InitializeApplicationLayers();              // Initialize the application layers (contents of the app).
 

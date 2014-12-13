@@ -46,7 +46,7 @@ void StubApplication::Initialize() {
   // else (e.g. Resource<Texture2>).
   Singleton<ResourceManager<Texture2>>::CreateInstance(SDLController::BasePath());
 
-  InitializeGlew();                           // This initializes the general GL state.
+  InitializeGlew(&std::cerr);                 // This initializes the general GL state.
   FreeImage_Initialise();                     // Initialize FreeImage.
   InitializeApplicationLayers();              // Initialize the application layers (contents of the app).
 

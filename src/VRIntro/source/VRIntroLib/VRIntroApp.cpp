@@ -97,7 +97,7 @@ void VRIntroApp::Initialize() {
   m_Width = m_SDLController.GetParams().windowWidth;
   m_Height = m_SDLController.GetParams().windowHeight;
 
-  Leap::GL::InitializeGlew();
+  Leap::GL::InitializeGlew(&std::cerr);
   FreeImage_Initialise();
 
   if (glewInit() != GLEW_OK) {
