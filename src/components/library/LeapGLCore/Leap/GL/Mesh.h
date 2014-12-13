@@ -13,7 +13,17 @@ namespace GL {
 
 enum class ClearOption { KEEP_INTERMEDIATE_DATA, CLEAR_INTERMEDIATE_DATA };
 
-// A useful resource on what the possible draw modes are is http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/primitive-assembly/
+/// @brief Provides an abstract means for creating indexed vertex buffer objects.
+/// @details A mesh must be Initialize()d with a "draw mode" (see
+/// http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/primitive-assembly/ for
+/// a visual description of the various draw modes).  There is a vector of vertex attributes
+/// elements which are accessible via the IntermediateVertices method and should be populated
+/// before calling UploadIntermediateVertices.  The UploadIntermediateVertices method will
+/// compute a map of unique vertices and compute the index array which will be used in the
+/// Draw method (supplied to glDrawElements).
+///
+/// This class inherits ResourceBase and thereby follows the resource conventions specified
+/// there.
 //
 // TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
 template <typename... AttributeTypes>
@@ -23,20 +33,20 @@ public:
   typedef VertexBuffer<AttributeTypes...> VertexBuffer;
   typedef typename VertexBuffer::Attributes VertexAttributes;
 
-  // Construct an un-Initialize-d Mesh which has not acquired any GL (or other) resources.
-  // It will be necessary to call Initialize on this object to use it.
+  /// @brief Construct an un-Initialize-d Mesh which has not acquired any GL (or other) resources.
+  /// @details It will be necessary to call Initialize on this object to use it.
   Mesh ()
     : m_draw_mode(GL_INVALID_ENUM)
     , m_index_count(0)
   { }
-  // Convenience constructor that will call Initialize with the given arguments.
+  /// @brief Convenience constructor that will call Initialize with the given arguments.
   Mesh (GLenum draw_mode)
     : m_draw_mode(GL_INVALID_ENUM)
     , m_index_count(0)
   {
     Initialize(draw_mode);
   }
-  // Will call Shutdown.
+  /// @brief Destructor will call Shutdown.
   ~Mesh () {
     Shutdown();
   }
@@ -45,8 +55,9 @@ public:
   using ResourceBase<Mesh<AttributeTypes...>>::Initialize;
   using ResourceBase<Mesh<AttributeTypes...>>::Shutdown;
 
+  /// @brief Returns the draw mode (see the API docs for glDrawElements) passed to Initialize.
   GLenum DrawMode () const { return m_draw_mode; }
-
+  /// @brief Returns true iff this Mesh has uploaded resources (a VertexBuffer and index BufferObject).
   bool IsUploaded () const {
     if (!IsInitialized()) {
       return false;
@@ -54,9 +65,10 @@ public:
     assert(m_vertex_buffer.IsUploaded() == m_index_buffer.IsInitialized());
     return m_vertex_buffer.IsUploaded();
   }
-  // Once all the vertices are specified, calling this method computes the vertex index buffer
-  // and uploads the unique-ified vertices and the indices to the GPU.  If successful, the mesh
-  // is ready to be Bind()ed.
+  /// @brief This method should be used to upload the intermediate vertices to the GPU.
+  /// @details Once all the vertices are specified, calling this method computes the vertex index
+  /// buffer and uploads the unique-ified vertices and the indices to the GPU.  If successful,
+  /// the mesh is ready to be Bind()ed.
   // TODO: write about what GL operations actually happen.
   // TODO: add argument to specify if the non-GL internal state should be cleared.
   void UploadIntermediateVertices (ClearOption clear_option = ClearOption::CLEAR_INTERMEDIATE_DATA) {
@@ -116,9 +128,12 @@ public:
   // TODO: think about if these functions really belong here, or if the user should call the VBO and
   // index buffer bind methods and the draw methods themselves.
 
-  // Binds this mesh (vertex buffer, index buffer) so that it can be rendered via glDrawElements.
-  // Specifying -1 for any individual attribute location will cause that attribute to go unused --
-  // this allows shaders that don't have all the attributes in this Mesh to still be usable.
+  /// @brief Binds this Mesh so that it is ready to be Draw()n.
+  /// @details Binds this mesh (vertex buffer, index buffer) so that it can be rendered
+  /// via glDrawElements.  The locations of the respective vertex attributes must be supplied
+  /// here.  Specifying -1 for any individual attribute location will cause that attribute to
+  /// go unused -- this allows shaders that don't have all the attributes in this Mesh to still
+  /// be usable.
   // TODO: write about what GL operations actually happen.
   void Bind (typename VertexBuffer::UniformLocations &attribute_locations) const {
     if (!IsUploaded()) {
@@ -128,13 +143,15 @@ public:
     m_vertex_buffer.Enable(attribute_locations);
     m_index_buffer.Bind();
   }
+  /// @brief Draws a bound Mesh by calling glDrawElements.
   void Draw () const {
     if (!IsUploaded()) {
       throw MeshException("Can't Draw a Mesh if it not IsUploaded.");
     }
     THROW_UPON_GL_ERROR(glDrawElements(m_draw_mode, m_index_count, GL_UNSIGNED_INT, 0));
   }
-  // Unbinds this mesh.  Must pass in the same attribute_locations as to the call to Bind.
+  /// @brief Unbinds this mesh.
+  /// @details Must pass in the same attribute_locations as to the call to Bind.
   // TODO: write about what GL operations actually happen.
   void Unbind (typename VertexBuffer::UniformLocations &attribute_locations) const {
     if (!IsUploaded()) {
@@ -145,9 +162,10 @@ public:
     m_vertex_buffer.Disable(attribute_locations);
   }
 
-  // To be used for any draw mode -- the user is responsible for adding vertices using the convention
-  // defined by the draw mode, and in particular is the only method allowable for adding vertices for
-  // some draw modes.
+  /// @brief Push a single vertex to the intermediate vertices vector.
+  /// @details This is to be used for any draw mode -- the user is responsible for adding
+  /// vertices using the convention defined by the draw mode, and in particular is the
+  /// only method allowable for adding vertices for some draw modes.
   template <typename... Types_>
   void PushVertex (Types_... args) {
     if (!IsInitialized()) {
@@ -158,7 +176,9 @@ public:
     }
     m_intermediate_vertices.emplace_back(args...);
   }
-  // To be used only when the draw mode is GL_LINES.  TODO: Figure out the appropriate constness/referenceness to use.
+  /// @brief Push two vertices which define a single line segment.
+  /// @details This is to be used only when the draw mode is GL_LINES.
+  // TODO: Figure out the appropriate constness/referenceness to use.
   void PushLine (const VertexAttributes &v0,
                  const VertexAttributes &v1) {
     if (!IsInitialized()) {
@@ -173,7 +193,8 @@ public:
     m_intermediate_vertices.emplace_back(v0);
     m_intermediate_vertices.emplace_back(v1);
   }
-  // To be used only when the draw mode is GL_TRIANGLES.
+  /// @brief Push an ordered list three vertices which define a single triangle.
+  /// @details This is to be used only when the draw mode is GL_TRIANGLES.
   void PushTriangle (const VertexAttributes &v0,
                      const VertexAttributes &v1,
                      const VertexAttributes &v2) {
@@ -190,7 +211,8 @@ public:
     m_intermediate_vertices.emplace_back(v1);
     m_intermediate_vertices.emplace_back(v2);
   }
-  // To be used only when the draw mode is GL_TRIANGLES.
+  /// @brief Push an ordered list of four vertices which define a two triangles and therefore a quadrilateral.
+  /// @details This is to be used only when the draw mode is GL_TRIANGLES.
   void PushQuad (const VertexAttributes &v0,
                  const VertexAttributes &v1,
                  const VertexAttributes &v2,
@@ -213,7 +235,8 @@ public:
     m_intermediate_vertices.emplace_back(v2);
     m_intermediate_vertices.emplace_back(v3);
   }
-  // To be used only when the draw mode is GL_LINES_ADJACENCY.
+  /// @brief Push an ordered list of four vertices which define a single `line adjacency`.
+  /// @details This is to be used only when the draw mode is GL_LINES_ADJACENCY.
   void PushLineAdjacency (const VertexAttributes &v0,
                           const VertexAttributes &v1,
                           const VertexAttributes &v2,
@@ -232,7 +255,8 @@ public:
     m_intermediate_vertices.emplace_back(v2);
     m_intermediate_vertices.emplace_back(v3);
   }
-  // To be used only when the draw mode is GL_TRIANGLES_ADJACENCY.
+  /// @brief Push an ordered list of six vertices which define a single `triangle adjacency`.
+  /// @details This is to be used only when the draw mode is GL_TRIANGLES_ADJACENCY.
   void PushTriangleAdjacency (const VertexAttributes &v0,
                               const VertexAttributes &v1,
                               const VertexAttributes &v2,
@@ -255,8 +279,13 @@ public:
     m_intermediate_vertices.emplace_back(v4);
     m_intermediate_vertices.emplace_back(v5);
   }
-  // Gives direct access to the std::vector of intermediate vertices -- the data that will be
-  // unique'ified to construct an indexed vertex buffer object and uploaded to the GPU.
+  /// @brief Returns a const reference to the vector of intermediate vertices.
+  /// @details This is the data that will be unique'ified to construct a vertex buffer object
+  /// and index buffer during UploadIntermediateVertices.
+  const std::vector<VertexAttributes> &IntermediateVertices () const { return m_intermediate_vertices; }
+  /// @brief Returns a non-const reference to the vector of intermediate vertices.
+  /// @details This is the data that will be unique'ified to construct a vertex buffer object
+  /// and index buffer during UploadIntermediateVertices.
   std::vector<VertexAttributes> &IntermediateVertices () { return m_intermediate_vertices; }
   // TODO: allow changing the m_vertex_buffer contents and re-uploading?
 
