@@ -5,16 +5,8 @@
 namespace Leap {
 namespace GL {
 
-// Camera provides two transformations:
-// - A projection matrix (as in the fixed function pipeline of older versions of OpenGL)
-// - A view matrix (as in the "view" part of the model-view matrix in OpenGL)
-// There are two implementations of this interface:
-// - OrthographicCamera : Provides the projection matrix corresponding to a symmetric orthographic view box.
-// - PerspectiveCamera  : Provides the projection matrix corresponding to a symmetric view frustum.
-// Asymmetric versions of each of these could be made, but aren't yet called for.  The use case for
-// asymmetric projections is when the center of the viewport is not aligned with the "lookat" direction.
-// This could be used, for example, in a tile renderer, where the viewport is divided up into "tiles"
-// and each tile is rendered separately.
+// Projection provides procedures to compute an orthographic projection matrix
+// or a perspective projection matrix.
 //
 // Notes on Orthographic projection
 //
@@ -64,36 +56,37 @@ namespace GL {
 // http://msdn.microsoft.com/en-us/library/windows/desktop/dd373965%28v=vs.85%29.aspx
 //
 // Notes on Perspective projection
-//
-// TODO
+
+/// @brief Namespace to contain the projection-matrix-computing procedures.
 namespace Projection {
 
-// Equivalent to the deprecated OpenGL function glOrtho (see OpenGL 2.1 API docs).
+/// @brief Equivalent to the deprecated OpenGL function glOrtho (see OpenGL 2.1 API docs).
 void SetOrthographic (
   EigenTypes::Matrix4x4 &projection_matrix,
   double left, double right,
   double bottom, double top,
   double near_clip_depth, double far_clip_depth);
-// Define the camera in terms of the width/height/near depth/far depth of a symmetric orthographic view box.
+/// @brief Define the projection in terms of the width/height/near depth/far depth of a
+/// symmetric orthographic view box.
 void SetOrthographic_UsingSymmetricViewBox (
   EigenTypes::Matrix4x4 &projection_matrix,
   double width, double height,
   double near_clip_depth, double far_clip_depth);
 
-// Equivalent to the deprecated OpenGL function glFrustum (see OpenGL 2.1 API docs).
+/// @brief Equivalent to the deprecated OpenGL function glFrustum (see OpenGL 2.1 API docs).
 void SetPerspective (
   EigenTypes::Matrix4x4 &projection_matrix,
   double near_clip_left, double near_clip_right,
   double near_clip_bottom, double near_clip_top,
   double near_clip_depth, double far_clip_depth);
-// Define the camera in terms of its horizontal FOV, its view aspect ratio (width over height),
-// and the near/far depth of the view frustum.  See PerspectiveCamera.
+/// @brief Define the projection matrix in terms of its horizontal FOV, its view aspect
+/// ratio (width over height), and the near/far depth of the view frustum.
 void SetPerspective_UsingFOVAndAspectRatio (
   EigenTypes::Matrix4x4 &projection_matrix,
   double horiz_FOV_radians, double width_over_height,
   double near_clip_depth, double far_clip_depth);
-// Define the camera in terms of the width/height/depth of the near side of the view frustum
-// and the depth of the far side of the view frustum.  See PerspectiveCamera.
+/// @brief Define the projection matrix in terms of the width/height/depth of the near
+/// side of the view frustum and the depth of the far side of the view frustum.
 void SetPerspective_UsingSymmetricFrustumNearClipSize (
   EigenTypes::Matrix4x4 &projection_matrix,
   double near_clip_width, double near_clip_height,
