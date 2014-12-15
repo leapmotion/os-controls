@@ -61,7 +61,7 @@ public:
   // This method is so that the components (a fixed-length array) can be accessed
   // as whatever POD type is desired (e.g. some POD library-specific vector type).
   template <typename U>
-  const U &As () const {
+  const U &ReinterpretAs () const {
     static_assert(sizeof(U) == sizeof(Rgba), "U must be a POD mapping directly onto this object");
     // TODO: somehow check that U is a POD consisting only of type ColorComponent
     return *reinterpret_cast<const U *>(this);
@@ -69,7 +69,7 @@ public:
   // This method is so that the components (a fixed-length array) can be accessed
   // as whatever POD type is desired (e.g. some POD library-specific vector type).
   template <typename U>
-  U &As () {
+  U &ReinterpretAs () {
     static_assert(sizeof(U) == sizeof(Rgba), "U must be a POD mapping directly onto this object");
     // TODO: somehow check that U is a POD consisting only of type ColorComponent
     return *reinterpret_cast<U *>(this);
