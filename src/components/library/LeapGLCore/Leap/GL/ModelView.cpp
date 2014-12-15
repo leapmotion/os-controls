@@ -92,19 +92,16 @@ void ComputeViewFrameInWorldCoordinates (
   const EigenTypes::Vector3 &focus_position,
   const EigenTypes::Vector3 &up_direction)
 {
-  assert(std::abs(up_direction.squaredNorm() - 1.0) < std::numeric_limits<double>::epsilon() && "up_direction must be a unit-length vector.");
-  y = up_direction;
-
   z = eye_position - focus_position;
   assert(z.squaredNorm() > std::numeric_limits<double>::epsilon());
   z.normalize();
 
-  x = y.cross(z);
+  x = up_direction.cross(z);
   assert(x.squaredNorm() > std::numeric_limits<double>::epsilon());
   x.normalize();
 
-  y = z.cross(x); // z and x should be relatively orthonormal, so no normalization of y should be necessary.
-  assert(std::abs(y.squaredNorm() - 1.0) < std::numeric_limits<double>::epsilon());
+  y = z.cross(x);
+  y.normalize();
 }
 
 void VerifyAffineTransformation (const EigenTypes::Matrix4x4 &matrix) {
