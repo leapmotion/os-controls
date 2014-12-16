@@ -9,8 +9,6 @@
 namespace Leap {
 namespace GL {
 
-;
-
 /// @brief This class wraps creation and use of 2-dimensional GL textures.
 /// @details There are two associated classes: @c Texture2Params and @c Texture2PixelData.
 /// Texture2Params specifies the persistent properties of a Texture2.  Texture2PixelData

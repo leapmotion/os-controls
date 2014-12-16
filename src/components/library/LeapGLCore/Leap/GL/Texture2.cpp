@@ -76,26 +76,32 @@ void Texture2::TexSubImage (const Texture2PixelData &pixel_data) {
   Bind();
   ThrowUponGLError("in glBindTexture");
 
-  // Store all the PixelStorei parameters that are about to be overridden, then override them.
   Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
-  OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
+  try {
+    // Store all the PixelStorei parameters that are about to be overridden, then override them.
+    OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
   
-  glTexSubImage2D(
-    m_params.Target(),
-    0,
-    0,
-    0,
-    m_params.Width(),
-    m_params.Height(),
-    pixel_data.Format(),
-    pixel_data.Type(),
-    pixel_data.ReadableRawData()
-  );
-  ThrowUponGLError("in glTexSubImage2D");
+    glTexSubImage2D(
+      m_params.Target(),
+      0,
+      0,
+      0,
+      m_params.Width(),
+      m_params.Height(),
+      pixel_data.Format(),
+      pixel_data.Type(),
+      pixel_data.ReadableRawData()
+    );
+    ThrowUponGLError("in glTexSubImage2D");
+  } catch (...) {
+    // Restore the PixelStorei parameter values that were overridden above.
+    RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
+    Unbind();
+    throw; // Rethrow the exception
+  }
 
   // Restore the PixelStorei parameter values that were overridden above.
   RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
-
   Unbind();
 }
 
@@ -112,17 +118,24 @@ void Texture2::GetTexImage (Texture2PixelData &pixel_data) {
   Bind();
   ThrowUponGLError("in glBindTexture");
   
-  // Store all the PixelStorei parameters that are about to be overridden, then override them.
   Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
-  OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
-  
-  glGetTexImage(
-    m_params.Target(),
-    0,                      // Mipmap level (0 is the full image).
-    pixel_data.Format(),
-    pixel_data.Type(),
-    pixel_data.WriteableRawData()
-  );
+  try {
+    // Store all the PixelStorei parameters that are about to be overridden, then override them.
+    OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
+
+    glGetTexImage(
+      m_params.Target(),
+      0,                      // Mipmap level (0 is the full image).
+      pixel_data.Format(),
+      pixel_data.Type(),
+      pixel_data.WriteableRawData()
+    );
+    ThrowUponGLError("in glGetTexImage");
+  } catch (...) {
+    // Restore the PixelStorei parameter values that were overridden above.
+    RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
+    Unbind();
+  }
   
   // Restore the PixelStorei parameter values that were overridden above.
   RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
@@ -205,34 +218,41 @@ void Texture2::Initialize_Implementation (const Texture2Params &params, const Te
   glGenTextures(1, &m_texture_name);
   ThrowUponGLError("in glGenTextures");
   glBindTexture(m_params.Target(), m_texture_name);
-  ThrowUponGLError("in glBindTexture");
 
-  // Set all the GLfloat texture parameters.
-  for (auto p : m_params.TexParameterfMap())
-  {
-    glTexParameterf(m_params.Target(), p.first, p.second);
-    ThrowUponGLError(FORMAT("in setting glTexParameterf using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
-  }
-  // Set all the GLint texture parameters.
-  for (auto p : m_params.TexParameteriMap())
-  {
-    glTexParameteri(m_params.Target(), p.first, p.second);
-    ThrowUponGLError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
-  }
-  // Store all the PixelStorei parameters that are about to be overridden, then override them.
-  Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;
-  OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
+  Texture2PixelData::GLPixelStoreiParameterMap overridden_pixel_store_i_parameter_map;  
+  try {
+    // Set all the GLfloat texture parameters.
+    for (auto p : m_params.TexParameterfMap())
+    {
+      glTexParameterf(m_params.Target(), p.first, p.second);
+      ThrowUponGLError(FORMAT("in setting glTexParameterf using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
+    }
+    // Set all the GLint texture parameters.
+    for (auto p : m_params.TexParameteriMap())
+    {
+      glTexParameteri(m_params.Target(), p.first, p.second);
+      ThrowUponGLError(FORMAT("in setting glTexParameteri using pname = GLenum(0x" << std::hex << p.first << "), value = " << p.second));
+    }
   
-  glTexImage2D(m_params.Target(),
-               0,                               // mipmap level (for source images, this should be 0)
-               m_params.InternalFormat(),
-               m_params.Width(),
-               m_params.Height(),
-               0,                               // border (must be 0)
-               pixel_data.Format(),
-               pixel_data.Type(),
-               pixel_data.ReadableRawData());
-  ThrowUponGLError("in glTexImage2D");
+    // Store all the PixelStorei parameters that are about to be overridden, then override them.
+    OverridePixelStoreiParameters(pixel_data.PixelStoreiParameterMap(), overridden_pixel_store_i_parameter_map);
+    glTexImage2D(m_params.Target(),
+                 0,                               // mipmap level (for source images, this should be 0)
+                 m_params.InternalFormat(),
+                 m_params.Width(),
+                 m_params.Height(),
+                 0,                               // border (must be 0)
+                 pixel_data.Format(),
+                 pixel_data.Type(),
+                 pixel_data.ReadableRawData());
+    ThrowUponGLError("in glTexImage2D");
+  } catch (...) {
+    // Restore the PixelStorei parameter values that were overridden above.
+    RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
+    // Unbind the texture to minimize the possibility that other GL calls may modify this texture.
+    glBindTexture(m_params.Target(), 0);
+    throw;
+  }
 
   // Restore the PixelStorei parameter values that were overridden above.
   RestorePixelStoreiParameters(overridden_pixel_store_i_parameter_map);
