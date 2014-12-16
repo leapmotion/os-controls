@@ -6,6 +6,8 @@ add_sublibrary(
         PrimitiveGeometry.h
         Primitives.h
         RenderState.h
+        ScopeGuard.h
+        ShaderBindingScopeGuard.h
         SVGPrimitive.h
         TexturedFrame.h
     SOURCES

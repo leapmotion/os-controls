@@ -1,8 +1,5 @@
 #pragma once
 
-namespace Leap {
-namespace GL {
-
 // See ScopeGuard.
 enum class BindFlags : int { NONE = 0, BIND = (1 << 0), UNBIND = (1 << 1), BIND_AND_UNBIND = BIND|UNBIND };
 
@@ -40,6 +37,3 @@ private:
   const Class_ &m_guarded_object;
   BindFlags m_bind_flags;
 };
-
-} // end of namespace GL
-} // end of namespace Leap

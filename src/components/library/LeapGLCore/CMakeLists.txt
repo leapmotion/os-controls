@@ -28,9 +28,7 @@ add_sublibrary(
         Leap/GL/SceneGraphNodeProperties.h
         Leap/GL/SceneGraphNodeProperty.h
         Leap/GL/SceneGraphNodeValues.h
-        Leap/GL/ScopeGuard.h
         Leap/GL/Shader.h
-        Leap/GL/ShaderBindingScopeGuard.h
         Leap/GL/ShaderException.h
         Leap/GL/ShaderFrontend.h
         Leap/GL/ShaderMatrices.h
