@@ -5,7 +5,7 @@
 namespace Leap {
 namespace GL {
 
-// Base class for all Leap::GL::VertexBuffer exceptions.
+/// @brief Base class for all Leap::GL::VertexBuffer exceptions.
 class VertexBufferException : public Exception {
 public:
 

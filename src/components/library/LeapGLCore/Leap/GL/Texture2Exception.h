@@ -5,7 +5,7 @@
 namespace Leap {
 namespace GL {
 
-// Base class for all Leap::GL::Texture2 exceptions.
+/// @brief Base class for all Leap::GL::Texture2 exceptions.
 class Texture2Exception : public Exception {
 public:
 

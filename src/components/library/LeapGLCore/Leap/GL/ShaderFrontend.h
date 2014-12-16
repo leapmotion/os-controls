@@ -13,6 +13,32 @@
 namespace Leap {
 namespace GL {
 
+/// @brief Provides a static C++ interface to a Shader.
+/// @details Conceptually, a ShaderFrontend is a Shader and a set of named and typed uniforms for
+/// which an interface to upload said uniforms will be provided.  On a more concrete level, a
+/// ShaderFrontend is defined by several properties.
+/// - A variadic list of uniform name/type info, provided as the template parameters to ShaderFrontend.
+/// - A pointer to the Shader to which the uniforms are a part of.
+/// - A tuple of uniform names, from which locations in the specified shader will be determined.
+///
+/// Once Initialize()d, a ShaderFrontend only has one relevant method, @c UploadUniforms, which takes
+/// a UniformMap object and uploads the values specified in the corresponding values to the correpsonding
+/// locations in the currently bound Shader (meaning that the relevant Shader must be bound for the
+/// UploadUniforms operation to work).
+///
+/// The set of named and typed uniforms are specified via @c UniformSpecification, which has several
+/// alias templates for convenience:
+/// - @c Uniform
+/// - @c UniformArray
+/// - @c MatrixUniform
+/// - @c MatrixUniformArray
+/// The UniformNameType_ of ShaderFrontend should be an enum type which contains enums naming the
+/// relevant uniforms.  The variadic UniformMappings_ parameter should be a list of UniformSpecification
+/// types which define the name, GL type (GL_BOOL, GL_FLOAT_VEC3, etc), and C++ type (bool,
+/// std::array<GLfloat,3>, etc) of each uniform.  The GL type will be used as the GL_TYPE_ parameter in
+/// the call to Shader::UploadUniform<GL_TYPE_>(...) which is made in UploadUniforms.  The C++ type will
+/// be used as the representation for that uniform value in UniformMap.  See the documentation for
+/// UniformMap for more information.
 template <typename UniformNameType_, typename... UniformMappings_>
 class ShaderFrontend : public ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>> {
 private:
@@ -43,7 +69,33 @@ public:
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<std::string,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformIds; // TODO: this should be Map_t
   typedef Internal::Tuple_t<typename Internal::UniformTyple_f<GLint,Internal::Length_f<UniformMappingsTyple>::V>::T> UniformLocations; // TODO: this should be Map_t
 
-  // This is the type which stores the data required by UploadUniforms.
+  /// @brief This is the type which stores the data required by UploadUniforms.
+  /// @details A UniformMap is essentially a tuple whose components are indexed by particular
+  /// enum values.  Access to these components is provided via the @c val method.  Examples:
+  /// @verbatim
+  /// enum class Material { COLOR, TEXTURING_ENABLED, TEXTURE_UNIT };
+  /// typedef ShaderFrontend<Material,
+  ///                        Uniform<Material, Material::COLOR, GL_FLOAT_VEC3,std::array<GLfloat,3>>,
+  ///                        Uniform<Material, Material::TEXTURING_ENABLED, GL_BOOL, bool>,
+  ///                        Uniform<Material, Material::TEXTURE_UNIT, GL_SAMPLER_2D, GLint>> Frontend;
+  /// typedef Frontend::UniformMap Uniforms; // Layed out in memory the same as:
+  ///                                        // struct {
+  ///                                        //   std::array<GLfloat,3> color;
+  ///                                        //   bool texturing_enabled;
+  ///                                        //   GLint texture_unit;
+  ///                                        // }
+  /// Uniforms uniforms; // Leaves all components uninitialized.
+  /// uniforms.val<COLOR>() = std::array<GLfloat,3>{{1.0f, 0.0f, 0.0f}}; // Red
+  /// uniforms.val<TEXTURING_ENABLED>() = true;
+  /// uniforms.val<TEXTURE_UNIT>() = 4;
+  /// Frontend *frontend = ...;
+  /// frontend->UploadUniforms(uniforms);
+  /// @endverbatim
+  /// A UniformMap can also be constructed with member initialization, as one would do with a tuple.
+  /// For example,
+  /// @verbatim
+  /// Uniforms uniforms(std::array<GLfloat,3>{{1.0f, 0.0f, 0.0f}}, true, 4);
+  /// @endverbatim
   class UniformMap : public UniformMapBaseClass {
   public:
     UniformMap (UniformMapBaseClass const &m) : UniformMapBaseClass(m) { }
@@ -60,19 +112,19 @@ public:
     using UniformMapBaseClass::values;
   };
 
-  // Construct an un-Initialize-d ShaderFrontend which has not acquired any GL (or other) resources.
-  // It will be necessary to call Initialize on this object to use it.
+  /// @brief Construct an un-Initialize-d ShaderFrontend which has not acquired any GL (or other) resources.
+  /// @details It will be necessary to call Initialize on this object to use it.
   ShaderFrontend ()
     : m_shader(nullptr)
   { }
-  // Convenience constructor that will call Initialize with the given arguments.
+  /// @brief Convenience constructor that will call Initialize with the given arguments.
   template <typename... Types_>
   ShaderFrontend (const Shader *shader, const UniformIds &uniform_ids)
     : m_shader(nullptr)
   {
     Initialize(shader, uniform_ids);
   }
-  // Will call Shutdown.
+  /// @brief Destructor will call Shutdown.
   ~ShaderFrontend () {
     Shutdown();
   }
@@ -81,6 +133,9 @@ public:
   using ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>::Initialize;
   using ResourceBase<ShaderFrontend<UniformNameType_,UniformMappings_...>>::Shutdown;
 
+  /// @brief Uploads the values in the given UniformMap to the corresponding locations specified
+  /// during the initialization of this ShaderFrontend.
+  /// @details The associated Shader must be bound for this call to work.
   void UploadUniforms (const UniformMap &uniforms) const {
     if (!IsInitialized()) {
       throw ShaderException("Can't call UploadUniforms on a ShaderFrontend that !IsInitialized().");
