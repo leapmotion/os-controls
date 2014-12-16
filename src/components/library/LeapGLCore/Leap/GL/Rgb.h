@@ -21,9 +21,14 @@ template <typename T>
 class Rgb {
 public:
 
+  /// @brief Typedef for the ColorComponent type for each of the R, G, and B components.
   typedef ColorComponent<T> Component;
+  /// @brief Number of components in this color type (three).
   static const size_t COMPONENT_COUNT = 3;
+  /// @brief Static method which produces the Rgb<T> having components all zero -- black.
   static Rgb Zero () { return Rgb(ColorComponent<T>::Zero()); }
+  /// @brief Static method which produces the Rgb<T> having components all one (in the sense
+  /// described in @c ColorComponent) -- white.
   static Rgb One () { return Rgb(ColorComponent<T>::One()); }
 
   /// @brief Constructs an uninitialized Rgb value.
@@ -36,7 +41,6 @@ public:
     m_data[1] = g;
     m_data[2] = b;
   }
-
   /// @brief Dynamic conversion from Rgb value with different component type.
   /// @details This is guaranteed to scale the dynamic range of the components appropriately.
   template <typename U>
@@ -45,6 +49,7 @@ public:
     G() = other.G();
     B() = other.B();
   }
+
   /// @brief Equality operator.
   /// @details Defined via direct memory comparison.
   bool operator == (const Rgb &other) const {
@@ -52,17 +57,21 @@ public:
   }
 
   /// @brief This method can be used to access the components as whatever standard-layout type is desired (e.g. some library-specific vector type).
+  /// @details This const version can be used to modify the components via some other standard-layout type, e.g. std::array<T,3>.
   template <typename U>
   const U &ReinterpretAs () const {
-    static_assert(sizeof(U) == sizeof(Rgb), "U must be a POD mapping directly onto this object");
-    // TODO: somehow check that U is a POD consisting only of type ColorComponent
+    static_assert(sizeof(U) == sizeof(Rgb), "U must be a standard-layout type mapping directly onto this object");
+    static_assert(std::is_standard_layout<U>::value, "U must be a standard-layout type mapping directly onto this object");
+    // TODO: somehow check that U consists only of type ColorComponent
     return *reinterpret_cast<const U *>(this);
   }
   /// @brief This method can be used to access the components as whatever standard-layout type is desired (e.g. some library-specific vector type).
+  /// @details This non-const version can be used to modify the components via some other standard-layout type, e.g. std::array<T,3>.
   template <typename U>
   U &ReinterpretAs () {
-    static_assert(sizeof(U) == sizeof(Rgb), "U must be a POD mapping directly onto this object");
-    // TODO: somehow check that U is a POD consisting only of type ColorComponent
+    static_assert(sizeof(U) == sizeof(Rgb), "U must be a standard-layout type mapping directly onto this object");
+    static_assert(std::is_standard_layout<U>::value, "U must be a standard-layout type mapping directly onto this object");
+    // TODO: somehow check that U consists only of type ColorComponent
     return *reinterpret_cast<U *>(this);
   }
 
@@ -122,22 +131,30 @@ public:
     return retval;
   }
 
+  /// @brief Calls Clamp on each component in this Rgb object.
+  /// @details See @c ColorComponent::Clamp for more info.
   void Clamp () {
     for (size_t i = 0; i < COMPONENT_COUNT; ++i) {
       ClampComponent(m_data[i]);
     }
   }
+  /// @brief Returns the clamped value.
   Rgb Clamped () const {
     Rgb retval(*this);
     retval.Clamp();
     return retval;
   }
 
+  /// @brief Calls BlendWith on each component in this Rgb object with the corresponding component in blend_target.
+  /// @details The blend_parameter argument is used for each component's BlendWith operation.  See
+  /// @c ColorComponent::BlendWith for more info.
   void BlendWith (const Rgb &blend_target, const ColorComponent<T> &blend_parameter) {
     for (size_t i = 0; i < COMPONENT_COUNT; ++i) {
       m_data[i].BlendWith(blend_target.m_data[i], blend_parameter);
     }
   }
+  /// @brief Returns the blended value.
+  /// @details See @c Rgb::BlendWith for more info.
   Rgb BlendedWith (const Rgb &blend_target, const ColorComponent<T> &blend_parameter) const {
     Rgb retval(*this);
     retval.BlendWith(blend_target, blend_parameter);
@@ -146,6 +163,7 @@ public:
 
 private:
 
+  /// @brief The array of ColorComponent instances making up this Rgb object, in order R, G, then B.
   ColorComponent<T> m_data[COMPONENT_COUNT];
 };
 
