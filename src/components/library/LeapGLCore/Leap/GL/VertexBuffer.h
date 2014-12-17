@@ -48,13 +48,6 @@ public:
   /// @brief Data type which holds the locations for the respective attributes.
   typedef typename Internal::UniformTuple<ATTRIBUTE_COUNT,GLint>::T AttributeLocations;
 
-  // /// @brief For use in unique-ifying vertex attributes.
-  // struct AttributesCompare {
-  //   bool operator () (const Attributes &lhs, const Attributes &rhs) const {
-  //     return memcmp(reinterpret_cast<const void *>(&lhs), reinterpret_cast<const void *>(&rhs), sizeof(Attributes)) < 0;
-  //   }
-  // };
-
   /// @brief Construct an un-Initialize-d VertexBuffer which has not acquired any GL (or other) resources.
   /// @details It will be necessary to call Initialize on this object to use it.
   VertexBuffer ()
