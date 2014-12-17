@@ -3,7 +3,7 @@
 #include "AMeshSection.h"
 
 #include "Leap/GL/Shader.h"
-#include "Leap/GL/VertexBuffer.h"
+#include "Leap/GL/VertexBufferObject.h"
 
 #include <vector>
 #include <memory>
@@ -14,14 +14,14 @@ namespace model {
 
   typedef std::shared_ptr<class SkinnedVboMesh> SkinnedVboMeshRef;
 
-  typedef VertexBuffer<VertexAttribute<GL_FLOAT_VEC3>, // position
+  typedef VertexBufferObject<VertexAttribute<GL_FLOAT_VEC3>, // position
     VertexAttribute<GL_FLOAT_VEC3>, // normal
     VertexAttribute<GL_FLOAT_VEC2>, // tex coord
     VertexAttribute<GL_FLOAT_VEC4>, // bone weights
     VertexAttribute<GL_FLOAT_VEC4>> // bone indices
-    VertexBuffer;
+    VertexBufferObject;
 
-  typedef VertexBuffer::Attributes VertexAttributes;
+  typedef VertexBufferObject::Attributes VertexAttributes;
 
   class SkinnedVboMesh
   {
@@ -33,8 +33,8 @@ namespace model {
       MeshSection();
       void updateMesh(bool enableSkinning = true) override;
 
-      VertexBuffer& getVboMesh() { return mVboMesh; }
-      const VertexBuffer& getVboMesh() const { return mVboMesh; }
+      VertexBufferObject& getVboMesh() { return mVboMesh; }
+      const VertexBufferObject& getVboMesh() const { return mVboMesh; }
       void setVboMesh(size_t numVertices, size_t numIndices, GLenum primitiveType);
 
       BufferObject& getIndices() { return mIndices; }
@@ -44,7 +44,7 @@ namespace model {
       std::array<Eigen::Matrix4f, MAXBONES>* mInvTransposeMatricesPtr;
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     private:
-      VertexBuffer mVboMesh;
+      VertexBufferObject mVboMesh;
       BufferObject mIndices;
     };
     typedef std::shared_ptr<SkinnedVboMesh::MeshSection> MeshVboSectionRef;

@@ -9,7 +9,7 @@ namespace GL {
 
 /// @brief A C++ abstraction for the buffer object concept (untyped storage of data) in OpenGL.
 /// @details This is a low-level class that is used by other higher-level classes such as
-/// VertexBuffer.  This class uses ResourceBase to implement consistent resource acquisition
+/// VertexBufferObject.  This class uses ResourceBase to implement consistent resource acquisition
 /// and release conventions.  See https://www.opengl.org/wiki/Buffer_Object for more info on
 /// the general buffer object concept.
 class BufferObject : public ResourceBase<BufferObject> {

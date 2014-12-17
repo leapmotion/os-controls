@@ -38,8 +38,8 @@ add_sublibrary(
         Leap/GL/Texture2Params.h
         Leap/GL/Texture2PixelData.h
         Leap/GL/VertexAttribute.h
-        Leap/GL/VertexBuffer.h
-        Leap/GL/VertexBufferException.h
+        Leap/GL/VertexBufferObject.h
+        Leap/GL/VertexBufferObjectException.h
     SOURCES
         Leap/GL/BufferObject.cpp
         Leap/GL/ModelView.cpp

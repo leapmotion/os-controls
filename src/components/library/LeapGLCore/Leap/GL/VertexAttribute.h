@@ -7,7 +7,7 @@ namespace Leap {
 namespace GL {
 
 // TODO: enabling use of the "normalized" boolean parameter in glVertexAttribPointer.
-// This represents a single, typed attribute in a VertexBuffer.  It is a single
+// This represents a single, typed attribute in a VertexBufferObject.  It is a single
 // array of fixed-typed components, defined via VertexAttributeReflection by the
 // ATTRIB_TYPE template parameter.  Using the "As" methods, the array can be accessed
 // and modified as whatever POD type (of correct size) is desired.
@@ -81,7 +81,7 @@ public:
   /// @brief Enable the vertex attribute array for the given attribute location and set the vertex attribute pointer.
   /// @details This method assumes that the vertex buffer that this attribute is associated with is currently
   /// bound.  An attribute's use is optional.  Specifically, if a particular vertex shader doesn't have a
-  /// particular attribute present in a given VertexBuffer, that VertexBuffer can still be used -- the missing
+  /// particular attribute present in a given VertexBufferObject, that VertexBufferObject can still be used -- the missing
   /// attributes will be ignored.  Specifying -1 for location indicates that this attribute should not be used.
   /// The calls to glVertexAttribPointer use the currently bound buffer object.
   static void Enable (GLint location, GLsizei stride, GLsizei offset) {
