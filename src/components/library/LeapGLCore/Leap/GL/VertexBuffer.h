@@ -12,82 +12,61 @@
 #include <type_traits>
 #include <vector>
 
-// Design notes for VertexBuffer
-// -------------------------------
-// This will encapsulate the concept of an OpenGL vertex buffer -- this is a set of
-// attributes for each vertex, such as position, normal, texture coordinate, color,
-// and whatever else.  Each attribute must correspond exactly to one attribute in the
-// associated vertex shader.  Each vertex in the buffer must have a well-defined value
-// for each attribute.  This class will automatically handle creation, allocation, deallocation
-// and destruction of the relevant resources (e.g. GL buffers, etc).
-//
-// The association between the attributes in a VertexBuffer and the attributes in
-// a vertex shader is done by shader attribute name.  Instead of hard-coding the attribute
-// names into VertexBuffer, the names of the associated attributes will be specified
-// to VertexBuffer for the Enable operation.  This correspondence is essentially a
-// dictionary of type attribute -> attribute location.  Some vertex shaders may not have
-// all of the attributes that are provided by a given VertexBuffer, and that should be
-// handled by ignoring the missing attributes.  Thus if a vertex shader only has e.g.
-// the "position" attribute but a VertexBuffer has a position and normal attribute for
-// each vertex, said VertexBuffer can be used with the shader, and the normal attribute
-// will go unused.
-//
-// The attributes in a VertexBuffer should be fully configurable, of any type that is
-// allowable by GL.  This should be done with templates, so that the vertex-specifying
-// methods are fully strongly typed.  There should be a "vertex attribute" class which
-// manages the data associated with each attribute and translates the C++-typed attributes
-// into the relevant GL enums and data.
-
 namespace Leap {
 namespace GL {
 
-// Encapsulates the concept of an OpenGL vertex buffer object.  A vertex buffer
-// object is an array of vertex attributes that are uploaded to the GPU for use
-// in a vertex shader program.  The vertex attributes correspond to "attribute"
-// variables in the vertex shader.  The vertex shader program is called on each
-// vertex, and each vertex must have each of the required attributes defined
-// for it.  Thus the set of attributes must be well-defined.  This is done via
-// the variadic AttributeTypes template parameter(s).
-//
-// There is a vector of "intermediate attributes" which is a mutable buffer for
-// creating/modifying vertex attributes before they are [re]uploaded to the GPU.
-// Once the intermediate attributes vector has been populated, the
-// UploadIntermediateAttributes should be called, which will create the necessary
-// GL resource and upload the data to the GPU.  Unless the intermediate attributes
-// are going to be modified and re-uploaded, it is recommended to clear the
-// intermediate attributes after upload.
-//
-// The only exceptions that this class explicitly throws derive from
-// Leap::GL::VertexBufferException.
-//
-// TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
+/// @brief Encapsulates the concept of an OpenGL vertex buffer object.
+/// @details A vertex buffer object is an array of vertex attributes that are uploaded 
+/// to the GPU for use in a vertex shader program.  The vertex attributes correspond to
+/// "attribute" variables in the vertex shader.  The vertex shader program is called on each
+/// vertex, and each vertex must have each of the required attributes defined for it.  Thus
+/// the set of attributes must be well-defined.  This is done via the variadic AttributeTypes
+/// template parameter(s).
+///
+/// There is a vector of "intermediate attributes" which is a mutable buffer for creating/modifying
+/// vertex attributes before they are [re]uploaded to the GPU.  Once the intermediate attributes
+/// vector has been populated, the UploadIntermediateAttributes should be called, which will
+/// create the necessary GL resource and upload the data to the GPU.  Unless the intermediate
+/// attributes are going to be modified and re-uploaded, it is recommended to clear the
+/// intermediate attributes after upload.
+///
+/// The only exceptions that this class explicitly throws derive from
+/// Leap::GL::VertexBufferException.
+///
+/// For more info, see https://www.opengl.org/wiki/Vertex_Specification#Vertex_Buffer_Object
+///
+/// TODO: Rename to VertexBufferObject.
+/// TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
 template <typename... AttributeTypes>
 class VertexBuffer : public ResourceBase<VertexBuffer<AttributeTypes...>> {
 public:
 
+  /// @brief Convenience typedef for the type of a single vertex attribute.
   typedef std::tuple<AttributeTypes...> Attributes;
+  /// @brief Number of attributes specified in this VertexBuffer.
   static const size_t ATTRIBUTE_COUNT = std::tuple_size<Attributes>::value;
-  typedef typename Internal::UniformTuple<ATTRIBUTE_COUNT,GLint>::T UniformLocations;
+  /// @brief Data type which holds the locations for the respective attributes.
+  typedef typename Internal::UniformTuple<ATTRIBUTE_COUNT,GLint>::T AttributeLocations;
 
-  // For use in unique-ifying vertex attributes.
-  struct AttributesCompare {
-    bool operator () (const Attributes &lhs, const Attributes &rhs) const {
-      return memcmp(reinterpret_cast<const void *>(&lhs), reinterpret_cast<const void *>(&rhs), sizeof(Attributes)) < 0;
-    }
-  };
+  // /// @brief For use in unique-ifying vertex attributes.
+  // struct AttributesCompare {
+  //   bool operator () (const Attributes &lhs, const Attributes &rhs) const {
+  //     return memcmp(reinterpret_cast<const void *>(&lhs), reinterpret_cast<const void *>(&rhs), sizeof(Attributes)) < 0;
+  //   }
+  // };
 
-  // Construct an un-Initialize-d VertexBuffer which has not acquired any GL (or other) resources.
-  // It will be necessary to call Initialize on this object to use it.
+  /// @brief Construct an un-Initialize-d VertexBuffer which has not acquired any GL (or other) resources.
+  /// @details It will be necessary to call Initialize on this object to use it.
   VertexBuffer ()
     : m_usage_pattern(GL_INVALID_ENUM)
   { }
-  // Convenience constructor that will call Initialize with the given arguments.
+  /// @brief Convenience constructor that will call Initialize with the given arguments.
   VertexBuffer (GLenum usage_pattern)
     : m_usage_pattern(GL_INVALID_ENUM)
   {
     Initialize(usage_pattern);
   }
-  // Will call Shutdown.
+  /// @brief Destructor will call Shutdown.
   ~VertexBuffer () {
     Shutdown();
   }
@@ -96,23 +75,23 @@ public:
   using ResourceBase<VertexBuffer<AttributeTypes...>>::Initialize;
   using ResourceBase<VertexBuffer<AttributeTypes...>>::Shutdown;
 
-  // Returns the usage pattern used in upload operations.
+  /// @brief Returns the usage pattern used in upload operations.
   GLenum UsagePattern () const {
     if (!IsInitialized()) {
       throw VertexBufferException("A VertexBuffer that !IsInitialized() has no UsagePattern value.");
     }
     return m_usage_pattern;
   }
-  // Returns a const reference to the vertex attributes' intermediate buffer that is used
-  // to create/modify attributes before uploading to the GPU.
+  /// @brief Returns a const reference to the vertex attributes' intermediate buffer that is used
+  /// to create/modify attributes before uploading to the GPU.
   const std::vector<Attributes> &IntermediateAttributes () const {
     if (!IsInitialized()) {
       throw VertexBufferException("A VertexBuffer that !IsInitialized() has no IntermediateAttributes value.");
     }
     return m_intermediate_attributes;
   }
-  // Returns a reference to the vertex attributes' intermediate buffer that is used
-  // to create/modify attributes before uploading to the GPU.
+  /// @brief Returns a reference to the vertex attributes' intermediate buffer that is used
+  /// to create/modify attributes before uploading to the GPU.
   std::vector<Attributes> &IntermediateAttributes () {
     if (!IsInitialized()) {
       throw VertexBufferException("A VertexBuffer that !IsInitialized() has no IntermediateAttributes value.");
@@ -120,25 +99,24 @@ public:
     return m_intermediate_attributes;
   }
 
-  // This releases all resources (pre-load attribute buffer and GL buffer
-  // for vertex attributes, if it has been created already).
+  /// @brief This releases all resources (pre-load attribute buffer and GL buffer
+  /// for vertex attributes, if it has been created already).
   void ClearEverything () {
     ClearIntermediateAttributes();
     ClearGLResources();
   }
-  // This clears the intermediate attribute buffer, but preserves everything else.
+  /// @brief This clears the intermediate attribute buffer, but preserves everything else.
   void ClearIntermediateAttributes () {
     m_intermediate_attributes.clear();
   }
-  // This clears the GL buffer object, but preserves everything else.
+  /// @brief This clears the GL buffer object, but preserves everything else.
   void ClearGLResources () const {
     m_gl_buffer_object.Shutdown();
   }
-  // Allocates (if necessary) and populates a GL buffer object with the intermediate attribute
-  // buffer data.  It is recommended to clear the intermediate attributes after calling this
-  // method, unless said attribute data is going to be modified and uploaded again.  This
-  // method should only be called after the intermediate attributes have changed and the
-  // changes need to be propagated to the GPU.
+  /// @brief Allocates (if necessary) and populates a GL buffer object with the intermediate attribute buffer data.
+  /// @details It is recommended to clear the intermediate attributes after calling this method, unless said
+  /// attribute data is going to be modified and uploaded again.  This method should only be called after the
+  /// intermediate attributes have changed and the changes need to be propagated to the GPU.
   void UploadIntermediateAttributes () const {
     if (!IsInitialized()) {
       throw VertexBufferException("Can't call VertexBuffer::UploadIntermediateAttributes on a VertexBuffer that is !IsInitialized().");
@@ -164,18 +142,18 @@ public:
     assert(IsUploaded());
   }
 
-  // Returns true if UploadIntermediateAttributes has been called, i.e. if there are associated GL resources.
+  /// @brief Returns true if UploadIntermediateAttributes has been called, i.e. if there are associated GL resources.
   bool IsUploaded () const {
     if (!IsInitialized()) {
       return false;
     }
     return m_gl_buffer_object.IsInitialized();
   }
-  // This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
-  // of the vertex attributes given valid locations (i.e. not equal to -1).  The
-  // tuple argument attribute_locations must correspond exactly to Attributes
-  // (which is a tuple of VertexAttribute types defined by this VertexBuffer).
-  void Enable (const UniformLocations &attribute_locations) const {
+  /// @brief This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
+  /// of the vertex attributes given valid locations (i.e. not equal to -1).
+  /// @details The tuple argument attribute_locations must correspond exactly to Attributes
+  /// (which is a tuple of VertexAttribute types defined by this VertexBuffer).
+  void Enable (const AttributeLocations &attribute_locations) const {
     if (!IsInitialized()) {
       throw VertexBufferException("Can't call VertexBuffer::Enable on a VertexBuffer that is !IsInitialized().");
     }
@@ -187,10 +165,10 @@ public:
     EnableAndIterate<0>(attribute_locations, sizeof(Attributes));
     m_gl_buffer_object.Unbind();
   }
-  // This method calls glDisableVertexAttribArray on each of the vertex attributes
-  // given valid locations (i.e. not equal to -1).  This method is analogous to the
-  // Enable method.
-  static void Disable (const UniformLocations &attribute_locations) {
+  /// @brief This method calls glDisableVertexAttribArray on each of the vertex attributes
+  /// given valid locations (i.e. not equal to -1).
+  /// @details This method is analogous to the Enable method.
+  static void Disable (const AttributeLocations &attribute_locations) {
     // Begin iterated unbinding of vertex attributes starting at the 0th one.
     DisableAndIterate<0>(attribute_locations);
   }
@@ -200,7 +178,7 @@ private:
   // This is one iteration of the Enable method.  It calls the next iteration.
   template <size_t INDEX>
   static typename std::enable_if<(INDEX<ATTRIBUTE_COUNT),void>::type
-    EnableAndIterate (const UniformLocations &locations, size_t stride)
+    EnableAndIterate (const AttributeLocations &locations, size_t stride)
   {
     // Get the INDEXth attribute type.
     typedef typename std::tuple_element<INDEX,Attributes>::type AttributeType;
@@ -218,7 +196,7 @@ private:
   // This is the end of the iteration in the Enable method.
   template <size_t INDEX>
   static typename std::enable_if<(INDEX>=ATTRIBUTE_COUNT),void>::type
-    EnableAndIterate (const UniformLocations &locations, size_t stride)
+    EnableAndIterate (const AttributeLocations &locations, size_t stride)
   {
     // Iteration complete -- do nothing.
   }
@@ -226,7 +204,7 @@ private:
   // This is one iteration of the Disable method.  It calls the next iteration.
   template <size_t INDEX>
   static typename std::enable_if<(INDEX<ATTRIBUTE_COUNT),void>::type
-    DisableAndIterate (const UniformLocations &locations)
+    DisableAndIterate (const AttributeLocations &locations)
   {
     // Get the INDEXth attribute type.
     typedef typename std::tuple_element<INDEX,Attributes>::type AttributeType;
@@ -240,7 +218,7 @@ private:
   // This is the end of the iteration in the Disable method.
   template <size_t INDEX>
   static typename std::enable_if<(INDEX>=ATTRIBUTE_COUNT),void>::type
-    DisableAndIterate (const UniformLocations &locations)
+    DisableAndIterate (const AttributeLocations &locations)
   {
     // Iteration complete -- do nothing.
   }

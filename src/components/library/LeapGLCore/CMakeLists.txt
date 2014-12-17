@@ -17,6 +17,7 @@ add_sublibrary(
         Leap/GL/Internal/Typle.h
         Leap/GL/Internal/UniformTraits.h
         Leap/GL/Internal/UniformUploader.h
+        Leap/GL/Internal/VertexAttribute.h
         Leap/GL/Mesh.h
         Leap/GL/MeshException.h
         Leap/GL/ModelView.h

@@ -135,7 +135,7 @@ public:
   /// go unused -- this allows shaders that don't have all the attributes in this Mesh to still
   /// be usable.
   // TODO: write about what GL operations actually happen.
-  void Bind (typename VertexBuffer::UniformLocations &attribute_locations) const {
+  void Bind (typename VertexBuffer::AttributeLocations &attribute_locations) const {
     if (!IsUploaded()) {
       throw MeshException("Can't Bind a Mesh if it not IsUploaded.");
     }
@@ -153,7 +153,7 @@ public:
   /// @brief Unbinds this mesh.
   /// @details Must pass in the same attribute_locations as to the call to Bind.
   // TODO: write about what GL operations actually happen.
-  void Unbind (typename VertexBuffer::UniformLocations &attribute_locations) const {
+  void Unbind (typename VertexBuffer::AttributeLocations &attribute_locations) const {
     if (!IsUploaded()) {
       throw MeshException("Can't Unbind a Mesh if it not IsUploaded.");
     }
