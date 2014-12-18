@@ -108,8 +108,8 @@ bool OculusVR::Init() {
 
   ovrGLConfig cfg;
   cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
-  cfg.OGL.Header.RTSize.w = m_HMD->Resolution.w;
-  cfg.OGL.Header.RTSize.h = m_HMD->Resolution.h;
+  cfg.OGL.Header.BackBufferSize.w = m_HMD->Resolution.w;
+  cfg.OGL.Header.BackBufferSize.h = m_HMD->Resolution.h;
   cfg.OGL.Header.Multisample = 1;
 
   if (!(m_HMD->HmdCaps & ovrHmdCap_ExtendDesktop)) {
@@ -162,12 +162,12 @@ void OculusVR::BeginFrame() {
 
   for (int eyeIndex = 0; eyeIndex < ovrEye_Count; eyeIndex++) {
     ovrEyeType eye = m_HMD->EyeRenderOrder[eyeIndex];
-    m_EyeRenderPose[eye] = ovrHmd_GetEyePose(m_HMD, eye);
+    m_EyeRenderPose[eye] = ovrHmd_GetHmdPosePerEye(m_HMD, eye);
     m_EyeProjection[eye] = ovrMatrix4f_Projection(m_EyeRenderDesc[eye].Fov, 0.1f, 10000.0f, true);
 
     const OVR::Quatf orientation = m_EyeRenderPose[eye].Orientation;
     const OVR::Vector3f worldEyePos = m_EyeRenderPose[eye].Position;
-    const OVR::Vector3f viewAdjust = m_EyeRenderDesc[eye].ViewAdjust;
+    const OVR::Vector3f viewAdjust = m_EyeRenderDesc[eye].HmdToEyeViewOffset;
     m_EyeRotation[eye] = OVR::Matrix4f(orientation.Inverted());
     m_EyeView[eye] = OVR::Matrix4f::Translation(viewAdjust) * m_EyeRotation[eye] * OVR::Matrix4f::Translation(-worldEyePos - HeadPos);
   }

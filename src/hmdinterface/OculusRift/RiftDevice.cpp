@@ -111,8 +111,8 @@ void Device::Initialize () {
 
   ovrGLConfig cfg;
   cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
-  cfg.OGL.Header.RTSize.w = m_hmd->Resolution.w;
-  cfg.OGL.Header.RTSize.h = m_hmd->Resolution.h;
+  cfg.OGL.Header.BackBufferSize.w = m_hmd->Resolution.w;
+  cfg.OGL.Header.BackBufferSize.h = m_hmd->Resolution.h;
   cfg.OGL.Header.Multisample = 1;
 
   if (!(m_hmd->HmdCaps & ovrHmdCap_ExtendDesktop)) {
@@ -247,7 +247,7 @@ void Device::BeginFrame () {
   for (uint32_t eye_index = 0; eye_index < ovrEye_Count; ++eye_index) {
     ovrEyeType eye = m_hmd->EyeRenderOrder[eye_index];
     ovrPosef &EyePosef = m_CachedEyeRenderPoseForEndFrame[eye_index];
-    EyePosef = ovrHmd_GetEyePose(m_hmd, eye);
+    EyePosef = ovrHmd_GetHmdPosePerEye(m_hmd, eye);
     static_assert(sizeof(ovrPosef) == sizeof(OVR::Pose<float>), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
     static_assert(offsetof(ovrPosef,Orientation) == offsetof(OVR::Pose<float>,Rotation), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
     static_assert(offsetof(ovrPosef,Position) == offsetof(OVR::Pose<float>,Translation), "The conversion between ovrPosef and OVR::Pose<float> is done under the assumption of direct memory mapping of members.");
