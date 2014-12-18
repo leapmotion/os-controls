@@ -39,12 +39,22 @@ namespace model {
 
       BufferObject& getIndices() { return mIndices; }
       const BufferObject& getIndices() const { return mIndices; }
+      
+      std::vector<VertexAttributes>& Attributes() {
+        return mBuffer;
+      }
+
+      void InitializeVBO() {
+        mVboMesh.Initialize(mBuffer.data(), mBuffer.size(), GL_STATIC_DRAW);
+        mBuffer.clear();
+      }
 
       std::array<Eigen::Matrix4f, MAXBONES>* mBoneMatricesPtr;
       std::array<Eigen::Matrix4f, MAXBONES>* mInvTransposeMatricesPtr;
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     private:
       VertexBufferObject mVboMesh;
+      std::vector<VertexAttributes> mBuffer;
       BufferObject mIndices;
     };
     typedef std::shared_ptr<SkinnedVboMesh::MeshSection> MeshVboSectionRef;

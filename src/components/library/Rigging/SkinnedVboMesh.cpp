@@ -6,13 +6,12 @@
 namespace model {
 
   SkinnedVboMesh::MeshSection::MeshSection()
-    : AMeshSection(), mVboMesh(GL_STATIC_DRAW)
+    : AMeshSection()
   { }
 
   void SkinnedVboMesh::MeshSection::setVboMesh(size_t numVertices, size_t numIndices, GLenum primitiveType)
   {
-    std::vector<VertexAttributes>& attributes = mVboMesh.IntermediateAttributes();
-    attributes.resize(numVertices);
+    mBuffer.resize(numVertices);
     if (!mIndices.IsInitialized()) {
       mIndices.Initialize(GL_ELEMENT_ARRAY_BUFFER);
     }
@@ -59,8 +58,7 @@ namespace model {
     modelSource->load(&target);
 
     for (size_t i=0; i<mMeshSections.size(); i++) {
-      mMeshSections[i]->getVboMesh().UploadIntermediateAttributes();
-      mMeshSections[i]->getVboMesh().ClearIntermediateAttributes();
+      mMeshSections[i]->InitializeVBO();
     }
   }
 
