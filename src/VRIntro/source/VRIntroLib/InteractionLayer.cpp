@@ -60,7 +60,7 @@ void InteractionLayer::DrawSkeletonHands(bool capsuleMode) const {
       DrawSphere(hand.center, 3.0f*m_FingerRadius, 1.0f);
       DrawSphere((hand.center + hand.joints[19] + 2.0*hand.joints[20])*0.25f, 2.5f*m_FingerRadius, 1.0f);
       DrawSphere((hand.center + hand.joints[0] + 2.0*hand.joints[20])*0.25f, 2.5f*m_FingerRadius, 1.0f);
-      DrawSphere(hand.center + 12.0*m_FingerRadius*(hand.center - m_EyePos).normalized(), 12.0*m_FingerRadius, 1.0f);
+      DrawSphere(hand.center + 12.0f*m_FingerRadius*(hand.center - m_EyePos).normalized(), 12.0f*m_FingerRadius, 1.0f);
 
       // Fill in arm
       DrawCylinder((hand.joints[20] + hand.joints[21])*0.5f, (hand.jointConnections[20] + hand.jointConnections[21])*0.5f, 3.0f*m_FingerRadius, 1.0f);

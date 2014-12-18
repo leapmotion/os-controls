@@ -56,8 +56,8 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
 
   const auto windowSize = m_renderWindow->GetSize();
-  ::glScissor(0, 0, windowSize.width, windowSize.height);
-  ::glViewport(0, 0, windowSize.width, windowSize.height);
+  ::glScissor(0, 0, static_cast<GLsizei>(windowSize.width), static_cast<GLsizei>(windowSize.height));
+  ::glViewport(0, 0, static_cast<GLsizei>(windowSize.width), static_cast<GLsizei>(windowSize.height));
   // m_renderState.GetProjection().Orthographic(0, windowSize.height, windowSize.width, 0, 1, -100);
   // Note: this is backwards compared to the commented-out line above because there was a sign error in the depth
   // component of the old orthographic projection matrix code.
@@ -99,7 +99,7 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
       hmd->BeginFrame();
       const EigenTypes::Matrix4x4 projection = frame.renderState.ProjectionMatrix();
 
-      for (int i = 0; i < hmd->Configuration().EyeCount(); i++) {
+      for (uint32_t i = 0; i < hmd->Configuration().EyeCount(); i++) {
         //const int eyeIndex = hmd->Configuration().EyeRenderOrder(i);
         const int eyeIndex = i;
         frame.eyeIndex = eyeIndex;

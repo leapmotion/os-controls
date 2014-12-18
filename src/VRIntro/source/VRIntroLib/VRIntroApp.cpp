@@ -318,7 +318,7 @@ EventHandlerAction VRIntroApp::HandleKeyboardEvent(const SDL_KeyboardEvent &ev) 
     case SDLK_7:
       // Content layer
       if (!(SDL_GetModState() & KMOD_CTRL)) {
-        for (int i = 0; i < m_MappedLayers.size(); i++) {
+        for (size_t i = 0; i < m_MappedLayers.size(); i++) {
           m_MappedLayers[i]->Alpha() = 0;
         }
       }
