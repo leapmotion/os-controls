@@ -3,6 +3,7 @@
 #include "EigenTypes.h"
 #include "Leap/GL/BufferObject.h"
 #include "Leap/GL/Mesh.h"
+#include "Leap/GL/MeshAssembler.h"
 #include "RenderState.h"
 
 #include <map>
@@ -23,17 +24,22 @@ typedef Mesh<VertexAttribute<GL_FLOAT_VEC3>, // Position
              VertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
              VertexAttribute<GL_FLOAT_VEC4>  // RGBA color
             > PrimitiveGeometryMesh;
+typedef MeshAssembler<VertexAttribute<GL_FLOAT_VEC3>, // Position
+                      VertexAttribute<GL_FLOAT_VEC3>, // Normal vector
+                      VertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
+                      VertexAttribute<GL_FLOAT_VEC4>  // RGBA color
+                     > PrimitiveGeometryMeshAssembler;
 
 namespace PrimitiveGeometry {
 
-// TODO: make the PrimitiveGeometryMesh argument first.
+// TODO: make the PrimitiveGeometryMeshAssembler argument first.
 
-// Functions for populating a PrimitiveGeometryMesh object with some simple shapes.  These functions assume that
+// Functions for populating a PrimitiveGeometryMeshAssembler object with some simple shapes.  These functions assume that
 // the draw mode of the mesh is GL_TRIANGLES.
-void PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMesh& geom, double heightAngleStart = -M_PI/2.0, double heightAngleEnd = M_PI/2.0, double widthAngleStart = 0, double widthAngleEnd = 2.0*M_PI);
-void PushUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometryMesh& geom, float radiusBottom = 1.0f, float radiusTop = 1.0f, double angleStart = 0, double angleEnd = 2.0*M_PI);
-void PushUnitSquare(PrimitiveGeometryMesh &mesh);
-void PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &mesh);
-void PushUnitBox(PrimitiveGeometryMesh &mesh);
+void PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMeshAssembler& mesh_assembler, double heightAngleStart = -M_PI/2.0, double heightAngleEnd = M_PI/2.0, double widthAngleStart = 0, double widthAngleEnd = 2.0*M_PI);
+void PushUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometryMeshAssembler& mesh_assembler, float radiusBottom = 1.0f, float radiusTop = 1.0f, double angleStart = 0, double angleEnd = 2.0*M_PI);
+void PushUnitSquare(PrimitiveGeometryMeshAssembler &mesh_assembler);
+void PushUnitDisk(size_t resolution, PrimitiveGeometryMeshAssembler &mesh_assembler);
+void PushUnitBox(PrimitiveGeometryMeshAssembler &mesh_assembler);
 
 } // end of namespace PrimitiveGeometry

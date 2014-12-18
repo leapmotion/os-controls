@@ -23,19 +23,10 @@ namespace GL {
 /// the set of attributes must be well-defined.  This is done via the variadic AttributeTypes
 /// template parameter(s).
 ///
-/// There is a vector of "intermediate attributes" which is a mutable buffer for creating/modifying
-/// vertex attributes before they are [re]uploaded to the GPU.  Once the intermediate attributes
-/// vector has been populated, the UploadIntermediateAttributes should be called, which will
-/// create the necessary GL resource and upload the data to the GPU.  Unless the intermediate
-/// attributes are going to be modified and re-uploaded, it is recommended to clear the
-/// intermediate attributes after upload.
-///
 /// The only exceptions that this class explicitly throws derive from
 /// Leap::GL::VertexBufferObjectException.
 ///
 /// For more info, see https://www.opengl.org/wiki/Vertex_Specification#Vertex_Buffer_Object
-///
-/// TODO: Remove the intermediate storage concern.  This will simplify the resource interface.
 template <typename... AttributeTypes>
 class VertexBufferObject : public ResourceBase<VertexBufferObject<AttributeTypes...>> {
 public:
@@ -53,10 +44,10 @@ public:
     : m_usage_pattern(GL_INVALID_ENUM)
   { }
   /// @brief Convenience constructor that will call Initialize with the given arguments.
-  VertexBufferObject (GLenum usage_pattern)
+  VertexBufferObject (const Attributes *vertex_attribute_data, size_t vertex_count, GLenum usage_pattern)
     : m_usage_pattern(GL_INVALID_ENUM)
   {
-    Initialize(usage_pattern);
+    Initialize(usage_pattern, vertex_attribute_data, vertex_count);
   }
   /// @brief Destructor will call Shutdown.
   ~VertexBufferObject () {
@@ -74,73 +65,7 @@ public:
     }
     return m_usage_pattern;
   }
-  /// @brief Returns a const reference to the vertex attributes' intermediate buffer that is used
-  /// to create/modify attributes before uploading to the GPU.
-  const std::vector<Attributes> &IntermediateAttributes () const {
-    if (!IsInitialized()) {
-      throw VertexBufferObjectException("A VertexBufferObject that !IsInitialized() has no IntermediateAttributes value.");
-    }
-    return m_intermediate_attributes;
-  }
-  /// @brief Returns a reference to the vertex attributes' intermediate buffer that is used
-  /// to create/modify attributes before uploading to the GPU.
-  std::vector<Attributes> &IntermediateAttributes () {
-    if (!IsInitialized()) {
-      throw VertexBufferObjectException("A VertexBufferObject that !IsInitialized() has no IntermediateAttributes value.");
-    }
-    return m_intermediate_attributes;
-  }
 
-  /// @brief This releases all resources (pre-load attribute buffer and GL buffer
-  /// for vertex attributes, if it has been created already).
-  void ClearEverything () {
-    ClearIntermediateAttributes();
-    ClearGLResources();
-  }
-  /// @brief This clears the intermediate attribute buffer, but preserves everything else.
-  void ClearIntermediateAttributes () {
-    m_intermediate_attributes.clear();
-  }
-  /// @brief This clears the GL buffer object, but preserves everything else.
-  void ClearGLResources () const {
-    m_gl_buffer_object.Shutdown();
-  }
-  /// @brief Allocates (if necessary) and populates a GL buffer object with the intermediate attribute buffer data.
-  /// @details It is recommended to clear the intermediate attributes after calling this method, unless said
-  /// attribute data is going to be modified and uploaded again.  This method should only be called after the
-  /// intermediate attributes have changed and the changes need to be propagated to the GPU.
-  void UploadIntermediateAttributes () const {
-    if (!IsInitialized()) {
-      throw VertexBufferObjectException("Can't call VertexBufferObject::UploadIntermediateAttributes on a VertexBufferObject that is !IsInitialized().");
-    }
-
-    GLsizeiptr intermediate_attributes_size(m_intermediate_attributes.size()*sizeof(Attributes));
-    const void *intermediate_attributes_data(m_intermediate_attributes.data());
-    // If the buffer is already created and is the same size as the intermediate attributes,
-    // then map it and copy the data in.
-    if (m_gl_buffer_object.IsInitialized() && m_gl_buffer_object.Size() == intermediate_attributes_size) {
-      void *ptr = m_gl_buffer_object.MapBuffer(GL_WRITE_ONLY);
-      memcpy(ptr, intermediate_attributes_data, intermediate_attributes_size);
-      m_gl_buffer_object.UnmapBuffer();
-    } else { // Otherwise ensure the buffer is created, 
-      if (!m_gl_buffer_object.IsInitialized()) {
-        m_gl_buffer_object.Initialize(GL_ARRAY_BUFFER);
-      }
-      m_gl_buffer_object.Bind();
-      // This will delete and reallocate if it's already allocated.
-      m_gl_buffer_object.BufferData(intermediate_attributes_data, intermediate_attributes_size, m_usage_pattern);
-      m_gl_buffer_object.Unbind();
-    }
-    assert(IsUploaded());
-  }
-
-  /// @brief Returns true if UploadIntermediateAttributes has been called, i.e. if there are associated GL resources.
-  bool IsUploaded () const {
-    if (!IsInitialized()) {
-      return false;
-    }
-    return m_gl_buffer_object.IsInitialized();
-  }
   /// @brief This method calls glEnableVertexAttribArray and glVertexAttribPointer on each
   /// of the vertex attributes given valid locations (i.e. not equal to -1).
   /// @details The tuple argument attribute_locations must correspond exactly to Attributes
@@ -148,9 +73,6 @@ public:
   void Enable (const AttributeLocations &attribute_locations) const {
     if (!IsInitialized()) {
       throw VertexBufferObjectException("Can't call VertexBufferObject::Enable on a VertexBufferObject that is !IsInitialized().");
-    }
-    if (!IsUploaded()) {
-      throw VertexBufferObjectException("can't Enable a VertexBufferObject that hasn't had UploadIntermediateAttributes called on it");
     }
     m_gl_buffer_object.Bind();
     // Begin iterated binding of vertex attributes starting at the 0th one.
@@ -217,12 +139,18 @@ private:
 
   friend class ResourceBase<VertexBufferObject<AttributeTypes...>>;
 
-  bool IsInitialized_Implementation () const { return m_usage_pattern != GL_INVALID_ENUM; }
-  // The usage_pattern parameter specifies the expected usage pattern of the data store.
-  // It must be one of: GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW,
-  // GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.
-  // See glBufferData for more on this.
-  void Initialize_Implementation (GLenum usage_pattern) {
+  bool IsInitialized_Implementation () const { return m_gl_buffer_object.IsInitialized(); }
+  void Initialize_Implementation (const Attributes *vertex_attribute_data, size_t vertex_count, GLenum usage_pattern) {
+    assert(m_usage_pattern == GL_INVALID_ENUM);
+    assert(!m_gl_buffer_object.IsInitialized());
+
+    if (vertex_attribute_data == nullptr) {
+      throw VertexBufferObjectException("vertex_attribute_data must be a valid pointer.");
+    }
+    if (vertex_count == 0) {
+      throw VertexBufferObjectException("vertex_count must be positive.");
+    }
+
     switch (usage_pattern) {
       case GL_STREAM_DRAW:
       case GL_STREAM_READ:
@@ -236,22 +164,26 @@ private:
         m_usage_pattern = usage_pattern;
         break; // Ok
       default:
-        throw VertexBufferObjectException("usage must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
-    }    
+        throw VertexBufferObjectException("usage_pattern must be one of GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY.");
+    }
+
+    // TODO: correct exception handling with cleanup
+
+    m_gl_buffer_object.Initialize(GL_ARRAY_BUFFER);
+    m_gl_buffer_object.Bind();
+    m_gl_buffer_object.BufferData(static_cast<const void *>(vertex_attribute_data), vertex_count*sizeof(Attributes), m_usage_pattern);
+    m_gl_buffer_object.Unbind();
+
+    assert(IsInitialized());
   }
-  // Frees the allocated resources if IsInitialized(), otherwise does nothing (i.e. this method is
-  // safe to call multiple times, and has no effect after the resources are freed).
   void Shutdown_Implementation () {
-    ClearEverything();
-    assert(!IsUploaded());
     m_usage_pattern = GL_INVALID_ENUM;
+    m_gl_buffer_object.Shutdown();
+    assert(!IsInitialized());
   }
 
   GLenum m_usage_pattern;
-  // TODO: it might be a good thing to remove the storage of these intermediate attributes from the concern
-  // of this class -- doing so would greatly simplify this class' interface.
-  std::vector<Attributes> m_intermediate_attributes;
-  mutable BufferObject m_gl_buffer_object;
+  BufferObject m_gl_buffer_object;
 };
 
 } // end of namespace GL

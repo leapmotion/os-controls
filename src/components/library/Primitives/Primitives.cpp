@@ -5,10 +5,6 @@
 
 using namespace Leap::GL;
 
-GenericShape::GenericShape(GLenum drawMode) {
-  m_mesh.Initialize(drawMode);
-}
-
 void GenericShape::DrawContents(RenderState& renderState) const {
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -28,11 +24,11 @@ void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) cons
 
 void Sphere::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometryMesh mesh;
-  if (!mesh.IsUploaded()) {
-    mesh.Initialize(GL_TRIANGLES);
-    PrimitiveGeometry::PushUnitSphere(48, 24, mesh);
-    mesh.UploadIntermediateVertices();
-    assert(mesh.IsUploaded());
+  if (!mesh.IsInitialized()) {
+    PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitSphere(48, 24, mesh_assembler);
+    mesh_assembler.InitializeMesh(mesh);
+    assert(mesh.IsInitialized());
   }
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -52,11 +48,11 @@ void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) co
 
 void Cylinder::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometryMesh mesh;
-  if (!mesh.IsUploaded()) {
-    mesh.Initialize(GL_TRIANGLES);
-    PrimitiveGeometry::PushUnitCylinder(50, 1, mesh);
-    mesh.UploadIntermediateVertices();
-    assert(mesh.IsUploaded());
+  if (!mesh.IsInitialized()) {
+    PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitCylinder(50, 1, mesh_assembler);
+    mesh_assembler.InitializeMesh(mesh);
+    assert(mesh.IsInitialized());
   }
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -76,11 +72,11 @@ void Box::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
 
 void Box::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometryMesh mesh;
-  if (!mesh.IsUploaded()) {
-    mesh.Initialize(GL_TRIANGLES);
-    PrimitiveGeometry::PushUnitBox(mesh);
-    mesh.UploadIntermediateVertices();
-    assert(mesh.IsUploaded());
+  if (!mesh.IsInitialized()) {
+    PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitBox(mesh_assembler);
+    mesh_assembler.InitializeMesh(mesh);
+    assert(mesh.IsInitialized());
   }
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -100,11 +96,11 @@ void Disk::MakeAdditionalModelViewTransformations (ModelView &model_view) const 
 
 void Disk::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometryMesh mesh;
-  if (!mesh.IsUploaded()) {
-    mesh.Initialize(GL_TRIANGLES);
-    PrimitiveGeometry::PushUnitDisk(75, mesh);
-    mesh.UploadIntermediateVertices();
-    assert(mesh.IsUploaded());
+  if (!mesh.IsInitialized()) {
+    PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitDisk(75, mesh_assembler);
+    mesh_assembler.InitializeMesh(mesh);
+    assert(mesh.IsInitialized());
   }
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -124,11 +120,11 @@ void RectanglePrim::MakeAdditionalModelViewTransformations (ModelView &model_vie
 
 void RectanglePrim::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometryMesh mesh;
-  if (!mesh.IsUploaded()) {
-    mesh.Initialize(GL_TRIANGLES);
-    PrimitiveGeometry::PushUnitSquare(mesh);
-    mesh.UploadIntermediateVertices();
-    assert(mesh.IsUploaded());
+  if (!mesh.IsInitialized()) {
+    PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitSquare(mesh_assembler);
+    mesh_assembler.InitializeMesh(mesh);
+    assert(mesh.IsInitialized());
   }
 
   bool useTexture = bool(m_texture); // If there is a valid texture, enable texturing.
@@ -201,7 +197,7 @@ void PartialDisk::RecomputeMesh() const {
   const double anglePerSegment = sweepAngle / numSegments;
 
   m_mesh.Shutdown();
-  m_mesh.Initialize(GL_TRIANGLES);
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
 
   auto PartialDiskVertex = [](const EigenTypes::Vector3f &p) {
     const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
@@ -224,14 +220,14 @@ void PartialDisk::RecomputeMesh() const {
     const EigenTypes::Vector3f curInner(static_cast<float>(m_InnerRadius*cosCur), static_cast<float>(m_InnerRadius*sinCur), 0.0f);
     const EigenTypes::Vector3f curOuter(static_cast<float>(m_OuterRadius*cosCur), static_cast<float>(m_OuterRadius*sinCur), 0.0f);
 
-    m_mesh.PushTriangle(PartialDiskVertex(prevInner), PartialDiskVertex(prevOuter), PartialDiskVertex(curOuter));
-    m_mesh.PushTriangle(PartialDiskVertex(curOuter), PartialDiskVertex(curInner), PartialDiskVertex(prevInner));
+    mesh_assembler.PushTriangle(PartialDiskVertex(prevInner), PartialDiskVertex(prevOuter), PartialDiskVertex(curOuter));
+    mesh_assembler.PushTriangle(PartialDiskVertex(curOuter), PartialDiskVertex(curInner), PartialDiskVertex(prevInner));
 
     prevInner = curInner;
     prevOuter = curOuter;
   }
 
-  m_mesh.UploadIntermediateVertices();
+  mesh_assembler.InitializeMesh(m_mesh);
   assert(m_mesh.IsInitialized());
   m_RecomputeMesh = false;
 }
@@ -255,7 +251,7 @@ void PartialDiskWithTriangle::RecomputeMesh() const {
   const double anglePerSegment = sweepAngle / numSegments;
 
   m_mesh.Shutdown();
-  m_mesh.Initialize(GL_TRIANGLES);
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
 
   auto PartialDiskVertex = [](const EigenTypes::Vector3f &p) {
     const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
@@ -316,14 +312,14 @@ void PartialDiskWithTriangle::RecomputeMesh() const {
     const EigenTypes::Vector3f curInner(static_cast<float>(innerRadius*cosCur), static_cast<float>(innerRadius*sinCur), 0.0f);
     const EigenTypes::Vector3f curOuter(static_cast<float>(outerRadius*cosCur), static_cast<float>(outerRadius*sinCur), 0.0f);
 
-    m_mesh.PushTriangle(PartialDiskVertex(prevInner), PartialDiskVertex(prevOuter), PartialDiskVertex(curOuter));
-    m_mesh.PushTriangle(PartialDiskVertex(curOuter), PartialDiskVertex(curInner), PartialDiskVertex(prevInner));
+    mesh_assembler.PushTriangle(PartialDiskVertex(prevInner), PartialDiskVertex(prevOuter), PartialDiskVertex(curOuter));
+    mesh_assembler.PushTriangle(PartialDiskVertex(curOuter), PartialDiskVertex(curInner), PartialDiskVertex(prevInner));
 
     prevInner = curInner;
     prevOuter = curOuter;
   }
 
-  m_mesh.UploadIntermediateVertices();
+  mesh_assembler.InitializeMesh(m_mesh);
   assert(m_mesh.IsInitialized());
   m_RecomputeMesh = false;
 }
@@ -361,9 +357,9 @@ void PartialSphere::RecomputeMesh() const {
   const int numWidth = static_cast<int>(widthSweep / DESIRED_ANGLE_PER_SEGMENT) + 1;
   const int numHeight = static_cast<int>(heightSweep / DESIRED_ANGLE_PER_SEGMENT) + 1;
   m_mesh.Shutdown();
-  m_mesh.Initialize(GL_TRIANGLES);
-  PrimitiveGeometry::PushUnitSphere(numWidth, numHeight, m_mesh, m_StartHeightAngle, m_EndHeightAngle, m_StartWidthAngle, m_EndWidthAngle);
-  m_mesh.UploadIntermediateVertices();
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+  PrimitiveGeometry::PushUnitSphere(numWidth, numHeight, mesh_assembler, m_StartHeightAngle, m_EndHeightAngle, m_StartWidthAngle, m_EndWidthAngle);
+  mesh_assembler.InitializeMesh(m_mesh);
   assert(m_mesh.IsInitialized());
   m_RecomputeMesh = false;
 }
@@ -375,8 +371,13 @@ void CapsulePrim::DrawContents(RenderState& renderState) const {
   static PrimitiveGeometryMesh cap;
   static PrimitiveGeometryMesh body;
   if (!loaded) {
-    PrimitiveGeometry::PushUnitSphere(24, 12, cap, -M_PI/2.0, 0);
-    PrimitiveGeometry::PushUnitCylinder(24, 1, body);
+    PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitSphere(24, 12, mesh_assembler, -M_PI/2.0, 0);
+    mesh_assembler.InitializeMesh(cap);
+
+    mesh_assembler.Initialize(GL_TRIANGLES); // This calls Shutdown first
+    PrimitiveGeometry::PushUnitCylinder(24, 1, mesh_assembler);
+    mesh_assembler.InitializeMesh(body);
     loaded = true;
   }
 
@@ -478,18 +479,22 @@ void BiCapsulePrim::RecomputeMesh() const {
   m_Cap1.Shutdown();
   m_Cap2.Shutdown();
   m_Body.Shutdown();
-  m_Cap1.Initialize(GL_TRIANGLES);
-  m_Cap2.Initialize(GL_TRIANGLES);
-  m_Body.Initialize(GL_TRIANGLES);
-  PrimitiveGeometry::PushUnitSphere(24, 12, m_Cap1, -M_PI/2.0, sideAngle);
-  PrimitiveGeometry::PushUnitSphere(24, 12, m_Cap2, -M_PI/2.0, -sideAngle);
-  PrimitiveGeometry::PushUnitCylinder(24, 1, m_Body, static_cast<float>(m_BodyRadius1), static_cast<float>(m_BodyRadius2));
-  m_Cap1.UploadIntermediateVertices();
-  m_Cap2.UploadIntermediateVertices();
-  m_Body.UploadIntermediateVertices();
-  assert(m_Cap1.IsUploaded());
-  assert(m_Cap2.IsUploaded());
-  assert(m_Body.IsUploaded());
+
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+  PrimitiveGeometry::PushUnitSphere(24, 12, mesh_assembler, -M_PI/2.0, sideAngle);
+  mesh_assembler.InitializeMesh(m_Cap1);
+  assert(m_Cap1.IsInitialized());
+
+  mesh_assembler.Initialize(GL_TRIANGLES); // This calls Shutdown first.
+  PrimitiveGeometry::PushUnitSphere(24, 12, mesh_assembler, -M_PI/2.0, -sideAngle);
+  mesh_assembler.InitializeMesh(m_Cap2);
+  assert(m_Cap2.IsInitialized());
+
+  mesh_assembler.Initialize(GL_TRIANGLES); // This calls Shutdown first.
+  PrimitiveGeometry::PushUnitCylinder(24, 1, mesh_assembler, static_cast<float>(m_BodyRadius1), static_cast<float>(m_BodyRadius2));
+  mesh_assembler.InitializeMesh(m_Body);
+  assert(m_Body.IsInitialized());
+
   m_RecomputeMesh = false;
 }
 
@@ -521,9 +526,9 @@ void PartialCylinder::DrawContents(RenderState& renderState) const {
 
 void PartialCylinder::RecomputeMesh() const {
   m_mesh.Shutdown();
-  m_mesh.Initialize(GL_TRIANGLES);
-  PrimitiveGeometry::PushUnitCylinder(30, 1, m_mesh, 1.0f, 1.0f, m_StartAngle, m_EndAngle);
-  m_mesh.UploadIntermediateVertices();
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+  PrimitiveGeometry::PushUnitCylinder(30, 1, mesh_assembler, 1.0f, 1.0f, m_StartAngle, m_EndAngle);
+  mesh_assembler.InitializeMesh(m_mesh);
   assert(m_mesh.IsInitialized());
   m_RecomputeMesh = false;
 }
@@ -612,7 +617,7 @@ void RadialPolygonPrim::RecomputeMesh() const {
   // normal of the main face
   const EigenTypes::Vector3 normal = EigenTypes::Vector3::UnitY();
 
-  auto PushPolygonTriangle = [](PrimitiveGeometryMesh &mesh,
+  auto PushPolygonTriangle = [](PrimitiveGeometryMeshAssembler &mesh_assembler,
                                 const EigenTypes::Vector3f &p0,
                                 const EigenTypes::Vector3f &p1,
                                 const EigenTypes::Vector3f &p2)
@@ -620,13 +625,14 @@ void RadialPolygonPrim::RecomputeMesh() const {
     const EigenTypes::Vector3f normal((p2-p1).cross(p0-p1).normalized());
     const EigenTypes::Vector2f tex_coords(EigenTypes::Vector2f::Zero());
     const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
-    mesh.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(p0, normal, tex_coords, color),
-                      PrimitiveGeometryMesh::VertexAttributes(p1, normal, tex_coords, color),
-                      PrimitiveGeometryMesh::VertexAttributes(p2, normal, tex_coords, color));
+    mesh_assembler.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(p0, normal, tex_coords, color),
+                                PrimitiveGeometryMesh::VertexAttributes(p1, normal, tex_coords, color),
+                                PrimitiveGeometryMesh::VertexAttributes(p2, normal, tex_coords, color));
   };
 
   m_Polygon.Shutdown();
-  m_Polygon.Initialize(GL_TRIANGLES);
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
+  PrimitiveGeometryMeshAssembler sphere_joint_mesh_assembler;
   for (int i=0; i<numPoints; i++) {
     // retrieve the two polygon sides meeting at this point
     const EigenTypes::Vector3& curPoint = m_Sides[i].m_Origin;
@@ -659,10 +665,11 @@ void RadialPolygonPrim::RecomputeMesh() const {
     static const double DESIRED_ANGLE_PER_SEGMENT = 0.1; // radians
     const int numWidth = static_cast<int>(angle / DESIRED_ANGLE_PER_SEGMENT) + 1;
     m_Sides[i].m_SphereJoint.Shutdown();
-    m_Sides[i].m_SphereJoint.Initialize(GL_TRIANGLES);
-    PrimitiveGeometry::PushUnitSphere(numWidth, 16, m_Sides[i].m_SphereJoint, -M_PI/2.0, M_PI/2.0, 0, angle);
-    m_Sides[i].m_SphereJoint.UploadIntermediateVertices();
-    assert(m_Sides[i].m_SphereJoint.IsUploaded());
+    sphere_joint_mesh_assembler.Initialize(GL_TRIANGLES);
+    PrimitiveGeometry::PushUnitSphere(numWidth, 16, sphere_joint_mesh_assembler, -M_PI/2.0, M_PI/2.0, 0, angle);
+    sphere_joint_mesh_assembler.InitializeMesh(m_Sides[i].m_SphereJoint);
+    assert(m_Sides[i].m_SphereJoint.IsInitialized());
+    sphere_joint_mesh_assembler.Shutdown();
 
     // compute bases of partial sphere and partial cylinder at this vertex
     const EigenTypes::Vector3 tangent = vec1.normalized();
@@ -680,17 +687,18 @@ void RadialPolygonPrim::RecomputeMesh() const {
     const EigenTypes::Vector3f p0 = nextPoint.cast<float>();
     const EigenTypes::Vector3f p1 = avgPoint.cast<float>();
     const EigenTypes::Vector3f p2 = curPoint.cast<float>();
-    PushPolygonTriangle(m_Polygon, p0, p1, p2);
+    PushPolygonTriangle(mesh_assembler, p0, p1, p2);
   }
+
+  mesh_assembler.InitializeMesh(m_Polygon);
+  assert(m_Polygon.IsInitialized());
 
   // create a single unit half-cylinder to be reused for all sides
   m_CylinderBody.Shutdown();
-  m_CylinderBody.Initialize(GL_TRIANGLES);
-  PrimitiveGeometry::PushUnitCylinder(16, 1, m_CylinderBody, 1.0f, 1.0f, 0.0, M_PI);
+  mesh_assembler.Initialize(GL_TRIANGLES);
+  PrimitiveGeometry::PushUnitCylinder(16, 1, mesh_assembler, 1.0f, 1.0f, 0.0, M_PI);
+  mesh_assembler.InitializeMesh(m_CylinderBody);
+  assert(m_CylinderBody.IsInitialized());
 
-  m_Polygon.UploadIntermediateVertices();
-  m_CylinderBody.UploadIntermediateVertices();
-  assert(m_Polygon.IsUploaded());
-  assert(m_CylinderBody.IsUploaded());
   m_RecomputeMesh = false;
 }

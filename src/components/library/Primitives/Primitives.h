@@ -17,10 +17,8 @@ using namespace Leap::GL;
 class GenericShape : public PrimitiveBase {
 public:
 
-  GenericShape(GLenum drawMode = GL_TRIANGLES);
   virtual ~GenericShape () { }
 
-  // Make sure to call UploadDataToBuffers on the geometry object before drawing.
   PrimitiveGeometryMesh &Mesh () { return m_mesh; }
 
 protected:

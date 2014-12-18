@@ -4,15 +4,12 @@
 
 using namespace Leap::GL;
 
-void PrimitiveGeometry::PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMesh& mesh, double heightAngleStart, double heightAngleEnd, double widthAngleStart, double widthAngleEnd) {
-  if (!mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+void PrimitiveGeometry::PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMeshAssembler& mesh_assembler, double heightAngleStart, double heightAngleEnd, double widthAngleStart, double widthAngleEnd) {
+  if (!mesh_assembler.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() MeshAssembler.");
   }
-  if (mesh.IsUploaded()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
-  }
-  if (mesh.DrawMode() != GL_TRIANGLES) {
-    throw std::invalid_argument("The PrimitiveGeometry::PushUnitSphere function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  if (mesh_assembler.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitSphere function requires mesh_assembler.DrawMode() to be GL_TRIANGLES.");
   }
 
   const float resFloatW = static_cast<float>(widthResolution);
@@ -60,21 +57,18 @@ void PrimitiveGeometry::PushUnitSphere(int widthResolution, int heightResolution
                                                        EigenTypes::Vector2f(0, 0),        // texture coordinate
                                                        EigenTypes::Vector4f(1, 1, 1, 1)); // color (opaque white)
       };
-      mesh.PushTriangle(SphereVertex(v1), SphereVertex(v2), SphereVertex(v3));
-      mesh.PushTriangle(SphereVertex(v4), SphereVertex(v5), SphereVertex(v6));
+      mesh_assembler.PushTriangle(SphereVertex(v1), SphereVertex(v2), SphereVertex(v3));
+      mesh_assembler.PushTriangle(SphereVertex(v4), SphereVertex(v5), SphereVertex(v6));
     }
   }
 }
 
-void PrimitiveGeometry::PushUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometryMesh& mesh, float radiusBottom, float radiusTop, double angleStart, double angleEnd) {
-  if (!mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+void PrimitiveGeometry::PushUnitCylinder(int radialResolution, int verticalResolution, PrimitiveGeometryMeshAssembler& mesh_assembler, float radiusBottom, float radiusTop, double angleStart, double angleEnd) {
+  if (!mesh_assembler.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() MeshAssembler.");
   }
-  if (mesh.IsUploaded()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
-  }
-  if (mesh.DrawMode() != GL_TRIANGLES) {
-    throw std::invalid_argument("The PrimitiveGeometry::PushUnitCylinder function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  if (mesh_assembler.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitCylinder function requires mesh_assembler.DrawMode() to be GL_TRIANGLES.");
   }
 
   const float radialRes = 1.0f / static_cast<float>(radialResolution);
@@ -132,21 +126,18 @@ void PrimitiveGeometry::PushUnitCylinder(int radialResolution, int verticalResol
                                                        EigenTypes::Vector2f(0, 0),        // texture coordinate
                                                        EigenTypes::Vector4f(1, 1, 1, 1)); // color (opaque white)
       };
-      mesh.PushTriangle(CylinderVertex(v1, n1), CylinderVertex(v2, n1), CylinderVertex(v3, n2));
-      mesh.PushTriangle(CylinderVertex(v4, n2), CylinderVertex(v3, n2), CylinderVertex(v2, n1));
+      mesh_assembler.PushTriangle(CylinderVertex(v1, n1), CylinderVertex(v2, n1), CylinderVertex(v3, n2));
+      mesh_assembler.PushTriangle(CylinderVertex(v4, n2), CylinderVertex(v3, n2), CylinderVertex(v2, n1));
     }
   }
 }
 
-void PrimitiveGeometry::PushUnitSquare(PrimitiveGeometryMesh &mesh) {
-  if (!mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+void PrimitiveGeometry::PushUnitSquare(PrimitiveGeometryMeshAssembler& mesh_assembler) {
+  if (!mesh_assembler.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() MeshAssembler.");
   }
-  if (mesh.IsUploaded()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
-  }
-  if (mesh.DrawMode() != GL_TRIANGLES) {
-    throw std::invalid_argument("The PrimitiveGeometry::PushUnitSquare function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  if (mesh_assembler.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitSquare function requires mesh_assembler.DrawMode() to be GL_TRIANGLES.");
   }
 
   static const GLfloat X = 0.5f;
@@ -167,23 +158,20 @@ void PrimitiveGeometry::PushUnitSquare(PrimitiveGeometryMesh &mesh) {
   const EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
   const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
 
-  mesh.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(POSITIONS[0], normal, TEX_COORDS[0], color),
-                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[1], normal, TEX_COORDS[1], color),
-                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[2], normal, TEX_COORDS[2], color));
-  mesh.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(POSITIONS[0], normal, TEX_COORDS[0], color),
-                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[2], normal, TEX_COORDS[2], color),
-                    PrimitiveGeometryMesh::VertexAttributes(POSITIONS[3], normal, TEX_COORDS[3], color));
+  mesh_assembler.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(POSITIONS[0], normal, TEX_COORDS[0], color),
+                              PrimitiveGeometryMesh::VertexAttributes(POSITIONS[1], normal, TEX_COORDS[1], color),
+                              PrimitiveGeometryMesh::VertexAttributes(POSITIONS[2], normal, TEX_COORDS[2], color));
+  mesh_assembler.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(POSITIONS[0], normal, TEX_COORDS[0], color),
+                              PrimitiveGeometryMesh::VertexAttributes(POSITIONS[2], normal, TEX_COORDS[2], color),
+                              PrimitiveGeometryMesh::VertexAttributes(POSITIONS[3], normal, TEX_COORDS[3], color));
 }
 
-void PrimitiveGeometry::PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &mesh) {
-  if (!mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+void PrimitiveGeometry::PushUnitDisk(size_t resolution, PrimitiveGeometryMeshAssembler& mesh_assembler) {
+  if (!mesh_assembler.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() MeshAssembler.");
   }
-  if (mesh.IsUploaded()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
-  }
-  if (mesh.DrawMode() != GL_TRIANGLES) {
-    throw std::invalid_argument("The PrimitiveGeometry::PushUnitDisk function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  if (mesh_assembler.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitDisk function requires mesh_assembler.DrawMode() to be GL_TRIANGLES.");
   }
 
   auto UnitDiskVertex = [](const EigenTypes::Vector3f &p) {
@@ -210,22 +198,19 @@ void PrimitiveGeometry::PushUnitDisk(size_t resolution, PrimitiveGeometryMesh &m
     const EigenTypes::Vector3f p1(c1, s1, 0.0f);
     const EigenTypes::Vector3f p2(c2, s2, 0.0f);
 
-    mesh.PushTriangle(UnitDiskVertex(center), UnitDiskVertex(p1), UnitDiskVertex(p2));
+    mesh_assembler.PushTriangle(UnitDiskVertex(center), UnitDiskVertex(p1), UnitDiskVertex(p2));
   }
 }
 
-void PrimitiveGeometry::PushUnitBox(PrimitiveGeometryMesh &mesh) {
-  if (!mesh.IsInitialized()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() Mesh.");
+void PrimitiveGeometry::PushUnitBox(PrimitiveGeometryMeshAssembler& mesh_assembler) {
+  if (!mesh_assembler.IsInitialized()) {
+    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() MeshAssembler.");
   }
-  if (mesh.IsUploaded()) {
-    throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on an IsUploaded() Mesh.");
-  }
-  if (mesh.DrawMode() != GL_TRIANGLES) {
-    throw std::invalid_argument("The PrimitiveGeometry::PushUnitBox function requires mesh.DrawMode() to be GL_TRIANGLES.");
+  if (mesh_assembler.DrawMode() != GL_TRIANGLES) {
+    throw std::invalid_argument("The PrimitiveGeometry::PushUnitBox function requires mesh_assembler.DrawMode() to be GL_TRIANGLES.");
   }
 
-  auto PushUnitBoxQuad = [&mesh](const EigenTypes::Vector3f &p0,
+  auto PushUnitBoxQuad = [&mesh_assembler](const EigenTypes::Vector3f &p0,
                                  const EigenTypes::Vector3f &p1,
                                  const EigenTypes::Vector3f &p2,
                                  const EigenTypes::Vector3f &p3)
@@ -233,10 +218,10 @@ void PrimitiveGeometry::PushUnitBox(PrimitiveGeometryMesh &mesh) {
     const EigenTypes::Vector3f normal((p2-p1).cross(p0-p1).normalized());
     const EigenTypes::Vector2f tex_coords(EigenTypes::Vector2f::Zero());
     const EigenTypes::Vector4f color(EigenTypes::Vector4f::Constant(1.0f)); // opaque white
-    mesh.PushQuad(PrimitiveGeometryMesh::VertexAttributes(p0, normal, tex_coords, color),
-                  PrimitiveGeometryMesh::VertexAttributes(p1, normal, tex_coords, color),
-                  PrimitiveGeometryMesh::VertexAttributes(p2, normal, tex_coords, color),
-                  PrimitiveGeometryMesh::VertexAttributes(p3, normal, tex_coords, color));
+    mesh_assembler.PushQuad(PrimitiveGeometryMesh::VertexAttributes(p0, normal, tex_coords, color),
+                            PrimitiveGeometryMesh::VertexAttributes(p1, normal, tex_coords, color),
+                            PrimitiveGeometryMesh::VertexAttributes(p2, normal, tex_coords, color),
+                            PrimitiveGeometryMesh::VertexAttributes(p3, normal, tex_coords, color));
   };
 
   // In order for this to be a unit box, its side lengths must be unit.

@@ -89,7 +89,6 @@ void TexturedFrame::RecomputeMeshIfNecessary() const {
   }
   
   m_mesh.Shutdown();
-  m_mesh.Initialize(GL_TRIANGLES);
   
   const double bx = 0.5 * m_basis_rectangle_size(0);
   const double by = 0.5 * m_basis_rectangle_size(1);
@@ -157,16 +156,17 @@ void TexturedFrame::RecomputeMeshIfNecessary() const {
     }
   }
 
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
   for (size_t u = 0; u < 3; ++u) {
     for (size_t v = 0; v < 3; ++v) {
-      m_mesh.PushQuad(vertex_attributes[u+0][v+0],
-                      vertex_attributes[u+1][v+0],
-                      vertex_attributes[u+1][v+1],
-                      vertex_attributes[u+0][v+1]);
+      mesh_assembler.PushQuad(vertex_attributes[u+0][v+0],
+                              vertex_attributes[u+1][v+0],
+                              vertex_attributes[u+1][v+1],
+                              vertex_attributes[u+0][v+1]);
     }
   }
-
-  m_mesh.UploadIntermediateVertices();
-  assert(m_mesh.IsUploaded());
+  mesh_assembler.InitializeMesh(m_mesh);
+  assert(m_mesh.IsInitialized());
+  
   m_recompute_mesh = false;
 }

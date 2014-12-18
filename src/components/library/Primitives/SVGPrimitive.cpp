@@ -196,8 +196,8 @@ void SVGPrimitive::RecomputeChildren() {
         }
         if (doStroke) {
           const bool isClosed = path->closed != '\0';
-          auto genericShape = std::shared_ptr<GenericShape>(new GenericShape(isClosed ? GL_LINE_LOOP : GL_LINE_STRIP));
-          auto& mesh = genericShape->Mesh();
+          auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
+          PrimitiveGeometryMeshAssembler mesh_assembler(isClosed ? GL_LINE_LOOP : GL_LINE_STRIP);
           // We don't yet handle stroke widths. For now, simulate a stroke width less than 1 by adjusting the alpha
           const float simulatedStrokeWidth = strokeWidth >= 1.0f ? 1.0f : strokeWidth;
           const float alpha = static_cast<float>((strokeColor >> 24) & 0xFF)/255.0f;
@@ -212,10 +212,10 @@ void SVGPrimitive::RecomputeChildren() {
             const EigenTypes::Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
             // The arguments to PrimitiveGeometryMesh::VertexAttributes must be actual vector
             // types, and not Eigen expression templates (e.g. EigenTypes::Vector3f::UnitZ()).
-            mesh.PushVertex(point, NORMAL, TEX_COORD, COLOR);
+            mesh_assembler.PushVertex(point, NORMAL, TEX_COORD, COLOR);
           }
-          mesh.UploadIntermediateVertices();
-          assert(mesh.IsUploaded());
+          mesh_assembler.InitializeMesh(genericShape->Mesh());
+          assert(genericShape->Mesh().IsInitialized());
           // Gather the strokes; they will be applied after the fill
           strokes.push_back(genericShape);
         }
@@ -229,7 +229,7 @@ void SVGPrimitive::RecomputeChildren() {
           continue; // Failed to triangulate!
         }
         auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
-        auto& mesh = genericShape->Mesh();
+        PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
 
         const float alpha = static_cast<float>((fillColor >> 24) & 0xFF)/255.0f;
         const float blue  = static_cast<float>((fillColor >> 16) & 0xFF)/255.0f;
@@ -243,12 +243,12 @@ void SVGPrimitive::RecomputeChildren() {
           const EigenTypes::Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
           const EigenTypes::Vector3f point2(static_cast<float>(triangle[1].x), static_cast<float>(triangle[1].y), 0.0f);
           const EigenTypes::Vector3f point3(static_cast<float>(triangle[2].x), static_cast<float>(triangle[2].y), 0.0f);
-          mesh.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(point1, NORMAL, TEX_COORD, COLOR),
-                            PrimitiveGeometryMesh::VertexAttributes(point2, NORMAL, TEX_COORD, COLOR), 
-                            PrimitiveGeometryMesh::VertexAttributes(point3, NORMAL, TEX_COORD, COLOR));
+          mesh_assembler.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(point1, NORMAL, TEX_COORD, COLOR),
+                                      PrimitiveGeometryMesh::VertexAttributes(point2, NORMAL, TEX_COORD, COLOR), 
+                                      PrimitiveGeometryMesh::VertexAttributes(point3, NORMAL, TEX_COORD, COLOR));
         }
-        mesh.UploadIntermediateVertices();
-        assert(mesh.IsUploaded());
+        mesh_assembler.InitializeMesh(genericShape->Mesh());
+        assert(genericShape->Mesh().IsInitialized());
         AddChild(genericShape);
       }
       // Add any strokes after the fill
