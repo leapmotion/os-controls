@@ -2,7 +2,7 @@
 
 #include "EigenTypes.h"
 #include <memory>
-#include "Leap/GL/SceneGraphNodeProperties.h"
+#include "SceneGraphNodeProperties.h"
 #include <unordered_set>
 
 // This class contains base functionality common to all primitives:
@@ -75,9 +75,6 @@
 //   child's global property = parent's global property $ child's local property
 // - REPLACE:
 //   child's global property = child's local property
-
-namespace Leap {
-namespace GL {
 
 // see http://en.wikipedia.org/wiki/Scene_graph
 // The Properties type must have a default constructor that initializes all member
@@ -387,6 +384,3 @@ private:
   // This is the set of all child nodes.
   ChildSet m_children;
 };
-
-} // end of namespace GL
-} // end of namespace Leap

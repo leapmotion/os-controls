@@ -5,8 +5,6 @@ set(_sources
     ProjectionTest.cpp
     RgbaTest.cpp
     RgbTest.cpp
-    SceneGraphNodePropertiesTest.cpp
-    SceneGraphNodeTest.cpp
     ShaderFrontendTest.cpp
 )
 add_executable(LeapGLCoreTest ${_sources})

@@ -25,10 +25,6 @@ add_sublibrary(
         Leap/GL/ResourceBase.h
         Leap/GL/Rgb.h
         Leap/GL/Rgba.h
-        Leap/GL/SceneGraphNode.h
-        Leap/GL/SceneGraphNodeProperties.h
-        Leap/GL/SceneGraphNodeProperty.h
-        Leap/GL/SceneGraphNodeValues.h
         Leap/GL/Shader.h
         Leap/GL/ShaderException.h
         Leap/GL/ShaderFrontend.h

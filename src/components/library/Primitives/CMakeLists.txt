@@ -25,6 +25,7 @@ add_sublibrary(
         NanoSVG
         PolyPartition
         Resource
+        SceneGraph
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )

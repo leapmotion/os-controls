@@ -412,13 +412,13 @@ GLMesh<DIM>
 - Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
   convention.
 - Refactored Projection and ModelView as necessary.
+- Full, Doxygen-based documentation.
 
 ###### Still To Do
 
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;
   could also make an interface for that purpose -- perhaps that "make me a GL context" interface
   would be useful in the GL core component?).
-- Full, Doxygen-based documentation.
 
 ###### Deferred Until Later
 

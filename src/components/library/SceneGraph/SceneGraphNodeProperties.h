@@ -1,12 +1,9 @@
 #pragma once
 
-#include "Leap/GL/SceneGraphNodeProperty.h"
 #include <ostream>
+#include "SceneGraphNodeProperty.h"
 #include <sstream>
 #include <string>
-
-namespace Leap {
-namespace GL {
 
 // This is a tuple of SceneGraphNodeProperty types.
 template <typename Derived, typename... Properties_> class NodeProperties;
@@ -118,6 +115,3 @@ template <typename Derived, typename... Properties_>
 std::ostream &operator << (std::ostream &out, const NodeProperties<Derived,Properties_...> &p) {
   return out << p.AsString();
 }
-
-} // end of namespace GL
-} // end of namespace Leap
