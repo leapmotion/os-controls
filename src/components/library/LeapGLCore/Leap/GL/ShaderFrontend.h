@@ -101,14 +101,31 @@ public:
     UniformMap (UniformMapBaseClass const &m) : UniformMapBaseClass(m) { }
     template <typename... Types_>
     UniformMap (Types_... args) : UniformMapBaseClass(args...) { }
+
+    using UniformMapBaseClass::el_const_ReturnType_f;
+    using UniformMapBaseClass::el_ReturnType_f;
+
+    template <size_t INDEX_>
+    typename UniformMap::template el_const_ReturnType_f<INDEX_>::T el () const {
+      return UniformMapBaseClass::template el<INDEX_>();
+    }
+    template <size_t INDEX_>
+    typename UniformMap::template el_ReturnType_f<INDEX_>::T el () {
+      return UniformMapBaseClass::template el<INDEX_>();
+    }
+
+    using UniformMapBaseClass::val_const_ReturnType_f;
+    using UniformMapBaseClass::val_ReturnType_f;
+
     template <UniformNameType_ NAME_>
-    typename UniformMapBaseClass::template val_const_ReturnType_f<UniformName_t<NAME_>>::T val () const {
+    typename UniformMap::template val_const_ReturnType_f<UniformName_t<NAME_>>::T val () const {
       return UniformMapBaseClass::template val<UniformName_t<NAME_>>();
     }
     template <UniformNameType_ NAME_>
-    typename UniformMapBaseClass::template val_ReturnType_f<UniformName_t<NAME_>>::T val () {
+    typename UniformMap::template val_ReturnType_f<UniformName_t<NAME_>>::T val () {
       return UniformMapBaseClass::template val<UniformName_t<NAME_>>();
     }
+
     using UniformMapBaseClass::values;
   };
 

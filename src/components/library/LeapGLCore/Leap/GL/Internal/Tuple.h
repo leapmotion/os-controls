@@ -33,10 +33,13 @@ struct Tuple_t<Typle_t<Head_,BodyTypes_...>> {
 	Head_ &head () { return m_head; }
 	BodyTuple const &body_tuple () const { return m_body_tuple; }
 	BodyTuple &body_tuple () { return m_body_tuple; }
-	template <size_t INDEX_> typename std::enable_if<INDEX_==0,Head_ const &>::type el () const { return m_head; }
-	template <size_t INDEX_> typename std::enable_if<INDEX_==0,Head_ &>::type el () { return m_head; }
-	template <size_t INDEX_> typename std::enable_if<(INDEX_>0),typename Element_f<Typle_t<Head_,BodyTypes_...>,INDEX_>::T const &>::type el () const { return m_body_tuple.template el<INDEX_-1>(); }
-	template <size_t INDEX_> typename std::enable_if<(INDEX_>0),typename Element_f<Typle_t<Head_,BodyTypes_...>,INDEX_>::T &>::type el () { return m_body_tuple.template el<INDEX_-1>(); }
+	template <size_t INDEX_> struct el_const_ReturnType_f { typedef typename Element_f<Typle_t<Head_,BodyTypes_...>,INDEX_>::T const &T; };
+	template <size_t INDEX_> struct el_ReturnType_f { typedef typename Element_f<Typle_t<Head_,BodyTypes_...>,INDEX_>::T &T; };
+	template <size_t INDEX_> typename std::enable_if<INDEX_==0,typename el_const_ReturnType_f<INDEX_>::T>::type el () const { return m_head; }
+	template <size_t INDEX_> typename std::enable_if<INDEX_==0,typename el_ReturnType_f<INDEX_>::T>::type el () { return m_head; }
+	template <size_t INDEX_> typename std::enable_if<(INDEX_>0),typename el_const_ReturnType_f<INDEX_>::T>::type el () const { return m_body_tuple.template el<INDEX_-1>(); }
+	template <size_t INDEX_> typename std::enable_if<(INDEX_>0),typename el_ReturnType_f<INDEX_>::T>::type el () { return m_body_tuple.template el<INDEX_-1>(); }
+	template <size_t INDEX_> struct OffsetOf_f;
 	std::array<Head_,LENGTH> const &as_array () const {
 		static_assert(TypleIsUniform_f<Typle>::V, "This method is only well-defined if the Tuple_t's element types are uniform.");
 		assert(reinterpret_cast<uint8_t const *>(&m_head) + sizeof(Head_) == reinterpret_cast<uint8_t const *>(&m_body_tuple) && "This method is only well-defined if the elements of this Tuple_t are densely packed.");
@@ -50,6 +53,18 @@ struct Tuple_t<Typle_t<Head_,BodyTypes_...>> {
 private:
 	Head_ m_head;
 	BodyTuple m_body_tuple;
+};
+
+template <typename Head_, typename... BodyTypes_>
+template <size_t INDEX_>
+struct Tuple_t<Typle_t<Head_,BodyTypes_...>>::OffsetOf_f {
+	static size_t const V = offsetof(Tuple_t,m_body_tuple) + BodyTuple::template OffsetOf_f<INDEX_-1>::V;
+};
+
+template <typename Head_, typename... BodyTypes_>
+template <>
+struct Tuple_t<Typle_t<Head_,BodyTypes_...>>::OffsetOf_f<0> {
+	static size_t const V = offsetof(Tuple_t,m_head);
 };
 
 typedef Tuple_t<EmptyTyple> EmptyTuple;

@@ -20,16 +20,28 @@ struct Map_t<TypeMap_t<EmptyTyple>> {
 template <typename TypeMap_>
 struct Map_t {
     typedef Tuple_t<typename TypeMap_::Codomain> Values;
+
     Map_t (Map_t const &m) : m_values(m.m_values) { }
     template <typename... Types_>
     Map_t (Types_... args) : m_values(args...) { }
+
+    template <size_t INDEX_> struct el_const_ReturnType_f { typedef typename Values::template el_const_ReturnType_f<INDEX_>::T T; };
+    template <size_t INDEX_> struct el_ReturnType_f { typedef typename Values::template el_ReturnType_f<INDEX_>::T T; };
+    template <size_t INDEX_> typename el_const_ReturnType_f<INDEX_>::T el () const { return m_values.template el<INDEX_>(); }
+    template <size_t INDEX_> typename el_ReturnType_f<INDEX_>::T el () { return m_values.template el<INDEX_>(); }
+
     template <typename DomainElement_> struct val_const_ReturnType_f { typedef typename Eval_f<TypeMap_,DomainElement_>::T const &T; };
     template <typename DomainElement_> struct val_ReturnType_f { typedef typename Eval_f<TypeMap_,DomainElement_>::T &T; };
     template <typename DomainElement_> typename val_const_ReturnType_f<DomainElement_>::T val () const { return m_values.template el<IndexIn_f<typename TypeMap_::Domain,DomainElement_>::V>(); }
     template <typename DomainElement_> typename val_ReturnType_f<DomainElement_>::T &val () { return m_values.template el<IndexIn_f<typename TypeMap_::Domain,DomainElement_>::V>(); }
+
+    template <typename DomainElement_> struct IndexIn_f { static size_t const V = IndexIn_f<typename TypeMap_::Domain,DomainElement_>::V; };
+
     Values const &values () const { return m_values; }
     Values &values () { return m_values; }
+
 private:
+
     Values m_values;
 };
 
