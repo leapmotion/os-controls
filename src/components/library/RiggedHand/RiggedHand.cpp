@@ -492,14 +492,9 @@ Eigen::Quaterniond RiggedHand::lookRotation(const Eigen::Vector3d& lookAt, const
   const Eigen::Vector3d right = up.cross(forward);
 
   // compute resulting quaternion from basis
-  Eigen::Quaterniond ret;
-  ret.w() = std::sqrt(1.0 + right.x() + up.y() + forward.z()) * 0.5;
-  const double wRecip = 1.0 / (4.0*ret.w() + 0.00000001);
-  ret.x() = (up.z() - forward.y()) * wRecip;
-  ret.y() = (forward.x() - right.z()) * wRecip;
-  ret.z() = (right.y() - up.x()) * wRecip;
-
-  return ret;
+  Eigen::Matrix3d basis;
+  basis << right, up, forward;
+  return Eigen::Quaterniond(basis);
 }
 
 Eigen::Quaterniond RiggedHand::toQuat(const Eigen::Matrix3d& basis, bool leftHanded) {
