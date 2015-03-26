@@ -173,7 +173,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         verbose_message("    using SUBLIBRARY_NAME (${SUBLIBRARY_NAME}) for SOURCE_PATH")
         set(_sublibrary_source_path ${SUBLIBRARY_NAME})
     endif()
-    
+
     # Determine the target name of this sublibrary.
     get_sublibrary_target_name(${SUBLIBRARY_NAME} _sublibrary_target_name)
 
@@ -311,15 +311,15 @@ function(add_sublibrary SUBLIBRARY_NAME)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}/${_resource}" "${PROJECT_BINARY_DIR}/resources/${_resource}"
         )
     endforeach()
-    
+
     # Store several of the parameter values as target properties
     set_target_properties(
         ${_sublibrary_target_name}
         PROPERTIES
             INTERFACE_SOURCE_PATH "${_sublibrary_source_path}"
-            INTERFACE_HEADERS "${_arg_HEADERS}"
-            INTERFACE_SOURCES "${_arg_SOURCES}"
-            INTERFACE_RESOURCES "${_arg_RESOURCES}"
+            INTERFACE_COMPONENTS_HEADERS "${_arg_HEADERS}"
+            INTERFACE_COMPONENTS_SOURCES "${_arg_SOURCES}"
+            INTERFACE_COMPONENTS_RESOURCES "${_arg_RESOURCES}"
             INTERFACE_PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
             INTERFACE_PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
             INTERFACE_PATH_PREFIXED_RESOURCES "${_path_prefixed_resources}"
