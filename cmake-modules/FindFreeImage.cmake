@@ -36,8 +36,7 @@ else()
   find_library(FreeImage_LIBRARY_DEBUG "libfreeimage.a" HINTS "${FreeImage_ROOT_DIR}" PATH_SUFFIXES lib Dist)
 endif()
 
-include(SelectConfigurations)
-select_configurations(FreeImage LIBRARY LIBRARIES)
+set(FreeImage_LIBRARY ${FreeImage_LIBRARY_RELEASE})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FreeImage DEFAULT_MSG FreeImage_ROOT_DIR FreeImage_INCLUDE_DIR FreeImage_LIBRARY_RELEASE FreeImage_LIBRARY_DEBUG)

@@ -31,8 +31,8 @@ else()
   find_library(Glew_LIBRARY_RELEASE "libGLEW.a" HINTS "${Glew_ROOT_DIR}" PATH_SUFFIXES lib lib64)
   find_library(Glew_LIBRARY_DEBUG "libGLEW.a" HINTS "${Glew_ROOT_DIR}" PATH_SUFFIXES lib lib64)
 endif()
-include(SelectConfigurations)
-select_configurations(Glew LIBRARY LIBRARIES)
+
+set(Glew_LIBRARY ${Glew_LIBRARY_RELEASE})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Glew DEFAULT_MSG Glew_ROOT_DIR Glew_INCLUDE_DIR Glew_LIBRARY_RELEASE Glew_LIBRARY_DEBUG)
