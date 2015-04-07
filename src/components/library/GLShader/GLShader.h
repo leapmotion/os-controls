@@ -160,7 +160,7 @@ public:
   // This shader must be bound for this call to succeed.
   void SetUniformi (const std::string &name, GLint value) const {
     // TODO: type checking
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
       glUniform1i(LocationOfUniform(name), value)
     );
@@ -168,7 +168,7 @@ public:
   // Sets the named uniform to the given GLfloat value.
   // This shader must be bound for this call to succeed.
   void SetUniformf (const std::string &name, GLfloat value) const {
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
       glUniform1f(LocationOfUniform(name), value)
     );
@@ -181,7 +181,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLint) == 0, "sizeof(T_) must be divisible by sizeof(GLint)");
     static_assert(UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLint components.
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR((
       UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::eval(LocationOfUniform(name), 1, reinterpret_cast<const GLint *>(&value))
     ));
@@ -194,7 +194,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLfloat) == 0, "sizeof(T_) must be divisible by sizeof(GLfloat)");
     static_assert(UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLfloat components.
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR((
       UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::eval(LocationOfUniform(name), 1, reinterpret_cast<const GLfloat *>(&value))
     ));
@@ -206,7 +206,7 @@ public:
   // Sets the named uniform to the given std::vector of GLint values.
   // This shader must be bound for this call to succeed.
   void SetUniformi (const std::string &name, const std::vector<GLint> &array) const {
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
       glUniform1iv(LocationOfUniform(name), static_cast<GLsizei>(array.size()), array.data())
     );
@@ -214,7 +214,7 @@ public:
   // Sets the named uniform to the given std::vector of GLfloat values.
   // This shader must be bound for this call to succeed.
   void SetUniformf (const std::string &name, const std::vector<GLfloat> &array) const {
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR(
       glUniform1fv(LocationOfUniform(name), static_cast<GLsizei>(array.size()), array.data())
     );
@@ -227,7 +227,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLint) == 0, "sizeof(T_) must be divisible by sizeof(GLint)");
     static_assert(UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::exists, "There is no known glUniform*iv function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLint components.
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR((
       UniformFunction<GLint,sizeof(T_)/sizeof(GLint)>::eval(LocationOfUniform(name), array.size(), reinterpret_cast<const GLint *>(array.data()))
     ));
@@ -240,7 +240,7 @@ public:
     static_assert(sizeof(T_)%sizeof(GLfloat) == 0, "sizeof(T_) must be divisible by sizeof(GLfloat)");
     static_assert(UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::exists, "There is no known glUniform*i function for size of given T_");
     // TODO: somehow check that T_ is actually a POD containing only GLfloat components.
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR((
       UniformFunction<GLfloat,sizeof(T_)/sizeof(GLfloat)>::eval(LocationOfUniform(name), array.size(), reinterpret_cast<const GLfloat *>(array.data()))
     ));
@@ -259,7 +259,7 @@ public:
     static_assert(UniformMatrixFunction<ROWS_,COLUMNS_>::exists, "There is no glUniformMatrix* function matching the requested ROWS_ and COLUMNS_");
     static_assert(sizeof(T_) == ROWS_*COLUMNS_*sizeof(GLfloat), "T_ must be a POD type having exactly ROWS_*COLUMNS_ components of type GLfloat");
     // TODO: somehow check that T_ is actually a POD containing only GLType_ components.
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR((
       UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), 1, matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(&matrix))
     ));
@@ -275,7 +275,7 @@ public:
     static_assert(UniformMatrixFunction<ROWS_,COLUMNS_>::exists, "There is no glUniformMatrix* function matching the requested ROWS_ and COLUMNS_");
     static_assert(sizeof(T_) == ROWS_*COLUMNS_*sizeof(GLfloat), "T_ must be a POD type having exactly ROWS_*COLUMNS_ components of type GLfloat");
     // TODO: somehow check that T_ is actually a POD containing only GLType_ components.
-    assert(CurrentlyBoundProgramHandle() == m_program_handle && "trying to set a uniform without having first called GLShader::Bind on this");
+    assert(CurrentlyBoundProgramHandle() == static_cast<GLint>(m_program_handle) && "trying to set a uniform without having first called GLShader::Bind on this");
     GL_THROW_UPON_ERROR((
       UniformMatrixFunction<ROWS_,COLUMNS_>::eval(LocationOfUniform(name), array.size(), matrix_storage_convention == ROW_MAJOR, reinterpret_cast<const GLfloat *>(array.data()))
     ));
