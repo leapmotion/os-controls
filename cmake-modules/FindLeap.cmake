@@ -32,7 +32,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 else()
   set(_bit_suffix x86)
 endif()
-message("CMAKE_SIZEOF_VOID_P = ${CMAKE_SIZEOF_VOID_P}")
 
 if(MSVC)
   find_library(Leap_IMPORT_LIB_RELEASE "Leap.lib" HINTS "${Leap_ROOT_DIR}/lib/${_bit_suffix}")
@@ -63,8 +62,6 @@ elseif(APPLE)
                   libLeap.dylib #fallback on the release library
             HINTS "${_libdir}")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  message("Linux")
-  message("_bit_suffix = ${_bit_suffix}")
   find_library(Leap_LIBRARY_RELEASE
             NAMES libLeap.so
             HINTS "${Leap_ROOT_DIR}/lib/${_bit_suffix}")
