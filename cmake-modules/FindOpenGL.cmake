@@ -44,11 +44,10 @@ else()
   # NOTE: We are using platform flags BUILD_LINUX and BUILD_64_BIT because there
   # are some issues with the CMAKE_SIZE_OF_VOID_P flag
   set(_linux_path "")
-  if (BUILD_LINUX)
-    if (BUILD_64_BIT)
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(_linux_path "/usr/lib/x86_64-linux-gnu/")
     else()
-      message("\nGOOD!!!\n")
       set(_linux_path "/usr/lib/i386-linux-gnu/")
     endif()
   endif()
@@ -79,6 +78,7 @@ else()
       /usr/shlib /usr/X11R6/lib
     NO_CMAKE_SYSTEM_PATH
   )
+  verbose_message_print_vars(OpenGL_LIBRARY OpenGL_INTERFACE_LIBS)
 
   # # On Unix OpenGL most certainly always requires X11.
   # # Feel free to tighten up these conditions if you don't
