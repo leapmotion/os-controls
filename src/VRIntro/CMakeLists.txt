@@ -3,7 +3,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/src/components/cmake) #used fo
 # External module includes
 include(ConditionalSources)
 include(TargetImportedLibraries)
-include(AddPch)
+include(AddPCH)
 
 # Run all of our project configuration steps
 add_subdirectory(source)

@@ -32,9 +32,9 @@ set(VRShell_CLR_SOURCES
   NativeUIWin.resx #Required by CMake for the .h to be editable in the designer.
   NativeUIWin.h
   NativeUIWin.cpp
-  Resources.resx
+  resources.resx
   Resources.rc
-  Resources.h
+  resources.h
 )
 
 add_windows_sources(VRShell_SOURCES ${VRShell_CLR_SOURCES})
