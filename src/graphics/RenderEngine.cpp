@@ -9,8 +9,8 @@
 #include "hmdinterface/IEyeConfiguration.h"
 
 #include <GL/glew.h>
-#include "GLShader.h"
 #include "GLShaderLoader.h"
+#include "Leap/GL/Shader.h"
 
 #include "Resource.h"
 #include "PrimitiveBase.h"
@@ -21,6 +21,8 @@
 #include <thread>
 #include <chrono>
 
+using namespace Leap::GL;
+
 RenderEngine::RenderEngine() :
   m_drewFrame(false)
 {
@@ -28,12 +30,12 @@ RenderEngine::RenderEngine() :
     throw std::runtime_error("Shaders are not supported!");
   }
 
-  m_shader = Resource<GLShader>("material");
+  m_shader = Resource<Shader>("material");
 
   // set light position
   const EigenTypes::Vector3f lightPos(0, 10, 10);
   m_shader->Bind();
-  m_shader->SetUniformf("lightPosition", lightPos);
+  m_shader->UploadUniform<GL_FLOAT_VEC3>("lightPosition", lightPos);
   m_shader->Unbind();
 }
 
@@ -54,9 +56,12 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
   ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE);
 
   const auto windowSize = m_renderWindow->GetSize();
-  ::glScissor(0, 0, windowSize.width, windowSize.height);
-  ::glViewport(0, 0, windowSize.width, windowSize.height);
-  m_renderState.GetProjection().Orthographic(0, windowSize.height, windowSize.width, 0, 1, -100);
+  ::glScissor(0, 0, static_cast<GLsizei>(windowSize.width), static_cast<GLsizei>(windowSize.height));
+  ::glViewport(0, 0, static_cast<GLsizei>(windowSize.width), static_cast<GLsizei>(windowSize.height));
+  // m_renderState.GetProjection().Orthographic(0, windowSize.height, windowSize.width, 0, 1, -100);
+  // Note: this is backwards compared to the commented-out line above because there was a sign error in the depth
+  // component of the old orthographic projection matrix code.
+  Projection::SetOrthographic(m_renderState.ProjectionMatrix(), 0, windowSize.width, windowSize.height, 0, -1, 100);
   m_renderState.GetModelView().Clear();
 
   m_shader->Bind();
@@ -92,9 +97,9 @@ void RenderEngine::Tick(std::chrono::duration<double> deltaT) {
     AutowiredFast<Hmd::IDevice> hmd;
     if (hmd) {
       hmd->BeginFrame();
-      const EigenTypes::Matrix4x4 projection = frame.renderState.GetProjection().Matrix();
+      const EigenTypes::Matrix4x4 projection = frame.renderState.ProjectionMatrix();
 
-      for (int i = 0; i < hmd->Configuration().EyeCount(); i++) {
+      for (uint32_t i = 0; i < hmd->Configuration().EyeCount(); i++) {
         //const int eyeIndex = hmd->Configuration().EyeRenderOrder(i);
         const int eyeIndex = i;
         frame.eyeIndex = eyeIndex;

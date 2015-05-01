@@ -3,7 +3,9 @@
 #include <cassert>
 #include <iostream>
 
-#include "gl_glext_glu.h"
+#include "Leap/GL/GLHeaders.h"
+
+using namespace Leap::GL;
 
 #if _WIN32
 #pragma comment(lib, "winmm.lib")
@@ -28,14 +30,10 @@ void OculusApplication::Initialize() {
   params.vsync = true;
 
   m_applicationTime = TimePoint(0.0);         // Start the application time at zero.
-  m_SFMLController.Initialize(params);           // This initializes everything SDL-related.
-  m_GLController.Initialize();                // This initializes the general GL state.
-//  if (glewInit() != GLEW_OK) {
-//    throw std::runtime_error("Glew initialization failed");
-//  }
+  m_SFMLController.Initialize(params);        // This initializes everything SFML-related.
 
 #if _WIN32
-  m_Oculus.SetHWND(m_SFMLController.GetHWND());
+  m_Oculus.SetWindow(m_SFMLController.GetHWND());
 #endif
 
   if (!m_Oculus.Init()) {
@@ -44,29 +42,27 @@ void OculusApplication::Initialize() {
 }
 
 void OculusApplication::Shutdown() {
-  m_GLController.Shutdown();                  // This shuts down the general GL state.
-  m_SFMLController.Shutdown();                 // This shuts down everything SDL-related.
+  m_SFMLController.Shutdown();                // This shuts down everything SFML-related.
 }
 
 void OculusApplication::Update(TimeDelta real_time_delta) {
   assert(real_time_delta >= 0.0);
-  m_applicationTime += real_time_delta;         // Increment the application time by the delta.
+  m_applicationTime += real_time_delta;       // Increment the application time by the delta.
 }
 
 void OculusApplication::Render(TimeDelta real_time_delta) const {
   assert(real_time_delta >= 0.0);
 
   m_SFMLController.BeginRender();
-  m_GLController.BeginRender();               // NOTE: ALL RENDERING should go between here and EndRender().
-
   m_Oculus.BeginFrame();
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // NOTE: ALL RENDERING should go between here and the ending marker
 
   for (int i=0; i<2; i++) {
     const ovrRecti& rect = m_Oculus.EyeViewport(i);
-    const Matrix4x4f proj = m_Oculus.EyeProjection(i);
-    const Matrix4x4f view = m_Oculus.EyeView(i);
+    const EigenTypes::Matrix4x4f proj = m_Oculus.EyeProjection(i);
+    const EigenTypes::Matrix4x4f view = m_Oculus.EyeView(i);
 
     glViewport(rect.Pos.x, rect.Pos.y, rect.Size.w, rect.Size.h);
 
@@ -92,7 +88,8 @@ void OculusApplication::Render(TimeDelta real_time_delta) const {
   m_Oculus.EndFrame();
 
 #if 0 // for SDK rendering, disable our buffer swap
-  m_GLController.EndRender();                 // NOTE: ALL RENDERING should go between here and BeginRender().
+  // NOTE: ALL RENDERING should end by this ending marker.
+  glFlush();
   m_SFMLController.EndRender();
 #endif
 }

@@ -4,16 +4,22 @@
 #include "PrimitiveGeometry.h"
 #include "RenderState.h"
 
-class GLTexture2;
+namespace Leap {
+namespace GL {
+
+class Texture2;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
 
 class GenericShape : public PrimitiveBase {
 public:
 
-  GenericShape(GLenum drawMode = GL_TRIANGLES) : m_drawMode(drawMode) { }
   virtual ~GenericShape () { }
 
-  // Make sure to call UploadDataToBuffers on the geometry object before drawing.
-  PrimitiveGeometry &Geometry () { return m_geometry; }
+  PrimitiveGeometryMesh &Mesh () { return m_mesh; }
 
 protected:
 
@@ -21,8 +27,7 @@ protected:
 
 private:
 
-  mutable PrimitiveGeometry m_geometry;
-  GLenum m_drawMode;
+  mutable PrimitiveGeometryMesh m_mesh;
 };
 
 class Sphere : public PrimitiveBase {
@@ -118,8 +123,8 @@ public:
   const EigenTypes::Vector2& Size() const { return m_Size; }
   void SetSize(const EigenTypes::Vector2& size) { m_Size = size; }
 
-  const std::shared_ptr<GLTexture2> &Texture () const { return m_texture; }
-  void SetTexture (const std::shared_ptr<GLTexture2> &texture) { m_texture = texture; }
+  const std::shared_ptr<Texture2> &Texture () const { return m_texture; }
+  void SetTexture (const std::shared_ptr<Texture2> &texture) { m_texture = texture; }
 
   virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
 
@@ -130,7 +135,7 @@ protected:
 private:
 
   EigenTypes::Vector2 m_Size;
-  std::shared_ptr<GLTexture2> m_texture;
+  std::shared_ptr<Texture2> m_texture;
 };
 
 // This is a textured RectanglePrim which sets its aspect ratio based on the texture.
@@ -139,7 +144,7 @@ class ImagePrimitive : public RectanglePrim {
 public:
   
   ImagePrimitive(void);
-  ImagePrimitive(const std::shared_ptr<GLTexture2> &texture);
+  ImagePrimitive(const std::shared_ptr<Texture2> &texture);
   virtual ~ImagePrimitive() { }
   
   void SetScaleBasedOnTextureSize ();
@@ -154,7 +159,7 @@ public:
   double InnerRadius() const { return m_InnerRadius; }
   void SetInnerRadius(double innerRad) {
     if (m_InnerRadius != innerRad) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_InnerRadius = innerRad;
   }
@@ -162,7 +167,7 @@ public:
   double OuterRadius() const { return m_OuterRadius; }
   void SetOuterRadius(double outerRad) {
     if (m_OuterRadius != outerRad) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_OuterRadius = outerRad;
   }
@@ -170,7 +175,7 @@ public:
   double StartAngle() const { return m_StartAngle; }
   void SetStartAngle(double startAngleRadians) {
     if (m_StartAngle != startAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_StartAngle = startAngleRadians;
   }
@@ -178,7 +183,7 @@ public:
   double EndAngle() const { return m_EndAngle; }
   void SetEndAngle(double endAngleRadians) {
     if (m_EndAngle != endAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_EndAngle = endAngleRadians;
   }
@@ -189,12 +194,11 @@ protected:
 
 protected:
 
-  virtual void RecomputeGeometry() const;
+  virtual void RecomputeMesh() const;
 
   // cache the previously drawn geometry for speed if the primitive parameters are unchanged
-  mutable PrimitiveGeometry m_Geometry;
-
-  mutable bool m_RecomputeGeometry;
+  mutable PrimitiveGeometryMesh m_mesh;
+  mutable bool m_RecomputeMesh;
 
   double m_InnerRadius;
   double m_OuterRadius;
@@ -211,35 +215,35 @@ public:
 
   void SetTriangleSide(TriangleSide side) {
     if (m_TriangleSide != side) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TriangleSide = side;
   }
 
   void SetTrianglePosition(double pos) {
     if (m_TrianglePosition != pos) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TrianglePosition = pos;
   }
 
   void SetTriangleWidth(double width) {
     if (m_TriangleWidth != width) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TriangleWidth = width;
   }
 
   void SetTriangleOffset(double offset) {
     if (m_TriangleOffset != offset) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_TriangleOffset = offset;
   }
 
 protected:
 
-  virtual void RecomputeGeometry() const override;
+  virtual void RecomputeMesh() const override;
 
   TriangleSide m_TriangleSide;
   double m_TrianglePosition;
@@ -258,7 +262,7 @@ public:
   double StartWidthAngle() const { return m_StartWidthAngle; }
   void SetStartWidthAngle(double startAngleRadians) {
     if (m_StartWidthAngle != startAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_StartWidthAngle = startAngleRadians;
   }
@@ -266,7 +270,7 @@ public:
   double EndWidthAngle() const { return m_EndWidthAngle; }
   void SetEndWidthAngle(double endAngleRadians) {
     if (m_EndWidthAngle != endAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_EndWidthAngle = endAngleRadians;
   }
@@ -274,7 +278,7 @@ public:
   double StartHeightAngle() const { return m_StartHeightAngle; }
   void SetStartHeightAngle(double startAngleRadians) {
     if (m_StartHeightAngle != startAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_StartHeightAngle = startAngleRadians;
   }
@@ -282,7 +286,7 @@ public:
   double EndHeightAngle() const { return m_EndHeightAngle; }
   void SetEndHeightAngle(double endAngleRadians) {
     if (m_EndHeightAngle != endAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_EndHeightAngle = endAngleRadians;
   }
@@ -292,12 +296,12 @@ public:
 protected:
 
   virtual void DrawContents(RenderState& renderState) const override;
-  virtual void RecomputeGeometry() const;
+  virtual void RecomputeMesh() const;
 
   // cache the previously drawn geometry for speed if the primitive parameters are unchanged
-  mutable PrimitiveGeometry m_Geometry;
+  mutable PrimitiveGeometryMesh m_mesh;
+  mutable bool m_RecomputeMesh;
 
-  mutable bool m_RecomputeGeometry;
   double m_Radius;
   double m_StartHeightAngle;
   double m_EndHeightAngle;
@@ -334,7 +338,7 @@ public:
   double Radius1() const { return m_Radius1; }
   void SetRadius1(double radius) {
     if (m_Radius1 != radius) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_Radius1 = radius;
   }
@@ -342,7 +346,7 @@ public:
   double Radius2() const {return m_Radius2; }
   void SetRadius2(double radius) {
     if (m_Radius2 != radius) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_Radius2 = radius;
   }
@@ -350,7 +354,7 @@ public:
   double Height() const { return m_Height; }
   void SetHeight(double height) {
     if (m_Height != height) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_Height = height;
   }
@@ -358,16 +362,16 @@ public:
 protected:
 
   virtual void DrawContents(RenderState& renderState) const override;
-  virtual void RecomputeGeometry() const;
+  virtual void RecomputeMesh() const;
 
 private:
 
   // cache the previously drawn geometry for speed if the primitive parameters are unchanged
-  mutable PrimitiveGeometry m_Cap1;
-  mutable PrimitiveGeometry m_Cap2;
-  mutable PrimitiveGeometry m_Body;
+  mutable PrimitiveGeometryMesh m_Cap1;
+  mutable PrimitiveGeometryMesh m_Cap2;
+  mutable PrimitiveGeometryMesh m_Body;
 
-  mutable bool m_RecomputeGeometry;
+  mutable bool m_RecomputeMesh;
   double m_Radius1;
   double m_Radius2;
   double m_Height;
@@ -392,7 +396,7 @@ public:
   double StartAngle() const { return m_StartAngle; }
   void SetStartAngle(double startAngleRadians) {
     if (m_StartAngle != startAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_StartAngle = startAngleRadians;
   }
@@ -400,7 +404,7 @@ public:
   double EndAngle() const { return m_EndAngle; }
   void SetEndAngle(double endAngleRadians) {
     if (m_EndAngle != endAngleRadians) {
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
     m_EndAngle = endAngleRadians;
   }
@@ -410,12 +414,12 @@ public:
 protected:
 
   virtual void DrawContents(RenderState& renderState) const override;
-  virtual void RecomputeGeometry() const;
+  virtual void RecomputeMesh() const;
 
   // cache the previously drawn geometry for speed if the primitive parameters are unchanged
-  mutable PrimitiveGeometry m_Geometry;
+  mutable PrimitiveGeometryMesh m_mesh;
+  mutable bool m_RecomputeMesh;
 
-  mutable bool m_RecomputeGeometry;
   double m_Radius;
   double m_Height;
   double m_StartAngle;
@@ -430,7 +434,7 @@ public:
   void SetNumSides(size_t numSides) {
     if (numSides != m_Sides.size()) {
       m_Sides.resize(numSides);
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
   }
 
@@ -443,14 +447,14 @@ public:
     const EigenTypes::Vector3 newPoint(point.x(), 0, point.y());
     if ((newPoint - m_Sides[idx].m_Origin).squaredNorm() > CLOSENESS_THRESH) {
       m_Sides[idx].m_Origin = newPoint;
-      m_RecomputeGeometry = true;
+      m_RecomputeMesh = true;
     }
   }
 
 protected:
 
   virtual void DrawContents(RenderState& renderState) const override;
-  virtual void RecomputeGeometry() const;
+  virtual void RecomputeMesh() const;
 
 private:
 
@@ -465,13 +469,13 @@ private:
     EigenTypes::Matrix3x3 m_SphereBasis;
     EigenTypes::Matrix3x3 m_CylinderBasis;
     double m_Length;
-    PrimitiveGeometry m_SphereJoint;
+    PrimitiveGeometryMesh m_SphereJoint;
   };
 
-  mutable PrimitiveGeometry m_CylinderBody;
+  mutable PrimitiveGeometryMesh m_CylinderBody;
   mutable std::vector<PerSideInfo, Eigen::aligned_allocator<PerSideInfo>> m_Sides;
-  mutable PrimitiveGeometry m_Polygon;
+  mutable PrimitiveGeometryMesh m_Polygon;
+  mutable bool m_RecomputeMesh;
 
-  mutable bool m_RecomputeGeometry;
   double m_Radius;
 };

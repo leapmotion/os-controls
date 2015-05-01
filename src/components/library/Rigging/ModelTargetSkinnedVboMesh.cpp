@@ -24,10 +24,10 @@ namespace model {
   void ModelTargetSkinnedVboMesh::loadIndices(const std::vector<uint32_t>& indices)
   {
     const int numBytes = static_cast<int>(indices.size() * sizeof(uint32_t));
-    GLBuffer& indexBuffer = mSkinnedVboMesh->getActiveSection()->getIndices();
-    indexBuffer.Bind();
-    indexBuffer.Allocate(indices.data(), numBytes, GL_STATIC_DRAW);
-    indexBuffer.Unbind();
+    BufferObject& indexBufferObject = mSkinnedVboMesh->getActiveSection()->getIndices();
+    indexBufferObject.Bind();
+    indexBufferObject.BufferData(indices.data(), numBytes, GL_STATIC_DRAW);
+    indexBufferObject.Unbind();
   }
 
   template <int DIM>
@@ -42,31 +42,27 @@ namespace model {
 
   void ModelTargetSkinnedVboMesh::loadVertexPositions(const std::vector<Eigen::Vector3f>& positions)
   {
-    VertexBuffer& buffer = mSkinnedVboMesh->getActiveSection()->getVboMesh();
-    std::vector<VertexBuffer::Attributes>& attributes = buffer.IntermediateAttributes();
+    std::vector<VertexBufferObject::Attributes>& attributes = mSkinnedVboMesh->getActiveSection()->Attributes();
     for (size_t i=0; i<positions.size(); i++) {
-      std::get<0>(attributes[i]).As<FloatVec<3>>() = FloatVec<3>(positions[i]);
+      std::get<0>(attributes[i]).ReinterpretAs<FloatVec<3>>() = FloatVec<3>(positions[i]);
     }
   }
 
   void ModelTargetSkinnedVboMesh::loadVertexNormals(const std::vector<Eigen::Vector3f>& normals)
   {
     mSkinnedVboMesh->getActiveSection()->setHasNormals(true); //FIXME: remove this
-    VertexBuffer& buffer = mSkinnedVboMesh->getActiveSection()->getVboMesh();
-    std::vector<VertexBuffer::Attributes>& attributes = buffer.IntermediateAttributes();
+    std::vector<VertexBufferObject::Attributes>& attributes = mSkinnedVboMesh->getActiveSection()->Attributes();
     for (size_t i=0; i<normals.size(); i++) {
-      std::get<1>(attributes[i]).As<FloatVec<3>>() = FloatVec<3>(normals[i]);
+      std::get<1>(attributes[i]).ReinterpretAs<FloatVec<3>>() = FloatVec<3>(normals[i]);
     }
   }
 
   void ModelTargetSkinnedVboMesh::loadTex(const std::vector<Eigen::Vector2f>& texCoords, const MaterialInfo& matInfo)
   {
     mSkinnedVboMesh->getActiveSection()->setMatInfo(matInfo);
-
-    VertexBuffer& buffer = mSkinnedVboMesh->getActiveSection()->getVboMesh();
-    std::vector<VertexBuffer::Attributes>& attributes = buffer.IntermediateAttributes();
+    std::vector<VertexBufferObject::Attributes>& attributes = mSkinnedVboMesh->getActiveSection()->Attributes();
     for (size_t i=0; i<texCoords.size(); i++) {
-      std::get<2>(attributes[i]).As<FloatVec<2>>() = FloatVec<2>(texCoords[i]);
+      std::get<2>(attributes[i]).ReinterpretAs<FloatVec<2>>() = FloatVec<2>(texCoords[i]);
     }
   }
 
@@ -80,14 +76,12 @@ namespace model {
 
   void ModelTargetSkinnedVboMesh::loadBoneWeights(const std::vector<BoneWeights>& boneWeights)
   {
-    VertexBuffer& buffer = mSkinnedVboMesh->getActiveSection()->getVboMesh();
-    std::vector<VertexBuffer::Attributes>& attributes = buffer.IntermediateAttributes();
-
+    std::vector<VertexBufferObject::Attributes>& attributes = mSkinnedVboMesh->getActiveSection()->Attributes();
     for (size_t i=0; i<boneWeights.size(); i++) {
       const BoneWeights& boneWeight = boneWeights[i];
-      VertexBuffer::Attributes& cur = attributes[i];
-      FloatVec<4>& vWeights = std::get<3>(attributes[i]).As<FloatVec<4>>();
-      FloatVec<4>& vIndices = std::get<4>(attributes[i]).As<FloatVec<4>>();
+      VertexBufferObject::Attributes& cur = attributes[i];
+      FloatVec<4>& vWeights = std::get<3>(attributes[i]).ReinterpretAs<FloatVec<4>>();
+      FloatVec<4>& vIndices = std::get<4>(attributes[i]).ReinterpretAs<FloatVec<4>>();
       vWeights = FloatVec<4>(Eigen::Vector4f::Zero());
       vIndices = FloatVec<4>(Eigen::Vector4f::Zero());
       for (unsigned int b =0; b < boneWeight.mActiveNbWeights; ++b) {

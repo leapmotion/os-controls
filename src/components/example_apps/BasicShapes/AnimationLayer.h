@@ -7,7 +7,15 @@
 
 #include <memory>
 
-class GLShader;
+namespace Leap {
+namespace GL {
+
+class Shader;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
 
 // This is one "layer" of the application -- layers being rendered back to front.
 class AnimationLayer : public RenderableEventHandler {
@@ -36,6 +44,6 @@ private:
   Smoothed<EigenTypes::Vector3> m_Sphere3Translation;
   Smoothed<EigenTypes::Vector3> m_Sphere4Translation;
 
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
   TimePoint m_time;
 };

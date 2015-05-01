@@ -24,7 +24,7 @@ add_mac_sources(
   WindowCreatingTestFixtureMac.cpp
 )
 
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" osinterfacetest_SRCS)
+add_pch(osinterfacetest_SRCS "stdafx.h" "stdafx.cpp")
 add_executable(osinterfacetest ${osinterfacetest_SRCS})
 set_property(TARGET osinterfacetest PROPERTY FOLDER "Tests")
 

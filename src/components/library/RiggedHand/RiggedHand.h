@@ -1,13 +1,16 @@
 #pragma once
 
 #include "EigenTypes.h"
-#include "GLShader.h"
+#include "Leap/GL/Shader.h"
+#include "Leap/GL/ShaderMatrices.h"
 #include "Skeleton.h"
 #include "SkinnedVboMesh.h"
 #include "GLTexture2Image.h"
 #include "PrimitiveBase.h"
 
 #include <memory>
+
+using namespace Leap::GL;
 
 class RiggedHand : public PrimitiveBase {
 public:
@@ -35,10 +38,15 @@ public:
 
   virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
 
-  void SetHandsShader(const GLShaderRef& shader) { mHandsShader = shader; };
-  GLShaderRef HandsShader() { return mHandsShader; };
+  void SetHandsShader(const std::shared_ptr<Leap::GL::Shader>& shader) {
+    if (shader.get() != mHandsShader.get()) {
+      mShaderMatrices = std::make_shared<ShaderMatrices>(shader.get());
+    }
+    mHandsShader = shader;
+  };
+  std::shared_ptr<Leap::GL::Shader> HandsShader() { return mHandsShader; };
 
-  static GLShaderRef getDefaultHandsShader();
+  static std::shared_ptr<Leap::GL::Shader> getDefaultHandsShader();
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -131,7 +139,9 @@ private:
   Eigen::Quaterniond mFingerReorientation;
 
   // hand shader
-  mutable GLShaderRef mHandsShader;
+  mutable std::shared_ptr<Leap::GL::Shader> mHandsShader;
+  // ShaderFrontend for setting matrix uniforms
+  mutable std::shared_ptr<ShaderMatrices> mShaderMatrices;
 
   // convert units on loading
   static const float UNIT_CONVERSION_SCALE_FACTOR; 

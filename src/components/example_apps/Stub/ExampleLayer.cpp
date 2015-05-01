@@ -2,21 +2,22 @@
 
 #include <cmath>
 
-#include "GLController.h"
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
 #include "GLTexture2Loader.h"
+#include "Leap/GL/Texture2.h"
+#include "Leap/GL/Shader.h"
 #include "Resource.h"
 #include "ResourceManager.h"
 #include "SDLController.h"
+
+using namespace Leap::GL;
 
 ExampleLayer::ExampleLayer ()
   :
   m_time(0)
 {
-  m_shader = Resource<GLShader>("dummy");
-  m_texture = Resource<GLTexture2>("public_domain_astronomy_1.jpg");
+  m_shader = Resource<Shader>("dummy");
+  m_texture = Resource<Texture2>("public_domain_astronomy_1.jpg");
 }
 
 ExampleLayer::~ExampleLayer () { }
@@ -37,7 +38,7 @@ void ExampleLayer::Render (TimeDelta real_time_delta) const {
 
   if (m_shader) {
     static const GLuint VERTEX_COUNT = 4;
-    const GLfloat param = 0.1f * std::sin(2.0f*m_time) + 0.9f;
+    const GLfloat param = static_cast<GLfloat>(0.1f * std::sin(2.0f*m_time) + 0.9f);
     const GLfloat vertex_array[VERTEX_COUNT*2] = {
       -param, -param,
        param, -param,
@@ -56,7 +57,7 @@ void ExampleLayer::Render (TimeDelta real_time_delta) const {
     glEnable(GL_TEXTURE_2D);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     static const GLuint VERTEX_COUNT = 4;
-    const GLfloat param = 0.1f * std::sin(3.0f*m_time) + 0.7f;
+    const GLfloat param = static_cast<GLfloat>(0.1f * std::sin(3.0f*m_time) + 0.7f);
     const GLfloat vertex_array[VERTEX_COUNT*2] = {
       -param, -param,
        param, -param,

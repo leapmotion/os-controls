@@ -10,8 +10,16 @@
 
 #include <memory>
 
-class GLShader;
-class GLTexture2;
+namespace Leap {
+namespace GL {
+
+class Shader;
+class Texture2;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
 
 class MediaControlLayer : public RenderableEventHandler {
 public:
@@ -42,6 +50,6 @@ private:
   LeapListener m_Listener;
   Leap::Controller m_Controller;
 
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
   TimePoint m_time;
 };

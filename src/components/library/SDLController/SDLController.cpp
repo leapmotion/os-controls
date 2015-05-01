@@ -9,7 +9,9 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "gl_glext_glu.h"
+#include "Leap/GL/GLHeaders.h"
+
+using namespace Leap::GL;
 
 SDLController::SDLController ()
   :

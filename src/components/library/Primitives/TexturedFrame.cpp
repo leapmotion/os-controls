@@ -1,8 +1,5 @@
 #include "TexturedFrame.h"
 
-// #include <cassert>
-// #include "GLTexture2.h"
-
 TexturedFrame::TexturedFrame() {
   SetBasisRectangleSize(EigenTypes::Vector2(1.0, 1.0));
 
@@ -31,9 +28,9 @@ TexturedFrame::TexturedFrame() {
   SetRectangleEdgeTextureCoordinate(Rectangle::OUTER,    RectangleEdge::TOP, 1.0f);
 
   // Set up the material properties regarding textures
-  Material().SetUseTexture(true);
+  Material().Uniform<TEXTURE_MAPPING_ENABLED>() = true;
   
-  m_recompute_geometry = true;
+  m_recompute_mesh = true;
 }
 
 TexturedFrame::~TexturedFrame() { }
@@ -41,7 +38,7 @@ TexturedFrame::~TexturedFrame() { }
 void TexturedFrame::SetBasisRectangleSize(const EigenTypes::Vector2& size) {
   if (m_basis_rectangle_size != size) {
     m_basis_rectangle_size = size;
-    m_recompute_geometry = true;
+    m_recompute_mesh = true;
   }
 }
 
@@ -50,7 +47,7 @@ void TexturedFrame::SetRectangleEdgeOffset(TexturedFrame::Rectangle rect, Textur
   offset = std::max(0.0, offset);
   if (o != offset) {
     o = offset;
-    m_recompute_geometry = true;
+    m_recompute_mesh = true;
   }
 }
 
@@ -58,7 +55,7 @@ void TexturedFrame::SetRectangleEdgeTextureCoordinate(TexturedFrame::Rectangle r
   GLfloat &tc = m_rectangle_edge_texture_coordinate[size_t(rect)][size_t(edge)];
   if (tc != tex_coord) {
     tc = tex_coord;
-    m_recompute_geometry = true;
+    m_recompute_mesh = true;
   }
 }
 
@@ -67,24 +64,31 @@ void TexturedFrame::DrawContents(RenderState& renderState) const {
     return; // If the texture is not set, don't draw anything.
   }
   
-  RecomputeGeometryIfNecessary();
-  // assert(!m_recompute_geometry);
+  RecomputeMeshIfNecessary();
+  // assert(!m_recompute_mesh);
 
   glEnable(GL_TEXTURE_2D);
   m_texture->Bind();
-  m_geometry.Draw(Shader(), GL_TRIANGLES);
+  {
+    const Leap::GL::Shader &shader = Shader();
+    auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
+                                     shader.LocationOfAttribute("normal"),
+                                     shader.LocationOfAttribute("tex_coord"),
+                                     shader.LocationOfAttribute("color"));
+    m_mesh.Bind(locations);
+    m_mesh.Draw();
+    m_mesh.Unbind(locations);
+  }
   m_texture->Unbind();
   glDisable(GL_TEXTURE_2D);
-  
-  // m_geometry.Draw(Shader(), GL_LINE_STRIP);
 }
 
-void TexturedFrame::RecomputeGeometryIfNecessary() const {
-  if (!m_recompute_geometry) {
+void TexturedFrame::RecomputeMeshIfNecessary() const {
+  if (!m_recompute_mesh) {
     return;
   }
   
-  m_geometry.CleanUpBuffers();
+  m_mesh.Shutdown();
   
   const double bx = 0.5 * m_basis_rectangle_size(0);
   const double by = 0.5 * m_basis_rectangle_size(1);
@@ -142,7 +146,7 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
   //    [0][2]    [1][2]    [2][2]    [3][2]
   //    [0][1]    [1][1]    [2][1]    [3][1]
   //    [0][0]    [1][0]    [2][0]    [3][0]
-  PrimitiveGeometry::VertexAttributes vertex_attributes[4][4];
+  PrimitiveGeometryMesh::VertexAttributes vertex_attributes[4][4];
   for (size_t u = 0; u < 4; ++u) {
     for (size_t v = 0; v < 4; ++v) {
       vertex_attributes[u][v] = std::make_tuple(EigenTypes::Vector3f(static_cast<float>(rectangle_edge[0][u]), static_cast<float>(rectangle_edge[1][v]), 0.0f),
@@ -152,16 +156,17 @@ void TexturedFrame::RecomputeGeometryIfNecessary() const {
     }
   }
 
+  PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
   for (size_t u = 0; u < 3; ++u) {
     for (size_t v = 0; v < 3; ++v) {
-      m_geometry.PushQuad(vertex_attributes[u+0][v+0],
-                          vertex_attributes[u+1][v+0],
-                          vertex_attributes[u+1][v+1],
-                          vertex_attributes[u+0][v+1]);
+      mesh_assembler.PushQuad(vertex_attributes[u+0][v+0],
+                              vertex_attributes[u+1][v+0],
+                              vertex_attributes[u+1][v+1],
+                              vertex_attributes[u+0][v+1]);
     }
   }
-
-  m_geometry.UploadDataToBuffers();
-
-  m_recompute_geometry = false;
+  mesh_assembler.InitializeMesh(m_mesh);
+  assert(m_mesh.IsInitialized());
+  
+  m_recompute_mesh = false;
 }

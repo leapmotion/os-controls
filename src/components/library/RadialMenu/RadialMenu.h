@@ -2,9 +2,11 @@
 
 #include "Primitives.h"
 #include "SVGPrimitive.h"
-#include "Color.h"
 #include "Animation.h"
 #include "RadialItem.h"
+#include "Leap/GL/Rgba.h"
+
+using namespace Leap::GL;
 
 class RadialMenuItemEvent {
 public:
@@ -20,8 +22,8 @@ public:
   void SetActivation(double activation) { m_Activation.SetGoal(activation); }
   void SetActivatedRadius(double radius) { m_ActivatedRadius = radius; }
 
-  void SetActivatedColor(const Color& activatedColor) { m_ActivatedColor = activatedColor; }
-  void SetHoverColor(const Color& hoverColor) { m_HoverColor = hoverColor; }
+  void SetActivatedColor(const Rgba<float>& activatedColor) { m_ActivatedColor = activatedColor; }
+  void SetHoverColor(const Rgba<float>& hoverColor) { m_HoverColor = hoverColor; }
 
   void SetIcon(const std::shared_ptr<SVGPrimitive>& svgIcon);
 
@@ -37,13 +39,13 @@ public:
 
 protected:
   virtual void DrawContents(RenderState& renderState) const override;
-  Color calculateColor() const;
+  Rgba<float> calculateColor() const;
 
   Smoothed<double> m_Activation;
   double m_ActivatedRadius;
 
-  Color m_ActivatedColor;
-  Color m_HoverColor;
+  Rgba<float> m_ActivatedColor;
+  Rgba<float> m_HoverColor;
 
   double m_IconScale;
   EigenTypes::Vector3 m_IconOffset;

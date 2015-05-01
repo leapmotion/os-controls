@@ -2,15 +2,23 @@
 
 #include "ResourceManager.h"
 
-class GLTexture2;
+namespace Leap {
+namespace GL {
 
-// TODO: maybe make a loader for GLTexture2Params, which would define "profiles" for
+class Texture2;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
+
+// TODO: maybe make a loader for Texture2Params, which would define "profiles" for
 // different classes of textures (e.g. non-mipmapped RGB textures, 16-bit cubemaps, etc),
-// so that loading a GLTexture2 would require a profile name and a file name.
+// so that loading a Texture2 would require a profile name and a file name.
 
-// Template specialization of ResourceLoader<GLTexture2> which defines how to load such a resource.
+// Template specialization of ResourceLoader<Texture2> which defines how to load such a resource.
 template <>
-struct ResourceLoader<GLTexture2> {
+struct ResourceLoader<Texture2> {
   static const bool exists = true;
-  static std::shared_ptr<GLTexture2> LoadResource (const std::string &name, ResourceManager<GLTexture2> &calling_manager);
+  static std::shared_ptr<Texture2> LoadResource (const std::string &name, ResourceManager<Texture2> &calling_manager);
 };

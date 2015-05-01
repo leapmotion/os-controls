@@ -36,14 +36,14 @@
 #
 # This script defines the following interface targets:
 #   SFML::
-#           SFML - Meta-target.  Links to all targets below.
+#           SFML - Meta-target. Links to all targets below.
 #           Main - The minimum required core target.
 #           Audio
 #           Graphics
 #           Network
 #           System
 #           Window
-#           
+#
 #   Targets for different components will only defined for modules in the COMPONENTS list passed to find_package.
 #   If no components are listed, it is assumed that all components are requested.
 #
@@ -81,7 +81,7 @@ find_path(SFML_ROOT_DIR
 
 # deduce the libraries suffix from the options
 set(FIND_SFML_LIB_SUFFIX "")
-if(SFML_STATIC_LIBRARIES)
+if(SFML_STATIC_LIBRARIES AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(FIND_SFML_LIB_SUFFIX "${FIND_SFML_LIB_SUFFIX}-s")
 endif()
 
@@ -172,13 +172,13 @@ foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     # debug library
     find_library(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_DEBUG
                  NAMES ${FIND_SFML_COMPONENT_NAME}-d
-                 PATH_SUFFIXES lib64 lib
+                 PATH_SUFFIXES lib64 lib lib/x86_64-linux-gnu
                  PATHS ${FIND_SFML_LIB_PATHS})
 
     # release library
     find_library(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_RELEASE
                  NAMES ${FIND_SFML_COMPONENT_NAME}
-                 PATH_SUFFIXES lib64 lib
+                 PATH_SUFFIXES lib64 lib lib/x86_64-linux-gnu
                  PATHS ${FIND_SFML_LIB_PATHS})
 
     if(NOT SFML_STATIC_LIBRARIES)
@@ -204,7 +204,7 @@ foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     if (SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_DEBUG OR SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_RELEASE)
         # library found
         set(SFML_${FIND_SFML_COMPONENT_UPPER}_FOUND TRUE)
-        
+
         # if both are found, set SFML_XXX_LIBRARY to contain both
         if (SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_DEBUG AND SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_RELEASE)
             set(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY debug     ${SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_DEBUG}
@@ -300,7 +300,7 @@ if( SFML_FOUND AND NOT TARGET SFML::SFML)
 
     if(_componentLOWER STREQUAL "main") #main is always a static lib
       generate_import_target(SFML_MAIN STATIC TARGET SFML::Main)
-      
+
     else()
       generate_import_target(SFML_${_componentUPPER} ${_libtype} TARGET SFML::${_componentCap})
     endif()

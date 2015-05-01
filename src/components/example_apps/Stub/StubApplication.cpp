@@ -5,11 +5,19 @@
 #include "ExampleLayer.h"
 #define FREEIMAGE_LIB
 #include "FreeImage.h"
-#include "gl_glext_glu.h"
+#include "Leap/GL/GLHeaders.h"
 #include "ResourceManager.h"
 #include "Singleton.h"
 
-class GLTexture2;
+namespace Leap {
+namespace GL {
+
+class Texture2;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
 
 StubApplication::StubApplication () {
   // Most everything that would normally go in a constructor should really go in Initialize().
@@ -33,12 +41,12 @@ void StubApplication::Initialize() {
   m_applicationTime = TimePoint(0.0);         // Start the application time at zero.
   m_SDLController.Initialize(params);         // This initializes everything SDL-related.
 
-  // Create the ResourceManager<GLTexture2> with the SDL-supplied basepath.  This
-  // must be done before the ResourceManager<GLTexture2> is referred to by anything
-  // else (e.g. Resource<GLTexture2>).
-  Singleton<ResourceManager<GLTexture2>>::CreateInstance(SDLController::BasePath());
+  // Create the ResourceManager<Texture2> with the SDL-supplied basepath.  This
+  // must be done before the ResourceManager<Texture2> is referred to by anything
+  // else (e.g. Resource<Texture2>).
+  Singleton<ResourceManager<Texture2>>::CreateInstance(SDLController::BasePath());
 
-  m_GLController.Initialize();                // This initializes the general GL state.
+  InitializeGlew(&std::cerr);                 // This initializes the general GL state.
   FreeImage_Initialise();                     // Initialize FreeImage.
   InitializeApplicationLayers();              // Initialize the application layers (contents of the app).
 
@@ -48,7 +56,6 @@ void StubApplication::Initialize() {
 void StubApplication::Shutdown() {
   ShutdownApplicationLayers();                // Destroy the application layers, from top (last) to bottom (first).
   FreeImage_DeInitialise();                   // Shut down FreeImage.
-  m_GLController.Shutdown();                  // This shuts down the general GL state.
   m_SDLController.Shutdown();                 // This shuts down everything SDL-related.
 }
 
@@ -66,14 +73,19 @@ void StubApplication::Render(TimeDelta real_time_delta) const {
   assert(real_time_delta >= 0.0);
 
   m_SDLController.BeginRender();
-  m_GLController.BeginRender();               // NOTE: ALL RENDERING should go between here and EndRender().
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // if using transparent window, clear alpha value must be 0
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // NOTE: ALL RENDERING should go between here and the ending marker
 
   for (auto it = m_applicationLayers.begin(); it != m_applicationLayers.end(); ++it) {
     RenderableEventHandler &layer = **it;
     layer.Render(real_time_delta);            // Render each application layer, from back to front.
   }
 
-  m_GLController.EndRender();                 // NOTE: ALL RENDERING should go between here and BeginRender().
+  // NOTE: ALL RENDERING should end by this ending marker.
+  
+  glFlush();
   m_SDLController.EndRender();
 }
 

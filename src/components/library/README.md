@@ -18,7 +18,7 @@ also the CMakeLists.txt include directories.  Each component can even have its o
   overhead of some highly interdependent framework like Cinder.
 - The overall architecture of the Components library becomes formally apparent.  The components
   that have no component-dependencies (but perhaps [system] library dependencies) could be
-  considered the "lowest level" components (e.g. GLTexture2, Singleton), drawn at the bottom of
+  considered the "lowest level" components (e.g. Texture2, Singleton), drawn at the bottom of
   a dependency graph.  Other components will build off of these, offering more power and
   higher-level interfaces (e.g. Application, GLTexture2FreeImage, Resource), and could therefore
   be drawn higher up on the dependency graph.  A developer-written application would use a
@@ -40,8 +40,8 @@ also the CMakeLists.txt include directories.  Each component can even have its o
 - Write a cmake function which looks at the set of components and generates a dot graph of their
   dependency graph -- for components and for [system] libraries.
 - Add a "static std::string ResourceTypeName ()" method to ResourceLoader<T> which returns a
-  std::string containing the name of T (e.g. ResourceLoader<GLShader>::ResourceTypeName() would
-  return "GLShader").  This will be useful in ResourceManager messages.
+  std::string containing the name of T (e.g. ResourceLoader<Shader>::ResourceTypeName() would
+  return "Shader").  This will be useful in ResourceManager messages.
 - Look into using FBOs for headless rendering for purposes of GL unit testing, etc., because this
   may not require any windowing support, so e.g. headless GL unit tests wouldn't depend on
   SDLController or SFMLController.
@@ -127,11 +127,11 @@ Relevant technologies/links:
 
 #### Design notes for primitives/GL refactor
 
-GLShader now implements a dictionary for uniforms and attributes (name -> (location, type, size)).
+Shader now implements a dictionary for uniforms and attributes (name -> (location, type, size)).
 GLShaderMatrices provides an interface for setting the expected matrix uniforms for shaders.
 Material is now an interface for setting the parameters of a particular material fragment shader.
 
-GLVertexBuffer now implements the following:
+VertexBufferObject now implements the following:
 - Should somehow take a compile-time-specified list of vertex attributes and define
   a "vertex" structure which will contain data for rendering each vertex in a VBO.
 - Should present a strongly-typed interface for adding these attributes to an intermediate
@@ -142,11 +142,11 @@ GLVertexBuffer now implements the following:
 - Should have methods for indicating to GL that this VBO should be enabled (see PrimitiveGeometry::Draw),
   and that it should be disabled.
 
-GLVertexBuffer probably needs more work on the following:
+VertexBufferObject probably needs more work on the following:
 - Should present a way to request to modify the uploaded data.
 
 GLMesh<DIM>
-- These are particular instances of GLVertexBuffer implemented for the following vertex attribs:
+- These are particular instances of VertexBufferObject implemented for the following vertex attribs:
   * Position
   * Normal
   * Texture Coordinate
@@ -179,19 +179,19 @@ GLMesh<DIM>
   The granular components making up GLCoreComponent are:
   * GLCompatibility
     ~ gl_glext_glu.h -- uses Glew to include GL headers -- should rename to GLHeaders.h
-    ~ GLError.h -- for flexible GL error checking -- could go in a different component.
-  * GLTexture2 (depends on C++11)
-    ~ GLTexture2Params -- persistent parameters for GLTexture2 (e.g. width, height, target, etc)
-    ~ GLTexture2PixelData -- interface for specifying pixel data for loading/saving into/from GLTexture2
-    ~ GLTexture2 -- Handle to OpenGL texture object
+    ~ Error.h -- for flexible GL error checking -- could go in a different component.
+  * Texture2 (depends on C++11)
+    ~ Texture2Params -- persistent parameters for Texture2 (e.g. width, height, target, etc)
+    ~ Texture2PixelData -- interface for specifying pixel data for loading/saving into/from Texture2
+    ~ Texture2 -- Handle to OpenGL texture object
   * FrameBufferObject
     ~ FrameBufferObject
     ~ RenderBuffer
-  * GLBuffer
-    ~ GLBuffer -- abstracts the concept of an OpenGL buffer object
-  * GLVertexBuffer (depends on C++11)
-    ~ GLVertexAttribute -- abstracts the concept of an OpenGL vertex attribute
-    ~ GLVertexBuffer -- abstracts the concept of an OpenGL vertex buffer object
+  * BufferObject
+    ~ BufferObject -- abstracts the concept of an OpenGL buffer object
+  * VertexBufferObject (depends on C++11)
+    ~ VertexAttribute -- abstracts the concept of an OpenGL vertex attribute
+    ~ VertexBufferObject -- abstracts the concept of an OpenGL vertex buffer object
   * GLController
     ~ GLController -- Was originally intended to be a frontend for non-redundantly controlling GL state,
                       but became a very lightweight set of "bookends" for rendering an OpenGL frame.
@@ -200,10 +200,10 @@ GLMesh<DIM>
     ~ ModelView -- Basically replaces the deprecated fixed-function pipeline regarding the GL_MODEL_VIEW matrix stack.
     ~ Projection -- Same, but for GL_PROJECTION
     I personally would like to tighten up the design on these, and ideally abstract away the dependence on Eigen.
-  * GLShader (depends on C++11, ScopeGuard)
-    ~ GLShader -- abstracts the concept of a GLSL shader program (vertex and fragment).  Do we want
+  * Shader (depends on C++11, ScopeGuard)
+    ~ Shader -- abstracts the concept of a GLSL shader program (vertex and fragment).  Do we want
                   to support geometry shaders?
-    ~ GLShaderBindingScopeGuard -- an object which implements the "scope guard" for binding/unbinding shaders.
+    ~ ShaderBindingScopeGuard -- an object which implements the "scope guard" for binding/unbinding shaders.
                                    This class is not strictly necessary, but is a convenience.
   * GLMaterial (depends on Color, EigenTypes)
     ~ GLMaterial -- provides a C++ interface for a particular fragment shader that we have written.  A lot of design
@@ -225,9 +225,9 @@ GLMesh<DIM>
 
   There is a set of GL components that have additional library dependencies which I view as "extras", which make
   up the hypothetical "GLResourceLoaders" package-level component.  These are:
-  * GLTexture2FreeImage -- provides a FreeImage-based loader for GLTexture2.  Depends on the FreeImage library.
-  * GLTexture2Loader -- provides a ResourceLoader-based loader for GLTexture2 which uses GLTexture2FreeImage.
-  * GLShaderLoader -- provides a ResourceLoader-based loader for GLShader from vertex/fragment shader source.
+  * GLTexture2FreeImage -- provides a FreeImage-based loader for Texture2.  Depends on the FreeImage library.
+  * GLTexture2Loader -- provides a ResourceLoader-based loader for Texture2 which uses GLTexture2FreeImage.
+  * GLShaderLoader -- provides a ResourceLoader-based loader for Shader from vertex/fragment shader source.
 
   The "loader" components use Resource, ResourceManager, and Singleton, which may not be dependencies we want to
   provide.  Ideally we could abstract dependence on these so that implementations that use Resource,
@@ -236,7 +236,7 @@ GLMesh<DIM>
   proposed abstractions.
 
   The existing GLShaderLoader could be broken up into 1) a class that reads the vertex/fragment shader source from
-  disk and creates a GLShader and 2) the existing ResourceLoader<GLShader> which would then just be a
+  disk and creates a Shader and 2) the existing ResourceLoader<Shader> which would then just be a
   ResourceLoader frontend for the loader in part 1.  Then the part 1 loader could be a part of the GLCoreComponents
   component.
 
@@ -331,7 +331,7 @@ GLMesh<DIM>
   because SceneGraph has property stack functionality
 - Perhaps Projection could be replaced with Camera and its use in SceneGraph.
 - Abstracting the choice of Eigen out of the GL component
-- GLShaderBindingScopeGuard is for thread safety but we may not need it
+- ShaderBindingScopeGuard is for thread safety but we may not need it
 - Geometry shader is deemed not necessary right now
 - Cube map -- worthwhile (code in Freeform) but low priority
 - Pixel buffer objects may be a faster way to transfer pixels from GPU to CPU (low priority)
@@ -366,20 +366,8 @@ GLMesh<DIM>
 
 ##### GL component high priority
 
-- Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
-  convention.  Some possible choices are:
-  (1) Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this)
-  (2) Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
-      there is a separate Shutdown/Destroy method
-      destruction releases the resource (GLBuffer does this).
-  (3) Construct with acquired resource (as in (1)) or construct as "invalid/empty",
-      there is a [Re]Initialize method to [re]acquire a resource
-      there is a Shutdown method
-      destruction releases the resource.
-  Number (3) is probably the most flexible, because it doesn't require destroying and reconstructing
-  to change what resource something points to.  However, use of std::shared_ptr may make this unnecessary.
-  Then again, we probably don't want to make that architectural choice for people, and want our
-  classes to be usable in many different paradigms.
+###### Done
+
 - Make the directory structure of the components repo into the following, where an X indicates a change.
 
   * components/                             -- root directory of repo -- this exists already
@@ -398,20 +386,44 @@ GLMesh<DIM>
   track OpenGL server state and prevent redundant server state changes) is contrary to one
   of the main design principles of the Components lib (drop-in capability).
 - Create GLMesh and factor out of PrimitiveGeometry.
-- Abstracted version of GLMaterial that is similar to the design of GLVertexBuffer, but does
+- Abstracted version of GLMaterial that is similar to the design of VertexBufferObject, but does
   initialization of the material at runtime (parallel to the concept of shaders being compiled
   and linked at runtime).
-- Add SceneGraph and Camera.  Keep Projection [matrix], get rid of ModelView (because its stack
-  is replaced by SceneGraph) and perhaps use an AffineTransform<DIM> class instead.
-- Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
-  This will require some prototyping and code review.
-- Determine if exception safety is a good enough reason to include GLShaderBindingScopeGuard,
-  otherwise get rid of it.
+- Ensure that all types of uniforms can be set via Shader (in particular, arrays and structures of uniforms).
+- Determine if exception safety is a good enough reason to include ShaderBindingScopeGuard,
+  otherwise get rid of it.  It has been decided that exception safety, along with a uniformized
+  resource binding/unbinding convention is a good enough reason to have this.
 - Color -- RGB<T> and RGBA<T> (but do HSV<T> and HSVA<T> later)
+- All color unit tests should pass (some are currently disabled).  NOTE: The blending tests for 
+  long double aren't passing, but that's probably ok, we could just disallow long double as a component type.
+- Integrate RGB and RGBA into rest of code, replacing "class Color"
+- SceneGraphNode and Camera.
+- Simplify Texture2PixelData class hierarchy to a single structure, eliminating the storage
+  concern that GLTexture2PixelDataStorage provides.
+- Make RenderBuffer an Internal class, because it's apparently an implementation detail of FrameBufferObject.
+  Also, the name should change to FramebufferObject (or maybe just Framebuffer).  See
+  https://www.opengl.org/wiki/Framebuffer_Object
+- Camera was integrated into codebase.
+- Rename classes that have the GL prefix to not have the GL prefix, because they're in a namespace.
+- Take out the temporary "using namespace Leap::GL" statements everywhere.  For now, all non-LeapGL
+  code that includes LeapGL code now has "using namespace Leap::GL" so that no code had to change.
+- Deleted FrameBufferObject and RenderBuffer because it had no use cases in os-controls repo, and can be
+  added back later.
+- Consistent GL resource (e.g. textures, buffers, etc) construction/[re]initialization/shutdown/destruction
+  convention.
+- Refactored Projection and ModelView as necessary.
+- Full, Doxygen-based documentation.
+
+###### Still To Do
+
 - Unit tests (this depends on SDLController or whatever is needed to create a GL context;
   could also make an interface for that purpose -- perhaps that "make me a GL context" interface
   would be useful in the GL core component?).
-- Full, Doxygen-based documentation.
+
+###### Deferred Until Later
+
+- Abstracting the choice of a particular linear algebra library (Eigen in our case) out.
+  This will require some prototyping and code review.
 
 ##### GL component low priority
 
@@ -420,13 +432,14 @@ GLMesh<DIM>
 - Pixel buffer objects (could be a way to do faster pixel transfers from GPU to CPU)
 - GLTraits / reflection
 - Color -- HSV<T>, HSVA<T>, sRGB<T>, sRGBA<T> (sRGB is a nonlinear analog to RGB)
+- Uniform buffer objects (this appears to be for OpenGL 4+ (?))
 
 #### GL component closure notes
 
 The GL component is designed to provide abstractions of concepts in the OpenGL API.
 The purpose of this analysis is to determine a closed set of features/API for each
 abstraction, based on the OpenGL API.  E.g. glTexImage2D is affected by state that
-is controlled by glPixelStore* and glTexParameter*, and therefore the GLTexture2
+is controlled by glPixelStore* and glTexParameter*, and therefore the Texture2
 class must provide an API for using those capabilities in the abstraction.
 
 FrameBufferObject (rename to Leap::GL::Framebuffer) 
@@ -471,7 +484,7 @@ FrameBufferObject (rename to Leap::GL::Framebuffer)
   * glGetFramebufferAttachmentParameteriv
   * TODO: examine API docs for closure
 
-GLBuffer (rename to Leap::GL::Buffer)
+BufferObject (rename to Leap::GL::BufferObject)
 - List of relevant GL calls
   * glGenBuffers
   * glBindBuffer
@@ -485,15 +498,15 @@ GLBuffer (rename to Leap::GL::Buffer)
   * TODO: examine API docs for closure
 
 GLMaterial (rename to Leap::GL::Material)
-- This is an abstraction completely on top of GLShader, so it doesn't call OpenGL directly.
+- This is an abstraction completely on top of Shader, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
 GLShaderMatrices (rename to Leap::GL::ShaderMatrices or perhaps to X, where X is to vertex shader
 where GLMaterial is to fragment shader).
-- This is an abstraction completely on top of GLShader, so it doesn't call OpenGL directly.
+- This is an abstraction completely on top of Shader, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
-GLShader (rename to Leap::GL::Shader)
+Shader (rename to Leap::GL::Shader)
 - List of relevant GL calls
   * glUseProgram
   * glUniform*
@@ -522,7 +535,7 @@ GLShader (rename to Leap::GL::Shader)
   * glGetShaderInfoLog
   * TODO: examine API docs for closure
 
-GLTexture2 (rename to Leap::GL::Texture2)
+Texture2 (rename to Leap::GL::Texture2)
 - List of relevant GL calls
   * glBindTexture
   * glPixelStore*
@@ -538,7 +551,7 @@ GLTexture2 (rename to Leap::GL::Texture2)
   * glGetTexLevelParameteriv (with e.g. GL_TEXTURE_INTERNAL_FORMAT)
   * TODO: examine API docs for closure
 
-GLVertexAttribute (rename to Leap::GL::VertexAttribute)
+VertexAttribute (rename to Leap::GL::VertexAttribute)
 - List of relevant GL calls
   * glEnableVertexAttribArray
   * glVertexAttribPointer
@@ -547,8 +560,8 @@ GLVertexAttribute (rename to Leap::GL::VertexAttribute)
 - Associated glGet calls
   * TODO: examine API docs for closure
 
-GLVertexBuffer (rename to Leap::GL::VertexBuffer)
-- This is an abstraction completely on top of GLBuffer and GLVertexAttribute, so it doesn't call OpenGL directly.
+VertexBufferObject (rename to Leap::GL::VertexBufferObject)
+- This is an abstraction completely on top of BufferObject and VertexAttribute, so it doesn't call OpenGL directly.
 - TODO: examine API docs for closure
 
 RenderBuffer (rename to Leap::GL::RenderBuffer)
@@ -571,31 +584,29 @@ how the objects are used (e.g. assuming that they are always constructed via new
 
 The resource-based OpenGL concepts that we will provide abstractions for in the GL
 component are the following.
-    
+
 - Texture2
 - Shader
-- Buffer
-- VertexBuffer
+- BufferObject
+- VertexBufferObject
 - Mesh
-- Material
-- FrameBuffer
-- RenderBuffer
+- ShaderFrontend
 
 Some possibilities for resource conventions are the following.
 
-1.  Construction is resource acquisition, destruction is release (GLTexture2, GLShader does this),
+1.  Construction is resource acquisition, destruction is release (Texture2, Shader does this),
     and if a failure occurs during resource acquisition (which is the same as construction), an
     exception is thrown.
 2.  Construction creates an "invalid/empty" resource, there is a separate Initialize/Create method,
-    there is a separate Shutdown/Destroy method
-    destruction releases the resource (GLBuffer does this).
+    there is a separate Release/Destroy method
+    destruction releases the resource (BufferObject does this).
 3.  Construct with acquired resource (as in (1)) or construct as "invalid/empty",
     there is a [Re]Initialize method to [re]acquire a resource
-    there is a Shutdown method
+    there is a Release method
     destruction releases the resource.
 
 Number (1) is the most pure in a type-theoretic sense, because it makes impossible construction of
-an invalid/empty resource.  However not being able to shutdown/reinitialize a resource from an
+an invalid/empty resource.  However not being able to release/reinitialize a resource from an
 already-allocated object prevents certain use cases.
 
 Number (2) requires the most code to use, as construction does no initialization (resource acquisition).
@@ -608,6 +619,13 @@ Then again, we probably don't want to make that architectural choice for people,
 classes to be usable in many different paradigms.  It should be possible to use the classes as
 local variables, as members, as objects allocated on the heap, via std::shared_ptr, etc.
 
+There should (could?) be an Update method as well, which re-initializes the resource, and probably
+corresponds to a relatively lightweight operation (compared to releasing and re-initializing).  Perhaps
+this should be resource-specific, so no requirement is made on it.
+
+The Release method should take no arguments, so that it can be called without specific knowledge of
+what type the resource is.
+
 Each OpenGL resource has associated "bind"/"unbind" operations which affect the state of the OpenGL server
 and consequent drawing operations.
 
@@ -616,6 +634,11 @@ than the end of the scope in which it's created.  This should be the standard wa
 In fact, the resources' bind/unbind operations could be designed to require the use of a scope guard (use
 of a scope guard wouldn't be absolutely required -- there should be some way to do "manual" binding/
 unbinding).
+
+Finally, in order to maximize flexibility, each resource class should ideally be populatable from existing,
+created-using-raw-OpenGL-calls resources.  For example, a 2D texture created in some other library that
+the user wants to control via Texture2 -- there should be a means to initialize a Texture2 using the
+existing texture handle and other parameters.
 
 #### Evaluation of existing C++ OpenGL wrapper libraries
 
@@ -641,10 +664,52 @@ unbinding).
   * Also appears to not be actively developed (last update was in 2012), and may have
     existed since before 2003, which would explain why some concepts are missing.
 
+#### GLMesh design notes
+
+- Draw mode (e.g. GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_LINES, etc.).
+  GL_POINTS, GL_LINE_STRIP, GL_LINE_LOOP, GL_LINES, GL_LINE_STRIP_ADJACENCY, GL_LINES_ADJACENCY,
+  GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES, GL_TRIANGLE_STRIP_ADJACENCY and
+  GL_TRIANGLES_ADJACENCY.
+- Two modes for vertex specification (this would be a template parameter because it determines
+  the [non-]existence of intermediate vertex data):
+  * Indexed (uses glDrawElements) -- intermediate vertex data necessary, common vertices will
+    be collapsed when uploaded to vertex buffer.
+  * Direct (uses glDrawArrays) -- no intermediate vertex data necessary.
+- Should be able to specify what vertex attributes are present
+  * Position : required
+  * Normal   : optional (but this class should be aware of it)
+  * Others   : optional user-specified attributes, e.g. texture coordinates, color, etc.
+- The position and normal attributes have some dimension configurability.
+  * 3d position, 3d normal (normals defined to be normal to the surface)
+  * 2d position, 3d normal (normals defined to be the unit Z vector, normal to the XY plane)
+  * 2d position, 2d normal (the mesh would (could) represent the 1d boundary of a 2d region,
+    and the normals would be normal to that 1d boundary curve).  While this is mathematically
+    nice, it's probably the least useful in terms of graphics.
+- There should be methods for adding surface primitives
+  * Vertex
+  * Line
+  * Line strip vertex
+  * Triangle
+  * Triangle strip vertex
+  * Triangle fan vertex
+  * Quad (just adds 2 triangles) -- this may be difficult to design to play nicely with the
+    different triangles
+  * TODO: Figure out if there should be methods for GL_TRIANGLES_ADJACENCY and other adjacency
+    modes.
+- It might also be useful to be able to add vertices and indices manually, with no intermediate
+  vertex storage, e.g. loading a mesh from a file, where the vertex indices are precomputed.
+- Perhaps there should be a method which produces the induced wireframe for a mesh (or can
+  that be done with a shader?).
+
+Other random notes
+- Halfedge structure for storing meshes and determining adjacency.  This gives a consistent
+  and efficient way to represent oriented surfaces, and probably naturally generalizes to
+  arbitrary complexes.
+
 #### GLMaterial abstraction design notes
 
 Generally what is needed is a strongly-typed C++ frontend for setting uniforms in GLSL
-shaders.  GLShader is aware of what uniforms and attributes are present in the program,
+shaders.  Shader is aware of what uniforms and attributes are present in the program,
 and what type each one is.
 
 Perhaps this concept should be called GLShaderFrontend.  GLShaderFrontend will expect
@@ -661,6 +726,81 @@ Both methods of delivering uniforms will use the same "packet type", so that the
 for specifying uniform values is contained within a single place, and not duplicated
 in GLShaderFrontend.
 
+#### Linear algebra abstraction design notes
+
+The linear algebra functionality in code which LeapGL inherits from Components, that is
+currently being provided by Eigen, is the following:
+- Matrix addition/subtraction
+- Matrix multiplication
+- Matrix normalization
+- Vector inner product
+- 3-vector cross product
+- Construction of matrices by component values
+  * Assignment to rows/columns
+- Generation of 3x3 rotation matrix via angle/axis vectors (this is really just a formula
+  that could be implemented in-code (it is implemented in ModelViewProjection.cpp))
+- Matrix inversion (ShaderMatrices)
+- Matrix transpose (ShaderMatrices)
+
+#### SceneGraphNode and Camera design notes
+
+- Some notes from a conversation with Raffi:
+  * It would be good to have a nicer API for scene graph nodes -- one that doesn't require
+    use of the boilerplate "LocalProperties()" method call.  Perhaps this could be provided
+    via global functions that mutate scene graph nodes.  E.g. Translate(node, v), 
+    Rotate(node, R), Scale(node, 2.0f), SetAlphaMask(node, 0.5f), etc.
+  * The Camera class will subsume the Projection class, and provide the projection matrix
+    as a function of its properties:
+    ~ Eye position
+    ~ Eye direction
+    ~ Up direction
+    ~ Fov/View frustum -- OR -- specify orthographic projection
+    However, because these properties will typically be provided in global coordinates, their
+    interplay with SceneGraphNode will need some thought.  The "view" matrix will be a function
+    of the global transformation of the Camera in the scene graph.
+  * The ModelView class will be replaced by the existing stack functionality of SceneGraphNode.
+    Some linear algebra functionality will be needed for this, so that matrix operations can be
+    done internally.
+  * As an implementation detail (which would be hidden with respect to the SceneGraphNode API),
+    caching of nodes' global properties could be done in order to reduce computation time.
+    However that is done, it must be efficient.
+  * Additional scene graph node properties that justify the complexity of the SceneGraphNodeProperty
+    class:
+    ~ Name -- whose global 'coordinate' is a path (e.g. "/device0/left_camera"), and the property
+      delta between two nodes would be a relative path (e.g. "../right_camera").
+    ~ Color blending -- for masking and tinting renderable objects.
+    ~ Style sheets (accumulation and propagation of properties), e.g. in GUI widget layouts.
+    ~ File size (this would require a bit of thought for definition, but carefully done, the global
+      size property of a node could be the recursive size of a node and all its children, e.g. in
+      a filesystem).  This one would certainly benefit from the caching scheme.
+- Camera design notes:
+  * The goal is to provide the usual "lookat" semantics for camera positioning/orienting but through
+    the SceneGraphNode framework.  This could be accomplished by defining a series of Camera
+    functions (perhaps just in a Camera namespace) which operate on AffineTransform objects
+    (or in particular, the AffineTransform properties of SceneGraphNodes).  For example,
+      Camera::SetLookAt(node, eye_position, focus_position, up_direction);
+    would set the AffineTransform property of node so that its position is eye_position, it's
+    looking at focus_position, and its orientation is fixed using up_direction.  This would be
+    relative to the coordinate system of node's parent.  There could be another function which
+    does the same thing but does it relative to the coordinate system of a different, specified
+    node.
+  * The "view" part of the model-view matrix is provided by the global AffineTransform property
+    of the camera node.  The perspective matrix is provided by other parameters:
+    ~ Orthographic : Must specify vert/horiz scale
+    ~ Perspective  : Must specify vert/horiz FOV or view frustum.
+    This particular bit of information does require state to store, which justifies having some
+    sort of class -- be it Camera or Perspective or whathaveyou.  Probably it's better not to
+    have a subclass of SceneGraphNode for the camera state, so that one could use any node as
+    the camera view.  Perhaps the Camera class would just look like:
+      class Camera {
+        SceneGraphNode *m_node;
+        ViewFrustum m_view_frustum;
+      public:
+        ...
+        Matrix4x4 ViewMatrix () const { <derived from m_node> }
+        Matrix4x4 ProjectionMatrix () const { <derived from m_view_frustum> }
+      };
+  
 #### Design notes for hooked GLController (different than existing/deprecated GLController)
 
 The goal is to provide a minimal but clear C++ interface to the GL state, caching 

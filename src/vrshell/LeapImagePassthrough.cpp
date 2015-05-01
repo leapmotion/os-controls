@@ -5,7 +5,6 @@
 #include "graphics/RenderEngine.h"
 #include "osinterface/LeapInput.h"
 #include "osinterface/RenderWindow.h"
-#include "GLShaderMatrices.h"
 
 enum PolicyFlagInternal {
   POLICY_INCLUDE_ALL_FRAMES = (1 << 15), /**< Include native-app frames when receiving background frames. */
@@ -13,7 +12,7 @@ enum PolicyFlagInternal {
 };
 
 LeapImagePassthrough::LeapImagePassthrough() :
-m_passthroughShader(Resource<GLShader>("passthrough"))
+m_passthroughShader(Resource<Shader>("passthrough"))
 {
   m_leap->AddPolicy(Leap::Controller::POLICY_IMAGES);
   m_leap->AddPolicy(static_cast<Leap::Controller::PolicyFlag>(POLICY_INCLUDE_ALL_FRAMES));
@@ -23,8 +22,8 @@ m_passthroughShader(Resource<GLShader>("passthrough"))
     m_rect[i].SetSize(EigenTypes::Vector2(640, 480));
     m_rect[i].Translation() = EigenTypes::Vector3(320, 240, 0);
     m_rect[i].SetShader(m_passthroughShader);
-    m_rect[i].Material().SetAmbientLightColor(Color::White());
-    m_rect[i].Material().SetAmbientLightingProportion(1.0f);
+    m_rect[i].Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>::One(); // opaque white
+    m_rect[i].Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   }
 }
 
@@ -47,23 +46,23 @@ void LeapImagePassthrough::AnimationUpdate(const RenderFrame& frame) {
     // Generate a texture procedurally.
     GLsizei width = images[0].width();
     GLsizei height = images[0].height();
-    GLTexture2Params imageParams(width, height, GL_LUMINANCE);
+    Texture2Params imageParams(width, height, GL_LUMINANCE);
     imageParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     imageParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     imageParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    m_texture[0] = std::make_shared<GLTexture2>(imageParams);
-    m_texture[1] = std::make_shared<GLTexture2>(imageParams);
+    m_texture[0] = std::make_shared<Texture2>(imageParams);
+    m_texture[1] = std::make_shared<Texture2>(imageParams);
 
-    GLTexture2Params distortionParams(64, 64, GL_RG32F);
+    Texture2Params distortionParams(64, 64, GL_RG32F);
     //distortionParams.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     distortionParams.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     distortionParams.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     distortionParams.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    m_distortion[0] = std::make_shared<GLTexture2>(distortionParams);
-    m_distortion[1] = std::make_shared<GLTexture2>(distortionParams);
+    m_distortion[0] = std::make_shared<Texture2>(distortionParams);
+    m_distortion[1] = std::make_shared<Texture2>(distortionParams);
   }
  
   for (int i = 0; i < 2; i++) {

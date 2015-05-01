@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Application.h"
-#include "GLController.h"
 #include "RenderableEventHandler.h"
 #include "SFMLController.h"
 
@@ -56,7 +55,6 @@ private:
   }
 
   SFMLController m_SFMLController;
-  GLController m_GLController;
   TimePoint m_applicationTime;
   std::vector<std::shared_ptr<RenderableEventHandler>> m_applicationLayers;
 };

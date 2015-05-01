@@ -3,14 +3,16 @@
 #include "osinterface/RenderWindow.h"
 #include "graphics/RenderFrame.h"
 
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
-#include "TextFile.h"
+#include "Leap/GL/Shader.h"
+#include "Leap/GL/Texture2.h"
 #include "Resource.h"
+#include "TextFile.h"
 #include <memory>
 
 #include "RenderState.h"
+
+using namespace Leap::GL;
 
 ExposeActivationStateMachine::ExposeActivationStateMachine() :
   m_state(State::INACTIVE),
@@ -21,9 +23,8 @@ ExposeActivationStateMachine::ExposeActivationStateMachine() :
   m_goalBottomY(0.0f,0.7f),
   m_pusherBottomY(0.0f, 0.7f)
 {
-  m_goalStrip->Material().SetDiffuseLightColor(GOAL_COLOR);
-  m_goalStrip->Material().SetAmbientLightColor(GOAL_COLOR);
-  m_goalStrip->Material().SetAmbientLightingProportion(1.0f);
+  m_goalStrip->Material().Uniform<AMBIENT_LIGHT_COLOR>() = GOAL_COLOR;
+  m_goalStrip->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   // Setup SVG
   Resource<TextFile> exposeIconFile("expose-icon-01.svg");
@@ -91,7 +92,7 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
       float yDiff = PUSHER_BOTTOM_Y - handData.locationData.y;
       float diffPercent = yDiff / PUSHER_BOTTOM_Y;
       diffPercent = std::min(1.0f, std::max(0.0f, diffPercent));
-      Color blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
+      Rgba<float> blended = blendColor(UNSELECTED_COLOR, SELECTED_COLOR, diffPercent);
       if ( diffPercent > 0 ) {
         if ( m_armed ) {
           m_pusherBottomY.SetImmediate(std::min(handData.locationData.y, PUSHER_BOTTOM_Y));
@@ -101,9 +102,8 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
         m_armed = true;
         m_pusherBottomY.SetGoal( PUSHER_BOTTOM_Y );
       }
-      m_pusherBar->Material().SetAmbientLightColor(blended);
-      m_pusherBar->Material().SetDiffuseLightColor(blended);
-      m_pusherBar->Material().SetAmbientLightingProportion(1.0f);
+      m_pusherBar->Material().Uniform<AMBIENT_LIGHT_COLOR>() = blended;
+      m_pusherBar->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
       if( diffPercent >= 1 && m_armed) {
         resolveSelection();
@@ -116,10 +116,10 @@ void ExposeActivationStateMachine::AutoFilter(ShortcutsState appState, const Han
   }
 }
 
-Color ExposeActivationStateMachine::blendColor(Color c1, Color c2, float amnt) {
-  amnt = std::min(1.0f, std::max(0.0f, amnt));
-  const EigenTypes::Vector4f blend = (amnt * c2.Data()) + ((1.0f-amnt) * c1.Data());
-  return Color(blend);
+Rgba<float> ExposeActivationStateMachine::blendColor(Rgba<float> c1, Rgba<float> c2, float amnt) {
+  ColorComponent<float> param(amnt);
+  param.Clamp(); // Clamps the parameter to within the range [0,1].
+  return c1.BlendedWith(c2, amnt);
 }
 
 void ExposeActivationStateMachine::transitionToInactive() {

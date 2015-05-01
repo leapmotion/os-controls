@@ -25,17 +25,18 @@ set(VRShell_RESOURCES
   ${CMAKE_SOURCE_DIR}/src/shaders/passthrough-frag.glsl
   ${CMAKE_SOURCE_DIR}/src/shaders/passthrough-vert.glsl
 )
-ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" VRShell_SOURCES)
+add_pch(VRShell_SOURCES "stdafx.h" "stdafx.cpp")
 
 set(VRShell_CLR_SOURCES
   AssemblyInfo.cpp
   NativeUIWin.resx #Required by CMake for the .h to be editable in the designer.
   NativeUIWin.h
   NativeUIWin.cpp
-  Resources.resx
+  resources.resx
   Resources.rc
-  Resources.h
+  resources.h
 )
+
 add_windows_sources(VRShell_SOURCES ${VRShell_CLR_SOURCES})
 add_mac_sources(VRShell_SOURCES NativeUIMac.mm)
 
@@ -57,7 +58,7 @@ if(WIN32)
   endforeach()
 endif()
 
-add_conditional_sources(VRShell_SOURCES "" GROUP_NAME "Resource Files" "FILES" 
+add_resource_files(VRShell_SOURCES
   ${VRShell_RESOURCES}
   icons/icon.ico
   icons/icon_512x512.png

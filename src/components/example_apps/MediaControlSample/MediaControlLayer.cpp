@@ -2,16 +2,18 @@
 
 #include <cmath>
 
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
 #include "GLTexture2Loader.h"
+#include "Leap/GL/Texture2.h"
+#include "Leap/GL/Shader.h"
 #include "Resource.h"
 
-const Color bgColor(0.4f, 0.425f, 0.45f, 0.75f);
-const Color fillColor(0.4f, 0.8f, 0.4f, 0.7f);
-const Color handleColor(0.65f, 0.675f, 0.7f, 1.0f);
-const Color handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
+using namespace Leap::GL;
+
+const Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
+const Rgba<float> fillColor(0.4f, 0.8f, 0.4f, 0.7f);
+const Rgba<float> handleColor(0.65f, 0.675f, 0.7f, 1.0f);
+const Rgba<float> handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 MediaControlLayer::MediaControlLayer() :
   m_Width(640),
@@ -24,7 +26,7 @@ MediaControlLayer::MediaControlLayer() :
   const double volumeRadius = 8.625;
   const double volumeThickness = 0.75;
 
-  m_shader = Resource<GLShader>("material");
+  m_shader = Resource<Shader>("material");
   m_shader->CheckForTypedAttribute("position", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
   m_shader->CheckForTypedAttribute("normal", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
   m_shader->CheckForTypedAttribute("tex_coord", GL_FLOAT_VEC2, VariableIs::OPTIONAL_BUT_WARN);
@@ -36,7 +38,7 @@ MediaControlLayer::MediaControlLayer() :
   m_VolumeSlider.SetFillColor(fillColor);
   m_VolumeSlider.SetHandleColor(handleColor);
   m_VolumeSlider.SetHandleOutlineColor(handleOutlineColor); 
-  m_VolumeSlider.Material().SetDiffuseLightColor(bgColor);
+  m_VolumeSlider.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
 
   const int numItems = 3;
   m_PlaybackMenu.SetStartAngle(startAngle);
@@ -47,7 +49,7 @@ MediaControlLayer::MediaControlLayer() :
     item->SetRadius(13.5);
     item->SetThickness(7.0);
     item->SetActivatedRadius(17.0);
-    item->Material().SetDiffuseLightColor(bgColor);
+    item->Material().Uniform<DIFFUSE_LIGHT_COLOR>() = bgColor;
     item->SetHoverColor(fillColor);
     item->SetActivatedColor(handleOutlineColor);
   }
@@ -74,9 +76,6 @@ MediaControlLayer::MediaControlLayer() :
 
   m_Controller.addListener(m_Listener);
 
-  m_Cursor.Material().SetDiffuseLightColor(Color::White());
-  m_Cursor.Material().SetAmbientLightColor(Color::White());
-  m_Cursor.Material().SetAmbientLightingProportion(1.0f);
   m_Cursor.SetRadius(2.0);
 
   m_Volume = 0.5;
@@ -159,15 +158,16 @@ void MediaControlLayer::Update(TimeDelta real_time_delta) {
   m_PlaybackMenu.GetItem(1)->SetActivation(item2Activation);
   m_PlaybackMenu.GetItem(2)->SetActivation(item3Activation);
 #else
-  static const Vector3 LEAP_OFFSET(0, -200, 0);
+  static const EigenTypes::Vector3 LEAP_OFFSET(0, -200, 0);
   static const double LEAP_SCALE = 0.5;
   if (!frames.empty()) {
     Leap::Finger frontmostFinger = frames.back().fingers().frontmost();
-    const Vector3 fingerPos = frontmostFinger.tipPosition().toVector3<Vector3>() + LEAP_OFFSET;
+    const EigenTypes::Vector3 fingerPos = frontmostFinger.tipPosition().toVector3<EigenTypes::Vector3>() + LEAP_OFFSET;
     m_Cursor.Translation() = LEAP_SCALE * fingerPos;
     m_Cursor.Translation().z() = 0.0;
   }
-  m_PlaybackMenu.UpdateItemsFromCursor(m_Cursor.Translation(), static_cast<float>(real_time_delta));
+  assert(false && "this seems to be an API break from RadialMenu.  TODO: correct this.");
+  // m_PlaybackMenu.UpdateItemsFromCursor(m_Cursor.Translation(), static_cast<float>(real_time_delta));
 #endif
 }
 
@@ -183,21 +183,21 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0; 
-  m_Renderer.GetProjection().Perspective(fovRadians, widthOverHeight, nearClip, farClip);
+  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
-  const Vector3 eyePos = 100*Vector3::UnitZ(); // + 0.5*m_Cursor.Translation();
-  const Vector3 lookAtPoint = Vector3::Zero();
-  const Vector3 upVector = Vector3::UnitY();
+  const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ(); // + 0.5*m_Cursor.Translation();
+  const EigenTypes::Vector3 lookAtPoint = EigenTypes::Vector3::Zero();
+  const EigenTypes::Vector3 upVector = EigenTypes::Vector3::UnitY();
   //m_Renderer.SetShader(m_shader);
-  m_Renderer.GetModelView().Reset();
+  m_Renderer.GetModelView().LoadIdentity();
   m_Renderer.GetModelView().LookAt(eyePos, lookAtPoint, upVector);
 
   m_shader->Bind();
 
   // set light position
-  const Vector3f desiredLightPos(0, 10, 10);
-  const Vector3f lightPos = desiredLightPos - eyePos.cast<float>();
+  const EigenTypes::Vector3f desiredLightPos(0, 10, 10);
+  const EigenTypes::Vector3f lightPos = desiredLightPos - eyePos.cast<float>();
   const int lightPosLoc = m_shader->LocationOfUniform("lightPosition");
   glUniform3f(lightPosLoc, lightPos[0], lightPos[1], lightPos[2]);
 

@@ -10,8 +10,6 @@
 #include "utility/NativeWindow.h"
 #include "utility/Config.h"
 
-#include "Color.h"
-
 StateMachine::StateMachine(void) :
   ContextMember("StateMachine"),
   m_state(ShortcutsState::BASE),

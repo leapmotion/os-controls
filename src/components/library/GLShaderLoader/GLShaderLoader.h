@@ -1,10 +1,12 @@
 #pragma once
 
-#include "GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "Resource.h"
 #include "TextFileLoader.h"
 
 #include <cassert>
+
+using namespace Leap::GL;
 
 // this class is in this file because it's only used in defining how shaders are loaded
 class GLShaderLoadParams {
@@ -67,11 +69,11 @@ struct ResourceLoader<GLShaderLoadParams> {
   }
 };
 
-// Template specialization of ResourceLoader<GLShader> which defines how to load such a resource.
+// Template specialization of ResourceLoader<Shader> which defines how to load such a resource.
 template <>
-struct ResourceLoader<GLShader> {
+struct ResourceLoader<Shader> {
   static const bool exists = true;
-  static std::shared_ptr<GLShader> LoadResource (const std::string &name, ResourceManager<GLShader> &calling_manager) {
+  static std::shared_ptr<Shader> LoadResource (const std::string &name, ResourceManager<Shader> &calling_manager) {
     if (name == "dummy") {
       std::string vertex_shader_source(
         "void main () {\n"
@@ -84,7 +86,7 @@ struct ResourceLoader<GLShader> {
         "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
         "}\n"
       );
-      return std::make_shared<GLShader>(vertex_shader_source, fragment_shader_source);
+      return std::make_shared<Shader>(vertex_shader_source, fragment_shader_source);
     } else {
       // Load the params for the requested shader program.
       auto params = Resource<GLShaderLoadParams>(name);
@@ -103,12 +105,12 @@ struct ResourceLoader<GLShader> {
 
       }
       if (!vertex_shader_source || !fragment_shader_source) {
-        // throw std::domain_error("no resource \"" + name + "\" found for type GLShader");
-        std::cout << "ResourceLoader<GLShader> : failed to load \"" << name << "\", falling back to \"dummy\".\n";
+        // throw std::domain_error("no resource \"" + name + "\" found for type Shader");
+        std::cout << "ResourceLoader<Shader> : failed to load \"" << name << "\", falling back to \"dummy\".\n";
         return LoadResource("dummy", calling_manager);
       }
       
-      return std::make_shared<GLShader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
+      return std::make_shared<Shader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
     }
   }
 };

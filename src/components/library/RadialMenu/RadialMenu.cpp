@@ -60,10 +60,9 @@ void RadialMenuItem::DrawContents(RenderState& renderState) const {
   m_Wedge->SetEndAngle(m_EndAngle);
   m_Wedge->SetInnerRadius(innerRadius);
   m_Wedge->SetOuterRadius(outerRadius);
-  const Color wedgeColor = calculateColor();
-  m_Wedge->Material().SetDiffuseLightColor(wedgeColor);
-  m_Wedge->Material().SetAmbientLightColor(wedgeColor);
-  m_Wedge->Material().SetAmbientLightingProportion(1.0f);
+  const Rgba<float> wedgeColor = calculateColor();
+  m_Wedge->Material().Uniform<AMBIENT_LIGHT_COLOR>() = wedgeColor;
+  m_Wedge->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_Wedge->SetTriangleOffset(m_Activation > 0.001 ? triangleRatio : 0.0);
   m_Wedge->SetTriangleWidth(0.1);
   m_Wedge->SetTriangleSide(PartialDiskWithTriangle::OUTSIDE);
@@ -77,10 +76,9 @@ void RadialMenuItem::DrawContents(RenderState& renderState) const {
   m_Goal->SetEndAngle(halfWayAngle + goalSweepAngle/2.0);
   m_Goal->SetInnerRadius(m_ActivatedRadius + m_Thickness/2.0);
   m_Goal->SetOuterRadius(m_ActivatedRadius + m_Thickness/2.0 + goalThickness);
-  m_Goal->Material().SetAmbientLightingProportion(1.0f);
-  const Color goalColor = m_Activation > 0.001 ? m_ActivatedColor : Color::Transparent();
-  m_Goal->Material().SetDiffuseLightColor(goalColor);
-  m_Goal->Material().SetAmbientLightColor(goalColor);
+  m_Goal->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
+  const Rgba<float> goalColor = m_Activation > 0.001 ? m_ActivatedColor : Rgba<float>::Zero(); // Zero is transparent black
+  m_Goal->Material().Uniform<AMBIENT_LIGHT_COLOR>() = goalColor;
   m_Goal->SetTriangleOffset(-triangleRatio * (m_Thickness/goalThickness));
   m_Goal->SetTriangleWidth(0.1 * (sweepAngle/goalSweepAngle));
   m_Goal->SetTriangleSide(PartialDiskWithTriangle::INSIDE);
@@ -92,13 +90,13 @@ void RadialMenuItem::DrawContents(RenderState& renderState) const {
   }
 }
 
-Color RadialMenuItem::calculateColor() const {
+Rgba<float> RadialMenuItem::calculateColor() const {
   if (m_Activation < 0.001) {
-    return Material().DiffuseLightColor();
+    return Material().Uniform<DIFFUSE_LIGHT_COLOR>();
   }
-  const float activationFloat = static_cast<float>(m_Activation);
-  const EigenTypes::Vector4f blended = activationFloat * m_ActivatedColor.Data() + (1.0f - activationFloat) * m_HoverColor.Data();
-  return Color(blended[0], blended[1], blended[2], blended[3]);
+  ColorComponent<float> param(static_cast<float>(m_Activation));
+  param.Clamp(); // Clamps the parameter to within the range [0,1].
+  return m_HoverColor.BlendedWith(m_ActivatedColor, param);
 }
 
 double RadialMenuItem::CurrentRadius() const {

@@ -45,9 +45,9 @@ namespace ai {
     return result;
   }
 
-  Color get(const aiColor4D &c)
+  Rgba<float> get(const aiColor4D &c)
   {
-    return Color(c.r, c.g, c.b, c.a);
+    return Rgba<float>(c.r, c.g, c.b, c.a);
   }
 
   std::string get(const aiString &s)

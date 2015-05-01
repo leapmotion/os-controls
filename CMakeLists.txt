@@ -6,7 +6,6 @@ set(CPACK_GENERATOR "ZIP")
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 
 set(LEAP_COMPANY_NAME "Leap Motion")
-
 set(APP_COPYRIGHT "Copyright © 2014 Leap Motion, Inc. All rights reserved.")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
@@ -21,7 +20,7 @@ leap_find_external_libraries(x86_vc12)
 leap_use_standard_platform_settings()
 
 include(TargetImportedLibraries)
-include(AddMSVCPrecompiledHeader)
+include(AddPCH)
 include(ConditionalSources)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

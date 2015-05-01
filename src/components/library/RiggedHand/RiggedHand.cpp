@@ -1,11 +1,13 @@
 #include "RiggedHand.h"
 
-#include "GLShader.h"
+#include "Leap/GL/Shader.h"
 #include "ModelIo.h"
 #include "ModelSourceAssimp.h"
 
 #include <cmath>
 #include <assert.h>
+
+using namespace Leap::GL;
 
 const float RiggedHand::UNIT_CONVERSION_SCALE_FACTOR = 10.0f; // FBX model is in cm, our units are mm
 
@@ -136,6 +138,10 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
     mHandsShader = getDefaultHandsShader();
   }
 
+  if (!mShaderMatrices) {
+    mShaderMatrices = std::make_shared<ShaderMatrices>(mHandsShader.get());
+  }
+
   std::vector<model::MeshVboSectionRef>& sections = mSkinnedVboHands->getSections();
   if (mEnableWireframe) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -154,40 +160,36 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       mSkinTex->Bind(0);
       mNormalTex->Bind(1);
       mSpecularTex->Bind(2);
-      Color rimColor = mUseRim ? Color(0.075f, 0.1f, 0.125f, 1.0f) : Color::Black();
-      Color specularColor = Color(mSpecular, mSpecular, mSpecular, 1.0f);
-      Color ambientColor = Color(mAmbient, mAmbient, mAmbient, 1.0f);
-      Color diffuseColor = Color(mDiffuse, mDiffuse, mDiffuse, 1.0f);
+      Rgba<float> rimColor = mUseRim ? Rgba<float>(0.075f, 0.1f, 0.125f, 1.0f) : Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f);
+      Rgba<float> specularColor = Rgba<float>(mSpecular, mSpecular, mSpecular, 1.0f);
+      Rgba<float> ambientColor = Rgba<float>(mAmbient, mAmbient, mAmbient, 1.0f);
+      Rgba<float> diffuseColor = Rgba<float>(mDiffuse, mDiffuse, mDiffuse, 1.0f);
 
       mHandsShader->Bind();
 
-      //const Eigen::Matrix4f modelView =  renderState.GetModelView().Matrix().cast<float>().eval();
-      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("modelView", modelView, MatrixStorageConvention::COLUMN_MAJOR);
-      //const Eigen::Matrix4f projection = renderState.GetProjection().Matrix().cast<float>().eval();
-      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("projection", projection, MatrixStorageConvention::COLUMN_MAJOR);
-      //const Eigen::Matrix4f normalMatrix = renderState.GetModelView().Matrix().inverse().transpose().cast<float>().eval();
-      //mHandsShader->SetUniformMatrixf<4, 4, Eigen::Matrix4f>("normalMatrix", normalMatrix, MatrixStorageConvention::COLUMN_MAJOR);
+      mShaderMatrices->UploadUniforms(renderState.GetModelView().Matrix(), renderState.ProjectionMatrix());
 
-      GLShaderMatrices::UploadUniforms(*mHandsShader, renderState.GetModelView().Matrix(), renderState.GetProjection().Matrix(), BindFlags::NONE);
+      mHandsShader->UploadUniform<GL_BOOL>("isAnimated", section->isAnimated());
+      mHandsShader->UploadUniform<GL_BOOL>("use_texture", true);
+      mHandsShader->UploadUniform<GL_SAMPLER_2D>("texture", 0);
+      mHandsShader->UploadUniform<GL_BOOL>("useNormalMap", mUseNormalMap);
+      mHandsShader->UploadUniform<GL_SAMPLER_2D>("normalMap", 1);
+      mHandsShader->UploadUniform<GL_BOOL>("useSpecularMap", mUseSpecularMap);
+      mHandsShader->UploadUniform<GL_SAMPLER_2D>("specularMap", 2);
 
-      mHandsShader->SetUniformi("isAnimated", section->isAnimated());
-      mHandsShader->SetUniformi("use_texture", 1);
-      mHandsShader->SetUniformi("texture", 0);
-      mHandsShader->SetUniformi("useNormalMap", mUseNormalMap);
-      mHandsShader->SetUniformi("normalMap", 1);
-      mHandsShader->SetUniformi("useSpecularMap", mUseSpecularMap);
-      mHandsShader->SetUniformi("specularMap", 2);
-
-      mHandsShader->SetUniformf("diffuse_light_color", diffuseColor);
-      mHandsShader->SetUniformf("specular", specularColor);
-      mHandsShader->SetUniformf("ambient_light_color", ambientColor);
-      mHandsShader->SetUniformf("ambient_lighting_proportion", 0.0f);
-      mHandsShader->SetUniformf("shininess", mShininess);
+      mHandsShader->UploadUniform<GL_FLOAT_VEC4>("diffuse_light_color", diffuseColor);
+      mHandsShader->UploadUniform<GL_FLOAT_VEC4>("specular", specularColor);
+      mHandsShader->UploadUniform<GL_FLOAT_VEC4>("ambient_light_color", ambientColor);
+      mHandsShader->UploadUniform<GL_FLOAT>("ambient_lighting_proportion", 0.0f);
+      mHandsShader->UploadUniform<GL_FLOAT>("shininess", mShininess);
 
       if (section->hasSkeleton()) {
-        const int boneMatricesAddr = mHandsShader->LocationOfUniform("boneMatrices[0]");
-        const int invTransposeMatricesAddr = mHandsShader->LocationOfUniform("invTransposeMatrices[0]");
+        // const int boneMatricesAddr = mHandsShader->LocationOfUniform("boneMatrices[0]");
+        // const int invTransposeMatricesAddr = mHandsShader->LocationOfUniform("invTransposeMatrices[0]");
+        const int boneMatricesAddr = mHandsShader->LocationOfUniform("boneMatrices");
+        const int invTransposeMatricesAddr = mHandsShader->LocationOfUniform("invTransposeMatrices");
 
+        // TODO: replace with Shader::UploadUniform
         glUniformMatrix4fv(boneMatricesAddr, model::SkinnedVboMesh::MAXBONES, false, section->mBoneMatricesPtr->data()->data());
         glUniformMatrix4fv(invTransposeMatricesAddr, model::SkinnedVboMesh::MAXBONES, false, section->mInvTransposeMatricesPtr->data()->data());
       }
@@ -203,7 +205,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
 
       const int numIndices = static_cast<int>(section->getIndices().Size())/sizeof(uint32_t);
       section->getIndices().Bind();
-      GL_THROW_UPON_ERROR(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
+      THROW_UPON_GL_ERROR(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
       section->getIndices().Unbind();
 
       section->getVboMesh().Disable(locations);
@@ -404,12 +406,12 @@ model::NodeRef RiggedHand::getJointNode(int fingerIdx, int boneIdx) const {
   return mSkinnedVboHands->getSkeleton()->getBone(boneName);
 }
 
-GLShaderRef RiggedHand::getDefaultHandsShader() {
-  static GLShaderRef handsShader;
+std::shared_ptr<Leap::GL::Shader> RiggedHand::getDefaultHandsShader() {
+  static std::shared_ptr<Leap::GL::Shader> handsShader;
   if (handsShader == nullptr) {
     std::shared_ptr<TextFile> lightingFrag(new TextFile("shaders/lighting-frag.glsl"));
     std::shared_ptr<TextFile> lightingVert(new TextFile("shaders/lighting-vert.glsl"));
-    handsShader = std::shared_ptr<GLShader>(new GLShader(lightingVert->Contents(), lightingFrag->Contents()));
+    handsShader = std::shared_ptr<Leap::GL::Shader>(new Leap::GL::Shader(lightingVert->Contents(), lightingFrag->Contents()));
   }
   return handsShader;
 }

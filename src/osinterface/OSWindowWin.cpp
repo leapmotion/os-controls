@@ -4,7 +4,7 @@
 #include "OSAppManager.h"
 #include "OSApp.h"
 #include <Primitives.h>
-#include <GLTexture2.h>
+#include <Leap/GL/Texture2.h>
 
 #include <dwmapi.h>
 
@@ -97,18 +97,18 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
   BitBlt(m_hBmpDC.get(), 0, 0, m_szBitmap.cx, m_szBitmap.cy, hdc, 0, 0, SRCCOPY);
 
   // See if the texture underlying image was resized or not. If so, we need to create a new texture
-  std::shared_ptr<GLTexture2> texture = img->Texture();
+  std::shared_ptr<Texture2> texture = img->Texture();
   if (texture) {
     const auto& params = texture->Params();
     if (params.Height() != m_szBitmap.cy || params.Width() != m_szBitmap.cx) {
       texture.reset();
     }
   }
-  GLTexture2PixelDataReference pixelData{ GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4) };
+  Texture2PixelData pixelData{ GL_BGRA, GL_UNSIGNED_BYTE, m_phBitmapBits, static_cast<size_t>(m_szBitmap.cx * m_szBitmap.cy * 4) };
   if (texture) {
-    texture->UpdateTexture(pixelData);
+    texture->TexSubImage(pixelData);
   } else {
-    GLTexture2Params params{ static_cast<GLsizei>(m_szBitmap.cx), static_cast<GLsizei>(m_szBitmap.cy) };
+    Texture2Params params{ static_cast<GLsizei>(m_szBitmap.cx), static_cast<GLsizei>(m_szBitmap.cy) };
     params.SetTarget(GL_TEXTURE_2D);
     params.SetInternalFormat(GL_RGB8);
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -116,7 +116,7 @@ std::shared_ptr<ImagePrimitive> OSWindowWin::GetWindowTexture(std::shared_ptr<Im
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    texture = std::make_shared<GLTexture2>(params, pixelData);
+    texture = std::make_shared<Texture2>(params, pixelData);
     img->SetTexture(texture);
     img->SetScaleBasedOnTextureSize();
   }

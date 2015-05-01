@@ -55,7 +55,7 @@ TEST_F(CompositionEngineTest, VerifyBasicVisual) {
   window2->SetActive(true);
   const auto windowSize = window2->GetSize();
   const float ar = static_cast<float>(windowSize.width)/static_cast<float>(windowSize.height);
-  ::glViewport(0, 0, windowSize.width, windowSize.height);
+  ::glViewport(0, 0, static_cast<GLsizei>(windowSize.width), static_cast<GLsizei>(windowSize.height));
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
   ::glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
@@ -123,14 +123,14 @@ TEST_F(CompositionEngineTest, VerifyMovingVisual)
   window2->SetActive(true);
   const auto windowSize = window2->GetSize();
   const float ar = static_cast<float>(windowSize.width) / static_cast<float>(windowSize.height);
-  ::glViewport(0, 0, windowSize.width, windowSize.height);
+  ::glViewport(0, 0, static_cast<GLsizei>(windowSize.width), static_cast<GLsizei>(windowSize.height));
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
   ::glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
   window2->SetActive(false);
 
   window3->SetActive(true);
-  ::glViewport(0, 0, windowSize.width, windowSize.height);
+  ::glViewport(0, 0, static_cast<GLsizei>(windowSize.width), static_cast<GLsizei>(windowSize.height));
   ::glMatrixMode(GL_PROJECTION);
   ::glLoadIdentity();
   ::glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);

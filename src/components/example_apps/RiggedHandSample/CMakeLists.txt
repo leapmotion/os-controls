@@ -72,10 +72,10 @@ if(_this_is_standalone_project)
     find_package(Components)
     # The target_link_components function finds and links exactly the minimal set of libraries
     # needed by the specified components.
-    target_link_components(RiggedHandSample PUBLIC Application GLController GLShaderLoader GLTexture2Loader LeapListener Primitives SFMLController RiggedHand)
+    target_link_components(RiggedHandSample PUBLIC Application GLShaderLoader GLTexture2Loader LeapGLCore LeapListener Primitives SFMLController RiggedHand)
 else()
-    set_property(TARGET RiggedHandSample PROPERTY FOLDER "Components example apps")
-    target_link_libraries(RiggedHandSample PUBLIC Application GLController GLShaderLoader GLTexture2Loader LeapListener Primitives SFMLController Rigging RiggedHand)
+    set_property(TARGET RiggedHandSample PROPERTY FOLDER "Components/Example Apps")
+    target_link_libraries(RiggedHandSample PUBLIC Application GLShaderLoader GLTexture2Loader LeapGLCore LeapListener Primitives SFMLController Rigging RiggedHand)
 endif()
 
 ###################################################################################################
@@ -88,7 +88,7 @@ include(DefinePostBuildResourceCopyRules)
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/models)
   #TODO: Use ExternalProject_Add to grab these from a separate repository.
-  message(WARNING "Rigged Hand Sample missing models & texture data.  Get them from Ocuserv\\Common\\toRaffi\\riggedHand")
+  message(WARNING "Rigged Hand Sample missing models & texture data.  Get them from \\\\Ocuserv\\Common\\toRaffi\\riggedHand")
 endif()
 
 define_post_build_resource_copy_rules(
@@ -140,7 +140,7 @@ else()
         RELATIVE_PATH_BASE
             ${EXECUTABLE_OUTPUT_PATH}
         ABSOLUTE_PATH_RESOURCES
-            ${Components_DIR}/GLMaterial/material-frag.glsl
-            ${Components_DIR}/GLMaterial/matrix-transformed-vert.glsl
+            ${Components_DIR}/Primitives/material-frag.glsl
+            ${Components_DIR}/Primitives/matrix-transformed-vert.glsl
     )
 endif()

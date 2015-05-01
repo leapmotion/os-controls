@@ -73,10 +73,10 @@ if(_this_is_standalone_project)
     find_package(Components)
     # The target_link_components function finds and links exactly the minimal set of libraries
     # needed by the specified components.
-    target_link_components(Stub PUBLIC Application GLController GLShaderLoader GLTexture2Loader SDLController)
+    target_link_components(Stub PUBLIC Application LeapGLCore GLShaderLoader GLTexture2Loader SDLController)
 else()
     set_property(TARGET Stub PROPERTY FOLDER "Components/Example Apps")
-    target_link_libraries(Stub PUBLIC Application GLController GLShaderLoader GLTexture2Loader SDLController)
+    target_link_libraries(Stub PUBLIC Application LeapGLCore GLShaderLoader GLTexture2Loader SDLController)
 endif()
 
 ###################################################################################################

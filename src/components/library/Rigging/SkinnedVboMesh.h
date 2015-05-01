@@ -2,24 +2,26 @@
 
 #include "AMeshSection.h"
 
-#include "GLShader.h"
-#include "GLVertexBuffer.h"
+#include "Leap/GL/Shader.h"
+#include "Leap/GL/VertexBufferObject.h"
 
 #include <vector>
 #include <memory>
+
+using namespace Leap::GL;
 
 namespace model {
 
   typedef std::shared_ptr<class SkinnedVboMesh> SkinnedVboMeshRef;
 
-  typedef GLVertexBuffer<GLVertexAttribute<GL_FLOAT_VEC3>, // position
-    GLVertexAttribute<GL_FLOAT_VEC3>, // normal
-    GLVertexAttribute<GL_FLOAT_VEC2>, // tex coord
-    GLVertexAttribute<GL_FLOAT_VEC4>, // bone weights
-    GLVertexAttribute<GL_FLOAT_VEC4>> // bone indices
-    VertexBuffer;
+  typedef VertexBufferObject<VertexAttribute<GL_FLOAT_VEC3>, // position
+    VertexAttribute<GL_FLOAT_VEC3>, // normal
+    VertexAttribute<GL_FLOAT_VEC2>, // tex coord
+    VertexAttribute<GL_FLOAT_VEC4>, // bone weights
+    VertexAttribute<GL_FLOAT_VEC4>> // bone indices
+    VertexBufferObject;
 
-  typedef VertexBuffer::Attributes VertexAttributes;
+  typedef VertexBufferObject::Attributes VertexAttributes;
 
   class SkinnedVboMesh
   {
@@ -31,19 +33,29 @@ namespace model {
       MeshSection();
       void updateMesh(bool enableSkinning = true) override;
 
-      VertexBuffer& getVboMesh() { return mVboMesh; }
-      const VertexBuffer& getVboMesh() const { return mVboMesh; }
+      VertexBufferObject& getVboMesh() { return mVboMesh; }
+      const VertexBufferObject& getVboMesh() const { return mVboMesh; }
       void setVboMesh(size_t numVertices, size_t numIndices, GLenum primitiveType);
 
-      GLBuffer& getIndices() { return mIndices; }
-      const GLBuffer& getIndices() const { return mIndices; }
+      BufferObject& getIndices() { return mIndices; }
+      const BufferObject& getIndices() const { return mIndices; }
+      
+      std::vector<VertexAttributes>& Attributes() {
+        return mBuffer;
+      }
+
+      void InitializeVBO() {
+        mVboMesh.Initialize(mBuffer.data(), mBuffer.size(), GL_STATIC_DRAW);
+        mBuffer.clear();
+      }
 
       std::array<Eigen::Matrix4f, MAXBONES>* mBoneMatricesPtr;
       std::array<Eigen::Matrix4f, MAXBONES>* mInvTransposeMatricesPtr;
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     private:
-      VertexBuffer mVboMesh;
-      GLBuffer mIndices;
+      VertexBufferObject mVboMesh;
+      std::vector<VertexAttributes> mBuffer;
+      BufferObject mIndices;
     };
     typedef std::shared_ptr<SkinnedVboMesh::MeshSection> MeshVboSectionRef;
 

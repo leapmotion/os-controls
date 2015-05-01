@@ -2,9 +2,11 @@
 
 #include "Primitives.h"
 #include "SVGPrimitive.h"
-#include "Color.h"
 #include "Animation.h"
 #include "RadialItem.h"
+#include "Leap/GL/Rgba.h"
+
+using namespace Leap::GL;
 
 class RadialSliderEvent {
 public:
@@ -25,9 +27,9 @@ public:
     }
   }
 
-  void SetFillColor(const Color& color) { m_FillColor = color; }
-  void SetHandleColor(const Color& color) { m_HandleColor = color; }
-  void SetHandleOutlineColor(const Color& color) { m_HandleOutlineColor = color; }
+  void SetFillColor(const Rgba<float>& color) { m_FillColor = color; }
+  void SetHandleColor(const Rgba<float>& color) { m_HandleColor = color; }
+  void SetHandleOutlineColor(const Rgba<float>& color) { m_HandleOutlineColor = color; }
 
   void SetIcon(const std::shared_ptr<SVGPrimitive>& svgIcon);
 
@@ -43,9 +45,9 @@ protected:
   double m_MinValue;
   double m_MaxValue;
   double m_Value;
-  Color m_FillColor;
-  Color m_HandleColor;
-  Color m_HandleOutlineColor;
+  Rgba<float> m_FillColor;
+  Rgba<float> m_HandleColor;
+  Rgba<float> m_HandleOutlineColor;
 
   mutable std::shared_ptr<PartialDisk> m_Track;
   mutable std::shared_ptr<PartialDisk> m_Fill;

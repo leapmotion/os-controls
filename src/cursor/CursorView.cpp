@@ -8,13 +8,15 @@
 #include "HandCursor.h"
 #include "interaction/interactionConfigs.h"
 
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
+#include "Leap/GL/Shader.h"
+#include "Leap/GL/Texture2.h"
 #include "TextFile.h"
 #include "Resource.h"
 #include <memory>
 #include <iostream>
+
+using namespace Leap::GL;
 
 CursorView::CursorView() :
   Renderable{OSVector2(400, 400)},
@@ -45,13 +47,12 @@ CursorView::CursorView() :
   m_bodyAlpha(0.0f,0.3f),
   m_diskAlpha(0.0f,0.5f)
 {
-  const Color CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
+  const Rgba<float> CURSOR_COLOR(0.505f, 0.831f, 0.114f, 0.95f);
 
   //Initialize Disk Cursor
   m_disk->SetRadius(20.0f);
-  m_disk->Material().SetAmbientLightColor(CURSOR_COLOR);
-  m_disk->Material().SetDiffuseLightColor(CURSOR_COLOR);
-  m_disk->Material().SetAmbientLightingProportion(1.0f);
+  m_disk->Material().Uniform<AMBIENT_LIGHT_COLOR>() = CURSOR_COLOR;
+  m_disk->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
 
   // Load SVG Files for scroll cursor parts
   Resource<TextFile> scrollBodyFile("scroll-cursor-body.svg");

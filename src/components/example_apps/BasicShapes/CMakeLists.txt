@@ -76,10 +76,10 @@ if(_this_is_standalone_project)
     find_package(Components)
     # The target_link_components function finds and links exactly the minimal set of libraries
     # needed by the specified components.
-    target_link_components(BasicShapes PUBLIC Animation Application GLController GLShaderLoader GLTexture2Loader Primitives SFMLController)
+    target_link_components(BasicShapes PUBLIC Animation Application LeapGLCore GLShaderLoader GLTexture2Loader Primitives SFMLController)
 else()
     set_property(TARGET BasicShapes PROPERTY FOLDER "Components/Example Apps")
-    target_link_libraries(BasicShapes PUBLIC Animation Application GLController GLShaderLoader GLTexture2Loader Primitives SFMLController)
+    target_link_libraries(BasicShapes PUBLIC Animation Application LeapGLCore GLShaderLoader GLTexture2Loader Primitives SFMLController)
 endif()
 
 ###################################################################################################
@@ -120,7 +120,7 @@ else()
         RELATIVE_PATH_BASE
             ${EXECUTABLE_OUTPUT_PATH}
         ABSOLUTE_PATH_RESOURCES
-            ${Components_DIR}/GLMaterial/material-frag.glsl
-            ${Components_DIR}/GLMaterial/matrix-transformed-vert.glsl
+            ${Components_DIR}/Primitives/material-frag.glsl
+            ${Components_DIR}/Primitives/matrix-transformed-vert.glsl
     )
 endif()

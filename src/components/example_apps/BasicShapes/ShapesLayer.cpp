@@ -2,48 +2,47 @@
 
 #include <cmath>
 
-#include "GLBuffer.h"
-#include "GLController.h"
-#include "GLShader.h"
 #include "GLShaderLoader.h"
-#include "GLTexture2.h"
 #include "GLTexture2Loader.h"
+#include "Leap/GL/BufferObject.h"
+#include "Leap/GL/Projection.h"
+#include "Leap/GL/Shader.h"
+#include "Leap/GL/Texture2.h"
 #include "Resource.h"
 #include "TextFile.h"
 #include "TextFileLoader.h"
+
+using namespace Leap::GL;
 
 ShapesLayer::ShapesLayer ()
   :
   m_Width(640),
   m_Height(480),
-  m_Image1(Resource<GLTexture2>("rewind.png")),
-  m_Image2(Resource<GLTexture2>("playpause.png")),
-  m_Image3(Resource<GLTexture2>("fastforward.png")),
+  m_Image1(Resource<Texture2>("rewind.png")),
+  m_Image2(Resource<Texture2>("playpause.png")),
+  m_Image3(Resource<Texture2>("fastforward.png")),
   m_time(0)
 {
-  m_shader = Resource<GLShader>("material");
-  m_shader->CheckForTypedAttribute("position", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
-  m_shader->CheckForTypedAttribute("normal", GL_FLOAT_VEC3, VariableIs::OPTIONAL_BUT_WARN);
-  m_shader->CheckForTypedAttribute("tex_coord", GL_FLOAT_VEC2, VariableIs::OPTIONAL_BUT_WARN);
+  m_shader = Resource<Shader>("material");
 
   m_Sphere1.SetRadius(5);
-  m_Sphere1.Material().SetDiffuseLightColor(Color(0.4f, 0.7f, 1.0f, 1.0f));
-  m_Sphere1.Material().SetAmbientLightColor(Color(0.2f, 0.2f, 0.2f, 1.0f));
-  m_Sphere1.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere1.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.4f, 0.7f, 1.0f, 1.0f);
+  m_Sphere1.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Sphere1.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere1.LocalProperties().AlphaMask() = 1.0f;
 
   m_Sphere2.SetRadius(5);
-  m_Sphere2.Material().SetDiffuseLightColor(Color(1.0f, 0.7f, 0.4f, 1.0f));
-  m_Sphere2.Material().SetAmbientLightColor(Color(0.2f, 0.2f, 0.2f, 1.0f));
-  m_Sphere2.Material().SetAmbientLightingProportion(0.3f);
+  m_Sphere2.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.7f, 0.4f, 1.0f);
+  m_Sphere2.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Sphere2.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Sphere2.LocalProperties().AlphaMask() = 1.0f;
 
   m_Rect.SetSize(EigenTypes::Vector2(20, 10));
   m_Rect.Translation() = EigenTypes::Vector3::Zero();
-  m_Rect.Material().SetDiffuseLightColor(Color(1.0f, 1.0f, 1.0f, 0.3f));
-  m_Rect.Material().SetAmbientLightColor(Color(1.0f, 1.0f, 1.0f, 0.3f));
-  m_Rect.Material().SetAmbientLightingProportion(0.9f);
-  m_Rect.SetTexture(Resource<GLTexture2>("playpause.png"));
+  m_Rect.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 1.0f, 0.3f);
+  m_Rect.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 1.0f, 0.3f);
+  m_Rect.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.9f;
+  m_Rect.SetTexture(Resource<Texture2>("playpause.png"));
   m_Rect.LocalProperties().AlphaMask() = 1.0f;
 
   m_Image1.Translation() = EigenTypes::Vector3(-50.0, -20.0, 0.0);
@@ -59,29 +58,29 @@ ShapesLayer::ShapesLayer ()
   m_Cylinder.SetHeight(25);
   m_Cylinder.SetRadius(4);
   m_Cylinder.Translation() = 40*EigenTypes::Vector3::UnitX();
-  m_Cylinder.Material().SetDiffuseLightColor(Color(0.7f, 1.0f, 0.4f, 1.0f));
-  m_Cylinder.Material().SetAmbientLightColor(Color(0.2f, 0.2f, 0.2f, 1.0f));
-  m_Cylinder.Material().SetAmbientLightingProportion(0.3f);
+  m_Cylinder.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.7f, 1.0f, 0.4f, 1.0f);
+  m_Cylinder.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Cylinder.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.3f;
   m_Cylinder.LocalProperties().AlphaMask() = 1.0f;
 
   m_Disk.SetRadius(6);
   m_Disk.Translation() = -40*EigenTypes::Vector3::UnitX();
-  m_Disk.Material().SetDiffuseLightColor(Color(1.0f, 1.0f, 0.3f, 1.0f));
-  m_Disk.Material().SetAmbientLightColor(Color(1.0f, 1.0f, 0.3f, 1.0f));
-  m_Disk.Material().SetAmbientLightingProportion(0.9f);
+  m_Disk.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 0.3f, 1.0f);
+  m_Disk.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 1.0f, 0.3f, 1.0f);
+  m_Disk.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.9f;
   m_Disk.LocalProperties().AlphaMask() = 1.0f;
 
   m_Box.SetSize(EigenTypes::Vector3(10, 5, 3));
   m_Box.Translation() = EigenTypes::Vector3(-30, 20, 0);
-  m_Box.Material().SetDiffuseLightColor(Color(0.3f, 1.0f, 1.0f, 1.0f));
-  m_Box.Material().SetAmbientLightColor(Color(0.2f, 0.2f, 0.2f, 1.0f));
-  m_Box.Material().SetAmbientLightingProportion(0.5f);
+  m_Box.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.3f, 1.0f, 1.0f, 1.0f);
+  m_Box.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.2f, 0.2f, 0.2f, 1.0f);
+  m_Box.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   m_Box.LocalProperties().AlphaMask() = 1.0f;
 
   m_PartialDisk.Translation() = EigenTypes::Vector3(30, -20, 0);
-  m_PartialDisk.Material().SetDiffuseLightColor(Color(1.0f, 0.3f, 1.0f, 1.0f));
-  m_PartialDisk.Material().SetAmbientLightColor(Color(1.0f, 0.3f, 1.0f, 1.0f));
-  m_PartialDisk.Material().SetAmbientLightingProportion(1.0f);
+  m_PartialDisk.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.3f, 1.0f, 1.0f);
+  m_PartialDisk.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.3f, 1.0f, 1.0f);
+  m_PartialDisk.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_PartialDisk.LocalProperties().AlphaMask() = 1.0f;
 
   Resource<TextFile> svg("tiger.svg");
@@ -89,20 +88,20 @@ ShapesLayer::ShapesLayer ()
   m_SVG.LinearTransformation() = EigenTypes::Vector3(0.03, -0.03, 0.03).asDiagonal() * m_SVG.LinearTransformation();
   m_SVG.LocalProperties().AlphaMask() = 1.0f;
 
-  std::shared_ptr<GLTexture2> frame_texture;
+  std::shared_ptr<Texture2> frame_texture;
   {
     // Generate a texture procedurally for use in TexturedFrame.
     GLsizei width = 4;
     GLsizei height = 4;
-    GLTexture2Params params(width, height, GL_RGB8);
+    Texture2Params params(width, height, GL_RGB8);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     struct RgbPixel { uint8_t r, g, b; };
-    GLTexture2PixelDataStorage<RgbPixel> pixel_data(GL_RGB, GL_UNSIGNED_BYTE, width*height);
-    std::vector<RgbPixel> &pixels = pixel_data.RawPixels();
+    std::vector<RgbPixel> pixels(width*height);
+    Texture2PixelData pixel_data(GL_RGB, GL_UNSIGNED_BYTE, pixels.data(), pixels.size()*sizeof(RgbPixel));
     // Make a simple bilinear gradient in green and blue.
     for (GLsizei v = 0; v < height; ++v) {
       for (GLsizei u = 0; u < width; ++u) {
@@ -112,7 +111,7 @@ ShapesLayer::ShapesLayer ()
         pixels[v*width+u] = RgbPixel{uint8_t(r), uint8_t(g), uint8_t(b)};
       }
     }
-    frame_texture = std::make_shared<GLTexture2>(params, pixel_data);
+    frame_texture = std::make_shared<Texture2>(params, pixel_data);
   }
 
   {
@@ -136,6 +135,7 @@ ShapesLayer::ShapesLayer ()
   {
     m_DropShadowContrastBackground.Translation() = EigenTypes::Vector3(30, 20, 0);
     m_DropShadowContrastBackground.SetSize(EigenTypes::Vector2(25, 25));
+    m_DropShadowContrastBackground.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.75f, 0.75f, 0.75f, 1.0f);
     
     m_DropShadow.Translation() = EigenTypes::Vector3(30, 20, 0);
     m_DropShadow.SetBasisRectangleSize(EigenTypes::Vector2(10, 10));
@@ -204,20 +204,20 @@ void ShapesLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0;
-  m_Renderer.GetProjection().Perspective(fovRadians, widthOverHeight, nearClip, farClip);
+  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();
   const EigenTypes::Vector3 lookAtPoint = EigenTypes::Vector3::Zero();
   const EigenTypes::Vector3 upVector = EigenTypes::Vector3::UnitY();
-  m_Renderer.GetModelView().Reset();
+  m_Renderer.GetModelView().LoadIdentity();
   m_Renderer.GetModelView().LookAt(eyePos, lookAtPoint, upVector);
 
   // set light position
   const EigenTypes::Vector3f desiredLightPos(0, 10, 10);
   const EigenTypes::Vector3f lightPos = desiredLightPos - eyePos.cast<float>();
   m_shader->Bind();
-  m_shader->SetUniformf("light_position", lightPos);
+  m_shader->UploadUniform<GL_FLOAT_VEC3>("light_position", lightPos);
   m_shader->Unbind();
 
   // draw primitives

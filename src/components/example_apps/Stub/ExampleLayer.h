@@ -1,12 +1,19 @@
 #pragma once
 
-#include "GLController.h"
 #include "RenderableEventHandler.h"
 
 #include <memory>
 
-class GLShader;
-class GLTexture2;
+namespace Leap {
+namespace GL {
+
+class Shader;
+class Texture2;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
 
 // This is one "layer" of the application -- layers being rendered back to front.
 class ExampleLayer : public RenderableEventHandler {
@@ -20,7 +27,7 @@ public:
 
 private:
 
-  std::shared_ptr<GLShader> m_shader;
-  std::shared_ptr<GLTexture2> m_texture;
+  std::shared_ptr<Shader> m_shader;
+  std::shared_ptr<Texture2> m_texture;
   TimePoint m_time;
 };

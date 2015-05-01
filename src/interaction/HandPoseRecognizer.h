@@ -3,7 +3,6 @@
 #include "Leap.h"
 #include "EigenTypes.h"
 #include "HandActivationRecognizer.h"
-#include "HandCursor.h"
 #include "InteractionConfigs.h"
 #include <Eigen/Dense>
 #include <map>

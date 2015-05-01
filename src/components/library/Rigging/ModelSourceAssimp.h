@@ -3,7 +3,7 @@
 #include "ModelIo.h"
 
 #include "EigenTypes.h"
-#include "Color.h"
+#include "Leap/GL/Rgba.h"
 
 #include "assimp/types.h"
 #include "assimp/mesh.h"
@@ -11,6 +11,8 @@
 #include "assimp/Importer.hpp"	//OO version Header!
 
 #include <unordered_set>
+
+using namespace Leap::GL;
 
 namespace ai {
 
@@ -23,8 +25,8 @@ namespace ai {
   inline Eigen::Quaternionf get(const aiQuaternion &q);
   //! Convert aiMatrix4x4 to Eigen::Matrix4f.
   inline Eigen::Matrix4f get(const aiMatrix4x4 &m, float scaleFactor);
-  //! Convert aiColor4D to Color.
-  inline Color get(const aiColor4D &c);
+  //! Convert aiColor4D to Rgba<float>.
+  inline Rgba<float> get(const aiColor4D &c);
   //! Convert aiString to std::string.
   inline std::string get(const aiString &s);
   //! Extract vertex positions from an assimp mesh section.

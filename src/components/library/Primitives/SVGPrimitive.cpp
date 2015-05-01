@@ -84,7 +84,7 @@ bool Curve::IsSufficientlyFlat(const Bezier& bezier) {
 
 SVGPrimitive::SVGPrimitive(const std::string& svg) :
   m_Image(nullptr),
-  m_RecomputeGeometry(false)
+  m_RecomputeMesh(false)
 {
   m_Origin << 0.0, 0.0;
   m_Size << 0.0, 0.0;
@@ -101,8 +101,8 @@ SVGPrimitive::~SVGPrimitive()
 }
 
 void SVGPrimitive::DrawContents(RenderState& renderState) const {
-  if (m_RecomputeGeometry) {
-    const_cast<SVGPrimitive*>(this)->RecomputeChildren(); // This objects children need to be recomputed
+  if (m_RecomputeMesh) {
+    const_cast<SVGPrimitive*>(this)->RecomputeChildren(); // This object's children need to be recomputed
   }
 }
 
@@ -135,12 +135,16 @@ void SVGPrimitive::Set(const std::string& svg)
     }
     m_Origin << static_cast<EigenTypes::MATH_TYPE>(bounds[0]), static_cast<EigenTypes::MATH_TYPE>(bounds[1]);
     m_Size << static_cast<EigenTypes::MATH_TYPE>(bounds[2] - bounds[0]), static_cast<EigenTypes::MATH_TYPE>(bounds[3] - bounds[1]);
-    m_RecomputeGeometry = true;
+    m_RecomputeMesh = true;
   }
 }
 
 void SVGPrimitive::RecomputeChildren() {
-  m_RecomputeGeometry = false;
+  static const EigenTypes::Vector3f NORMAL(EigenTypes::Vector3f::UnitZ());
+  static const EigenTypes::Vector2f TEX_COORD(0, 0);   // tex coords not used
+  static const EigenTypes::Vector4f COLOR(1, 1, 1, 1); // opaque white
+
+  m_RecomputeMesh = false;
   if (m_Image) {
     Children().clear();
     for (NSVGshape* shape = m_Image->shapes; shape != NULL; shape = shape->next) {
@@ -192,29 +196,26 @@ void SVGPrimitive::RecomputeChildren() {
         }
         if (doStroke) {
           const bool isClosed = path->closed != '\0';
-          auto genericShape = std::shared_ptr<GenericShape>(new GenericShape(isClosed ? GL_LINE_LOOP : GL_LINE_STRIP));
-          auto& geometry = genericShape->Geometry();
-
+          auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
+          PrimitiveGeometryMeshAssembler mesh_assembler(isClosed ? GL_LINE_LOOP : GL_LINE_STRIP);
           // We don't yet handle stroke widths. For now, simulate a stroke width less than 1 by adjusting the alpha
           const float simulatedStrokeWidth = strokeWidth >= 1.0f ? 1.0f : strokeWidth;
           const float alpha = static_cast<float>((strokeColor >> 24) & 0xFF)/255.0f;
           const float blue  = static_cast<float>((strokeColor >> 16) & 0xFF)/255.0f;
           const float green = static_cast<float>((strokeColor >>  8) & 0xFF)/255.0f;
           const float red   = static_cast<float>( strokeColor        & 0xFF)/255.0f;
-          const Color color(red, green, blue, alpha*opacity*simulatedStrokeWidth);
-          genericShape->Material().SetDiffuseLightColor(color);
-          genericShape->Material().SetAmbientLightColor(color);
-          genericShape->Material().SetAmbientLightingProportion(1.0f);
-          std::vector<PrimitiveGeometry::VertexAttributes>& vertices = geometry.Vertices();
+          const Rgba<float> color(red, green, blue, alpha*opacity*simulatedStrokeWidth);
+          genericShape->Material().Uniform<AMBIENT_LIGHT_COLOR>() = color;
+          genericShape->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
           const auto& points = curve.Points();
-          EigenTypes::Vector3f normal(EigenTypes::Vector3f::UnitZ());
           for (const auto& pt : points) {
             const EigenTypes::Vector3f point(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.0f);
-            // The arguments to PrimitiveGeometry::VertexAttributes must be actual vector
+            // The arguments to PrimitiveGeometryMesh::VertexAttributes must be actual vector
             // types, and not Eigen expression templates (e.g. EigenTypes::Vector3f::UnitZ()).
-            vertices.emplace_back(PrimitiveGeometry::MakeVertexAttributes(point, normal));
+            mesh_assembler.PushVertex(point, NORMAL, TEX_COORD, COLOR);
           }
-          geometry.UploadDataToBuffers();
+          mesh_assembler.InitializeMesh(genericShape->Mesh());
+          assert(genericShape->Mesh().IsInitialized());
           // Gather the strokes; they will be applied after the fill
           strokes.push_back(genericShape);
         }
@@ -228,26 +229,26 @@ void SVGPrimitive::RecomputeChildren() {
           continue; // Failed to triangulate!
         }
         auto genericShape = std::shared_ptr<GenericShape>(new GenericShape());
-        auto& geometry = genericShape->Geometry();
+        PrimitiveGeometryMeshAssembler mesh_assembler(GL_TRIANGLES);
 
         const float alpha = static_cast<float>((fillColor >> 24) & 0xFF)/255.0f;
         const float blue  = static_cast<float>((fillColor >> 16) & 0xFF)/255.0f;
         const float green = static_cast<float>((fillColor >>  8) & 0xFF)/255.0f;
         const float red   = static_cast<float>( fillColor        & 0xFF)/255.0f;
-        const Color color(red, green, blue, alpha*opacity);
-        genericShape->Material().SetDiffuseLightColor(color);
-        genericShape->Material().SetAmbientLightColor(color);
-        genericShape->Material().SetAmbientLightingProportion(1.0f);
+        const Rgba<float> color(red, green, blue, alpha*opacity);
+        genericShape->Material().Uniform<AMBIENT_LIGHT_COLOR>() = color;
+        genericShape->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
         for (auto& triangle : triangles) {
           assert(triangle.GetNumPoints() == 3);
           const EigenTypes::Vector3f point1(static_cast<float>(triangle[0].x), static_cast<float>(triangle[0].y), 0.0f);
           const EigenTypes::Vector3f point2(static_cast<float>(triangle[1].x), static_cast<float>(triangle[1].y), 0.0f);
           const EigenTypes::Vector3f point3(static_cast<float>(triangle[2].x), static_cast<float>(triangle[2].y), 0.0f);
-          geometry.PushTri(PrimitiveGeometry::MakeVertexAttributes(point1, EigenTypes::Vector3f::UnitZ()), 
-                           PrimitiveGeometry::MakeVertexAttributes(point2, EigenTypes::Vector3f::UnitZ()), 
-                           PrimitiveGeometry::MakeVertexAttributes(point3, EigenTypes::Vector3f::UnitZ()));
+          mesh_assembler.PushTriangle(PrimitiveGeometryMesh::VertexAttributes(point1, NORMAL, TEX_COORD, COLOR),
+                                      PrimitiveGeometryMesh::VertexAttributes(point2, NORMAL, TEX_COORD, COLOR), 
+                                      PrimitiveGeometryMesh::VertexAttributes(point3, NORMAL, TEX_COORD, COLOR));
         }
-        geometry.UploadDataToBuffers();
+        mesh_assembler.InitializeMesh(genericShape->Mesh());
+        assert(genericShape->Mesh().IsInitialized());
         AddChild(genericShape);
       }
       // Add any strokes after the fill

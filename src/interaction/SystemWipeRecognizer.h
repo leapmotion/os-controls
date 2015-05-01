@@ -222,21 +222,21 @@ private:
   void RecognizingGesture (StateMachineEvent);
   void Timeout (StateMachineEvent);
 
-  Internal::StateMachine<SystemWipeRecognizer,StateMachineEvent,StateMachineEvent::ENTER,StateMachineEvent::EXIT> m_state_machine;
+  ::Internal::StateMachine<SystemWipeRecognizer,StateMachineEvent,StateMachineEvent::ENTER,StateMachineEvent::EXIT> m_state_machine;
 
   // Non-state-machine member variables.
 
   double m_current_time;
-  Internal::PiecewiseLinearlyInterpolatedFunction<float> m_brightness;
+  ::Internal::PiecewiseLinearlyInterpolatedFunction<float> m_brightness;
 #if LEAP_INTERNAL_MEASURE_MAX_BRIGHTNESS
-  Internal::PiecewiseLinearlyInterpolatedFunction<float> m_measured_max_brightness;
+  ::Internal::PiecewiseLinearlyInterpolatedFunction<float> m_measured_max_brightness;
 #endif
   double m_centroid_signal_start_time;
   double m_timeout_end_time;
   float m_first_good_up_tracking_value;
   float m_first_good_down_tracking_value;
   float m_initial_tracking_value;
-  Internal::History<Signal<float>> m_signal_history;
+  ::Internal::History<Signal<float>> m_signal_history;
   SystemWipe *m_system_wipe;
   SystemWipe::Direction m_wipe_direction;
 };

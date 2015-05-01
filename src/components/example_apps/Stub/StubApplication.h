@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Application.h"
-#include "GLController.h"
 #include "RenderableEventHandler.h"
 #include "SDLController.h"
 
@@ -56,7 +55,6 @@ private:
   }
 
   SDLController m_SDLController;
-  GLController m_GLController;
   TimePoint m_applicationTime;
   std::vector<std::shared_ptr<RenderableEventHandler>> m_applicationLayers;
 };

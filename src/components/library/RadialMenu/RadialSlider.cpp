@@ -41,16 +41,15 @@ void RadialSlider::DrawContents(RenderState& renderState) const {
   const double innerRad = m_Radius - m_Thickness/2.0;
   const double outerRad = m_Radius + m_Thickness/2.0;
 
-  m_Track->Material().SetAmbientLightColor(Material().DiffuseLightColor());
-  m_Track->Material().SetAmbientLightingProportion(1.0f);
+  m_Track->Material().Uniform<AMBIENT_LIGHT_COLOR>() = Material().Uniform<DIFFUSE_LIGHT_COLOR>();
+  m_Track->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_Track->SetStartAngle(m_StartAngle);
   m_Track->SetEndAngle(m_EndAngle);
   m_Track->SetInnerRadius(innerRad);
   m_Track->SetOuterRadius(outerRad);
 
-  m_Fill->Material().SetDiffuseLightColor(m_FillColor);
-  m_Fill->Material().SetAmbientLightColor(m_FillColor);
-  m_Fill->Material().SetAmbientLightingProportion(1.0f);
+  m_Fill->Material().Uniform<AMBIENT_LIGHT_COLOR>() = m_FillColor;
+  m_Fill->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_Fill->SetStartAngle(m_StartAngle);
   m_Fill->SetEndAngle(calculateValueAngle());
   m_Fill->SetInnerRadius(innerRad);
@@ -59,15 +58,13 @@ void RadialSlider::DrawContents(RenderState& renderState) const {
 
   const EigenTypes::Vector3 handlePosition = calculateHandlePosition();
 
-  m_Handle->Material().SetDiffuseLightColor(m_HandleColor);
-  m_Handle->Material().SetAmbientLightColor(m_HandleColor);
-  m_Handle->Material().SetAmbientLightingProportion(1.0f);
+  m_Handle->Material().Uniform<AMBIENT_LIGHT_COLOR>() = m_HandleColor;
+  m_Handle->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_Handle->SetRadius(m_Thickness * 1.2);
   m_Handle->Translation() = handlePosition + 0.3*EigenTypes::Vector3::UnitZ();
 
-  m_HandleOutline->Material().SetDiffuseLightColor(m_HandleOutlineColor);
-  m_HandleOutline->Material().SetAmbientLightColor(m_HandleOutlineColor);
-  m_HandleOutline->Material().SetAmbientLightingProportion(1.0f);
+  m_HandleOutline->Material().Uniform<AMBIENT_LIGHT_COLOR>() = m_HandleOutlineColor;
+  m_HandleOutline->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
   m_HandleOutline->SetRadius(m_Thickness * 1.33);
   m_HandleOutline->Translation() = handlePosition + 0.2*EigenTypes::Vector3::UnitZ();
 

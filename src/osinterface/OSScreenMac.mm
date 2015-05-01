@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "OSScreen.h"
 #include <Primitives.h>
-#include <GLTexture2.h>
+#include <Leap/GL/Texture2.h>
 
 #include <AppKit/NSScreen.h>
 #include <AppKit/NSGraphicsContext.h>
@@ -92,18 +92,18 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
     CGColorSpaceRelease(rgb);
     [nsImage release];
 
-    std::shared_ptr<GLTexture2> texture = img->Texture();
+    std::shared_ptr<Texture2> texture = img->Texture();
     if (texture) {
       const auto& params = texture->Params();
       if (params.Height() != height || params.Width() != width) {
         texture.reset();
       }
     }
-    GLTexture2PixelDataReference pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
+    Texture2PixelData pixelData{GL_RGBA, GL_UNSIGNED_BYTE, dstBytes.get(), totalBytes};
     if (texture) {
-      texture->UpdateTexture(pixelData);
+      texture->TexSubImage(pixelData);
     } else {
-      GLTexture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
+      Texture2Params params{static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
       params.SetTarget(GL_TEXTURE_2D);
       params.SetInternalFormat(GL_RGBA8);
       params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -111,7 +111,7 @@ std::shared_ptr<ImagePrimitive> OSScreen::GetBackgroundTexture(std::shared_ptr<I
       params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-      texture = std::make_shared<GLTexture2>(params, pixelData);
+      texture = std::make_shared<Texture2>(params, pixelData);
       img->SetTexture(texture);
       img->SetScaleBasedOnTextureSize();
     }

@@ -10,7 +10,16 @@
 #include <chrono>
 #include <vector>
 
-class GLShader;
+namespace Leap {
+namespace GL {
+
+class Shader;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
+
 class OSVirtualScreen;
 class RenderWindow;
 
@@ -43,5 +52,5 @@ private:
 
   bool m_drewFrame;
   RenderState m_renderState;
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
 };

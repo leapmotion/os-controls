@@ -70,7 +70,7 @@ public:
   /// <remarks>
   /// Because this method makes OpenGL calls, it can only be safely called from the OpeNGL thread
   /// </remarks>
-  void UpdateTexture(void);
+  void TexSubImage(void);
 
   // RenderEngineNode overrides
   void Render(const RenderFrame& frame) const override;

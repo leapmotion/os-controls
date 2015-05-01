@@ -53,7 +53,7 @@ Hmd::DoubleArray<4*4> Pose::TotalMatrix (Hmd::MatrixComponentOrder matrix_compon
 Hmd::DoubleArray<4*4> Pose::ViewMatrix(Hmd::MatrixComponentOrder matrix_component_order, const Hmd::IEyeConfiguration &eye_configuration_) const {
   try {
     const EyeConfiguration &eye_configuration = dynamic_cast<const EyeConfiguration &>(eye_configuration_);
-    const OVR::Vector3d view_adjust(eye_configuration.EyeRenderDesc().ViewAdjust);
+    const OVR::Vector3d view_adjust(eye_configuration.EyeRenderDesc().HmdToEyeViewOffset);
     OVR::Matrix4d view_matrix(OVR::Matrix4d::Translation(view_adjust) * OVR::Matrix4d(m_pose.Rotation.Inverted()) * OVR::Matrix4d::Translation(-m_pose.Translation));
     if (matrix_component_order == Hmd::MatrixComponentOrder::COLUMN_MAJOR) {
       view_matrix.Transpose();

@@ -78,8 +78,8 @@ void VRShell::Main(void) {
 
   const auto &hmdConfiguration = hmdDevice->Configuration();
 
-  renderEngineWindow->SetRect(OSRectMake(hmdConfiguration.WindowPositionX(), hmdConfiguration.WindowPositionY(),
-                                         hmdConfiguration.DisplayWidth(), hmdConfiguration.DisplayHeight()));
+  renderEngineWindow->SetRect(OSRectMake(static_cast<float>(hmdConfiguration.WindowPositionX()), static_cast<float>(hmdConfiguration.WindowPositionY()),
+                                         static_cast<float>(hmdConfiguration.DisplayWidth()), static_cast<float>(hmdConfiguration.DisplayHeight())));
   renderEngineWindow->SetVSync(false);
   renderEngineWindow->SetTransparent(false);
   renderEngineWindow->SetVisible(true);

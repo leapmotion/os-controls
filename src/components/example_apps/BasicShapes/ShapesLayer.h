@@ -9,7 +9,15 @@
 
 #include <memory>
 
-class GLShader;
+namespace Leap {
+namespace GL {
+
+class Shader;
+
+} // end of namespace GL
+} // end of namespace Leap
+
+using namespace Leap::GL;
 
 // This is one "layer" of the application -- layers being rendered back to front.
 class ShapesLayer : public RenderableEventHandler {
@@ -50,6 +58,6 @@ private:
 
   mutable RenderState m_Renderer;
 
-  std::shared_ptr<GLShader> m_shader;
+  std::shared_ptr<Shader> m_shader;
   TimePoint m_time;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SceneGraphNodeProperty.h"
 #include <ostream>
+#include "SceneGraphNodeProperty.h"
 #include <sstream>
 #include <string>
 
@@ -115,4 +115,3 @@ template <typename Derived, typename... Properties_>
 std::ostream &operator << (std::ostream &out, const NodeProperties<Derived,Properties_...> &p) {
   return out << p.AsString();
 }
-

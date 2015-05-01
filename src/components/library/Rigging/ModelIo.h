@@ -1,10 +1,13 @@
 #pragma once
 
-#include "Color.h"
+#include "EigenTypes.h"
 #include "GLTexture2Image.h"
+#include "Leap/GL/Rgba.h"
 
 #include <array>
 #include <memory>
+
+using namespace Leap::GL;
 
 namespace model {
 
@@ -18,7 +21,7 @@ namespace model {
   struct MaterialInfo
   {
     MaterialInfo()
-      : mTransparentColor(Color::White())
+      : mTransparentColor(Rgba<float>::One())
       , mAmbient(1.0f, 0.5f, 0.25f, 1.0f)
       , mDiffuse(0.0f, 0.0f, 0.0f, 1.0f)
       , mSpecular(0.0f, 0.0f, 0.0f, 1.0f)
@@ -29,12 +32,12 @@ namespace model {
       , mTwoSided(false)
     { }
     GLTexture2Image mTexture;
-    Color mTransparentColor;
-    Color mAmbient;
-    Color mDiffuse;
-    Color mSpecular;
+    Rgba<float> mTransparentColor;
+    Rgba<float> mAmbient;
+    Rgba<float> mDiffuse;
+    Rgba<float> mSpecular;
     float mShininess;
-    Color mEmission;
+    Rgba<float> mEmission;
     bool mUseAlpha;
     bool mHasMaterial;
     bool mTwoSided;

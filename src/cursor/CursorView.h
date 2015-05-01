@@ -8,15 +8,16 @@
 #include "uievents/ShortcutsDomain.h"
 
 #include "Animation.h"
-#include "Color.h"
-#include "GLShader.h"
 #include "HandCursor.h"
+#include "Leap/GL/Shader.h"
 #include "Primitives.h"
 #include "Resource.h"
 #include "SceneGraphNode.h"
 
 #include <string>
 #include <SVGPrimitive.h>
+
+using namespace Leap::GL;
 
 class RenderEngine;
 class Config;
