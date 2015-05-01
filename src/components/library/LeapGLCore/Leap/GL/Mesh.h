@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "Leap/GL/BufferObject.h"
+#include "Leap/GL/Error.h"
 #include "Leap/GL/MeshException.h"
 #include "Leap/GL/ResourceBase.h"
 #include "Leap/GL/VertexBufferObject.h"
@@ -26,8 +27,8 @@ template <typename... AttributeTypes>
 class Mesh : public ResourceBase<Mesh<AttributeTypes...>> {
 public:
 
-  typedef VertexBufferObject<AttributeTypes...> VertexBufferObject;
-  typedef typename VertexBufferObject::Attributes VertexAttributes;
+  typedef VertexBufferObject<AttributeTypes...> VBO;
+  typedef typename VBO::Attributes VertexAttributes;
 
   /// @brief Construct an un-Initialize-d Mesh which has not acquired any GL (or other) resources.
   /// @details It will be necessary to call Initialize on this object to use it.
@@ -70,7 +71,7 @@ public:
   /// go unused -- this allows shaders that don't have all the attributes in this Mesh to still
   /// be usable.
   // TODO: write about what GL operations actually happen.
-  void Bind (typename VertexBufferObject::AttributeLocations &attribute_locations) const {
+  void Bind (typename VBO::AttributeLocations &attribute_locations) const {
     if (!IsInitialized()) {
       throw MeshException("Can't Bind a Mesh if it !IsInitialized.");
     }
@@ -88,7 +89,7 @@ public:
   /// @brief Unbinds this mesh.
   /// @details Must pass in the same attribute_locations as to the call to Bind.
   // TODO: write about what GL operations actually happen.
-  void Unbind (typename VertexBufferObject::AttributeLocations &attribute_locations) const {
+  void Unbind (typename VBO::AttributeLocations &attribute_locations) const {
     if (!IsInitialized()) {
       throw MeshException("Can't Unbind a Mesh if it !IsInitialized.");
     }
@@ -177,7 +178,7 @@ private:
   // The draw mode that will be used in Draw().
   GLenum m_draw_mode;
   // This is the vertex buffer object for uploaded vertex attribute data.
-  VertexBufferObject m_vertex_buffer;
+  VBO m_vertex_buffer;
   // This is the number of indices used to pass to glDrawElements when drawing the VBO.
   // This could be derived from m_index_buffer.Size() / sizeof(GLuint).
   size_t m_index_count;
