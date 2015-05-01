@@ -81,7 +81,7 @@ find_path(SFML_ROOT_DIR
 
 # deduce the libraries suffix from the options
 set(FIND_SFML_LIB_SUFFIX "")
-if(SFML_STATIC_LIBRARIES)
+if(SFML_STATIC_LIBRARIES AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(FIND_SFML_LIB_SUFFIX "${FIND_SFML_LIB_SUFFIX}-s")
 endif()
 
@@ -172,13 +172,13 @@ foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     # debug library
     find_library(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_DEBUG
                  NAMES ${FIND_SFML_COMPONENT_NAME}-d
-                 PATH_SUFFIXES lib64 lib
+                 PATH_SUFFIXES lib64 lib lib/x86_64-linux-gnu
                  PATHS ${FIND_SFML_LIB_PATHS})
 
     # release library
     find_library(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_RELEASE
                  NAMES ${FIND_SFML_COMPONENT_NAME}
-                 PATH_SUFFIXES lib64 lib
+                 PATH_SUFFIXES lib64 lib lib/x86_64-linux-gnu
                  PATHS ${FIND_SFML_LIB_PATHS})
 
     if(NOT SFML_STATIC_LIBRARIES)
