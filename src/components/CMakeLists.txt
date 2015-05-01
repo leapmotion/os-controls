@@ -29,7 +29,6 @@ if(_this_is_standalone_project)
     include(LeapCMakeTemplates)
     leap_find_external_libraries()
     leap_use_standard_platform_settings()
-    leap_use_strict_warnings()
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake") #For our specialized cmake modules
