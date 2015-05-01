@@ -45,5 +45,6 @@ find_package_handle_standard_args(FreeImage DEFAULT_MSG FreeImage_ROOT_DIR FreeI
 include(CreateImportTargetHelpers)
 generate_import_target(FreeImage STATIC)
 
+include(CMakeFindDependencyMacro)
 find_dependency(ZLIB)
 set_property(TARGET FreeImage::FreeImage APPEND PROPERTY INTERFACE_LINK_LIBRARIES ZLIB::ZLIB)
