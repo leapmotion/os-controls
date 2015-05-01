@@ -29,7 +29,7 @@ find_path(
     NO_DEFAULT_PATH
     )
 
-if(Glew_USE_64_BIT)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(Glew_BIT_LIB lib64)
 else()
   set(Glew_BIT_LIB lib32)
