@@ -63,7 +63,7 @@ bool OculusVR::Init() {
 
   ovrSizei renderTargetSize;
   renderTargetSize.w = recommendedTex0Size.w + recommendedTex1Size.w;
-  renderTargetSize.h = std::max(recommendedTex0Size.h, recommendedTex1Size.h);
+  renderTargetSize.h = std::max<int>(recommendedTex0Size.h, recommendedTex1Size.h);
 
   glGenFramebuffers(1, &m_FrameBuffer);
 
@@ -113,7 +113,7 @@ bool OculusVR::Init() {
   cfg.OGL.Header.Multisample = 1;
 
   if (!(m_HMD->HmdCaps & ovrHmdCap_ExtendDesktop)) {
-    ovrHmd_AttachToWindow(m_HMD, m_Window, nullptr, nullptr);
+    ovrHmd_AttachToWindow(m_HMD, reinterpret_cast<void *>(m_Window), nullptr, nullptr);
   }
 
 #if defined(OVR_OS_WIN32)

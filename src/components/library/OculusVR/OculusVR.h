@@ -5,6 +5,10 @@
 #include "OVR.h"
 #include "OVR_Kernel.h"
 
+#if defined(OVR_OS_LINUX)
+#include "X11/Xlibint.h"
+#endif
+
 using namespace Leap::GL;
 
 /// Used to configure slave GL rendering (i.e. for devices created externally).
