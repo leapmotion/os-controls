@@ -4,7 +4,32 @@ include(AddSublibrary)
 # Sublibrary definitions
 ###################################################################################################
 
-leap_add_all_subdirectories()
+add_subdirectory(Animation)
+add_subdirectory(Application)
+add_subdirectory(C++11)
+add_subdirectory(EigenTypes)
+add_subdirectory(External)
+add_subdirectory(GLShaderLoader)
+add_subdirectory(GLTestFramework)
+add_subdirectory(GLTexture2FreeImage)
+add_subdirectory(GLTexture2Image)
+add_subdirectory(GLTexture2Loader)
+add_subdirectory(HandCursor)
+add_subdirectory(LeapGLCore)
+add_subdirectory(LeapListener)
+add_subdirectory(OculusVR)
+add_subdirectory(Primitives)
+add_subdirectory(RadialMenu)
+add_subdirectory(Resource)
+add_subdirectory(ResourceManager)
+add_subdirectory(RiggedHand)
+add_subdirectory(Rigging)
+add_subdirectory(SceneGraph)
+add_subdirectory(SDLController)
+add_subdirectory(SFMLController)
+add_subdirectory(Singleton)
+add_subdirectory(TextAndBinaryFile)
+add_subdirectory(TextAndBinaryFileLoader)
 
 ###################################################################################################
 # These Doxygen build rules were taken from
