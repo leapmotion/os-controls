@@ -27,6 +27,7 @@
 # name must therefore be acceptable as both a directory name and as a cmake target name.
 
 include(CMakeParseArguments)
+include(TargetImportedLibraries)
 include(VerboseMessage)
 
 # ADDED_SUBLIBRARIES is a list of the target names of all the defined sublibraries.  Defining a
