@@ -67,13 +67,15 @@ if(_this_is_standalone_project)
     # TODO: This can go away once the non-self-containment TODO in
     # src/components/cmake/ComponentsConfig.cmake.in is resolved.
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake-modules")
-    # The definition of Components::* targets and automatic finding and linking of all library
-    # dependencies is all accomplished via the ComponentsConfig.cmake file (in the root build dir
-    # or root install dir of the Components package).
-    find_package(Components)
-    # The target_link_components function finds and links exactly the minimal set of libraries
-    # needed by the specified components.
-    target_link_components(MediaControlSample PUBLIC Animation Application GLShaderLoader GLTexture2Loader HandCursor LeapGLCore LeapListener Primitives RadialMenu SFMLController)
+    find_package(Components 0.5)
+    find_package(SDL 2)
+    find_package(Eigen 3.2.1)
+    find_package(Glew 1.9.0)
+    find_package(OpenGL 2.1) # It's necessary to link OpenGL after Glew on Linux.
+    find_package(FreeImage 3)
+    find_package(SFML 2.1)
+    find_package(Leap 2)
+    target_link_libraries(MediaControlSample PUBLIC Components::Animation Components::Application Components::GLShaderLoader Components::GLTexture2Loader Components::HandCursor Components::LeapGLCore Components::LeapListener Components::Primitives Components::RadialMenu Components::SFMLController)
 else()
     set_property(TARGET MediaControlSample PROPERTY FOLDER "Components example apps")
     target_link_libraries(MediaControlSample PUBLIC Animation Application GLShaderLoader GLTexture2Loader HandCursor LeapGLCore LeapListener Primitives RadialMenu SFMLController)
