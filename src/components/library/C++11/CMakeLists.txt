@@ -4,9 +4,14 @@ endif()
 
 add_sublibrary(
     C++11
-    SOURCE_PATH "."
+    SOURCE_PATH
+        "."
     COMPILE_OPTIONS
         ${_cxx11_compiler_flags}
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "A phony target which just provides compiler options for enabling C++11."
 )

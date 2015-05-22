@@ -6,6 +6,10 @@ add_sublibrary(
         LICENSE.txt
         nanosvg.h
         nanosvgrast.h
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "NanoSVG library for reading SVG files -- created by Mikko Mononen."
 )
@@ -20,6 +24,10 @@ add_sublibrary(
         polypartition.cpp
     INTERNAL_DEPENDENCIES
         C++11
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "PolyPartition library for triangulating polygons -- created by Ivan Fratric."
 )
@@ -36,6 +44,10 @@ add_sublibrary(
         gtest/gtest_main.cc
     COMPILE_DEFINITIONS
         GTEST_HAS_PTHREAD=0 # This is specifically for Linux -- threads are not necessary.
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Provides an easy way to include and link the Google Test framework."
 )

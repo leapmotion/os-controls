@@ -1,11 +1,13 @@
 add_sublibrary(
     LeapGLCore
+    SOURCE_PATH
+        "."
     HEADERS
+        Leap/GL/BufferObject.h
         Leap/GL/ColorComponent.h
         Leap/GL/Common.h
-        Leap/GL/Exception.h
-        Leap/GL/BufferObject.h
         Leap/GL/Error.h
+        Leap/GL/Exception.h
         Leap/GL/GLHeaders.h
         Leap/GL/Internal/ColorComponent.h
         Leap/GL/Internal/Map.h
@@ -19,6 +21,7 @@ add_sublibrary(
         Leap/GL/Internal/UniformUploader.h
         Leap/GL/Internal/VertexAttribute.h
         Leap/GL/Mesh.h
+        Leap/GL/MeshAssembler.h
         Leap/GL/MeshException.h
         Leap/GL/ModelView.h
         Leap/GL/Projection.h
@@ -51,6 +54,12 @@ add_sublibrary(
     EXTERNAL_DEPENDENCIES
         "Glew 1.9.0"
         "OpenGL 2.1" # It is necessary to link GL after Glew on Linux.
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
+#     INSTALL_COMPONENT
+#         Components
     BRIEF_DOC_STRING
         "The LeapGL core component provides C++ abstractions for most of the commonly used OpenGL concepts."
 )

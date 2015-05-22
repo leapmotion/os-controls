@@ -6,6 +6,10 @@ add_sublibrary(
         C++11
     EXTERNAL_DEPENDENCIES
         "Eigen 3.2.1"
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Convenience typedefs for working with particular Eigen vector/matrix types."
 )

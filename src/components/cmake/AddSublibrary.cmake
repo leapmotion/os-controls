@@ -51,6 +51,15 @@ endmacro()
 #   * SOURCE_PATH -- The path, relative to CMAKE_CURRENT_SOURCE_DIR, containing all the sublibrary
 #     headers and sources.  If this value is left unspecified, then it will default to the current
 #     directory.
+#   * DEBUG_EXPORT_NAME -- The [optional] argument to pass as the EXPORT argument to the Debug
+#     version of the install command for the sublibrary.  Omitting this argument will cause no
+#     Debug install command to be called.
+#   * RELEASE_EXPORT_NAME -- The [optional] argument to pass as the EXPORT argument to the Release 
+#     version of the install command for the sublibrary.  Omitting this argument will cause no
+#     Release install command to be called.
+#   * INSTALL_COMPONENT -- The [optional] argument to pass as the COMPONENT argument to the
+#     Release and Debug install commands (which are described in the descriptions for DEBUG_EXPORT_NAME
+#     and RELEASE_EXPORT_NAME).
 # - Parameters taking multiple arguments (each one is optional, unless otherwise specified):
 #   * HEADERS [header1 [header2 [...]]] -- The list of headers for the sublibrary.  Each of these
 #     should be specified using a relative path, based at the sublibrary's subdirectory.
@@ -88,7 +97,11 @@ endmacro()
 # target property names was desired.
 # - INTERFACE_BRIEF_DOC_STRING                    -- As described above.
 # - INTERFACE_DETAILED_DOC_STRINGS                -- As described above.
-
+# - INTERFACE_PATH_PREFIXED_HEADERS               -- As described above.
+# - INTERFACE_PATH_PREFIXED_SOURCES               -- As described above.
+# - INTERFACE_PATH_PREFIXED_RESOURCES             -- As described above.
+# - INTERFACE_SOURCE_PATH                         -- As described above.
+# - INTERFACE_EXCLUDE_FROM_ALL                    -- As described above.
 function(add_sublibrary SUBLIBRARY_NAME)
     verbose_message("add_sublibrary(${SUBLIBRARY_NAME} ...)")
 
@@ -99,6 +112,9 @@ function(add_sublibrary SUBLIBRARY_NAME)
     set(_one_value_args
         SOURCE_PATH             # Optional specification of relative path to headers and sources.
         BRIEF_DOC_STRING        # A one-line, short (no more than about 80 chars) description of the sublibrary.
+        DEBUG_EXPORT_NAME
+        RELEASE_EXPORT_NAME
+        INSTALL_COMPONENT
     )
     set(_multi_value_args
         HEADERS
@@ -154,7 +170,7 @@ function(add_sublibrary SUBLIBRARY_NAME)
         verbose_message("    using explicitly-specified SOURCE_PATH (${_arg_SOURCE_PATH}) for SOURCE_PATH")
         set(_sublibrary_source_path "${_arg_SOURCE_PATH}/")
     else()
-        verbose_message("    using SUBLIBRARY_NAME (${SUBLIBRARY_NAME}) for SOURCE_PATH")
+        verbose_message("    using current directory for SOURCE_PATH")
         set(_sublibrary_source_path "")
     endif()
 
@@ -168,10 +184,15 @@ function(add_sublibrary SUBLIBRARY_NAME)
     foreach(_source ${_arg_SOURCES})
         list(APPEND _path_prefixed_sources ${_sublibrary_source_path}${_source})
     endforeach()
+    # Determine the relative paths of all the resources.
+    set(_path_prefixed_resources "")
+    foreach(_resource ${_arg_RESOURCES})
+        list(APPEND _path_prefixed_resources ${_sublibrary_source_path}${_resource})
+    endforeach()
 
     list(LENGTH _arg_SOURCES _source_count)
     if(${_source_count} EQUAL 0)
-        add_library(${SUBLIBRARY_NAME} INTERFACE) #Cannot use static, or linking will attempt to link with an absent .lib file.
+        add_library(${SUBLIBRARY_NAME} INTERFACE) # Cannot use static, or linking will attempt to link with an absent .lib file.
         set(_target_scope INTERFACE)
     else()
         add_library(${SUBLIBRARY_NAME} ${_exclude_from_all} ${_path_prefixed_headers} ${_path_prefixed_sources})
@@ -211,21 +232,65 @@ function(add_sublibrary SUBLIBRARY_NAME)
         target_package(${SUBLIBRARY_NAME} ${_dep} LINK_TYPE ${_target_scope})
     endforeach()
 
-    # Define post-build rules for copying resources.
-    foreach(_resource ${_arg_RESOURCES})
-        add_custom_command(
-            TARGET ${SUBLIBRARY_NAME}
-            POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${_sublibrary_source_path}${_resource}" "${PROJECT_BINARY_DIR}/resources/${_resource}"
+    # Define install rules for headers
+    foreach(_header ${_arg_HEADERS})
+        get_filename_component(_header_path ${_header} DIRECTORY)
+        install(
+            FILES ${_sublibrary_source_path}${_header}
+            DESTINATION "include/${_sublibrary_source_path}${_header_path}"
         )
     endforeach()
     
+    # Define install rules for resources
+    foreach(_resource ${_arg_RESOURCES})
+        get_filename_component(_resource_path ${_resource} DIRECTORY)
+        install(
+            FILES ${_sublibrary_source_path}${_resource}
+            DESTINATION "resources/${_sublibrary_source_path}${_resource_path}"
+        )
+    endforeach()
+
+    # Define install rules for libraries
+    if (_arg_INSTALL_COMPONENT)
+        set(_install_component "COMPONENT ${_arg_INSTALL_COMPONENT}")
+    endif()
+    
+    if (_arg_RELEASE_EXPORT_NAME AND NOT _arg_EXCLUDE_FROM_ALL)
+        install(
+            TARGETS ${SUBLIBRARY_NAME}
+            EXPORT ${_arg_RELEASE_EXPORT_NAME}
+            ${_install_component}
+            CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
+            # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
+            LIBRARY DESTINATION lib/Release
+            ARCHIVE DESTINATION lib/Release
+            INCLUDES DESTINATION "include"
+        )
+    endif()
+    if (_arg_DEBUG_EXPORT_NAME AND NOT _arg_EXCLUDE_FROM_ALL)
+        install(
+            TARGETS ${SUBLIBRARY_NAME}
+            EXPORT ${_arg_DEBUG_EXPORT_NAME}
+            ${_install_component}
+            CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
+            # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
+            LIBRARY DESTINATION lib/Debug
+            ARCHIVE DESTINATION lib/Debug
+            INCLUDES DESTINATION "include"
+        )
+    endif()
+
     # Store several of the parameter values as target properties
     set_target_properties(
         ${SUBLIBRARY_NAME}
         PROPERTIES
             INTERFACE_BRIEF_DOC_STRING "${_arg_BRIEF_DOC_STRING}"
             INTERFACE_DETAILED_DOC_STRINGS "${_arg_DETAILED_DOC_STRINGS}"
+            INTERFACE_PATH_PREFIXED_HEADERS "${_path_prefixed_headers}"
+            INTERFACE_PATH_PREFIXED_SOURCES "${_path_prefixed_sources}"
+            INTERFACE_PATH_PREFIXED_RESOURCES "${_path_prefixed_resources}"
+            INTERFACE_SOURCE_PATH "${_sublibrary_source_path}"
+            INTERFACE_EXCLUDE_FROM_ALL "${_arg_EXCLUDE_FROM_ALL}"
     )
 
     # Add any other particular target properties.  NOTE: This should be done last, so it can override

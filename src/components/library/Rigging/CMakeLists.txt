@@ -28,6 +28,10 @@ add_sublibrary(
         GLTexture2Image
     EXTERNAL_DEPENDENCIES
         "Assimp 3.1.1"
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Mesh rigging, skinning, and deformation."
 )

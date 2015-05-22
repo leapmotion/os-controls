@@ -160,7 +160,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       mSkinTex->Bind(0);
       mNormalTex->Bind(1);
       mSpecularTex->Bind(2);
-      Rgba<float> rimColor = mUseRim ? Rgba<float>(0.075f, 0.1f, 0.125f, 1.0f) : Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f);
+//       Rgba<float> rimColor = mUseRim ? Rgba<float>(0.075f, 0.1f, 0.125f, 1.0f) : Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f);
       Rgba<float> specularColor = Rgba<float>(mSpecular, mSpecular, mSpecular, 1.0f);
       Rgba<float> ambientColor = Rgba<float>(mAmbient, mAmbient, mAmbient, 1.0f);
       Rgba<float> diffuseColor = Rgba<float>(mDiffuse, mDiffuse, mDiffuse, 1.0f);
@@ -258,7 +258,7 @@ void RiggedHand::updateIntermediateData() {
     mPrevIsLeft = mIsLeft;
   }
 
-  const Eigen::Vector3f handDirection = mHandBasis.col(2).cast<float>();
+//   const Eigen::Vector3f handDirection = mHandBasis.col(2).cast<float>();
 
   mArmScale = mScaleMultiplier * mPalmWidth / 100;
 

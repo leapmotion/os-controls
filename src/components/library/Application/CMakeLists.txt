@@ -12,6 +12,10 @@ add_sublibrary(
         C++11
     EXTERNAL_DEPENDENCIES
         "SDL 2"
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "A simple framework for an SDL-based application."
 )

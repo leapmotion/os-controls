@@ -13,6 +13,10 @@ add_sublibrary(
         EigenTypes
         LeapGLCore
         Primitives
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Provides abstract radial view classes."
 )

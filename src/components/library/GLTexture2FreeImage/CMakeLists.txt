@@ -8,6 +8,10 @@ add_sublibrary(
         LeapGLCore
     EXTERNAL_DEPENDENCIES
         "FreeImage 3"
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Functionality for creating a Texture2 from an image file via FreeImage."
 )

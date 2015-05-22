@@ -16,6 +16,10 @@ add_sublibrary(
         LeapGLCore
     EXTERNAL_DEPENDENCIES
         "SDL 2"
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "A single point of control for init, shutdown, and general use of SDL."
 )

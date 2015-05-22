@@ -9,6 +9,10 @@ add_sublibrary(
         C++11
     EXTERNAL_DEPENDENCIES
         "SFML 2.1"
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "A single point of control for init, shutdown, and general use of SFML."
 )

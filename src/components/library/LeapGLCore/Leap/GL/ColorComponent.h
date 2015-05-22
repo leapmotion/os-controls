@@ -132,7 +132,6 @@ struct ColorComponent {
   /// @details For types T which use their entire dynamic range (e.g. the unsigned integer types)
   /// this is a no-op, because it's impossible for the value to be outside the range.
   void Clamp () {
-    typedef Internal::ComponentValueTraits<ColorComponent> ComponentValueTraits;
     m_value = std::min(std::max(m_value, Zero().Value()), One().Value());
   }
   /// @brief Returns the clamped value.

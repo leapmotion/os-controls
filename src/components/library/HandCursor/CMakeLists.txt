@@ -10,6 +10,10 @@ add_sublibrary(
         LeapGLCore
         LeapListener
         Primitives
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Simple hand cursor representation."
 )

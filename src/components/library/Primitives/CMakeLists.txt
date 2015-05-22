@@ -2,6 +2,7 @@ add_sublibrary(
     Primitives
     HEADERS
         DropShadow.h
+        LambertianMaterial.h
         PrimitiveBase.h
         PrimitiveGeometry.h
         Primitives.h
@@ -17,8 +18,8 @@ add_sublibrary(
         SVGPrimitive.cpp
         TexturedFrame.cpp
     RESOURCES
-      material-frag.glsl
-      matrix-transformed-vert.glsl
+        material-frag.glsl
+        matrix-transformed-vert.glsl
     INTERNAL_DEPENDENCIES
         LeapGLCore
         GLShaderLoader
@@ -26,6 +27,10 @@ add_sublibrary(
         PolyPartition
         Resource
         SceneGraph
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Provides some simple shapes in a transform hierarchy."
 )

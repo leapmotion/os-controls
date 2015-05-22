@@ -692,7 +692,7 @@ static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const f
 	NSVGgradientData* ref = NULL;
 	NSVGgradientStop* stops = NULL;
 	NSVGgradient* grad;
-	float dx, dy, d;
+	float dx, dy;//, d;
 	int nstops = 0;
 	NSVG_NOTUSED(bounds);
 
@@ -720,7 +720,7 @@ static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const f
 		// Calculate transform aligned to the line
 		dx = data->linear.x2 - data->linear.x1;
 		dy = data->linear.y2 - data->linear.y1;
-		d = sqrtf(dx*dx + dy*dy);
+// 		d = sqrtf(dx*dx + dy*dy);
 		grad->xform[0] = dy; grad->xform[1] = -dx;
 		grad->xform[2] = dx; grad->xform[3] = dy;
 		grad->xform[4] = data->linear.x1; grad->xform[5] = data->linear.y1;
@@ -1582,10 +1582,11 @@ static void nsvg__pathVLineTo(NSVGparser* p, float* cpx, float* cpy, float* args
 static void nsvg__pathCubicBezTo(NSVGparser* p, float* cpx, float* cpy,
 								 float* cpx2, float* cpy2, float* args, int rel)
 {
-	float x1, y1, x2, y2, cx1, cy1, cx2, cy2;
+//     float x1, y1, x2, y2, cx1, cy1, cx2, cy2;
+	float x2, y2, cx1, cy1, cx2, cy2;
 	
-	x1 = *cpx;
-	y1 = *cpy;
+// 	x1 = *cpx;
+// 	y1 = *cpy;
 	if (rel) {
 		cx1 = *cpx + args[0];
 		cy1 = *cpy + args[1];

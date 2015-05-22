@@ -9,6 +9,10 @@ add_sublibrary(
         LeapGLCore
         GTest
         SDLController
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Provides an easy way to create GL-based tests."
 )

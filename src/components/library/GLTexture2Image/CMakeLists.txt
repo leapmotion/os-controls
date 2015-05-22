@@ -7,6 +7,10 @@ add_sublibrary(
     INTERNAL_DEPENDENCIES
         LeapGLCore
         GLTexture2FreeImage
+    DEBUG_EXPORT_NAME
+        ComponentsDebug
+    RELEASE_EXPORT_NAME
+        ComponentsRelease
     BRIEF_DOC_STRING
         "Wrapper from file to GL texture."
 )

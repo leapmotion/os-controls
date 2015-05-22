@@ -122,7 +122,7 @@ class Texture2VisibleTest : public GLTestFramework_Visible { };
 struct RgbPixel { uint8_t r, g, b; };
 
 void GenerateLuminancePixels (std::vector<uint8_t> &pixels, GLsizei width, GLsizei height) {
-  assert(pixels.size() == width*height);
+  assert(pixels.size() == static_cast<size_t>(width*height));
   // Make a simple pattern.
   for (GLsizei v = 0; v < height; ++v) {
     for (GLsizei u = 0; u < width; ++u) {
@@ -132,7 +132,7 @@ void GenerateLuminancePixels (std::vector<uint8_t> &pixels, GLsizei width, GLsiz
 }
 
 void GenerateRgbPixels (std::vector<RgbPixel> &pixels, GLsizei width, GLsizei height) {
-  assert(pixels.size() == width*height);
+  assert(pixels.size() == static_cast<size_t>(width*height));
   // Make a simple bilinear gradient in green and blue.
   for (GLsizei v = 0; v < height; ++v) {
     for (GLsizei u = 0; u < width; ++u) {

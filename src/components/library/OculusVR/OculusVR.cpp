@@ -153,7 +153,7 @@ void OculusVR::Destroy() {
 }
 
 void OculusVR::BeginFrame() {
-  ovrFrameTiming frameTiming = ovrHmd_BeginFrame(m_HMD, 0);
+  // ovrFrameTiming frameTiming = ovrHmd_BeginFrame(m_HMD, 0);
 
   static OVR::Vector3f HeadPos(0.0f, 1.6f, -5.0f);
   HeadPos.y = ovrHmd_GetFloat(m_HMD, OVR_KEY_EYE_HEIGHT, HeadPos.y);
