@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include "Leap/GL/Projection.h"
 
-using namespace EigenTypes;
 using namespace Leap::GL;
+using namespace Leap::GL::EigenTypes;
 
 class ProjectionTest : public testing::Test { };
 

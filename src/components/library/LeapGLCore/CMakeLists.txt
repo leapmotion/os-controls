@@ -1,3 +1,7 @@
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+    set(_cxx11_compiler_flags "-std=c++11")
+endif()
+
 add_sublibrary(
     LeapGLCore
     SOURCE_PATH
@@ -10,6 +14,7 @@ add_sublibrary(
         Leap/GL/Exception.h
         Leap/GL/GLHeaders.h
         Leap/GL/Internal/ColorComponent.h
+        Leap/GL/Internal/EigenTypes.h
         Leap/GL/Internal/Map.h
         Leap/GL/Internal/Meta.h
         Leap/GL/Internal/ShaderFrontend.h
@@ -48,18 +53,16 @@ add_sublibrary(
         Leap/GL/Texture2.cpp
         Leap/GL/Texture2Params.cpp
         Leap/GL/Texture2PixelData.cpp
-    INTERNAL_DEPENDENCIES
-        C++11 # TODO: get rid of this dependency and just use the C++11 compile options directly.
-        EigenTypes # TODO: get rid of Eigen dependency.
+    COMPILE_OPTIONS
+        ${_cxx11_compiler_flags}
     EXTERNAL_DEPENDENCIES
+        "Eigen 3.2.1" # TODO: Refactor matrix math stuff to not require Eigen.
         "Glew 1.9.0"
         "OpenGL 2.1" # It is necessary to link GL after Glew on Linux.
     DEBUG_EXPORT_NAME
         ComponentsDebug
     RELEASE_EXPORT_NAME
         ComponentsRelease
-#     INSTALL_COMPONENT
-#         Components
     BRIEF_DOC_STRING
         "The LeapGL core component provides C++ abstractions for most of the commonly used OpenGL concepts."
 )

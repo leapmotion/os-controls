@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EigenTypes.h"
+#include "Leap/GL/Internal/EigenTypes.h"
 
 namespace Leap {
 namespace GL {
@@ -69,7 +69,7 @@ private:
     const EigenTypes::Vector3 &focus_position, // In-variable for the point the eye is looking at.
     const EigenTypes::Vector3 &up_direction);  // In-variable for the "up" direction for the view.
 
-  std::vector<EigenTypes::Matrix4x4, Eigen::aligned_allocator<EigenTypes::Matrix4x4> > m_stack;
+  std::vector<EigenTypes::Matrix4x4, ::Eigen::aligned_allocator<EigenTypes::Matrix4x4> > m_stack;
 };
 
 } // end of namespace GL
