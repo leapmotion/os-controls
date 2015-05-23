@@ -57,9 +57,6 @@ endmacro()
 #   * RELEASE_EXPORT_NAME -- The [optional] argument to pass as the EXPORT argument to the Release 
 #     version of the install command for the sublibrary.  Omitting this argument will cause no
 #     Release install command to be called.
-#   * INSTALL_COMPONENT -- The [optional] argument to pass as the COMPONENT argument to the
-#     Release and Debug install commands (which are described in the descriptions for DEBUG_EXPORT_NAME
-#     and RELEASE_EXPORT_NAME).
 # - Parameters taking multiple arguments (each one is optional, unless otherwise specified):
 #   * HEADERS [header1 [header2 [...]]] -- The list of headers for the sublibrary.  Each of these
 #     should be specified using a relative path, based at the sublibrary's subdirectory.
@@ -114,7 +111,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
         BRIEF_DOC_STRING        # A one-line, short (no more than about 80 chars) description of the sublibrary.
         DEBUG_EXPORT_NAME
         RELEASE_EXPORT_NAME
-        INSTALL_COMPONENT
     )
     set(_multi_value_args
         HEADERS
@@ -251,15 +247,10 @@ function(add_sublibrary SUBLIBRARY_NAME)
     endforeach()
 
     # Define install rules for libraries
-    if (_arg_INSTALL_COMPONENT)
-        set(_install_component "COMPONENT ${_arg_INSTALL_COMPONENT}")
-    endif()
-    
     if (_arg_RELEASE_EXPORT_NAME AND NOT _arg_EXCLUDE_FROM_ALL)
         install(
             TARGETS ${SUBLIBRARY_NAME}
             EXPORT ${_arg_RELEASE_EXPORT_NAME}
-            ${_install_component}
             CONFIGURATIONS Release # This line has to come before the others, or else CMake will ignore it!
             # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
             LIBRARY DESTINATION lib/Release
@@ -271,7 +262,6 @@ function(add_sublibrary SUBLIBRARY_NAME)
         install(
             TARGETS ${SUBLIBRARY_NAME}
             EXPORT ${_arg_DEBUG_EXPORT_NAME}
-            ${_install_component}
             CONFIGURATIONS Debug # This line has to come before the others, or else CMake will ignore it!
             # (See http://www.cmake.org/pipermail/cmake/2013-October/056190.html)
             LIBRARY DESTINATION lib/Debug
