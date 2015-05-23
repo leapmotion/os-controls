@@ -9,8 +9,6 @@
 #include "X11/Xlibint.h"
 #endif
 
-using namespace Leap::GL;
-
 /// Used to configure slave GL rendering (i.e. for devices created externally).
 typedef struct ovrGLConfigData_s
 {

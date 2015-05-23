@@ -7,8 +7,6 @@
 #include <memory>
 #include <string>
 
-using namespace Leap::GL;
-
 /// This class is essentially a wrapper between a std::string path and Texture2.
 class GLTexture2Image
 {
@@ -21,7 +19,7 @@ public:
   
   const std::string& GetPath() const;
   
-  std::shared_ptr<Texture2> GetTexture() const;
+  std::shared_ptr<Leap::GL::Texture2> GetTexture() const;
   
   bool IsEmpty() const;
   
@@ -39,10 +37,10 @@ public:
   void Unbind() const;
   
 protected:
-  bool                            m_Loaded;
-  std::string                     m_Path;
-  std::shared_ptr<Texture2>       m_Texture;
-  mutable int                     m_TextureUnit;
+  bool                                m_Loaded;
+  std::string                         m_Path;
+  std::shared_ptr<Leap::GL::Texture2> m_Texture;
+  mutable int                         m_TextureUnit;
 };
 
 typedef std::shared_ptr<GLTexture2Image> GLTexture2ImageRef;

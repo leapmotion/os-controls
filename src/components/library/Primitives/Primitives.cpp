@@ -3,8 +3,6 @@
 #include <cassert>
 #include "Leap/GL/Texture2.h"
 
-using namespace Leap::GL;
-
 void GenericShape::DrawContents(RenderState& renderState) const {
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -18,7 +16,7 @@ void GenericShape::DrawContents(RenderState& renderState) const {
 
 Sphere::Sphere() : m_Radius(1) { }
 
-void Sphere::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+void Sphere::MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const {
   model_view.Scale(EigenTypes::Vector3::Constant(m_Radius));
 }
 
@@ -42,7 +40,7 @@ void Sphere::DrawContents(RenderState& renderState) const {
 
 Cylinder::Cylinder() : m_Radius(1), m_Height(1) { }
 
-void Cylinder::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+void Cylinder::MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const {
   model_view.Scale(EigenTypes::Vector3(m_Radius, m_Height, m_Radius));
 }
 
@@ -66,7 +64,7 @@ void Cylinder::DrawContents(RenderState& renderState) const {
 
 Box::Box() : m_Size(EigenTypes::Vector3::Constant(1.0)) { }
 
-void Box::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+void Box::MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const {
   model_view.Scale(m_Size);
 }
 
@@ -90,7 +88,7 @@ void Box::DrawContents(RenderState& renderState) const {
 
 Disk::Disk() : m_Radius(1) { }
 
-void Disk::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+void Disk::MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const {
   model_view.Scale(EigenTypes::Vector3::Constant(m_Radius));
 }
 
@@ -114,7 +112,7 @@ void Disk::DrawContents(RenderState& renderState) const {
 
 RectanglePrim::RectanglePrim() : m_Size(1, 1) { }
 
-void RectanglePrim::MakeAdditionalModelViewTransformations (ModelView &model_view) const {
+void RectanglePrim::MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const {
   model_view.Scale(EigenTypes::Vector3(m_Size.x(), m_Size.y(), 1.0));
 }
 
@@ -152,7 +150,7 @@ ImagePrimitive::ImagePrimitive(void) :
   ImagePrimitive(nullptr)
 {}
 
-ImagePrimitive::ImagePrimitive(const std::shared_ptr<Texture2> &texture) {
+ImagePrimitive::ImagePrimitive(const std::shared_ptr<Leap::GL::Texture2> &texture) {
   SetTexture(texture);
   SetScaleBasedOnTextureSize();
   Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
@@ -326,7 +324,7 @@ void PartialDiskWithTriangle::RecomputeMesh() const {
 
 PartialSphere::PartialSphere() : m_RecomputeMesh(true), m_Radius(1), m_StartWidthAngle(0), m_EndWidthAngle(M_PI), m_StartHeightAngle(0), m_EndHeightAngle(M_PI) { }
 
-void PartialSphere::MakeAdditionalModelViewTransformations(ModelView &model_view) const {
+void PartialSphere::MakeAdditionalModelViewTransformations(Leap::GL::ModelView &model_view) const {
   model_view.Scale(EigenTypes::Vector3::Constant(m_Radius));
 }
 
@@ -381,7 +379,7 @@ void CapsulePrim::DrawContents(RenderState& renderState) const {
     loaded = true;
   }
 
-  ModelView& modelView = renderState.GetModelView();
+  Leap::GL::ModelView& modelView = renderState.GetModelView();
 
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -426,7 +424,7 @@ void BiCapsulePrim::DrawContents(RenderState& renderState) const {
     RecomputeMesh();
   }
 
-  ModelView& modelView = renderState.GetModelView();
+  Leap::GL::ModelView& modelView = renderState.GetModelView();
 
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),
@@ -500,7 +498,7 @@ void BiCapsulePrim::RecomputeMesh() const {
 
 PartialCylinder::PartialCylinder() : m_RecomputeMesh(true), m_Radius(1), m_Height(1), m_StartAngle(0), m_EndAngle(2.0*M_PI) { }
 
-void PartialCylinder::MakeAdditionalModelViewTransformations(ModelView &model_view) const {
+void PartialCylinder::MakeAdditionalModelViewTransformations(Leap::GL::ModelView &model_view) const {
   model_view.Scale(EigenTypes::Vector3(m_Radius, m_Height, m_Radius));
 }
 
@@ -540,7 +538,7 @@ void RadialPolygonPrim::DrawContents(RenderState& renderState) const {
     RecomputeMesh();
   }
 
-  ModelView& modelView = renderState.GetModelView();
+  Leap::GL::ModelView& modelView = renderState.GetModelView();
 
   const Leap::GL::Shader &shader = Shader();
   auto locations = std::make_tuple(shader.LocationOfAttribute("position"),

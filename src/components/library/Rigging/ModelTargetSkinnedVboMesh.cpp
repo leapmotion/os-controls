@@ -24,7 +24,7 @@ namespace model {
   void ModelTargetSkinnedVboMesh::loadIndices(const std::vector<uint32_t>& indices)
   {
     const int numBytes = static_cast<int>(indices.size() * sizeof(uint32_t));
-    BufferObject& indexBufferObject = mSkinnedVboMesh->getActiveSection()->getIndices();
+    Leap::GL::BufferObject& indexBufferObject = mSkinnedVboMesh->getActiveSection()->getIndices();
     indexBufferObject.Bind();
     indexBufferObject.BufferData(indices.data(), numBytes, GL_STATIC_DRAW);
     indexBufferObject.Unbind();

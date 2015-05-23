@@ -9,12 +9,10 @@
 #include "Leap/GL/Texture2.h"
 #include "Resource.h"
 
-using namespace Leap::GL;
-
-Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
-Rgba<float> fillColor(0.4f, 0.8f, 0.4f, 0.7f);
-Rgba<float> handleColor(0.65f, 0.675f, 0.7f, 1.0f);
-Rgba<float> handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
+Leap::GL::Rgba<float> bgColor(0.4f, 0.425f, 0.45f, 0.75f);
+Leap::GL::Rgba<float> fillColor(0.4f, 0.8f, 0.4f, 0.7f);
+Leap::GL::Rgba<float> handleColor(0.65f, 0.675f, 0.7f, 1.0f);
+Leap::GL::Rgba<float> handleOutlineColor(0.6f, 1.0f, 0.6f, 1.0f);
 
 const double innerTrackRad = 8.25;
 const double outerTrackRad = 9;
@@ -29,11 +27,11 @@ MediaControlLayer::MediaControlLayer() :
   m_Height(480),
   m_time(0)
 {
-  m_shader = Resource<Shader>("material");
+  m_shader = Resource<Leap::GL::Shader>("material");
 
-  m_RewindTexture = Resource<Texture2>("rewind.png");
-  m_PlayPauseTexture = Resource<Texture2>("playpause.png");
-  m_FastForwardTexture = Resource<Texture2>("fastforward.png");
+  m_RewindTexture = Resource<Leap::GL::Texture2>("rewind.png");
+  m_PlayPauseTexture = Resource<Leap::GL::Texture2>("playpause.png");
+  m_FastForwardTexture = Resource<Leap::GL::Texture2>("fastforward.png");
 
   m_LeftSection.SetStartAngle(PI_2 + PI_4);
   m_LeftSection.SetEndAngle(2*PI_2 + PI_4);
@@ -86,18 +84,18 @@ MediaControlLayer::MediaControlLayer() :
 
   m_Rewind.Translation() = EigenTypes::Vector3(-(innerRad+outerRad)/2.0, 0.0, 0.1);
   m_Rewind.SetSize(EigenTypes::Vector2(2, 2));
-  m_Rewind.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
-  m_Rewind.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
+  m_Rewind.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>::One(); // Opaque white
+  m_Rewind.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>::One(); // Opaque white
 
   m_PlayPause.Translation() = EigenTypes::Vector3(0.0, (innerRad+outerRad)/2.0, 0.1);
   m_PlayPause.SetSize(EigenTypes::Vector2(2, 2));
-  m_PlayPause.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
-  m_PlayPause.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
+  m_PlayPause.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>::One(); // Opaque white
+  m_PlayPause.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>::One(); // Opaque white
 
   m_FastForward.Translation() = EigenTypes::Vector3((innerRad+outerRad)/2.0, 0.0, 0.1);
   m_FastForward.SetSize(EigenTypes::Vector2(2, 2));
-  m_FastForward.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
-  m_FastForward.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>::One(); // Opaque white
+  m_FastForward.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>::One(); // Opaque white
+  m_FastForward.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>::One(); // Opaque white
 }
 
 MediaControlLayer::~MediaControlLayer() {
@@ -131,7 +129,7 @@ void MediaControlLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0;
-  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
+  Leap::GL::Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();

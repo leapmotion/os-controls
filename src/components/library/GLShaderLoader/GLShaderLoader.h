@@ -6,8 +6,6 @@
 
 #include <cassert>
 
-using namespace Leap::GL;
-
 // this class is in this file because it's only used in defining how shaders are loaded
 class GLShaderLoadParams {
 public:
@@ -69,11 +67,11 @@ struct ResourceLoader<GLShaderLoadParams> {
   }
 };
 
-// Template specialization of ResourceLoader<Shader> which defines how to load such a resource.
+// Template specialization of ResourceLoader<Leap::GL::Shader> which defines how to load such a resource.
 template <>
-struct ResourceLoader<Shader> {
+struct ResourceLoader<Leap::GL::Shader> {
   static const bool exists = true;
-  static std::shared_ptr<Shader> LoadResource (const std::string &name, ResourceManager<Shader> &calling_manager) {
+  static std::shared_ptr<Leap::GL::Shader> LoadResource (const std::string &name, ResourceManager<Leap::GL::Shader> &calling_manager) {
     if (name == "dummy") {
       std::string vertex_shader_source(
         "void main () {\n"
@@ -86,7 +84,7 @@ struct ResourceLoader<Shader> {
         "    gl_FragColor = vec4(1.0, 0.2, 0.3, 0.5);\n"
         "}\n"
       );
-      return std::make_shared<Shader>(vertex_shader_source, fragment_shader_source);
+      return std::make_shared<Leap::GL::Shader>(vertex_shader_source, fragment_shader_source);
     } else {
       // Load the params for the requested shader program.
       auto params = Resource<GLShaderLoadParams>(name);
@@ -110,7 +108,7 @@ struct ResourceLoader<Shader> {
         return LoadResource("dummy", calling_manager);
       }
       
-      return std::make_shared<Shader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
+      return std::make_shared<Leap::GL::Shader>(vertex_shader_source->Contents(), fragment_shader_source->Contents());
     }
   }
 };

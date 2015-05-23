@@ -2,9 +2,7 @@
 
 #include "Leap/GL/Texture2.h"
 
-using namespace Leap::GL;
-
-std::shared_ptr<Texture2> DropShadow::ms_shadow_texture;
+std::shared_ptr<Leap::GL::Texture2> DropShadow::ms_shadow_texture;
 
 DropShadow::DropShadow() {
   // If the shadow texture singleton isn't created yet, create it.
@@ -12,7 +10,7 @@ DropShadow::DropShadow() {
     static size_t const WIDTH = 256;
     static size_t const HEIGHT = 256;
     
-    Texture2Params params(WIDTH, HEIGHT, GL_LUMINANCE_ALPHA); // Luminance for greyscale, alpha for blending
+    Leap::GL::Texture2Params params(WIDTH, HEIGHT, GL_LUMINANCE_ALPHA); // Luminance for greyscale, alpha for blending
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -34,9 +32,9 @@ DropShadow::DropShadow() {
         pixels[y*params.Width()+x] = LuminanceAlpha{0.0f, std::max(0.0f, 1.0f-std::sqrt(tex_coord.norm()))};
       }
     }
-    Texture2PixelData pixel_data(GL_LUMINANCE_ALPHA, GL_FLOAT, pixels.data(), pixels.size()*sizeof(LuminanceAlpha));
+    Leap::GL::Texture2PixelData pixel_data(GL_LUMINANCE_ALPHA, GL_FLOAT, pixels.data(), pixels.size()*sizeof(LuminanceAlpha));
 
-    ms_shadow_texture = std::make_shared<Texture2>(params, pixel_data);
+    ms_shadow_texture = std::make_shared<Leap::GL::Texture2>(params, pixel_data);
   }
   
   SetTexture(ms_shadow_texture);

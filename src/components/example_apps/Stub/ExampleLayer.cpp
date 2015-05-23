@@ -10,14 +10,12 @@
 #include "ResourceManager.h"
 #include "SDLController.h"
 
-using namespace Leap::GL;
-
 ExampleLayer::ExampleLayer ()
   :
   m_time(0)
 {
-  m_shader = Resource<Shader>("dummy");
-  m_texture = Resource<Texture2>("public_domain_astronomy_1.jpg");
+  m_shader = Resource<Leap::GL::Shader>("dummy");
+  m_texture = Resource<Leap::GL::Texture2>("public_domain_astronomy_1.jpg");
 }
 
 ExampleLayer::~ExampleLayer () { }

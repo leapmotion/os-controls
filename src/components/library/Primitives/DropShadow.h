@@ -53,7 +53,7 @@ public:
   
 private:
   
-  static std::shared_ptr<Texture2> ms_shadow_texture;
+  static std::shared_ptr<Leap::GL::Texture2> ms_shadow_texture;
   
   double m_shadow_radius;
 };

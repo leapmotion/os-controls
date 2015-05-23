@@ -2,8 +2,6 @@
 
 #include "Leap/GL/Shader.h"
 
-using namespace Leap::GL;
-
 void PrimitiveGeometry::PushUnitSphere(int widthResolution, int heightResolution, PrimitiveGeometryMeshAssembler& mesh_assembler, double heightAngleStart, double heightAngleEnd, double widthAngleStart, double widthAngleEnd) {
   if (!mesh_assembler.IsInitialized()) {
     throw std::invalid_argument("Can't call PrimitiveGeometry::PushUnitSphere on a !IsInitialized() MeshAssembler.");

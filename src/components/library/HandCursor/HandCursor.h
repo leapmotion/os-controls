@@ -5,8 +5,6 @@
 #include "DropShadow.h"
 #include "Leap/GL/Rgba.h"
 
-using namespace Leap::GL;
-
 class HandCursor : public PrimitiveBase {
 public:
   enum DrawStyle { RINGED_PAW, BLOB };
@@ -33,8 +31,8 @@ private:
   
   void formatFinger(const Leap::Finger& finger, float distance, bool isLeft = false);
 
-  Rgba<float> m_OutlineColor;
-  Rgba<float> m_FillColor;
+  Leap::GL::Rgba<float> m_OutlineColor;
+  Leap::GL::Rgba<float> m_FillColor;
 
   float m_PalmOutlineRadius;
   float m_PalmOutlineThickness;

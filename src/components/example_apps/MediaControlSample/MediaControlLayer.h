@@ -19,8 +19,6 @@ class Texture2;
 } // end of namespace GL
 } // end of namespace Leap
 
-using namespace Leap::GL;
-
 class MediaControlLayer : public RenderableEventHandler {
 public:
 

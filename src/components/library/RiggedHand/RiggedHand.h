@@ -10,8 +10,6 @@
 
 #include <memory>
 
-using namespace Leap::GL;
-
 class RiggedHand : public PrimitiveBase {
 public:
 
@@ -36,11 +34,11 @@ public:
   // after setting data call Update to transfer data to rig/skin
   void UpdateRigAndSkin();
 
-  virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations(Leap::GL::ModelView &model_view) const override;
 
   void SetHandsShader(const std::shared_ptr<Leap::GL::Shader>& shader) {
     if (shader.get() != mHandsShader.get()) {
-      mShaderMatrices = std::make_shared<ShaderMatrices>(shader.get());
+      mShaderMatrices = std::make_shared<Leap::GL::ShaderMatrices>(shader.get());
     }
     mHandsShader = shader;
   };
@@ -141,7 +139,7 @@ private:
   // hand shader
   mutable std::shared_ptr<Leap::GL::Shader> mHandsShader;
   // ShaderFrontend for setting matrix uniforms
-  mutable std::shared_ptr<ShaderMatrices> mShaderMatrices;
+  mutable std::shared_ptr<Leap::GL::ShaderMatrices> mShaderMatrices;
 
   // convert units on loading
   static const float UNIT_CONVERSION_SCALE_FACTOR; 

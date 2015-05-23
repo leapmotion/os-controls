@@ -10,8 +10,6 @@
 #include "Leap/GL/Texture2.h"
 #include "Resource.h"
 
-using namespace Leap::GL;
-
 AnimationLayer::AnimationLayer()
 :
 m_Width(640),
@@ -22,9 +20,9 @@ m_Sphere3Translation(EigenTypes::Vector3::Zero()),
 m_Sphere4Translation(EigenTypes::Vector3::Zero()),
 m_time(0)
 {
-  m_shader = Resource<Shader>("material");
+  m_shader = Resource<Leap::GL::Shader>("material");
 
-  const Rgba<float> color1(1.0f, 0.5f, 0.3f, 1.0f);
+  const Leap::GL::Rgba<float> color1(1.0f, 0.5f, 0.3f, 1.0f);
   m_Sphere1.SetRadius(6);
   m_Sphere1.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color1;
   m_Sphere1.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color1;
@@ -32,7 +30,7 @@ m_time(0)
   m_Sphere1Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere1Translation.SetSmoothStrength(0.95f);
 
-  const Rgba<float> color2(0.9f, 0.9f, 0.4f, 1.0f);
+  const Leap::GL::Rgba<float> color2(0.9f, 0.9f, 0.4f, 1.0f);
   m_Sphere2.SetRadius(5);
   m_Sphere2.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color2;
   m_Sphere2.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color2;
@@ -40,7 +38,7 @@ m_time(0)
   m_Sphere2Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere2Translation.SetSmoothStrength(0.85f);
 
-  const Rgba<float> color3(0.3f, 1.0f, 0.5f, 1.0f);
+  const Leap::GL::Rgba<float> color3(0.3f, 1.0f, 0.5f, 1.0f);
   m_Sphere3.SetRadius(4);
   m_Sphere3.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color3;
   m_Sphere3.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color3;
@@ -48,7 +46,7 @@ m_time(0)
   m_Sphere3Translation.SetGoal(EigenTypes::Vector3::Zero());
   m_Sphere3Translation.SetSmoothStrength(0.75f);
 
-  const Rgba<float> color4(0.4f, 0.7f, 1.0f, 1.0f);
+  const Leap::GL::Rgba<float> color4(0.4f, 0.7f, 1.0f, 1.0f);
   m_Sphere4.SetRadius(3);
   m_Sphere4.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = color4;
   m_Sphere4.Material().Uniform<AMBIENT_LIGHT_COLOR>() = color4;
@@ -101,7 +99,7 @@ void AnimationLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 1.0;
   const double farClip = 10000.0;
-  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
+  Leap::GL::Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = 100*EigenTypes::Vector3::UnitZ();

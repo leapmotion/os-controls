@@ -6,8 +6,6 @@
 #include "RadialItem.h"
 #include "Leap/GL/Rgba.h"
 
-using namespace Leap::GL;
-
 class RadialSliderEvent {
 public:
   virtual void OnValueChanged(float value) { }
@@ -27,9 +25,9 @@ public:
     }
   }
 
-  void SetFillColor(const Rgba<float>& color) { m_FillColor = color; }
-  void SetHandleColor(const Rgba<float>& color) { m_HandleColor = color; }
-  void SetHandleOutlineColor(const Rgba<float>& color) { m_HandleOutlineColor = color; }
+  void SetFillColor(const Leap::GL::Rgba<float>& color) { m_FillColor = color; }
+  void SetHandleColor(const Leap::GL::Rgba<float>& color) { m_HandleColor = color; }
+  void SetHandleOutlineColor(const Leap::GL::Rgba<float>& color) { m_HandleOutlineColor = color; }
 
   void SetIcon(const std::shared_ptr<SVGPrimitive>& svgIcon);
 
@@ -45,9 +43,9 @@ protected:
   double m_MinValue;
   double m_MaxValue;
   double m_Value;
-  Rgba<float> m_FillColor;
-  Rgba<float> m_HandleColor;
-  Rgba<float> m_HandleOutlineColor;
+  Leap::GL::Rgba<float> m_FillColor;
+  Leap::GL::Rgba<float> m_HandleColor;
+  Leap::GL::Rgba<float> m_HandleOutlineColor;
 
   mutable std::shared_ptr<PartialDisk> m_Track;
   mutable std::shared_ptr<PartialDisk> m_Fill;

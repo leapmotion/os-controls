@@ -6,8 +6,6 @@
 
 #include <cassert>
 
-using namespace Leap::GL;
-
 // Load an image given a filepath.
 FIBITMAP *LoadFreeImageBitmap (const std::string &filepath) {
   FREE_IMAGE_FORMAT format = FreeImage_GetFileType(filepath.c_str(), 0);
@@ -25,7 +23,7 @@ FIBITMAP *LoadFreeImageBitmap (const std::string &filepath) {
 
 // This function will attempt to use the various "bitmap information" functions of
 // FreeImage to determine the Texture2Params corresponding to the 
-Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, Texture2Params params) {
+Leap::GL::Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, Leap::GL::Texture2Params params) {
   if (bitmap == nullptr) {
     // TODO: better error reporting
     throw std::runtime_error("error while loading image via FreeImage");
@@ -198,20 +196,20 @@ Texture2 *AttemptToCreateGLTexture2FromFIBITMAP (FIBITMAP *bitmap, Texture2Param
   // See also FreeImage_HasPixels.
   const void *raw_pixel_data = static_cast<const void *>(FreeImage_GetBits(bitmap));
   if (raw_pixel_data == nullptr) {
-    throw std::runtime_error("FreeImage_GetBits returned nullptr, indicating there was no pixel data in the image.  We could add the capability to create an uninitialized Texture2 from this.");
+    throw std::runtime_error("FreeImage_GetBits returned nullptr, indicating there was no pixel data in the image.  We could add the capability to create an uninitialized Leap::GL::Texture2 from this.");
   }
   assert(bpp % 8 == 0 && "only whole-byte pixel formats are supported (convenience choice on the part of this function's design)");
   size_t bytes_per_pixel = bpp / 8;
   size_t raw_pixel_data_size = width * height * bytes_per_pixel;
-  Texture2PixelData pixel_data(pixel_data_format, pixel_data_type, raw_pixel_data, raw_pixel_data_size);
-  // Create the Texture2 using the derived parameters and pixel data.
-  return new Texture2(params, pixel_data);
+  Leap::GL::Texture2PixelData pixel_data(pixel_data_format, pixel_data_type, raw_pixel_data, raw_pixel_data_size);
+  // Create the Leap::GL::Texture2 using the derived parameters and pixel data.
+  return new Leap::GL::Texture2(params, pixel_data);
 }
 
-Texture2 *LoadGLTexture2UsingFreeImage (const std::string &filepath, const Texture2Params &params) {
+Leap::GL::Texture2 *LoadGLTexture2UsingFreeImage (const std::string &filepath, const Leap::GL::Texture2Params &params) {
   FIBITMAP *bitmap = LoadFreeImageBitmap(filepath);
   try {
-    Texture2 *texture = AttemptToCreateGLTexture2FromFIBITMAP(bitmap, params);
+    Leap::GL::Texture2 *texture = AttemptToCreateGLTexture2FromFIBITMAP(bitmap, params);
     assert(texture != nullptr); // an exception should have been thrown instead of returning nullptr.
     FreeImage_Unload(bitmap);
     return texture;

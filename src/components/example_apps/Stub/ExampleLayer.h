@@ -13,8 +13,6 @@ class Texture2;
 } // end of namespace GL
 } // end of namespace Leap
 
-using namespace Leap::GL;
-
 // This is one "layer" of the application -- layers being rendered back to front.
 class ExampleLayer : public RenderableEventHandler {
 public:
@@ -27,7 +25,7 @@ public:
 
 private:
 
-  std::shared_ptr<Shader> m_shader;
-  std::shared_ptr<Texture2> m_texture;
+  std::shared_ptr<Leap::GL::Shader> m_shader;
+  std::shared_ptr<Leap::GL::Texture2> m_texture;
   TimePoint m_time;
 };

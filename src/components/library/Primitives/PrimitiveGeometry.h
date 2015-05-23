@@ -9,8 +9,6 @@
 #include <map>
 #include <vector>
 
-using namespace Leap::GL;
-
 namespace Leap {
 namespace GL {
 
@@ -19,16 +17,16 @@ class Shader;
 } // end of namespace GL
 } // end of namespace Leap
 
-typedef Mesh<VertexAttribute<GL_FLOAT_VEC3>, // Position
-             VertexAttribute<GL_FLOAT_VEC3>, // Normal vector
-             VertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
-             VertexAttribute<GL_FLOAT_VEC4>  // RGBA color
-            > PrimitiveGeometryMesh;
-typedef MeshAssembler<VertexAttribute<GL_FLOAT_VEC3>, // Position
-                      VertexAttribute<GL_FLOAT_VEC3>, // Normal vector
-                      VertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
-                      VertexAttribute<GL_FLOAT_VEC4>  // RGBA color
-                     > PrimitiveGeometryMeshAssembler;
+typedef Leap::GL::Mesh<Leap::GL::VertexAttribute<GL_FLOAT_VEC3>, // Position
+                       Leap::GL::VertexAttribute<GL_FLOAT_VEC3>, // Normal vector
+                       Leap::GL::VertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
+                       Leap::GL::VertexAttribute<GL_FLOAT_VEC4>  // RGBA color
+                       > PrimitiveGeometryMesh;
+typedef Leap::GL::MeshAssembler<Leap::GL::VertexAttribute<GL_FLOAT_VEC3>, // Position
+                                Leap::GL::VertexAttribute<GL_FLOAT_VEC3>, // Normal vector
+                                Leap::GL::VertexAttribute<GL_FLOAT_VEC2>, // 2D texture coordinate
+                                Leap::GL::VertexAttribute<GL_FLOAT_VEC4>  // RGBA color
+                                > PrimitiveGeometryMeshAssembler;
 
 namespace PrimitiveGeometry {
 

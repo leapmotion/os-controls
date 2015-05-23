@@ -17,8 +17,6 @@ class Texture2;
 } // end of namespace GL
 } // end of namespace Leap
 
-using namespace Leap::GL;
-
 StubApplication::StubApplication () {
   // Most everything that would normally go in a constructor should really go in Initialize().
 }
@@ -44,9 +42,9 @@ void StubApplication::Initialize() {
   // Create the ResourceManager<Texture2> with the SDL-supplied basepath.  This
   // must be done before the ResourceManager<Texture2> is referred to by anything
   // else (e.g. Resource<Texture2>).
-  Singleton<ResourceManager<Texture2>>::CreateInstance(SDLController::BasePath());
+  Singleton<ResourceManager<Leap::GL::Texture2>>::CreateInstance(SDLController::BasePath());
 
-  InitializeGlew(&std::cerr);                 // This initializes the general GL state.
+  Leap::GL::InitializeGlew(&std::cerr);       // This initializes the general GL state.
   FreeImage_Initialise();                     // Initialize FreeImage.
   InitializeApplicationLayers();              // Initialize the application layers (contents of the app).
 

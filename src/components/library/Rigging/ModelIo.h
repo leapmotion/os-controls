@@ -7,8 +7,6 @@
 #include <array>
 #include <memory>
 
-using namespace Leap::GL;
-
 namespace model {
 
   class Skeleton;
@@ -21,7 +19,7 @@ namespace model {
   struct MaterialInfo
   {
     MaterialInfo()
-      : mTransparentColor(Rgba<float>::One())
+      : mTransparentColor(Leap::GL::Rgba<float>::One())
       , mAmbient(1.0f, 0.5f, 0.25f, 1.0f)
       , mDiffuse(0.0f, 0.0f, 0.0f, 1.0f)
       , mSpecular(0.0f, 0.0f, 0.0f, 1.0f)
@@ -32,12 +30,12 @@ namespace model {
       , mTwoSided(false)
     { }
     GLTexture2Image mTexture;
-    Rgba<float> mTransparentColor;
-    Rgba<float> mAmbient;
-    Rgba<float> mDiffuse;
-    Rgba<float> mSpecular;
+    Leap::GL::Rgba<float> mTransparentColor;
+    Leap::GL::Rgba<float> mAmbient;
+    Leap::GL::Rgba<float> mDiffuse;
+    Leap::GL::Rgba<float> mSpecular;
     float mShininess;
-    Rgba<float> mEmission;
+    Leap::GL::Rgba<float> mEmission;
     bool mUseAlpha;
     bool mHasMaterial;
     bool mTwoSided;

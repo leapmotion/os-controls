@@ -6,8 +6,6 @@
 
 #include <cmath>
 
-using namespace Leap::GL;
-
 RiggedHandLayer::RiggedHandLayer()
 :
   m_Width(640),
@@ -54,7 +52,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   const double widthOverHeight = static_cast<double>(m_Width)/static_cast<double>(m_Height);
   const double nearClip = 10.0;
   const double farClip = 10000.0;
-  Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
+  Leap::GL::Projection::SetPerspective_UsingFOVAndAspectRatio(m_Renderer.ProjectionMatrix(), fovRadians, widthOverHeight, nearClip, farClip);
 
   // set renderer modelview matrix
   const EigenTypes::Vector3 eyePos = EigenTypes::Vector3(0.0f, 300.0f, 250.0f);
@@ -72,24 +70,24 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
   
   Box xBox;
   xBox.SetSize(Eigen::Vector3d(30, 1, 1));
-  xBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.0f, 0.0f, 1.0f); // Red
-  xBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(1.0f, 0.0f, 0.0f, 1.0f); // Red
+  xBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>(1.0f, 0.0f, 0.0f, 1.0f); // Red
+  xBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>(1.0f, 0.0f, 0.0f, 1.0f); // Red
   xBox.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   xBox.Translation() = 15 * Eigen::Vector3d::UnitX();
   PrimitiveBase::DrawSceneGraph(xBox, m_Renderer);
 
   Box yBox;
   yBox.SetSize(Eigen::Vector3d(1, 30, 1));
-  yBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.0f, 1.0f, 0.0f, 1.0f); // Green
-  yBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.0f, 1.0f, 0.0f, 1.0f); // Green
+  yBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.0f, 1.0f, 0.0f, 1.0f); // Green
+  yBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.0f, 1.0f, 0.0f, 1.0f); // Green
   yBox.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   yBox.Translation() = 15 * Eigen::Vector3d::UnitY();
   PrimitiveBase::DrawSceneGraph(yBox, m_Renderer);
 
   Box zBox;
   zBox.SetSize(Eigen::Vector3d(1, 1, 30));
-  zBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Rgba<float>(0.0f, 0.0f, 1.0f, 1.0f); // Blue
-  zBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Rgba<float>(0.0f, 0.0f, 1.0f, 1.0f); // Blue
+  zBox.Material().Uniform<DIFFUSE_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.0f, 0.0f, 1.0f, 1.0f); // Blue
+  zBox.Material().Uniform<AMBIENT_LIGHT_COLOR>() = Leap::GL::Rgba<float>(0.0f, 0.0f, 1.0f, 1.0f); // Blue
   zBox.Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 0.5f;
   zBox.Translation() = 15 * Eigen::Vector3d::UnitZ();
   PrimitiveBase::DrawSceneGraph(zBox, m_Renderer);
@@ -99,7 +97,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
       mRiggedHands[i]->SetHandsShader(RiggedHand::getDefaultHandsShader());
     }
 
-    std::shared_ptr<Shader> shader = mRiggedHands[i]->HandsShader();
+    std::shared_ptr<Leap::GL::Shader> shader = mRiggedHands[i]->HandsShader();
     shader->Bind();
 
     const float lightPos[] ={ -200, 200, -200, 200, 200, -200, 0, 100, 100 };
@@ -118,7 +116,7 @@ void RiggedHandLayer::Render(TimeDelta real_time_delta) const {
     shader->UploadUniform<GL_BOOL>("depthImage", false);
     shader->UploadUniform<GL_BOOL>("normalImage", false);
     shader->UploadUniform<GL_BOOL>("flatImage", false);
-    shader->UploadUniform<GL_FLOAT_VEC4>("emission", Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f)); // Opaque black
+    shader->UploadUniform<GL_FLOAT_VEC4>("emission", Leap::GL::Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f)); // Opaque black
     shader->UploadUniform<GL_FLOAT>("minDepthDist", static_cast<float>(300));
     shader->UploadUniform<GL_FLOAT>("maxDepthDist", static_cast<float>(1000));
     shader->Unbind();

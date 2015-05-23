@@ -12,8 +12,6 @@ class Texture2;
 } // end of namespace GL
 } // end of namespace Leap
 
-using namespace Leap::GL;
-
 class GenericShape : public PrimitiveBase {
 public:
 
@@ -39,7 +37,7 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const override;
 
 protected:
 
@@ -62,7 +60,7 @@ public:
   double Height() const { return m_Height; }
   void SetHeight(double height) { m_Height = height; }
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const override;
 
 protected:
 
@@ -83,7 +81,7 @@ public:
   const EigenTypes::Vector3& Size() const { return m_Size; }
   void SetSize(const EigenTypes::Vector3& size) { m_Size = size; }
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const override;
 
 protected:
 
@@ -103,7 +101,7 @@ public:
   double Radius() const { return m_Radius; }
   void SetRadius(double radius) { m_Radius = radius; }
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const override;
 
 protected:
 
@@ -123,10 +121,10 @@ public:
   const EigenTypes::Vector2& Size() const { return m_Size; }
   void SetSize(const EigenTypes::Vector2& size) { m_Size = size; }
 
-  const std::shared_ptr<Texture2> &Texture () const { return m_texture; }
-  void SetTexture (const std::shared_ptr<Texture2> &texture) { m_texture = texture; }
+  const std::shared_ptr<Leap::GL::Texture2> &Texture () const { return m_texture; }
+  void SetTexture (const std::shared_ptr<Leap::GL::Texture2> &texture) { m_texture = texture; }
 
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const override;
 
 protected:
 
@@ -135,7 +133,7 @@ protected:
 private:
 
   EigenTypes::Vector2 m_Size;
-  std::shared_ptr<Texture2> m_texture;
+  std::shared_ptr<Leap::GL::Texture2> m_texture;
 };
 
 // This is a textured RectanglePrim which sets its aspect ratio based on the texture.
@@ -144,7 +142,7 @@ class ImagePrimitive : public RectanglePrim {
 public:
   
   ImagePrimitive(void);
-  ImagePrimitive(const std::shared_ptr<Texture2> &texture);
+  ImagePrimitive(const std::shared_ptr<Leap::GL::Texture2> &texture);
   virtual ~ImagePrimitive() { }
   
   void SetScaleBasedOnTextureSize ();
@@ -291,7 +289,7 @@ public:
     m_EndHeightAngle = endAngleRadians;
   }
 
-  virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations(Leap::GL::ModelView &model_view) const override;
 
 protected:
 
@@ -409,7 +407,7 @@ public:
     m_EndAngle = endAngleRadians;
   }
 
-  virtual void MakeAdditionalModelViewTransformations(ModelView &model_view) const override;
+  virtual void MakeAdditionalModelViewTransformations(Leap::GL::ModelView &model_view) const override;
 
 protected:
 

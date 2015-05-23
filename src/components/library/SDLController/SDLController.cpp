@@ -11,8 +11,6 @@
 
 #include "Leap/GL/GLHeaders.h"
 
-using namespace Leap::GL;
-
 SDLController::SDLController ()
   :
   m_SDL_Window(nullptr),

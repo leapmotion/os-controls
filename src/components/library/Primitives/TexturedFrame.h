@@ -4,8 +4,6 @@
 
 #include "Leap/GL/Texture2.h"
 
-using namespace Leap::GL;
-
 // Design notes for TexturedFrame
 // ------------------------------
 // This primitive will provide a configurable, measured, 9-cell frame of the following form:
@@ -97,7 +95,7 @@ public:
   const EigenTypes::Vector2 &BasisRectangleSize () const { return m_basis_rectangle_size; }
   double RectangleEdgeOffset (Rectangle rect, RectangleEdge edge) const { return m_rectangle_edge_offset[static_cast<size_t>(rect)][static_cast<size_t>(edge)]; }
   float RectangleEdgeTextureCoordinate (Rectangle rect, RectangleEdge edge) const { return m_rectangle_edge_texture_coordinate[static_cast<size_t>(rect)][static_cast<size_t>(edge)]; }
-  const std::shared_ptr<Texture2> &Texture () const { return m_texture; }
+  const std::shared_ptr<Leap::GL::Texture2> &Texture () const { return m_texture; }
   
   // The rectangle will be centered at the origin, and will extend half of each size component in each direction.
   void SetBasisRectangleSize (const EigenTypes::Vector2 &size);
@@ -108,7 +106,7 @@ public:
   // Sets the texture coordinate for the given rectangle edge (see diagram for labeling).
   void SetRectangleEdgeTextureCoordinate (Rectangle rect, RectangleEdge edge, float tex_coord);
   // Set the texture for this primitive.  The texture coordinates will be unchanged.
-  void SetTexture (const std::shared_ptr<Texture2> &texture) { m_texture = texture; }
+  void SetTexture (const std::shared_ptr<Leap::GL::Texture2> &texture) { m_texture = texture; }
   
 protected:
 
@@ -127,7 +125,7 @@ private:
   EigenTypes::Vector2 m_basis_rectangle_size;
   double m_rectangle_edge_offset[RECTANGLE_COUNT][RECTANGLE_EDGE_COUNT];
   float m_rectangle_edge_texture_coordinate[RECTANGLE_COUNT][RECTANGLE_EDGE_COUNT];
-  std::shared_ptr<Texture2> m_texture;
+  std::shared_ptr<Leap::GL::Texture2> m_texture;
   mutable bool m_recompute_mesh;
   mutable PrimitiveGeometryMesh m_mesh;
 };

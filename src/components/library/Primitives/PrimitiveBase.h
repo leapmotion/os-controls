@@ -10,8 +10,6 @@
 #include "RenderState.h"
 #include "Resource.h"
 
-using namespace Leap::GL;
-
 // This is the base class for drawable, geometric primitives.  It inherits SceneGraphNode<...>
 // which provides the "scene graph" design pattern (see Wikipedia article on scene graph),
 // as well as some convenience methods.  The template parameter DIM allows 2D or 3D (or even
@@ -92,8 +90,8 @@ public:
           shader.get(),
           uniform_ids,
           EigenTypes::Vector3f::Zero(),  // light_position
-          Rgba<float>::One(),            // diffuse_light_color -- Rgba<float>::One() is opaque white
-          Rgba<float>::One(),            // ambient_light_color -- Rgba<float>::One() is opaque white
+          Leap::GL::Rgba<float>::One(),  // diffuse_light_color -- Rgba<float>::One() is opaque white
+          Leap::GL::Rgba<float>::One(),  // ambient_light_color -- Rgba<float>::One() is opaque white
           1.0f,                          // ambient_lighting_proportion
           GL_FALSE,                      // use_texture
           0);                            // texture
@@ -101,7 +99,7 @@ public:
 
     m_shader = shader;
     m_material = material;
-    m_shader_matrices = std::make_shared<ShaderMatrices>(m_shader.get());
+    m_shader_matrices = std::make_shared<Leap::GL::ShaderMatrices>(m_shader.get());
   }
 
   typename Transform::ConstTranslationPart Translation () const { return this->LocalProperties().AffineTransform().translation(); }
@@ -115,7 +113,7 @@ public:
     assert(m_shader_matrices);
 
     // Set the model view (TODO: change this to not be in the RenderState, since it's tracked by DepthFirstTraverse)
-    ModelView& model_view = render_state.GetModelView();
+    Leap::GL::ModelView& model_view = render_state.GetModelView();
     // TODO: make a ScopeGuard for model view matrix.
     model_view.Push();
     model_view.Multiply(SquareMatrixAdaptToDim<4>(global_properties.AffineTransform().AsFullMatrix(), EigenTypes::MATH_TYPE(1)));
@@ -133,7 +131,7 @@ public:
 
   // This method should be overridden in any subclass that needs to do secondary
   // transformations (e.g. scaling based on a sphere's 'radius' member).
-  virtual void MakeAdditionalModelViewTransformations (ModelView &model_view) const { }
+  virtual void MakeAdditionalModelViewTransformations (Leap::GL::ModelView &model_view) const { }
 
 protected:
 
@@ -149,7 +147,7 @@ private:
 
   std::shared_ptr<Leap::GL::Shader> m_shader;
   std::shared_ptr<LambertianMaterial> m_material;
-  std::shared_ptr<ShaderMatrices> m_shader_matrices;
+  std::shared_ptr<Leap::GL::ShaderMatrices> m_shader_matrices;
 };
 
 typedef Primitive<3> Primitive3;

@@ -204,7 +204,7 @@ void SVGPrimitive::RecomputeChildren() {
           const float blue  = static_cast<float>((strokeColor >> 16) & 0xFF)/255.0f;
           const float green = static_cast<float>((strokeColor >>  8) & 0xFF)/255.0f;
           const float red   = static_cast<float>( strokeColor        & 0xFF)/255.0f;
-          const Rgba<float> color(red, green, blue, alpha*opacity*simulatedStrokeWidth);
+          const Leap::GL::Rgba<float> color(red, green, blue, alpha*opacity*simulatedStrokeWidth);
           genericShape->Material().Uniform<AMBIENT_LIGHT_COLOR>() = color;
           genericShape->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
           const auto& points = curve.Points();
@@ -235,7 +235,7 @@ void SVGPrimitive::RecomputeChildren() {
         const float blue  = static_cast<float>((fillColor >> 16) & 0xFF)/255.0f;
         const float green = static_cast<float>((fillColor >>  8) & 0xFF)/255.0f;
         const float red   = static_cast<float>( fillColor        & 0xFF)/255.0f;
-        const Rgba<float> color(red, green, blue, alpha*opacity);
+        const Leap::GL::Rgba<float> color(red, green, blue, alpha*opacity);
         genericShape->Material().Uniform<AMBIENT_LIGHT_COLOR>() = color;
         genericShape->Material().Uniform<AMBIENT_LIGHTING_PROPORTION>() = 1.0f;
         for (auto& triangle : triangles) {

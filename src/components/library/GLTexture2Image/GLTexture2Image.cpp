@@ -34,7 +34,7 @@ const std::string& GLTexture2Image::GetPath() const
   return m_Path;
 }
 
-std::shared_ptr<Texture2> GLTexture2Image::GetTexture() const
+std::shared_ptr<Leap::GL::Texture2> GLTexture2Image::GetTexture() const
 {
   return m_Texture;
 }
@@ -72,7 +72,7 @@ bool GLTexture2Image::LoadPath(const std::string& filePath)
   
   try {
     // Copied from Components/GLTexture2Loader.cpp
-    Texture2Params params;
+    Leap::GL::Texture2Params params;
     params.SetTarget(GL_TEXTURE_2D);
     params.SetTexParameteri(GL_GENERATE_MIPMAP, GL_TRUE);
     params.SetTexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -80,7 +80,7 @@ bool GLTexture2Image::LoadPath(const std::string& filePath)
     params.SetTexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     params.SetTexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
-    m_Texture = std::shared_ptr<Texture2>(LoadGLTexture2UsingFreeImage(filePath, params));
+    m_Texture = std::shared_ptr<Leap::GL::Texture2>(LoadGLTexture2UsingFreeImage(filePath, params));
     m_Path = filePath;
     m_Loaded = true;
     

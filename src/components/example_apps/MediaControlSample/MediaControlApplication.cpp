@@ -18,8 +18,6 @@
 #include <unistd.h>
 #endif
 
-using namespace Leap::GL;
-
 MediaControlApplication::MediaControlApplication () {
   // Most everything that would normally go in a constructor should really go in Initialize().
 #if __APPLE__

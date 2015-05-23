@@ -8,18 +8,16 @@
 #include <vector>
 #include <memory>
 
-using namespace Leap::GL;
-
 namespace model {
 
   typedef std::shared_ptr<class SkinnedVboMesh> SkinnedVboMeshRef;
 
-  typedef VertexBufferObject<VertexAttribute<GL_FLOAT_VEC3>, // position
-    VertexAttribute<GL_FLOAT_VEC3>, // normal
-    VertexAttribute<GL_FLOAT_VEC2>, // tex coord
-    VertexAttribute<GL_FLOAT_VEC4>, // bone weights
-    VertexAttribute<GL_FLOAT_VEC4>> // bone indices
-    VertexBufferObject;
+  typedef Leap::GL::VertexBufferObject<Leap::GL::VertexAttribute<GL_FLOAT_VEC3>, // position
+                                       Leap::GL::VertexAttribute<GL_FLOAT_VEC3>, // normal
+                                       Leap::GL::VertexAttribute<GL_FLOAT_VEC2>, // tex coord
+                                       Leap::GL::VertexAttribute<GL_FLOAT_VEC4>, // bone weights
+                                       Leap::GL::VertexAttribute<GL_FLOAT_VEC4>> // bone indices
+                                       VertexBufferObject;
 
   typedef VertexBufferObject::Attributes VertexAttributes;
 
@@ -37,8 +35,8 @@ namespace model {
       const VertexBufferObject& getVboMesh() const { return mVboMesh; }
       void setVboMesh(size_t numVertices, size_t numIndices, GLenum primitiveType);
 
-      BufferObject& getIndices() { return mIndices; }
-      const BufferObject& getIndices() const { return mIndices; }
+      Leap::GL::BufferObject& getIndices() { return mIndices; }
+      const Leap::GL::BufferObject& getIndices() const { return mIndices; }
       
       std::vector<VertexAttributes>& Attributes() {
         return mBuffer;
@@ -55,7 +53,7 @@ namespace model {
     private:
       VertexBufferObject mVboMesh;
       std::vector<VertexAttributes> mBuffer;
-      BufferObject mIndices;
+      Leap::GL::BufferObject mIndices;
     };
     typedef std::shared_ptr<SkinnedVboMesh::MeshSection> MeshVboSectionRef;
 

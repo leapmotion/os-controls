@@ -7,8 +7,6 @@
 #include <cmath>
 #include <assert.h>
 
-using namespace Leap::GL;
-
 const float RiggedHand::UNIT_CONVERSION_SCALE_FACTOR = 10.0f; // FBX model is in cm, our units are mm
 
 RiggedHand::RiggedHand() {
@@ -129,7 +127,7 @@ void RiggedHand::UpdateRigAndSkin() {
   mSkinnedVboHands->update();
 }
 
-void RiggedHand::MakeAdditionalModelViewTransformations(ModelView& model_view) const {
+void RiggedHand::MakeAdditionalModelViewTransformations(Leap::GL::ModelView& model_view) const {
 
 }
 
@@ -139,7 +137,7 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
   }
 
   if (!mShaderMatrices) {
-    mShaderMatrices = std::make_shared<ShaderMatrices>(mHandsShader.get());
+    mShaderMatrices = std::make_shared<Leap::GL::ShaderMatrices>(mHandsShader.get());
   }
 
   std::vector<model::MeshVboSectionRef>& sections = mSkinnedVboHands->getSections();
@@ -160,10 +158,10 @@ void RiggedHand::DrawContents(RenderState& renderState) const {
       mSkinTex->Bind(0);
       mNormalTex->Bind(1);
       mSpecularTex->Bind(2);
-//       Rgba<float> rimColor = mUseRim ? Rgba<float>(0.075f, 0.1f, 0.125f, 1.0f) : Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f);
-      Rgba<float> specularColor = Rgba<float>(mSpecular, mSpecular, mSpecular, 1.0f);
-      Rgba<float> ambientColor = Rgba<float>(mAmbient, mAmbient, mAmbient, 1.0f);
-      Rgba<float> diffuseColor = Rgba<float>(mDiffuse, mDiffuse, mDiffuse, 1.0f);
+//       Leap::GL::Rgba<float> rimColor = mUseRim ? Leap::GL::Rgba<float>(0.075f, 0.1f, 0.125f, 1.0f) : Leap::GL::Rgba<float>(0.0f, 0.0f, 0.0f, 1.0f);
+      Leap::GL::Rgba<float> specularColor = Leap::GL::Rgba<float>(mSpecular, mSpecular, mSpecular, 1.0f);
+      Leap::GL::Rgba<float> ambientColor = Leap::GL::Rgba<float>(mAmbient, mAmbient, mAmbient, 1.0f);
+      Leap::GL::Rgba<float> diffuseColor = Leap::GL::Rgba<float>(mDiffuse, mDiffuse, mDiffuse, 1.0f);
 
       mHandsShader->Bind();
 
