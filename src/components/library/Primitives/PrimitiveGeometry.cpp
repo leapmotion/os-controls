@@ -48,7 +48,9 @@ void PrimitiveGeometry::UploadDataToBuffers(ClearOption clear_option) {
 
   m_NumIndices = static_cast<int>(indices.size());
 
-  m_IndexBuffer.Create(GL_ELEMENT_ARRAY_BUFFER);
+  if (!m_IndexBuffer.IsCreated()) {
+    m_IndexBuffer.Create(GL_ELEMENT_ARRAY_BUFFER);
+  }
   m_IndexBuffer.Bind();
   m_IndexBuffer.Allocate(static_cast<void*>(indices.data()), static_cast<int>(indices.size()*sizeof(unsigned int)), GL_STATIC_DRAW);
   m_IndexBuffer.Unbind();
