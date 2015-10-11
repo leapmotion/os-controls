@@ -51,19 +51,19 @@ public:
   void ToHSV(float& h, float& s, float& v) const;
 
   // common colors
-  static const Color& White() { static Color c(1.0f, 1.0f, 1.0f, 1.0f); return c; }
-  static const Color& LightGrey() { static Color c(0.85f, 0.85f, 0.85f, 1.0f); return c; }
-  static const Color& Grey() { static Color c(0.6f, 0.6f, 0.6f, 1.0f); return c; }
-  static const Color& DarkGrey() { static Color c(0.3f, 0.3f, 0.3f, 1.0f); return c; }
-  static const Color& Black() { static Color c(0.0f, 0.0f, 0.0f, 1.0f); return c; }
-  static const Color& Red() { static Color c(1.0f, 0.0f, 0.0f, 1.0f); return c; }
-  static const Color& Blue() { static Color c(0.0f, 0.0f, 1.0f, 1.0f); return c; }
-  static const Color& Green() { static Color c(0.0f, 1.0f, 0.0f, 1.0f); return c; }
-  static const Color& Yellow() { static Color c(1.0f, 1.0f, 0.0f, 1.0f); return c; }
-  static const Color& Purple() { static Color c(1.0f, 0.0f, 1.0f, 1.0f); return c; }
-  static const Color& Orange() { static Color c(1.0f, 0.6f, 0.0f, 1.0f); return c; }
-  static const Color& Teal() { static Color c(0.0f, 1.0f, 1.0f, 1.0f); return c; }
-  static const Color& Transparent() { static Color c(0.0f, 0.0f, 0.0f, 0.0f); return c; }
+  static const Color& White() { static const Color c(1.0f, 1.0f, 1.0f, 1.0f); return c; }
+  static const Color& LightGrey() { static const Color c(0.85f, 0.85f, 0.85f, 1.0f); return c; }
+  static const Color& Grey() { static const Color c(0.6f, 0.6f, 0.6f, 1.0f); return c; }
+  static const Color& DarkGrey() { static const Color c(0.3f, 0.3f, 0.3f, 1.0f); return c; }
+  static const Color& Black() { static const Color c(0.0f, 0.0f, 0.0f, 1.0f); return c; }
+  static const Color& Red() { static const Color c(1.0f, 0.0f, 0.0f, 1.0f); return c; }
+  static const Color& Blue() { static const Color c(0.0f, 0.0f, 1.0f, 1.0f); return c; }
+  static const Color& Green() { static const Color c(0.0f, 1.0f, 0.0f, 1.0f); return c; }
+  static const Color& Yellow() { static const Color c(1.0f, 1.0f, 0.0f, 1.0f); return c; }
+  static const Color& Purple() { static const Color c(1.0f, 0.0f, 1.0f, 1.0f); return c; }
+  static const Color& Orange() { static const Color c(1.0f, 0.6f, 0.0f, 1.0f); return c; }
+  static const Color& Teal() { static const Color c(0.0f, 1.0f, 1.0f, 1.0f); return c; }
+  static const Color& Transparent() { static const Color c(0.0f, 0.0f, 0.0f, 0.0f); return c; }
 
 private:
 
