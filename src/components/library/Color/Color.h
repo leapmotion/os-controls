@@ -51,19 +51,19 @@ public:
   void ToHSV(float& h, float& s, float& v) const;
 
   // common colors
-  static const Color& White() { static const Color c(1.0f, 1.0f, 1.0f, 1.0f); return c; }
-  static const Color& LightGrey() { static const Color c(0.85f, 0.85f, 0.85f, 1.0f); return c; }
-  static const Color& Grey() { static const Color c(0.6f, 0.6f, 0.6f, 1.0f); return c; }
-  static const Color& DarkGrey() { static const Color c(0.3f, 0.3f, 0.3f, 1.0f); return c; }
-  static const Color& Black() { static const Color c(0.0f, 0.0f, 0.0f, 1.0f); return c; }
-  static const Color& Red() { static const Color c(1.0f, 0.0f, 0.0f, 1.0f); return c; }
-  static const Color& Blue() { static const Color c(0.0f, 0.0f, 1.0f, 1.0f); return c; }
-  static const Color& Green() { static const Color c(0.0f, 1.0f, 0.0f, 1.0f); return c; }
-  static const Color& Yellow() { static const Color c(1.0f, 1.0f, 0.0f, 1.0f); return c; }
-  static const Color& Purple() { static const Color c(1.0f, 0.0f, 1.0f, 1.0f); return c; }
-  static const Color& Orange() { static const Color c(1.0f, 0.6f, 0.0f, 1.0f); return c; }
-  static const Color& Teal() { static const Color c(0.0f, 1.0f, 1.0f, 1.0f); return c; }
-  static const Color& Transparent() { static const Color c(0.0f, 0.0f, 0.0f, 0.0f); return c; }
+  static Color White() { return { 1.0f, 1.0f, 1.0f, 1.0f }; }
+  static Color LightGrey() { return { 0.85f, 0.85f, 0.85f, 1.0f }; }
+  static Color Grey() { return { 0.6f, 0.6f, 0.6f, 1.0f }; }
+  static Color DarkGrey() { return { 0.3f, 0.3f, 0.3f, 1.0f }; }
+  static Color Black() { return { 0.0f, 0.0f, 0.0f, 1.0f }; }
+  static Color Red() { return { 1.0f, 0.0f, 0.0f, 1.0f }; }
+  static Color Blue() { return { 0.0f, 0.0f, 1.0f, 1.0f }; }
+  static Color Green() { return { 0.0f, 1.0f, 0.0f, 1.0f }; }
+  static Color Yellow() { return { 1.0f, 1.0f, 0.0f, 1.0f }; }
+  static Color Purple() { return { 1.0f, 0.0f, 1.0f, 1.0f }; }
+  static Color Orange() { return { 1.0f, 0.6f, 0.0f, 1.0f }; }
+  static Color Teal() { return { 0.0f, 1.0f, 1.0f, 1.0f }; }
+  static Color Transparent() { return { 0.0f, 0.0f, 0.0f, 0.0f }; }
 
 private:
 
